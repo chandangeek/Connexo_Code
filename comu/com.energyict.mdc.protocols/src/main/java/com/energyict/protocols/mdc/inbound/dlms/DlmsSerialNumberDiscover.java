@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.inbound.dlms;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -11,7 +12,6 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;

@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.nta.elster;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;

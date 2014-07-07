@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;

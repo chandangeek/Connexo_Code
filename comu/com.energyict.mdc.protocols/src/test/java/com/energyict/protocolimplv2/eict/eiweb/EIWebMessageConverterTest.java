@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
@@ -34,6 +34,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiwe
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimpleEIWebMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimplePeakShaverMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.TotalizerEIWebMessageEntry;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;

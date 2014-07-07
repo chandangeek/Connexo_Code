@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.dynamic.BigDecimalFactory;
-import com.energyict.mdc.dynamic.BooleanFactory;
 import com.energyict.mdc.dynamic.EncryptedStringFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.StringFactory;
 
 /**
  * Summarizes all used DeviceSecurityProperty

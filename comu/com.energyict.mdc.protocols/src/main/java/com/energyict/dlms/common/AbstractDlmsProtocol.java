@@ -1,11 +1,11 @@
 package com.energyict.dlms.common;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceFunction;

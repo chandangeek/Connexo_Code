@@ -1,9 +1,9 @@
 package com.energyict.protocols.mdc.channels.serial.optical.dlms;
 
-import com.energyict.mdc.dynamic.BigDecimalFactory;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecBuilder;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.ConnectionType;

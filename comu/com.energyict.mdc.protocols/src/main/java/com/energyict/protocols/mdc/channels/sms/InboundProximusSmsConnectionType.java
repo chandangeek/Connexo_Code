@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.channels.sms;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 
 import java.util.List;

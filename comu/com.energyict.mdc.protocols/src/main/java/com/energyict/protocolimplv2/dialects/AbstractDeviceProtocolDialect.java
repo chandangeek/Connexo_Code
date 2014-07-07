@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.dialects;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.dynamic.PropertySpec;
 
 /**
  * Copyrights EnergyICT

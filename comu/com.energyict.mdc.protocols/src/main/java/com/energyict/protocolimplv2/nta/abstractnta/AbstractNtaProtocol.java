@@ -4,7 +4,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.common.AbstractDlmsProtocol;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;

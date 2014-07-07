@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;

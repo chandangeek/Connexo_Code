@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.dialects;
 
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 
 import java.util.Collections;

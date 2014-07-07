@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.channels.ip;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 

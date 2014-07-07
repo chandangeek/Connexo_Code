@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.api.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;

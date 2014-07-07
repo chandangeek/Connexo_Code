@@ -1,7 +1,11 @@
 package com.energyict.protocols.mdc.channels;
 
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ThreeStateFactory;
+import com.elster.jupiter.properties.TimeZoneFactory;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.dynamic.BigDecimalFactory;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.Ean13Factory;
 import com.energyict.mdc.dynamic.Ean18Factory;
@@ -10,19 +14,13 @@ import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.SpatialCoordinatesFactory;
-import com.energyict.mdc.dynamic.StringFactory;
-import com.energyict.mdc.dynamic.ThreeStateFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
-import com.energyict.mdc.dynamic.TimeZoneFactory;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.util.EnumSet;
@@ -88,7 +86,6 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
         propertySpecs.add(propertySpecService.basicPropertySpec("LargeString", true, new LargeStringFactory()));
         propertySpecs.add(propertySpecService.basicPropertySpec("ObisCode", true, new ObisCodeValueFactory()));
         propertySpecs.add(propertySpecService.basicPropertySpec("Password", true, new PasswordFactory()));
-        propertySpecs.add(propertySpecService.basicPropertySpec("SpatialCoordinates", true, new SpatialCoordinatesFactory()));
         propertySpecs.add(propertySpecService.basicPropertySpec("String", true, new StringFactory()));
         propertySpecs.add(propertySpecService.basicPropertySpec("TimeDuration", true, new TimeDurationValueFactory()));
         propertySpecs.add(propertySpecService.basicPropertySpec("TimeOfDay", true, new TimeOfDayFactory()));

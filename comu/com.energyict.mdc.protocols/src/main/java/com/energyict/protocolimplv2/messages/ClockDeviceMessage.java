@@ -4,7 +4,7 @@ import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.enums.DSTAlgorithm;
 

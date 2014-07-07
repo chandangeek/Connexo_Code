@@ -1,11 +1,11 @@
 package com.energyict.protocols.mdc.channels.ip.datagrams;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
 

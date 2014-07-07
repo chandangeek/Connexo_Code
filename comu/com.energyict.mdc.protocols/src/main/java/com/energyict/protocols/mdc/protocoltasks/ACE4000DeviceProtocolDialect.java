@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;

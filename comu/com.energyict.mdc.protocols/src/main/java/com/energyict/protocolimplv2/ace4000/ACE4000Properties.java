@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 
 import java.math.BigDecimal;

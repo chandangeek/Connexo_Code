@@ -1,10 +1,10 @@
 package com.energyict.protocols.mdc.channels.ip.socket;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 
 import java.math.BigDecimal;

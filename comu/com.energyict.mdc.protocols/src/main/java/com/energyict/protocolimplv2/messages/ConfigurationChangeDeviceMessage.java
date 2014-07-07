@@ -2,19 +2,18 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.dynamic.BigDecimalFactory;
-import com.energyict.mdc.dynamic.BooleanFactory;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.HexStringFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-
 import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;

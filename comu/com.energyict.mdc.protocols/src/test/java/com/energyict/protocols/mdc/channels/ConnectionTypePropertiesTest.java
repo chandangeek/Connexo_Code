@@ -1,7 +1,8 @@
 package com.energyict.protocols.mdc.channels;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.dynamic.PropertySpec;
+
 import org.junit.*;
 
 import java.util.ArrayList;

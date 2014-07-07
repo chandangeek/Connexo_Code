@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.channels.ip.datagrams;
 
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;

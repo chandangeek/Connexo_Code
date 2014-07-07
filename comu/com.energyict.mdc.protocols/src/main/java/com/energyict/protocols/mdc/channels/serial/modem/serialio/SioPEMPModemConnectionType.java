@@ -1,11 +1,11 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.protocols.mdc.channels.serial.modem.PEMPModemComponent;
 import com.energyict.protocols.mdc.channels.serial.modem.TypedPEMPModemProperties;

@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;

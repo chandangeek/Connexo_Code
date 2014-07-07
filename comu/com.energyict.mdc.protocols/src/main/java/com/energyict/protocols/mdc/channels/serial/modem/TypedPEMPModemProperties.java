@@ -1,11 +1,11 @@
 package com.energyict.protocols.mdc.channels.serial.modem;
 
+import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dialer.core.impl.PEMPModemConfiguration;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.HasDynamicProperties;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 

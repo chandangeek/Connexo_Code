@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.channels.serial.direct.rxtx;
 
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.StringFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;

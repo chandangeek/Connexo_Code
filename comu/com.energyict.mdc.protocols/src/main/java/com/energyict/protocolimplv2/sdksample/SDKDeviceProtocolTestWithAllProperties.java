@@ -1,11 +1,8 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.BigDecimalFactory;
-import com.energyict.mdc.dynamic.BooleanFactory;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.Ean13Factory;
@@ -14,10 +11,11 @@ import com.energyict.mdc.dynamic.EncryptedStringFactory;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.SpatialCoordinatesFactory;
-import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
@@ -46,7 +44,6 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -188,7 +185,6 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
         optionalProperties.add(propertySpecService.basicPropertySpec("SDKEan13Property", false, new Ean13Factory()));
         optionalProperties.add(propertySpecService.basicPropertySpec("SDKEan18Property", false, new Ean18Factory()));
         optionalProperties.add(propertySpecService.basicPropertySpec("SDKEncryptedStringProperty", false, new EncryptedStringFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKSpatialCoordinatesProperty", false, new SpatialCoordinatesFactory()));
 
         return optionalProperties;
     }
