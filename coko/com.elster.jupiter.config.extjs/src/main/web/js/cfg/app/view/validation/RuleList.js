@@ -82,7 +82,6 @@ Ext.define('Cfg.view.validation.RuleList', {
                         xtype: 'button',
                         text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
                         itemId: 'addRuleLink',
-                        ui: 'action',
                         href: '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/add',
                         hrefTarget: '_self'
                     }

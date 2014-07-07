@@ -77,7 +77,6 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                     {
                         text: Uni.I18n.translate('validation.addRuleSet', 'CFG', 'Add validation rule set'),
                         itemId: 'newRuleset',
-                        ui: 'action',
                         xtype: 'button',
                         href: '#/administration/validation/rulesets/add',
                         hrefTarget: '_self'
