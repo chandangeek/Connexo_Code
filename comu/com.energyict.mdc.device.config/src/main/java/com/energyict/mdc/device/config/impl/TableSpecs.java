@@ -60,6 +60,7 @@ public enum TableSpecs {
                     .map("deviceType").
                     reverseMap("loadProfileTypeUsages").
                     composition().
+                    onDelete(CASCADE).
                     add();
             table.foreignKey("FK_DTC_LPT_LPT_DEVTYPE").
                     on(loadProfileType).
@@ -83,6 +84,7 @@ public enum TableSpecs {
                     map("deviceType").
                     reverseMap("registerMappingUsages").
                     composition().
+                    onDelete(CASCADE).
                     add();
             table.foreignKey("FK_DTC_MAPID_REGMAP_DEVTYPE").
                     on(registermapping).
@@ -106,6 +108,7 @@ public enum TableSpecs {
                     map("deviceType").
                     reverseMap("logBookTypeUsages").
                     composition().
+                    onDelete(CASCADE).
                     add();
             table.foreignKey("FK_DTC_LBTYPE_LBTT_DEVTYPE").
                     on(logBookType).
