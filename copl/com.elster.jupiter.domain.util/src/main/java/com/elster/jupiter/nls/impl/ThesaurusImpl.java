@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -147,7 +148,11 @@ class ThesaurusImpl implements Thesaurus {
         if (matcher.matches()) {
             key = matcher.group(1);
         }
-        return MessageFormat.format(getString(key, key), context.getValidatedValue());
+        String pattern = getString(key, key);
+        for (Map.Entry<String, Object> entry : context.getConstraintDescriptor().getAttributes().entrySet()) {
+            pattern = pattern.replaceAll("\\Q{" + entry.getKey() + "}\\E", Objects.toString(entry.getValue()));
+        }
+        return MessageFormat.format(pattern, context.getValidatedValue());
     }
 
     @Override
