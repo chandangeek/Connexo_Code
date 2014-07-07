@@ -14,7 +14,7 @@ import javax.validation.ConstraintValidatorContext;
  */
 public class ConnectionTaskTypeDirectionValidator implements ConstraintValidator<ConnectionTypeDirectionValidForConnectionTask, PartialConnectionTask> {
 
-    private ConnectionType.ConnectionTypeDirection direction;
+    private ConnectionType.Direction direction;
 
     @Override
     public void initialize(ConnectionTypeDirectionValidForConnectionTask connectionTypeDirectionValidForConnectionTask) {

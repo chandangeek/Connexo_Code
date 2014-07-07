@@ -12,24 +12,13 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ChannelSpecLinkType;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -541,5 +530,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType) {
         return DefaultFinder.of(DeviceConfiguration.class, where("deviceType").isEqualTo(deviceType).and(where("active").isEqualTo(true)), this.getDataModel()).defaultSortColumn("lower(name)");
+    }
+
+    @Override
+    public List<DeviceConfiguration> findActiveDeviceConfigurationsForValidationRuleSet(long validationRuleSetId) {
+        return this.getDataModel().
+                query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class).
+                select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId).and(where("active").isEqualTo(true)), Order.ascending("name"));
     }
 }

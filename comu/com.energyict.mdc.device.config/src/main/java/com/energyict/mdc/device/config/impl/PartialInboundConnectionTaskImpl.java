@@ -19,7 +19,7 @@ import javax.inject.Inject;
  * @author sva
  * @since 21/01/13 - 16:43
  */
-@ConnectionTypeDirectionValidForConnectionTask(groups = {Save.Create.class, Save.Update.class}, direction = ConnectionType.ConnectionTypeDirection.INBOUND)
+@ConnectionTypeDirectionValidForConnectionTask(groups = {Save.Create.class, Save.Update.class}, direction = ConnectionType.Direction.INBOUND)
 public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialInboundConnectionTask {
 
     @Inject
