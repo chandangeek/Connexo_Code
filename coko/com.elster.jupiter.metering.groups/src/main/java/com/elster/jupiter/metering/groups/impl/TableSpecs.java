@@ -22,6 +22,7 @@ import java.util.Map;
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
     MTG_UP_GROUP {
@@ -30,10 +31,10 @@ public enum TableSpecs {
 			Table<UsagePointGroup> table = dataModel.addTable(name(),UsagePointGroup.class);
             table.map(AbstractUsagePointGroup.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").type("varchar2(80)").map("name").add();
-            Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
-            table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
-            table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
+            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
+            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
             table.addAuditColumns();
             table.primaryKey("MTG_PK_ENUM_UP_GROUP").on(idColumn).add();
@@ -61,9 +62,9 @@ public enum TableSpecs {
             Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
             table.addDiscriminatorColumn("OPERATORTYPE", "char(3)");
-            table.column("OPERATOR").type("VARCHAR2(80)").map("operator").add();
-            table.column("FIELDNAME").type("VARCHAR2(80)").map("fieldName").add();
-            table.column("BINDVALUES").type("VARCHAR2(256)").conversion(CHAR2JSON).map("values").add();
+            table.column("OPERATOR").varChar(NAME_LENGTH).map("operator").add();
+            table.column("FIELDNAME").varChar(NAME_LENGTH).map("fieldName").add();
+            table.column("BINDVALUES").varChar(SHORT_DESCRIPTION_LENGTH).conversion(CHAR2JSON).map("values").add();
 
             table.primaryKey("MTG_PK_QUPGOP").on(groupColumn, positionColumn).add();
             table.foreignKey("MTG_FK_QUPG_QUPGOP").references(MTG_UP_GROUP.name()).onDelete(CASCADE).map("group").reverseMap("operations").reverseMapOrder("position").on(groupColumn).add();
@@ -76,10 +77,10 @@ public enum TableSpecs {
             Table<EndDeviceGroup> table = dataModel.addTable(name(), EndDeviceGroup.class);
             table.map(AbstractEndDeviceGroup.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").type("varchar2(80)").map("name").add();
-            Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
-            table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
-            table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
+            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
+            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
             table.addAuditColumns();
             table.primaryKey("MTG_PK_ENUM_ED_GROUP").on(idColumn).add();
@@ -107,9 +108,9 @@ public enum TableSpecs {
             Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
             table.addDiscriminatorColumn("OPERATORTYPE", "char(3)");
-            table.column("OPERATOR").type("VARCHAR2(80)").map("operator").add();
-            table.column("FIELDNAME").type("VARCHAR2(80)").map("fieldName").add();
-            table.column("BINDVALUES").type("VARCHAR2(256)").conversion(CHAR2JSON).map("values").add();
+            table.column("OPERATOR").varChar(NAME_LENGTH).map("operator").add();
+            table.column("FIELDNAME").varChar(NAME_LENGTH).map("fieldName").add();
+            table.column("BINDVALUES").varChar(SHORT_DESCRIPTION_LENGTH).conversion(CHAR2JSON).map("values").add();
 
             table.primaryKey("MTG_PK_QEDGOP").on(groupColumn, positionColumn).add();
             table.foreignKey("MTG_FK_QEDG_QEDGOP").references(MTG_ED_GROUP.name()).onDelete(CASCADE).map("group").reverseMap("operations").reverseMapOrder("position").on(groupColumn).add();
