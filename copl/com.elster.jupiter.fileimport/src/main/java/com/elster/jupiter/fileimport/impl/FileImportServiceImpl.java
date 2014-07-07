@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.validation.MessageInterpolator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -102,6 +103,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
                 bind(CronExpressionParser.class).toInstance(cronExpressionParser);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
         if (dataModel.isInstalled()) {
