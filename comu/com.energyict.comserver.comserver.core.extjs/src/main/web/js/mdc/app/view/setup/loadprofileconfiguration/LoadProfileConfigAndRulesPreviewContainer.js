@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigAndRulesPre
     xtype: 'loadprofile-config-and-rules-preview-container',
     deviceTypeId: null,
     deviceConfigId: null,
-    loadProfileId: null,
+    loadProfileConfigId: null,
     requires: [
         'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPreview',
         'Mdc.view.setup.loadprofileconfiguration.RulesForLoadProfileConfigGrid'
@@ -16,10 +16,10 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigAndRulesPre
     },
     items: [
         {
-            xtype: 'loadProfileConfigurationPreview'/*,
+            xtype: 'loadProfileConfigurationPreview',
             deviceTypeId: this.deviceTypeId,
-            deviceConfigId: this.deviceConfigId */
-        }/*,
+            deviceConfigId: this.deviceConfigId
+        },
 
         {
             xtype: 'panel',
@@ -36,14 +36,24 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigAndRulesPre
                     xtype: 'validation-rules-for-loadprofileconfig-grid',
                     deviceTypeId: this.deviceTypeId,
                     deviceConfigId: this.deviceConfigId,
-                    loadProfileId: this.loadProfileId
+                    loadProfileConfigId: this.loadProfileConfigId
                 },
                 {
-                    xtype: 'validation-rule-preview'
+                    xtype: 'validation-rule-preview',
+                    tools: [
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                            iconCls: 'x-uni-action-iconD',
+                            menu: {
+                                xtype: 'rules-for-loadprofileconfig-actionmenu'
+                            }
+                        }
+                    ]
                 }
             ]
 
-        }  */
+        }
 
 
 

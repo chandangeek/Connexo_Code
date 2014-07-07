@@ -66,15 +66,16 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                                         {
                                             xtype: 'component',
                                             html: '<h4>' + Uni.I18n.translate('validation.empty.title', 'MDC', 'No validation rule sets found') + '</h4><br>' +
-                                                Uni.I18n.translate('validation.empty.detail', 'MDC', 'There are no validation rule sets. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                                Uni.I18n.translate('validation.empty.list.item1', 'MDC', 'No validation rule sets have been added yet.') + '</li></lv><br>' +
-                                                Uni.I18n.translate('validation.empty.steps', 'MDC', 'Possible steps:')
+                                                Uni.I18n.translate('validation.empty.detail', 'MDC', 'There are no validation rule sets. This could be because:') + '<ul>' +
+                                                '<li>' + Uni.I18n.translate('validation.empty.list.item1', 'MDC', 'No validation rule sets have been added yet.') + '</li>' +
+                                                '<li>' + Uni.I18n.translate('validation.empty.list.item2', 'MDC', 'Validation rule sets exists, but you do not have permission to view them.') + '</li>' +
+                                                '</ul>' + Uni.I18n.translate('validation.empty.steps', 'MDC', 'Possible steps:')
                                         },
                                         {
                                             xtype: 'button',
                                             text: Uni.I18n.translate('validation.addValidationRuleSets', 'MDC', 'Add validation rule sets'),
                                             ui: 'action',
-                                            href: '#/administration/validation/createset'
+                                            href: '#/administration/validation/rulesets/add'
                                         }
                                     ]
                                 }

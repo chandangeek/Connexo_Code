@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
         'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid',
         'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPreview',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
-        'Uni.view.container.PreviewContainer'
+        'Uni.view.container.PreviewContainer',
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigAndRulesPreviewContainer'
     ],
     side: {
         xtype: 'panel',
@@ -68,12 +69,10 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                         ]
                     },
                     previewComponent: {
-                        xtype: 'loadProfileConfigurationPreview'
-                        /*xtype: 'loadProfileConfigAndRulesPreviewContainer',
+                        xtype: 'loadProfileConfigAndRulesPreviewContainer',
                         deviceTypeId: this.deviceTypeId,
-                        deviceConfigId: this.deviceConfigId   */
+                        deviceConfigId: this.deviceConfigId
                     }
-//                    previewComponent: null
                 }
             ]
         }

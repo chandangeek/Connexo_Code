@@ -6,10 +6,10 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
         'Mdc.view.setup.validation.RuleActionMenu',
         'Uni.view.toolbar.PagingBottom',
         'Uni.view.toolbar.PagingTop',
-//        'Cfg.store.ValidationRules'
+        'Cfg.store.ValidationRules'
     ],
 
-//    store: Ext.create('Cfg.store.ValidationRules'), // caused fatal error
+    store: Ext.create('Cfg.store.ValidationRules'),
     selModel: {
         mode: 'SINGLE'
     },
@@ -23,14 +23,28 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
             {
                 header: Uni.I18n.translate('validation.ruleName', 'MDC', 'Validation rule'),
                 dataIndex: 'name',
-                flex: 1
+                flex: 1,
+                renderer: function (value, b, record) {
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId')
+                        + '/rules/' + record.getId() + '">' + value + '</a>';
+                }
             },
             {
-                header: Uni.I18n.translate('validation.status', 'MDC', 'Status'),
+                header: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
                 dataIndex: 'active',
-                flex: 1
+                flex: 1,
+                renderer: function (value) {
+                    if (value) {
+                        return Uni.I18n.translate('validation.active', 'CFG', 'Active')
+                    } else {
+                        return Uni.I18n.translate('validation.inactive', 'CFG', 'Inactive')
+                    }
+                }
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                items: 'Mdc.view.setup.validation.RuleActionMenu'
             }
-            // TODO Action column.
         ];
 
         me.dockedItems = [
