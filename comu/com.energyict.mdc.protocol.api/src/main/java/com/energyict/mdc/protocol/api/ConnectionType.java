@@ -26,7 +26,7 @@ public interface ConnectionType extends Pluggable {
      *     (This does not mean that we cannot provide a list of properties)</li>
      * </ul>
      */
-    enum ConnectionTypeDirection{
+    public enum Direction {
         OUTBOUND,
         INBOUND,
 
@@ -36,9 +36,9 @@ public interface ConnectionType extends Pluggable {
          */
         NULL;
 
-        public static ConnectionTypeDirection fromString(String direction) {
-            for (ConnectionTypeDirection connectionTypeDirection : values()) {
-                if(connectionTypeDirection.name().equalsIgnoreCase(direction)){
+        public static Direction fromString(String direction) {
+            for (Direction connectionTypeDirection : Direction.values()) {
+                if (connectionTypeDirection.name().equalsIgnoreCase(direction)) {
                     return connectionTypeDirection;
                 }
             }
@@ -93,5 +93,5 @@ public interface ConnectionType extends Pluggable {
      * can be used for Inbound communication or for Outbound communication
      * @return
      */
-    public ConnectionTypeDirection getDirection();
+    public Direction getDirection();
 }

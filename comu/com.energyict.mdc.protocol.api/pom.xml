@@ -46,7 +46,7 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
-      <artifactId>mdc-common</artifactId>
+      <artifactId>mdc.common</artifactId>
       <version>${comserver.version}</version>
     </dependency>
     <dependency>
