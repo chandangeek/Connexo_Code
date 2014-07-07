@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class MinMaxValidator implements Validator {
+public class ThresholdValidator implements Validator {
 
     private static final String MIN = "minimum";
     private static final String MAX = "maximum";
@@ -27,11 +27,11 @@ public class MinMaxValidator implements Validator {
     private ReadingType readingType;
     private final Thesaurus thesaurus;
 
-    protected MinMaxValidator() {
+    protected ThresholdValidator() {
         thesaurus = null;
     }
 
-    public MinMaxValidator(Thesaurus thesaurus, Map<String, Quantity> properties) {
+    public ThresholdValidator(Thesaurus thesaurus, Map<String, Quantity> properties) {
         this.thesaurus = thesaurus;
         Quantity min = getRequiredQuantity(properties, MIN);
         Quantity max = getRequiredQuantity(properties, MAX);
