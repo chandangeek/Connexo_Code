@@ -21,6 +21,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 
 @Component(name = "com.elster.jupiter.issue.install", service = InstallService.class, property = "name=" + IssueService.COMPONENT_NAME, immediate = true)
 public class InstallServiceImpl implements InstallService {
@@ -82,6 +83,7 @@ public class InstallServiceImpl implements InstallService {
             @Override
             protected void configure() {
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MessageService.class).toInstance(messageService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(UserService.class).toInstance(userService);
