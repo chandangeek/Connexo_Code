@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
@@ -18,7 +19,6 @@ import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -27,8 +27,10 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import java.util.Date;
 import java.util.List;
+
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 

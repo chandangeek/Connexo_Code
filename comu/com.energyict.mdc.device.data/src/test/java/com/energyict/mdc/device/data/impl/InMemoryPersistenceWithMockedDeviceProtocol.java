@@ -38,7 +38,6 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bootstrap.h2.impl.ResultSetPrinter;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -54,6 +53,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -75,10 +75,12 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import javax.inject.Inject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -156,6 +158,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new IssuesModule(),
                 new ProtocolsModule(),
                 new MdcReadingTypeUtilServiceModule(),
+                new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new TasksModule(),
                 new PluggableModule(),

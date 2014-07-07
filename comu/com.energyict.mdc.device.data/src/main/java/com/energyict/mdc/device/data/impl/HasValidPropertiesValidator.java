@@ -1,15 +1,17 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.common.InvalidValueException;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 

@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;

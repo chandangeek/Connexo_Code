@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.CompositeFilterCriterium;
 import com.energyict.mdc.dynamic.relation.FilterAspect;
 import com.energyict.mdc.dynamic.relation.Relation;

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
@@ -35,7 +36,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -45,6 +45,7 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.scheduling.TemporalExpression;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Calendar;
@@ -53,6 +54,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+
 import org.assertj.core.api.Condition;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;

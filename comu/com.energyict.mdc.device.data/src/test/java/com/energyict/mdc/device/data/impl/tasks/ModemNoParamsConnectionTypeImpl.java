@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.dynamic.PropertySpec;
-
 import java.util.Collections;
 import java.util.List;
+
+import com.elster.jupiter.properties.PropertySpec;
 
 /**
  * Copyrights EnergyICT

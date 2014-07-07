@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.dynamic.HasDynamicProperties;
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 

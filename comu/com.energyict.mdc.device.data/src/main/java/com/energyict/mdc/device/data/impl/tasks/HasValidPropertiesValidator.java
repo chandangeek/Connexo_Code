@@ -1,17 +1,19 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.InvalidValueException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import java.util.ArrayList;
-import java.util.List;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 /**
  * Validates the {@link HasValidProperties} constraint against a {@link ConnectionTaskImpl}.

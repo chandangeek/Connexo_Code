@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.dynamic.HasDynamicProperties;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;

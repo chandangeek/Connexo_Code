@@ -22,6 +22,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -73,10 +74,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
+
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.List;
+
 import javax.inject.Inject;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -258,6 +262,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new IssuesModule(),
                     new ProtocolsModule(),
                     new MdcReadingTypeUtilServiceModule(),
+                    new BasicPropertiesModule(),
                     new MdcDynamicModule(),
                     new PluggableModule(),
                     new ProtocolPluggableModule(),

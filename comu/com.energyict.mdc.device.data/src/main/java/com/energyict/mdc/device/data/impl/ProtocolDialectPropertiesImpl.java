@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -15,7 +16,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -29,6 +29,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;

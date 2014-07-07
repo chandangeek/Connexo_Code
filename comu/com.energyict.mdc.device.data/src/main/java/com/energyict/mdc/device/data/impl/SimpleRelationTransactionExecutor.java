@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.NoAttributesExpectedException;
-import com.energyict.mdc.dynamic.HasDynamicProperties;
 import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.dynamic.relation.RelationType;
