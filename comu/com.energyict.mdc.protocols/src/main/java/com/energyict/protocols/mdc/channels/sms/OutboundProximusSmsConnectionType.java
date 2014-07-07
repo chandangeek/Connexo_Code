@@ -144,7 +144,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public ConnectionTypeDirection getDirection() {
-        return ConnectionTypeDirection.OUTBOUND;
+    public Direction getDirection() {
+        return Direction.OUTBOUND;
     }
 }

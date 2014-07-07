@@ -7,6 +7,7 @@ import com.energyict.mdc.dynamic.PropertySpecBuilder;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.ConnectionType;
+
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
@@ -112,7 +113,7 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public ConnectionTypeDirection getDirection() {
-        return ConnectionTypeDirection.OUTBOUND;
+    public Direction getDirection() {
+        return Direction.OUTBOUND;
     }
 }

@@ -5,7 +5,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
@@ -88,8 +87,8 @@ public class EIWebConnectionType implements ServerConnectionType {
     }
 
     @Override
-    public ConnectionTypeDirection getDirection() {
-        return ConnectionTypeDirection.INBOUND;
+    public Direction getDirection() {
+        return Direction.INBOUND;
     }
 
     @Override

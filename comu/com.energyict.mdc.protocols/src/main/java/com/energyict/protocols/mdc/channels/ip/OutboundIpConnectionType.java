@@ -4,7 +4,7 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
-import com.energyict.mdc.protocol.api.ConnectionType;
+
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
@@ -86,7 +86,7 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public ConnectionTypeDirection getDirection() {
-        return ConnectionTypeDirection.OUTBOUND;
+    public Direction getDirection() {
+        return Direction.OUTBOUND;
     }
 }
