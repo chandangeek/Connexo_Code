@@ -15,7 +15,7 @@ import static java.util.logging.Level.SEVERE;
 public enum MessageSeeds implements MessageSeed {
     VETO_LOGBOOKTYPE_DELETION(998, "logBookType.XstillInUseByDeviceTypesY", "The log book type {0} is still used by the following device types: {1}", SEVERE),
     VETO_DEVICEPROTOCOLPLUGGABLECLASS_DELETION(999, "deviceProtocolPluggableClass.XstillInUseByDeviceTypesY", "The device protocol pluggable class {0} is still used by the following device types: {1}", SEVERE),
-    DEVICE_TYPE(1, "DTC.deviceType.with.article", "a device type", SEVERE),
+    DEVICE_TYPE(1, "deviceType.with.article", "a device type", SEVERE),
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "The name must be unique", SEVERE),
     FIELD_TOO_LONG(1002, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", SEVERE),
@@ -32,7 +32,7 @@ public enum MessageSeeds implements MessageSeed {
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(4010, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS(4011, "loadProfileType.XstillInUseByLoadProfileSpecsY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following load profile spec(s): {1}", SEVERE),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(4012, "loadProfileType.XstillInUseByDeviceTypesY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following device type(s): {1}", SEVERE),
-    LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5000, "DTC.logBookType.cannotUpdateObisCode", "The obis code of the log book type \"{0}\" cannot be updated because it is in use", SEVERE),
+    LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5000, "logBookType.cannotUpdateObisCode", "The obis code of the log book type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5001, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be deleted because it is still in use by the following log book spec(s): {1}", SEVERE),
     REGISTER_SPEC_NUMBER_OF_DIGITS_INVALID(6001, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least {min} digit is required, maximum is {max}", SEVERE),
     REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED(6002, Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED, "The number of digits can not be decreased", SEVERE),
@@ -191,60 +191,60 @@ public enum MessageSeeds implements MessageSeed {
 
 
     public static class Keys {
-        public static final String NAME_REQUIRED = "DTC.X.name.required";
-        public static final String NAME_UNIQUE = "DTC.X.name.unique";
-        public static final String FIELD_TOO_LONG = "DTC.incorrect.field.size";
-        public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS = "DTC.deviceType.XstillHasActiveConfigurations";
-        public static final String DEVICE_PROTOCOL_IS_REQUIRED = "DTC.deviceType.protocol.required";
-        public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS = "DTC.deviceType.protocol.noupdate";
-        public static final String LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED = "DTC.logBookSpec.logbookType.required";
-        public static final String LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED = "DTC.loadProfileSpec.loadProfileType.required";
-        public static final String CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED = "DTC.channelSpec.registerMapping.required";
-        public static final String CHANNEL_SPEC_PHENOMENON_IS_REQUIRED = "DTC.channelSpec.phenomenon.required";
-        public static final String CHANNEL_SPEC_READING_METHOD_IS_REQUIRED = "DTC.channelSpec.readingMethod.required";
-        public static final String CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN = "DTC.channelSpec.multiplier.required.when";
-        public static final String CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED = "DTC.channelSpec.valueCalculationMethod.required";
-        public static final String CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED = "DTC.channelSpec.multiplierMode.required";
-        public static final String REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED = "DTC.registerSpec.registerMapping.required";
-        public static final String READING_TYPE_ALREADY_EXISTS = "DTC.productSpec.duplicateReadingTypeX";
-        public static final String NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED = "DTC.nextExecutionSpecs.temporalExpression.required";
-        public static final String TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED = "DTC.temporalExpression.every.required";
-        public static final String TEMPORAL_EXPRESSION_UNKNOWN_UNIT = "DTC.temporalExpression.unknown.unit";
-        public static final String TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE = "DTC.temporalExpression.every.count.positive";
-        public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE = "DTC.temporalExpression.offset.count.positive";
-        public static final String DEVICE_CONFIG_GATEWAY_NOT_ALLOWED = "DTC.deviceConfig.gateway.notAllowed";
-        public static final String DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED = "DTC.deviceConfig.directAddress.notAllowed";
-        public static final String REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS = "DTC.registerSpec.invalidNumberOfDigits";
-        public static final String REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED = "DTC.registerSpec.numberOfDigits.decreased";
-        public static final String REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "DTC.registerSpec.numberOfFractionDigits.decreased";
-        public static final String REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG = "DTC.registerSpec.registerMapping.activeDeviceConfig";
-        public static final String REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG = "DTC.registerSpec.multiplier.activeDeviceConfig";
-        public static final String PROTOCOLDIALECT_REQUIRED = "DTC.protocolDialectConfigurationProperties.dialectName.required";
-        public static final String PROTOCOLDIALECT_CONF_PROPS_DUPLICATE = "DTC.protocolDialectConfigurationProperties.duplicate";
-        public static final String PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED = "DTC.protocolDialectConfigurationProperties.missing.required.properties";
-        public static final String PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC = "DTC.partialConnectionTaskProperty.hasNoSpec";
-        public static final String PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE = "DTC.partialConnectionTaskProperty.wrongValueType";
-        public static final String CONNECTION_STRATEGY_REQUIRED = "DTC.partialOutboundConnectionTask.connectionStrategyRequired";
-        public static final String NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS = "DTC.partialOutboundConnectionTask.executionSpecRequiredForMinimizeConnections";
-        public static final String NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW = "DTC.partialOutboundConnectionTask.executionSpecInvalidForComWindow";
-        public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY = "DTC.nextExecutionSpecs.offsetGreaterThanFrequency";
-        public static final String UNDER_MINIMUM_RESCHEDULE_DELAY = "DTC.partialScheduledConnectionTask.underMinimumRescheduleDelay";
-        public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "DTC.registerSpec.invalidNumberOfFractionDigits";
-        public static final String REGISTER_SPEC_INVALID_OVERFLOW_VALUE = "DTC.registerSpec.invalidOverflow";
-        public static final String REGISTER_SPEC_INVALID_MULTIPLIER_VALUE = "DTC.registerSpec.invalidMultiplier";
-        public static final String UNSUPPORTED_SECURITY_LEVEL = "DTC.securityPropertySet.unsupportedSecurityLevel";
-        public static final String SECURITY_PROPERTY_SET_IN_USE = "DTC.securityPropertySet.inUse";
-        public static final String COM_TASK_ENABLEMENT_COM_TASK_REQUIRED = "DTC.comTaskEnablement.comTask.required";
-        public static final String COM_TASK_CAN_ONLY_BE_ENABLED_ONCE = "DTC.comTaskEnablement.unique";
-        public static final String COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED = "DTC.comTaskEnablement.configuration.required";
-        public static final String COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_REQUIRED = "DTC.comTaskEnablement.securityPropertySet.required";
-        public static final String COM_TASK_ENABLEMENT_CANNOT_USE_DEFAULT_AND_PARTIAL_CONNECTION_TASK = "DTC.comTaskEnablement.cannotUseDefault";
-        public static final String COM_TASK_ENABLEMENT_PRIORITY_RANGE = "DTC.comTaskEnablement.invalidPriority";
-        public static final String COM_TASK_ENABLEMENT_PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_MUST_BE_FROM_SAME_CONFIGURATION = "DTC.comTaskEnablement.protocolDialectConfigurationProperties.fromSameConfiguration";
-        public static final String COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_MUST_BE_FROM_SAME_CONFIGURATION = "DTC.comTaskEnablement.securityPropertySet.fromSameConfiguration";
-        public static final String COM_TASK_ENABLEMENT_DOES_NOT_EXIST = "DTC.comTaskEnablement.doesNotExist";
-        public static final String DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE = "DTC.deviceConfig.active.field.immutable";
-        public static final String INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD = "DTC.incorrect.direction.connection.method";
+        public static final String NAME_REQUIRED = "X.name.required";
+        public static final String NAME_UNIQUE = "X.name.unique";
+        public static final String FIELD_TOO_LONG = "incorrect.field.size";
+        public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS = "deviceType.XstillHasActiveConfigurations";
+        public static final String DEVICE_PROTOCOL_IS_REQUIRED = "deviceType.protocol.required";
+        public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS = "deviceType.protocol.noupdate";
+        public static final String LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED = "logBookSpec.logbookType.required";
+        public static final String LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED = "loadProfileSpec.loadProfileType.required";
+        public static final String CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED = "channelSpec.registerMapping.required";
+        public static final String CHANNEL_SPEC_PHENOMENON_IS_REQUIRED = "channelSpec.phenomenon.required";
+        public static final String CHANNEL_SPEC_READING_METHOD_IS_REQUIRED = "channelSpec.readingMethod.required";
+        public static final String CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN = "channelSpec.multiplier.required.when";
+        public static final String CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED = "channelSpec.valueCalculationMethod.required";
+        public static final String CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED = "channelSpec.multiplierMode.required";
+        public static final String REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED = "registerSpec.registerMapping.required";
+        public static final String READING_TYPE_ALREADY_EXISTS = "productSpec.duplicateReadingTypeX";
+        public static final String NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED = "nextExecutionSpecs.temporalExpression.required";
+        public static final String TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED = "temporalExpression.every.required";
+        public static final String TEMPORAL_EXPRESSION_UNKNOWN_UNIT = "temporalExpression.unknown.unit";
+        public static final String TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE = "temporalExpression.every.count.positive";
+        public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE = "temporalExpression.offset.count.positive";
+        public static final String DEVICE_CONFIG_GATEWAY_NOT_ALLOWED = "deviceConfig.gateway.notAllowed";
+        public static final String DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED = "deviceConfig.directAddress.notAllowed";
+        public static final String REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS = "registerSpec.invalidNumberOfDigits";
+        public static final String REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED = "registerSpec.numberOfDigits.decreased";
+        public static final String REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "registerSpec.numberOfFractionDigits.decreased";
+        public static final String REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG = "registerSpec.registerMapping.activeDeviceConfig";
+        public static final String REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG = "registerSpec.multiplier.activeDeviceConfig";
+        public static final String PROTOCOLDIALECT_REQUIRED = "protocolDialectConfigurationProperties.dialectName.required";
+        public static final String PROTOCOLDIALECT_CONF_PROPS_DUPLICATE = "protocolDialectConfigurationProperties.duplicate";
+        public static final String PROTOCOLDIALECT_CONF_PROPS_MISSING_REQUIRED = "protocolDialectConfigurationProperties.missing.required.properties";
+        public static final String PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC = "partialConnectionTaskProperty.hasNoSpec";
+        public static final String PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE = "partialConnectionTaskProperty.wrongValueType";
+        public static final String CONNECTION_STRATEGY_REQUIRED = "partialOutboundConnectionTask.connectionStrategyRequired";
+        public static final String NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS = "partialOutboundConnectionTask.executionSpecRequiredForMinimizeConnections";
+        public static final String NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW = "partialOutboundConnectionTask.executionSpecInvalidForComWindow";
+        public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY = "nextExecutionSpecs.offsetGreaterThanFrequency";
+        public static final String UNDER_MINIMUM_RESCHEDULE_DELAY = "partialScheduledConnectionTask.underMinimumRescheduleDelay";
+        public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "registerSpec.invalidNumberOfFractionDigits";
+        public static final String REGISTER_SPEC_INVALID_OVERFLOW_VALUE = "registerSpec.invalidOverflow";
+        public static final String REGISTER_SPEC_INVALID_MULTIPLIER_VALUE = "registerSpec.invalidMultiplier";
+        public static final String UNSUPPORTED_SECURITY_LEVEL = "securityPropertySet.unsupportedSecurityLevel";
+        public static final String SECURITY_PROPERTY_SET_IN_USE = "securityPropertySet.inUse";
+        public static final String COM_TASK_ENABLEMENT_COM_TASK_REQUIRED = "comTaskEnablement.comTask.required";
+        public static final String COM_TASK_CAN_ONLY_BE_ENABLED_ONCE = "comTaskEnablement.unique";
+        public static final String COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED = "comTaskEnablement.configuration.required";
+        public static final String COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_REQUIRED = "comTaskEnablement.securityPropertySet.required";
+        public static final String COM_TASK_ENABLEMENT_CANNOT_USE_DEFAULT_AND_PARTIAL_CONNECTION_TASK = "comTaskEnablement.cannotUseDefault";
+        public static final String COM_TASK_ENABLEMENT_PRIORITY_RANGE = "comTaskEnablement.invalidPriority";
+        public static final String COM_TASK_ENABLEMENT_PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_MUST_BE_FROM_SAME_CONFIGURATION = "comTaskEnablement.protocolDialectConfigurationProperties.fromSameConfiguration";
+        public static final String COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_MUST_BE_FROM_SAME_CONFIGURATION = "comTaskEnablement.securityPropertySet.fromSameConfiguration";
+        public static final String COM_TASK_ENABLEMENT_DOES_NOT_EXIST = "comTaskEnablement.doesNotExist";
+        public static final String DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE = "deviceConfig.active.field.immutable";
+        public static final String INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD = "incorrect.direction.connection.method";
     }
 
 }

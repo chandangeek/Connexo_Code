@@ -392,7 +392,7 @@ public class SecurityPropertySetImplCrudIT {
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--+")
+            deviceConfiguration.createSecurityPropertySet("приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
                     .addUserAction(ALLOWCOMTASKEXECUTION1)
