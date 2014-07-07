@@ -19,6 +19,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 
 /**
  * Osgi Component class.
@@ -60,6 +61,7 @@ public class MessageServiceImpl implements MessageService, InstallService {
                 bind(AQFacade.class).toInstance(defaultAQMessageFactory);
                 bind(Publisher.class).toInstance(publisher);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
 	}
