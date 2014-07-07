@@ -10,7 +10,7 @@
     <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
   </parent>
 
-  <artifactId>mdc-engine-config</artifactId>
+  <artifactId>mdc.engine.config</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
   <name>[MDC] mdc.engine.model [init MDC]</name>
@@ -33,7 +33,7 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
-      <artifactId>mdc-common</artifactId>
+      <artifactId>mdc.common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -43,7 +43,7 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
-      <artifactId>mdc-protocols</artifactId>
+      <artifactId>mdc.protocols</artifactId>
       <version>${jupiter.version}</version>
     </dependency>
     <dependency>
