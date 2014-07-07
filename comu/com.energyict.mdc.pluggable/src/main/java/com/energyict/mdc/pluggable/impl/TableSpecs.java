@@ -6,6 +6,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.pluggable.PluggableClass;
 
+import static com.elster.jupiter.orm.Table.*;
+
 /**
  * Models the database tables that hold the data of the {@link PluggableClass}es.
  *
@@ -21,7 +23,7 @@ public enum TableSpecs {
             table.map(PluggableClassImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.primaryKey("PK_CPC_PLUGGABLE").on(idColumn).add();
-            table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("JAVACLASSNAME").type("varchar2(512)").map("javaClassName").add();
             table.column("PLUGGABLETYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUMPLUSONE).map("pluggableType").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
@@ -34,9 +36,9 @@ public enum TableSpecs {
             Table<PluggableClassProperty> table = dataModel.addTable(name(), PluggableClassProperty.class);
             table.map(PluggableClassProperty.class);
             Column pluggableClassColumn = table.column("PLUGGABLECLASSID").number().notNull().add();
-            Column nameColumn = table.column("NAME").type("varchar2(256)").notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("name").add();
             table.primaryKey("PK_CPC_PLUGGABLECLASS_PROPS").on(pluggableClassColumn, nameColumn).add();
-            table.column("VALUE").type("varchar2(256)").notNull().map("value").add();
+            table.column("VALUE").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("value").add();
             table.
                 foreignKey("FK_CPC_PLUGGABLEPROP_PLUGGABLE").
                 on(pluggableClassColumn).
