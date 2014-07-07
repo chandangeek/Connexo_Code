@@ -1,9 +1,7 @@
 Ext.define('Mdc.store.ComPortTypes',{
     extend: 'Ext.data.Store',
-    autoLoad: true,
-    fields: ['comPortType'],
+    fields: ['comPortType', 'localizedValue'],
     storeId: 'comporttypes',
-
     proxy: {
         type: 'rest',
         url: '../../api/mdc/field/comPortType',
