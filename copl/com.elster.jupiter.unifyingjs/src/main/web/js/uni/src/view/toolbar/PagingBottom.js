@@ -440,7 +440,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                     var task = Ext.create('Ext.util.DelayedTask', function () {
                         Ext.History.resumeEvents();
                     });
-                    task.delay(100);
+                    task.delay(250);
                 }
             });
         });
