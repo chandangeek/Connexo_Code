@@ -236,7 +236,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 // TODO Link to the rule overview when [JP-3505] is done.
                 break;
             case 'viewRuleSet':
-                window.location.href = '#/administration/validation/overview/' + record.getId();
+                window.location.href = '#/administration/validation/rulesets/' + record.getId();
                 break;
         }
     },
@@ -248,7 +248,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         switch (action) {
             case 'viewRuleSet':
-                window.location.href = '#/administration/validation/overview/' + record.getId();
+                window.location.href = '#/administration/validation/rulesets/' + record.getId();
                 break;
             case 'removeRuleSet':
                 me.removeValidationRuleSet(record);
