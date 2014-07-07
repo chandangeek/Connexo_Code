@@ -13,6 +13,7 @@ import java.util.ListIterator;
 
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.*;
 import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
 
@@ -22,8 +23,8 @@ public enum TableSpecs {
             Table<IssueType> table = dataModel.addTable(name(), IssueType.class);
             table.map(IssueTypeImpl.class);
 
-            Column idColumn = table.column(ISSUE_TYPE_COLUMN_UUID).map("uuid").varChar(80).notNull().add();
-            table.column(ISSUE_TYPE_COLUMN_NAME).map("name").varChar(80).notNull().add();
+            Column idColumn = table.column(ISSUE_TYPE_COLUMN_UUID).map("uuid").varChar(NAME_LENGTH).notNull().add();
+            table.column(ISSUE_TYPE_COLUMN_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(ISSUE_TYPE_PK_NAME).on(idColumn).add();
@@ -38,7 +39,7 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             table.column(ISSUE_REASON_COLUMN_NAME).map("name").varChar(200).notNull().add();
-            Column typeRefIdColumn = table.column(ISSUE_REASON_COLUMN_TYPE).varChar(80).notNull().add();
+            Column typeRefIdColumn = table.column(ISSUE_REASON_COLUMN_TYPE).varChar(NAME_LENGTH).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(ISSUE_REASON_PK_NAME).on(idColumn).add();
@@ -70,7 +71,7 @@ public enum TableSpecs {
             table.map(AssigneeTeamImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column(ISSUE_ASSIGNEE_NAME).map("name").varChar(80).notNull().add();
+            table.column(ISSUE_ASSIGNEE_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(ISSUE_ASSIGNEE_TEAM_PK_NAME).on(idColumn).add();
@@ -84,8 +85,8 @@ public enum TableSpecs {
             table.map(AssigneeRoleImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column(ISSUE_ASSIGNEE_NAME).map("name").varChar(80).notNull().add();
-            table.column(ISSUE_ASSIGNEE_DESCRIPTION).map("description").varChar(256).notNull().add();
+            table.column(ISSUE_ASSIGNEE_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
+            table.column(ISSUE_ASSIGNEE_DESCRIPTION).map("description").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(ISSUE_ASSIGNEE_ROLE_PK_NAME).on(idColumn).add();
@@ -117,7 +118,7 @@ public enum TableSpecs {
             table.setJournalTableName(CREATION_RULE_JOURNAL_TABLE_NAME);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column(CREATION_RULE_NAME).map("name").varChar(256).notNull().add();
+            table.column(CREATION_RULE_NAME).map("name").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
             table.column(CREATION_RULE_COMMENT).map("comment").type("clob").conversion(CLOB2STRING).add();
             table.column(CREATION_RULE_CONTENT).map("content").type("clob").conversion(CLOB2STRING).notNull().add();
             Column reasonRefIdColumn = table.column(CREATION_RULE_REASON_ID).type("number").conversion(NUMBER2LONG).notNull().add();
@@ -138,7 +139,7 @@ public enum TableSpecs {
             table.map(CreationRuleParameterImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column(CREATION_PARAMETER_KEY).map("key").varChar(256).notNull().add();
+            table.column(CREATION_PARAMETER_KEY).map("key").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
             table.column(CREATION_PARAMETER_VALUE).map("value").varChar(1024).notNull().add();
             Column ruleRefIdColumn = table.column(CREATION_PARAMETER_RULE_ID).type("number").conversion(NUMBER2LONG).notNull().add();
             table.addAuditColumns();
@@ -231,9 +232,9 @@ public enum TableSpecs {
             table.map(IssueActionTypeImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
-            Column typeRefIdColumn = table.column(RULE_ACTION_TYPE_ISSUE_TYPE).varChar(80).add();
+            Column typeRefIdColumn = table.column(RULE_ACTION_TYPE_ISSUE_TYPE).varChar(NAME_LENGTH).add();
             table.column(RULE_ACTION_TYPE_CLASS_NAME).map("className").varChar(1024).notNull().add();
-            table.column(RULE_ACTION_TYPE_FACTORY_ID).map("factoryId").varChar(80).notNull().add();
+            table.column(RULE_ACTION_TYPE_FACTORY_ID).map("factoryId").varChar(NAME_LENGTH).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(RULE_ACTION_TYPE_PK_NAME).on(idColumn).add();
@@ -265,7 +266,7 @@ public enum TableSpecs {
             table.map(ActionParameterImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column(RULE_ACTION_PARAM_KEY).map("key").varChar(256).notNull().add();
+            table.column(RULE_ACTION_PARAM_KEY).map("key").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
             table.column(RULE_ACTION_PARAM_VALUE).map("value").varChar(1024).notNull().add();
             Column actionRefIdColumn = table.column(RULE_ACTION_PARAM_RULE_ACTION_ID).type("number").conversion(NUMBER2LONG).notNull().add();
             table.addAuditColumns();
