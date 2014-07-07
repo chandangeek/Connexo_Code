@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -10,7 +9,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 
-import com.elster.jupiter.license.License;
 import com.google.common.base.Optional;
 import java.util.List;
 

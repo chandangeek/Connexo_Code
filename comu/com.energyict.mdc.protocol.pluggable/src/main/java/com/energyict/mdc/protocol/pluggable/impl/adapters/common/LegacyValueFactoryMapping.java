@@ -1,25 +1,25 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.energyict.mdc.dynamic.BigDecimalFactory;
-import com.energyict.mdc.dynamic.BooleanFactory;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ThreeStateFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.Ean13Factory;
 import com.energyict.mdc.dynamic.Ean18Factory;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
+import com.energyict.mdc.dynamic.LegacyReferenceFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
-import com.energyict.mdc.dynamic.LegacyReferenceFactory;
-import com.energyict.mdc.dynamic.StringFactory;
-import com.energyict.mdc.dynamic.ThreeStateFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
-import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Provides mapping services from the lecacy {@link com.energyict.mdc.protocol.api.legacy.dynamic.ValueFactory}

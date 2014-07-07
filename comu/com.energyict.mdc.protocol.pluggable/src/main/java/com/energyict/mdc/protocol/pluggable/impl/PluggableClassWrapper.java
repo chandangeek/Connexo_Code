@@ -2,14 +2,15 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.PluggableClassCreationException;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
+
 import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
@@ -18,6 +19,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.inject.Inject;
 
 /**

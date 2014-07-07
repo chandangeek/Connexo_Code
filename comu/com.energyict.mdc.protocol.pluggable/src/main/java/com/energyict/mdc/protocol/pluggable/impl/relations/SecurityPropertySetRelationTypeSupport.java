@@ -5,9 +5,7 @@ import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
 import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -19,9 +17,10 @@ import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.PluggableClassRelationAttributeTypeRegistry;
 import com.energyict.mdc.protocol.pluggable.impl.PluggableClassRelationAttributeTypeUsage;
-
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 
 /**
  * Provides {@link RelationTypeSupport} for the security properties of a {@link DeviceSecuritySupport}.

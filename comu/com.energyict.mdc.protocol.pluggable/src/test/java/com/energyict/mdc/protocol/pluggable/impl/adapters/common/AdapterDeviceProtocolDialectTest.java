@@ -9,6 +9,9 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -20,7 +23,6 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -37,6 +39,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import com.google.inject.Scope;
+import com.google.inject.Scopes;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -103,6 +108,7 @@ public class AdapterDeviceProtocolDialectTest {
                 new IssuesModule(),
                 new PluggableModule(),
                 new MdcCommonModule(),
+                new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new ProtocolsModule(),
                 new ProtocolPluggableModule());
@@ -251,7 +257,5 @@ public class AdapterDeviceProtocolDialectTest {
                 }
             });
         }
-
     }
-
 }

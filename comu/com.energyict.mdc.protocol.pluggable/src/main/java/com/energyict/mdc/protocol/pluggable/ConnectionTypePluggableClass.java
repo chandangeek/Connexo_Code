@@ -1,9 +1,10 @@
 package com.energyict.mdc.protocol.pluggable;
 
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
 import com.energyict.mdc.protocol.api.ConnectionType;
+
 import java.util.List;
 
 /**

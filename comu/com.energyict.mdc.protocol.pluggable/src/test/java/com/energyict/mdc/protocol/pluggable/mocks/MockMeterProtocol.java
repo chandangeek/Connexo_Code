@@ -191,7 +191,7 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     }
 
     @Override
-    public List<com.energyict.mdc.dynamic.PropertySpec> getSecurityProperties() {
+    public List<com.elster.jupiter.properties.PropertySpec> getSecurityProperties() {
         return Collections.emptyList();
     }
 
@@ -211,7 +211,7 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     }
 
     @Override
-    public com.energyict.mdc.dynamic.PropertySpec getSecurityPropertySpec(String name) {
+    public com.elster.jupiter.properties.PropertySpec getSecurityPropertySpec(String name) {
         return null;
     }
 
@@ -236,7 +236,7 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     }
 
     @Override
-    public String format(com.energyict.mdc.dynamic.PropertySpec propertySpec, Object messageAttribute) {
+    public String format(com.elster.jupiter.properties.PropertySpec propertySpec, Object messageAttribute) {
         return null;
     }
 
