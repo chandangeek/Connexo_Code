@@ -203,4 +203,6 @@ public interface DeviceConfigurationService {
      * @return the list of <i>active</i> DeviceConfigurations
      */
     public Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType);
+
+    public List<DeviceConfiguration> findActiveDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
 }
