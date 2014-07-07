@@ -40,6 +40,10 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
                         return Uni.I18n.translate('validation.inactive', 'CFG', 'Inactive')
                     }
                 }
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                items: 'Mdc.view.setup.validation.RuleActionMenu'
             }
         ];
 
