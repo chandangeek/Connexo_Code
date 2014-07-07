@@ -720,7 +720,7 @@ Ext.define('Cfg.controller.Validation', {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.activateRuleSuccess.msg', 'CFG', 'Validation rule activated'));
                     }
                 } else {
-                    var itemForm = view.down('#ruleOverviewForm');
+                    var itemForm = view.down('validation-rule-preview');
                     itemForm.loadRecord(record);
                     if (isActive) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.deactivateRuleSuccess.msg', 'CFG', 'Validation rule deactivated'));
@@ -907,15 +907,16 @@ Ext.define('Cfg.controller.Validation', {
                 id: id
             },
             callback: function (records) {
-                var itemForm = rulesContainerWidget.down('#ruleOverviewForm');
+                var itemForm = rulesContainerWidget.down('validation-rule-preview');
                 Ext.Array.each(records, function (item) {
                     if (params.ruleId == item.get('id')) {
                         rule = item;
                     }
                 });
-                itemForm.loadRecord(rule);
-                me.addProperties(rule);
-                me.addReadingTypes(rule);
+                itemForm.updateValidationRule(rule);
+                me.ruleSetId = id;
+                itemForm.down('#rulePreviewActionsButton').destroy();
+                itemForm.setTitle('');
                 me.getApplication().fireEvent('loadRule', rule);
                 rulesContainerWidget.down('validation-rule-action-menu').record = rule;
                 rulesContainerWidget.down('validation-rule-action-menu').down('#view').hide();
@@ -927,7 +928,6 @@ Ext.define('Cfg.controller.Validation', {
                         rulesContainerWidget.setLoading(false);
                     }
                 });
-
             }
         });
     }
