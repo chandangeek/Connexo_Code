@@ -445,6 +445,7 @@
                 <module>../com.elster.jupiter.parties.rest</module>
                 <module>../com.elster.jupiter.playground</module>
                 <module>../com.elster.jupiter.pubsub</module>
+                <module>../com.elster.jupiter.properties</module>
                 <module>../com.elster.jupiter.rest.util</module>
                 <module>../com.elster.jupiter.rest.whiteboard</module>
                 <module>../com.elster.jupiter.soap.whiteboard</module>
