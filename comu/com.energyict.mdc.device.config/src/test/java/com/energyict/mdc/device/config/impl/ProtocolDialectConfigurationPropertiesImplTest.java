@@ -11,9 +11,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
@@ -57,7 +55,6 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -70,6 +67,9 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -82,6 +82,7 @@ import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -187,6 +188,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new IssuesModule(),
                 new ValidationModule(),
                 new ProtocolsModule(),
+                new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule());
         transactionService = injector.getInstance(TransactionService.class);

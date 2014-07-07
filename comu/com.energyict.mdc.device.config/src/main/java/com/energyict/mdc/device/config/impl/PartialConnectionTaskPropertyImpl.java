@@ -6,8 +6,9 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.ValueFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+
 import javax.inject.Inject;
 
 /**

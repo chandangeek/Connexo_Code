@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -82,6 +83,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
+
 import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
@@ -198,6 +200,7 @@ public class PartialOutboundConnectiontaskCrudIT {
                 new ValidationModule(),
                 new IssuesModule(),
                 new ProtocolsModule(),
+                new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule(),
                 new SchedulingModule());

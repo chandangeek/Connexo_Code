@@ -17,6 +17,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -56,6 +57,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -185,6 +187,7 @@ public class InMemoryPersistence {
                 new SchedulingModule()));
         if (!mockedProtocolPluggableService) {
             modules.add(new IssuesModule());
+            modules.add(new BasicPropertiesModule());
             modules.add(new MdcDynamicModule());
             modules.add(new ProtocolPluggableModule());
             modules.add(new ProtocolsModule());

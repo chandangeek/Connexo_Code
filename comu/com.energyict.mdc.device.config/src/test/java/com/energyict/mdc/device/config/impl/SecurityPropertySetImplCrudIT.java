@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -54,9 +55,11 @@ import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -151,6 +154,7 @@ public class SecurityPropertySetImplCrudIT {
                 new EngineModelModule(),
                 new IssuesModule(),
                 new ProtocolsModule(),
+                new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule(),
                 new SchedulingModule());

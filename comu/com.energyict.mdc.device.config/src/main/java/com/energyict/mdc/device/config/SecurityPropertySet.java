@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;

@@ -12,7 +12,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ConnectionType;

@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -70,6 +71,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -175,6 +177,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                 new ValidationModule(),
                 new IssuesModule(),
                 new ProtocolsModule(),
+                new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule(),
                 new SchedulingModule());
