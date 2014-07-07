@@ -6,6 +6,8 @@
 Ext.define('Uni.override.StoreOverride', {
     override: 'Ext.app.Application',
 
+    pageSize: 10,
+
     getStore: function (name) {
         if (Ext.isEmpty(this.self.storeIdMap)) {
             this.self.storeIdMap = {};
