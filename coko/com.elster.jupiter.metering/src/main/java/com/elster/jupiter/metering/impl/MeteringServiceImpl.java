@@ -43,6 +43,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Date;
 import java.util.List;
 
@@ -257,6 +258,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
                 bind(IdsService.class).toInstance(idsService);
                 bind(PartyService.class).toInstance(partyService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
             }
         });
