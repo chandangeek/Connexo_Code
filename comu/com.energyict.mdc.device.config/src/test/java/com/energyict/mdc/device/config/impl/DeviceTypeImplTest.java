@@ -931,7 +931,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{DTC.X.name.required}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{X.name.required}", property = "name")
     public void testCanNotAddDeviceConfigurationWithoutName() throws Exception {
         deviceType.newConfiguration(null).description("this is it!").add();
     }

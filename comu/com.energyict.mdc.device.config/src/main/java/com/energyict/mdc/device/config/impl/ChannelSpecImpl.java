@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -32,6 +34,7 @@ import java.math.BigDecimal;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -43,6 +46,10 @@ import static com.elster.jupiter.util.Checks.is;
 public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implements ChannelSpec {
 
     private final DeviceConfigurationService deviceConfigurationService;
+
+    @Size(max=StringColumnLengthConstraints.CHANNEL_SPEC_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    private String name;
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED + "}")
@@ -81,6 +88,16 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         setRegisterMapping(registerMapping);
         setPhenomenon(phenomenon);
         return this;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    protected void doSetName(String name) {
+        this.name = name;
     }
 
     @Override

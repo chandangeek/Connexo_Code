@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.google.common.base.Optional;
-import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Provides code reuse opportunities for entities in this bundle
@@ -19,27 +18,25 @@ import org.hibernate.validator.constraints.NotEmpty;
 @HasUniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
 public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
 
-    @Size(max=80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    private String name;
-
     protected PersistentNamedObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(domainClass, dataModel, eventService, thesaurus);
     }
 
-    public String getName() {
-        return name;
-    }
+    protected abstract String getName ();
 
     public void setName(String name) {
         if (name != null) {
-            name = name.trim();
+            this.doSetName(name.trim());
         }
-        this.name = name;
+        else {
+            this.doSetName(null);
+        }
     }
 
+    protected abstract void doSetName(String name);
+
     protected boolean validateUniqueName() {
-        return this.findOtherByName(this.name) == null;
+        return this.findOtherByName(this.getName()) == null;
     }
 
     private T findOtherByName(String name) {

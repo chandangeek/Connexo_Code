@@ -21,10 +21,12 @@ import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.google.inject.Inject;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,6 +44,9 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private final DataModel dataModel;
 
     private DeviceProtocolDialect protocolDialect;
+    @Size(max=StringColumnLengthConstraints.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    private String name;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOLDIALECT_REQUIRED + "}")
     private String protocolDialectName;
     private List<ProtocolDialectConfigurationProperty> propertyList = new ArrayList<>();
@@ -85,6 +90,16 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         if (!comTaskEnablements.isEmpty()) {
             throw new CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException(this.getThesaurus(), this);
         }
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    protected void doSetName(String name) {
+        this.name = name;
     }
 
     @Override

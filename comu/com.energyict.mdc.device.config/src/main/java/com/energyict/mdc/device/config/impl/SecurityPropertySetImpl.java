@@ -20,6 +20,7 @@ import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteSecurityPropertySetWhileInUseException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -29,6 +30,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.google.common.base.Optional;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +47,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.constraints.Size;
 
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 
@@ -56,6 +60,9 @@ import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED
 @LevelMustBeProvidedIfSupportedByDevice(groups = {Save.Create.class, Save.Update.class})
 public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements SecurityPropertySet, PersistenceAware {
 
+    @Size(max=StringColumnLengthConstraints.SECURITY_ROPERTY_SET_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    private String name;
     private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
     private DeviceProtocol deviceProtocol;
     private int authenticationLevelId;
@@ -68,10 +75,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private final UserService userService;
     private final DeviceConfigurationService deviceConfigurationService;
 
-    // Redefine to be able to add @Override
     @Override
-    public void setName(String name) {
-        super.setName(name);
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    protected void doSetName(String name) {
+        this.name = name;
     }
 
     @Override

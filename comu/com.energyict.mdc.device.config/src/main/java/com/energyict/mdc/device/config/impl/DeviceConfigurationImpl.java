@@ -9,6 +9,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.Phenomenon;
@@ -68,7 +70,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    @Size(max=4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG +"}")
+    @Size(max=StringColumnLengthConstraints.DEVICE_CONFIGURATION_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    private String name;
+    @Size(max=StringColumnLengthConstraints.DEVICE_CONFIGURATION_DESCRIPTION, groups = {Save.Update.class, Save.Create.class}, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG +"}")
     private String description;
 
     private boolean active;
@@ -131,6 +136,16 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             }
         }
         return this.communicationConfiguration;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    protected void doSetName(String name) {
+        this.name = name;
     }
 
     @Override

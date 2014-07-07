@@ -26,6 +26,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableList;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +39,10 @@ import javax.validation.constraints.Size;
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
 
-    @Size(min=0, max=4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+MessageSeeds.Keys.FIELD_TOO_LONG +"}")
+    @Size(max=StringColumnLengthConstraints.DEVICE_TYPE_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    private String name;
+    @Size(min=0, max=StringColumnLengthConstraints.DEFAULT_DESCRIPTION_LENGTH, groups = {Save.Update.class, Save.Create.class}, message = "{"+MessageSeeds.Keys.FIELD_TOO_LONG +"}")
     private String description;
     private boolean useChannelJournal;
     private int deviceUsageTypeId;
@@ -137,6 +142,16 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             }
         }
         return false;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    protected void doSetName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
