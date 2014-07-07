@@ -951,6 +951,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void getChannelWithNonExistingNameTest() {
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
+
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
@@ -982,6 +983,18 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         // Asserts: see expected exception rule
     }
 
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DEVICE_CONFIGURATION_NOT_ACTIVE + "}")
+    public void createWithInActiveDeviceConfigurationTest() {
+        DeviceType.DeviceConfigurationBuilder inactiveConfig = deviceType.newConfiguration("Inactie");
+        DeviceConfiguration deviceConfiguration = inactiveConfig.add();
+        deviceType.save();
+
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "MySimpleName", "BlaBla");
+        device.save();
+    }
+
     private ComSchedule createComSchedule(String mRIDAndName) {
         ComScheduleBuilder builder = inMemoryPersistence.getSchedulingService().newComSchedule(mRIDAndName, new TemporalExpression(TimeDuration.days(1)), new UtcInstant(clock.now()));
         builder.mrid(mRIDAndName);
@@ -1002,6 +1015,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         registerSpecBuilder2.setNumberOfFractionDigits(0);
         DeviceConfiguration deviceConfiguration = configurationWithRegisterMappings.add();
         deviceType.save();
+        deviceConfiguration.activate();
         return deviceConfiguration;
     }
 
@@ -1020,6 +1034,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping2, phenomenon2, loadProfileSpecBuilder);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
+        deviceConfiguration.activate();
         return deviceConfiguration;
     }
 

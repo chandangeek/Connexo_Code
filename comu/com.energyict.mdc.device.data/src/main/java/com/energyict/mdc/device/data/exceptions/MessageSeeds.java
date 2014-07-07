@@ -67,6 +67,7 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_STATUS_INACTIVE(2038, Constants.CONNECTION_TASK_STATUS_INACTIVE, "Inactive", INFO),
     VETO_COM_SCHEDULE_DELETION(2039, Constants.VETO_COM_SCHEDULE_DELETION, "The master schedule {0} is still used by at least one device", SEVERE),
     CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE(2040, Constants.CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE, "The master schedule {0} cannot be removed from device {1} because it was not configured on that device", SEVERE),
+    DEVICE_CONFIGURATION_NOT_ACTIVE(2041, Constants.DEVICE_CONFIGURATION_NOT_ACTIVE, "The device configuration must be active", SEVERE),
     ;
     private final int number;
     private final String key;
@@ -181,6 +182,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CONNECTION_TASK_STATUS_INACTIVE = "DDC.connectionTaskStatusInActive";
         public static final String VETO_COM_SCHEDULE_DELETION = "DDC.comTaskExecution.comSchedule.inUse";
         public static final String CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE = "DDC.cannotDeleteComScheduleFromDevice";
+        public static final String DEVICE_CONFIGURATION_NOT_ACTIVE = "DDC.device.configuration.not.active";
     }
 
 }
