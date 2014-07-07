@@ -14,14 +14,14 @@ public class ContactorReconnectStatus extends ContactorStatus<ContactorReconnect
 
     private BitSet contactorMask;
     private int contactorStatusCode;
-    private State contactorState;
+    private ReconnectStatus contactorState;
 
     public ContactorReconnectStatus() {
         this.contactorMask = new BitSet(LENGTH);
-        this.contactorState = State.UNKNOWN;
+        this.contactorState = ReconnectStatus.UNKNOWN;
     }
 
-    public ContactorReconnectStatus(State contactorState) {
+    public ContactorReconnectStatus(ReconnectStatus contactorState) {
         this.contactorState = contactorState;
     }
 
@@ -34,7 +34,7 @@ public class ContactorReconnectStatus extends ContactorStatus<ContactorReconnect
         int startPos = posInMask * LENGTH;
         contactorMask = bitSet.get(startPos, startPos + LENGTH);
         contactorStatusCode = convertBitSetToInt(contactorMask);
-        contactorState = State.fromContactorCode(contactorStatusCode);
+        contactorState = ReconnectStatus.fromContactorCode(contactorStatusCode);
         return this;
     }
 
@@ -48,44 +48,10 @@ public class ContactorReconnectStatus extends ContactorStatus<ContactorReconnect
     }
 
     public String getContactorStatusInfo() {
-        if (!this.contactorState.equals(State.UNKNOWN)) {
+        if (!this.contactorState.equals(ReconnectStatus.UNKNOWN)) {
             return contactorState.getContactorInfo();
         } else {
             return (contactorState.getContactorInfo() + " " + contactorStatusCode);
-        }
-    }
-
-    private enum State {
-        NOT_NEEDED(00, "Did not close contactor, because was already closed"),
-        SUCCESSFUL(01, "Contactor closed correctly"),
-        STILL_MISSING_VOLTAGE(10, "Contactor closed, but still missing voltage"),
-        CONTACTOR_OPENED(11, "Contactor shutdown, but still detecting voltage"),
-        UNKNOWN(-1, "Unknown contactor state");
-
-
-        private final int contactorCode;
-        private final String contactorInfo;
-
-        private State(int contactorCode, String contactorInfo) {
-            this.contactorCode = contactorCode;
-            this.contactorInfo = contactorInfo;
-        }
-
-        public String getContactorInfo() {
-            return contactorInfo;
-        }
-
-        public int getContactorCode() {
-            return contactorCode;
-        }
-
-        public static State fromContactorCode(int statusCode) {
-            for (State state : State.values()) {
-                if (state.getContactorCode() == statusCode) {
-                    return state;
-                }
-            }
-            return State.UNKNOWN;
         }
     }
 }

@@ -11,10 +11,16 @@ import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.elster.garnet.common.InstallationConfig;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
+import com.energyict.protocolimplv2.elster.garnet.exception.UnableToExecuteException;
 import com.energyict.protocolimplv2.elster.garnet.structure.ContactorResponseStructure;
+import com.energyict.protocolimplv2.elster.garnet.structure.DiscoverMetersResponseStructure;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNumber;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.ContactorStatus;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterInstallationStatusBitMaskField;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 
 import java.util.Collections;
@@ -27,6 +33,7 @@ import java.util.List;
 public class ConcentratorMessaging implements DeviceMessageSupport {
 
     private final GarnetConcentrator deviceProtocol;
+    private ErrorCode errorCode;
 
     public ConcentratorMessaging(GarnetConcentrator deviceProtocol) {
         this.deviceProtocol = deviceProtocol;
@@ -75,11 +82,14 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
             ContactorResponseStructure contactorResponseStructure = getDeviceProtocol().getRequestFactory().executeContactorOperation(pendingMessage.getDeviceSerialNumber(), isReconnect);
             int feedbackCode = contactorResponseStructure.getContactorFeedback().getFeedbackCode();
 
+            this.errorCode = ErrorCode.fromCode(feedbackCode >> 6 & 0xFF);
+            String feedbackMessage = checkFeedbackCode(pendingMessage, isReconnect, feedbackCode);
+
             String message;
-            ErrorCode errorCode = ErrorCode.fromCode(feedbackCode >> 6 & 0xFF);
             switch (errorCode) {
                 case SUCCESS:
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+                    collectedMessage.setDeviceProtocolInformation(feedbackMessage);
                     break;
                 case METER_NOT_FOUND:
                 case METER_REPLACED:
@@ -92,6 +102,12 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setDeviceProtocolInformation(errorCode.getDescription());
                     message = "Failed to operate the contactor of slave " + pendingMessage.getDeviceSerialNumber()+ " - Contactor operations are only allowed on the main meter of a poly-phase configuration.";
+                    collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, message));
+                    break;
+                case NON_TECHNICAL_LOSS:
+                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                    collectedMessage.setDeviceProtocolInformation(errorCode.getDescription() + " - " + feedbackMessage);
+                    message = "Failed to operate the contactor of slave " + pendingMessage.getDeviceSerialNumber() + " - " + feedbackMessage;
                     collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, message));
                     break;
                 default:
@@ -113,6 +129,50 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
             collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(pendingMessage, "CouldNotParseMessageData"));
         }
         return collectedMessage;
+    }
+
+    private String checkFeedbackCode(OfflineDeviceMessage pendingMessage, boolean isReconnect, int feedbackCode) throws GarnetException {
+        int nrOfPhases = getInstallationConfigForMeter(pendingMessage.getDeviceSerialNumber());
+        StringBuilder builder = new StringBuilder();
+
+        ContactorStatus.ContactorState statusPhase1 = isReconnect ? ContactorStatus.ReconnectStatus.fromContactorCode(feedbackCode & 0x03) : ContactorStatus.DisconnectStatus.fromContactorCode(feedbackCode & 0x03);
+        ContactorStatus.ContactorState statusPhase2 = isReconnect ? ContactorStatus.ReconnectStatus.fromContactorCode(feedbackCode >> 2 & 0x03) : ContactorStatus.DisconnectStatus.fromContactorCode(feedbackCode >> 2 & 0x03);
+        ContactorStatus.ContactorState statusPhase3 = isReconnect ? ContactorStatus.ReconnectStatus.fromContactorCode(feedbackCode >> 4 & 0x03) : ContactorStatus.DisconnectStatus.fromContactorCode(feedbackCode >> 2 & 0x03);
+
+        builder.append("Phase 1: " + statusPhase1.getContactorInfo());
+        builder.append(nrOfPhases > 1 ? ", Phase 2: " + statusPhase2.getContactorInfo() : "");
+        builder.append(nrOfPhases > 2 ? ", Phase 3: " + statusPhase3.getContactorInfo() : "");
+
+        if (nrOfPhases == 0 && statusPhase1.getContactorCode() != 1 ||
+                nrOfPhases == 1 && (statusPhase1.getContactorCode() != 1 || statusPhase2.getContactorCode() != 1) ||
+                nrOfPhases == 2 && (statusPhase1.getContactorCode() != 1 || statusPhase2.getContactorCode() != 1 || statusPhase3.getContactorCode() != 1)) {
+            // Adapt the error code to reflect non technical loss - this error code will be used in the state machine that is executed after this method
+            setErrorCodeToNonTechnicalLoss();
+        }
+        return builder.toString();
+    }
+
+    private void setErrorCodeToNonTechnicalLoss() {
+        this.errorCode = ErrorCode.NON_TECHNICAL_LOSS;
+    }
+
+    private int getInstallationConfigForMeter(String serialNumber) throws GarnetException {
+        DiscoverMetersResponseStructure meterStatuses = getDeviceProtocol().getRequestFactory().discoverMeters();
+        int meterIndex = getMeterIndex(meterStatuses, serialNumber);
+        List<MeterInstallationStatusBitMaskField> installationStatuses = meterStatuses.getMeterInstallationStatusCollection().getAllBitMasks();
+        InstallationConfig installationConfig = new InstallationConfig(installationStatuses);
+        return installationConfig.getConfigForMeter(meterIndex).size();
+    }
+
+    private int getMeterIndex(DiscoverMetersResponseStructure meterStatuses, String slaveSerialNumber) throws GarnetException {
+        int meterIndex = 0;
+        for (MeterSerialNumber serialNumber : meterStatuses.getMeterSerialNumberCollection()) {
+            if (serialNumber.getSerialNumber().equals(slaveSerialNumber)) {
+                return meterIndex;
+            }
+            meterIndex++;
+        }
+        throw new UnableToExecuteException("Slave " + slaveSerialNumber + " not found on the concentrator. The EIMaster topology is probably wrong.");
     }
 
     @Override
@@ -152,6 +212,7 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
         METER_NOT_FOUND(1, "Meter not found"),
         METER_REPLACED(2, "Meter replaced"),
         METER_IS_NOT_THE_MAIN(3, "Meter is not the main"),
+        NON_TECHNICAL_LOSS(4, "Command executed with success, but one or more relays did not switch correctly"),
         UNKNOWN(0xFF, "Unknown execution code");
 
         private final int code;

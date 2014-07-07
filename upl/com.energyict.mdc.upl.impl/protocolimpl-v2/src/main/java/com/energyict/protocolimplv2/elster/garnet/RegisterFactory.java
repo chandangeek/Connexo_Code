@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.elster.garnet.common.InstallationConfig;
 import com.energyict.protocolimplv2.elster.garnet.common.ReadingResponse;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
@@ -236,11 +237,12 @@ public class RegisterFactory implements DeviceRegisterSupport {
         }
 
         CollectedRegister collectedRegister;
+        boolean isBilling = register.getObisCode().getF() == 0;
         ReadingResponse readingResponse = getRequestFactory().readRegisterReading(
                 meterIndexToRead,
-                register.getObisCode().getF() == 0 ? ReadingRequestStructure.ReadingMode.CHECKPOINT_READING : ReadingRequestStructure.ReadingMode.ONLINE_READING
+                isBilling ? ReadingRequestStructure.ReadingMode.CHECKPOINT_READING : ReadingRequestStructure.ReadingMode.ONLINE_READING
         );
-        collectedRegister = createDeviceRegister(register);
+        collectedRegister = createDeviceRegister(register, isBilling ? readingResponse.getReadingDateTime().getDate() : null);
         boolean activeEnergyRegister = register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_1_OBIS)
                 || register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_2_OBIS)
                 || register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_3_OBIS);
@@ -302,8 +304,12 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createDeviceRegister(OfflineRegister register) {
+        return this.createDeviceRegister(register);
+    }
+
+    private CollectedRegister createDeviceRegister(OfflineRegister register, Date eventTime) {
         CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
-        deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), null);
+        deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
         return deviceRegister;
     }
 
@@ -335,50 +341,5 @@ public class RegisterFactory implements DeviceRegisterSupport {
 
     public RequestFactory getRequestFactory() {
         return getMeterProtocol().getRequestFactory();
-    }
-
-    private class InstallationConfig {
-
-        private List<List<Integer>> installationConfigs;
-
-        private InstallationConfig(List<MeterInstallationStatusBitMaskField> installationStatuses) {
-            this.installationConfigs = new ArrayList<>();
-            buildInstallationConfig(installationStatuses);
-        }
-
-        private void buildInstallationConfig(List<MeterInstallationStatusBitMaskField> installationStatuses) {
-            int i = 0;
-            while (i < installationStatuses.size()) {
-                List<Integer> config = new ArrayList<>();
-                switch (installationStatuses.get(i).getInstallationStatus()) {
-                    case TWO_PHASE:
-                        config.add(i);
-                        config.add(i + 1);
-                        i += 2;
-                        break;
-                    case THREE_PHASE:
-                        config.add(i);
-                        config.add(i + 1);
-                        config.add(i + 2);
-                        i += 3;
-                        break;
-                    default:
-                        config.add(i);
-                        i++;
-                        break;
-                }
-
-                installationConfigs.add(config);
-            }
-        }
-
-        public List<Integer> getConfigForMeter(int meterNumber) {
-            for (List<Integer> config : installationConfigs) {
-                if (config.contains(meterNumber)) {
-                    return config;
-                }
-            }
-            return new ArrayList<>();
-        }
     }
 }
