@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
 
@@ -16,8 +17,8 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(AppServerImpl.class);
-            Column idColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
-            table.column("CRONSTRING").type("varchar2(80)").notNull().map("cronString").add();
+            Column idColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
             table.column("RECURRENTTASKSACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("recurrentTaskActive").add();
             table.primaryKey("APS_PK_APPSERVER").on(idColumn).add();
         }
@@ -29,9 +30,9 @@ public enum TableSpecs {
             table.map(SubscriberExecutionSpecImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("THREADCOUNT").type("NUMBER").notNull().conversion(NUMBER2INT).map("threadCount").add();
-            table.column("SUBSCRIBERSPEC").type("varchar2(80)").notNull().map("subscriberSpecName").add();
-            table.column("DESTINATIONSPEC").type("varchar2(80)").notNull().map("destinationSpecName").add();
-            Column appServerColumn = table.column("APPSERVER").type("varchar2(80)").notNull().map("appServerName").add();
+            table.column("SUBSCRIBERSPEC").varChar(NAME_LENGTH).notNull().map("subscriberSpecName").add();
+            table.column("DESTINATIONSPEC").varChar(NAME_LENGTH).notNull().map("destinationSpecName").add();
+            Column appServerColumn = table.column("APPSERVER").varChar(NAME_LENGTH).notNull().map("appServerName").add();
             table.foreignKey("APS_FKEXECUTIONSPECAPPSERVER").references(APS_APPSERVER.name()).onDelete(DeleteRule.CASCADE).map("appServer").on(appServerColumn).add();
             table.primaryKey("APS_PK_SUBSCRIBEREXECUTIONSPEC").on(idColumn).add();
         }
@@ -40,7 +41,7 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(ImportScheduleOnAppServerImpl.class);
-            Column appServerColumn = table.column("APPSERVER").type("varchar2(80)").notNull().map("appServerName").add();
+            Column appServerColumn = table.column("APPSERVER").varChar(NAME_LENGTH).notNull().map("appServerName").add();
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
             table.foreignKey("APS_FKIMPORTSCHEDULEAPPSERVER").references(APS_APPSERVER.name()).onDelete(DeleteRule.CASCADE).map("appServer").on(appServerColumn).add();
             table.primaryKey("APS_PK_IMPORTSCHEDULEONSERVER").on(appServerColumn, importScheduleColumn).add();
