@@ -20,7 +20,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.HashMap;
+import javax.validation.MessageInterpolator;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +61,7 @@ public class BpmServiceImpl implements BpmService, InstallService {
                 bind(JsonService.class).toInstance(jsonService);
                 bind(AppService.class).toInstance(appService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(BpmService.class).toInstance(BpmServiceImpl.this);
             }
         });
