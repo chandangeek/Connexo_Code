@@ -48,6 +48,8 @@ import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import javax.validation.MessageInterpolator;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +72,7 @@ public class BaseTest {
 
             Thesaurus thesaurus = mock(Thesaurus.class);
             bind(Thesaurus.class).toInstance(thesaurus);
+            bind(MessageInterpolator.class).toInstance(thesaurus);
 
             //TODO think about including this lines into IssueModule class
             TaskService taskService = mock(TaskService.class);
