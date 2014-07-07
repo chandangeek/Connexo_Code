@@ -50,6 +50,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -417,6 +419,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(EngineModelService.class).toInstance(engineModelService);
