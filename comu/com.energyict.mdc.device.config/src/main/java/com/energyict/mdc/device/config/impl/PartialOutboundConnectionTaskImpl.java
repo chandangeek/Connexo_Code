@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
  * @author sva
  * @since 22/01/13 - 11:52
  */
-@ConnectionTypeDirectionValidForConnectionTask(groups = {Save.Create.class, Save.Update.class}, direction = ConnectionType.ConnectionTypeDirection.OUTBOUND)
+@ConnectionTypeDirectionValidForConnectionTask(groups = {Save.Create.class, Save.Update.class}, direction = ConnectionType.Direction.OUTBOUND)
 public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialOutboundConnectionTask {
 
     enum Fields {
@@ -41,9 +41,9 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
             return javaFieldName;
         }
     }
-    
+
     private final SchedulingService schedulingService;
-    
+
     @Valid
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 

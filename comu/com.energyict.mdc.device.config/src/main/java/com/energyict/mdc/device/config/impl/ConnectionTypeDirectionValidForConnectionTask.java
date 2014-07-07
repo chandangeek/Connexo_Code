@@ -26,5 +26,5 @@ public @interface ConnectionTypeDirectionValidForConnectionTask {
 
     Class<? extends Payload>[] payload() default {};
 
-    ConnectionType.ConnectionTypeDirection direction();
+    ConnectionType.Direction direction();
 }
