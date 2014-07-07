@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.impl.TableImpl;
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
 	
@@ -21,7 +22,7 @@ public enum TableSpecs {
 			Table<DataModel> table = dataModel.addTable(name(),DataModel.class);
 			table.map(DataModelImpl.class);
 			Column name = table.column("NAME").type(COMPONENTDBTYPE).notNull().map("name").add();
-			table.column("DESCRIPTION").type("varchar2(80)").map("description").add();
+			table.column("DESCRIPTION").varChar(NAME_LENGTH).map("description").add();
 			table.primaryKey("ORM_PK_COMPONENT").on(name).add();
 		}
 	},
@@ -52,15 +53,15 @@ public enum TableSpecs {
 			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().add();		
 			Column name= table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
 			Column position = table.addPositionColumn();
-			table.column("FIELDNAME").type("varchar2(80)").map("fieldName").add();
+			table.column("FIELDNAME").varChar(NAME_LENGTH).map("fieldName").add();
 			table.column("DBTYPE").type(CATALOGDBTYPE).notNull().map("dbType").add();
 			table.column("NOTNULL").bool().map("notNull").add();
 			table.column("VERSIONCOUNT").bool().map("versionCount").add();
 			table.column("CONVERSION").type("varchar2(30)").notNull().conversion(CHAR2ENUM).map("conversion").add();
 			table.column("SKIPONUPDATE").bool().map("skipOnUpdate").add();
 			table.column("SEQUENCENAME").type(CATALOGDBTYPE).map("sequenceName").add();
-			table.column("INSERTVALUE").type("varchar2(256)").map("insertValue").add();
-			table.column("UPDATEVALUE").type("varchar2(256)").map("updateValue").add();
+			table.column("INSERTVALUE").varChar(SHORT_DESCRIPTION_LENGTH).map("insertValue").add();
+			table.column("UPDATEVALUE").varChar(SHORT_DESCRIPTION_LENGTH).map("updateValue").add();
 			table.primaryKey("ORM_PK_COLUMNS").on(component, tableName, name).add();
 			table.unique("ORM_U_COLUMNPOSITION").on(component, tableName , position).add();
 			table.foreignKey("ORM_FK_COLUMNTABLE").on(component,tableName).references(ORM_TABLE.name()).onDelete(CASCADE).
@@ -79,10 +80,10 @@ public enum TableSpecs {
 			Column referencedComponent = table.column("REFERENCEDCOMPONENT").type(COMPONENTDBTYPE).add();
 			Column referencedTable = table.column("REFERENCEDTABLENAME").type(CATALOGDBTYPE).add();
 			table.column("DELETERULE").type(CATALOGDBTYPE).conversion(CHAR2ENUM).map("deleteRule").add();
-			table.column("FIELDNAME").type("VARCHAR2(80)").map("fieldName").add();
-			table.column("REVERSEFIELDNAME").type("VARCHAR2(80)").map("reverseFieldName").add();
-			table.column("REVERSEORDERFIELDNAME").type("VARCHAR2(80)").map("reverseOrderFieldName").add();
-			table.column("REVERSECURRENTFIELDNAME").type("VARCHAR2(80)").map("reverseCurrentFieldName").add();
+			table.column("FIELDNAME").varChar(NAME_LENGTH).map("fieldName").add();
+			table.column("REVERSEFIELDNAME").varChar(NAME_LENGTH).map("reverseFieldName").add();
+			table.column("REVERSEORDERFIELDNAME").varChar(NAME_LENGTH).map("reverseOrderFieldName").add();
+			table.column("REVERSECURRENTFIELDNAME").varChar(NAME_LENGTH).map("reverseCurrentFieldName").add();
 			table.column("COMPOSITION").type("CHAR(1)").conversion(CHAR2BOOLEAN).map("composition").add();
 			table.primaryKey("ORM_PK_CONSTRAINT").on(component , tableName , name).add();
 			table.unique("ORM_U_CONSTRAINT").on(name).add();

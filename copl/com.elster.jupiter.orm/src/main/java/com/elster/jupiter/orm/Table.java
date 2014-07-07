@@ -9,6 +9,11 @@ import java.util.Map;
  * while fieldName refers to an java instance field.
  */
 public interface Table<T> {
+
+    public static final int NAME_LENGTH = 80;
+    public static final int SHORT_DESCRIPTION_LENGTH = 256;
+    public static final int DESCRIPTION_LENGTH = 4000;
+
     // datamodel construction api
     Column.Builder column(String name);
     PrimaryKeyConstraint.Builder primaryKey(String name);
