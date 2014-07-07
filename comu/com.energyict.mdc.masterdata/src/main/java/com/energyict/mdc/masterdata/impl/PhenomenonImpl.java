@@ -26,7 +26,7 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(max=80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= StringColumnLengthConstraints.PHENOMENON_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
     public String getName() {
@@ -62,10 +62,8 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
 
     enum Fields {
         NAME("name"),
-        DESCRIPTION("description"),
         UNIT("unitString"),
         MEASUREMENT_CODE("measurementCode"),
-        EDI_CODE("ediCode"),
         MODIFICATION_DATE("modificationDate");
         private final String javaFieldName;
 
@@ -82,9 +80,8 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
 
     private String unitString;
     private Unit unit;
-    private String description;
+    @Size(max= StringColumnLengthConstraints.PHENOMENON_MEASUREMENT_CODE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String measurementCode;
-    private String ediCode;
     private Date modificationDate;
 
     @Inject
@@ -97,14 +94,6 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
         setName(name);
         setUnit(unit);
         return this;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public String getEdiCode() {
-        return this.ediCode;
     }
 
     public String getMeasurementCode() {
@@ -179,8 +168,4 @@ public class PhenomenonImpl extends PersistentNamedObject<Phenomenon> implements
         this.measurementCode = measurementCode;
     }
 
-    @Override
-    public void setEdiCode(String ediCode) {
-        this.ediCode = ediCode;
-    }
 }
