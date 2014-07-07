@@ -10,6 +10,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.*;
 import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.*;
 import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.*;
@@ -106,6 +107,7 @@ public enum TableSpecs {
                     map(RegisterGroupUsageImpl.Fields.REGISTERS_TASK_REFERENCE.fieldName()).
                     reverseMap(RegistersTaskImpl.Fields.REGISTER_GROUP_USAGES.fieldName()).
                     composition().
+                    onDelete(CASCADE).
                     add();
             table.foreignKey("FK_CTS_REGISTERGROUP").on(registerGroup).references(MasterDataService.COMPONENTNAME, "MDS_REGISTERGROUP").map(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName()).add();
             table.primaryKey("PK_CTS_REGISTERGROUPUSAGE").on(registerTask, registerGroup).add();
@@ -122,12 +124,13 @@ public enum TableSpecs {
 
             table.primaryKey("PK_CTS_LOADPRFLTYPEUSAGE").on(loadProfileTask,loadProfileType).add();
 
-            table.foreignKey("FK_CTS_LOADPRFLTYPEUSAGE_TASK")
-                    .on(loadProfileTask).references(CTS_PROTOCOLTASK.name())
-                    .map(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TASK_REFERENCE.fieldName())
-                    .reverseMap(LoadProfilesTaskImpl.Fields.LOAD_PROFILE_TYPE_USAGES.fieldName())
-                    .composition()
-                    .add();
+            table.foreignKey("FK_CTS_LOADPRFLTYPEUSAGE_TASK").
+                    on(loadProfileTask).references(CTS_PROTOCOLTASK.name()).
+                    map(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TASK_REFERENCE.fieldName()).
+                    reverseMap(LoadProfilesTaskImpl.Fields.LOAD_PROFILE_TYPE_USAGES.fieldName()).
+                    composition().
+                    onDelete(CASCADE).
+                    add();
             table.foreignKey("FK_CTS_LOADPRFLTYPEUSAGE_TYPE").
                     on(loadProfileType).
                     references(MasterDataService.COMPONENTNAME, "MDS_LOADPROFILETYPE").
@@ -146,13 +149,13 @@ public enum TableSpecs {
 
             table.primaryKey("PK_CTS_LOGBOOKTYPEUSAGE").on(logbooksTask,logbookType).add();
 
-            table.foreignKey("FK_CTS_LOGBOOKTYPEUSAGE_TASK")
-                    .on(logbooksTask).references(CTS_PROTOCOLTASK.name())
-                    .map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TASK_REFERENCE.fieldName())
-                    .reverseMap(LogBooksTaskImpl.Fields.LOGBOOK_TYPE_USAGES.fieldName())
-                    .composition()
-                    .onDelete(DeleteRule.CASCADE)
-                    .add();
+            table.foreignKey("FK_CTS_LOGBOOKTYPEUSAGE_TASK").
+                    on(logbooksTask).references(CTS_PROTOCOLTASK.name()).
+                    map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TASK_REFERENCE.fieldName()).
+                    reverseMap(LogBooksTaskImpl.Fields.LOGBOOK_TYPE_USAGES.fieldName()).
+                    composition().
+                    onDelete(DeleteRule.CASCADE).
+                    add();
             table.foreignKey("FK_CTS_LOGBOOKTYPEUSAGE_TYPE").
                     on(logbookType).references(MasterDataService.COMPONENTNAME, "MDS_LOGBOOKTYPE").
                     map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName()).
