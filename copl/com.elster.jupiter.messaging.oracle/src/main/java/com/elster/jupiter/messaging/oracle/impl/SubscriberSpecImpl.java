@@ -18,6 +18,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * SubscriberSpec implementation.
@@ -41,7 +44,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     private final Reference<DestinationSpec> destination = ValueReference.absent();
 
-    private volatile OracleConnection cancellableConnection;
+    private final Collection<OracleConnection> cancellableConnections = Collections.synchronizedSet(new HashSet<OracleConnection>());
 
     private final Object cancelLock = new Object();
 
@@ -82,12 +85,14 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     private Message tryReceive() throws SQLException {
+        OracleConnection cancellableConnection = null;
         try (Connection connection = getConnection()) {
             cancellableConnection = connection.unwrap(OracleConnection.class);
+            cancellableConnections.add(cancellableConnection);
             AQMessage aqMessage = null;
             try {
                 while (aqMessage == null) {
-                    aqMessage = dequeueMessage();
+                    aqMessage = dequeueMessage(cancellableConnection);
                 }
                 return new MessageImpl(aqMessage);
             } catch (SQLTimeoutException e) {
@@ -97,7 +102,9 @@ public class SubscriberSpecImpl implements SubscriberSpec {
                  */
             }
         } finally {
-            cancellableConnection = null;
+            if (cancellableConnection != null) {
+                cancellableConnections.remove(cancellableConnection);
+            }
         }
         return null;
     }
@@ -106,17 +113,16 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         return dataModel.getConnection(false);
     }
 
-    private AQMessage dequeueMessage() throws SQLException {
+    private AQMessage dequeueMessage(OracleConnection cancellableConnection) throws SQLException {
         return cancellableConnection.dequeue(destination.get().getName(), basicOptions(), getDestination().getPayloadType());
     }
 
     @Override
     public void cancel() {
-        synchronized (cancelLock) {
-            OracleConnection localCopy = cancellableConnection;
-            if (localCopy != null) {
+        synchronized (cancellableConnections) {
+            for (OracleConnection cancellableConnection : cancellableConnections) {
                 try {
-                    localCopy.cancel();
+                    cancellableConnection.cancel();
                 } catch (SQLException e) {
                     throw new UnderlyingSQLFailedException(e);
                 }
