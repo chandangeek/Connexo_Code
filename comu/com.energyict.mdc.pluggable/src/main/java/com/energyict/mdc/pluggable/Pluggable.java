@@ -1,7 +1,7 @@
 package com.energyict.mdc.pluggable;
 
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.HasDynamicProperties;
 
 /**
  * Models a component that can be plugged into the meter data collection engine.

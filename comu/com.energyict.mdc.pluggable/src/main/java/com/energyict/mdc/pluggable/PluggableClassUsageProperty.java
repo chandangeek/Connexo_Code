@@ -1,7 +1,7 @@
 package com.energyict.mdc.pluggable;
 
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.dynamic.HasDynamicProperties;
 
 /**
  * Holds the value of a property of a {@link PluggableClass}.
