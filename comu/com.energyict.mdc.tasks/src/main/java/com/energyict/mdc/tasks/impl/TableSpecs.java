@@ -15,6 +15,7 @@ import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.*;
 import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.*;
 import static com.energyict.mdc.tasks.impl.MessagesTaskImpl.Fields.ALL_CATEGORIES;
 import static com.energyict.mdc.tasks.impl.TopologyTaskImpl.Fields.TOPOLOGY_ACTION;
+import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
     CTS_COMTASK {
@@ -23,7 +24,7 @@ public enum TableSpecs {
             Table<ComTask> table = dataModel.addTable(name(), ComTask.class);
             table.map(ComTaskImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").type("varchar2(256)").map(ComTaskImpl.Fields.NAME.fieldName()).add();
+            table.column("NAME").varChar(SHORT_DESCRIPTION_LENGTH).map(ComTaskImpl.Fields.NAME.fieldName()).add();
             table.column("STOREDATA").number().conversion(NUMBER2BOOLEAN).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
             table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
             table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map(ComTaskImpl.Fields.MOD_DATE.fieldName()).insert("sysdate").update("sysdate").add();
@@ -79,8 +80,8 @@ public enum TableSpecs {
             table.map(MessagesTaskTypeUsageImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column messageTaskId = table.column("MESSAGETASK").number().conversion(NUMBER2INT).add(); // DO NOT MAP
-            table.column("MESSAGECATEGORY").type("varchar2(256)").map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
-            table.column("MESSAGESPEC").type("varchar2(256)").map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_SPEC.fieldName()).add();
+            table.column("MESSAGECATEGORY").varChar(SHORT_DESCRIPTION_LENGTH).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
+            table.column("MESSAGESPEC").varChar(SHORT_DESCRIPTION_LENGTH).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_SPEC.fieldName()).add();
             table.foreignKey("FK_CTS_DEVMSGTUSAGE_COMTASK").
                     on(messageTaskId).
                     references(CTS_PROTOCOLTASK.name()).
