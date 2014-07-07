@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetsGrid', {
                 header: Uni.I18n.translate('validation.ruleSetName', 'MDC', 'Validation rule set'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/overview/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
                 },
                 flex: 1
             },
