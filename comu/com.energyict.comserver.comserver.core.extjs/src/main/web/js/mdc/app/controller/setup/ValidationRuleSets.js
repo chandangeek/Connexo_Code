@@ -233,10 +233,10 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         switch (action) {
             case 'viewRule':
-                // TODO Link to the rule overview when [JP-3505] is done.
+                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
                 break;
             case 'viewRuleSet':
-                window.location.href = '#/administration/validation/overview/' + record.getId();
+                window.location.href = '#/administration/validation/rulesets/' + record.getId();
                 break;
         }
     },
@@ -247,8 +247,11 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             record = menu.record;
 
         switch (action) {
+            case 'viewRule':
+                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
+                break;
             case 'viewRuleSet':
-                window.location.href = '#/administration/validation/overview/' + record.getId();
+                window.location.href = '#/administration/validation/rulesets/' + record.getId();
                 break;
             case 'removeRuleSet':
                 me.removeValidationRuleSet(record);
@@ -263,7 +266,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         switch (action) {
             case 'viewRule':
-                // TODO Link to the rule overview when [JP-3505] is done.
+                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
                 break;
         }
     },
@@ -275,7 +278,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         switch (action) {
             case 'viewRule':
-                // TODO Link to the rule overview when [JP-3505] is done.
+                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
                 break;
         }
     },

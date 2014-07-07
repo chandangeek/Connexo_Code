@@ -162,17 +162,16 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
 
         switch (item.action) {
             case 'addInbound':
-                router.getRoute('administration/comservers/' + id + 'comports/add/inbound').forward();
+                router.getRoute('administration/comservers/detail/comports/addInbound').forward();
                 break;
             case 'addOutbound':
-                router.getRoute('administration/comservers/' + id + 'comports/add/outbound').forward();
+                router.getRoute('administration/comservers/detail/comports/addOutbound').forward();
                 break;
         }
     },
 
     passwordVisibleTrigger: function (component, newValue) {
         var password = component.up('fieldcontainer').down('displayfield');
-
         password.setVisible(newValue);
     },
 

@@ -24,9 +24,9 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.RulesForLoadProfileConfigGri
             {
                 header: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                 dataIndex: 'name',
-                /*renderer: function (value, b, record) {
-                 return '<a href="#/administration/validation/overview/' + record.getId() + '">' + value + '</a>';
-                 },   */
+                renderer: function (value, b, record) {
+                    return '<a href="#/administration/validation/rulesets/validationrules/' + record.data.ruleSetId + '/ruleoverview/' + record.getId()  + '">' + value + '</a>';
+                },
                 flex: 1
             },
             { header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 0.3, sortable: false, fixed: true,
@@ -41,7 +41,10 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.RulesForLoadProfileConfigGri
             {
                 header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
                 dataIndex: 'ruleSetName',
-                flex: 1
+                flex: 1,
+                renderer: function (value, b, record) {
+                    return '<a href="#/administration/validation/rulesets/overview/' + record.data.ruleSetId + '">' + value + '</a>';
+                }
             },
             {
                 xtype: 'uni-actioncolumn',

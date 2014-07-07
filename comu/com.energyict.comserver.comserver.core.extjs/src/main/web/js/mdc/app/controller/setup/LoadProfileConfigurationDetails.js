@@ -109,8 +109,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 }
             ]
         }).show({
-                title: 'Remove ' + lastSelected.getData().name + '?',
-                msg: 'This channel will be removed from load profile configuration',
+                title: "Remove '" + lastSelected.getData().name + "'?",
+                msg: 'This channel will be removed from load profile configuration.',
                 icon: Ext.MessageBox.WARNING
             })
     },
