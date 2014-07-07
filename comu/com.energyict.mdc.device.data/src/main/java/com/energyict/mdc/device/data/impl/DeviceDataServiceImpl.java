@@ -42,6 +42,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
@@ -1019,9 +1020,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public boolean isLinkedToDevices(ComSchedule comSchedule) {
-        return !this.dataModel.query(DeviceInComScheduleImpl.class)
-                .select(where(DeviceInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName()).isEqualTo(comSchedule),new Order[0], false, new String[0], 0,1)
-                .isEmpty();
+        return !this.dataModel.mapper(ScheduledComTaskExecution.class).find(ComTaskExecutionFields.COM_SCHEDULE.fieldName(), comSchedule).isEmpty();
     }
 
     @Override
