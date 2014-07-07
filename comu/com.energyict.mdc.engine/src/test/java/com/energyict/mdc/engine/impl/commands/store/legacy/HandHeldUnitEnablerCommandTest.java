@@ -247,8 +247,8 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
         }
 
         @Override
-        public ConnectionTypeDirection getDirection() {
-            return ConnectionTypeDirection.OUTBOUND;
+        public Direction getDirection() {
+            return Direction.OUTBOUND;
         }
 
         @Override

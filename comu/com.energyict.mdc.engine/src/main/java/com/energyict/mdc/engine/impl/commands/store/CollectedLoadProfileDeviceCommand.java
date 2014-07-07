@@ -47,14 +47,10 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
         MeterReadingImpl meterReading = new MeterReadingImpl();
         meterReading.addAllIntervalBlocks(localLoadProfile.intervalBlocks);
         comServerDAO.storeMeterReadings(new DeviceIdentifierById(loadProfile.getDevice().getId(), getDeviceDataService()), meterReading);
-        comServerDAO.executeTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                LoadProfile.LoadProfileUpdater loadProfileUpdater = loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile);
-                loadProfileUpdater.setLastReadingIfLater(localLoadProfile.lastReading);
-                loadProfileUpdater.update();
-            }
-        });
+        // Todo: use method on the comServerDAO
+        LoadProfile.LoadProfileUpdater loadProfileUpdater = loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile);
+        loadProfileUpdater.setLastReadingIfLater(localLoadProfile.lastReading);
+        loadProfileUpdater.update();
     }
 
     private LocalLoadProfile filterFutureDatesAndCalculateLastReading(LoadProfile loadProfile) {

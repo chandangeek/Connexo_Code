@@ -186,7 +186,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     @Override
     public <T> T executeTransaction(Transaction<T> transaction) {
-        return null;
+        return transaction.perform();
     }
 
     @Override
@@ -251,7 +251,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
-        // Not storing meterReadingData in mock mode
+        // Todo
     }
 
     @Override

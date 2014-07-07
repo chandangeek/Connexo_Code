@@ -205,22 +205,13 @@ public abstract class AbstractCollectedDataIntegrationTest {
         return injector.getInstance(TransactionService.class).execute(transaction);
     }
 
-    protected ComServerDAOImpl mockComServerDAOButCallRealMethodForMeterReadingStoring() {
-        final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
-        doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
-        when(comServerDAO.executeTransaction(any(Transaction.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                return transactionService.execute((Transaction<?>) invocation.getArguments()[0]);
-            }
-        });
-        return comServerDAO;
-    }
-
     static Clock getClock() {
         return clock;
     }
 
+    static TransactionService getTransactionService() {
+        return transactionService;
+    }
 
     MeteringService getMeteringService() {
         return meteringService;

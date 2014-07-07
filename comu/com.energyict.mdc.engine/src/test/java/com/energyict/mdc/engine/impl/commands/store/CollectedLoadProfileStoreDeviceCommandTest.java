@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -19,6 +20,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.engine.DeviceCreator;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -27,6 +29,8 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -34,7 +38,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -133,11 +139,13 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
         freezeClock(verificationTimeStamp);
-        collectedLoadProfileDeviceCommand.execute(comServerDAO);
-        collectedLoadProfileDeviceCommand.execute(comServerDAO);
+        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
 
+        // Business method
+        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
+
+        // Asserts
         List<Channel> channels = getChannels(deviceId);
-
         assertThat(channels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsChannel1 = channels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp));
         assertThat(intervalReadingsChannel1).hasSize(4);
@@ -171,10 +179,12 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
         freezeClock(verificationTimeStamp);
-        collectedLoadProfileDeviceCommand.execute(comServerDAO);
 
+        // Business method
+        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
+
+        // Asserts
         List<Channel> channels = getChannels(deviceId);
-
         assertThat(channels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsChannel1 = channels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp));
         assertThat(intervalReadingsChannel1).hasSize(4);
@@ -209,10 +219,11 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
         freezeClock(verificationTimeStamp);
 
-        collectedLoadProfileDeviceCommand.execute(comServerDAO);
+        // Business method
+        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
 
+        // Asserts
         List<Channel> channels = getChannels(deviceId);
-
         assertThat(channels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsChannel1 = channels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp));
         assertThat(intervalReadingsChannel1).hasSize(4);
@@ -240,10 +251,9 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
 
         freezeClock(verificationTimeStamp);
 
-        collectedLoadProfileDeviceCommand.execute(comServerDAO);
+        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
 
         List<IntervalData> updatedCollectedIntervalData = new ArrayList<>();
-
         List<IntervalValue> updatedIntervalList = new ArrayList<>();
         int updatedIntervalChannelOne = 7777;
         int updatedIntervalChannelTwo = 3333;
@@ -252,10 +262,11 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         updatedCollectedIntervalData.add(new IntervalData(intervalEndTime3, 0, 0, 0, updatedIntervalList));
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(updatedCollectedIntervalData);
 
-        collectedLoadProfileDeviceCommand.execute(comServerDAO);
+        // Business method
+        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
 
+        // Asserts
         List<Channel> channels = getChannels(deviceId);
-
         assertThat(channels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsChannel1 = channels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp));
         assertThat(intervalReadingsChannel1).hasSize(4);
@@ -289,10 +300,32 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
         // Business method
-        collectedLoadProfileDeviceCommand.execute(comServerDAO);
+        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
 
         // Asserts
         assertThat(device.getLoadProfiles().get(0).getLastReading()).isEqualTo(intervalEndTime4);
+    }
+
+    protected ComServerDAOImpl mockComServerDAOButCallRealMethodForMeterReadingStoring() {
+        final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
+        when(comServerDAO.executeTransaction(any(Transaction.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return ((Transaction<?>) invocation.getArguments()[0]).perform();
+            }
+        });
+        return comServerDAO;
+    }
+
+    private void execute (final DeviceCommand command, final ComServerDAO comServerDAO) {
+        this.executeInTransaction(new Transaction<Object>() {
+            @Override
+            public Object perform() {
+                command.execute(comServerDAO);
+                return null;
+            }
+        });
     }
 
     private CollectedLoadProfile createCollectedLoadProfile(LoadProfile loadProfile) {
@@ -364,4 +397,5 @@ public class CollectedLoadProfileStoreDeviceCommandTest extends AbstractCollecte
         }
         return Collections.emptyList();
     }
+
 }

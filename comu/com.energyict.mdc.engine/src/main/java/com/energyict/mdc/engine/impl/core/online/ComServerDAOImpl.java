@@ -58,8 +58,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-//import com.energyict.mdc.engine.model.ComServer;
-
 /**
  * Provides a default implementation for the {@link ComServerDAO} interface
  * that uses the EIServer persistence framework for all requests.
@@ -212,47 +210,28 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
-        final TypedProperties properties = connectionTask.getTypedProperties();
+        TypedProperties properties = connectionTask.getTypedProperties();
         properties.setProperty(connectionTaskPropertyName, ipAddress);
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-//                serverConnectionTask.updateProperties(properties);
-                // add/remove/update properties
-                return null; // TODO JP-1123
-
-            }
-        });
+        // TODO: JP-1123
+        // serverConnectionTask.updateProperties(properties);
+        // add/remove/update properties
     }
 
     @Override
     public void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
-        final BaseDevice device = deviceIdentifier.findDevice();
-        final BaseDevice gatewayDevice;
+        BaseDevice device = deviceIdentifier.findDevice();
+        BaseDevice gatewayDevice;
         if (gatewayDeviceIdentifier != null) {
             gatewayDevice = gatewayDeviceIdentifier.findDevice();
         } else {
             gatewayDevice = null;
         }
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                device.setPhysicalGateway(gatewayDevice);
-                return null;
-            }
-        });
+        device.setPhysicalGateway(gatewayDevice);
     }
 
     @Override
     public void storeConfigurationFile(DeviceIdentifier deviceIdentifier, final DateFormat timeStampFormat, final String fileExtension, final byte[] contents) {
-        final BaseDevice device = deviceIdentifier.findDevice();
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                doStoreConfigurationFile(device, timeStampFormat, fileExtension, contents);
-                return null;
-            }
-        });
+        this.doStoreConfigurationFile(deviceIdentifier.findDevice(), timeStampFormat, fileExtension, contents);
     }
 
     private void doStoreConfigurationFile(BaseDevice device, DateFormat timeStampFormat, String fileExtension, byte[] contents) {
@@ -432,14 +411,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storeMeterReadings(final DeviceIdentifier<Device> deviceIdentifier, final MeterReading meterReading) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                Device device = deviceIdentifier.findDevice();
-                device.store(meterReading);
-                return null;
-            }
-        });
+        Device device = deviceIdentifier.findDevice();
+        device.store(meterReading);
     }
 
     @Override
@@ -475,7 +448,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void setMaxNumberOfTries(final ScheduledConnectionTask connectionTask, final int maxNumberOfTries) {
-        executeTransaction(new VoidTransaction() {
+        this.executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
                 connectionTask.setMaxNumberOfTries(maxNumberOfTries);

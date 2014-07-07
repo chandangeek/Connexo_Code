@@ -5,6 +5,8 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationContext;
@@ -16,6 +18,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.DeviceCreator;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
@@ -33,13 +36,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +68,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     private Quantity register1Quantity = new Quantity(123, kiloWattHours);
     private Date registerEventTime2 = new DateTime(2014, 1, 1, 0, 23, 12, 2).toDate();
     private Date registerEventTime3 = new DateTime(2014, 1, 1, 0, 23, 12, 12).toDate();
-    
+
     private DeviceCreator deviceCreator;
 
     @Before
@@ -96,12 +103,14 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
 
         DeviceRegisterList collectedRegisterList = new DeviceRegisterList(deviceIdentifier);
         collectedRegisterList.addCollectedRegister(collectedRegister);
-        final CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList);
+        CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList);
 
-        final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
+        ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 
-        collectedRegisterListDeviceCommand.execute(comServerDAO);
+        // Business method
+        this.execute(collectedRegisterListDeviceCommand, comServerDAO);
 
+        // Asserts
         Optional<AmrSystem> amrSystem = getInjector().getInstance(MeteringService.class).findAmrSystem(1);
         MeterActivation currentMeterActivation = getCurrentMeterActivation(deviceId, amrSystem.get());
         assertThat(currentMeterActivation).isNotNull();
@@ -110,6 +119,28 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         List<? extends BaseReadingRecord> readings = currentMeterActivation.getReadings(new Interval(justBeforeRegisterReadEventTime1, registerEventTime2), registerReadingType);
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0).getQuantity(firstReadingTypeOfChannel).getValue()).isEqualTo(new BigDecimal(123));
+    }
+
+    private ComServerDAOImpl mockComServerDAOButCallRealMethodForMeterReadingStoring() {
+        final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
+        when(comServerDAO.executeTransaction(any(Transaction.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return getTransactionService().execute((Transaction<?>) invocation.getArguments()[0]);
+            }
+        });
+        return comServerDAO;
+    }
+
+    private void execute (final DeviceCommand command, final ComServerDAO comServerDAO) {
+        this.executeInTransaction(new Transaction<Object>() {
+            @Override
+            public Object perform() {
+                command.execute(comServerDAO);
+                return null;
+            }
+        });
     }
 
     private ReadingType getReadingType(MeterActivation currentMeterActivation, String obisCode1, Unit unit) {

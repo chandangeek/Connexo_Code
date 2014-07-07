@@ -38,6 +38,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 
 /**
  * Copyrights EnergyICT
@@ -213,6 +214,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             }
         };
