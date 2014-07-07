@@ -7,15 +7,24 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         'setup.loadprofileconfiguration.LoadProfileConfigurationFiltering',
         'setup.loadprofileconfiguration.LoadProfileConfigurationGrid',
         'setup.loadprofileconfiguration.LoadProfileConfigurationPreview',
-        'setup.loadprofileconfiguration.LoadProfileConfigurationForm'
+        'setup.loadprofileconfiguration.LoadProfileConfigurationForm',
+        'Cfg.view.validation.RulePreview'
     ],
+
+    requires: [
+        'Mdc.store.LoadProfileValidationRules',
+        'Mdc.store.AvailableRegisterTypesForDeviceConfiguration',
+        'Mdc.store.RegisterTypesOfDevicetype',
+        'Mdc.store.LoadProfileValidationRules'
+    ],
+
 
     stores: [
         'Mdc.store.Intervals',
         'Mdc.store.LoadProfileTypes',
         'Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration',
         'Mdc.store.LoadProfileConfigurationsOnDeviceConfigurationAvailable',
-        'Mdc.store.LoadProfileValidationRules'
+        'LoadProfileValidationRules'
     ],
 
     refs: [
@@ -24,8 +33,20 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         {ref: 'loadConfigurationGrid', selector: '#loadProfileConfigurationGrid'},
         {ref: 'loadConfigurationCountContainer', selector: '#loadProfileConfigurationCountContainer'},
         {ref: 'loadConfigurationEmptyListContainer', selector: '#loadProfileConfigurationEmptyListContainer'},
-        {ref: 'loadConfigurationPreview', selector: '#loadProfileConfigurationPreview'},
-        {ref: 'loadConfigurationForm', selector: '#LoadProfileConfigurationFormId'}
+        {ref: 'loadProfileConfigurationPreview', selector: '#loadProfileConfigurationPreview'},
+        {ref: 'loadConfigurationForm', selector: '#LoadProfileConfigurationFormId'},
+        {ref: 'loadProfileConfigPreviewForm', selector: '#loadProfileConfigPreviewForm'},
+        {ref: 'rulesForLoadProfileConfigGrid', selector: '#rulesForLoadProfileConfigGrid'},
+
+        {ref: 'rulesForLoadProfileConfigPreview', selector: 'loadProfileConfigAndRulesPreviewContainer > #rulesForLoadProfileConfigPreview'},
+
+        {ref: 'validationRulesForLoadProfileConfigPreview', selector: 'loadprofile-config-and-rules-preview-container validation-rule-preview'}
+
+
+
+
+
+
 
 
     ],
@@ -55,10 +76,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             },
             'menu menuitem[action=deleteloadprofileconfigurationondeviceonfiguration]': {
                 click: this.showConfirmationPanel
-            }/*,
+            },
             '#rulesForLoadProfileConfigGrid': {
                 selectionchange: this.previewValidationRule
-            } */
+            }
         });
 
         this.intervalStore = this.getStore('Intervals');
@@ -66,17 +87,17 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         this.availableLoadProfileTypesStore = this.getStore('LoadProfileConfigurationsOnDeviceConfigurationAvailable');
     },
 
-    /*previewValidationRule: function (grid, record) {
+    previewValidationRule: function (grid, record) {
             var selectedRules = this.getRulesForLoadProfileConfigGrid().getSelectionModel().getSelection();
 
             if (selectedRules.length === 1) {
                 var selectedRule = selectedRules[0];
-                this.getValidationRulesPreview().updateValidationRule(selectedRule)
-                this.getValidationRulesPreview().show();
+                this.getValidationRulesForLoadProfileConfigPreview().updateValidationRule(selectedRule)
+                this.getValidationRulesForLoadProfileConfigPreview().show();
             } else {
-                this.getValidationRulesPreview().hide();
+                this.getValidationRulesForLoadProfileConfigPreview().hide();
             }
-    },  */
+    },
 
 
     editRecord: function () {
@@ -257,33 +278,27 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     },
 
     loadGridItemDetail: function (selectionModel, record) {
-        var previewPanel = this.getLoadConfigurationPreview(),
-            form = previewPanel.down('form'),
-            recordData = record.getData();
-
-        this.displayedItemId = recordData.id;
-        previewPanel.setTitle(recordData.name);
-        form.loadRecord(record);
-
-        /*var loadProfileConfigs = this.getLoadConfigurationGrid().getSelectionModel().getSelection();
+        var loadProfileConfigs = this.getLoadConfigurationGrid().getSelectionModel().getSelection();
         if (loadProfileConfigs.length == 1) {
             this.getLoadProfileConfigPreviewForm().loadRecord(loadProfileConfigs[0]);
             var loadProfileConfigsName = this.getLoadProfileConfigPreviewForm().form.findField('name').getSubmitValue();
             this.getLoadProfileConfigurationPreview().setTitle(loadProfileConfigsName);
 
-            this.getRulesForLoadProfileConfigPreview().setTitle(recordData.name + ' validation rules');
+            this.getRulesForLoadProfileConfigPreview().setTitle(loadProfileConfigsName + ' validation rules');
 
-            this.getLoadProfileConfigValidationRulesStore().getProxy().extraParams =
-                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, loadProfileConfig: recordData.id});
+            this.getLoadProfileValidationRulesStore().getProxy().extraParams =
+                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigurationId, loadProfileConfig: loadProfileConfigs[0].getId()});
 
             var me = this;
-            this.LoadProfileValidationRules().load({
+            this.getLoadProfileValidationRulesStore().load({
                 callback: function () {
-                    if (me.LoadProfileValidationRules().count() > 0) {
+                    if (me.getLoadProfileValidationRulesStore().count() > 0) {
                         me.getRulesForLoadProfileConfigGrid().getSelectionModel().doSelect(0);
                     }
+
                 }
-            });*/
+            });
+        }
     },
 
     showDeviceConfigurationLoadProfilesView: function (deviceTypeId, deviceConfigurationId) {
