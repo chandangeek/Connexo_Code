@@ -22,6 +22,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_DEVICE(14, "DCR.noSuchDevice", "No device with id {0}"),
     DEVICE_DOES_NOT_MATCH_CONFIG(15, "DCR.deviceDoesNotMatchConfig", "Device does not match device configuration"),
     NO_SUCH_CONNECTION_TASK(16, "DCR.NoSuchConnectionTask", "No such connection task"),
+    NO_DEVICECONFIG_ID_FOR_ADDING(17, "DCR.NoDeviceConfigurationIdForAdding", "User should specify ids of Device Configuration for adding"),
     ;
 
     private final int number;
