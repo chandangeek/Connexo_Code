@@ -108,8 +108,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('loadProfileTypes.confirmWindow.removeMsg', 'MDC', 'This load profile type will no longer be available'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + lastSelected.get('name') + '?',
+            msg: Uni.I18n.translate('loadProfileTypes.confirmWindow.removeMsg', 'MDC', 'This load profile type will no longer be available.'),
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelected.get('name') + "'?",
             config: {
                 me: me
             },
