@@ -10,7 +10,7 @@
     <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
   </parent>
 
-  <artifactId>mdc-common</artifactId>
+  <artifactId>mdc.common</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
   <name>[MDC] mdc.common</name>
