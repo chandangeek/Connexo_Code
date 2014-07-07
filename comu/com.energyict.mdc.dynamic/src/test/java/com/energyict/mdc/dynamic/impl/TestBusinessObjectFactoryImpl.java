@@ -6,6 +6,7 @@ import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.PropertiesMetaData;
 import com.energyict.mdc.common.TypeId;
+
 import java.io.Serializable;
 import java.util.List;
 

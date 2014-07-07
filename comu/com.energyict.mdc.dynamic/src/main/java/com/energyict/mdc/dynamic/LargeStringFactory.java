@@ -1,7 +1,9 @@
 package com.energyict.mdc.dynamic;
 
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.SqlBuilder;
+
 import oracle.jdbc.OraclePreparedStatement;
 import oracle.sql.CLOB;
 
@@ -84,7 +86,7 @@ public class LargeStringFactory extends StringFactory {
 
     @Override
     public void bind(SqlBuilder builder, String value) {
-        builder.bindLargeString(value);
+        builder.addObject(value);
     }
 
     public Object valueToDb (String object) {

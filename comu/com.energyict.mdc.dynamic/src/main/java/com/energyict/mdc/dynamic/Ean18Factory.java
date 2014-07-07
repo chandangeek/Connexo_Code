@@ -1,6 +1,7 @@
 package com.energyict.mdc.dynamic;
 
-import com.energyict.mdc.common.SqlBuilder;
+import com.elster.jupiter.properties.AbstractValueFactory;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.ean.Ean18;
 import com.energyict.mdc.common.ApplicationException;
 
@@ -89,10 +90,10 @@ public class Ean18Factory extends AbstractValueFactory<Ean18> {
     @Override
     public void bind(SqlBuilder builder, Ean18 value) {
         if (value != null) {
-            builder.bindString(this.toStringValue(value));
+            builder.addObject(this.toStringValue(value));
         }
         else {
-            builder.bindNull(this.getJdbcType());
+            builder.addNull(this.getJdbcType());
         }
     }
 

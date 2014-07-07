@@ -30,6 +30,11 @@
       <version>${jupiter.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>properties</artifactId>
+      <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.common</artifactId>
       <version>${project.version}</version>

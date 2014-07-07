@@ -4,20 +4,19 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessObjectFactory;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.LegacyReferenceFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteDefaultRelationAttributeException;
 import com.energyict.mdc.dynamic.relation.CompositeAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.DefaultAttributeTypeDetective;
@@ -37,6 +36,7 @@ import com.energyict.mdc.dynamic.relation.exceptions.ValueFactoryCreationExcepti
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
 
 import javax.inject.Inject;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

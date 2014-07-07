@@ -20,6 +20,7 @@ public class MdcDynamicModule extends AbstractModule {
     protected void configure() {
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
+        requireBinding(com.elster.jupiter.properties.PropertySpecService.class);
 
         bind(PropertySpecService.class).to(PropertySpecServiceImpl.class).in(Scopes.SINGLETON);
         bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);

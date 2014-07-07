@@ -1,19 +1,13 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.dynamic.BigDecimalFactory;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecBuilder;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.dynamic.StringFactory;
-import com.energyict.mdc.dynamic.ValueFactory;
+import java.math.BigDecimal;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -21,12 +15,18 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import java.math.BigDecimal;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Logger;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.ObisCodeValueFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 
 /**
  * Provides an implementation for the {@link PropertySpecService} interface
@@ -41,7 +41,17 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     private static final Logger LOGGER = Logger.getLogger(PropertySpecServiceImpl.class.getName());
 
     private volatile List<ReferencePropertySpecFinderProvider> factoryProviders = new CopyOnWriteArrayList<>();
+    private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
+    
+    public PropertySpecServiceImpl() {
+    }
 
+    @Inject
+    public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec) {
+        super();
+        this.setBasicPropertySpecService(basicPropertySpec);
+    }
+    
     @Activate
     public void activate(){
 
@@ -49,66 +59,42 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public <T> PropertySpec<T> basicPropertySpec(String name, boolean required, ValueFactory<T> valueFactory) {
-        return new BasicPropertySpec<>(name, required, valueFactory);
+        return basicPropertySpecService.basicPropertySpec(name, required, valueFactory);
     }
 
     @Override
     public PropertySpec<String> stringPropertySpecWithValues(String name, boolean required, String... values) {
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
-        if (required) {
-            builder.markRequired();
-        }
-        return builder.name(name).addValues(values).markExhaustive().finish();
+        return basicPropertySpecService.stringPropertySpecWithValues(name, required, values);
     }
 
     @Override
     public PropertySpec<String> stringPropertySpec(String name, boolean required, String defaultValue) {
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
-        if (required) {
-            builder.markRequired();
-        }
-        return builder.name(name).setDefaultValue(defaultValue).finish();
+        return basicPropertySpecService.stringPropertySpec(name, required, defaultValue);
     }
 
     @Override
     public PropertySpec<String> stringPropertySpecWithValuesAndDefaultValue(String name, boolean required, String defaultValue, String... values) {
-        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
-        if (required) {
-            builder.markRequired();
-        }
-        return builder.name(name).addValues(values).markExhaustive().setDefaultValue(defaultValue).finish();
+        return basicPropertySpecService.stringPropertySpecWithValuesAndDefaultValue(name, required, defaultValue, values);
     }
 
     @Override
     public PropertySpec<BigDecimal> bigDecimalPropertySpecWithValues(String name, boolean required, BigDecimal... values) {
-        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilderImpl.forClass(new BigDecimalFactory());
-        if (required) {
-            builder.markRequired();
-        }
-        return builder.name(name).addValues(values).markExhaustive().finish();
+        return basicPropertySpecService.bigDecimalPropertySpecWithValues(name, required, values);
     }
 
     @Override
     public PropertySpec<BigDecimal> bigDecimalPropertySpec(String name, boolean required, BigDecimal defaultValue) {
-        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilderImpl.forClass(new BigDecimalFactory());
-        if (required) {
-            builder.markRequired();
-        }
-        return builder.name(name).setDefaultValue(defaultValue).finish();
+        return basicPropertySpecService.bigDecimalPropertySpec(name, required, defaultValue);
     }
 
     @Override
     public PropertySpec<BigDecimal> positiveDecimalPropertySpec(String name, boolean required) {
-        BoundedBigDecimalPropertySpecImpl propertySpec = new BoundedBigDecimalPropertySpecImpl(name, BigDecimal.ZERO, null);
-        propertySpec.setRequired(required);
-        return propertySpec;
+        return basicPropertySpecService.positiveDecimalPropertySpec(name, required);
     }
 
     @Override
     public PropertySpec<BigDecimal> boundedDecimalPropertySpec(String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit) {
-        BoundedBigDecimalPropertySpecImpl propertySpec = new BoundedBigDecimalPropertySpecImpl(name, lowerLimit, upperLimit);
-        propertySpec.setRequired(required);
-        return propertySpec;
+        return basicPropertySpecService.boundedDecimalPropertySpec(name, required, lowerLimit, upperLimit);
     }
 
     @Override
@@ -150,6 +136,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
         this.validateUnique(factoryProvider);
         this.factoryProviders.add(factoryProvider);
+    }
+    
+    @Reference
+    public void setBasicPropertySpecService(com.elster.jupiter.properties.PropertySpecService propertySpecService) {
+        this.basicPropertySpecService = propertySpecService;
     }
 
     private void validateUnique(ReferencePropertySpecFinderProvider factoryProvider) {

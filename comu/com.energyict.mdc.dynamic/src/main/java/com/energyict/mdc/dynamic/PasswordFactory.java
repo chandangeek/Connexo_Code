@@ -1,9 +1,10 @@
 package com.energyict.mdc.dynamic;
 
+import com.elster.jupiter.properties.AbstractValueFactory;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.DataVault;
 import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.common.SqlBuilder;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -84,10 +85,10 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
     @Override
     public void bind(SqlBuilder builder, Password value) {
         if (value != null) {
-            builder.bindString(this.encrypt(value));
+            builder.addObject(this.encrypt(value));
         }
         else {
-            builder.bindNull(this.getJdbcType());
+            builder.addNull(this.getJdbcType());
         }
     }
 

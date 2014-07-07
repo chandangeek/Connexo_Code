@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic;
 
+import com.elster.jupiter.properties.AbstractValueFactory;
 import com.energyict.mdc.common.TimeOfDay;
 
 import java.sql.SQLException;

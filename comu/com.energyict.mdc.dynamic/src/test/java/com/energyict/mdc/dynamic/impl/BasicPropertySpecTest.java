@@ -1,10 +1,11 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.InvalidValueException;
-import com.energyict.mdc.common.ValueRequiredException;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.ValueRequiredException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;

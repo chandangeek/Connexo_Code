@@ -1,10 +1,10 @@
 package com.energyict.mdc.dynamic.relation;
 
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.NamedBusinessObject;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ValueFactory;
 
 import java.sql.SQLException;
 import java.util.List;

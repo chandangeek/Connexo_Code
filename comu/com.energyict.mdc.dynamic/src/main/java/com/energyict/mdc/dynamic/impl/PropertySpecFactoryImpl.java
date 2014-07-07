@@ -1,10 +1,11 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecFactory;
-import com.energyict.mdc.dynamic.ValueFactory;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.dynamic.PropertySpecFactory;
 
 /**
  * Provides code reuse opportunities for components that will implement the {@link PropertySpecFactory} interface.

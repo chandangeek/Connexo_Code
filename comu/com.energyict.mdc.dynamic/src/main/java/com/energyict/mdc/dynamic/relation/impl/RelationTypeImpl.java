@@ -12,7 +12,6 @@ import com.energyict.mdc.common.SoftTypeId;
 import com.energyict.mdc.common.TypeId;
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
 import com.energyict.mdc.dynamic.relation.Relation;
@@ -34,13 +33,14 @@ import com.energyict.mdc.dynamic.relation.exceptions.NameTooLongException;
 import com.energyict.mdc.dynamic.relation.exceptions.NoLockAttributeException;
 import com.energyict.mdc.dynamic.relation.exceptions.RelationTypeDDLException;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.properties.ValueFactory;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
+
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

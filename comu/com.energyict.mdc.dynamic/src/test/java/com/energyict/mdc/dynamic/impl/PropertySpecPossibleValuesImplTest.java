@@ -1,7 +1,8 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.dynamic.impl.PropertySpecPossibleValuesImpl;
 import org.junit.*;
+
+import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
 
 import java.util.Arrays;
 

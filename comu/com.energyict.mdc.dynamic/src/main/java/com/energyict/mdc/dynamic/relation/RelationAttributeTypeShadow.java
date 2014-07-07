@@ -1,7 +1,7 @@
 package com.energyict.mdc.dynamic.relation;
 
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.NamedObjectShadow;
-import com.energyict.mdc.dynamic.ValueFactory;
 
 public class RelationAttributeTypeShadow extends NamedObjectShadow {
 

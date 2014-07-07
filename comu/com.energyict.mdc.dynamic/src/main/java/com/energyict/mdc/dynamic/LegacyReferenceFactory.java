@@ -1,11 +1,12 @@
 package com.energyict.mdc.dynamic;
 
+import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.util.proxy.LazyLoadProxy;
 import com.elster.jupiter.util.proxy.LazyLoader;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.common.SqlBuilder;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -82,7 +83,7 @@ public class LegacyReferenceFactory<T extends IdBusinessObject> extends Abstract
 
     @Override
     public void bind(SqlBuilder builder, T value) {
-        builder.bindInt(value.getId());
+        builder.addInt(value.getId());
     }
 
     @Override

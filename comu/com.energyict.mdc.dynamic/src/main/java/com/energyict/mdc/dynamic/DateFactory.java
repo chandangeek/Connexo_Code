@@ -1,7 +1,8 @@
 package com.energyict.mdc.dynamic;
 
+import com.elster.jupiter.properties.AbstractValueFactory;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.SqlBuilder;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -86,10 +87,10 @@ public class DateFactory extends AbstractValueFactory<Date> {
     @Override
     public void bind(SqlBuilder builder, Date value) {
         if (value != null) {
-            builder.bindDate(value);
+            builder.addDate(value);
         }
         else {
-            builder.bindNull(this.getJdbcType());
+            builder.addNull(this.getJdbcType());
         }
     }
 

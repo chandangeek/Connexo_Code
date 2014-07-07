@@ -2,12 +2,7 @@ package com.energyict.mdc.dynamic.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.dynamic.AbstractValueFactory;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
-import com.energyict.mdc.dynamic.LegacyReferenceFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
 
 /**
  * Provides an implementation for the {@link PropertySpec}

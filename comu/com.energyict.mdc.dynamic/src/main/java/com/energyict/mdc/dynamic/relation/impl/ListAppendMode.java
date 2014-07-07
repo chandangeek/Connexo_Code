@@ -1,6 +1,6 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
-import com.energyict.mdc.common.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 /**
  * Supports appending elements of a list to a StringBuilder

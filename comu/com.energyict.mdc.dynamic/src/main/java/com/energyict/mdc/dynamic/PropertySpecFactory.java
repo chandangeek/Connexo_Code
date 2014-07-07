@@ -1,17 +1,15 @@
 package com.energyict.mdc.dynamic;
 
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TimeOfDay;
-import com.energyict.mdc.common.coordinates.SpatialCoordinates;
-import com.energyict.mdc.common.ean.Ean13;
-import com.energyict.mdc.common.ean.Ean18;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
 
 /**
  * Models the behavior of a component that will provide

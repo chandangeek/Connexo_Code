@@ -1,7 +1,8 @@
 package com.energyict.mdc.dynamic;
 
+import com.elster.jupiter.properties.AbstractValueFactory;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.common.SqlBuilder;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -72,10 +73,10 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
     @Override
     public void bind(SqlBuilder builder, HexString value) {
         if (value != null) {
-            builder.bindString(this.toStringValue(value));
+            builder.addObject(this.toStringValue(value));
         }
         else {
-            builder.bindNull(this.getJdbcType());
+            builder.addNull(this.getJdbcType());
         }
     }
 

@@ -1,12 +1,10 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.InvalidValueException;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.ValueRequiredException;
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.common.ValueRequiredException;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
-import com.energyict.mdc.dynamic.ValueFactory;
-import java.io.Serializable;
 
 /**
  * Provides an implementation for the {@link PropertySpec} interface.
@@ -15,67 +13,16 @@ import java.io.Serializable;
  * Date: 7/05/12
  * Time: 10:22
  */
-public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
-
-    private String name;
-    private boolean required;
-    private ValueFactory<T> valueFactory;
-    private PropertySpecPossibleValues<T> possibleValues;
+public class BasicPropertySpec<T> extends com.elster.jupiter.properties.BasicPropertySpec<T> {
 
     public BasicPropertySpec(String name, ValueFactory<T> valueFactory) {
         this(name, false, valueFactory);
     }
 
     public BasicPropertySpec(String name, boolean required, ValueFactory<T> valueFactory) {
-        super();
-        this.name = name;
-        this.required = required;
-        this.valueFactory = valueFactory;
+        super(name, required, valueFactory);
     }
-
-    @Override
-    public String getName () {
-        return name;
-    }
-
-    // Allow subclasses or friendly builders to specify required or optional
-    public void setName (String name) {
-        this.name = name;
-    }
-
-    public boolean isRequired () {
-        return required;
-    }
-
-    @Override
-    public boolean isReference () {
-        return this.getValueFactory().isReference();
-    }
-
-    // Allow subclasses or friendly builders to specify required or optional
-    public void setRequired (boolean required) {
-        this.required = required;
-    }
-
-    @Override
-    public ValueFactory<T> getValueFactory() {
-        return valueFactory;
-    }
-
-    public int hashCode() {
-        return this.name.hashCode();
-    }
-
-    public boolean equals(Object other) {
-        if (other instanceof PropertySpec) {
-            PropertySpec that = (PropertySpec) other;
-            return that.getName().equals(this.name);
-        }
-        else {
-            return false;
-        }
-    }
-
+    
     @Override
     public boolean validateValue (T value) throws InvalidValueException {
         return this.validateValue(value, this.required);
@@ -118,9 +65,7 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
                     throw new InvalidValueException("XisNotAPossibleValue", "The value \"{0}\" is not list a possible value for this property", this.getName());
                 }
             }
-
         }
-
         return true;
     }
 
@@ -147,30 +92,4 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
             return false;
         }
     }
-
-    @Override
-    public PropertySpecPossibleValues<T> getPossibleValues () {
-        return this.possibleValues;
-    }
-
-    // Allow subclasses or friendly builders to specify possible values
-    public void setPossibleValues (PropertySpecPossibleValues<T> possibleValues) {
-        this.possibleValues = possibleValues;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.
-            append(this.getClass().getSimpleName()).
-            append("(name:").
-            append(this.getName()).
-            append("; required:").
-            append(this.required).
-            append("; valueFactory:").
-            append(this.valueFactory.toString()).
-            append(')');
-        return builder.toString();
-    }
-
 }

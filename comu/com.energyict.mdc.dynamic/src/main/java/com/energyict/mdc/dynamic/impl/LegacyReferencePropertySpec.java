@@ -2,7 +2,6 @@ package com.energyict.mdc.dynamic.impl;
 
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.LegacyReferenceFactory;
 
 /**

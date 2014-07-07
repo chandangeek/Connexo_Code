@@ -1,9 +1,10 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.InvalidValueException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.properties.InvalidValueException;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 

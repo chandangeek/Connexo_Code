@@ -14,6 +14,7 @@ import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationSearchFilter;
 import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.dynamic.relation.RelationType;
+
 import org.joda.time.DateTimeConstants;
 
 import java.io.Serializable;
@@ -21,6 +22,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -92,7 +94,7 @@ public final class RelationFactory {
     }
 
     private void insert(Relation relation, Connection connection) throws SQLException {
-        try (PreparedStatement preparedStatement = this.insertSqlBuilder(relation).getStatement(connection)) {
+        try (PreparedStatement preparedStatement = this.insertSqlBuilder(relation).prepare(connection)) {
             int updateCount = preparedStatement.executeUpdate();
             if (updateCount != 1) {
                 throw new SQLException("inserted zero rows");
@@ -100,12 +102,12 @@ public final class RelationFactory {
         }
     }
 
-    private SqlBuilder insertSqlBuilder(Relation relation) {
+    private com.elster.jupiter.util.sql.SqlBuilder insertSqlBuilder(Relation relation) {
         return this.insertSqlBuilder(relation, this.getTableName(), true);
     }
 
-    private SqlBuilder insertSqlBuilder(Relation relation, String tableName, boolean ignoreObsoleteDate) {
-        SqlBuilder sqlBuilder = new SqlBuilder("insert into ");
+    private com.elster.jupiter.util.sql.SqlBuilder insertSqlBuilder(Relation relation, String tableName, boolean ignoreObsoleteDate) {
+        com.elster.jupiter.util.sql.SqlBuilder sqlBuilder = new com.elster.jupiter.util.sql.SqlBuilder("insert into ");
         sqlBuilder.append(tableName);
         sqlBuilder.append(" (");
         this.appendColumnsForInsert(sqlBuilder, ignoreObsoleteDate);
@@ -115,7 +117,7 @@ public final class RelationFactory {
         return sqlBuilder;
     }
 
-    private void appendColumnsForInsert(SqlBuilder builder, boolean ignoreObsoleteDate) {
+    private void appendColumnsForInsert(com.elster.jupiter.util.sql.SqlBuilder builder, boolean ignoreObsoleteDate) {
         List<String> columnNames = this.getColumnNames();
         ListAppendMode appendMode = ListAppendMode.FIRST;
         for (String columnName : columnNames) {
@@ -127,7 +129,7 @@ public final class RelationFactory {
         }
     }
 
-    private void appendValuesForInsert(SqlBuilder builder, Relation relation, boolean ignoreObsoleteDate) {
+    private void appendValuesForInsert(com.elster.jupiter.util.sql.SqlBuilder builder, Relation relation, boolean ignoreObsoleteDate) {
         List<String> columnNames = this.getColumnNames();
         if (ignoreObsoleteDate) {
             columnNames.remove("obsoletedate");
@@ -137,8 +139,7 @@ public final class RelationFactory {
             appendMode.startOn(builder);
             switch (columnName) {
                 case "id": {
-                    builder.append("?");
-                    builder.bindInt(relation.getId());
+                    builder.addInt(relation.getId());
                     break;
                 }
                 case "fromdate": {
@@ -150,12 +151,11 @@ public final class RelationFactory {
                     break;
                 }
                 case "flags": {
-                    builder.append("?");
-                    builder.bindInt(relation.getFlags());
+                    builder.addInt(relation.getFlags());
                     break;
                 }
                 case "obsoletedate": {
-                    builder.bindDate(relation.getObsoleteDate());
+                    builder.addDate(relation.getObsoleteDate());
                     break;
                 }
                 case "cre_date":   // fall-through
@@ -169,7 +169,6 @@ public final class RelationFactory {
                     break;
                 }
                 default: {
-                    builder.append("?");
                     this.bindAttributeValue(builder, this.relationType.getAttributeType(columnName), relation.get(columnName));
                 }
             }
@@ -177,35 +176,29 @@ public final class RelationFactory {
         }
     }
 
-    private void bindAttributeValue(SqlBuilder builder, RelationAttributeType attributeType, Object value) {
+    private void bindAttributeValue(com.elster.jupiter.util.sql.SqlBuilder builder, RelationAttributeType attributeType, Object value) {
         // To fix issue #3684 I had to add the second condition (+added the 3rd for completeness):
         if ((value == null)
                 || (value instanceof Double && ((Double) value).isNaN())
                 || (value instanceof Float && ((Float) value).isNaN())) {
-            String structType = attributeType.getStructType();
-            if (structType == null) {
-                builder.bindNull(attributeType.getJdbcType());
-            }
-            else {
-                builder.bindNull(attributeType.getJdbcType(), structType);
-            }
+            
+            builder.addNull(attributeType.getJdbcType());
         }
         else {
             attributeType.getValueFactory().bind(builder, value);
         }
     }
 
-    private void appendPeriodDateForInsert(SqlBuilder builder, Date date) {
-        builder.append("?");
+    private void appendPeriodDateForInsert(com.elster.jupiter.util.sql.SqlBuilder builder, Date date) {
         if (!this.relationType.hasTimeResolution()) {
-            builder.bindDate(asDate(date));
+            builder.addDate(asDate(date));
         }
         else {
             if (date == null) {
-                builder.bindLongToNull();
+                builder.addNull(Types.BIGINT);
             }
             else {
-                builder.bindLong(asSeconds(date));
+                builder.addLong(asSeconds(date));
             }
         }
     }
@@ -263,21 +256,23 @@ public final class RelationFactory {
 
     public void makeObsolete(Relation relation) throws SQLException {
         RelationType relType = this.relationType;
-        SqlBuilder insertBuilder = new SqlBuilder("insert into ");
+        com.elster.jupiter.util.sql.SqlBuilder insertBuilder = new com.elster.jupiter.util.sql.SqlBuilder("insert into ");
         insertBuilder.append(this.relationType.getObsoleteAttributeTableName());
         insertBuilder.append(" (");
         this.appendColumnsForInsert(insertBuilder, false);
-        insertBuilder.append(") select id, fromdate, todate, ?, flags, cre_date, sysdate, creuserid, 0");
-        insertBuilder.bindTimestamp(relation.getObsoleteDate());
+        insertBuilder.append(") select id, fromdate, todate,");
+        insertBuilder.addTimestamp(relation.getObsoleteDate());
+        insertBuilder.append(", flags, cre_date, sysdate, creuserid, 0");
+        
         for (RelationAttributeType each : this.relationType.getAttributeTypes()) {
             insertBuilder.append(", ");
             insertBuilder.append(each.getName());
         }
         insertBuilder.append(" from ");
         insertBuilder.append(relType.getDynamicAttributeTableName());
-        insertBuilder.append(" where id = ?");
-        insertBuilder.bindInt(relation.getId());
-        try (PreparedStatement preparedStatement = insertBuilder.getStatement(this.getConnection())) {
+        insertBuilder.append(" where id = ");
+        insertBuilder.addInt(relation.getId());
+        try (PreparedStatement preparedStatement = insertBuilder.prepare(this.getConnection())) {
             preparedStatement.execute();
         }
 

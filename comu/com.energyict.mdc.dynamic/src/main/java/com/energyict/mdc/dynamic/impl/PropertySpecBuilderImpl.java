@@ -1,18 +1,19 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.dynamic.JupiterReferenceFactory;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecBuilder;
-import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
-import com.energyict.mdc.dynamic.LegacyReferenceFactory;
-import com.energyict.mdc.dynamic.ValueFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
+import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.IdBusinessObject;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.dynamic.JupiterReferenceFactory;
+import com.energyict.mdc.dynamic.LegacyReferenceFactory;
 
 /**
  * Provides building services for {@link PropertySpec}s.
@@ -129,21 +130,6 @@ public class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
         this.propertySpecAccessor = new BasicPropertySpecAccessor<>(new BasicPropertySpec<>(INITIAL_SPEC_NAME, valueFactory));
     }
 
-    private interface PropertySpecAccessor<T> {
-
-        public PropertySpec<T> getPropertySpec ();
-
-        public void setName (String name);
-
-        public void setDefaultValue (T defaultValue);
-
-        public void addValues (T... values);
-
-        public void markRequired ();
-
-        public void markExhaustive ();
-    }
-
     private class BasicPropertySpecAccessor<T> implements PropertySpecAccessor<T> {
         private BasicPropertySpec<T> propertySpec;
 
@@ -205,56 +191,6 @@ public class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
                 possibleValues.setExhaustive(true);
             }
         }
-    }
-
-    /**
-     * Provides an implementation for the {@link PropertySpecAccessor} interface
-     * that will be used once the building process is complete
-     * and will throw {@link IllegalStateException} on every attempt to change
-     * the {@link PropertySpec} that was built in previous steps.
-     */
-    private class BuildingProcessComplete<T> implements PropertySpecAccessor<T> {
-        private PropertySpec<T> propertySpec;
-
-        private BuildingProcessComplete (PropertySpec<T> propertySpec) {
-            super();
-            this.propertySpec = propertySpec;
-        }
-
-        @Override
-        public PropertySpec<T> getPropertySpec () {
-            return this.propertySpec;
-        }
-
-        @Override
-        public void setName (String name) {
-            this.notifyBuildingProcessComplete();
-        }
-
-        @Override
-        public void setDefaultValue (T defaultValue) {
-            this.notifyBuildingProcessComplete();
-        }
-
-        @Override
-        public void addValues (T... values) {
-            this.notifyBuildingProcessComplete();
-        }
-
-        @Override
-        public void markRequired () {
-            this.notifyBuildingProcessComplete();
-        }
-
-        @Override
-        public void markExhaustive () {
-            this.notifyBuildingProcessComplete();
-        }
-
-        private void notifyBuildingProcessComplete () {
-            throw new IllegalStateException("PropertySpec building process is complete, use another builder if you want to construct another PropertySpec!");
-        }
-
     }
 
 }

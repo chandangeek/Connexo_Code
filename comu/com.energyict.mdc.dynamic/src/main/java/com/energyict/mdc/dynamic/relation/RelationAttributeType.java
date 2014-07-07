@@ -1,9 +1,9 @@
 package com.energyict.mdc.dynamic.relation;
 
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NamedBusinessObject;
-import com.energyict.mdc.dynamic.ValueFactory;
 
 import java.sql.SQLException;
 import java.util.Date;

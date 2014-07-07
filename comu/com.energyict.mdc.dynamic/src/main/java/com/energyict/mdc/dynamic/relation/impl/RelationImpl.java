@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
@@ -9,12 +10,12 @@ import com.energyict.mdc.common.BusinessObjectProxy;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.TypeId;
-import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.dynamic.relation.RelationType;
+
 import org.joda.time.DateTimeConstants;
 
 import java.io.Serializable;

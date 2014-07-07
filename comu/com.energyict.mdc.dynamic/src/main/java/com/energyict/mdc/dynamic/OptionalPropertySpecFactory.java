@@ -1,5 +1,13 @@
 package com.energyict.mdc.dynamic;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ThreeStateFactory;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
@@ -7,8 +15,6 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.dynamic.impl.PropertySpecBuilderImpl;
 import com.energyict.mdc.dynamic.impl.PropertySpecFactoryImpl;
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * Provides factory services for optional {@link PropertySpec}s.
@@ -16,6 +22,7 @@ import java.util.Date;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (16:46)
  */
+@Deprecated
 public class OptionalPropertySpecFactory extends PropertySpecFactoryImpl {
 
     public static PropertySpecFactory newInstance() {

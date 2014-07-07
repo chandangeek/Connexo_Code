@@ -1,10 +1,11 @@
 package com.energyict.mdc.dynamic.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecBuilder;
-import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
-import com.energyict.mdc.dynamic.StringFactory;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
