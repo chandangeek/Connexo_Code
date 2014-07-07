@@ -11,15 +11,16 @@ import com.elster.jupiter.users.UserDirectory;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
 	USR_PRIVILEGE {
 		void addTo(DataModel dataModel) {
 			Table<Privilege> table = dataModel.addTable(name(), Privilege.class);
 			table.map(PrivilegeImpl.class);
-			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+			Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
 			table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
-			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
+			table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.primaryKey("USR_PK_PRIVILEGES").on(nameColumn).add();
 		}
@@ -29,8 +30,8 @@ public enum TableSpecs {
 			Table<Group> table = dataModel.addTable(name(), Group.class);
 			table.map(GroupImpl.class);
 			Column idColumn = table.addAutoIdColumn();
-			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
-            table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
+			Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
 			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
@@ -61,8 +62,8 @@ public enum TableSpecs {
 			Table<User> table = dataModel.addTable(name(), User.class);
 			table.map(UserImpl.class);
 			Column idColumn = table.addAutoIdColumn();
-			Column authenticationNameColumn = table.column("AUTHNAME").type("varchar2(80)").notNull().map("authenticationName").add();
-			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
+			Column authenticationNameColumn = table.column("AUTHNAME").varChar(NAME_LENGTH).notNull().map("authenticationName").add();
+			table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
 			table.column("HA1").type("varchar2(32)").map("ha1").add();
             table.column("LANGUAGETAG").type("varchar2(64)").map("languageTag").add();
             Column userDirColumn = table.column("USER_DIRECTORY").varChar(128).notNull().add();
@@ -79,7 +80,7 @@ public enum TableSpecs {
 			Table<PrivilegeInGroup> table = dataModel.addTable(name(), PrivilegeInGroup.class);
 			table.map(PrivilegeInGroup.class);
 			Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
-			Column privilegeNameColumn = table.column("PRIVILEGENAME").type("varchar2(80)").notNull().map("privilegeName").add();
+			Column privilegeNameColumn = table.column("PRIVILEGENAME").varChar(NAME_LENGTH).notNull().map("privilegeName").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.primaryKey("USR_PK_PRIVILEGEINGROUP").on(groupIdColumn , privilegeNameColumn).add();
 			table.foreignKey("FK_PRIVINGROUP2GROUP").references(USR_GROUP.name()).onDelete(CASCADE).map("group").reverseMap("privilegeInGroups").on(groupIdColumn).add();
