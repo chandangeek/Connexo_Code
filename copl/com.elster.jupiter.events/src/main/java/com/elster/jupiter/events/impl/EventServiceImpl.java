@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -146,6 +147,7 @@ public class EventServiceImpl implements EventService, InstallService {
                 bind(EventConfiguration.class).toInstance(eventConfiguration);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
     }
