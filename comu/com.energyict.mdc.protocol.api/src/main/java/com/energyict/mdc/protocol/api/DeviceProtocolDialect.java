@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api;
 
-import com.energyict.mdc.dynamic.HasDynamicProperties;
+import com.elster.jupiter.properties.HasDynamicProperties;
 
 /**
  * Models a component that will contain several properties for a specific DeviceProtocol.

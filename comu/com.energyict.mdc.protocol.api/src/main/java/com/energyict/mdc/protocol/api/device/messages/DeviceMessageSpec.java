@@ -1,8 +1,8 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
-import com.energyict.mdc.dynamic.PropertySpec;
-
 import java.util.List;
+
+import com.elster.jupiter.properties.PropertySpec;
 
 /**
  * Models the specification of a device message,

@@ -1,8 +1,8 @@
 package com.energyict.mdc.protocol.api.security;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.dynamic.PropertySpec;
 
 import java.util.List;
 

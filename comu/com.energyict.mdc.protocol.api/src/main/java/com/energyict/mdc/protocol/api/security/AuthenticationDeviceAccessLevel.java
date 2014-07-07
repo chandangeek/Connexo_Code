@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.api.security;
 
-import com.energyict.mdc.dynamic.PropertySpec;
-
 /**
  * Models a level of security for a physical device
  * and the {@link PropertySpec}s

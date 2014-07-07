@@ -1,9 +1,9 @@
 package com.energyict.mdc.protocol.device.messages;
 
-import com.energyict.mdc.common.InvalidValueException;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
-import com.energyict.mdc.dynamic.ValueFactory;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.ValueFactory;
 
 /**
  * Serves as the root for all {@link PropertySpec} test implementations.

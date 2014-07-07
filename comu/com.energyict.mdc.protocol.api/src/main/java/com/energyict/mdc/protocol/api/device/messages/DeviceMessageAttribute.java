@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueFactory;
 
