@@ -19,6 +19,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Table.*;
 
 /**
  * Models the database tables that hold the data of the
@@ -36,7 +37,7 @@ public enum TableSpecs {
             table.map(DeviceTypeImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
-            table.column("DESCRIPTION").varChar(4000).map("description").add();
+            table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             table.column("USECHANNELJOURNAL").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map(DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName()).add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
@@ -146,7 +147,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column loadprofiletypeid = table.column("LOADPROFILETYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
+            table.column("OBISCODE").varChar(NAME_LENGTH).map("overruledObisCodeString").add();
             table.primaryKey("PK_DTC_LOADPROFILESPECID").on(id).add();
             table.foreignKey("FK_DTC_LPRFSPEC_LOADPROFTYPE").
                     on(loadprofiletypeid).
@@ -170,10 +171,10 @@ public enum TableSpecs {
             Table<ChannelSpec> table = dataModel.addTable(name(), ChannelSpec.class);
             table.map(ChannelSpecImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(80).notNull().map("name").add();
+            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column registerMapping = table.column("REGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
+            table.column("OBISCODE").varChar(NAME_LENGTH).map("overruledObisCodeString").add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("nbrOfFractionDigits").add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
             Column phenomenon = table.column("PHENOMENONID").number().notNull().add();
@@ -220,7 +221,7 @@ public enum TableSpecs {
             Column registerMapping = table.column("REGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).notNull().map(RegisterSpecImpl.Fields.NUMBER_OF_DIGITS.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").insert("sysdate").update("sysdate").add();
-            table.column("DEVICEOBISCODE").varChar(80).map("overruledObisCodeString").add();
+            table.column("DEVICEOBISCODE").varChar(NAME_LENGTH).map("overruledObisCodeString").add();
             table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecImpl.Fields.NUMBER_OF_FRACTION_DIGITS.fieldName()).add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).add();
@@ -251,7 +252,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column logbooktypeid = table.column("LOGBOOKTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
+            table.column("OBISCODE").varChar(NAME_LENGTH).map("overruledObisCodeString").add();
             table.primaryKey("PK_DTC_LOGBOOKSPEC").on(id).add();
             table.foreignKey("FK_DTC_LOGBOOKSPEC_DEVCONFIG").
                     on(deviceconfigid).
@@ -294,9 +295,9 @@ public enum TableSpecs {
             table.map(ProtocolDialectConfigurationPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add(); // TODO remove map when enabling foreign key constraint
-            table.column("DEVICEPROTOCOLDIALECT").varChar(255).notNull().map("protocolDialectName").add();
+            table.column("DEVICEPROTOCOLDIALECT").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("protocolDialectName").add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modDate").add();
-            table.column("NAME").varChar(255).notNull().map("name").add();
+            table.column("NAME").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("name").add();
             table.foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG").
                     on(deviceConfiguration).
                     references(DTC_DEVICECOMMCONFIG.name()).
@@ -315,8 +316,8 @@ public enum TableSpecs {
             Table<ProtocolDialectConfigurationProperty> table = dataModel.addTable(name(), ProtocolDialectConfigurationProperty.class);
             table.map(ProtocolDialectConfigurationProperty.class);
             Column id = table.column("ID").number().notNull().add();
-            Column name = table.column("NAME").varChar(255).notNull().map("name").add();
-            table.column("VALUE").varChar(4000).notNull().map("value").add();
+            Column name = table.column("NAME").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("name").add();
+            table.column("VALUE").varChar(DESCRIPTION_LENGTH).notNull().map("value").add();
             table.foreignKey("FK_DTC_CONFPROPSATTR_PROPS").
                     on(id).
                     references(DTC_DIALECTCONFIGPROPERTIES.name()).
@@ -334,7 +335,7 @@ public enum TableSpecs {
             Table<PartialConnectionTask> table = dataModel.addTable(name(), PartialConnectionTask.class);
             table.map(PartialConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(255).notNull().map("name").add();
+            table.column("NAME").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column deviceComConfig = table.column("DEVICECOMCONFIG").number().add();
             Column connectionType = table.column("CONNECTIONTYPE").number().conversion(NUMBER2LONG).map("pluggableClassId").add();
@@ -387,8 +388,8 @@ public enum TableSpecs {
             Table<PartialConnectionTaskPropertyImpl> table = dataModel.addTable(name(), PartialConnectionTaskPropertyImpl.class);
             table.map(PartialConnectionTaskPropertyImpl.class);
             Column partialconnectiontask = table.column("PARTIALCONNECTIONTASK").number().notNull().add();
-            Column name = table.column("NAME").varChar(255).notNull().map("name").add();
-            table.column("VALUE").varChar(4000).notNull().map("value").add();
+            Column name = table.column("NAME").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("name").add();
+            table.column("VALUE").varChar(DESCRIPTION_LENGTH).notNull().map("value").add();
             table.foreignKey("FK_DTC_PARTIALCTPROPS_TASK").
                     on(partialconnectiontask).
                     references(DTC_PARTIALCONNECTIONTASK.name()).
@@ -406,7 +407,7 @@ public enum TableSpecs {
             Table<SecurityPropertySet> table = dataModel.addTable(name(), SecurityPropertySet.class);
             table.map(SecurityPropertySetImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(255).notNull().map("name").add();
+            table.column("NAME").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("name").add();
             Column devicecomconfig = table.column("DEVICECOMCONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
             table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();
