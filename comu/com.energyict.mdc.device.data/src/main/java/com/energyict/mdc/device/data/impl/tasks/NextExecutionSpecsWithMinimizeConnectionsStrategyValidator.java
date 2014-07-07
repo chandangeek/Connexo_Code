@@ -38,12 +38,26 @@ public class NextExecutionSpecsWithMinimizeConnectionsStrategyValidator implemen
                 this.addViolation(MessageSeeds.OUTBOUND_CONNECTION_TASK_NEXT_EXECUTION_SPECS_REQUIRED);
             }
             else {
+                this.validateNotZero(nextExecutionSpecs);
+                this.validateSecondsNotAllowed(nextExecutionSpecs);
                 this.validateOffsetNotBiggerThenFrequency(nextExecutionSpecs);
                 this.validateOffsetWithinComWindow(nextExecutionSpecs, connectionTask.getCommunicationWindow());
                 this.validateNoSimultaneousConnections(connectionTask);
             }
         }
         return this.valid;
+    }
+
+    private void validateSecondsNotAllowed(NextExecutionSpecs nextExecutionSpecs) {
+        if (nextExecutionSpecs.getTemporalExpression().getEvery().getTimeUnitCode() == TimeDuration.SECONDS) {
+            this.addViolation(MessageSeeds.OUTBOUND_CONNECTION_TASK_NEXT_EXECUTION_SPECS_REQUIRED);
+        }
+    }
+
+    private void validateNotZero(NextExecutionSpecs nextExecutionSpecs) {
+        if (nextExecutionSpecs.getTemporalExpression().getEvery().getSeconds() == 0) {
+            this.addViolation(MessageSeeds.OUTBOUND_CONNECTION_TASK_NEXT_EXECUTION_SPECS_REQUIRED);
+        }
     }
 
     private void addViolation(MessageSeeds messageSeed) {
