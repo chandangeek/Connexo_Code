@@ -1,7 +1,5 @@
 package com.elster.jupiter.properties;
 
-import com.elster.jupiter.properties.impl.BasicPropertySpec;
-
 import java.math.BigDecimal;
 
 /**

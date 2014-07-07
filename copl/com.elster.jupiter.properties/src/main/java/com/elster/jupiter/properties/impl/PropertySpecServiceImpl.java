@@ -6,11 +6,11 @@ import java.util.logging.Logger;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpecImpl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.PropertySpecBuilderImpl;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -100,5 +100,4 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     public <T> PropertySpecBuilder<T> newPropertySpecBuilder(ValueFactory<T> valueFactory) {
         return PropertySpecBuilderImpl.forClass(valueFactory);
     }
-
 }

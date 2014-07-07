@@ -5,7 +5,6 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.ValueFactory;
 
 import java.math.BigDecimal;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Provides services to build {@link PropertySpec}s.
@@ -14,8 +13,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @since 2014-01-17 (10:54)
  */
 public interface PropertySpecService {
-
-    public AtomicReference<PropertySpecService> INSTANCE = new AtomicReference<>();
 
     public <T> PropertySpec<T> basicPropertySpec (String name, boolean required, ValueFactory<T> valueFactory);
 

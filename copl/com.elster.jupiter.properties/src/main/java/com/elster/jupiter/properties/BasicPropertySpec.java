@@ -1,19 +1,13 @@
-package com.elster.jupiter.properties.impl;
+package com.elster.jupiter.properties;
 
 import java.io.Serializable;
 
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecPossibleValues;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.ValueRequiredException;
-
 public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
 
-    private String name;
-    private boolean required;
-    private ValueFactory<T> valueFactory;
-    private PropertySpecPossibleValues<T> possibleValues;
+    protected String name;
+    protected boolean required;
+    protected ValueFactory<T> valueFactory;
+    protected PropertySpecPossibleValues<T> possibleValues;
 
     public BasicPropertySpec(String name, ValueFactory<T> valueFactory) {
         this(name, false, valueFactory);

@@ -1,9 +1,14 @@
-package com.elster.jupiter.properties;
+package com.elster.jupiter.properties.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.elster.jupiter.properties.impl.BasicPropertySpec;
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
+import com.elster.jupiter.properties.ValueFactory;
 
 /**
  * Provides building services for {@link PropertySpec}s.

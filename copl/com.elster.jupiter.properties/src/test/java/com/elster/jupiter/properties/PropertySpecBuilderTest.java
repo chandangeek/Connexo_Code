@@ -8,9 +8,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.PropertySpecBuilderImpl;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.impl.PropertySpecBuilderImpl;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PropertySpecBuilderTest {
