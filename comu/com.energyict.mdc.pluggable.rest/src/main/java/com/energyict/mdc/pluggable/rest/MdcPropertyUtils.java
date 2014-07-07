@@ -4,24 +4,28 @@ import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
-import com.energyict.mdc.dynamic.BoundedBigDecimalPropertySpec;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.rest.util.properties.NumberValidationRules;
+import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValidationRule;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
-import com.energyict.mdc.pluggable.rest.impl.properties.PredefinedPropertyValuesInfo;
-import com.energyict.mdc.pluggable.rest.impl.properties.PropertySelectionMode;
-import com.energyict.mdc.pluggable.rest.impl.properties.PropertyTypeInfo;
-import com.energyict.mdc.pluggable.rest.impl.properties.PropertyValidationRule;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
-import com.energyict.mdc.pluggable.rest.impl.properties.validators.NumberValidationRules;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdw.UserFileService;
+
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 

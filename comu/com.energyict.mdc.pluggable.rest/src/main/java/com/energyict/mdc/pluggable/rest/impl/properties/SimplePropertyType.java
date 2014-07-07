@@ -1,10 +1,13 @@
 package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.Environment;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ThreeStateFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.rest.util.properties.PropertyType;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.dynamic.BigDecimalFactory;
-import com.energyict.mdc.dynamic.BooleanFactory;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.Ean13Factory;
@@ -14,12 +17,8 @@ import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
-import com.energyict.mdc.dynamic.SpatialCoordinatesFactory;
-import com.energyict.mdc.dynamic.StringFactory;
-import com.energyict.mdc.dynamic.ThreeStateFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
-import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
@@ -32,7 +31,7 @@ import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
  * Date: 19/11/13
  * Time: 11:44
  */
-public enum SimplePropertyType {
+public enum SimplePropertyType implements PropertyType {
     UNKNOWN(Void.class),
     PASSWORD(PasswordFactory.class),
     HEXSTRING(HexStringFactory.class),
@@ -48,7 +47,6 @@ public enum SimplePropertyType {
     LOADPROFILETYPE(FactoryIds.LOADPROFILE_TYPE, LoadProfileType.class),
     EAN13(Ean13Factory.class),
     EAN18(Ean18Factory.class),
-    SPATIAL_COORDINATES(SpatialCoordinatesFactory.class),
     DATE(DateFactory.class),
     TEXTAREA(LargeStringFactory.class),
     ENCRYPTED_STRING(EncryptedStringFactory.class),
