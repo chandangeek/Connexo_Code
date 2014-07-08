@@ -150,7 +150,7 @@ public class ValidationResource {
                                 rule.addReadingType(readingTypeInfo.mRID);
                             }
                             for (ValidationRulePropertyInfo propertyInfo : info.properties) {
-                                rule.addProperty(propertyInfo.name, Unit.WATT_HOUR.amount(propertyInfo.value));
+                                rule.addProperty(propertyInfo.key, Unit.WATT_HOUR.amount(propertyInfo.value));
                             }
                             set.save();
                         }
