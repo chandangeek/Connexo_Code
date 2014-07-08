@@ -54,6 +54,11 @@
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.data</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>

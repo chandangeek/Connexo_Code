@@ -10,6 +10,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.*;
