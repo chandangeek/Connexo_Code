@@ -59,22 +59,6 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                                     labelAlign: 'right',
                                     labelWidth: 250
                                 }
-                                /* {
-                                 xtype: 'fieldcontainer',
-                                 itemId: 'activeRules',
-                                 fieldLabel:  Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
-                                 labelAlign: 'right',
-                                 labelWidth:	250,
-                                 layout: 'vbox'
-                                 },
-                                 {
-                                 xtype: 'fieldcontainer',
-                                 itemId: 'inactiveRules',
-                                 fieldLabel:  Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
-                                 labelAlign: 'right',
-                                 labelWidth:	250,
-                                 layout: 'vbox'
-                                 }*/
                             ]
                         }
                     ]

@@ -73,9 +73,9 @@ Ext.define('Cfg.controller.history.Validation', {
                                         }
                                     }
                                 },
-                                deviceconfig: {
+                                deviceconfigurations: {
                                     title: 'Device configurations',
-                                    route: 'deviceconfig',
+                                    route: 'deviceconfigurations',
                                     controller: 'Cfg.controller.RuleDeviceConfigurations',
                                     action: 'showDeviceConfigView',
                                     items: {
