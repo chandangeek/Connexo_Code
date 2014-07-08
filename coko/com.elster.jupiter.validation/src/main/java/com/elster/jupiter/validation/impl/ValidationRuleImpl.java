@@ -80,6 +80,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     @SuppressWarnings("unused")
     private int position;
     private transient ValidationRuleSet ruleSet;
+    private transient Validator validator;
 
     private List<ValidationRuleProperties> properties = new ArrayList<>();
     private final DataModel dataModel;
@@ -195,8 +196,14 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     @Override
     public boolean isRequired(String propertyKey) {
-        Validator validator = validatorCreator.getTemplateValidator(this.implementation);
-        return validator.getRequiredKeys().contains(propertyKey);
+        return getValidator().getRequiredKeys().contains(propertyKey);
+    }
+
+    private Validator getValidator() {
+        if (validator == null) {
+            validator = validatorCreator.getTemplateValidator(this.implementation);
+        }
+        return validator;
     }
 
     @Override
@@ -228,8 +235,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     @Override
     public String getDisplayName() {
-        Validator validator = validatorCreator.getTemplateValidator(this.implementation);
-        return validator.getDisplayName();
+        return getValidator().getDisplayName();
     }
 
     @Override
@@ -496,4 +502,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
 
+    public String getDisplayName(String name) {
+        return getValidator().getDisplayName(name);
+    }
 }

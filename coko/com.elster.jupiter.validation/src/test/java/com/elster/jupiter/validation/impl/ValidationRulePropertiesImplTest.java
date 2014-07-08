@@ -40,7 +40,7 @@ public class ValidationRulePropertiesImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRulePropertiesImpl(thesaurus);
+                return new ValidationRulePropertiesImpl();
             }
         });
     }
@@ -55,7 +55,7 @@ public class ValidationRulePropertiesImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRulePropertiesImpl(thesaurus);
+                return new ValidationRulePropertiesImpl();
             }
         });
         if (property == null) {
