@@ -117,7 +117,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_INVALID_CHARS+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.COMSERVER_NAME_INVALID_CHARS +"}", property = "name")
     @Transactional
     public void testNameWithInvalidCharacters() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();

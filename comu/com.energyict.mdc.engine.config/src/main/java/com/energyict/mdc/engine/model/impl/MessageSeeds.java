@@ -9,7 +9,7 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_BE_EMPTY(2, Keys.MDC_CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
     VALUE_NOT_IN_RANGE(3, Keys.MDC_VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}", Level.SEVERE),
     INVALID_URL(4, Keys.MDC_INVALID_URL, "{value} is not a valid URL", Level.SEVERE),
-    INVALID_CHARS(5, Keys.MDC_INVALID_CHARS, "This field contains invalid chars, should obey {regex}", Level.SEVERE),
+    COMSERVER_NAME_INVALID_CHARS(5, Keys.COMSERVER_NAME_INVALID_CHARS, "The name of a communication server should comply with the domain name system (rfc 1035) and can therefore only contain a-z, A-Z, 0-9, . and - characters", Level.SEVERE),
     REQUIRED_FOR_HTTPS(6, Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS, "This field is mandatory in case https is chosen", Level.SEVERE),
     IS_ALREADY_OBSOLETE(7, Keys.MDC_IS_ALREADY_OBSOLETE, "Already obsolete", Level.SEVERE),
     NOT_UNIQUE(8, Keys.MDC_NOT_UNIQUE , "the element is not unique", Level.SEVERE),
@@ -81,7 +81,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MDC_CAN_NOT_BE_EMPTY = EngineModelService.COMPONENT_NAME+".CanNotBeEmpty";
         public static final String MDC_VALUE_NOT_IN_RANGE = EngineModelService.COMPONENT_NAME+".ValueNotInRange";
         public static final String MDC_INVALID_URL = EngineModelService.COMPONENT_NAME+".InvalidURL";
-        public static final String MDC_INVALID_CHARS = EngineModelService.COMPONENT_NAME+".InvalidChars";
+        public static final String COMSERVER_NAME_INVALID_CHARS = "InvalidChars";
         public static final String MDC_CAN_NOT_BE_EMPTY_IF_HTTPS = EngineModelService.COMPONENT_NAME+".CanNotBeEmptyIfHttps";
         public static final String MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL = EngineModelService.COMPONENT_NAME+".activeInboundPortMustHavePool";
 
