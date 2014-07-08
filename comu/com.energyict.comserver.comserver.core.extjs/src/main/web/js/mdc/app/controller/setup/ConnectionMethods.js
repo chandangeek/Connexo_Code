@@ -153,7 +153,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     showAddConnectionMethodView: function (deviceTypeId, deviceConfigId, direction, a, b) {
         var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
-        var comPortPoolStore = Ext.StoreManager.get('ComPortPools');
+        this.comPortPoolStore = Ext.StoreManager.get('ComPortPools');
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
         var me = this;
         this.deviceTypeId = deviceTypeId;
@@ -162,7 +162,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             edit: false,
             returnLink: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/connectionmethods',
             connectionTypes: connectionTypesStore,
-            comPortPools: comPortPoolStore,
+            comPortPools: this.comPortPoolStore,
             connectionStrategies: connectionStrategiesStore,
             direction: direction
         });
@@ -176,10 +176,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        comPortPoolStore.clearFilter(true);
-                        comPortPoolStore.filter('direction', direction);
-                        comPortPoolStore.load({
-                            callback: function () {
                                 connectionStrategiesStore.load({
                                     callback: function () {
                                         connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
@@ -200,8 +196,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                             }
                                         });
                                     }
-                                });
-                            }
                         });
                     }
                 });
@@ -319,6 +313,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     showConnectionTypeProperties: function (combobox, objList) {
         var objectWithProperties = this.getConnectionTypeComboBox().findRecordByValue(this.getConnectionTypeComboBox().getValue());
+        this.comPortPoolStore.clearFilter(true);
+        this.comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionType: objectWithProperties.get('id')});
+        this.comPortPoolStore.load();
         var properties = objectWithProperties.properties();
         var form = this.getConnectionMethodEditView().down('property-form');
 
@@ -332,7 +329,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     showConnectionMethodEditView: function (deviceTypeId, deviceConfigId, connectionMethodId) {
         var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
-        var comPortPoolStore = Ext.StoreManager.get('ComPortPools');
+        this.comPortPoolStore = Ext.StoreManager.get('ComPortPools');
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigId;
@@ -347,7 +344,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     edit: true,
                     returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens(),
                     connectionTypes: connectionTypesStore,
-                    comPortPools: comPortPoolStore,
+                    comPortPools: me.comPortPoolStore,
                     connectionStrategies: connectionStrategiesStore,
                     direction: connectionMethod.get('direction')
                 });
@@ -363,19 +360,21 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         model.load(deviceConfigId, {
                             success: function (deviceConfig) {
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                                comPortPoolStore.filter('direction', connectionMethod.get('direction'));
-                                comPortPoolStore.load({
+                                connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
+                                connectionTypesStore.getProxy().setExtraParam('filter', Ext.encode([
+                                    {
+                                        property: 'direction',
+                                        value: connectionMethod.get('direction')
+                                    }
+                                ]));
+                                connectionTypesStore.load({
                                     callback: function () {
                                         connectionStrategiesStore.load({
                                             callback: function () {
-                                                connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
-                                                connectionTypesStore.getProxy().setExtraParam('filter', Ext.encode([
-                                                    {
-                                                        property: 'direction',
-                                                        value: connectionMethod.get('direction')
-                                                    }
-                                                ]));
-                                                connectionTypesStore.load({
+                                                me.comPortPoolStore.clearFilter(true);
+                                                me.comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionType: connectionTypesStore.findRecord('name',connectionMethod.get('connectionType')).get('id')});
+                                                me.comPortPoolStore.load({
+
                                                     callback: function () {
                                                         var deviceTypeName = deviceType.get('name');
                                                         var deviceConfigName = deviceConfig.get('name');
