@@ -51,6 +51,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                 ]
             }
         ];
+
         this.content = [
             {
                 ui: 'large',
@@ -103,7 +104,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                             ]
                         },
                         previewComponent: {
-                            xtype: 'registerConfigAndRulesPreviewContainer',
+                            xtype: 'register-config-and-rules-preview-container',
                             deviceTypeId: this.deviceTypeId,
                             deviceConfigId: this.deviceConfigId
                         }
@@ -111,7 +112,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                 ]
             }
         ];
+
         this.callParent(arguments);
     }
-})
-;
+});

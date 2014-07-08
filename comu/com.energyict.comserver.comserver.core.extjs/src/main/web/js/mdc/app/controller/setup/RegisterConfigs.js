@@ -31,7 +31,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'ruleForRegisterConfigPreview', selector: '#ruleForRegisterConfigPreview'},
 
         {ref: 'registerConfigPreview', selector: '#registerConfigPreview'},
-        {ref: 'registerConfigPreviewTitle', selector: '#registerConfigPreviewTitle'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerConfigEditForm', selector: '#registerConfigEditForm'},
         {ref: 'createRegisterConfigBtn', selector: '#createRegisterConfigBtn'},
@@ -40,18 +39,15 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'overflowValueInfo', selector: '#overflowValueInfo'},
         {ref: 'numberOfDigits', selector: '#numberOfDigits'},
         {ref: 'rulesForRegisterConfigGrid', selector: 'validation-rules-for-registerconfig-grid'},
-        {ref: 'rulesForRegisterConfigPreview', selector: 'registerConfigAndRulesPreviewContainer > #rulesForRegisterConfigPreview'},
+        {ref: 'rulesForRegisterConfigPreview', selector: 'register-config-and-rules-preview-container > #rulesForRegisterConfigPreview'},
 
         {ref: 'validationRulesForRegisterConfigPreview', selector: 'register-config-and-rules-preview-container validation-rule-preview'}
-
-
     ],
 
     deviceTypeId: null,
     deviceConfigId: null,
 
     init: function () {
-
         this.control({
             '#registerconfiggrid': {
                 selectionchange: this.previewRegisterConfig
@@ -100,7 +96,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         });
     },
 
-
     viewRule: function (record) {
         location.href = '#/administration/validation/rulesets/validationrules/' + record.data.ruleSetId + '/ruleoverview/' + record.data.id;
     },
@@ -131,30 +126,25 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     },
 
     previewRegisterConfig: function (grid, record) {
-        var registerConfigs = this.getRegisterConfigGrid().getSelectionModel().getSelection();
-        if (registerConfigs.length == 1) {
-            this.getRegisterConfigPreviewForm().loadRecord(registerConfigs[0]);
-            var registerConfigsName = this.getRegisterConfigPreviewForm().form.findField('name').getSubmitValue();
-            this.getRegisterConfigPreview().getLayout().setActiveItem(1);
-            this.getRegisterConfigPreview().setTitle(registerConfigsName);
-            this.getPreviewMrId().setValue(registerConfigs[0].getReadingType().get('mrid'));
-            //this.getRegisterConfigPreviewForm().loadRecord(registerConfigs[0]);
+        var me = this,
+            registerConfigs = this.getRegisterConfigGrid().getSelectionModel().getSelection();
 
-            this.getRulesForRegisterConfigPreview().setTitle(registerConfigsName + ' validation rules');
+        if (registerConfigs.length === 1) {
+            var registerConfig = registerConfigs[0];
 
-            this.getRegisterConfigValidationRulesStore().getProxy().extraParams =
+            me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
+            me.getRulesForRegisterConfigPreview().setTitle(registerConfig.get('name') + ' validation rules');
+
+            me.getRegisterConfigValidationRulesStore().getProxy().extraParams =
                 ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: registerConfigs[0].getId()});
 
-            var me = this;
-            this.getRegisterConfigValidationRulesStore().load({
+            me.getRegisterConfigValidationRulesStore().load({
                 callback: function () {
                     if (me.getRegisterConfigValidationRulesStore().count() > 0) {
                         me.getRulesForRegisterConfigGrid().getSelectionModel().doSelect(0);
                     }
                 }
             });
-        } else {
-            this.getRegisterConfigPreview().getLayout().setActiveItem(0);
         }
     },
 
