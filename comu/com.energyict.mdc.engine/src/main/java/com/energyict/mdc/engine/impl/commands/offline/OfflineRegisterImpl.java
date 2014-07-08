@@ -7,6 +7,11 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * The Offline implementation of a {@link com.energyict.mdc.protocol.api.device.BaseRegister}
  *
@@ -43,7 +48,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
     /**
      * The ID of the {@link RegisterGroup} where this registers belongs to.
      */
-    private long registerGroupId;
+    private List<Long> registerGroupIds;
 
     /**
      * The serialNumber of the Device owning this Register
@@ -69,11 +74,10 @@ public class OfflineRegisterImpl implements OfflineRegister {
         this.registerUnit = this.register.getRegisterSpec().getUnit();
 
         // We don't use the rtuRegister.getOverruledRegisterGroup as this can be overruled!
-        if (this.register.getRegisterSpec().getRegisterMapping().getRegisterGroup() == null) {
-            this.registerGroupId = 0;
-        }
-        else {
-            this.registerGroupId = (int) this.register.getRegisterSpec().getRegisterMapping().getRegisterGroup().getId();
+        List<RegisterGroup> registerGroups = this.register.getRegisterSpec().getRegisterMapping().getRegisterGroups();
+        this.registerGroupIds = new ArrayList<>(registerGroups.size());
+        for (RegisterGroup registerGroup : registerGroups) {
+            this.registerGroupIds.add(registerGroup.getId());
         }
         this.meterSerialNumber = this.register.getDevice().getSerialNumber();
     }
@@ -102,14 +106,14 @@ public class OfflineRegisterImpl implements OfflineRegister {
         return this.amrRegisterObisCode;
     }
 
-    /**
-     * Get the business Id of the {@link RegisterGroup} where this registers belongs to
-     *
-     * @return the ID of the {@link RegisterGroup}
-     */
     @Override
-    public long getRegisterGroupId() {
-        return this.registerGroupId;
+    public boolean inGroup(long registerGroupId) {
+        return this.registerGroupIds.contains(registerGroupId);
+    }
+
+    @Override
+    public boolean inAtLeastOneGroup(Collection<Long> registerGroupIds) {
+        return !Collections.disjoint(this.registerGroupIds, registerGroupIds);
     }
 
     /**

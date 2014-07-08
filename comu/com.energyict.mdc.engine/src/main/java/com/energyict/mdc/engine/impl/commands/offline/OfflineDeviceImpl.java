@@ -12,7 +12,6 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -326,7 +325,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     public List<OfflineRegister> getRegistersForRegisterGroup(final List<Long> deviceRegisterGroupIds) {
         List<OfflineRegister> filteredRegisters = new ArrayList<>();
         for (OfflineRegister register : getAllRegisters()) {
-            if (deviceRegisterGroupIds.contains(register.getRegisterGroupId())) {
+            if (register.inAtLeastOneGroup(deviceRegisterGroupIds)) {
                 filteredRegisters.add(register);
             }
         }
