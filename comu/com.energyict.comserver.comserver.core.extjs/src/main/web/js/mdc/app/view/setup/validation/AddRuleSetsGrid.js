@@ -32,11 +32,6 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('validation.status', 'MDC', 'Status'),
-                dataIndex: 'active',
-                flex: 1
-            },
-            {
                 header: Uni.I18n.translate('validation.activeRules', 'MDC', 'Active rule(s)'),
                 dataIndex: 'numberOfRules',
                 flex: 1
