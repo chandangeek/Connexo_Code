@@ -14,6 +14,7 @@ import org.joda.time.DateTimeConstants;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -59,11 +60,11 @@ public class MeterReadingIssueEvent implements IssueEvent {
         }
         List<? extends BaseReadingRecord> readings = meter.getReadings(
                 new Interval(new Date(unit.getStartMillisForTrendPeriod(trendPeriod)), new Date()), readingType);
-        if (readings.size() < 2) {
+        if (isValidReadings(readings)) {
             //Nothing to do because at least two measurement points needed
             return 0d;
         }
-        
+
         double s0d = 0;
         BigDecimal s1 = new BigDecimal(0),
                    s2 = new BigDecimal(0),
@@ -79,5 +80,19 @@ public class MeterReadingIssueEvent implements IssueEvent {
         }
         BigDecimal s0 = new BigDecimal(s0d);
         return s0.multiply(t1).subtract(s1.multiply(t0)).divide(s0.multiply(s2).subtract(s1.multiply(s1)), RoundingMode.HALF_UP).doubleValue();
+    }
+
+    private boolean isValidReadings(List<? extends BaseReadingRecord> readings){
+        if (readings != null) {
+            Iterator<? extends BaseReadingRecord> itr = readings.iterator();
+            while (itr.hasNext()) {
+                BaseReadingRecord readingRecord = itr.next();
+                if (readingRecord == null || readingRecord.getValue() == null) {
+                    itr.remove();
+                }
+            }
+            return readings.size() >= 2;
+        }
+        return false;
     }
 }

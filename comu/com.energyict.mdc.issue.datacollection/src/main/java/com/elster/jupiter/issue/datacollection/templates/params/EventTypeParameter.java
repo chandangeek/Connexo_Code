@@ -104,12 +104,12 @@ public class EventTypeParameter extends TranslatedParameter {
         String dbSearchString = "%" + userValue + "%";
         // TODO search in DB
         ComboBoxControl.Values info = new ComboBoxControl.Values();
-        info.id = "36.116.85";
+        info.id = "0.36.116.85";
         info.title = "Time sync failed";
         eventTypes.add(info);
 
         info = new ComboBoxControl.Values();
-        info.id = "26.0.85";
+        info.id = "0.26.0.85";
         info.title = "Power Outage";
         eventTypes.add(info);
     }
