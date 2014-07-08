@@ -9,6 +9,8 @@ import com.google.common.base.Optional;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,13 +46,26 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getComServers(@BeanParam QueryParameters queryParameters) {
         List<ComServerInfo<?>> comServers = new ArrayList<>();
-        List<ComServer> allComServers = engineModelService.findAllComServers().from(queryParameters).find();
+        List<ComServer> allComServers = this.getSortedComServers(queryParameters);
 
         for (ComServer comServer : allComServers) {
             comServers.add(ComServerInfoFactory.asInfo(comServer));
         }
 
         return PagedInfoList.asJson("data", comServers, queryParameters);
+    }
+
+    private List<ComServer> getSortedComServers(QueryParameters queryParameters) {
+        List<ComServer> comServers = engineModelService.findAllComServers().from(queryParameters).find();
+        Collections.sort(
+                comServers,
+                new Comparator<ComServer>() {
+                    @Override
+                    public int compare(ComServer o1, ComServer o2) {
+                        return o1.getName().compareToIgnoreCase(o2.getName());
+                    }
+                });
+        return comServers;
     }
 
     @GET
