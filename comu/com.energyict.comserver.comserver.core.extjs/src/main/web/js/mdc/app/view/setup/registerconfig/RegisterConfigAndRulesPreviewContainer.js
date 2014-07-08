@@ -1,26 +1,28 @@
 Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.registerConfigAndRulesPreviewContainer',
-    itemId: 'registerConfigAndRulesPreviewContainer',
     xtype: 'register-config-and-rules-preview-container',
+    itemId: 'registerConfigAndRulesPreviewContainer',
+
     deviceTypeId: null,
     deviceConfigId: null,
     registerId: null,
+
     requires: [
         'Mdc.view.setup.registerconfig.RegisterConfigPreview',
         'Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid'
     ],
+
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
+
     items: [
         {
             xtype: 'registerConfigPreview',
             deviceTypeId: this.deviceTypeId,
             deviceConfigId: this.deviceConfigId
         },
-
         {
             xtype: 'panel',
             ui: 'medium',
@@ -52,16 +54,11 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
                     ]
                 }
             ]
-
         }
+    ],
 
+    updateRegisterConfig: function(registerConfig) {
 
-
-
-
-
-    ]
-
-
+    }
 
 });
