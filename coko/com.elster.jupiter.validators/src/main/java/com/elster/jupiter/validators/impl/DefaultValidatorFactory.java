@@ -1,39 +1,61 @@
-package com.elster.jupiter.validators;
+package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
+import com.elster.jupiter.validators.MessageSeeds;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-@Component(name = "com.elster.jupiter.validators.DefaultValidatorFactory", service = ValidatorFactory.class, immediate = true)
-public class DefaultValidatorFactory implements ValidatorFactory {
+@Component(name = "com.elster.jupiter.validators.impl.DefaultValidatorFactory", service = {ValidatorFactory.class, InstallService.class}, property = "name=" + MessageSeeds.COMPONENT_NAME, immediate = true)
+public class DefaultValidatorFactory implements ValidatorFactory, InstallService {
 
-    static final String COMPONENT_NAME = "VDR";
+    public static final String THRESHOLD_VALIDATOR = "com.elster.jupiter.validators.impl.ThresholdValidator";
     private volatile Thesaurus thesaurus;
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+        thesaurus = nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Override
+    public void install() {
+        List<Translation> translations = new ArrayList<>(ValidatorDefinition.values().length);
+        for (ValidatorDefinition validatorDefinition : ValidatorDefinition.values()) {
+            IValidator validator = validatorDefinition.createTemplate(thesaurus);
+            Translation translation = SimpleTranslation.translation(validator.getNlsKey(), Locale.ENGLISH, validator.getDefaultFormat());
+            translations.add(translation);
+            for (String key : validator.getRequiredKeys()) {
+                translations.add(SimpleTranslation.translation(validator.getPropertyNlsKey(key), Locale.ENGLISH, validator.getPropertyDefaultFormat(key)));
+            }
+            for (String key : validator.getOptionalKeys()) {
+                translations.add(SimpleTranslation.translation(validator.getPropertyNlsKey(key), Locale.ENGLISH, validator.getPropertyDefaultFormat(key)));
+            }
+        }
+        thesaurus.addTranslations(translations);
     }
 
     private enum ValidatorDefinition {
-        MIN_MAX("com.elster.jupiter.validators.ThresholdValidator") {
+        THRESHOLD(THRESHOLD_VALIDATOR) {
             @Override
             Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
                 return new ThresholdValidator(thesaurus, props);
             }
 
             @Override
-            Validator createTemplate() {
-                return new ThresholdValidator();
+            IValidator createTemplate(Thesaurus thesaurus) {
+                return new ThresholdValidator(thesaurus);
             }
         };
 
@@ -48,7 +70,7 @@ public class DefaultValidatorFactory implements ValidatorFactory {
         }
 
         abstract Validator create(Thesaurus thesaurus, Map<String, Quantity> props);
-        abstract Validator createTemplate();
+        abstract IValidator createTemplate(Thesaurus thesaurus);
     }
 
     @Override
@@ -74,7 +96,7 @@ public class DefaultValidatorFactory implements ValidatorFactory {
     public Validator createTemplate(String implementation) {
         for (ValidatorDefinition definition : ValidatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
-                return definition.createTemplate();
+                return definition.createTemplate(thesaurus);
             }
         }
         return null;

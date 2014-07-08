@@ -1,15 +1,19 @@
-package com.elster.jupiter.validators;
+package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validators.MessageSeeds;
+import com.elster.jupiter.validators.MissingRequiredProperty;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
@@ -17,18 +21,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class ThresholdValidator implements Validator {
+class ThresholdValidator implements IValidator {
 
     private static final String MIN = "minimum";
     private static final String MAX = "maximum";
+    public static final String BASE_KEY = "com.elster.jupiter.validators.impl.ThresholdValidator";
 
     private Quantity minimum;
     private Quantity maximum;
     private ReadingType readingType;
     private final Thesaurus thesaurus;
 
-    protected ThresholdValidator() {
-        thesaurus = null;
+    ThresholdValidator(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
     public ThresholdValidator(Thesaurus thesaurus, Map<String, Quantity> properties) {
@@ -40,11 +45,11 @@ public class ThresholdValidator implements Validator {
     }
 
     private Quantity getRequiredQuantity(Map<String, Quantity> properties, String key) {
-        Quantity min = properties.get(key);
-        if (min == null) {
+        Quantity quantity = properties.get(key);
+        if (quantity == null) {
             throw new MissingRequiredProperty(thesaurus, key);
         }
-        return min;
+        return quantity;
     }
 
     @Override
@@ -86,7 +91,42 @@ public class ThresholdValidator implements Validator {
 
     @Override
     public String getDisplayName() {
-        return "Min Max";
+        return thesaurus.getString(getNlsKey().getKey(), getDefaultFormat());
+    }
+
+    @Override
+    public String getDisplayName(String property) {
+        return thesaurus.getString(getPropertyNlsKey(property).getKey(), getPropertyDefaultFormat(property));
+    }
+
+    @Override
+    public NlsKey getNlsKey() {
+        return SimpleNlsKey.key(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN, BASE_KEY);
+    }
+
+    @Override
+    public String getDefaultFormat() {
+        return "Threshold violation";
+    }
+
+    @Override
+    public NlsKey getPropertyNlsKey(String property) {
+        if (getRequiredKeys().contains(property) || getOptionalKeys().contains(property)) {
+            return SimpleNlsKey.key(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN, BASE_KEY + '.' + property);
+        }
+        return null;
+    }
+
+    @Override
+    public String getPropertyDefaultFormat(String property) {
+        switch (property) {
+            case MIN:
+                return "Minimum";
+            case MAX:
+                return "Maximum";
+            default:
+                return null;
+        }
     }
 
     private ValidationResult validateQuantity(Quantity toValidate) {

@@ -11,6 +11,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_VALIDATOR(1001, "validator.doesnotexist", "Validator {0} does not exist.", Level.SEVERE),
     MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.", Level.SEVERE);
 
+    public static final String COMPONENT_NAME = "VDR";
+
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -25,7 +27,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return DefaultValidatorFactory.COMPONENT_NAME;
+        return COMPONENT_NAME;
     }
 
     @Override
