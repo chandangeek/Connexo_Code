@@ -65,7 +65,9 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.CommunicationTasks',
         'Mdc.controller.setup.Comtasks',
         'Mdc.controller.setup.DeviceProtocolDialects',
-        'Mdc.controller.setup.ValidationRuleSets'
+        'Mdc.controller.setup.ValidationRuleSets',
+        'Mdc.controller.setup.ComServerComPortsEdit',
+        'Mdc.controller.setup.ComServerComPortsView'
     ],
 
     config: {

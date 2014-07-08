@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                 header: Uni.I18n.translate('validation.ruleSetName', 'MDC', 'Validation rule set'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/overview/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
                 },
                 flex: 1
             },
@@ -68,6 +68,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
             {
                 xtype: 'toolbar',
                 dock: 'bottom',
+                margin: '0 0 0 -10',
                 items: [
                     {
                         xtype: 'button',
