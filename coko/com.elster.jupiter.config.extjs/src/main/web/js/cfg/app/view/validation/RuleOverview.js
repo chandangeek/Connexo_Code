@@ -5,7 +5,8 @@ Ext.define('Cfg.view.validation.RuleOverview', {
     requires: [
         'Cfg.model.ValidationRule',
         'Cfg.view.validation.RuleSubMenu',
-        'Cfg.view.validation.RuleActionMenu'
+        'Cfg.view.validation.RuleActionMenu',
+        'Cfg.view.validation.RulePreview'
     ],
 
     ruleId: null,
@@ -22,49 +23,9 @@ Ext.define('Cfg.view.validation.RuleOverview', {
                     flex: 1,
                     items: [
                         {
-                            xtype: 'form',
-                            border: false,
-                            itemId: 'ruleOverviewForm',
-                            name: 'ruleOverviewForm',
-                            layout: {
-                                type: 'vbox',
-                                align: 'stretch'
-                            },
-                            defaults: {
-                                xtype: 'displayfield',
-                                labelWidth: 260,
-                                labelAlign: 'right'
-                            },
-                            items: [
-                                {
-                                    name: 'displayName',
-                                    fieldLabel: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
-                                    labelAlign: 'right'
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'active',
-                                    fieldLabel: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
-                                    renderer: function (value) {
-                                        if (value) {
-                                            return Uni.I18n.translate('validation.active', 'CFG', 'Active')
-                                        } else {
-                                            return Uni.I18n.translate('validation.inactive', 'CFG', 'Inactive')
-                                        }
-                                    }
-                                },
-                                {
-                                    xtype: 'container',
-                                    itemId: 'readingTypesArea',
-                                    items: []
-                                },
-                                {
-                                    xtype: 'container',
-                                    margin: '5 0 0 0',
-                                    itemId: 'propertiesArea',
-                                    items: []
-                                }
-                            ]
+                            xtype: 'validation-rule-preview',
+                            frame: false,
+                            margin: '-30 0 0 -10'
                         }
                     ]
                 },
