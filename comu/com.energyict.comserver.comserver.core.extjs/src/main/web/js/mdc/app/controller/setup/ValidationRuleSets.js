@@ -12,6 +12,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     ],
 
     stores: [
+        'Mdc.store.DeviceConfigurationValidationRuleSets',
         'DeviceConfigValidationRuleSets'
     ],
 
