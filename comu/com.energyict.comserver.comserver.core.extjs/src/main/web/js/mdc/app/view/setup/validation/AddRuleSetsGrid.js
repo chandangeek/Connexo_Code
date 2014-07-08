@@ -3,10 +3,12 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
     xtype: 'validation-add-rulesets-grid',
 
     requires: [
-        'Mdc.view.setup.validation.AddRuleSetActionMenu'
+        'Mdc.view.setup.validation.AddRuleSetActionMenu',
+        'Ext.grid.plugin.BufferedRenderer'
     ],
 
-    store: Ext.getStore('ValidationRuleSets') || Ext.create('Cfg.store.ValidationRuleSets'),
+    store: Ext.create('Mdc.store.DeviceConfigurationValidationRuleSets'),
+
     selType: 'checkboxmodel',
     selModel: {
         mode: 'MULTI'
@@ -14,6 +16,8 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
 
     deviceTypeId: null,
     deviceConfigId: null,
+    plugins: 'bufferedrenderer',
+    height: 400,
 
     initComponent: function () {
         var me = this;
