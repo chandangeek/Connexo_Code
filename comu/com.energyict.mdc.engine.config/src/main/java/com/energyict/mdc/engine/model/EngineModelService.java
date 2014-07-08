@@ -151,6 +151,15 @@ public interface EngineModelService {
     public List<OutboundComPortPool> findOutboundComPortPoolByType (ComPortType comPortType);
 
     /**
+     * Finds all the {@link com.energyict.mdc.engine.model.InboundComPortPool} that can contain {@link com.energyict.mdc.engine.model.ComPort}s
+     * of the specified {@link com.energyict.mdc.protocol.api.ComPortType}.
+     *
+     * @param comPortType The ComPortType
+     * @return The List of InboundComPortPool
+     */
+    public List<InboundComPortPool> findInboundComPortPoolByType (ComPortType comPortType);
+
+    /**
      * Finds the {@link ComPortPool} with the specified unique name.
      *
      * @param name The unique name

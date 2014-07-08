@@ -331,6 +331,11 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
+    public List<InboundComPortPool> findInboundComPortPoolByType(ComPortType comPortType) {
+        return convertComportPoolListToInBoundComPortPools(getComPortPoolDataMapper().find("comPortType", comPortType));
+    }
+
+    @Override
     public ComPortPool findComPortPool(String name) {
         return getComPortPoolDataMapper().getUnique("name", name).orNull();
     }
@@ -343,7 +348,9 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     private List<OutboundComPortPool> convertComportPoolListToOutBoundComPortPools(final List<ComPortPool> comPortPools) {
         List<OutboundComPortPool> outboundComPortPools = new ArrayList<>(comPortPools.size());
         for (ComPortPool comPortPool : comPortPools) {
-            outboundComPortPools.add((OutboundComPortPool) comPortPool);
+            if (!comPortPool.isInbound()){
+                outboundComPortPools.add((OutboundComPortPool) comPortPool);
+            }
         }
         return outboundComPortPools;
     }
@@ -351,7 +358,9 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     private List<InboundComPortPool> convertComportPoolListToInBoundComPortPools(final List<ComPortPool> comPortPools) {
         List<InboundComPortPool> inboundComPortPools = new ArrayList<>(comPortPools.size());
         for (ComPortPool comPortPool : comPortPools) {
-            inboundComPortPools.add((InboundComPortPool) comPortPool);
+            if (comPortPool.isInbound()) {
+                inboundComPortPools.add((InboundComPortPool) comPortPool);
+            }
         }
         return inboundComPortPools;
     }
