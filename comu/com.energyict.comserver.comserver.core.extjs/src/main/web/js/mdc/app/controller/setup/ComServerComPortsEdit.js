@@ -66,7 +66,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             '#addComPortForm button[action=cancel]' : {
                 click: this.cancelClick
             },
-            '#addEditButton': {
+            '#comPortEdit #addEditButton': {
                 click: this.addClicked
             },
             'button[action=showAddComPortPoolPage]': {
