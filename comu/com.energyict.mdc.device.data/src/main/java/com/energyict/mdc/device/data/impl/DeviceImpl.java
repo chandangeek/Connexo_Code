@@ -72,13 +72,16 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -102,7 +105,6 @@ import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1011,6 +1013,62 @@ public class DeviceImpl implements Device, PersistenceAware {
             return readingRecords;
         }
         return Collections.emptyList();
+    }
+
+    Optional<ReadingRecord> getLastReadingsFor(Register register) {
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Meter meter = findOrCreateMeterInKore(amrSystem);
+            return this.getLastReadingsFor(register, meter);
+        }
+        else {
+            return Optional.absent();
+        }
+    }
+
+    private Optional<ReadingRecord> getLastReadingsFor(Register register, Meter meter) {
+        ReadingType readingType = register.getRegisterSpec().getRegisterMapping().getReadingType();
+        for (MeterActivation meterActivation : this.getSortedMeterActivations(meter)) {
+            Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation, readingType);
+            if (channel.isPresent()) {
+                Date lastReadingDate = channel.get().getTimeSeries().getLastDateTime();
+                if (lastReadingDate != null) {
+                    return this.getLast(channel.get().getRegisterReadings(new Interval(lastReadingDate, lastReadingDate)));
+                }
+            }
+        }
+        return Optional.absent();
+    }
+
+    /**
+     * Sorts the {@link MeterActivation}s of the specified {@link Meter}
+     * where the most recent activations are returned first.
+     *
+     * @param meter The Meter
+     * @return The List of MeterActivation
+     */
+    private List<? extends MeterActivation> getSortedMeterActivations(Meter meter) {
+        List<? extends MeterActivation> meterActivations = new ArrayList<>(meter.getMeterActivations());    // getMeterActivations returns ImmutableList
+        Collections.reverse(meterActivations);
+        return meterActivations;
+    }
+
+    private Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
+        for (com.elster.jupiter.metering.Channel channel : meterActivation.getChannels()) {
+            if (channel.getReadingTypes().contains(readingType)) {
+                return Optional.of(channel);
+            }
+        }
+        return Optional.absent();
+    }
+
+    private Optional<ReadingRecord> getLast(List<ReadingRecord> readings) {
+        if (readings.isEmpty()) {
+            return Optional.absent();
+        }
+        else {
+            return Optional.of(readings.get(readings.size() - 1));
+        }
     }
 
     public List<DeviceMultiplier> getDeviceMultipliers() {

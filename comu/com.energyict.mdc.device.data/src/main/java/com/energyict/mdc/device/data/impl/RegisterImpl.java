@@ -2,10 +2,14 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.base.Optional;
+
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -46,6 +50,22 @@ public class RegisterImpl implements Register {
     @Override
     public List<ReadingRecord> getRegisterReadings(Interval interval) {
         return device.getReadingsFor(this, interval);
+    }
+
+    @Override
+    public Optional<ReadingRecord> getLastReading() {
+        return this.device.getLastReadingsFor(this);
+    }
+
+    @Override
+    public Optional<Date> getLastReadingDate() {
+        Optional<ReadingRecord> lastReading = this.getLastReading();
+        if (lastReading.isPresent()) {
+            return Optional.of(lastReading.get().getTimeStamp());
+        }
+        else {
+            return Optional.absent();
+        }
     }
 
     @Override

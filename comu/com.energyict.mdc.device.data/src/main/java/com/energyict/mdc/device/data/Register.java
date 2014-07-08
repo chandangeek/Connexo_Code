@@ -3,9 +3,12 @@ package com.energyict.mdc.device.data;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.base.Optional;
+
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,10 +34,21 @@ public interface Register extends BaseRegister {
     RegisterSpec getRegisterSpec();
 
     /**
-     * Gets a list of ReadingRecords, filtered by the given interval
-     * @param interval the Interval to fetch readings fr
-     * @return
+     * Gets a list of ReadingRecords, filtered by the given interval.
+     *
+     * @param interval the Interval to fetch readings from
+     * @return The List of ReadingRecord
      */
     List<ReadingRecord> getRegisterReadings(Interval interval);
+
+    public Optional<ReadingRecord> getLastReading();
+
+    /**
+     * Return the &quot;timestamp&quot of the last reading for this Register.
+     *
+     * @return the <code>RegisterReading</code>
+     * @see #getLastReading()
+     */
+    public Optional<Date> getLastReadingDate();
 
 }
