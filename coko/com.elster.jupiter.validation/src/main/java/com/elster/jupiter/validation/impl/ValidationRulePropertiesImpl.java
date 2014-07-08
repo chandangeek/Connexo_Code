@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -14,12 +15,14 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     private String name;
     private Quantity value;
+    private final Thesaurus thesaurus;
 
     private Reference<ValidationRule> rule = ValueReference.absent();
 
     @Inject
-    ValidationRulePropertiesImpl() {
+    ValidationRulePropertiesImpl(Thesaurus thesaurus) {
         //for persistence
+        this.thesaurus = thesaurus;
     }
 
     ValidationRulePropertiesImpl init(ValidationRule rule, String name, Quantity value) {
@@ -41,6 +44,12 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getDisplayName() {
+        String key = rule.get().getImplementation() + '.' + name;
+        return thesaurus.getString(key, getName());
     }
 
     @Override

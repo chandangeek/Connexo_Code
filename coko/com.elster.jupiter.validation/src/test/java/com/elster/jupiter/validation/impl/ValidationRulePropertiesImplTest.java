@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
@@ -31,13 +32,15 @@ public class ValidationRulePropertiesImplTest extends EqualsContractTest {
     private ValidationRule rule;
     @Mock
     private DataModel dataModel;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
         when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRulePropertiesImpl();
+                return new ValidationRulePropertiesImpl(thesaurus);
             }
         });
     }
@@ -52,7 +55,7 @@ public class ValidationRulePropertiesImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRulePropertiesImpl();
+                return new ValidationRulePropertiesImpl(thesaurus);
             }
         });
         if (property == null) {

@@ -26,4 +26,8 @@ public interface Validator {
 
     String getDisplayName();
 
+    String getDisplayName(String property);
+
+    String getDefaultFormat();
+
 }
