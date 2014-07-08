@@ -7473,7 +7473,6 @@ a.x-tab {
 .x-btn-default-small-disabled {
   background-image: none;
   background-color: #d2d2d2;
-  cursor: default;
 }
 
 /* line 346, ../../../ext-theme-neutral/sass/src/button/Button.scss */

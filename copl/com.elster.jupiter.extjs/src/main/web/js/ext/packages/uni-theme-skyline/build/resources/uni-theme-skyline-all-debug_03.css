@@ -15221,6 +15221,9 @@ a.x-datepicker-date:hover {
   border-color: #333333;
   border-width: 0px;
   border-style: none;
+  border-left: 1px solid #d2d2d2 !important;
+  border-top: 1px solid #d2d2d2 !important;
+  border-right: 1px solid #d2d2d2 !important;
   -webkit-border-radius: 10px 10px 0 0;
   -moz-border-radius: 10px 10px 0 0;
   -ms-border-radius: 10px 10px 0 0;

@@ -1386,7 +1386,6 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 .x-btn-remove-small-disabled {
   background-image: none;
   background-color: #eb5642;
-  cursor: default;
 }
 
 /* line 346, ../../../ext-theme-neutral/sass/src/button/Button.scss */
