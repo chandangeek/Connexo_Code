@@ -4,6 +4,8 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.Unit;
 
+import java.util.Collection;
+
 /**
  * Represents an Offline version of a register.
  *
@@ -28,11 +30,22 @@ public interface OfflineRegister extends Offline {
 
 
     /**
-     * Get the business Id of the RegisterGroup where this registers belongs to.
+     * Tests if this register is part of the RegisterGroup
+     * that is uniquely identified by the registerGroupId.
      *
-     * @return the ID of the RegisterGroup
+     * @param registerGroupId The register group id
+     * @return A flag that indicates if this register is part of the group
      */
-    public long getRegisterGroupId();
+    public boolean inGroup (long registerGroupId);
+
+    /**
+     * Tests if this register is part of at least one of the RegisterGroups
+     * that are uniquely identified by the registerGroupIds.
+     *
+     * @param registerGroupIds The register group id
+     * @return A flag that indicates if this register is part of at least one of the groups
+     */
+    public boolean inAtLeastOneGroup (Collection<Long> registerGroupIds);
 
     /**
      * The {@link Unit} corresponding with this register
