@@ -169,7 +169,7 @@ Ext.define('Cfg.controller.RuleDeviceConfigurations', {
             method: 'POST',
             jsonData: Ext.encode(ids),
             success: function () {
-                location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfig';
+                location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfigurations';
                 var message = Uni.I18n.translatePlural(
                     'validation.deviceconfiguration.addSuccess',
                     selection.length,

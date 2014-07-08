@@ -24,7 +24,7 @@ Ext.define('Cfg.view.validation.RuleSetSubMenu', {
             {
                 text: Uni.I18n.translate('validation.deviceConfigurations', 'CFG', 'Device configurations'),
                 pressed: false,
-                href: '#/administration/validation/rulesets/' + this.ruleSetId + '/deviceconfig',
+                href: '#/administration/validation/rulesets/' + this.ruleSetId + '/deviceconfigurations',
                 hrefTarget: '_self'
             }
         );

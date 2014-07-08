@@ -54,7 +54,7 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationGrid', {
                             click: {
                                 fn: function () {
                                     me.up('ruleDeviceConfigurationBrowse').setLoading();
-                                    window.location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfig/add';
+                                    window.location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfigurations/add';
                                 }
                             }
                         }

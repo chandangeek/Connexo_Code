@@ -109,7 +109,7 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
                             listeners: {
                                 click: {
                                     fn: function () {
-                                        window.location.href = '#/administration/validation/rulesets/' + this.up('rule-device-configuration-add').ruleSetId + '/deviceconfig';
+                                        window.location.href = '#/administration/validation/rulesets/' + this.up('rule-device-configuration-add').ruleSetId + '/deviceconfigurations';
                                     }
                                 }
                             }
