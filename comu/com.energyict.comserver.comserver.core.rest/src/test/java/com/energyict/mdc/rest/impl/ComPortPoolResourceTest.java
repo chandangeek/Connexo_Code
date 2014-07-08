@@ -2,6 +2,8 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -46,11 +48,13 @@ import static org.mockito.Mockito.when;
 public class ComPortPoolResourceTest extends JerseyTest {
     private static EngineModelService engineModelService;
     private static ProtocolPluggableService protocolPluggableService;
+    private static DeviceConfigurationService deviceConfigurationService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         engineModelService = mock(EngineModelService.class);
         protocolPluggableService = mock(ProtocolPluggableService.class);
+        deviceConfigurationService = mock(DeviceConfigurationService.class);
     }
 
     @Override
@@ -71,6 +75,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
             protected void configure() {
                 bind(engineModelService).to(EngineModelService.class);
                 bind(protocolPluggableService).to(ProtocolPluggableService.class);
+                bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             }
         });
         return resourceConfig;
