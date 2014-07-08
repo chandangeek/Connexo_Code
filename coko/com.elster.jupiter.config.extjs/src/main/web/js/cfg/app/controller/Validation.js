@@ -119,13 +119,13 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     onMenuShow: function (menu) {
-            if (menu.record.get('active')) {
-                menu.down('#activate').hide();
-                menu.down('#deactivate').show();
-            } else {
-                menu.down('#deactivate').hide();
-                menu.down('#activate').show();
-            }
+        if (menu.record.get('active')) {
+            menu.down('#activate').hide();
+            menu.down('#deactivate').show();
+        } else {
+            menu.down('#deactivate').hide();
+            menu.down('#activate').show();
+        }
     },
 
     getRuleSetIdFromHref: function () {
@@ -148,15 +148,19 @@ Ext.define('Cfg.controller.Validation', {
                 rule = values.implementation,
                 name = values.name,
                 properties = this.getPropertiesContainer().items;
+
             if (form.down('#validatorCombo').isDisabled()) {
                 rule = form.down('#validatorCombo').value;
             }
+
             record.set('implementation', rule);
             record.set('name', name);
+
             if (button.action === 'editRuleAction') {
                 record.readingTypes().removeAll();
                 record.properties().removeAll();
             }
+
             for (var i = 0; i < readingTypes.items.length; i++) {
                 var readingTypeMRID = readingTypes.items[i].items.items[0],
                     readingType = readingTypeMRID.value,
@@ -165,12 +169,15 @@ Ext.define('Cfg.controller.Validation', {
                 readingTypeRecord.set('mRID', readingType);
                 record.readingTypes().add(readingTypeRecord);
             }
+
             for (var i = 0; i < properties.items.length; i++) {
                 var propertyRecord = Ext.create(Cfg.model.ValidationRuleProperty);
                 propertyRecord.set('value', properties.items[i].value);
-                propertyRecord.set('name', properties.items[i].itemId);
+                propertyRecord.set('name', properties.items[i].fieldLabel);
+                propertyRecord.set('key', properties.items[i].itemId);
                 record.properties().add(propertyRecord);
             }
+
             me.getAddRule().setLoading('Loading...');
             record.save({
                 params: {
@@ -212,7 +219,7 @@ Ext.define('Cfg.controller.Validation', {
         for (var i = 0; i < allPropertiesStore.data.items.length; i++) {
             var property = allPropertiesStore.data.items[i];
             var label = property.data.name;
-            var itemIdValue = property.data.name;
+            var key = property.data.key;
             var optional = property.data.optional;
             if (optional) {
                 label = label + ' (optional)';
@@ -225,7 +232,7 @@ Ext.define('Cfg.controller.Validation', {
                         labelAlign: 'right',
                         validateOnChange: false,
                         validateOnBlur: false,
-                        itemId: itemIdValue,
+                        itemId: key,
                         labelWidth: 260
                     }
                 );
@@ -247,7 +254,7 @@ Ext.define('Cfg.controller.Validation', {
                         labelAlign: 'right',
                         validateOnChange: false,
                         validateOnBlur: false,
-                        itemId: itemIdValue,
+                        itemId: key,
                         labelWidth: 260
                     }
                 );
@@ -338,6 +345,7 @@ Ext.define('Cfg.controller.Validation', {
             var values = form.getValues();
             record.set(values);
             createEditRuleSetPanel.setLoading('Loading...');
+
             record.save({
                 success: function (record, operation) {
                     var messageText;
