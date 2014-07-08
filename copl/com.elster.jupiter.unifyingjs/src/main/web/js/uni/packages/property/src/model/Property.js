@@ -70,6 +70,30 @@ Ext.define('Uni.property.model.Property', {
         me.set('default', restoreValue);
     },
 
+    initInheritedValues: function() {
+        var me = this;
+        var value = null;
+
+        // was on try-catch
+        if (me.raw['propertyValueInfo']) {
+            var propertyValue = me.getPropertyValue() || null;
+
+            if (null !== propertyValue) {
+                value = propertyValue.get('value');
+                if (!value) {
+                    value = propertyValue.get('defaultValue');
+                }
+
+                propertyValue.set('inheritedValue', value);
+                propertyValue.set('value', '');
+            }
+        }
+
+        me.set('isInheritedOrDefaultValue', true);
+        me.set('value', value);
+        me.set('default', value);
+    },
+
     getType: function () {
         return this.getPropertyType().get('simplePropertyType');
     },

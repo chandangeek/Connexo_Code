@@ -250,5 +250,13 @@ Ext.define('Uni.property.view.property.Base', {
         property.set('isInheritedOrDefaultValue', true);
 
         this.updateResetButton();
+    },
+
+    /**
+     * Sets inherited value as default
+     */
+    useInheritedValue: function() {
+        this.getProperty().initInheritedValues();
+        this.updateResetButton();
     }
 });

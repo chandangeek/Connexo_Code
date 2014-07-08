@@ -37,6 +37,7 @@ Ext.define('Uni.property.form.Property', {
     },
     initialised: false,
     isEdit: true,
+    inheritedValues: false,
 
     /**
      * Loads record to the form.
@@ -65,7 +66,10 @@ Ext.define('Uni.property.form.Property', {
                 throw '!(entry instanceof Uni.property.model.Property)';
             }
 
-            property.initValues();
+            me.inheritedValues
+                ? property.initInheritedValues()
+                : property.initValues();
+
             properties.commitChanges();
 
             var type = property.getType();
@@ -81,6 +85,13 @@ Ext.define('Uni.property.form.Property', {
         });
 
         this.initialised = true;
+    },
+
+    useInheritedValues: function() {
+        this.items.each(function(item){
+            item.useInheritedValue();
+        });
+        this.inheritedValues = true;
     },
 
     getFieldValues: function(dirtyOnly) {
