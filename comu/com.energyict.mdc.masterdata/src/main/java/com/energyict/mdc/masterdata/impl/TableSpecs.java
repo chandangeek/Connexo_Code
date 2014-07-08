@@ -93,13 +93,22 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<RegisterMappingInGroup> table = dataModel.addTable(this.name(), RegisterMappingInGroup.class);
             table.map(RegisterMappingInGroup.class);
-            Column mappingIdColumn = table.column("REGISTERMAPPINGID").number().notNull().conversion(NUMBER2LONG).map("registerMappingId").add();
-            Column groupIdColumn = table.column("REGISTERGROUPID").number().notNull().conversion(NUMBER2LONG).map("registerGroupId").add();
+            Column registerMapping = table.column("REGISTERMAPPINGID").number().notNull().add();
+            Column registerGroup = table.column("REGISTERGROUPID").number().notNull().add();
             table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.primaryKey("USR_PK_REGISTERMAPPINGINGROUP").on(mappingIdColumn , groupIdColumn).add();
-            table.foreignKey("FK_REGMAPPINGINGROUP2MAPPING").references(MDS_REGISTERMAPPING.name()).onDelete(CASCADE).map("registerMapping").on(mappingIdColumn).add();
-            table.foreignKey("FK_REGMAPPINGINGROUP2GROUP").references(MDS_REGISTERGROUP.name()).onDelete(CASCADE).map("registerGroup").reverseMap("mappingsInGroup").on(groupIdColumn).add();
-
+            table.primaryKey("USR_PK_REGISTERMAPPINGINGROUP").on(registerMapping , registerGroup).add();
+            table.foreignKey("FK_REGMAPPINGINGROUP2MAPPING").
+                    on(registerMapping).
+                    references(MDS_REGISTERMAPPING.name()).
+                    onDelete(CASCADE).map("registerMapping").
+                    add();
+            table.foreignKey("FK_REGMAPPINGINGROUP2GROUP").
+                    on(registerGroup).
+                    references(MDS_REGISTERGROUP.name()).
+                    onDelete(CASCADE).
+                    map("registerGroup").
+                    reverseMap("mappingsInGroup").
+                    add();
         }
     },
 

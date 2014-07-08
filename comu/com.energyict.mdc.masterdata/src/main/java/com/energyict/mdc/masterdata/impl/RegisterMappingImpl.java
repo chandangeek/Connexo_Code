@@ -1,16 +1,5 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
@@ -22,6 +11,18 @@ import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -31,8 +32,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -40,17 +43,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueReadingType(groups = { Save.Create.class, Save.Update.class })
 public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> implements RegisterMapping, PersistenceAware {
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        if (name != null) {
-            name = name.trim();
-        }
-        this.name = name;
-    }
 
     enum Fields {
         READING_TYPE("readingType"),
@@ -86,7 +78,6 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_MAPPING_READING_TYPE_IS_REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
     private boolean cumulative;
-    private Reference<RegisterGroup> registerGroup = ValueReference.absent();
     private String description;
     private Date modificationDate;
     @Min(value=0, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_MAPPING_TIMEOFUSE_TOO_SMALL + "}")
@@ -162,6 +153,20 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         return DeleteEventType.REGISTERMAPPING;
     }
 
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        if (name != null) {
+            name = name.trim();
+        }
+        this.name = name;
+    }
+
+    @Override
     public ObisCode getObisCode() {
         if (this.obisCodeCached == null && !is(this.obisCode).empty()) {
             this.obisCodeCached = ObisCode.fromString(this.obisCode);
@@ -210,13 +215,16 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     }
 
     @Override
-    public RegisterGroup getRegisterGroup() {
-        return this.registerGroup.orNull();
-    }
-
-    @Override
-    public void setRegisterGroup(RegisterGroup registerGroup) {
-        this.registerGroup.set(registerGroup);
+    public List<RegisterGroup> getRegisterGroups() {
+        Map<Long, RegisterGroup> groups = new HashMap<>();
+        List<RegisterMappingInGroup> registerMappingInGroups = this.dataModel.mapper(RegisterMappingInGroup.class).find("registerMapping", this);
+        for (RegisterMappingInGroup registerMappingInGroup : registerMappingInGroups) {
+            RegisterGroup group = registerMappingInGroup.getRegisterGroup();
+            if (!groups.containsKey(group.getId())) {
+                groups.put(group.getId(), group);
+            }
+        }
+        return new ArrayList<>(groups.values());
     }
 
     private boolean phenomenonChanged(Phenomenon phenomenon) {
@@ -310,4 +318,5 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     public void setTimeOfUse(int timeOfUse) {
         this.timeOfUse = timeOfUse;
     }
+
 }

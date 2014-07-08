@@ -8,6 +8,7 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.RegisterGroup;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Represents a register definition.
@@ -70,9 +71,7 @@ public interface RegisterMapping extends HasId {
      *
      * @return the <code>RegisterGroup</code> the receiver belongs to
      */
-    public RegisterGroup getRegisterGroup();
-
-    public void setRegisterGroup(RegisterGroup registerGroup);
+    public List<RegisterGroup> getRegisterGroups();
 
     /**
      * Returns the receiver's description
