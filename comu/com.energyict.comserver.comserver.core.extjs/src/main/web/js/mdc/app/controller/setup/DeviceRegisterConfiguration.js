@@ -5,7 +5,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     views: [
         'setup.deviceregisterconfiguration.DeviceRegisterConfigurationSetup',
         'setup.deviceregisterconfiguration.DeviceRegisterConfigurationGrid',
-        'setup.deviceregisterconfiguration.DeviceRegisterConfigurationPreview'
+        'setup.deviceregisterconfiguration.DeviceRegisterConfigurationPreview',
+        'setup.register.ReadingTypeDetails'
     ],
 
     stores: [
@@ -15,7 +16,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     refs: [
         {ref: 'deviceRegisterConfigurationGrid', selector: '#deviceRegisterConfigurationGrid'},
         {ref: 'deviceRegisterConfigurationPreviewForm', selector: '#deviceRegisterConfigurationPreviewForm'},
-        {ref: 'deviceRegisterConfigurationPreview', selector: '#deviceRegisterConfigurationPreview'}
+        {ref: 'deviceRegisterConfigurationPreview', selector: '#deviceRegisterConfigurationPreview'},
+        {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
+        {ref: 'previewMrId', selector: '#deviceRegisterConfigurationPreviewForm #preview_mrid'}
     ],
 
     init: function () {
@@ -23,6 +26,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         me.control({
             '#deviceRegisterConfigurationGrid': {
                 select: me.onDeviceRegisterConfigurationGridSelect
+            },
+            '#deviceRegisterConfigurationGrid actioncolumn': {
+                showReadingTypeInfo: me.showReadingTypeInfo
+            },
+            '#deviceRegisterConfigurationPreviewForm button[action = showReadingTypeInfo]': {
+                showReadingTypeInfo: me.showReadingTypeInfo
             }
         });
     },
@@ -50,8 +59,17 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         var me = this,
             form = me.getDeviceRegisterConfigurationPreviewForm();
 
-        me.getDeviceRegisterConfigurationPreview().setTitle(record.getData().name);
         form.loadRecord(record);
+        me.getDeviceRegisterConfigurationPreview().setTitle(record.get('name'));
+        me.getPreviewMrId().setValue(record.getReadingType().get('mrid'));
+    },
+
+    showReadingTypeInfo: function(record) {
+        var me = this,
+            widget = Ext.widget('readingTypeDetails');
+
+        me.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
+        widget.show();
     }
 });
 

@@ -24,13 +24,29 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                     return '<a href="#/devices/' + me.mRID + '/registers/' + record.get('id') + '">' + value + '</a>';
                 },
                 fixed: true,
-                flex: 1
+                flex: 3
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.obiscode', 'MDC', 'OBIS code'),
-                dataIndex: 'obisCode',
+                xtype: 'actioncolumn',
                 fixed: true,
-                flex: 1
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    return '<div class="x-grid-cell-inner" style="float:left; font-size: 13px; line-height: 1em;">'
+                        + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
+                        + '</div>';
+                },
+                header: Uni.I18n.translate('deviceregisterconfiguration.readingType', 'MDC', 'Reading type'),
+                items: [
+                    {
+                        icon: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
+                        iconCls: 'uni-info-icon',
+                        tooltip: Uni.I18n.translate('deviceregisterconfiguration.readingType.tooltip', 'MDC', 'Reading type info'),
+                        handler: function (grid, rowIndex, colIndex, item, e) {
+                            var record = grid.getStore().getAt(rowIndex);
+                            this.fireEvent('showReadingTypeInfo', record);
+                        }
+                    }
+                ]
             },
             {
                 xtype: 'uni-actioncolumn',
