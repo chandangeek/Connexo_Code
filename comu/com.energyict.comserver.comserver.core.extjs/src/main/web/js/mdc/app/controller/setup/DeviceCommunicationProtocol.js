@@ -13,8 +13,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
     requires: [
         'Mdc.store.LicensedProtocols',
         'Mdc.store.DeviceCommunicationProtocols',
-        'Mdc.model.DeviceCommunicationProtocol',
-        'Mdc.controller.setup.Properties'
+        'Mdc.model.DeviceCommunicationProtocol'
     ],
 
     models: [
@@ -82,17 +81,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
                             //view.down('#licensedProtocol').setValue(licensedProtocol.data.licensedProtocolRuleCode);
                             view.down('#protocolJavaClassName').setValue(licensedProtocol.data.protocolJavaClassName);
                             view.down('#protocolfamilygrid').reconfigure(licensedProtocol.protocolFamiliesStore);
-                            me.getPropertiesController().showProperties(deviceCommunicationProtocol, view);
+                            view.down('property-form').loadRecord(deviceCommunicationProtocol);
                         }
                         me.getApplication().getController('Mdc.controller.Main').showContent(view);
                     }
                 });
             }
         });
-    },
-
-    getPropertiesController: function () {
-        return this.getController('Mdc.controller.setup.Properties');
     },
 
    /* onChangeLicensedProtocol: function (field, value, options) {
@@ -117,11 +112,14 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
         var form = view.down('#devicecommunicationprotocolform'),
             record = form.getRecord() || Ext.create(Mdc.model.DeviceCommunicationProtocol),
             values = form.getValues();
+
+        var propertyForm = view.down('property-form');
         record.set(values);
         /*var licensedProtocol = me.getLicensedProtocolsStore().findRecord('licensedProtocolRuleCode', values.licensedProtocol);
         record.setLicensedProtocol(licensedProtocol);*/
 
-        record.propertyInfosStore = me.getPropertiesController().updateProperties();
+        propertyForm.updateRecord();
+        record.propertiesStore = propertyForm.getRecord().properties();
 
         record.save({
             success: function (record, operation) {
