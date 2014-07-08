@@ -22,7 +22,10 @@ public abstract class InboundComPortInfo<T extends InboundComPort, B extends Inb
     public InboundComPortInfo(InboundComPort comPort) {
         super(comPort);
         this.direction = "inbound";
-        this.comPortPool_id = comPort.getComPortPool()!=null?comPort.getComPortPool().getId():0L;
+        Optional<InboundComPortPool> comPortPool = Optional.fromNullable(comPort.getComPortPool());
+        if(comPortPool.isPresent()) {
+            this.comPortPool_id = comPort.getComPortPool().getId();
+        }
     }
 
     @Override
@@ -36,10 +39,6 @@ public abstract class InboundComPortInfo<T extends InboundComPort, B extends Inb
                 source.setComPortPool(inboundComPortPool.get());
             }
         }
-        if(!inboundComPortPool.isPresent()){
-            throw new WebApplicationException("Failed to set ComPortPool "+this.comPortPool_id+" on ComPort "+this.id,
-                    Response.status(Response.Status.BAD_REQUEST).entity("Failed to set ComPortPool " + this.comPortPool_id + " on ComPort " + this.id).build());
-        }
     }
 
     @Override
@@ -52,10 +51,8 @@ public abstract class InboundComPortInfo<T extends InboundComPort, B extends Inb
         }
         if(inboundComPortPool.isPresent()){
             builder.comPortPool(inboundComPortPool.get());
-        } else {
-            throw new WebApplicationException("Failed to set ComPortPool "+this.comPortPool_id+" on ComPort",
-                    Response.status(Response.Status.BAD_REQUEST).entity("Failed to set ComPortPool "+this.comPortPool_id+" on ComPort").build());
         }
+
         return builder;
     }
 
