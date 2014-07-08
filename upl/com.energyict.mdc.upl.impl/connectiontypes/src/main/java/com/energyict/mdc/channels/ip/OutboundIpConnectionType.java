@@ -97,4 +97,9 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
         optional.add(this.connectionTimeOutPropertySpec());
         return optional;
     }
+
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
+    }
 }

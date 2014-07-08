@@ -63,4 +63,9 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     PropertySpec getConnectionPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, new BigDecimal(1));
     }
+
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
+    }
 }

@@ -66,4 +66,9 @@ public class InboundIpConnectionType extends ConnectionTypeImpl {
     public String getVersion() {
         return "$Date$";
     }
+
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.INBOUND;
+    }
 }

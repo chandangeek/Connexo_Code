@@ -123,4 +123,8 @@ public class EIWebConnectionType implements ConnectionType {
         return Arrays.asList(this.ipAddressPropertySpec(), this.macAddressPropertySpec());
     }
 
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.INBOUND;
+    }
 }

@@ -1,6 +1,9 @@
 package com.energyict.mdc.channels;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.HexString;
+import com.energyict.cbo.Password;
+import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.TimeOfDay;
 import com.energyict.coordinates.SpatialCoordinates;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -13,12 +16,21 @@ import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.LoadProfile;
+import com.energyict.mdw.core.LoadProfileType;
+import com.energyict.mdw.core.Lookup;
+import com.energyict.mdw.core.TimeZoneInUse;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 
-
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("unused") // Pluggable
 public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
@@ -119,5 +131,10 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
     @Override
     public List<PropertySpec> getOptionalProperties() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
     }
 }

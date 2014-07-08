@@ -84,4 +84,9 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
     public String getVersion() {
         return "$Date$";
     }
+
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.INBOUND;
+    }
 }

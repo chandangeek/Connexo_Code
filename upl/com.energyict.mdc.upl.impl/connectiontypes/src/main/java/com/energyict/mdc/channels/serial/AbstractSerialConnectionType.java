@@ -144,4 +144,9 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     public Set<ComPortType> getSupportedComPortTypes() {
         return EnumSet.of(ComPortType.SERIAL);
     }
+
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
+    }
 }

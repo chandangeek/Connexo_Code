@@ -60,4 +60,9 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
     public List<PropertySpec> getOptionalProperties() {
         return new ArrayList<>();
     }
+
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.INBOUND;
+    }
 }

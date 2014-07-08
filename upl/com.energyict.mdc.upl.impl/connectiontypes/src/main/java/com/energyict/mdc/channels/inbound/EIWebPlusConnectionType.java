@@ -111,4 +111,9 @@ public class EIWebPlusConnectionType implements ConnectionType {
     public List<PropertySpec> getOptionalProperties() {
         return Arrays.asList(this.ipAddressPropertySpec());
     }
+
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
+    }
 }
