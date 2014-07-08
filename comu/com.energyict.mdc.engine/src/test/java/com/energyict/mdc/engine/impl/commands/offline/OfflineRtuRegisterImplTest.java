@@ -11,6 +11,10 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -44,7 +48,7 @@ public class OfflineRtuRegisterImplTest {
 
     public static RegisterMapping getMockedRegisterMapping(RegisterGroup registerGroup){
         RegisterMapping registerMapping = mock(RegisterMapping.class);
-        when(registerMapping.getRegisterGroup()).thenReturn(registerGroup);
+        when(registerMapping.getRegisterGroups()).thenReturn(registerGroup == null ? Collections.<RegisterGroup>emptyList(): Arrays.asList(registerGroup));
         return registerMapping;
     }
 
@@ -72,7 +76,7 @@ public class OfflineRtuRegisterImplTest {
         assertEquals(REGISTER_SPEC_ID, offlineRegister.getRegisterId());
         assertEquals(RTU_REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
         assertEquals(REGISTER_UNIT, offlineRegister.getUnit());
-        assertEquals(RTU_REGISTER_GROUP_ID, offlineRegister.getRegisterGroupId());
+        assertThat(offlineRegister.inGroup(RTU_REGISTER_GROUP_ID)).isTrue();
         assertEquals(METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
     }
 
@@ -93,7 +97,7 @@ public class OfflineRtuRegisterImplTest {
         assertEquals(REGISTER_SPEC_ID, offlineRegister.getRegisterId());
         assertEquals(RTU_REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
         assertEquals(REGISTER_UNIT, offlineRegister.getUnit());
-        assertEquals(DEFAULT_RTU_REGISTER_GROUP_ID, offlineRegister.getRegisterGroupId());
+        assertThat(offlineRegister.inGroup(RTU_REGISTER_GROUP_ID)).isFalse();
         assertEquals(METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
     }
 }

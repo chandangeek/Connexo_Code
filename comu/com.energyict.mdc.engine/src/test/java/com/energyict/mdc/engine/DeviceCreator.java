@@ -109,6 +109,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
             protected void doPerform() {
                 if (device != null) {
                     DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+                    deviceConfiguration.deactivate();
                     DeviceType deviceType = deviceConfiguration.getDeviceType();
                     device.delete();
                     deviceType.removeConfiguration(deviceConfiguration);
@@ -176,6 +177,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
                 }
                 this.deviceConfiguration = deviceConfigurationBuilder.add();
                 getDeviceType().save();
+                this.deviceConfiguration.activate();
             }
             return deviceConfiguration;
         }

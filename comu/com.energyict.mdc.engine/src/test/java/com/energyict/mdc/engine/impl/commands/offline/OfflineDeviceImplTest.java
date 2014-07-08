@@ -45,6 +45,7 @@ import static junit.framework.Assert.assertNotNull;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -297,14 +298,16 @@ public class OfflineDeviceImplTest {
     public void getRegistersForRegisterGroup() {
         final long rtuRegisterGroupId = 135143654;
         RegisterGroup rtuRegisterGroup = mock(RegisterGroup.class);
+        when(rtuRegisterGroup.getId()).thenReturn(rtuRegisterGroupId);
         Device device = createMockDevice();
         RegisterMapping registerMapping = mock(RegisterMapping.class);
-        when(registerMapping.getRegisterGroup()).thenReturn(rtuRegisterGroup);
+        when(registerMapping.getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
         RegisterSpec registerSpec = createMockedRegisterSpec(registerMapping);
         Register register1 = createMockedRegister(registerSpec, device);
-        when(register1.getRegisterSpec().getRegisterMapping().getRegisterGroup()).thenReturn(rtuRegisterGroup);
+        when(register1.getRegisterSpec().getRegisterMapping().getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
         OfflineRegister offlineRegister1 = mock(OfflineRegister.class);
-        when(offlineRegister1.getRegisterGroupId()).thenReturn(rtuRegisterGroupId);
+        when(offlineRegister1.inGroup(rtuRegisterGroupId)).thenReturn(true);
+        when(offlineRegister1.inAtLeastOneGroup(Arrays.asList(rtuRegisterGroupId))).thenReturn(true);
         Register register2 = createMockedRegister(registerSpec, device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
         OfflineRegister offlineRegister2 = mock(OfflineRegister.class);
@@ -313,8 +316,7 @@ public class OfflineDeviceImplTest {
         when(offlineRtu.getAllRegisters()).thenReturn(Arrays.asList(offlineRegister1, offlineRegister2));
 
         // asserts
-        assertNotNull(offlineRtu.getRegistersForRegisterGroup(Arrays.asList((rtuRegisterGroup.getId()))));
-        assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroup(Arrays.asList(rtuRegisterGroup.getId())).size());
+        assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroup(Arrays.asList(rtuRegisterGroupId)).size());
     }
 
     private RegisterSpec createMockedRegisterSpec() {
