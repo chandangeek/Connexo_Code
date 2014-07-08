@@ -5,7 +5,8 @@ Ext.define('Cfg.view.validation.AddRule', {
     overflowY: true,
     requires: [
         'Cfg.store.Validators',
-        'Cfg.model.Validator'
+        'Cfg.model.Validator',
+        'Uni.util.FormErrorMessage'
     ],
 
     edit: false,
