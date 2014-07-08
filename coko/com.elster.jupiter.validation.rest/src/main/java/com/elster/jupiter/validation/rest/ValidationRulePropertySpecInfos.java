@@ -1,7 +1,5 @@
 package com.elster.jupiter.validation.rest;
 
-import com.elster.jupiter.validation.rest.ValidationRulePropertySpecInfo;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,12 +11,12 @@ public class ValidationRulePropertySpecInfos {
     ValidationRulePropertySpecInfos() {
     }
 
-    ValidationRulePropertySpecInfos(String propertyName, boolean optional, String validator) {
-        add(propertyName, optional, validator);
+    ValidationRulePropertySpecInfos(String propertyName, String key, boolean optional, String validator) {
+        add(propertyName, key, optional, validator);
     }
 
-    ValidationRulePropertySpecInfo add(String propertyName, boolean optional, String validator) {
-        ValidationRulePropertySpecInfo result = new ValidationRulePropertySpecInfo(propertyName, optional, validator);
+    ValidationRulePropertySpecInfo add(String propertyName, String key, boolean optional, String validator) {
+        ValidationRulePropertySpecInfo result = new ValidationRulePropertySpecInfo(propertyName, key, optional, validator);
         propertySpecs.add(result);
         total++;
         return result;

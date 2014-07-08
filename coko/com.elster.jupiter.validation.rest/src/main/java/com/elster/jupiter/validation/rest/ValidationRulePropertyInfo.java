@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 public class ValidationRulePropertyInfo {
 
     public String name;
+    public String key;
     public BigDecimal value;
     public Unit unit = Unit.WATT_HOUR;
     public int multiplier = 1;
@@ -16,12 +17,13 @@ public class ValidationRulePropertyInfo {
 
 
     public ValidationRulePropertyInfo(ValidationRuleProperties validationRuleProperties) {
-        name = validationRuleProperties.getName();
+        name = validationRuleProperties.getDisplayName();
+        key = validationRuleProperties.getName();
         Quantity qty = validationRuleProperties.getValue();
         value = qty.getValue();
         unit = qty.getUnit();
         multiplier = qty.getMultiplier();
-        required = validationRuleProperties.getRule().isRequired(name);
+        required = validationRuleProperties.getRule().isRequired(validationRuleProperties.getName());
     }
 
     public ValidationRulePropertyInfo() {
