@@ -434,6 +434,9 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         ConnectionInitiationTaskBuilder setProperty(String propertyName, Object value);
 
+        ConnectionInitiationTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
+
+
         /**
          * Creates the actual ConnectionInitiationTask with the objects set in this builder
          *

@@ -83,13 +83,13 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         this.deviceDataService = deviceDataService1;
     }
 
-    public void initializeWithAsapStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, ConnectionTaskLifecycleStatus status) {
-        super.initialize(device, partialConnectionTask, comPortPool, status);
+    public void initializeWithAsapStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
+        super.initialize(device, partialConnectionTask, comPortPool);
         this.setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
     }
 
-    public void initializeWithMinimizeStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, NextExecutionSpecs nextExecutionSpecs, ConnectionTaskLifecycleStatus status) {
-        super.initialize(device, partialConnectionTask, comPortPool, status);
+    public void initializeWithMinimizeStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, NextExecutionSpecs nextExecutionSpecs) {
+        super.initialize(device, partialConnectionTask, comPortPool);
         this.setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         this.setNextExecutionSpecs(nextExecutionSpecs);
     }

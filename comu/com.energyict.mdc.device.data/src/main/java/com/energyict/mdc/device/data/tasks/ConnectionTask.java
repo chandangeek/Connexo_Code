@@ -267,9 +267,4 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
 
     public void save();
 
-    /**
-     * Will set the lifecyclestatus to ACTIVE and save the object
-     */
-    public void activateAndSave();
-
 }

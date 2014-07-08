@@ -52,60 +52,6 @@ public interface DeviceDataService {
      */
     public boolean hasDevices(DeviceConfiguration deviceConfiguration);
 
-    /**
-     * Creates a new {@link InboundConnectionTask} with the minimal required properties
-     * against the specified Device.
-     * Note that the new InboundConnectionTask is not persisted yet as you may want
-     * to complete the non required properties before saving it for the first time.
-     *
-     * @deprecated use {@link com.energyict.mdc.device.data.Device#getInboundConnectionTaskBuilder(com.energyict.mdc.device.config.PartialInboundConnectionTask)} instead
-     *
-     * @param device The Device
-     * @param partialInboundConnectionTask The PartialInboundConnectionTask
-     * @param inboundComPortPool The InboundComPortPool
-     * @param status
-     * @return The new InboundConnectionTask
-     */
-    public InboundConnectionTask newInboundConnectionTask(Device device, PartialInboundConnectionTask partialInboundConnectionTask, InboundComPortPool inboundComPortPool, ConnectionTask.ConnectionTaskLifecycleStatus status);
-
-    /**
-     * Creates a new {@link ScheduledConnectionTask}, that uses the {@link ConnectionStrategy#AS_SOON_AS_POSSIBLE} strategy,
-     * with the minimal required properties against the specified Device.
-     * Note that the new ScheduledConnectionTask is not persisted yet as you may want
-     * to complete the non required properties before saving it for the first time.
-     *
-     * @deprecated use {@link com.energyict.mdc.device.data.Device#getScheduledConnectionTaskBuilder(com.energyict.mdc.device.config.PartialOutboundConnectionTask)} instead
-     *
-     * @param device The Device
-     * @param partialConnectionTask The PartialScheduledConnectionTask
-     * @param comPortPool The OutboundComPortPool
-     * @param status
-     * @return The new ScheduledConnectionTask
-     */
-    public ScheduledConnectionTask newAsapConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, ConnectionTask.ConnectionTaskLifecycleStatus status);
-
-    /**
-     * Creates a new {@link ScheduledConnectionTask}, that uses the {@link ConnectionStrategy#MINIMIZE_CONNECTIONS} strategy,
-     * with the minimal required properties against the specified Device.
-     * Note that the new ScheduledConnectionTask is not persisted yet as you may want
-     * to complete the non required properties before saving it for the first time.
-     *
-     * @deprecated use {@link com.energyict.mdc.device.data.Device#getScheduledConnectionTaskBuilder(com.energyict.mdc.device.config.PartialOutboundConnectionTask)} instead
-     *
-     * @param device The Device
-     * @param partialConnectionTask The PartialScheduledConnectionTask
-     * @param comPortPool The OutboundComPortPool
-     * @param nextExecutionSpecs The specification for the next execution of the new ScheduledConnectionTask
-     * @param status
-     * @return The new ScheduledConnectionTask
-     */
-    public ScheduledConnectionTask newMinimizeConnectionTask(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool, TemporalExpression nextExecutionSpecs, ConnectionTask.ConnectionTaskLifecycleStatus status);
-
-    /**
-     * @deprecated use {@link com.energyict.mdc.device.data.Device#getConnectionInitiationTaskBuilder(com.energyict.mdc.device.config.PartialConnectionInitiationTask)} instead
-     */
-    public ConnectionInitiationTask newConnectionInitiationTask(Device device, PartialConnectionInitiationTask partialConnectionTask, OutboundComPortPool comPortPool, ConnectionTask.ConnectionTaskLifecycleStatus status);
-
     public Optional<ConnectionTask> findConnectionTask (long id);
 
     public Optional<OutboundConnectionTask> findOutboundConnectionTask (long id);

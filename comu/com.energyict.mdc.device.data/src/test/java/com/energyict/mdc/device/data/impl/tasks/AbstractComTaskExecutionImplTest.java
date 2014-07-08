@@ -138,10 +138,15 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     }
 
     protected ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name, Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool outboundTcpipComPortPool) {
-        DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         partialConnectionTask.setName(name);
         partialConnectionTask.save();
-        return ((ScheduledConnectionTaskImpl) deviceDataService.newAsapConnectionTask(device, partialConnectionTask, outboundTcpipComPortPool, this.status));
+
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) device.getScheduledConnectionTaskBuilder(partialConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .add();
+        device.save();
+        return scheduledConnectionTask;
     }
 
     protected PartialScheduledConnectionTask createPartialScheduledConnectionTask() {
@@ -183,10 +188,13 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         partialOutboundConnectionTask.setName("Minimize");
         partialOutboundConnectionTask.save();
-        ScheduledConnectionTaskImpl scheduledConnectionTask =
-                (ScheduledConnectionTaskImpl) deviceDataService.
-                        newMinimizeConnectionTask(device, partialOutboundConnectionTask, outboundPool, new TemporalExpression(TimeDuration.days(1)), this.status);
-        scheduledConnectionTask.save();
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) device.getScheduledConnectionTaskBuilder(partialOutboundConnectionTask)
+                .setComPortPool(outboundPool)
+                .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1)))
+                .add();
+        device.save();
+
         return scheduledConnectionTask;
     }
 

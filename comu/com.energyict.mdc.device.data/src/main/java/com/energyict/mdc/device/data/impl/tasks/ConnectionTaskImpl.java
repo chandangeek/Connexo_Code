@@ -104,9 +104,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.connectionMethodProvider = connectionMethodProvider;
     }
 
-    public void initialize(Device device, PCTT partialConnectionTask, CPPT comPortPool, ConnectionTaskLifecycleStatus status) {
+    public void initialize(Device device, PCTT partialConnectionTask, CPPT comPortPool) {
         this.device = device;
-        this.status = status;
+        this.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         this.deviceId = device.getId();
         this.validatePartialConnectionTaskType(partialConnectionTask);
         this.validateConstraint(partialConnectionTask, device);
@@ -202,12 +202,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         for (ComTaskExecution comTaskExecution : this.findDependentComTaskExecutions()) {
             ((ComTaskExecutionImpl) comTaskExecution).connectionTaskRemoved();
         }
-    }
-
-    @Override
-    public void activateAndSave() {
-        this.status = ConnectionTaskLifecycleStatus.ACTIVE;
-        save();
     }
 
     @Override

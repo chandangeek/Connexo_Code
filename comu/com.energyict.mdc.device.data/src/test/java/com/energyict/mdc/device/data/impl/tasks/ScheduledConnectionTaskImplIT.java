@@ -78,7 +78,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     private static final ComWindow FROM_TEN_PM_TO_TWO_AM = new ComWindow(22 * DateTimeConstants.SECONDS_PER_HOUR, 2 * DateTimeConstants.SECONDS_PER_HOUR);
 
     private TimeZone toRestore;
-    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
 
     @After
     public void restoreTimeZone() {
@@ -190,10 +189,15 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateSecondTaskAgainstTheSameDeviceBasedOnTheSamePartialConnectionTask() {
         ScheduledConnectionTaskImpl firstTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateSecondTaskAgainstTheSameDeviceBasedOnTheSamePartialConnectionTask");
         firstTask.save();
-        ScheduledConnectionTaskImpl secondTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status));
+
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .add();
+        device.save();
 
         // Business method
-        secondTask.save();
+        scheduledConnectionTask.save();
 
         // Asserts: see expected exception rule
     }
@@ -224,7 +228,12 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateAgainstAnotherDeviceBasedOnTheSamePartialConnectionTask() {
         ScheduledConnectionTaskImpl firstTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateAgainstAnotherDeviceBasedOnSamePartialConnectionTask-1");
         firstTask.save();
-        ScheduledConnectionTaskImpl secondTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.otherDevice, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status));
+
+        ScheduledConnectionTaskImpl secondTask = (ScheduledConnectionTaskImpl) this.otherDevice.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .add();
+        this.otherDevice.save();
 
         // Business method
         secondTask.save();
@@ -254,7 +263,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateWithAllIpProperties() {
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
-        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status);
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
 
         // Business method
@@ -275,12 +284,22 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(typedProperties.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isEqualTo(PORT_PROPERTY_VALUE);
     }
 
+    private ScheduledConnectionTaskImpl createASimpleScheduledConnectionTask() {
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)
+                .add();
+        device.save();
+        return scheduledConnectionTask;
+    }
+
     @Test
     @Transactional
     public void testCreateWithOnlyRequiredIpPropertiesAndNoDefaultsOnPluggableClass() {
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status);
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
 
         // Business method
@@ -310,7 +329,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         List<PropertySpec> allIpPropertySpecs = this.getOutboundIpPropertySpecs();
-        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status);
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
 
         // Business method
@@ -341,7 +360,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         List<PropertySpec> allIpPropertySpecs = this.getOutboundIpPropertySpecs();
-        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status);
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         // Do not set any properties on the ScheduledConnectionTask
 
         // Business method
@@ -374,7 +393,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         partialScheduledConnectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, UPDATED_IP_ADDRESS_PROPERTY_VALUE);
         partialScheduledConnectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, UPDATED_PORT_PROPERTY_VALUE);
         partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status);
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         // Do not set any properties on the ScheduledConnectionTask
 
         // Business method
@@ -400,7 +419,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         partialScheduledConnectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, IP_ADDRESS_PROPERTY_VALUE);
         partialScheduledConnectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, PORT_PROPERTY_VALUE);
         partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status);
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         // Do not set any properties on the ScheduledConnectionTask
 
         // Business method
@@ -426,7 +445,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testUpdateIpConnectionTypeProperty() {
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status);
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
         connectionTask.save();
 
@@ -448,7 +467,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testAddIpConnectionTypeProperty() {
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status);
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
         connectionTask.save();
 
@@ -470,7 +489,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testRemoveIpConnectionTypeProperty() {
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status);
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
         connectionTask.save();
 
@@ -497,7 +516,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status));
+        ScheduledConnectionTaskImpl connectionTask = (createASimpleScheduledConnectionTask());
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
         connectionTask.save();
 
@@ -521,16 +540,18 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateWithIpWithModemComPortPool() {
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl connectionTask =
-                ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().
-                        newAsapConnectionTask(
-                                this.device,
-                                this.partialScheduledConnectionTask,
-                                outboundModemComPortPool, status));
-        this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
+
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(outboundModemComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)
+                .add();
+        device.save();
+
+        this.setIpConnectionProperties(scheduledConnectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
 
         // Business method
-        connectionTask.save();
+        scheduledConnectionTask.save();
 
         // Expected BusinessException because the ComPortType of the ComPortPool is not supported by the ConnectionType
         //assertThat(e.getMessageId()).isEqualTo("comPortTypeXOfComPortPoolYIsNotSupportedByConnectionTypePluggableClassZ");
@@ -543,7 +564,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         Date mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status));
+        ScheduledConnectionTaskImpl connectionTask = (createASimpleScheduledConnectionTask());
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
         connectionTask.save();
 
@@ -570,7 +591,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         Date mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status));
+        ScheduledConnectionTaskImpl connectionTask = (createASimpleScheduledConnectionTask());
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, null);
         connectionTask.save();
 
@@ -597,11 +618,16 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         TypedProperties partialProperties = TypedProperties.inheritingFrom(outboundIpConnectionTypePluggableClass.getProperties(this.getOutboundIpPropertySpecs()));
-        ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status));
-        this.setIpConnectionProperties(connectionTask, null, PORT_PROPERTY_VALUE);
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                .add();
+        device.save();
+        this.setIpConnectionProperties(scheduledConnectionTask, null, PORT_PROPERTY_VALUE);
 
         // Business method
-        connectionTask.save();
+        scheduledConnectionTask.save();
 
         // Asserts: see ExpectedConstraintViolation rule
     }
@@ -610,7 +636,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC_KEY + "}")
     public void testCreateWithNonExistingProperty() {
-        ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status));
+        ScheduledConnectionTaskImpl connectionTask = (createASimpleScheduledConnectionTask());
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
         // Add values for non existing property
         connectionTask.setProperty("doesNotExist", "I don't care");
@@ -803,7 +829,12 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithMinimizeConnectionsWithNextExecutionSpecs() {
-        ScheduledConnectionTaskImpl connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newMinimizeConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, new TemporalExpression(new TimeDuration("5 minutes")), status));
+        ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration("5 minutes")))
+                .add();
+        device.save();
 
 
         // Business method
@@ -814,16 +845,15 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
     @Transactional
     public void testCreateWithoutComPortPoolButIncompleteStatus() {
-        ScheduledConnectionTaskImpl connectionTask =
-                ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().
-                        newAsapConnectionTask(
-                                this.device,
-                                this.partialScheduledConnectionTask,
-                                null, ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE));
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(null)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)
+                .add();
+        device.save();
 
         // Business method
-        connectionTask.save();
-
+        scheduledConnectionTask.save();
     }
 
 
@@ -831,15 +861,14 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
     @Transactional
     public void testCreateWithoutComPortPool() {
-        ScheduledConnectionTaskImpl connectionTask =
-                ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().
-                        newAsapConnectionTask(
-                                this.device,
-                                this.partialScheduledConnectionTask,
-                                null, status));
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(null)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .add();
+        device.save();
 
         // Business method
-        connectionTask.save();
+        scheduledConnectionTask.save();
 
         // Asserts: see ExpectedConstraintViolation rule
     }
@@ -860,12 +889,17 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testAllowSimultaneousConnections() {
         // First one - allow simultaneous connections
-        ScheduledConnectionTaskImpl outboundTrue = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status));
+        ScheduledConnectionTaskImpl outboundTrue = (createASimpleScheduledConnectionTask());
         outboundTrue.setSimultaneousConnectionsAllowed(true);
         outboundTrue.save();
 
         // second one - deny simultaneous connections
-        ScheduledConnectionTaskImpl outboundFalse = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask2, outboundTcpipComPortPool, status));
+        ScheduledConnectionTaskImpl outboundFalse = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask2)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .add();
+        device.save();
+
         outboundFalse.setSimultaneousConnectionsAllowed(false);
         outboundFalse.save();
 
@@ -1915,19 +1949,24 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name, PartialScheduledConnectionTask partialConnectionTask) {
-        DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         partialConnectionTask.setName(name);
         partialConnectionTask.save();
-        return ((ScheduledConnectionTaskImpl) deviceDataService.newAsapConnectionTask(this.device, partialConnectionTask, outboundTcpipComPortPool, status));
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(partialConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .add();
+        device.save();
+        return scheduledConnectionTask;
     }
 
     private ScheduledConnectionTaskImpl createMinimizeWithNoPropertiesWithoutViolations(String name, TemporalExpression temporalExpression) {
-        DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
-        return ((ScheduledConnectionTaskImpl) deviceDataService.newMinimizeConnectionTask(
-                this.device,
-                this.partialScheduledConnectionTask,
-                outboundTcpipComPortPool,
-                temporalExpression, status));
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .setNextExecutionSpecsFrom(temporalExpression)
+                .add();
+        device.save();
+        return scheduledConnectionTask;
     }
 
     private ScheduledConnectionTaskImpl createWithCommunicationWindowWithoutViolations(String name) {
@@ -1941,14 +1980,13 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     private ScheduledConnectionTaskImpl createWithoutNextExecutionSpecs(ConnectionStrategy connectionStrategy, String name) {
-        ScheduledConnectionTaskImpl connectionTask;
-        if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(connectionStrategy)) {
-            connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, status));
-        }
-        else {
-            connectionTask = ((ScheduledConnectionTaskImpl) inMemoryPersistence.getDeviceDataService().newMinimizeConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, null, status));
-        }
-        return connectionTask;
+
+        Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool);
+        device.save();
+
+        scheduledConnectionTaskBuilder.setConnectionStrategy(connectionStrategy);
+        return (ScheduledConnectionTaskImpl) scheduledConnectionTaskBuilder.add();
     }
 
     private InboundConnectionTaskImpl createSimpleInboundConnectionTask() {
@@ -1960,7 +1998,11 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     private InboundConnectionTaskImpl createSimpleInboundConnectionTask(final PartialInboundConnectionTask partialConnectionTask, final InboundComPortPool inboundComPortPool) {
-        InboundConnectionTaskImpl inboundConnectionTask = ((InboundConnectionTaskImpl) getDeviceDataService().newInboundConnectionTask(this.device, partialConnectionTask, inboundComPortPool, status));
+        InboundConnectionTaskImpl inboundConnectionTask = (InboundConnectionTaskImpl) this.device.getInboundConnectionTaskBuilder(partialConnectionTask)
+                .setComPortPool(inboundComPortPool)
+                .add();
+        device.save();
+
         inboundConnectionTask.save();
         return inboundConnectionTask;
     }

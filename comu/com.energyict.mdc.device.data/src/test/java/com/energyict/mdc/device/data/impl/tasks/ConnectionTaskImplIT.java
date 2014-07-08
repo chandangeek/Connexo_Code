@@ -120,7 +120,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected ComTaskEnablement comTaskEnablement2;
     protected ComTaskEnablement comTaskEnablement3;
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
-    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
 
     @Before
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
@@ -430,22 +429,19 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         partialScheduledConnectionTask.setName(name);
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
-        ScheduledConnectionTask connectionTask;
+        Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)
+                .setConnectionStrategy(connectionStrategy);
+        device.save();
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(connectionStrategy)) {
             TemporalExpression nextExecutionSpecs = new TemporalExpression(EVERY_HOUR);
-            connectionTask = inMemoryPersistence.getDeviceDataService().newMinimizeConnectionTask(
-                    this.device,
-                    this.partialScheduledConnectionTask,
-                    outboundTcpipComPortPool,
-                    nextExecutionSpecs,
-                    this.status);
+            scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(nextExecutionSpecs);
         }
-        else {
-            connectionTask = inMemoryPersistence.getDeviceDataService().newAsapConnectionTask(this.device, this.partialScheduledConnectionTask, outboundTcpipComPortPool, this.status);
-        }
-        this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
-        connectionTask.save();
-        return connectionTask;
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) scheduledConnectionTaskBuilder.add();
+        this.setIpConnectionProperties(scheduledConnectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
+        scheduledConnectionTask.save();
+        return scheduledConnectionTask;
     }
 
     protected List<PropertySpec> getOutboundIpPropertySpecs() {

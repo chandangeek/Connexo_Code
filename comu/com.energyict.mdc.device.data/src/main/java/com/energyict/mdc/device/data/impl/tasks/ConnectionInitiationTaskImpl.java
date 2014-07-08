@@ -3,12 +3,13 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -68,4 +69,23 @@ public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<Par
         // No implementation required
     }
 
+
+    public abstract static class AbstractConnectionInitiationTaskBuilder implements Device.ConnectionInitiationTaskBuilder {
+
+        private final ConnectionInitiationTaskImpl connectionInitiationTask;
+
+        public AbstractConnectionInitiationTaskBuilder(ConnectionInitiationTaskImpl connectionInitiationTask) {
+            this.connectionInitiationTask = connectionInitiationTask;
+        }
+
+        protected ConnectionInitiationTaskImpl getConnectionInitiationTask() {
+            return connectionInitiationTask;
+        }
+
+        @Override
+        public Device.ConnectionInitiationTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status) {
+            this.connectionInitiationTask.setStatus(status);
+            return this;
+        }
+    }
 }
