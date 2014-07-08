@@ -60,7 +60,7 @@ public class MeterReadingIssueEvent implements IssueEvent {
         }
         List<? extends BaseReadingRecord> readings = meter.getReadings(
                 new Interval(new Date(unit.getStartMillisForTrendPeriod(trendPeriod)), new Date()), readingType);
-        if (isValidReadings(readings)) {
+        if (!isValidReadings(readings)) {
             //Nothing to do because at least two measurement points needed
             return 0d;
         }
