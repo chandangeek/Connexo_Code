@@ -1,5 +1,6 @@
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -20,6 +21,10 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static com.elster.jupiter.validation.ValidationResult.PASS;
+import static com.elster.jupiter.validation.ValidationResult.SKIPPED;
+import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
 
 class ThresholdValidator implements IValidator {
 
@@ -75,18 +80,16 @@ class ThresholdValidator implements IValidator {
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        Quantity toValidate = intervalReadingRecord.getQuantity(readingType);
-        if (toValidate != null) {
-            boolean withinBounds = isWithinBounds(toValidate);
-            return withinBounds ? ValidationResult.PASS : ValidationResult.SUSPECT;
-        } else {
-            return ValidationResult.SKIPPED;
-        }
+        return validateBaseReadingRecord(intervalReadingRecord);
     }
 
     @Override
     public ValidationResult validate(ReadingRecord readingRecord) {
-        return validateQuantity(readingRecord.getQuantity(readingType));
+        return validateBaseReadingRecord(readingRecord);
+    }
+
+    private ValidationResult validateBaseReadingRecord(BaseReadingRecord baseReadingRecord) {
+        return validateQuantity(baseReadingRecord.getQuantity(readingType));
     }
 
     @Override
@@ -130,7 +133,10 @@ class ThresholdValidator implements IValidator {
     }
 
     private ValidationResult validateQuantity(Quantity toValidate) {
-        return isWithinBounds(toValidate) ? ValidationResult.PASS : ValidationResult.SUSPECT;
+        if (toValidate == null) {
+            return SKIPPED;
+        }
+        return isWithinBounds(toValidate) ? PASS : SUSPECT;
     }
 
     private boolean isWithinBounds(Quantity toValidate) {
