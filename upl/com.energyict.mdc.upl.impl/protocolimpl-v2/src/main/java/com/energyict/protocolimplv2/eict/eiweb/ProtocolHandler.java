@@ -13,7 +13,7 @@ import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.meterdata.DeviceLogBook;
 import com.energyict.mdc.meterdata.DeviceUserFileConfigurationInformation;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByDeviceAndObisCodeImpl;
+import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByDeviceAndObisCode;
 import com.energyict.mdc.meterdata.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
@@ -285,7 +285,7 @@ public class ProtocolHandler {
 
     private DeviceLogBook getDeviceLogBook() {
         if (this.deviceLogBook == null) {
-            this.deviceLogBook = new DeviceLogBook(new LogBookIdentifierByDeviceAndObisCodeImpl(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+            this.deviceLogBook = new DeviceLogBook(new LogBookIdentifierByDeviceAndObisCode(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
         }
         return this.deviceLogBook;
     }

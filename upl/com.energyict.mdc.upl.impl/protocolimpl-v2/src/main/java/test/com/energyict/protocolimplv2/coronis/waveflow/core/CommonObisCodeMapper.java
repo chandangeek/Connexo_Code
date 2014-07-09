@@ -5,10 +5,10 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
+import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.OperatingMode;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.ProfileType;
@@ -108,9 +108,9 @@ public class CommonObisCodeMapper {
         this.waveFlow = waveFlow;
     }
 
-    public CollectedRegister getRegisterValue(ObisCode obisCode) {
-        RegisterIdentifier identifier = new RegisterDataIdentifierByObisCodeAndDevice(obisCode, waveFlow.getDeviceIdentifier());
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(identifier);
+    public CollectedRegister getRegisterValue(OfflineRegister register) {
+        ObisCode obisCode = register.getObisCode();
+        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
 
         OperatingMode operatingMode = waveFlow.getParameterFactory().readOperatingMode();
         if (obisCode.equals(OBISCODE_REMAINING_BATTERY)) {

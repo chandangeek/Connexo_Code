@@ -4,12 +4,12 @@ import com.energyict.cpo.Environment;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 
@@ -36,7 +36,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     private static final String TIMEOUT_KEY = Environment.getDefault().getTranslation("protocol.timeout");
     private static final String RETRIES_KEY = Environment.getDefault().getTranslation("protocol.retries");
 
-    private DeviceIdentifierBySerialNumber deviceIdentifier;
+    private DeviceIdentifier deviceIdentifier;
     private InboundDiscoveryContext context;
     private ComChannel comChannel;
     private TypedProperties typedProperties;

@@ -184,7 +184,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
         List<CollectedRegister> result = new ArrayList<>();
         for (OfflineRegister register : registers) {
             try {
-                result.add(getRegisterReader().readRegister(register.getObisCode()));
+                result.add(getRegisterReader().readRegister(register));
             } catch (IOException e) {
                 throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, 1);
             }

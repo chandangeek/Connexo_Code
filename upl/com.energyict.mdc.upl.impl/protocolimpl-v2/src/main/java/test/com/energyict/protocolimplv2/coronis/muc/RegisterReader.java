@@ -9,11 +9,12 @@ import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisSta
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStackException;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
-import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.io.IOException;
 import java.util.Date;
@@ -39,8 +40,9 @@ public class RegisterReader {
         this.deviceIdentifier = deviceIdentifier;
     }
 
-    public CollectedRegister readRegister(ObisCode obisCode) throws IOException {
-        CollectedRegister collectedRegister = createCollectedRegister(obisCode);
+    public CollectedRegister readRegister(OfflineRegister register) throws IOException {
+        ObisCode obisCode = register.getObisCode();
+        CollectedRegister collectedRegister = createCollectedRegister(register);
         try {
             if (OBISCODE_FIRMWARE.equals(obisCode)) {
                 collectedRegister.setCollectedData(WavenisStackUtils.readFirmwareVersion(wavenisStack));
@@ -69,7 +71,7 @@ public class RegisterReader {
         return wavenisStack.getWaveCard();
     }
 
-    private CollectedRegister createCollectedRegister(ObisCode obisCode) {
-        return MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(obisCode, deviceIdentifier));
+    private CollectedRegister createCollectedRegister(OfflineRegister register) {
+        return MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
     }
 }

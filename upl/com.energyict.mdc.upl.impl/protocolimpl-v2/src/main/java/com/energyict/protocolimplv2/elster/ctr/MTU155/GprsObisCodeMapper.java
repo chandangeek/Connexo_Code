@@ -40,8 +40,8 @@ public class GprsObisCodeMapper extends ObisCodeMapper {
         List<CTRObjectID> objectsToRequest = new ArrayList<>();
         List<CTRRegisterMapping> registerMappings = new ArrayList<>();
 
-        for (OfflineRegister offlineRegister : rtuRegisters) {
-            ObisCode obisCode = offlineRegister.getObisCode();
+        for (OfflineRegister register : rtuRegisters) {
+            ObisCode obisCode = register.getObisCode();
 
             CTRRegisterMapping regMap = searchRegisterMapping(obisCode);
             if (regMap == null) {

@@ -39,7 +39,7 @@ import com.energyict.protocolimplv2.ace4000.requests.ReadRegisters;
 import com.energyict.protocolimplv2.ace4000.requests.SetTime;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -109,11 +109,11 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         List<CollectedLoadProfile> result = new ArrayList<CollectedLoadProfile>();
         for (LoadProfileReader loadProfileReader : loadProfiles) {
-            if (isMaster(loadProfileReader.getMeterSerialNumber())) {        //Master device
+            if (isMaster(loadProfileReader.getMeterSerialNumber())) {   //Master device
                 ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this);
                 result.addAll(readLoadProfileRequest.request(loadProfileReader));
-            } else {                                                                                       //Slave device
-                CollectedLoadProfile collectedLoadProfile = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(loadProfileReader.getProfileObisCode(), new DeviceIdentifierBySerialNumber(loadProfileReader.getMeterSerialNumber())));
+            } else {    //Slave device
+                CollectedLoadProfile collectedLoadProfile = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId()));
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning("MBus slave device doesn't support load profiles"));
                 result.add(collectedLoadProfile);
             }

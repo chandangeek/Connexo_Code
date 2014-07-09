@@ -4,12 +4,11 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.PulseWeight;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.DailyConsumption;
@@ -37,14 +36,14 @@ public class ObisCodeMapper implements DeviceRegisterSupport {
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
         List<CollectedRegister> result = new ArrayList<>();
         for (OfflineRegister register : registers) {
-            result.add(readRegister(register.getObisCode()));
+            result.add(readRegister(register));
         }
         return result;
     }
 
-    private CollectedRegister readRegister(ObisCode obisCode) {
-        RegisterIdentifier identifier = new RegisterDataIdentifierByObisCodeAndDevice(obisCode, waveFlow.getDeviceIdentifier());
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(identifier);
+    private CollectedRegister readRegister(OfflineRegister register) {
+        ObisCode obisCode = register.getObisCode();
+        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
 
         if (isCurrentIndexReading(obisCode)) {
             int channel = obisCode.getB() - 1;
@@ -108,7 +107,7 @@ public class ObisCodeMapper implements DeviceRegisterSupport {
                 collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(this, "Module doesn't have valve support"));
             }
         } else {
-            collectedRegister = waveFlow.getCommonObisCodeMapper().getRegisterValue(obisCode);
+            collectedRegister = waveFlow.getCommonObisCodeMapper().getRegisterValue(register);
         }
         collectedRegister.setReadTime(new Date());
         return collectedRegister;
