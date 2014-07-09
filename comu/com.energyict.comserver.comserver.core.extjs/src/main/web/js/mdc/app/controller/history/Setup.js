@@ -56,7 +56,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             },
                             items: {
                                 edit: {
-                                    title: 'Edit device type',
+                                    title: 'Edit',
                                     route: 'edit',
                                     controller: 'Mdc.controller.setup.DeviceTypes',
                                     action: 'showDeviceTypeEditView'
@@ -276,7 +276,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     action: 'showConnectionMethods',
                                                     items: {
                                                         addoutbound: {
-                                                            title: 'Add outbound',
+                                                            title: 'Add outbound connection method',
                                                             route: 'addoutbound',
                                                             controller: 'Mdc.controller.setup.ConnectionMethods',
                                                             action: 'showAddConnectionMethodView',
@@ -285,7 +285,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             }
                                                         },
                                                         addinbound: {
-                                                            title: 'Add inbound',
+                                                            title: 'Add inbound connection method',
                                                             route: 'addinbound',
                                                             controller: 'Mdc.controller.setup.ConnectionMethods',
                                                             action: 'showAddConnectionMethodView',
