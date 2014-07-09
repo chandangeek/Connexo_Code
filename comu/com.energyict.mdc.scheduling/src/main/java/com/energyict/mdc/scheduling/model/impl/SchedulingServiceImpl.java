@@ -54,9 +54,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
         setNlsService(nlsService);
         setTasksService(tasksService);
         activate();
-        if (!this.dataModel.isInstalled()) {
-            this.install();
-        }
+        this.install();
     }
 
     @Reference
