@@ -7,12 +7,22 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import static com.energyict.dlms.DLMSCOSEMGlobals.*;
 
@@ -102,6 +112,10 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
 
     public byte[] getBufferData(Calendar fromCalendar, Calendar toCalendar, List<CapturedObject> channels) throws IOException {
         return getBufferResponseData(fromCalendar, toCalendar, channels);
+    }
+
+    public byte[] getBufferData(int fromEntry, int toEntry, int fromValue, int toValue) throws IOException {
+        return getBufferResponseData(fromEntry, toEntry, fromValue, toValue);
     }
 
     public UniversalObject[] getBufferAsUniversalObjects() throws IOException {
