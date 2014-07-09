@@ -143,4 +143,12 @@ final class NlsKeyImpl implements NlsKey {
         return Objects.hash(componentName, layer, key);
     }
 
+    @Override
+    public String toString() {
+        return "NlsKey{" +
+                "componentName='" + componentName + '\'' +
+                ", layer=" + layer +
+                ", key='" + key + '\'' +
+                '}';
+    }
 }

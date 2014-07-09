@@ -65,4 +65,13 @@ public final class SimpleNlsKey implements NlsKey {
     public int hashCode() {
         return Objects.hash(componentName, layer, key);
     }
+
+    @Override
+    public String toString() {
+        return "NlsKey{" +
+                "componentName='" + componentName + '\'' +
+                ", layer=" + layer +
+                ", key='" + key + '\'' +
+                '}';
+    }
 }
