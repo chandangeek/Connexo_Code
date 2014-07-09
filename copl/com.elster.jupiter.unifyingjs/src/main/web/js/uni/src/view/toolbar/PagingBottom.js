@@ -45,6 +45,13 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
      */
     pageStartParam: 'start',
 
+    /**
+     * @cfg {Boolean} Lazy load
+     *
+     * Whether to load the store when the paging gets initialized or not.
+     */
+    lazyLoad: false,
+
     itemsPerPageMsg: Uni.I18n.translate('general.itemsPerPage', 'UNI', 'Items per page'),
 
     firstText: Uni.I18n.translate('general.firstPage', 'UNI', 'First page'),
@@ -100,14 +107,16 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         this.initExtraParams();
 
-        this.store.load({
-            params: me.params,
-            callback: function (records) {
-                if (records !== null && records.length === 0 && pageNum > 1) {
-                    me.initPageSizeAndStart(pageSize, pageStart - pageSize);
+        if (!me.lazyLoad) {
+            this.store.load({
+                params: me.params,
+                callback: function (records) {
+                    if (records !== null && records.length === 0 && pageNum > 1) {
+                        me.initPageSizeAndStart(pageSize, pageStart - pageSize);
+                    }
                 }
-            }
-        });
+            });
+        }
     },
 
     adjustPageSize: function (pageSize) {
@@ -173,10 +182,11 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             start = me.getPageStartValue();
         }
 
-        return Uni.util.QueryString.buildHrefWithQueryString({
-            limit: me.store.pageSize,
-            start: start
-        });
+        var obj = {};
+        obj[me.pageSizeParam] = me.store.pageSize;
+        obj[me.pageStartParam] = start;
+
+        return Uni.util.QueryString.buildHrefWithQueryString(obj);
     },
 
     getPageStartValue: function (pageOffset) {
