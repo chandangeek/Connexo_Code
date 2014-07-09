@@ -52,23 +52,25 @@ public class RegisterConfigInfo {
     public RegisterConfigInfo() {
     }
 
+    public RegisterConfigInfo(RegisterSpec registerSpec) {
+        this.id = registerSpec.getId();
+        this.name = registerSpec.getRegisterMapping().getName();
+        this.readingType = new ReadingTypeInfo(registerSpec.getRegisterMapping().getReadingType());
+        this.obisCode = registerSpec.getObisCode();
+        this.overruledObisCode = registerSpec.getDeviceObisCode();
+        this.obisCodeDescription = registerSpec.getObisCode().getDescription();
+        this.unitOfMeasure = registerSpec.getUnit();
+        this.numberOfDigits = registerSpec.getNumberOfDigits();
+        this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
+        this.multiplier = registerSpec.getMultiplier();
+        this.overflow = registerSpec.getOverflowValue();
+        this.registerMapping = registerSpec.getRegisterMapping().getId();
+        this.timeOfUse = registerSpec.getRegisterMapping().getTimeOfUse();
+        this.multiplierMode = registerSpec.getMultiplierMode();
+    }
+
     public static RegisterConfigInfo from(RegisterSpec registerSpec) {
-        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
-        registerConfigInfo.id = registerSpec.getId();
-        registerConfigInfo.name = registerSpec.getRegisterMapping().getName();
-        registerConfigInfo.readingType = new ReadingTypeInfo(registerSpec.getRegisterMapping().getReadingType());
-        registerConfigInfo.obisCode = registerSpec.getObisCode();
-        registerConfigInfo.overruledObisCode = registerSpec.getDeviceObisCode();
-        registerConfigInfo.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        registerConfigInfo.unitOfMeasure = registerSpec.getUnit();
-        registerConfigInfo.numberOfDigits = registerSpec.getNumberOfDigits();
-        registerConfigInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
-        registerConfigInfo.multiplier = registerSpec.getMultiplier();
-        registerConfigInfo.overflow = registerSpec.getOverflowValue();
-        registerConfigInfo.registerMapping = registerSpec.getRegisterMapping().getId();
-        registerConfigInfo.timeOfUse = registerSpec.getRegisterMapping().getTimeOfUse();
-        registerConfigInfo.multiplierMode = registerSpec.getMultiplierMode();
-        return registerConfigInfo;
+        return new RegisterConfigInfo(registerSpec);
     }
 
     public static List<RegisterConfigInfo> from(List<RegisterSpec> registerSpecList) {
