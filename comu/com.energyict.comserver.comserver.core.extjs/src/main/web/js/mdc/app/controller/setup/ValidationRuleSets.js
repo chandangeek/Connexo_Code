@@ -231,14 +231,10 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     onAddValidationActionMenuClick: function (menu, item) {
         var action = item.action,
             record = menu.record;
-
-        switch (action) {
-            case 'viewRule':
-                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
-                break;
-            case 'viewRuleSet':
-                window.location.href = '#/administration/validation/rulesets/' + record.getId();
-                break;
+        if (action === 'viewRule') {
+            window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
+        } else {
+            window.location.href = '#/administration/validation/rulesets/' + record.getId();
         }
     },
 
