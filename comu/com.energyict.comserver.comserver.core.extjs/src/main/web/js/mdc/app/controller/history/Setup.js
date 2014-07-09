@@ -56,7 +56,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             },
                             items: {
                                 edit: {
-                                    title: 'Edit device type',
+                                    title: 'Edit',
                                     route: 'edit',
                                     controller: 'Mdc.controller.setup.DeviceTypes',
                                     action: 'showDeviceTypeEditView'
