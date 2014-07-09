@@ -35,7 +35,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
                     var id = Ext.id();
                     Ext.defer(function () {
                         Ext.widget('button', {
-                            renderTo: id,
                             icon: '../mdc/resources/images/information.png',
                             cls: 'uni-btn-transparent',
                             margin: '0 0 0 32',
@@ -45,7 +44,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
                             itemId: 'loadProfileReadingTypeBtn'
                         });
                     }, 50);
-                    return Ext.String.format('<div id="{0}">{1}</div>',  id , record.getReadingType().get('mrid'));
+                    return Ext.String.format('<div id="{0}">{1}</div>', id, record.getReadingType().get('mrid'));
                 }
             }
         ];
