@@ -65,7 +65,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         var activate = menu.down('#activate'),
             deactivate = menu.down('#deactivate'),
             active = menu.record.data.active;
-
         if (active) {
             deactivate.show();
             activate.hide();
@@ -194,8 +193,10 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             case 'deactivate':
                 activeChange = false;
                 break;
+            case 'edit':
+                me.showEdit(record);
+                break;
         }
-
         if (activeChange != 'notChange') {
             Ext.Ajax.request({
                 url: storeUrl + '/' + record.getData().id,
@@ -219,7 +220,12 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 }
             });
         }
+    },
 
+    showEdit: function (record) {
+        var router = this.getController('Uni.controller.history.Router'),
+            id = record.getId();
+        router.getRoute('administration/comservers/detail/comports/edit').forward({id: id});
     },
 
     showDeleteConfirmation: function (record) {

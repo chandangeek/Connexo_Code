@@ -17,7 +17,9 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     ],
 
     refs: [
-        {ref: 'searchItems', selector: '#searchItems'}
+        {ref: 'searchItems', selector: '#searchItems'},
+        {ref: 'searchButton', selector: '#searchAllItems[action=applyfilter]'},
+        {ref: 'bulkButton', selector: '#searchResultsBulkActionButton'}
     ],
 
     init: function () {
@@ -51,51 +53,63 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             },
             '#globalSearch[action=search]': {
                 click: this.showSearchByHistory
+            },
+            '#searchResultsBulkActionButton': {
+                click: this.showBulkAction
             }
         });
     },
 
-    showSearchByHistory  : function () {
+    showBulkAction: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        me.saveState();
+        router.getRoute('search/bulkAction').forward();
+    },
+
+    showSearchByHistory: function () {
         location.href = '#/searchitems';
     },
 
-    showSearchItems : function () {
-        var widget = Ext.widget('searchItems');
+    showSearchItems: function () {
+        var me = this,
+            widget = Ext.widget('searchItems');
         this.getApplication().fireEvent('changecontentevent', widget);
+        me.restoreState();
     },
 
-    searchAllItems: function() {
+    searchAllItems: function () {
         var searchItems = this.getSearchItems(),
             criteriaContainer = searchItems.down('container[name=filter]').getContainer(),
             store = this.getStore('Mdc.store.Devices');
 
-        if(searchItems.down('#mrid').getValue() != "") {
+        if (searchItems.down('#mrid').getValue() != "") {
             var button = searchItems.down('button[name=mRIDBtn]');
-            button = this.createCriteriaButton(button, criteriaContainer, 'mRIDBtn', Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID')+': '+searchItems.down('#mrid').getValue());
+            button = this.createCriteriaButton(button, criteriaContainer, 'mRIDBtn', Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID') + ': ' + searchItems.down('#mrid').getValue());
             store.getProxy().setExtraParam('mRID', searchItems.down('#mrid').getValue());
         } else {
             delete store.getProxy().extraParams.mRID;
         }
 
-        if(searchItems.down('#sn').getValue() != "") {
+        if (searchItems.down('#sn').getValue() != "") {
             var button = searchItems.down('button[name=serialNumberBtn]');
-            button = this.createCriteriaButton(button, criteriaContainer, 'serialNumberBtn', Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number')+': '+searchItems.down('#sn').getValue());
+            button = this.createCriteriaButton(button, criteriaContainer, 'serialNumberBtn', Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number') + ': ' + searchItems.down('#sn').getValue());
             store.getProxy().setExtraParam('serialNumber', searchItems.down('#sn').getValue());
         } else {
             delete store.getProxy().extraParams.serialNumber;
         }
 
-        if(searchItems.down('#type').getValue() != "") {
+        if (searchItems.down('#type').getValue() != "") {
             var button = searchItems.down('button[name=typeBtn]');
-            button = this.createCriteriaButton(button, criteriaContainer, 'typeBtn', Uni.I18n.translate('searchItems.type', 'MDC', 'Type')+': '+searchItems.down('#type').getRawValue());
+            button = this.createCriteriaButton(button, criteriaContainer, 'typeBtn', Uni.I18n.translate('searchItems.type', 'MDC', 'Type') + ': ' + searchItems.down('#type').getRawValue());
             store.getProxy().setExtraParam('deviceTypeName', searchItems.down('#type').getRawValue());
         } else {
             delete store.getProxy().extraParams.deviceTypeName;
         }
 
-        if(searchItems.down('#configuration').getValue() != "") {
+        if (searchItems.down('#configuration').getValue() != "") {
             var button = searchItems.down('button[name=configurationBtn]');
-            button = this.createCriteriaButton(button, criteriaContainer, 'configurationBtn', Uni.I18n.translate('searchItems.configuration', 'MDC', 'Configuration')+': '+searchItems.down('#configuration').getRawValue());
+            button = this.createCriteriaButton(button, criteriaContainer, 'configurationBtn', Uni.I18n.translate('searchItems.configuration', 'MDC', 'Configuration') + ': ' + searchItems.down('#configuration').getRawValue());
             store.getProxy().setExtraParam('deviceConfigurationName', searchItems.down('#configuration').getRawValue());
         } else {
             delete store.getProxy().extraParams.deviceConfigurationName;
@@ -190,13 +204,13 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         this.searchAllItems();
     },
 
-    searchClick: function(btn) {
+    searchClick: function (btn) {
         var searchItems = this.getSearchItems();
         this.clearFilterContent(searchItems.down('container[name=filter]').getContainer());
         this.searchAllItems();
     },
 
-    clearAllCriteria: function() {
+    clearAllCriteria: function () {
         var searchItems = this.getSearchItems();
         searchItems.down('#mrid').setValue("");
         searchItems.down('#sn').setValue("");
@@ -205,14 +219,38 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         this.clearFilterContent(searchItems.down('container[name=filter]').getContainer());
     },
 
-    clearAllItems: function(btn) {
+    saveState: function () {
+        var me = this,
+            searchItems = this.getSearchItems(),
+            state = {};
+        state.mrid = searchItems.down('#mrid').getValue();
+        state.sn = searchItems.down('#sn').getValue();
+        state.type = searchItems.down('#type').getValue();
+        state.conf = searchItems.down('#configuration').getValue();
+        me.state = state;
+    },
+
+    restoreState: function () {
+        if (this.state) {
+            var me = this,
+                searchItems = me.getSearchItems();
+            searchItems.down('#mrid').setValue(me.state.mrid);
+            searchItems.down('#sn').setValue(me.state.sn);
+            searchItems.down('#type').setValue(me.state.type);
+            searchItems.down('#configuration').setValue(me.state.conf);
+            delete me.state;
+            me.searchClick(me.getSearchButton())
+        }
+    },
+
+    clearAllItems: function (btn) {
         var searchItems = this.getSearchItems();
         this.clearAllCriteria();
         this.clearFilterContent(searchItems.down('container[name=sortitemspanel]').getContainer());
         this.searchAllItems();
-     },
+    },
 
-    createCriteriaButton: function(button, container, name, text) {
+    createCriteriaButton: function (button, container, name, text) {
         if (Ext.isEmpty(button)) {
             button = new Skyline.button.TagButton({
                 text: text,
@@ -225,7 +263,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         }
     },
 
-    createSortButton: function(button, container, name, sortName, text) {
+    createSortButton: function (button, container, name, sortName, text) {
         if (Ext.isEmpty(button)) {
             container.add({
                 xtype: 'sort-item-btn',
@@ -238,7 +276,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         }
     },
 
-    filterCloseclick: function(btn) {
+    filterCloseclick: function (btn) {
         var searchItems = this.getSearchItems();
         switch (btn.name) {
             case 'mRIDBtn':
@@ -262,12 +300,12 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         this.searchAllItems();
     },
 
-    sortCloseclick: function(btn) {
+    sortCloseclick: function (btn) {
         btn.destroy();
         this.searchAllItems();
     },
 
-    applySort: function() {
+    applySort: function () {
         var searchItems = this.getSearchItems(),
             sortContainer = searchItems.down('container[name=sortitemspanel]').getContainer(),
             store = this.getStore('Mdc.store.Devices'),
@@ -277,19 +315,19 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             var dir = btns.sortDirection == Uni.component.sort.model.Sort.ASC
                 ? 'ASC'
                 : 'DSC';
-            sortItems.push({property:btns.sortName,direction:dir});
+            sortItems.push({property: btns.sortName, direction: dir});
         });
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sortItems));
     },
 
-    cancelSearching: function(btn) {
+    cancelSearching: function (btn) {
         var me = this,
             searchItems = this.getSearchItems();
         searchItems.down('#searchResults').getStore().clearListeners();
         me.clearAllItems();
     },
 
-    showSearchContentContainer: function(isVisible) {
+    showSearchContentContainer: function (isVisible) {
         var searchItems = this.getSearchItems(),
             centerConatiner = searchItems.getCenterContainer();
         if (isVisible != centerConatiner.down('#searchContentFilter').isVisible()) {

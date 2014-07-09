@@ -209,7 +209,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     showProperties: function (connectionMethod) {
         if (connectionMethod.propertiesStore.data.items.length > 0) {
-            this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
+            this.getDeviceConnectionMethodEditView().down('#remove ').setVisible(true);
         } else {
             this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(false);
         }
@@ -376,8 +376,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             connectionMethodToDelete = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection()[0];
         }
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('deviceconnectionmethod.deleteConnectionMethod', 'MDC', 'Are you sure you want to remove connection method ' + connectionMethodToDelete.get('name') + '?'),
-            title: Uni.I18n.translate('deviceconnectionmethod.deleteConnectionMethod.title', 'MDC', 'Remove connection method ') + ' ' + connectionMethodToDelete.get('name') + '?',
+            msg: Uni.I18n.translate('deviceconnectionmethod.deleteConnectionMethod', 'MDC', 'This connection method will no longer be available.'),
+            title: Uni.I18n.translate('deviceconnectionmethod.deleteConnectionMethod.title', 'MDC', 'Remove ') + ' ' + connectionMethodToDelete.get('name') + '?',
             config: {
                 connectionMethodToDelete: connectionMethodToDelete,
                 me: me

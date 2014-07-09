@@ -27,7 +27,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         'Mdc.store.TimeUnits',
         'Mdc.store.AddComPortPools',
         'Mdc.store.OutboundComPortPools',
-        'Mdc.store.InboundComPortPools'
+        'Mdc.store.InboundComPortPools',
+        'Mdc.store.ComPorts'
     ],
     defaultType: 'TCP',
     refs: [
@@ -131,7 +132,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         this.portType = newValue;
         this.saveState();
         this.comportEdit.showForm(this.portDirection, newValue);
-        this.restoreState()
+        this.restoreState();
         this.filterStore();
     },
 
@@ -188,7 +189,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             model.getProxy().url = url;
             model.save({
                 callback: function (records, operation, success) {
-                    console.log(success);
                     if (success) {
                         me.onSuccessSaving(me.portDirection);
                     } else {
@@ -233,6 +233,43 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         }
     },
 
+    showEditView: function (id) {
+        var me = this,
+            widget = Ext.widget('comportEdit');
+            model = me.getModel('Mdc.model.ComServer');
+
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setEdit(true, '#/administration/comservers');
+
+        widget.setLoading(true);
+
+        model.load(id, {
+            success: function (record) {
+                var comServerType = record.get('comServerType'),
+                    form = widget.down('form'),
+                    title;
+
+                me.comServerModel = record;
+
+                me.getApplication().fireEvent('loadComServer', record);
+
+                switch (comServerType) {
+                    case 'Online':
+                        title = Uni.I18n.translate('comServer.title.editOnline', 'MDC', 'Edit online communication server');
+                        break;
+                }
+
+                form.setTitle(title);
+                form.down('[name=comServerTypeVisual]').setValue(comServerType);
+                form.down('[name=comServerTypeVisual]').show();
+                me.modelToForm(record, form);
+            },
+            callback: function () {
+                widget.setLoading(false);
+            }
+        });
+    },
+
 
     showAddOutbound: function (id) {
         var me = this,
@@ -251,7 +288,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             }
         });
         widget.showForm('outbound', me.defaultType);
-        this.restoreState()
+        this.restoreState();
     },
 
     showAddInbound: function (id) {

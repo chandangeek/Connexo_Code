@@ -490,6 +490,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     action: 'showAddComPortPool'
                                                 }
                                             }
+                                        },
+                                        edit: {
+                                            title: 'Edit',
+                                            route: '{id}/edit',
+                                            controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                            action: 'showEditView'
                                         }
                                     }
                                 }
@@ -808,7 +814,15 @@ Ext.define('Mdc.controller.history.Setup', {
             title: 'Search',
             route: 'searchitems',
             controller: 'Mdc.controller.setup.SearchItems',
-            action: 'showSearchItems'
+            action: 'showSearchItems',
+            items: {
+                bulkAction: {
+                    title: 'Bulk action',
+                    route: 'bulk',
+                    controller: 'Mdc.controller.setup.SearchItemsBulkAction',
+                    action: 'showBulkAction'
+                }
+            }
         }
     },
     tokenizePreviousTokens: function () {

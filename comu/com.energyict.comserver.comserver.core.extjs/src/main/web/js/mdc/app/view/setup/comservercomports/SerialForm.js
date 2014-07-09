@@ -263,7 +263,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     editable: false,
                     name: 'atCommandTimeout[timeUnit]',
                     flex: 1,
-                    store: 'Mdc.store.TimeUnits'
+                    store: 'Mdc.store.TimeUnits',
+                    displayField: 'timeUnit'
                 }
             ]
         },

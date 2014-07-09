@@ -139,7 +139,6 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             queryString = Ext.Object.toQueryString(form.getValues()),
             values = Ext.Object.fromQueryString(queryString, true),
             model = this.comServerModel;
-
         model.beginEdit();
         model.set(values);
         model.endEdit();

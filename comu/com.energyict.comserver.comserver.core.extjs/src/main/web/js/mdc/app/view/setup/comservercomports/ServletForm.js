@@ -117,7 +117,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             required: true,
             allowBlank: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.trustStorePath', 'MDC', 'Trust store file path'),
-            name: 'trustPath'
+            name: 'trustStoreFilePath'
         },
         {
             xtype: 'fieldcontainer',
