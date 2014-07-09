@@ -94,9 +94,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
         setProtocolPluggableService(protocolPluggableService);
         setSocketService(socketService);
         setSerialComponentService(serialComponentService);
-        if (!this.dataModel.isInstalled()) {
-            this.install();
-        }
+        this.install();
         activate();
     }
 
