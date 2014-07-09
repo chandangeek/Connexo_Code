@@ -46,9 +46,7 @@ public class Installer {
 
     public void install(boolean executeDdl) {
         try {
-            if (!this.dataModel.isInstalled()) {
-                this.dataModel.install(executeDdl, true);
-            }
+            this.dataModel.install(executeDdl, true);
         } catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }

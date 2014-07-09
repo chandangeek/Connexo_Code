@@ -145,9 +145,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         this.setMessagingService(messageService);
         this.setSecurityPropertyService(securityPropertyService);
         this.activate();
-        if (!this.dataModel.isInstalled()) {
-            this.install(true);
-        }
+        this.install(true);
     }
 
     @Override
