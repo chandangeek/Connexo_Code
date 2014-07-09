@@ -1,0 +1,28 @@
+Ext.define('Mdc.view.setup.searchitems.bulk.Navigation', {
+    extend: 'Skyline.menu.NavigationMenu',
+    alias: 'widget.searchitems-bulk-navigation',
+    width: 200,
+    jumpForward: false,
+    items: [
+        {
+            itemId: 'SelectDevices',
+            text: Uni.I18n.translate('searchItems.bulk.selectDevices', 'MDC', 'Select devices')
+        },
+        {
+            itemId: 'SelectAction',
+            text: Uni.I18n.translate('searchItems.bulk.selectAction', 'MDC', 'Select action')
+        },
+        {
+            itemId: 'actionDetails',
+            text:  Uni.I18n.translate('searchItems.bulk.actionDetails', 'MDC', 'Action details')
+        },
+        {   itemId: 'Confirmation',
+            text: Uni.I18n.translate('searchItems.bulk.confirmation', 'MDC', 'Confirmation')
+        },
+        {
+            itemId: 'Status',
+            text: Uni.I18n.translate('searchItems.bulk.status', 'MDC', 'Status')
+        }
+    ]
+
+});

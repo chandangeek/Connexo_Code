@@ -65,7 +65,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         var activate = menu.down('#activate'),
             deactivate = menu.down('#deactivate'),
             active = menu.record.data.active;
-
         if (active) {
             deactivate.show();
             activate.hide();
@@ -97,6 +96,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
     showView: function (id) {
         var me = this,
             comServerModel = me.getModel('Mdc.model.ComServer'),
+            addComPortPoolsStore = me.getStore('Mdc.store.AddComPortPools'),
             comPortModel = me.getModel('Mdc.model.ComServerComPort'),
             comPortsStore = me.getStore('Mdc.store.ComServerComPorts'),
             url = comServerModel.getProxy().url + '/' + id + '/comports',
@@ -112,8 +112,10 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             widget,
             addMenus;
 
+
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
+
         me.checkLoadingOfNecessaryStores(function () {
             widget = Ext.widget('comServerComPortsView');
             addMenus = widget.query('comServerComPortsAddMenu');
@@ -121,6 +123,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 menu.comServerId = id;
             });
             me.getApplication().fireEvent('changecontentevent', widget);
+            me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portModel && (delete me.getApplication().getController('Mdc.controller.setup.ComServerComPortsEdit').portModel);
+            addComPortPoolsStore.removeAll();
             comServerModel.load(id, {
                 success: function (record) {
                     widget.down('comserversubmenu').setServer(record);
@@ -179,12 +183,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         var me = this,
             gridView = me.getComPortsGrid().getView(),
             record = gridView.getSelectionModel().getLastSelected(),
-            previewPanel = this.getPreview(),
             activeChange = 'notChange',
             storeUrl = me.getComPortsGrid().getStore().getProxy().url,
             jsonObject;
 
         switch (item.action) {
+            case 'edit':
+                me.editComPortOnComServer(record);
+                break;
             case 'remove':
                 me.showDeleteConfirmation(record);
                 break;
@@ -194,8 +200,10 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             case 'deactivate':
                 activeChange = false;
                 break;
+            case 'edit':
+                me.showEdit(record);
+                break;
         }
-
         if (activeChange != 'notChange') {
             Ext.Ajax.request({
                 url: storeUrl + '/' + record.getData().id,
@@ -219,7 +227,24 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 }
             });
         }
+    },
 
+    showEdit: function (record) {
+        var router = this.getController('Uni.controller.history.Router'),
+            id = record.getId();
+        router.getRoute('administration/comservers/detail/comports/edit').forward({id: id});
+    },
+
+    editComPortOnComServer: function (record) {
+        var router = this.getController('Uni.controller.history.Router'),
+            id = record.getId();
+        router.routeparams['comPortId'] = id;
+        router.routeparams['direction'] = this.lowerFirstLetter(record.getData().direction);
+        router.getRoute('administration/comservers/detail/comports/edit').forward(router.routeparams);
+    },
+
+    lowerFirstLetter: function (string) {
+        return string.charAt(0).toLowerCase() + string.slice(1);
     },
 
     showDeleteConfirmation: function (record) {

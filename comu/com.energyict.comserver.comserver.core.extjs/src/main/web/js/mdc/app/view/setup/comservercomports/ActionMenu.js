@@ -7,11 +7,11 @@ Ext.define('Mdc.view.setup.comservercomports.ActionMenu', {
     shadow: false,
     defaultAlign: 'tr-br?',
     items: [
-//        {
-//            itemId: 'edit',
-//            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-//            action: 'edit'
-//        },
+        {
+            itemId: 'edit',
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+            action: 'edit'
+        },
         {
             itemId: 'activate',
             text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),

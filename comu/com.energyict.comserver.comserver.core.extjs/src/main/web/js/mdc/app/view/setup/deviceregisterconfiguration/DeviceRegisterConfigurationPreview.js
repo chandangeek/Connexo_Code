@@ -117,9 +117,24 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                         ]
                     },
                     {
+                        defaults: {
+                            labelAlign: 'right',
+                            labelWidth: 200
+                        },
                         items: [
                             {
-                                xtype: 'displayfield'
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastInterval', 'MDC', 'Last interval'),
+                                renderer: function(value) {
+                                    return 'TBD';
+                                }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.validationStatus', 'MDC', 'Validation status'),
+                                renderer: function(value) {
+                                    return 'TBD';
+                                }
                             }
                         ]
                     }

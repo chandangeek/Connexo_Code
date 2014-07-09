@@ -1,11 +1,12 @@
 Ext.define('Mdc.store.RegisterConfigsOfDevice', {
     extend: 'Ext.data.Store',
     requires: [
-        'Mdc.model.RegisterConfiguration'
+        'Mdc.model.Register'
     ],
-    model: 'Mdc.model.RegisterConfiguration',
+    model: 'Mdc.model.Register',
     storeId: 'RegisterConfigsOfDevice',
     pageSize: 10,
+    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '/api/ddr/devices/{mRID}/registers',

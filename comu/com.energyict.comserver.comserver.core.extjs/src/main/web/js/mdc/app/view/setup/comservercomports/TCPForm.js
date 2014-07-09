@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
         },
         {
             xtype: 'fieldcontainer',
-            required: true,
+            required: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.outPools', 'MDC', 'Outbound comport pools'),
             itemId: 'comportpoolid',
             items: [
@@ -41,16 +41,16 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
         },
         {
             xtype: 'combobox',
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Inbound communication port pool'),
-            required: true,
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Communication port pool'),
+            required: false,
             store: 'Mdc.store.InboundComPortPools',
-            allowBlank: false,
             editable: false,
             queryMode: 'local',
             itemId: 'inboundPool',
             name: 'comPortPool_id',
             displayField: 'name',
-            valueField: 'id'
+            valueField: 'id',
+            emptyText: 'Select inbound communication pool'
         }
     ],
 

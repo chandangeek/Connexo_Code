@@ -31,9 +31,16 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
         },
         {
             xtype: 'combobox',
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Inbound communication port pool'),
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Communication port pool'),
+            required: false,
+            store: 'Mdc.store.InboundComPortPools',
             editable: false,
-            name: 'inboundPool'
+            queryMode: 'local',
+            itemId: 'inboundPool',
+            name: 'comPortPool_id',
+            displayField: 'name',
+            valueField: 'id',
+            emptyText: 'Select inbound communication pool'
         },
         {
             xtype: 'fieldcontainer',
@@ -172,6 +179,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     required: true,
                     allowBlank: false,
                     name: 'connectTimeout[count]',
+                    itemId: 'connectTimeoutCount',
                     margin: '0 8 0 0',
                     flex: 2
                 },
@@ -183,6 +191,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     name: 'connectTimeout[timeUnit]',
                     flex: 1,
                     displayField: 'timeUnit',
+                    itemId: 'connectTimeoutUnit',
                     store: 'Mdc.store.TimeUnits'
                 }
             ]
@@ -196,18 +205,20 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             items: [
                 {
                     xtype: 'numberfield',
+                    itemId: 'connectDelayCount',
                     required: true,
                     allowBlank: false,
-                    name: 'connectDelay[count]',
+                    name: 'delayAfterConnect[count]',
                     margin: '0 8 0 0',
                     flex: 2
                 },
                 {
                     xtype: 'combobox',
+                    itemId: 'connectDelayUnit',
                     required: true,
                     allowBlank: false,
                     editable: false,
-                    name: 'connectDelay[timeUnit]',
+                    name: 'delayAfterConnect[timeUnit]',
                     flex: 1,
                     displayField: 'timeUnit',
                     store: 'Mdc.store.TimeUnits'
@@ -218,23 +229,25 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             xtype: 'fieldcontainer',
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.sendDelay', 'MDC', 'Delay before send'),
             required: true,
-            itemId: 'sendDelay',
+            itemId: 'delayBeforeSend',
             layout: 'hbox',
             items: [
                 {
                     xtype: 'numberfield',
+                    itemId: 'sendDelayCount',
                     required: true,
                     allowBlank: false,
-                    name: 'sendDelay[count]',
+                    name: 'delayBeforeSend[count]',
                     margin: '0 8 0 0',
                     flex: 2
                 },
                 {
                     xtype: 'combobox',
+                    itemId: 'sendDelayUnit',
                     required: true,
                     editable: false,
                     allowBlank: false,
-                    name: 'sendDelay[timeUnit]',
+                    name: 'delayBeforeSend[timeUnit]',
                     flex: 1,
                     displayField: 'timeUnit',
                     store: 'Mdc.store.TimeUnits'
@@ -243,13 +256,14 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.atTimeout', 'MDC', 'At command timeout'),
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.atTimeout', 'MDC', 'AT command timeout'),
             required: true,
-            itemId: 'atCommTimeout',
+            itemId: 'atCommandTimeout',
             layout: 'hbox',
             items: [
                 {
                     xtype: 'numberfield',
+                    itemId: 'atCommandTimeoutCount',
                     required: true,
                     allowBlank: false,
                     name: 'atCommandTimeout[count]',
@@ -258,17 +272,19 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                 },
                 {
                     xtype: 'combobox',
+                    itemId: 'atCommandTimeoutUnit',
                     required: true,
                     allowBlank: false,
                     editable: false,
                     name: 'atCommandTimeout[timeUnit]',
                     flex: 1,
+                    displayField: 'timeUnit',
                     store: 'Mdc.store.TimeUnits'
                 }
             ]
         },
         {
-            xtype: 'combobox',
+            xtype: 'numberfield',
             required: true,
             allowBlank: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.atTry', 'MDC', 'AT command try'),
@@ -281,15 +297,15 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
         this.down('#comportpoolid').hide();
         this.down('textfield[name=modemInitStrings]').show();
         this.down('textfield[name=addressSelector]').show();
-        this.down('combobox[name=inboundPool]').show();
+        this.down('#inboundPool').show();
         this.down('#serialPortConfig').show();
         this.down('numberfield[name=ringCount]').show();
         this.down('numberfield[name=maximumNumberOfDialErrors]').show();
         this.down('#connectionTimeout').show();
         this.down('#delayAfterConnect').show();
-        this.down('#sendDelay').show();
-        this.down('#atCommTimeout').show();
-        this.down('combobox[name=atCommandTry]').show();
+        this.down('#delayBeforeSend').show();
+        this.down('#atCommandTimeout').show();
+        this.down('numberfield[name=atCommandTry]').show();
     },
 
     showOutbound: function(){
@@ -300,8 +316,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
         this.down('textfield[name=addressSelector]').hide();
         this.down('textfield[name=addressSelector]').disable();
 
-        this.down('combobox[name=inboundPool]').hide();
-        this.down('combobox[name=inboundPool]').disable();
+        this.down('#inboundPool').hide();
+        this.down('#inboundPool').disable();
 
         this.down('#serialPortConfig').hide();
         this.down('#serialPortConfig').disable();
@@ -318,14 +334,14 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
         this.down('#delayAfterConnect').hide();
         this.down('#delayAfterConnect').disable();
 
-        this.down('#sendDelay').hide();
-        this.down('#sendDelay').disable();
+        this.down('#delayBeforeSend').hide();
+        this.down('#delayBeforeSend').disable();
 
-        this.down('#atCommTimeout').hide();
-        this.down('#atCommTimeout').disable();
+        this.down('#atCommandTimeout').hide();
+        this.down('#atCommandTimeout').disable();
 
-        this.down('combobox[name=atCommandTry]').hide();
-        this.down('combobox[name=atCommandTry]').disable();
+        this.down('numberfield[name=atCommandTry]').hide();
+        this.down('numberfield[name=atCommandTry]').disable();
     }
 });
 

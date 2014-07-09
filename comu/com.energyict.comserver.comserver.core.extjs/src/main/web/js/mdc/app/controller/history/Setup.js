@@ -56,7 +56,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             },
                             items: {
                                 edit: {
-                                    title: 'Edit device type',
+                                    title: 'Edit',
                                     route: 'edit',
                                     controller: 'Mdc.controller.setup.DeviceTypes',
                                     action: 'showDeviceTypeEditView'
@@ -276,7 +276,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     action: 'showConnectionMethods',
                                                     items: {
                                                         addoutbound: {
-                                                            title: 'Add outbound',
+                                                            title: 'Add outbound connection method',
                                                             route: 'addoutbound',
                                                             controller: 'Mdc.controller.setup.ConnectionMethods',
                                                             action: 'showAddConnectionMethodView',
@@ -285,7 +285,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             }
                                                         },
                                                         addinbound: {
-                                                            title: 'Add inbound',
+                                                            title: 'Add inbound connection method',
                                                             route: 'addinbound',
                                                             controller: 'Mdc.controller.setup.ConnectionMethods',
                                                             action: 'showAddConnectionMethodView',
@@ -482,6 +482,28 @@ Ext.define('Mdc.controller.history.Setup', {
                                             route: 'add/outbound',
                                             controller: 'Mdc.controller.setup.ComServerComPortsEdit',
                                             action: 'showAddOutbound',
+                                            items: {
+                                                addComPortPool: {
+                                                    title: 'Add communication port pool',
+                                                    route: 'addPool',
+                                                    controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                                    action: 'showAddComPortPool'
+                                                }
+                                            }
+                                        },
+                                        edit: {
+                                            title: 'Edit communication port',
+                                            route: '{direction}/{comPortId}/edit',
+                                            controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                            action: 'showEditView',
+                                            callback: function (route) {
+                                                this.getApplication().on('loadComPortOnComServer', function (name) {
+                                                    route.setTitle('Edit \'' + name + '\'');
+                                                    return true;
+                                                }, {single: true});
+
+                                                return this;
+                                            },
                                             items: {
                                                 addComPortPool: {
                                                     title: 'Add communication port pool',
@@ -808,7 +830,15 @@ Ext.define('Mdc.controller.history.Setup', {
             title: 'Search',
             route: 'searchitems',
             controller: 'Mdc.controller.setup.SearchItems',
-            action: 'showSearchItems'
+            action: 'showSearchItems',
+            items: {
+                bulkAction: {
+                    title: 'Bulk action',
+                    route: 'bulk',
+                    controller: 'Mdc.controller.setup.SearchItemsBulkAction',
+                    action: 'showBulkAction'
+                }
+            }
         }
     },
     tokenizePreviousTokens: function () {

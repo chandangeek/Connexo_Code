@@ -130,6 +130,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             this.getConnectionMethodPreviewForm().loadRecord(connectionMethod[0]);
             this.getConnectionMethodPreview().down('#toggleDefaultMenuItem').setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'));
             this.getConnectionMethodPreview().down('property-form').loadRecord(connectionMethod[0]);
+            if (connectionMethod[0].propertiesStore.data.items.length > 0) {
+                this.getConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(true);
+            } else {
+                this.getConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(false);
+            }
         } else {
             this.getConnectionMethodPreview().getLayout().setActiveItem(0);
         }
@@ -287,8 +292,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             connectionMethodToDelete = this.getConnectionmethodsgrid().getSelectionModel().getSelection()[0];
         }
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('connectionmethod.deleteConnectionMethod', 'MDC', 'Are you sure you want to remove connection method ' + connectionMethodToDelete.get('name') + '?'),
-            title: Uni.I18n.translate('connectionmethod.deleteConnectionMethod.title', 'MDC', 'Remove connection method ') + ' ' + connectionMethodToDelete.get('name') + '?',
+            msg: Uni.I18n.translate('connectionmethod.deleteConnectionMethod', 'MDC', 'This connection method will no longer be available.'),
+            title: Uni.I18n.translate('connectionmethod.deleteConnectionMethod.title', 'MDC', 'Remove ') + " '" + connectionMethodToDelete.get('name') + "'?",
             config: {
                 connectionMethodToDelete: connectionMethodToDelete,
                 me: me
@@ -382,8 +387,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                             widget.down('form').down('#scheduleField').setVisible(true);
                                                         }
                                                         widget.down('form').loadRecord(connectionMethod);
-                                                        var title = connectionMethod.get('direction') === 'Outbound' ? Uni.I18n.translate('connectionmethod.editOutboundConnectionMethod', 'MDC', 'Edit outbound connection method') : Uni.I18n.translate('connectionmethod.editInboundConnectionMethod', 'MDC', 'Edit inbound connection method');
-                                                        title = deviceConfigName + ' > ' + title;
+                                                        var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + connectionMethod.get('name') + "'";
                                                         widget.down('#connectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
                                                         widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionType'));
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));

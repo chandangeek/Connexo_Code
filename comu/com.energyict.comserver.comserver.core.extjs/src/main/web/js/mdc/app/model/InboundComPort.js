@@ -8,6 +8,7 @@ Ext.define('Mdc.model.InboundComPort', {
         {name:'ringCount',type: 'int',useNull: true},
         {name:'maximumNumberOfDialErrors',type: 'int',useNull: true},
         {name:'atCommandTry',type: 'string',useNull: true},
+        {name:'addressSelector',type: 'string',useNull: true},
         {name:'baudrate',type: 'string',useNull: true},
         {name:'nrOfDataBits',type: 'int',useNull: true},
         {name:'nrOfStopBits',type: 'int',useNull: true},
@@ -35,5 +36,9 @@ Ext.define('Mdc.model.InboundComPort', {
         {name: 'delayAfterConnect',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'delayAfterConnect'},
         {name: 'delayBeforeSend',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'delayBeforeSend'},
         {name: 'atCommandTimeout',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'atCommandTimeout'}
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        url: '/api/mdc/comservers/{comServerId}/comports'
+    }
 });

@@ -28,10 +28,16 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
         },
         {
             xtype: 'combobox',
-            allowBlank: false,
-            required: true,
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Inbound communication port pool'),
-            name: 'comPortPool_id'
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Communication port pool'),
+            required: false,
+            store: 'Mdc.store.InboundComPortPools',
+            editable: false,
+            queryMode: 'local',
+            itemId: 'inboundPool',
+            name: 'comPortPool_id',
+            displayField: 'name',
+            valueField: 'id',
+            emptyText: 'Select inbound communication pool'
         },
         {
             xtype: 'textfield',
@@ -117,7 +123,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             required: true,
             allowBlank: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.trustStorePath', 'MDC', 'Trust store file path'),
-            name: 'trustPath'
+            name: 'trustStoreFilePath'
         },
         {
             xtype: 'fieldcontainer',

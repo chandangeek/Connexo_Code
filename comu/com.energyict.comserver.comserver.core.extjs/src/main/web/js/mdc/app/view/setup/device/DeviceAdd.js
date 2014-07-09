@@ -3,8 +3,8 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
     alias: 'widget.deviceAdd',
     itemId: 'deviceAdd',
     requires: [
-        'Mdc.store.DeviceTypes',
-        'Mdc.store.DeviceConfigurations'
+        'Mdc.store.AvailableDeviceTypes',
+        'Mdc.store.AvailableDeviceConfigurations'
     ],
 
     content: [
@@ -50,7 +50,9 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             required: true,
                             msgTarget: 'under',
                             maxLength: 80,
-                            enforceMaxLength: true
+                            enforceMaxLength: true,
+                            validateOnBlur: false,
+                            validateOnChange: false
                         },
                         {
                             xtype: 'textfield',
@@ -72,7 +74,9 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             emptyText: Uni.I18n.translate('deviceAdd.type.value', 'MDC', 'Select a device type...'),
                             displayField: 'name',
                             valueField: 'id',
-                            store: 'DeviceTypes',
+                            store: 'AvailableDeviceTypes',
+                            validateOnBlur: false,
+                            validateOnChange: false,
                             listConfig:
                                 {
                                     loadMask: false,
@@ -109,7 +113,9 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             displayField: 'name',
                             valueField: 'id',
                             disabled: true,
-                            store: 'DeviceConfigurations',
+                            store: 'AvailableDeviceConfigurations',
+                            validateOnBlur: false,
+                            validateOnChange: false,
                             listConfig:
                                 {
                                     loadMask: false,

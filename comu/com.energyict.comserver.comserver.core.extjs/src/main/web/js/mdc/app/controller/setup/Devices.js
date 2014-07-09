@@ -14,7 +14,8 @@ Ext.define('Mdc.controller.setup.Devices', {
     ],
 
     stores: [
-
+        'AvailableDeviceTypes',
+        'AvailableDeviceConfigurations'
     ],
 
     refs: [
@@ -80,6 +81,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         var me = this;
         var form = button.up('form');
 
+        form.getForm().isValid();
         form.updateRecord();
         form.getRecord().save({
             success: function (record) {
