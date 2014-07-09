@@ -46,11 +46,11 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     pageStartParam: 'start',
 
     /**
-     * @cfg {Boolean} Lazy load
+     * @cfg {Boolean} Defer load
      *
      * Whether to load the store when the paging gets initialized or not.
      */
-    lazyLoad: false,
+    deferLoading: false,
 
     itemsPerPageMsg: Uni.I18n.translate('general.itemsPerPage', 'UNI', 'Items per page'),
 
@@ -107,7 +107,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         this.initExtraParams();
 
-        if (!me.lazyLoad) {
+        if (!me.deferLoading) {
             this.store.load({
                 params: me.params,
                 callback: function (records) {
