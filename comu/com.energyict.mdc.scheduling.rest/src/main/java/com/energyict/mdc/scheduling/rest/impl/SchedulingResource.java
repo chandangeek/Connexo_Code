@@ -103,7 +103,12 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
-        comSchedule.delete();
+        if (this.isInUse(comSchedule)) {
+            comSchedule.makeObsolete();
+        }
+        else {
+            comSchedule.delete();
+        }
         return Response.noContent().build();
     }
 
