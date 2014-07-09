@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-09 (13:58)
  */
-@Component(name="com.energyict.mdc.device.data.delete.comtaskenablement.eventhandler", service = TopicHandler.class, immediate = true)
+@Component(name="com.energyict.mdc.device.data.delete.partialconnectiontask.eventhandler", service = TopicHandler.class, immediate = true)
 public class PartialConnectionTaskDeletionHandler extends EventHandler<LocalEvent> {
 
     static final Pattern TOPIC = Pattern.compile("com/energyict/mdc/device/config/partial(.*)connectiontask/VALIDATE_DELETE");
