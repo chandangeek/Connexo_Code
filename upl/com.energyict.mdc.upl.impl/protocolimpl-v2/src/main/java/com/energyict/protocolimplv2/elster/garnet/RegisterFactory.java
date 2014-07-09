@@ -304,12 +304,12 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createDeviceRegister(OfflineRegister register) {
-        return this.createDeviceRegister(register);
+        return this.createDeviceRegister(register, null);
     }
 
     private CollectedRegister createDeviceRegister(OfflineRegister register, Date eventTime) {
         CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
-        deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
+        deviceRegister.setCollectedTimeStamps(new Date(), null, eventTime != null ? eventTime : new Date(), eventTime); // If eventTime != null, then it contains the billing timestamp
         return deviceRegister;
     }
 
