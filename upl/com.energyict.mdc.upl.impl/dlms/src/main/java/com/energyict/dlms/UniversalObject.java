@@ -58,12 +58,12 @@ public class UniversalObject implements Serializable {
 		this.fields[0] = -1;
 		this.fields[1] = classId;
 		this.fields[2] = version;
-		this.fields[3] = ln[0];
-		this.fields[4] = ln[1];
-		this.fields[5] = ln[2];
-		this.fields[6] = ln[3];
-		this.fields[7] = ln[4];
-		this.fields[8] = ln[5];
+		this.fields[3] = ln[0] & 0xFF;
+		this.fields[4] = ln[1] & 0xFF;
+		this.fields[5] = ln[2] & 0xFF;
+		this.fields[6] = ln[3] & 0xFF;
+		this.fields[7] = ln[4 & 0xFF];
+		this.fields[8] = ln[5 & 0xFF];
 	}
 
 
