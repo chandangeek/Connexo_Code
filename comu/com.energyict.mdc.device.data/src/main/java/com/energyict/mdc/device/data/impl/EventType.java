@@ -35,6 +35,7 @@ public enum EventType {
     PROTOCOLDIALECTPROPERTIES_DELETED("protocoldialectproperties/DELETED"),
     COMTASKEXECUTION_CREATED("comtaskexecution/CREATED"),
     COMTASKEXECUTION_UPDATED("comtaskexecution/UPDATED"),
+    COMTASKEXECUTION_RANGE_OBSOLETE("comtaskexecution/RANGE_OBSOLETE"),
     COMTASKEXECUTION_DELETED("comtaskexecution/DELETED"),
     COMSCHEDULE_UPDATED("comschedule/UPDATED") {
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {

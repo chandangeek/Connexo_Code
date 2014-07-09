@@ -19,13 +19,13 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ComScheduleDeletionHandler} component.
+ * Tests the {@link ComScheduleObsoleteValidator} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-03 (14:43)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ComScheduleDeletionHandlerTest {
+public class ComScheduleObsoleteValidatorTest {
 
     @Mock
     private ServerDeviceDataService deviceDataService;
@@ -36,19 +36,19 @@ public class ComScheduleDeletionHandlerTest {
     @Mock
     private LocalEvent event;
 
-    private ComScheduleDeletionHandler eventHandler;
+    private ComScheduleObsoleteValidator eventHandler;
 
     @Before
     public void createEvent () {
         EventType eventType = mock(EventType.class);
-        when(eventType.getTopic()).thenReturn(ComScheduleDeletionHandler.TOPIC);
+        when(eventType.getTopic()).thenReturn(ComScheduleObsoleteValidator.TOPIC);
         when(this.event.getSource()).thenReturn(this.comSchedule);
         when(this.event.getType()).thenReturn(eventType);
     }
 
     @Before
     public void createEventHandler () {
-        this.eventHandler = new ComScheduleDeletionHandler(this.deviceDataService, this.thesaurus);
+        this.eventHandler = new ComScheduleObsoleteValidator(this.deviceDataService, this.thesaurus);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class ComScheduleDeletionHandlerTest {
         verify(this.deviceDataService).hasComTaskExecutions(this.comSchedule);
     }
 
-    @Test(expected = VetoDeleteComScheduleException.class)
+    @Test(expected = VetoObsoleteComScheduleException.class)
     public void testInUse() {
         when(this.deviceDataService.hasComTaskExecutions(this.comSchedule)).thenReturn(true);
 

@@ -94,6 +94,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -105,6 +107,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  */
 @Component(name="com.energyict.mdc.device.data", service = {DeviceDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataService.COMPONENTNAME, immediate = true)
 public class DeviceDataServiceImpl implements ServerDeviceDataService, ReferencePropertySpecFinderProvider, InstallService {
+
+    private static final Logger LOGGER = Logger.getLogger(DeviceDataServiceImpl.class.getName());
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -604,6 +608,61 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             throw new UnderlyingSQLFailedException(e);
         }
         return false;
+    }
+
+    @Override
+    public Optional<ScheduledComTaskExecutionIdRange> getScheduledComTaskExecutionIdRange (long comScheduleId) {
+        try (PreparedStatement preparedStatement = this.getMinMaxComTaskExecutionIdPreparedStatement()) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                resultSet.first();  // There is always at least one row since we are counting
+                long minId = resultSet.getLong(0);
+                if (resultSet.wasNull()) {
+                    return Optional.absent();    // There were not ComTaskExecutions
+                }
+                else {
+                    long maxId = resultSet.getLong(1);
+                    return Optional.of(new ScheduledComTaskExecutionIdRange(comScheduleId, minId, maxId));
+                }
+            }
+        }
+        catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private PreparedStatement getMinMaxComTaskExecutionIdPreparedStatement() throws SQLException {
+        return this.dataModel.getConnection(true).prepareStatement(this.getMinMaxComTaskExecutionIdStatement());
+    }
+
+    private String getMinMaxComTaskExecutionIdStatement() {
+        return "SELECT MIN(id), MAX(id) FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " WHERE comschedule = ? AND obsolete_date IS NULL";
+    }
+
+    @Override
+    public void obsoleteComTaskExecutionsInRange(ScheduledComTaskExecutionIdRange idRange) {
+        try (PreparedStatement preparedStatement = this.getObsoleteComTaskExecutionInRangePreparedStatement()) {
+            preparedStatement.setDate(1, this.toSqlDate());
+            preparedStatement.setLong(2, idRange.comScheduleId);
+            preparedStatement.setLong(3, idRange.minId);
+            preparedStatement.setLong(4, idRange.maxId);
+            preparedStatement.executeUpdate();
+        }
+        catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    private java.sql.Date toSqlDate() {
+        return new java.sql.Date(this.clock.now().getTime());
+    }
+
+    private PreparedStatement getObsoleteComTaskExecutionInRangePreparedStatement() throws SQLException {
+        return this.dataModel.getConnection(true).prepareStatement(this.getObsoleteComTaskExecutionInRangeStatement());
+    }
+
+    private String getObsoleteComTaskExecutionInRangeStatement() {
+        return "UPDATE " + TableSpecs.DDC_COMTASKEXEC.name() + " SET OBSOLETE_DATE = ? WHERE comschedule = ? AND id BETWEEN ? AND ?";
     }
 
     @Override

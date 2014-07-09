@@ -26,7 +26,8 @@ import java.util.logging.Logger;
  */
 public class Installer {
 
-    public static final String MESSAGING_NAME = "COMSCHEDULE_RECALCULATOR";
+    public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_NAME = "COMSCHEDULE_RECALCULATOR";
+    public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME = "COMSCHEDULE_BCKGRND_OBSOLETE";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
@@ -53,16 +54,21 @@ public class Installer {
         }
         this.createEventTypes();
         this.createTranslations();
-        this.createMessageHandler();
+        this.createMessageHandlers();
         this.createMasterData();
     }
 
-    private void createMessageHandler() {
+    private void createMessageHandlers() {
+        this.createMessageHandler(COMSCHEDULE_RECALCULATOR_MESSAGING_NAME);
+        this.createMessageHandler(COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME);
+    }
+
+    private void createMessageHandler(String messagingName) {
         try {
             QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(MESSAGING_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(messagingName, DEFAULT_RETRY_DELAY_IN_SECONDS);
             destinationSpec.activate();
-            destinationSpec.subscribe(MESSAGING_NAME);
+            destinationSpec.subscribe(messagingName);
         } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }

@@ -274,7 +274,12 @@ public enum TableSpecs {
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT").on(comport).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORT").map(ComTaskExecutionFields.COMPORT.fieldName()).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMTASK").on(comtask).references(TaskService.COMPONENT_NAME, "CTS_COMTASK").map(ComTaskExecutionFields.COMTASK.fieldName()).add();
-            table.foreignKey("FK_DDC_COMTASKEXEC_COMSCHEDULE").on(comSchedule).references(SchedulingService.COMPONENT_NAME, "SCH_COMSCHEDULE").map(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_COMSCHEDULE").
+                    on(comSchedule).
+                    references(SchedulingService.COMPONENT_NAME, "SCH_COMSCHEDULE").
+                    onDelete(CASCADE).
+                    map(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).
+                    add();
             table.foreignKey("FK_DDC_COMTASKEXEC_NEXTEXEC").
                     on(nextExecutionSpecs).
                     references(SchedulingService.COMPONENT_NAME, "SCH_NEXTEXECUTIONSPEC").

@@ -14,9 +14,9 @@ import com.elster.jupiter.nls.Thesaurus;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-03 (14:26)
  */
-public class VetoDeleteComScheduleException extends LocalizedException {
+public class VetoObsoleteComScheduleException extends LocalizedException {
 
-    protected VetoDeleteComScheduleException(Thesaurus thesaurus, ComSchedule comSchedule) {
+    protected VetoObsoleteComScheduleException(Thesaurus thesaurus, ComSchedule comSchedule) {
         super(thesaurus, MessageSeeds.VETO_COM_SCHEDULE_DELETION, comSchedule.getName());
         this.set("comScheduleName", comSchedule.getName());
         this.set("comScheduleId", comSchedule.getId());

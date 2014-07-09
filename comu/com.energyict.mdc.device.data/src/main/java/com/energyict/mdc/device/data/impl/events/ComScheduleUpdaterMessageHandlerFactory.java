@@ -7,7 +7,7 @@ import org.osgi.service.component.annotations.Component;
 
 @Component(name="com.energyict.mdc.device.data.comschedule.update.messagehandler",
         service = MessageHandlerFactory.class,
-        property = {"subscriber="+Installer.MESSAGING_NAME, "destination="+Installer.MESSAGING_NAME},
+        property = {"subscriber="+Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_NAME, "destination="+Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_NAME},
         immediate = true)
 public class ComScheduleUpdaterMessageHandlerFactory implements MessageHandlerFactory {
     private static final ComScheduleUpdatedMessageHandler MESSAGE_HANDLER = new ComScheduleUpdatedMessageHandler();

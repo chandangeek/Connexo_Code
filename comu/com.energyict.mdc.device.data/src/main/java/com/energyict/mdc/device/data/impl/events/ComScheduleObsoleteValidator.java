@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.events;
 
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
+import com.energyict.mdc.scheduling.events.EventType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import com.elster.jupiter.events.LocalEvent;
@@ -14,26 +15,26 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 
 /**
- * Handles delete events that are being sent when a {@link ComSchedule}
- * is about to be deleted and will veto the delete when it is in use by at least one device.
+ * Handles events that are being sent when a {@link ComSchedule} is about to be
+ * made obsolete and will veto that when it is in use by at least one device.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-03 (14:27)
  */
-@Component(name="com.energyict.mdc.device.data.delete.comschedule.eventhandler", service = TopicHandler.class, immediate = true)
-public class ComScheduleDeletionHandler extends EventHandler<LocalEvent> {
+@Component(name="com.energyict.mdc.device.data.comschedule.obsolete.validator", service = TopicHandler.class, immediate = true)
+public class ComScheduleObsoleteValidator extends EventHandler<LocalEvent> {
 
-    static final String TOPIC = "com/energyict/mdc/scheduling/comschedules/BEFORE_DELETE";
+    static final String TOPIC = EventType.COMSCHEDULES_BEFORE_OBSOLETE.topic();
 
     private volatile ServerDeviceDataService deviceDataService;
     private volatile Thesaurus thesaurus;
 
-    public ComScheduleDeletionHandler() {
+    public ComScheduleObsoleteValidator() {
         super(LocalEvent.class);
     }
 
     @Inject
-    ComScheduleDeletionHandler(ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
+    ComScheduleObsoleteValidator(ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
         this();
         this.deviceDataService = deviceDataService;
         this.thesaurus = thesaurus;
@@ -53,7 +54,7 @@ public class ComScheduleDeletionHandler extends EventHandler<LocalEvent> {
     }
 
     /**
-     * Vetos the delection of the {@link ComSchedule}
+     * Vetos the obsoletion of the {@link ComSchedule}
      * by throwing an exception when the ComSchedule
      * is used by at least on Device, i.e. at least one
      * {@link com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution}
@@ -63,7 +64,7 @@ public class ComScheduleDeletionHandler extends EventHandler<LocalEvent> {
      */
     private void validateNotUsedByDevice(ComSchedule comSchedule) {
         if (this.deviceDataService.hasComTaskExecutions(comSchedule)) {
-            throw new VetoDeleteComScheduleException(this.thesaurus, comSchedule);
+            throw new VetoObsoleteComScheduleException(this.thesaurus, comSchedule);
         }
     }
 

@@ -5,8 +5,11 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.google.common.base.Optional;
 
 /**
  * Adds behavior to {@link DeviceDataService} that is specific
@@ -25,6 +28,26 @@ public interface ServerDeviceDataService extends DeviceDataService {
      * @return A flag that indicates if the ComTaskEnablement is used or not
      */
     public boolean hasComTaskExecutions(ComTaskEnablement comTaskEnablement);
+
+    /**
+     * Gets the {@link ScheduledComTaskExecutionIdRange range} of IDs
+     * of {@link ScheduledComTaskExecution}s that are using the
+     * {@link ComSchedule} with the specified ID.
+     *
+     * @param comScheduleId The ID of the ComSchedule
+     * @return The ScheduledComTaskExecutionIdRange
+     */
+    public Optional<ScheduledComTaskExecutionIdRange> getScheduledComTaskExecutionIdRange(long comScheduleId);
+
+    /**
+     * Obsoletes all {@link ScheduledComTaskExecution}s that
+     * are in the specified {@link ScheduledComTaskExecutionIdRange range},
+     * i.e. they are related to the {@link ComSchedule} and their
+     * ID is between the min and max id of the range.
+     *
+     * @param idRange The ScheduledComTaskExecutionIdRange
+     */
+    public void obsoleteComTaskExecutionsInRange(ScheduledComTaskExecutionIdRange idRange);
 
     /**
      * Tests if the specified {@link ComSchedule} is used
