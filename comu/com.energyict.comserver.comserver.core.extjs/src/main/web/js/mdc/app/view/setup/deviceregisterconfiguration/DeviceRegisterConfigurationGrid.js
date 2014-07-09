@@ -23,13 +23,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                 renderer: function (value, metaData, record) {
                     return '<a href="#/devices/' + me.mRID + '/registers/' + record.get('id') + '">' + value + '</a>';
                 },
-                fixed: true,
                 flex: 3
             },
             {
                 xtype: 'actioncolumn',
-                fixed: true,
-                flex: 1,
                 renderer: function (value, metaData, record) {
                     return '<div class="x-grid-cell-inner" style="float:left; font-size: 13px; line-height: 1em;">'
                         + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
@@ -46,7 +43,28 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                             this.fireEvent('showReadingTypeInfo', record);
                         }
                     }
-                ]
+                ],
+                flex: 2
+            },
+            {
+                header: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'End of last interval'),
+                xtype: 'datecolumn',
+                format: 'M j, Y \\a\\t G:i',
+                dataIndex: 'lastReading',
+                defaultRenderer: function(value){
+                    if(!Ext.isEmpty(value)) {
+                        return Ext.util.Format.date(value, this.format);
+                    }
+                    return Uni.I18n.translate('deviceregisterconfiguration.lastReading.notspecified', 'MDC', 'N/A');
+                },
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('deviceregisterconfiguration.validationStatus', 'MDC', 'Validation status'),
+                renderer: function (value, metaData, record) {
+                    return 'TBD';
+                },
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',
