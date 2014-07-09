@@ -74,9 +74,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         this.setMeteringService(meteringService);
         this.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         this.activate();
-        if (!this.dataModel.isInstalled()) {
-            this.install(true, createDefaults);
-        }
+        this.install(true, createDefaults);
     }
 
     @Override
