@@ -107,9 +107,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setSchedulingService(schedulingService);
         this.setValidationService(validationService);
         this.activate();
-        if (!this.dataModel.isInstalled()) {
-            this.install();
-        }
+        this.install();
     }
 
     @Override
