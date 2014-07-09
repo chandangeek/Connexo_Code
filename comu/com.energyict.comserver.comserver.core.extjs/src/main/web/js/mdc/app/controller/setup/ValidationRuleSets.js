@@ -12,7 +12,6 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     ],
 
     stores: [
-        'Mdc.store.DeviceConfigurationValidationRuleSets',
         'DeviceConfigValidationRuleSets'
     ],
 
@@ -63,6 +62,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             },
             'validation-rules-overview validation-rules-grid': {
                 selectionchange: this.onValidationRuleSelectionChange
+            },
+            'validation-add-rulesets #radiogroupAddRuleSet': {
+                change: this.onChangeRadio
             }
         });
     },
@@ -148,6 +150,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
     onAddValidationRuleSetsSelectionChange: function (grid) {
         var view = this.getAddValidationRuleSets(),
+            radioAll = this.getAddValidationRuleSets().down('#radioAll'),
+            radioSelected = this.getAddValidationRuleSets().down('#radioSelected'),
             selection = grid.view.getSelectionModel().getSelection(),
             counter = Ext.ComponentQuery.query('validation-add-rulesets #selection-counter')[0],
             selectionText = Uni.I18n.translatePlural(
@@ -161,6 +165,22 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         if (selection.length > 0) {
             view.updateValidationRuleSet(selection[0]);
+        }
+        if (grid.view.getSelectionModel().getCount() < grid.getStore().getCount()) {
+            this.changeRadioFromAllToSelected();
+        }
+        if (grid.view.getSelectionModel().getCount() === grid.getStore().getCount()) {
+            radioAll.setValue(true);
+            radioSelected.setValue(false);
+        }
+    },
+
+    changeRadioFromAllToSelected: function () {
+        var radioAll = this.getAddValidationRuleSets().down('#radioAll'),
+            radioSelected = this.getAddValidationRuleSets().down('#radioSelected');
+        if (radioAll.getValue()) {
+            radioAll.setValue(false);
+            radioSelected.setValue(true);
         }
     },
 
@@ -226,6 +246,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     onUncheckAll: function () {
         var grid = this.getAddValidationRuleSetsGrid();
         grid.getView().getSelectionModel().deselectAll();
+        this.changeRadioFromAllToSelected();
     },
 
     onAddValidationActionMenuClick: function (menu, item) {
@@ -355,6 +376,15 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         if (selection.length > 0) {
             view.updateValidationRule(selection[0]);
+        }
+    },
+
+    onChangeRadio: function (radiogroup, newValue, oldValue) {
+        var grid = this.getAddValidationRuleSetsGrid();
+        switch (newValue.rulesetsRadio) {
+            case 'ALL':
+                grid.getSelectionModel().selectAll(true);
+                grid.fireEvent('selectionchange', grid);
         }
     }
 });

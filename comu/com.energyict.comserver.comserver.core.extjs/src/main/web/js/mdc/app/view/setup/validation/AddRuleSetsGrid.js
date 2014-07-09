@@ -7,17 +7,16 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
         'Ext.grid.plugin.BufferedRenderer'
     ],
 
-    store: Ext.create('Mdc.store.DeviceConfigurationValidationRuleSets'),
+    store: Ext.getStore('ValidationRuleSets') || Ext.create('Cfg.store.ValidationRuleSets'),
 
     selType: 'checkboxmodel',
     selModel: {
-        mode: 'MULTI'
+        mode: 'MULTI',
+        showHeaderCheckbox: false
     },
 
     deviceTypeId: null,
     deviceConfigId: null,
-    plugins: 'bufferedrenderer',
-    height: 400,
 
     initComponent: function () {
         var me = this;
@@ -51,16 +50,48 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
             {
                 xtype: 'toolbar',
                 dock: 'top',
+                layout: 'vbox',
                 items: [
                     {
-                        xtype: 'text',
-                        itemId: 'selection-counter',
-                        text: Uni.I18n.translate('validation.noValidationRuleSetSelected', 'MDC', 'No validation rule set selected')
+                        xtype: 'radiogroup',
+                        itemId: 'radiogroupAddRuleSet',
+                        columns: 1,
+                        vertical: true,
+                        submitValue: false,
+                        defaults: {
+                            padding: '0 0 30 0'
+                        },
+                        items: [
+                            {
+                                itemId: 'radioAll',
+                                boxLabel: '<b>' + Uni.I18n.translate('ruleset.allRuleSets', 'MDC', 'All validation rule sets') + '</b><br/>' +
+                                    '<span style="color: grey;">' + Uni.I18n.translate('ruleset.selectAllRuleSets', 'MDC', 'Select all validation rule sets related to device configuration') + '</span>',
+                                name: 'rulesetsRadio',
+                                inputValue: 'ALL'
+                            },
+                            {
+                                itemId: 'radioSelected',
+                                boxLabel: '<b>' + Uni.I18n.translate('ruleset.selectedRuleSets', 'MDC', 'Selected validation rule sets') + '</b><br/><span style="color: grey;">' + Uni.I18n.translate('ruleset.selectRuleSets', 'MDC', 'Select validation rule sets in table') + '</span>',
+                                name: 'rulesetsRadio',
+                                checked: true,
+                                inputValue: 'SELECTED'
+                            }
+                        ]
                     },
                     {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.uncheckAll', 'MDC', 'Uncheck all'),
-                        action: 'uncheckAll'
+                        xtype: 'container',
+                        items: [
+                            {
+                                xtype: 'text',
+                                itemId: 'selection-counter',
+                                text: Uni.I18n.translate('validation.noValidationRuleSetSelected', 'MDC', 'No validation rule set selected')
+                            },
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.uncheckAll', 'MDC', 'Uncheck all'),
+                                action: 'uncheckAll'
+                            }
+                        ]
                     }
                 ]
             },
