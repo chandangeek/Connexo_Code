@@ -41,11 +41,11 @@ public class DeviceResource {
     private final EngineModelService engineModelService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
-    private final Provider<RegisterConfigurationResource> registerConfigurationResourceProvider;
+    private final Provider<RegisterResource> registerResourceProvider;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, IssueService issueService, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, Provider<ProtocolDialectResource> protocolDialectResourceProvider, Provider<RegisterConfigurationResource> registerConfigurationResourceProvider, ExceptionFactory exceptionFactory) {
+    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, IssueService issueService, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, Provider<ProtocolDialectResource> protocolDialectResourceProvider, Provider<RegisterResource> registerResourceProvider, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
         this.deviceDataService = deviceDataService;
@@ -55,7 +55,7 @@ public class DeviceResource {
         this.engineModelService = engineModelService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
-        this.registerConfigurationResourceProvider = registerConfigurationResourceProvider;
+        this.registerResourceProvider = registerResourceProvider;
         this.exceptionFactory = exceptionFactory;
     }
 	
@@ -249,7 +249,7 @@ public class DeviceResource {
     }
 
     @Path("/{mRID}/registers")
-    public RegisterConfigurationResource getRegisterConfigurationResource() {
-        return registerConfigurationResourceProvider.get();
+    public RegisterResource getRegisterResource() {
+        return registerResourceProvider.get();
     }
 }
