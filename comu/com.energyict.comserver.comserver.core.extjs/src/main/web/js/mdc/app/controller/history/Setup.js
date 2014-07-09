@@ -492,10 +492,26 @@ Ext.define('Mdc.controller.history.Setup', {
                                             }
                                         },
                                         edit: {
-                                            title: 'Edit',
-                                            route: '{id}/edit',
+                                            title: 'Edit communication port',
+                                            route: '{direction}/{comPortId}/edit',
                                             controller: 'Mdc.controller.setup.ComServerComPortsEdit',
-                                            action: 'showEditView'
+                                            action: 'showEditView',
+                                            callback: function (route) {
+                                                this.getApplication().on('loadComPortOnComServer', function (name) {
+                                                    route.setTitle('Edit \'' + name + '\'');
+                                                    return true;
+                                                }, {single: true});
+
+                                                return this;
+                                            },
+                                            items: {
+                                                addComPortPool: {
+                                                    title: 'Add communication port pool',
+                                                    route: 'addPool',
+                                                    controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                                    action: 'showAddComPortPool'
+                                                }
+                                            }
                                         }
                                     }
                                 }

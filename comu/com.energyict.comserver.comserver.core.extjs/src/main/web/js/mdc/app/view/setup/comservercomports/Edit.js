@@ -9,6 +9,16 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
         'Mdc.view.setup.comservercomports.ComPortPoolsGrid'
     ],
     itemId: 'comPortEdit',
+    side: {
+        xtype: 'panel',
+        ui: 'medium',
+        title: Uni.I18n.translate('comserver.title.communicationServers', 'MDC', 'Communication servers'),
+        width: 300,
+        items: [{
+            xtype: 'comserversubmenu',
+            itemId: 'comserversubmenu'
+        }]
+    },
     content: [
         {
             xtype: 'form',
@@ -38,6 +48,12 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                     name: 'name'
                 },
                 {
+                    xtype: 'displayfield',
+                    fieldLabel: 'Direction',
+                    hidden: true,
+                    name: 'direction'
+                },
+                {
                     xtype: 'combobox',
                     fieldLabel: 'Type',
                     required: true,
@@ -62,7 +78,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                     text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                     xtype: 'button',
                     ui: 'action',
-                    action: 'saveModel',
+                    action: 'addModel',
                     itemId: 'addEditButton'
                 },
                 {

@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
         },
         {
             xtype: 'fieldcontainer',
-            required: true,
+            required: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.outPools', 'MDC', 'Outbound comport pools'),
             itemId: 'comportpoolid',
             items: [
@@ -51,18 +51,22 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
         },
         {
             xtype: 'combobox',
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Inbound communication port pool'),
-            required: true,
-            allowBlank: false,
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Communication port pool'),
+            required: false,
+            store: 'Mdc.store.InboundComPortPools',
             editable: false,
-            name: 'inboundPool',
+            queryMode: 'local',
+            itemId: 'inboundPool',
+            name: 'comPortPool_id',
+            displayField: 'name',
+            valueField: 'id',
             emptyText: 'Select inbound communication pool'
         }
     ],
     showInbound: function(){
         this.down('numberfield[name=portNumber]').show();
         this.down('numberfield[name=bufferSize]').show();
-        this.down('combobox[name=inboundPool]').show();
+        this.down('#inboundPool').show();
         this.down('#comportpoolid').hide();
         this.down('#comportpoolid').disable();
     },
@@ -73,8 +77,8 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
 
         this.down('numberfield[name=bufferSize]').hide();
         this.down('numberfield[name=bufferSize]').disable();
-        this.down('combobox[name=inboundPool]').hide();
-        this.down('combobox[name=inboundPool]').disable();
+        this.down('#inboundPool').hide();
+        this.down('#inboundPool').disable();
         this.down('#comportpoolid').show();
     }
 });
