@@ -95,7 +95,7 @@ public class SchedulingResource {
         if(comScheduleInfo.comTaskUsages!=null){
             updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
         }
-        return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, isInUse(comSchedule))).build();
+        return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, false)).build();
     }
 
     @DELETE
