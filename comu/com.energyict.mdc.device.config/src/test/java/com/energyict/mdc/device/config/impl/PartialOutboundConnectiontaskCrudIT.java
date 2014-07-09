@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -84,7 +83,6 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
 
-import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -101,7 +99,6 @@ import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -323,7 +320,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         assertThat(partialOutboundConnectionTask.getRescheduleDelay()).isEqualTo(TimeDuration.seconds(60));
         assertThat(partialOutboundConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
 
-        verify(eventService.getSpy()).postEvent(EventType.PARTIAL_OUTBOUND_CONNECTION_TASK_CREATED.topic(), outboundConnectionTask);
+        verify(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_CREATED.topic(), outboundConnectionTask);
     }
 
     @Test
@@ -447,7 +444,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         assertThat(partialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnitCode()).isEqualTo(TimeDuration.HOURS);
         assertThat(partialOutboundConnectionTask.getName()).isEqualTo("Changed");
 
-        verify(eventService.getSpy()).postEvent(EventType.PARTIAL_OUTBOUND_CONNECTION_TASK_UPDATED.topic(), task);
+        verify(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED.topic(), task);
 
     }
 
@@ -700,7 +697,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         Optional<PartialConnectionTask> found = deviceConfigurationService.getPartialConnectionTask(outboundConnectionTask.getId());
         assertThat(found).isAbsent();
 
-        verify(eventService.getSpy()).postEvent(EventType.PARTIAL_OUTBOUND_CONNECTION_TASK_DELETED.topic(), partialOutboundConnectionTask);
+        verify(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_DELETED.topic(), partialOutboundConnectionTask);
 
     }
 

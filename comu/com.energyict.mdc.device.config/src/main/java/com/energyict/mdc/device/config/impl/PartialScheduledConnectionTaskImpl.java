@@ -82,17 +82,22 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
 
     @Override
     protected CreateEventType createEventType() {
-        return CreateEventType.PARTIAL_OUTBOUND_CONNECTION_TASK;
+        return CreateEventType.PARTIAL_SCHEDULED_CONNECTION_TASK;
     }
 
     @Override
     protected UpdateEventType updateEventType() {
-        return UpdateEventType.PARTIAL_OUTBOUND_CONNECTION_TASK;
+        return UpdateEventType.PARTIAL_SCHEDULED_CONNECTION_TASK;
+    }
+
+    @Override
+    protected ValidateDeleteEventType validateDeleteEventType() {
+        return ValidateDeleteEventType.PARTIAL_SCHEDULED_CONNECTION_TASK;
     }
 
     @Override
     protected DeleteEventType deleteEventType() {
-        return DeleteEventType.PARTIAL_OUTBOUND_CONNECTION_TASK;
+        return DeleteEventType.PARTIAL_SCHEDULED_CONNECTION_TASK;
     }
 
     @Override

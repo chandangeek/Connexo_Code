@@ -96,7 +96,7 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
 
     @Override
     protected CreateEventType createEventType() {
-        return CreateEventType.PARTIAL_OUTBOUND_CONNECTION_TASK;
+        return CreateEventType.PARTIAL_SCHEDULED_CONNECTION_TASK;
     }
 
     @Override

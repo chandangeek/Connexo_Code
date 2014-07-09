@@ -89,8 +89,11 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     protected abstract Class<? extends ComPortPool> expectedComPortPoolType ();
 
+    protected abstract ValidateDeleteEventType validateDeleteEventType();
+
     @Override
     protected void validateDelete () {
+        this.getEventService().postEvent(this.validateDeleteEventType().topic(), this);
     }
 
     @Override

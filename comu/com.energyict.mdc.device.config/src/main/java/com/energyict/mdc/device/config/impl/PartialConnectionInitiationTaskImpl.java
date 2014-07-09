@@ -43,6 +43,11 @@ public class PartialConnectionInitiationTaskImpl extends PartialOutboundConnecti
     }
 
     @Override
+    protected ValidateDeleteEventType validateDeleteEventType() {
+        return ValidateDeleteEventType.PARTIAL_CONNECTION_INITIATION_TASK;
+    }
+
+    @Override
     protected DeleteEventType deleteEventType() {
         return DeleteEventType.PARTIAL_CONNECTION_INITIATION_TASK;
     }

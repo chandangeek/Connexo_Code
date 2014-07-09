@@ -47,6 +47,11 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl 
     }
 
     @Override
+    protected ValidateDeleteEventType validateDeleteEventType() {
+        return ValidateDeleteEventType.PARTIAL_INBOUND_CONNECTION_TASK;
+    }
+
+    @Override
     protected final DeleteEventType deleteEventType() {
         return DeleteEventType.PARTIAL_INBOUND_CONNECTION_TASK;
     }
