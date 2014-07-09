@@ -591,7 +591,9 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         Calendar nextCalendar = januari1th2013;
         for (int day=1; day<=365; day++) {
             Date nextOccurrence = expression.nextOccurrence(januari1th2013);
+            /* Enable for debugging purposes
             System.out.println(nextOccurrence+"\t"+(nextOccurrence.getTime()-nextCalendar.getTime().getTime()));
+            */
             nextCalendar.setTime(nextOccurrence);
 //            assertThat(nextCalendar.get(Calendar.DAY_OF_YEAR)).describedAs("Calculated nextOccurrence day is not correct for day " + day).isEqualTo(day);
 //            assertThat(nextCalendar.get(Calendar.HOUR_OF_DAY)).describedAs("Calculated nextOccurrence hour is not correct for day " + day).isEqualTo(2);

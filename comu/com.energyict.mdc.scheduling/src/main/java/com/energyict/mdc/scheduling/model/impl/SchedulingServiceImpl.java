@@ -1,5 +1,14 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
+import com.energyict.mdc.scheduling.model.SchedulingStatus;
+import com.energyict.mdc.tasks.TaskService;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
@@ -10,28 +19,21 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.UtcInstant;
-import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.TemporalExpression;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
-import com.energyict.mdc.scheduling.model.SchedulingStatus;
-import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.scheduling", service = { SchedulingService.class, InstallService.class }, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
 public class SchedulingServiceImpl implements SchedulingService, InstallService {
@@ -120,48 +122,60 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     @Override
     public NextExecutionSpecs previewNextExecutions(TemporalExpression temporalExpression, Date startDate) {
-
         return null;
     }
 
     @Override
     public List<ComSchedule> findAllSchedules() {
-        return this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(Condition.TRUE);
+        return this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
     }
 
     @Override
     public ListPager<ComSchedule> findAllSchedules(final Calendar calendar) {
-        List<ComSchedule> comSchedules = this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(Condition.TRUE);
-        return ListPager.of(comSchedules, new Comparator<ComSchedule>() {
-                    @Override
-                    public int compare(ComSchedule o1, ComSchedule o2) {
-                        if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
-                            return 0;
-                        }
-                        if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && !SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
-                            return 1;
-                        }
-                        if (!SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
-                            return -1;
-                        }
-                        return o1.getPlannedDate().compareTo(o2.getPlannedDate());
-                    }
-                });
+        List<ComSchedule> comSchedules = this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
+        return ListPager.of(comSchedules, new CompareBySchedulingStatus());
     }
 
     @Override
     public Optional<ComSchedule> findSchedule(long id) {
-        return dataModel.mapper(ComSchedule.class).getUnique("id", id);
+        return this.findUniqueSchedule("id", id);
+    }
+
+    private Optional<ComSchedule> findUniqueSchedule(String fieldName, Object value) {
+        Condition condition = where(fieldName).isEqualTo(value).and(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
+        List<ComSchedule> comSchedules = this.dataModel.query(ComSchedule.class).select(condition);
+        if (comSchedules.isEmpty()) {
+            return Optional.absent();
+        }
+        else {
+            return Optional.of(comSchedules.get(0));
+        }
     }
 
     @Override
     public Optional<ComSchedule> findScheduleBymRID(String mRID) {
-        return this.dataModel.mapper(ComSchedule.class).getUnique(ComScheduleImpl.Fields.MRID.fieldName(), mRID);
+        return this.findUniqueSchedule(ComScheduleImpl.Fields.MRID.fieldName(), mRID);
     }
 
     @Override
     public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, UtcInstant startDate) {
         return new ComScheduleBuilderImpl(name, temporalExpression, startDate);
+    }
+
+    private static class CompareBySchedulingStatus implements Comparator<ComSchedule> {
+        @Override
+        public int compare(ComSchedule o1, ComSchedule o2) {
+            if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
+                return 0;
+            }
+            if (SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && !SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
+                return 1;
+            }
+            if (!SchedulingStatus.PAUSED.equals(o1.getSchedulingStatus()) && SchedulingStatus.PAUSED.equals(o2.getSchedulingStatus())) {
+                return -1;
+            }
+            return o1.getPlannedDate().compareTo(o2.getPlannedDate());
+        }
     }
 
     class ComScheduleBuilderImpl implements ComScheduleBuilder {

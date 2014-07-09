@@ -14,8 +14,10 @@ public enum EventType {
     NEXTEXECUTIONSPECS_CREATED("nextexecutionspecs/CREATED"),
     NEXTEXECUTIONSPECS_UPDATED("nextexecutionspecs/UPDATED"),
     NEXTEXECUTIONSPECS_DELETED("nextexecutionspecs/DELETED"),
-    COMSCHEDULES_BEFORE_DELETE("comschedules/BEFORE_DELETE"),
     COMSCHEDULES_UPDATED("comschedules/UPDATED"),
+    COMSCHEDULES_DELETED("comschedules/DELETED"),
+    COMSCHEDULES_BEFORE_OBSOLETE("comschedules/BEFORE_OBSOLETE"),
+    COMSCHEDULES_OBSOLETED("comschedules/OBSOLETED"),
     COMTASK_WILL_BE_ADDED_TO_SCHEDULE("comschedules/COMTASK_WILL_BE_ADDED") {
         public EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
 //            return eventTypeBuilder.withProperty("comScheduleId", ValueType.LONG, "comScheduleId").withProperty("comTaskId", ValueType.LONG, "comTaskId");

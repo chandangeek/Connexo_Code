@@ -38,6 +38,8 @@ public interface ComSchedule extends HasId, DataCollectionConfiguration {
 
     public void delete();
 
+    public void makeObsolete();
+
     public UtcInstant getStartDate();
 
     public void setStartDate(UtcInstant startDate);

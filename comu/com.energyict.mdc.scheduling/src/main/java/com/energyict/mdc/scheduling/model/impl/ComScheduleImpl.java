@@ -5,6 +5,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.Global;
 import com.energyict.mdc.common.HasId;
@@ -12,6 +13,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.events.DeleteEventType;
+import com.energyict.mdc.scheduling.events.EventType;
 import com.energyict.mdc.scheduling.events.UpdateEventType;
 import com.energyict.mdc.scheduling.events.VetoComTaskAdditionException;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -39,6 +41,7 @@ import javax.validation.constraints.Size;
 @UniqueMRID(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}")
 public class ComScheduleImpl implements ComSchedule, HasId {
 
+    private final Clock clock;
     private final SchedulingService schedulingService;
     private final EventService eventService;
     private final DataModel dataModel;
@@ -49,6 +52,7 @@ public class ComScheduleImpl implements ComSchedule, HasId {
         NEXT_EXECUTION_SPEC("nextExecutionSpecs"),
         STATUS("schedulingStatus"),
         START_DATE("startDate"),
+        OBSOLETE_DATE("obsoleteDate"),
         MRID("mRID"),
         COM_TASK_IN_COM_SCHEDULE("comTaskUsages");
         private final String javaFieldName;
@@ -63,7 +67,8 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     }
 
     @Inject
-    public ComScheduleImpl(SchedulingService schedulingService, EventService eventService, DataModel dataModel, ComScheduleExceptionFactory comScheduleExceptionFactory) {
+    public ComScheduleImpl(Clock clock, SchedulingService schedulingService, EventService eventService, DataModel dataModel, ComScheduleExceptionFactory comScheduleExceptionFactory) {
+        this.clock = clock;
         this.schedulingService = schedulingService;
         this.eventService = eventService;
         this.dataModel = dataModel;
@@ -81,6 +86,7 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     private SchedulingStatus schedulingStatus;
     @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     private UtcInstant startDate;
+    private Date obsoleteDate;
 
     @Override
     public long getId() {
@@ -163,8 +169,16 @@ public class ComScheduleImpl implements ComSchedule, HasId {
 
     @Override
     public void delete() {
-        this.eventService.postEvent(DeleteEventType.COMSCHEDULES.topic(), this);
         this.dataModel.remove(this);
+        this.eventService.postEvent(DeleteEventType.COMSCHEDULES.topic(), this);
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.eventService.postEvent(EventType.COMSCHEDULES_BEFORE_OBSOLETE.topic(), this);
+        this.obsoleteDate = this.clock.now();
+        Save.UPDATE.save(this.dataModel, this, Save.Update.class);
+        this.eventService.postEvent(EventType.COMSCHEDULES_OBSOLETED.topic(), this);
     }
 
     @Override
