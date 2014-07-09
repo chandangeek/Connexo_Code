@@ -89,7 +89,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
                 return definition.create(thesaurus, props);
             }
         }
-        return null;
+        throw new IllegalArgumentException("Unsupported implementation " + implementation);
     }
 
     @Override
@@ -99,6 +99,6 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
                 return definition.createTemplate(thesaurus);
             }
         }
-        return null;
+        throw new IllegalArgumentException("Unsupported implementation " + implementation);
     }
 }
