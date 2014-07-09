@@ -8,7 +8,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pubsub.EventHandler;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -22,20 +21,16 @@ import javax.inject.Inject;
  * @since 2014-07-03 (14:27)
  */
 @Component(name="com.energyict.mdc.device.data.comschedule.obsolete.validator", service = TopicHandler.class, immediate = true)
-public class ComScheduleObsoleteValidator extends EventHandler<LocalEvent> {
+public class ComScheduleObsoleteValidator implements TopicHandler {
 
     static final String TOPIC = EventType.COMSCHEDULES_BEFORE_OBSOLETE.topic();
 
     private volatile ServerDeviceDataService deviceDataService;
     private volatile Thesaurus thesaurus;
 
-    public ComScheduleObsoleteValidator() {
-        super(LocalEvent.class);
-    }
-
     @Inject
     ComScheduleObsoleteValidator(ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
-        this();
+        super();
         this.deviceDataService = deviceDataService;
         this.thesaurus = thesaurus;
     }
@@ -46,11 +41,14 @@ public class ComScheduleObsoleteValidator extends EventHandler<LocalEvent> {
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... eventDetails) {
-        if (event.getType().getTopic().equals(TOPIC)) {
-            ComSchedule comSchedule = (ComSchedule) event.getSource();
-            this.validateNotUsedByDevice(comSchedule);
-        }
+    public String getTopicMatcher() {
+        return TOPIC;
+    }
+
+    @Override
+    public void handle(LocalEvent event) {
+        ComSchedule comSchedule = (ComSchedule) event.getSource();
+        this.validateNotUsedByDevice(comSchedule);
     }
 
     /**

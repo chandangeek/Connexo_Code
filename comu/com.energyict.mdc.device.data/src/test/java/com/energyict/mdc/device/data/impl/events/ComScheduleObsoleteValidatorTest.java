@@ -13,9 +13,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -56,7 +54,7 @@ public class ComScheduleObsoleteValidatorTest {
         when(this.deviceDataService.hasComTaskExecutions(this.comSchedule)).thenReturn(false);
 
         // Business method
-        this.eventHandler.onEvent(this.event);
+        this.eventHandler.handle(this.event);
 
         // Asserts
         verify(this.event).getSource();
@@ -68,26 +66,11 @@ public class ComScheduleObsoleteValidatorTest {
         when(this.deviceDataService.hasComTaskExecutions(this.comSchedule)).thenReturn(true);
 
         // Business method
-        this.eventHandler.onEvent(this.event);
+        this.eventHandler.handle(this.event);
 
         // Asserts
         verify(this.event).getSource();
         verify(this.deviceDataService).hasComTaskExecutions(this.comSchedule);
-    }
-
-    @Test
-    public void testOtherTopic() {
-        EventType eventType = mock(EventType.class);
-        when(eventType.getTopic()).thenReturn("Wrong topic");
-        when(this.event.getSource()).thenReturn(this.comSchedule);
-        when(this.event.getType()).thenReturn(eventType);
-
-        // Business method
-        this.eventHandler.onEvent(this.event);
-
-        // Asserts
-        verify(this.event, never()).getSource();
-        verifyZeroInteractions(this.deviceDataService);
     }
 
 }

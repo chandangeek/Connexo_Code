@@ -5,9 +5,9 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
 
 import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.EventHandler;
+import com.elster.jupiter.pubsub.Subscriber;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-09 (13:58)
  */
-@Component(name="com.energyict.mdc.device.data.delete.partialconnectiontask.eventhandler", service = TopicHandler.class, immediate = true)
+@Component(name="com.energyict.mdc.device.data.delete.partialconnectiontask.eventhandler", service = Subscriber.class, immediate = true)
 public class PartialConnectionTaskDeletionHandler extends EventHandler<LocalEvent> {
 
     static final Pattern TOPIC = Pattern.compile("com/energyict/mdc/device/config/partial(.*)connectiontask/VALIDATE_DELETE");

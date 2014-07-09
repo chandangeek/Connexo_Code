@@ -1,15 +1,16 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pubsub.EventHandler;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.impl.ServerDeviceDataService;
-import javax.inject.Inject;
+
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
 
 /**
  * Handles delete events that are being sent when a {@link ComTaskEnablement}
@@ -19,20 +20,16 @@ import org.osgi.service.component.annotations.Reference;
  * @since 2014-04-24 (11:51)
  */
 @Component(name="com.energyict.mdc.device.data.delete.comtaskenablement.eventhandler", service = TopicHandler.class, immediate = true)
-public class ComTaskEnablementDeletionHandler extends EventHandler<LocalEvent> {
+public class ComTaskEnablementDeletionHandler implements TopicHandler {
 
     static final String TOPIC = "com/energyict/mdc/device/config/comtaskenablement/VALIDATEDELETE";
 
     private volatile ServerDeviceDataService deviceDataService;
     private volatile Thesaurus thesaurus;
 
-    public ComTaskEnablementDeletionHandler() {
-        super(LocalEvent.class);
-    }
-
     @Inject
     ComTaskEnablementDeletionHandler (ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
-        this();
+        super();
         this.deviceDataService = deviceDataService;
         this.thesaurus = thesaurus;
     }
@@ -43,11 +40,14 @@ public class ComTaskEnablementDeletionHandler extends EventHandler<LocalEvent> {
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... eventDetails) {
-        if (event.getType().getTopic().equals(TOPIC)) {
-            ComTaskEnablement comTaskEnablement = (ComTaskEnablement) event.getSource();
-            this.validateNotUsedByDevice(comTaskEnablement);
-        }
+    public String getTopicMatcher() {
+        return TOPIC;
+    }
+
+    @Override
+    public void handle(LocalEvent event) {
+        ComTaskEnablement comTaskEnablement = (ComTaskEnablement) event.getSource();
+        this.validateNotUsedByDevice(comTaskEnablement);
     }
 
     /**

@@ -65,7 +65,7 @@ public class ComTaskEnablementDeletionHandlerTest {
         when(localEvent.getSource()).thenReturn(this.comTaskEnablement);
 
         // Business method
-        this.newHandler().onEvent(localEvent);
+        this.newHandler().handle(localEvent);
 
         // Asserts
         verify(this.deviceDataService).hasComTaskExecutions(this.comTaskEnablement);
@@ -81,7 +81,7 @@ public class ComTaskEnablementDeletionHandlerTest {
         when(this.deviceDataService.hasComTaskExecutions(this.comTaskEnablement)).thenReturn(true);
 
         // Business method
-        this.newHandler().onEvent(localEvent);
+        this.newHandler().handle(localEvent);
 
         // Asserts: see expected exception rule
     }
