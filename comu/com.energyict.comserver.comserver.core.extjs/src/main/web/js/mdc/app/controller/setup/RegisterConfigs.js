@@ -138,13 +138,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             me.getRegisterConfigValidationRulesStore().getProxy().extraParams =
                 ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: registerConfigs[0].getId()});
 
-            me.getRegisterConfigValidationRulesStore().load({
-                callback: function () {
-                    if (me.getRegisterConfigValidationRulesStore().count() > 0) {
-                        me.getRulesForRegisterConfigGrid().getSelectionModel().doSelect(0);
-                    }
-                }
-            });
+            me.getRulesForRegisterConfigGrid().down('pagingtoolbartop').totalCount = -1;
+            me.getRegisterConfigValidationRulesStore().load();
         }
     },
 
