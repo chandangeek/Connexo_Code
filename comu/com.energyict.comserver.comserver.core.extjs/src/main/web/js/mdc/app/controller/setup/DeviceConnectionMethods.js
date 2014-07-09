@@ -213,7 +213,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         } else {
             this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(false);
         }
-        this.getPropertiesController().showProperties(connectionMethod, this.getDeviceConnectionMethodEditView(), false);
+        this.getDeviceConnectionMethodEditView().down('property-form').loadRecord(connectionMethod);
     },
 
     showPropertiesAsInherited: function (connectionMethod) {
@@ -222,7 +222,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         } else {
             this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(false);
         }
-        this.getPropertiesController().showPropertiesAsInherited(connectionMethod, this.getDeviceConnectionMethodEditView(), false);
+        this.getDeviceConnectionMethodEditView().down('property-form').loadRecord(connectionMethod);
+        this.getDeviceConnectionMethodEditView().down('property-form').useInheritedValues();
+
+        //this.getPropertiesController().showPropertiesAsInherited(connectionMethod, this.getDeviceConnectionMethodEditView(), false);
     },
 
     selectDeviceConfigConnectionMethod: function (comboBox) {
@@ -314,7 +317,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 record.set('comWindowStart', 0);
                 record.set('comWindowEnd', 0);
             }
-            record.propertiesStore = this.getPropertiesController().updateProperties();
+            var propertyForm = me.getDeviceConnectionMethodEditView().down('property-form');
+            propertyForm.updateRecord(record);
+            record.propertiesStore = propertyForm.getRecord().properties();
             this.saveRecord(record);
 
         }
@@ -348,7 +353,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                         });
                     } else {
                         me.getDeviceConnectionMethodEditForm().getForm().markInvalid(json.errors);
-                        me.getPropertiesController().showErrors(json.errors);
+//                        me.getPropertiesController().showErrors(json.errors);
                     }
 
 
@@ -395,9 +400,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         }
     },
 
-    getPropertiesController: function () {
-        return this.getController('Mdc.controller.setup.Properties');
-    },
+//    getPropertiesController: function () {
+//        return this.getController('Mdc.controller.setup.Properties');
+//    },
 
     showDeviceConnectionMethodEditView: function (mrid, connectionMethodId) {
         this.mrid = mrid;
@@ -487,7 +492,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if (connectionMethod.get('connectionStrategy') === 'asSoonAsPossible' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('nextExecutionSpecs', null);
         }
-        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
+//        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
         connectionMethod.getProxy().extraParams = ({mrid: this.mrid});
         connectionMethod.save({
             callback: function () {
@@ -510,7 +515,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if (connectionMethod.get('connectionStrategy') === 'asSoonAsPossible' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('nextExecutionSpecs', null);
         }
-        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
+//        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
         //connectionMethod.propertiesStore = this.getPropertiesController().updateProperties();
         connectionMethod.getProxy().extraParams = ({mrid: this.mrid});
         connectionMethod.save({

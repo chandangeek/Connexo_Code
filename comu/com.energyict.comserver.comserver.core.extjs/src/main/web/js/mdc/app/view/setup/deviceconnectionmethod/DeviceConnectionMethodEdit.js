@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
         'Mdc.widget.ScheduleField',
         'Mdc.widget.TimeInSecondsField',
         'Mdc.widget.TimeInfoField',
-        'Mdc.view.setup.property.Edit'
+        'Mdc.view.setup.property.Edit',
+        'Uni.property.form.Property'
     ],
 
     isEdit: function () {
@@ -22,7 +23,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                 xtype: 'container',
                 layout: {
                     type: 'vbox'
-//                    align: 'stretch'
                 },
 
                 items: [
@@ -37,7 +37,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                         border: false,
                         itemId: 'deviceConnectionMethodEditForm',
                         width: 900,
-//                                padding: '10 10 0 10',
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
@@ -111,34 +110,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 },
                                 disabled: true
                             },
-//                            {
-//                                xtype: 'fieldcontainer',
-//                                itemId: 'rescheduleRetryDelayFieldContainer',
-//                                fieldLabel: Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
-//                                layout: {
-//                                    type: 'hbox',
-//                                    align: 'stretch'
-//                                },
-//                                disabled: true,
-//                                items: [
-//                                    {
-//                                        xtype: 'displayfield',
-//                                        value: Uni.I18n.translate('deviceconnectionmethod.retryEvery', 'MDC', 'Retry every'),
-//                                        margin: '0 5 0 0'
-//                                    },
-//                                    {
-//                                        xtype: 'timeInfoField',
-//                                        name: 'rescheduleRetryDelay',
-//                                        itemId: 'rescheduleRetryDelay',
-//                                        required: true,
-//                                        value: {
-//                                            count: 5,
-//                                            timeUnit: 'minutes'
-//                                        }
-//                                    }
-//                                ]
-//                            },
-
                             {
                                 xtype: 'fieldcontainer',
                                 itemId: 'comWindowField',
@@ -278,7 +249,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                         ]
                     },
                     {
-                        xtype: 'propertyEdit',
+                        xtype: 'property-form',
                         width: '100%'
                     },
 
@@ -339,7 +310,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
             } else if (this.direction === 'Inbound') {
                 this.down('#addEditButton').action = 'editDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
-//                this.down('#rescheduleRetryDelayFieldContainer').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
             }
@@ -350,7 +320,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
             } else if (this.direction === 'Inbound') {
                 this.down('#addEditButton').action = 'addDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);
-//                this.down('#rescheduleRetryDelayFieldContainer').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
             }
