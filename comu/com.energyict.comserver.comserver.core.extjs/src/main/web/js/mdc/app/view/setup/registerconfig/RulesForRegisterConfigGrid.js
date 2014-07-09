@@ -25,11 +25,12 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 header: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/validationrules/' + record.data.ruleSetId + '/ruleoverview/' + record.getId()  + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/validationrules/' + record.data.ruleSetId + '/ruleoverview/' + record.getId() + '">' + value + '</a>';
                 },
                 flex: 1
             },
-            { header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 0.3, sortable: false, fixed: true,
+            {
+                header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 0.3, sortable: false, fixed: true,
                 renderer: function (value) {
                     if (value) {
                         return Uni.I18n.translate('validation.active', 'CFG', 'Active')
@@ -60,14 +61,21 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 displayMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMsgRule', 'CFG', '{0} - {1} of {2} validation rules'),
                 displayMoreMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMoreMsgRule', 'CFG', '{0} - {1} of more than {2} validation rules'),
                 emptyMsg: Uni.I18n.translate('validation.pagingtoolbartop.emptyMsgRule', 'CFG', 'There are no validation rules to display')
-            }/*,
+            },
             {
                 xtype: 'pagingtoolbarbottom',
-                params: {deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId, registerConfig: me.registerConfigId},
+                params: {
+                    deviceType: me.deviceTypeId,
+                    deviceConfig: me.deviceConfigId,
+                    registerConfig: me.registerConfigId
+                },
+                pageSizeParam: 'limit2',
+                pageStartParam: 'start2',
+                deferLoading: true,
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.itemsPerPageRule', 'CFG', 'Validation rules per page'),
                 dock: 'bottom'
-            }  */
+            }
         ];
 
         me.callParent();
