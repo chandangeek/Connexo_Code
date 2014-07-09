@@ -45,9 +45,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
         this.setNlsService(nlsService);
         this.setClock(clock);
         this.activate();
-        if (!this.dataModel.isInstalled()) {
-            this.install();
-        }
+        this.install();
     }
 
     @Override
