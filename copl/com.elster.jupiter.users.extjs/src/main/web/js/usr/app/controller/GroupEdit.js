@@ -62,7 +62,7 @@ Ext.define('Usr.controller.GroupEdit', {
 
     showOverview: function (record, title) {
         var me = this,
-            widget = Ext.widget('groupEdit'),
+            widget = Ext.widget('groupEdit', {edit: (me.mode == 'edit')}),
             panel = widget.getCenterContainer().items.getAt(0);
 
         this.backUrl = this.getApplication().getController('Usr.controller.history.UserManagement').tokenizePreviousTokens();
