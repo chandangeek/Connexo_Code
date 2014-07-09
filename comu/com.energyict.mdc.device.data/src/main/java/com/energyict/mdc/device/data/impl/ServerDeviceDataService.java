@@ -59,6 +59,15 @@ public interface ServerDeviceDataService extends DeviceDataService {
     public boolean hasComTaskExecutions(ComSchedule comSchedule);
 
     /**
+     * Tests if the specified {@link PartialConnectionTask} is used
+     * by at least one {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
+     *
+     * @param partialConnectionTask The PartialConnectionTask
+     * @return A flag that indicates if the PartialConnectionTask is used or not
+     */
+    public boolean hasConnectionTasks(PartialConnectionTask partialConnectionTask);
+
+    /**
      * Disconnects all the executions of the specified {@link ComTask}
      * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
      * of the specified {@link DeviceConfiguration} from the

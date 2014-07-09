@@ -13,6 +13,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
+import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceFields;
@@ -611,7 +612,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
-    public Optional<ScheduledComTaskExecutionIdRange> getScheduledComTaskExecutionIdRange (long comScheduleId) {
+    public Optional<ScheduledComTaskExecutionIdRange> getScheduledComTaskExecutionIdRange(long comScheduleId) {
         try (PreparedStatement preparedStatement = this.getMinMaxComTaskExecutionIdPreparedStatement()) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 resultSet.first();  // There is always at least one row since we are counting
@@ -670,6 +671,13 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         Condition condition = where(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).isEqualTo(comSchedule).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         List<ComTaskExecution> comTaskExecutions = this.getDataModel().query(ComTaskExecution.class).select(condition, new Order[0], false, new String[0], 1, 1);
         return !comTaskExecutions.isEmpty();
+    }
+
+    @Override
+    public boolean hasConnectionTasks(PartialConnectionTask partialConnectionTask) {
+        Condition condition = where(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).isEqualTo(partialConnectionTask).and(where(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull());
+        List<ConnectionTask> connectionTasks = this.getDataModel().query(ConnectionTask.class).select(condition, new Order[0], false, new String[0], 1, 1);
+        return !connectionTasks.isEmpty();
     }
 
     @Override

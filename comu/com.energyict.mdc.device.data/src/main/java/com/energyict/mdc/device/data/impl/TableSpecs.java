@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
@@ -191,39 +192,63 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             // Common columns
-            table.column("DEVICE").number().conversion(NUMBER2LONG).map("deviceId").add();
+            table.column("DEVICE").number().conversion(NUMBER2LONG).map(ConnectionTaskFields.DEVICE.fieldName()).add();
             Column connectionMethod = table.column("CONNECTIONMETHOD").number().add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();
-            table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
-            table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map("isDefault").add();
-            table.column("STATUS").number().conversion(NUMBER2ENUM).map("status").add();
-            table.column("LASTCOMMUNICATIONSTART").number().conversion(NUMBERINUTCSECONDS2DATE).map("lastCommunicationStart").add();
-            table.column("LASTSUCCESSFULCOMMUNICATIONEND").conversion(NUMBERINUTCSECONDS2DATE).number().map("lastSuccessfulCommunicationEnd").add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map(ConnectionTaskFields.MODIFICATION_DATE.fieldName()).add();
+            table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).add();
+            table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.IS_DEFAULT.fieldName()).add();
+            table.column("STATUS").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.STATUS.fieldName()).add();
+            table.column("LASTCOMMUNICATIONSTART").number().conversion(NUMBERINUTCSECONDS2DATE).map(ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName()).add();
+            table.column("LASTSUCCESSFULCOMMUNICATIONEND").conversion(NUMBERINUTCSECONDS2DATE).number().map(ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName()).add();
             Column comServer = table.column("COMSERVER").number().add();
             Column comPortPool = table.column("COMPORTPOOL").number().add();
             Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
             // Common columns for sheduled connection tasks
-            table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map("currentRetryCount").add();
-            table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map("lastExecutionFailed").add();
+            table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map(ConnectionTaskFields.CURRENT_RETRY_COUNT.fieldName()).add();
+            table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.LAST_EXECUTION_FAILED.fieldName()).add();
             // ScheduledConnectionTaskImpl columns
             table.column("COMWINDOWSTART").number().conversion(NUMBER2INT).map("comWindow.start.millis").add();
             table.column("COMWINDOWEND").number().conversion(NUMBER2INT).map("comWindow.end.millis").add();
             Column nextExecutionSpecs = table.column("NEXTEXECUTIONSPECS").number().add();
-            table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("nextExecutionTimestamp").add();
-            table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map("plannedNextExecutionTimestamp").add();
-            table.column("CONNECTIONSTRATEGY").number().conversion(NUMBER2ENUM).map("connectionStrategy").add();
-            table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").add();
-            table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2BOOLEAN).map("allowSimultaneousConnections").add();
+            table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName()).add();
+            table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ConnectionTaskFields.PLANNED_NEXT_EXECUTION_TIMESTAMP.fieldName()).add();
+            table.column("CONNECTIONSTRATEGY").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.CONNECTION_STRATEGY.fieldName()).add();
+            table.column("PRIORITY").number().conversion(NUMBER2INT).map(ConnectionTaskFields.PRIORITY.fieldName()).add();
+            table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.ALLOW_SIMULTANEOUS_CONNECTIONS.fieldName()).add();
             Column initiator = table.column("INITIATOR").number().add();
             // InboundConnectionTaskImpl columns: none at this moment
             // ConnectionInitiationTaskImpl columns: none at this moment
             table.primaryKey("PK_DDC_CONNECTIONTASK").on(id).add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_METHOD").on(connectionMethod).references(DDC_CONNECTIONMETHOD.name()).map("connectionMethod").add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_CPP").on(comPortPool).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").map("comPortPool").add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_COMSRVER").on(comServer).references(EngineModelService.COMPONENT_NAME, "MDC_COMSERVER").map("comServer").add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_INITIATR").on(initiator).references(DDC_CONNECTIONTASK.name()).map("initiationTask").add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_NEXTEXEC").on(nextExecutionSpecs).references(SchedulingService.COMPONENT_NAME, "SCH_NEXTEXECUTIONSPEC").map("nextExecutionSpecs").add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_PARTIAL").on(partialConnectionTask).references(DeviceConfigurationService.COMPONENTNAME, "DTC_PARTIALCONNECTIONTASK").map("partialConnectionTask").add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_METHOD").
+                    on(connectionMethod).
+                    references(DDC_CONNECTIONMETHOD.name()).
+                    map("connectionMethod").
+                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_CPP").
+                    on(comPortPool).
+                    references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").
+                    map(ConnectionTaskFields.COM_PORT_POOL.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_COMSRVER").
+                    on(comServer).
+                    references(EngineModelService.COMPONENT_NAME, "MDC_COMSERVER").
+                    map(ConnectionTaskFields.COM_SERVER.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_INITIATR").
+                    on(initiator).
+                    references(DDC_CONNECTIONTASK.name()).
+                    map("initiationTask").
+                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_NEXTEXEC").
+                    on(nextExecutionSpecs).
+                    references(SchedulingService.COMPONENT_NAME, "SCH_NEXTEXECUTIONSPEC").
+                    map(ConnectionTaskFields.NEXT_EXECUTION_SPECS.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_PARTIAL").
+                    on(partialConnectionTask).
+                    references(DeviceConfigurationService.COMPONENTNAME, "DTC_PARTIALCONNECTIONTASK").
+                    map(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).
+                    add();
         }
     },
 

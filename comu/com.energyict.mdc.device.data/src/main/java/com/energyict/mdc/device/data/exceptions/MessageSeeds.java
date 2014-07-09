@@ -68,6 +68,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_COM_SCHEDULE_DELETION(2039, Constants.VETO_COM_SCHEDULE_DELETION, "The master schedule {0} is still used by at least one device", SEVERE),
     CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE(2040, Constants.CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE, "The master schedule {0} cannot be removed from device {1} because it was not configured on that device", SEVERE),
     DEVICE_CONFIGURATION_NOT_ACTIVE(2041, Constants.DEVICE_CONFIGURATION_NOT_ACTIVE, "The device configuration must be active", SEVERE),
+    VETO_PARTIAL_CONNECTION_TASK_DELETION(2042, Constants.VETO_PARTIAL_CONNECTION_TASK_DELETION, "The partial connection task {0} of device configuration {1} is still used by at least one connection task on a device of that configuration", SEVERE),
     ;
     private final int number;
     private final String key;
@@ -172,6 +173,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE = "DDC.comTaskExecutionCannotObsoleteCurrentlyExecuting";
         public static final String COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "DDC.comTaskExecutionCannotDeleteNotFromDevice";
         public static final String VETO_COM_TASK_ENABLEMENT_DELETION = "DDC.comTaskExecution.comTaskEnablement.inUse";
+        public static final String VETO_PARTIAL_CONNECTION_TASK_DELETION = "DDC.partialConnectionTask.inUse";
         public static final String VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES = "DDC.deviceConfiguration.inUse";
         public static final String CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT = "DDC.connectionTaskRequiredWhenNotUsingDefault";
         public static final String PRIORITY_NOT_IN_RANGE = "DDC.priorityNotInRange";
