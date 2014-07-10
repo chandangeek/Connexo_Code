@@ -16,6 +16,8 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
@@ -66,8 +68,14 @@ public class ComPortPoolResource {
         } else if (compatibleWithConnectionTask!= null){
             getComPortPoolsByConnectionTask(comPortPools, compatibleWithConnectionTask);
         } else {
-            comPortPools = engineModelService.findAllComPortPools();
+            comPortPools.addAll(engineModelService.findAllComPortPools());
         }
+        Collections.sort(comPortPools, new Comparator<ComPortPool>() {
+            @Override
+            public int compare(ComPortPool cpp1, ComPortPool cpp2) {
+                return cpp1.getName().compareToIgnoreCase(cpp2.getName());
+            }
+        });
         for (ComPortPool comPortPool : comPortPools) {
             comPortPoolInfos.add(ComPortPoolInfoFactory.asInfo(comPortPool, engineModelService));
         }
