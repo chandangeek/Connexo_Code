@@ -19,6 +19,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -77,6 +78,10 @@ class ThresholdValidator implements IValidator {
         this.readingType = readingType;
     }
 
+    @Override
+    public Map<Date, ValidationResult> finish() {
+        return Collections.emptyMap();
+    }
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {

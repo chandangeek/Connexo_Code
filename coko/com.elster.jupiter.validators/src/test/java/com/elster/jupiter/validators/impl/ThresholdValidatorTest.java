@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -213,6 +214,16 @@ public class ThresholdValidatorTest {
         assertThat(thresholdValidator.getPropertyDefaultFormat("minimum")).isEqualTo("Minimum");
         assertThat(thresholdValidator.getPropertyDefaultFormat("maximum")).isEqualTo("Maximum");
         assertThat(thresholdValidator.getPropertyDefaultFormat("notAProperty")).isNull();
+    }
+
+    @Test
+    public void testFinish() {
+        assertThat(thresholdValidator.finish()).isEmpty();
+    }
+
+    @Test
+    public void testGetReadingQualityTypeCode() {
+        assertThat(thresholdValidator.getReadingQualityTypeCode()).isAbsent();
     }
 
 }
