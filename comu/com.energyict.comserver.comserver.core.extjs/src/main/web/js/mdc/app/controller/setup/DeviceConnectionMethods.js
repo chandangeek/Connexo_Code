@@ -209,7 +209,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     showProperties: function (connectionMethod) {
         if (connectionMethod.propertiesStore.data.items.length > 0) {
-            this.getDeviceConnectionMethodEditView().down('#remove ').setVisible(true);
+            this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
         } else {
             this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(false);
         }
