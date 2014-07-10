@@ -454,6 +454,10 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
                         lastChecked = handleValidationResult(result, channel, lastChecked, existingReadingQualities, readingQualityType, readingRecord);
                     }
                 }
+                Map<Date, ValidationResult> finalValidationResults = validator.finish();
+                for (Map.Entry<Date, ValidationResult> entry : finalValidationResults.entrySet()) {
+                    lastChecked = handleValidationResult(entry.getValue(), channel, lastChecked, existingReadingQualities, readingQualityType, entry.getKey());
+                }
             }
         }
         return lastChecked;
@@ -461,7 +465,6 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQuality> existingReadingQualities,
                                         ReadingQualityType readingQualityType, BaseReadingRecord readingRecord) {
-        Date newLastChecked = lastChecked;
         Optional<ReadingQuality> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, readingRecord.getTimeStamp());
         if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
             saveNewReadingQuality(channel, readingRecord, readingQualityType);
@@ -469,9 +472,28 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         }
         if (ValidationResult.PASS.equals(result) && existingQualityForType.isPresent()) {
             existingQualityForType.get().delete();
+            existingReadingQualities.remove(readingRecord.getTimeStamp(), existingQualityForType);
         }
+        return determineLastChecked(result, lastChecked, readingRecord.getTimeStamp());
+    }
+
+    private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQuality> existingReadingQualities,
+                                        ReadingQualityType readingQualityType, Date timestamp) {
+        Optional<ReadingQuality> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, timestamp);
+        if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
+            saveNewReadingQuality(channel, timestamp, readingQualityType);
+        }
+        if (ValidationResult.PASS.equals(result) && existingQualityForType.isPresent()) {
+            existingQualityForType.get().delete();
+            existingReadingQualities.remove(timestamp, existingQualityForType);
+        }
+        return determineLastChecked(result, lastChecked, timestamp);
+    }
+
+    private Date determineLastChecked(ValidationResult result, Date lastChecked, Date timestamp) {
+        Date newLastChecked = lastChecked;
         if (!ValidationResult.SKIPPED.equals(result)) {
-            newLastChecked = lastChecked == null ? readingRecord.getTimeStamp() : Ordering.natural().max(lastChecked, readingRecord.getTimeStamp());
+            newLastChecked = lastChecked == null ? timestamp : Ordering.natural().max(lastChecked, timestamp);
         }
         return newLastChecked;
     }
@@ -501,6 +523,10 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         readingQuality.save();
     }
 
+    private void saveNewReadingQuality(Channel channel, Date timestamp, ReadingQualityType readingQualityType) {
+        ReadingQuality readingQuality = channel.createReadingQuality(readingQualityType, timestamp);
+        readingQuality.save();
+    }
 
     public String getDisplayName(String name) {
         return getValidator().getDisplayName(name);

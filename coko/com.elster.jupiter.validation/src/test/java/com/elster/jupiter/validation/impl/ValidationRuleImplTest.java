@@ -305,6 +305,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         verify(channel).createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord);
         verify(readingQuality).save();
         verify(intervalReadingRecord).setProcessingFlags(ProcesStatus.Flag.SUSPECT);
+        verify(validator).finish();
     }
 
     @Test
@@ -330,6 +331,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         verify(channel).createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord);
         verify(readingQuality).save();
         verify(readingRecord).setProcessingFlags(ProcesStatus.Flag.SUSPECT);
+        verify(validator).finish();
     }
 
     @Test
@@ -372,12 +374,15 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
         //
         assertThat(validationRule.validateChannel(channel, INTERVAL)).isEqualTo(DATE1);
+        verify(validator).init(channel, readingType1, INTERVAL);
         verify(validator).init(channel, readingType2, INTERVAL);
 
         // @Todo check with Karel if this is ok.
         verify(channel, times(2)).createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord);
         verify(readingQuality, times(2)).save();
         verify(readingRecord, times(2)).setProcessingFlags(ProcesStatus.Flag.SUSPECT);
+
+        verify(validator, times(2)).finish();
     }
 
 }
