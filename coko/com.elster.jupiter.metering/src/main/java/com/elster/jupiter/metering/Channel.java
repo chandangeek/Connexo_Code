@@ -17,12 +17,15 @@ public interface Channel {
     List<BaseReadingRecord> getReadings(Interval interval);
 	ReadingType getMainReadingType();
 	Optional<? extends ReadingType> getBulkQuantityReadingType();
+
     long getVersion();
+
     List<ReadingRecord> getRegisterReadings(ReadingType readingType, Interval interval);
     List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Interval interval);
     List<BaseReadingRecord> getReadings(ReadingType readingType, Interval interval);
     Optional<BaseReadingRecord> getReading(Date when);
     ReadingQuality createReadingQuality(ReadingQualityType type, BaseReadingRecord baseReadingRecord);
+    ReadingQuality createReadingQuality(ReadingQualityType type, Date timestamp);
 
     Optional<ReadingQuality> findReadingQuality(ReadingQualityType type, Date timestamp);
     List<ReadingQuality> findReadingQuality(ReadingQualityType type, Interval interval);

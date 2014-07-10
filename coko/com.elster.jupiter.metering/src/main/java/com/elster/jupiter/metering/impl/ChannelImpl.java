@@ -275,6 +275,11 @@ public final class ChannelImpl implements Channel {
     }
 
     @Override
+    public ReadingQuality createReadingQuality(ReadingQualityType type, Date timestamp) {
+        return ReadingQualityImpl.from(dataModel, type, this, timestamp);
+    }
+
+    @Override
     public long getVersion() {
         return version;
     }

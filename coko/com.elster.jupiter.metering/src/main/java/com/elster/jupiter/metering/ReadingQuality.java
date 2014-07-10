@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering;
 
+import com.google.common.base.Optional;
+
 import java.util.Date;
 
 public interface ReadingQuality {
@@ -16,7 +18,7 @@ public interface ReadingQuality {
 
     void setComment(String comment);
 
-    BaseReadingRecord getBaseReadingRecord();
+    Optional<BaseReadingRecord> getBaseReadingRecord();
 
     void save();
 

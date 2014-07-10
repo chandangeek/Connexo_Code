@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -21,7 +22,7 @@ public class ReadingQualityImpl implements ReadingQuality {
     private String typeCode;
 
     private transient ReadingQualityType type;
-    private transient BaseReadingRecord baseReadingRecord;
+    private transient Optional<BaseReadingRecord> baseReadingRecord;
     private transient Channel channel;
 
     private long version;
@@ -45,8 +46,17 @@ public class ReadingQualityImpl implements ReadingQuality {
     ReadingQualityImpl init(ReadingQualityType type, Channel channel, BaseReadingRecord baseReadingRecord) {
         this.channel = channel;
         this.channelId = channel.getId();
-        this.baseReadingRecord = baseReadingRecord;
+        this.baseReadingRecord = Optional.of(baseReadingRecord);
         readingTimestamp = new UtcInstant(baseReadingRecord.getTimeStamp());
+        this.type = type;
+        this.typeCode = type.getCode();
+        return this;
+    }
+
+    ReadingQualityImpl init(ReadingQualityType type, Channel channel, Date timestamp) {
+        this.channel = channel;
+        this.channelId = channel.getId();
+        readingTimestamp = new UtcInstant(timestamp);
         this.type = type;
         this.typeCode = type.getCode();
         return this;
@@ -54,6 +64,10 @@ public class ReadingQualityImpl implements ReadingQuality {
 
     static ReadingQualityImpl from(DataModel dataModel, ReadingQualityType type, Channel channel, BaseReadingRecord baseReadingRecord) {
         return dataModel.getInstance(ReadingQualityImpl.class).init(type, channel, baseReadingRecord);
+    }
+
+    static ReadingQualityImpl from(DataModel dataModel, ReadingQualityType type, Channel channel, Date timestamp) {
+        return dataModel.getInstance(ReadingQualityImpl.class).init(type, channel, timestamp);
     }
 
     @Override
@@ -93,9 +107,9 @@ public class ReadingQualityImpl implements ReadingQuality {
     }
 
     @Override
-    public BaseReadingRecord getBaseReadingRecord() {
+    public Optional<BaseReadingRecord> getBaseReadingRecord() {
         if (baseReadingRecord == null) {
-            baseReadingRecord = getChannel().getReading(getReadingTimestamp()).get();
+            baseReadingRecord = getChannel().getReading(getReadingTimestamp());
         }
         return baseReadingRecord;
     }
