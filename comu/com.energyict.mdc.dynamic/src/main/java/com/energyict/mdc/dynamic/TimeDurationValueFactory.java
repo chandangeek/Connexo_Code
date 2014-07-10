@@ -1,8 +1,10 @@
 package com.energyict.mdc.dynamic;
 
 import com.elster.jupiter.properties.AbstractValueFactory;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.TimeDuration;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -73,4 +75,25 @@ public class TimeDurationValueFactory extends AbstractValueFactory<TimeDuration>
         return getObjectFromValue(object);
     }
 
+
+    @Override
+    public void bind(SqlBuilder builder, TimeDuration value) {
+        if (value != null) {
+            builder.addObject(valueToDatabase(value));
+        }
+        else {
+            builder.addNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, TimeDuration value) throws SQLException {
+
+        if (value != null) {
+            statement.setObject(offset, valueToDatabase(value));
+        }
+        else {
+            statement.setNull(offset, this.getJdbcType());
+        }
+    }
 }
