@@ -21,14 +21,14 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.protocolimpl.generic.EncryptionStatus;
-import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.generic.EncryptionStatus;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 
@@ -152,7 +152,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
             if (this.protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) != -1) {
                 validRegisters.add(register);
             } else {
-                this.protocol.getLogger().severe(register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
+                this.protocol.getLogger().severe("Register " + register.getObisCode() + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validRegisters;

@@ -162,7 +162,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             if (protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) != -1) {
                 validRegisters.add(register);
             } else {
-                protocol.getLogger().severe(register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
+                protocol.getLogger().severe("Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validRegisters;
