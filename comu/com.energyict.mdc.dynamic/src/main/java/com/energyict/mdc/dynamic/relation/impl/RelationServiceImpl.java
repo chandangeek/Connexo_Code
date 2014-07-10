@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.common.BusinessObject;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
@@ -29,12 +30,14 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-17 (10:28)
  */
-@Component(name="com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class}, property = "name=" + RelationService.COMPONENT_NAME)
+@Component(name="com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class}, property = "name=" + RelationService.COMPONENT_NAME, immediate = true)
 public class RelationServiceImpl implements RelationService, ServiceLocator, InstallService {
 
     private volatile DataModel dataModel;
     private volatile OrmClient ormClient;
     private volatile Thesaurus thesaurus;
+    private volatile Environment environment;
+
     private volatile PropertySpecService propertySpecService;
 
     public RelationServiceImpl() {
@@ -42,10 +45,11 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     }
 
     @Inject
-    public RelationServiceImpl(OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService) {
+    public RelationServiceImpl(OrmService ormService, NlsService nlsService, Environment environment, PropertySpecService propertySpecService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
+        this.setEnvironment(environment);
         this.setPropertySpecService(propertySpecService);
         this.activate();
         this.install();
@@ -60,6 +64,11 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
                 bind(PropertySpecService.class).toInstance(propertySpecService);
             }
         };
+    }
+
+    @Reference
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     @Reference
