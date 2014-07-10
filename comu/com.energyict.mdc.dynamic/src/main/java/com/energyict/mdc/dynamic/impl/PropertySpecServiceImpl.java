@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -124,7 +125,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
                 }
             }
         }
-        throw new RuntimeException("No finder component registered for factory " + factoryId.name());
+        throw new NoFinderComponentFoundException(factoryId);
     }
 
     @Override
@@ -132,10 +133,12 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return PropertySpecBuilderImpl.forClass(valueFactory);
     }
 
+    @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        this.validateUnique(factoryProvider);
-        this.factoryProviders.add(factoryProvider);
+        if(this.validateUnique(factoryProvider)){
+            this.factoryProviders.add(factoryProvider);
+        }
     }
     
     @Reference
@@ -143,13 +146,15 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         this.basicPropertySpecService = propertySpecService;
     }
 
-    private void validateUnique(ReferencePropertySpecFinderProvider factoryProvider) {
+    private boolean validateUnique(ReferencePropertySpecFinderProvider factoryProvider) {
         Set<FactoryIds> existingFactoryIds = this.existingFactoryIds();
         for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
             if (existingFactoryIds.contains(finder.factoryId())) {
-                LOGGER.severe("Factory " + finder.factoryId().name() + " already registered, ignoring ReferencePropertySpecFinderProvider " + factoryProvider.toString());
+                LOGGER.warning("Factory " + finder.factoryId().name() + " already registered, ignoring ReferencePropertySpecFinderProvider " + factoryProvider.toString());
+                return false;
             }
         }
+        return true;
     }
 
     private Set<FactoryIds> existingFactoryIds() {

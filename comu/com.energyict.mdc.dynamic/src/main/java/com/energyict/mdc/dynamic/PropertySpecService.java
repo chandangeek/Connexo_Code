@@ -42,4 +42,5 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      */
     public PropertySpec referencePropertySpec (String name, boolean required, FactoryIds factoryId);
 
+    void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
 }
