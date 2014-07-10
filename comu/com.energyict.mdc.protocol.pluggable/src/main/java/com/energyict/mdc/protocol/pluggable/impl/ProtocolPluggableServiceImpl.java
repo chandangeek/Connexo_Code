@@ -150,9 +150,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setLicenseService(licenseService);
         this.addLicensedProtocolService(licensedProtocolService);
         this.activate();
-        if (!this.dataModel.isInstalled()) {
-            this.install();
-        }
+        this.install();
     }
 
     class NoServiceFoundThatCanLoadTheJavaClass extends RuntimeException {
