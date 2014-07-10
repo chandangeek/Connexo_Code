@@ -2,9 +2,11 @@ package com.energyict.mdc.engine.impl.cache;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.pubsub.EventHandler;
-import com.elster.jupiter.pubsub.Subscriber;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.engine.EngineService;
+import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Copyrights EnergyICT
@@ -12,18 +14,26 @@ import org.osgi.service.component.annotations.Component;
  * Time: 08:56
  */
 @Component(name = "com.energyict.mdc.engine.impl.cache.DeviceDeleteMustDeleteCacheEventHandler", service = TopicHandler.class, immediate = true)
-public class DeviceDeleteMustDeleteCacheEventHandler extends EventHandler<LocalEvent> {
+public class DeviceDeleteMustDeleteCacheEventHandler implements TopicHandler {
 
-    public DeviceDeleteMustDeleteCacheEventHandler() {
-        super(LocalEvent.class);
-    }
-
-    protected DeviceDeleteMustDeleteCacheEventHandler(Class<LocalEvent> eventType) {
-        super(eventType);
+    @Override
+    public void handle(LocalEvent localEvent) {
+        Device source = (Device) localEvent.getSource();
+        Optional<DeviceCache> deviceCacheByDevice = engineService.findDeviceCacheByDevice(source);
+        if(deviceCacheByDevice.isPresent()){
+            deviceCacheByDevice.get().delete();
+        }
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... eventDetails) {
+    public String getTopicMatcher() {
+        return "com/energyict/mdc/device/data/device/DELETED";
+    }
 
+    private volatile EngineService engineService;
+
+    @Reference
+    public void setEngineService(EngineService engineService) {
+        this.engineService = engineService;
     }
 }
