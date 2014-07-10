@@ -327,6 +327,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         deleteComTaskExecutions();
         deleteConnectionTasks();
         // TODO delete messages
+        // TODO delete security properties
         this.getDataMapper().remove(this);
     }
 
