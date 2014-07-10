@@ -230,9 +230,14 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     showWarning: function (communicationSchedule) {
         var me = this;
-
+        var msg = '';
+        if(communicationSchedule.get('isInUse')){
+            msg = Uni.I18n.translate('communicationschedule.deleteInUseCommunicationSchedule', 'MDC', 'This schedule will no longer be available here and on the devices it has been added to. If this schedule is still running, it will be deleted after data collection is complete.');
+        } else {
+           msg = Uni.I18n.translate('communicationschedule.deleteCommunicationSchedule', 'MDC', 'This schedule will no longer be available.');
+        }
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('communicationschedule.deleteCommunicationSchedule', 'MDC', 'This schedule will no longer be available.'),
+            msg: msg,
             title: Uni.I18n.translate('communicationschedule.delete', 'MDC', 'Remove') + ' ' + communicationSchedule.get('name') + '?',
             config: {
                 communicationScheduleToDelete: communicationSchedule,
