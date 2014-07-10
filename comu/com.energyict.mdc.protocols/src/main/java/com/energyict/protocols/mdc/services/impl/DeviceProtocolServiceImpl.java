@@ -51,9 +51,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.setIssueService(issueService);
         this.setClock(clock);
         this.activate();
-        if (!this.dataModel.isInstalled()) {
-            this.install();
-        }
+        this.install();
     }
 
     private Module getModule() {
