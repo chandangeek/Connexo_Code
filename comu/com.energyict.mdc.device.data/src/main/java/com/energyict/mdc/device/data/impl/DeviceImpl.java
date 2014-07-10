@@ -317,11 +317,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private void notifyDeviceIsGoingToBeDeleted() {
-        // todo create event instead!
-        List<DeviceDependant> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class);
-        for (DeviceDependant deviceDependant : modulesImplementing) {
-            deviceDependant.notifyDeviceDelete(this);
-        }
+        this.eventService.postEvent(EventType.DEVICE_BEFORE_DELETE.topic(), this);
     }
 
     private void doDelete() {
@@ -370,7 +366,6 @@ public class DeviceImpl implements Device, PersistenceAware {
         List<Device> communicationReferencingDevices = getCommunicationReferencingDevices();
         if (!communicationReferencingDevices.isEmpty()) {
             throw StillGatewayException.forCommunicationGateway(thesaurus, this, communicationReferencingDevices.toArray(new Device[communicationReferencingDevices.size()]));
-
         }
     }
 
