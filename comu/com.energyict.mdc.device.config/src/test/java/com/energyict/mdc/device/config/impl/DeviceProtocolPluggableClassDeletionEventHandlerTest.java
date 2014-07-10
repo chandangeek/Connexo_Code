@@ -1,24 +1,25 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.exceptions.VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.exceptions.VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,27 +51,11 @@ public class DeviceProtocolPluggableClassDeletionEventHandlerTest {
     }
 
     @Test
-    public void handlerDoesNotRespondToNonDeleteEvents () {
-        LocalEvent event = mock(LocalEvent.class);
-        EventType eventType = mock(EventType.class);
-        when(eventType.getTopic()).thenReturn("handlerDoesNotRespondToNonDeleteEvents");
-        when(event.getType()).thenReturn(eventType);
-
-        // Business method
-        this.newTestHandler().onEvent(event);
-
-        // Asserts
-        verify(event).getType();
-        verify(eventType).getTopic();
-        verify(event, never()).getSource();
-    }
-
-    @Test
     public void testDeleteEventForDeviceProtocolPluggableClassThatIsNotUsed () {
         LocalEvent event = this.mockDeleteEvent(this.deviceProtocolPluggableClass);
 
         // Business method
-        this.newTestHandler().onEvent(event);
+        this.newTestHandler().handle(event);
 
         // Asserts
         verify(event).getSource();
@@ -86,7 +71,7 @@ public class DeviceProtocolPluggableClassDeletionEventHandlerTest {
         LocalEvent event = this.mockDeleteEvent(this.deviceProtocolPluggableClass);
 
         // Business method
-        this.newTestHandler().onEvent(event);
+        this.newTestHandler().handle(event);
 
         // Asserts: expected VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException
     }

@@ -1,16 +1,16 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pubsub.EventHandler;
-import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.LoadProfileType;
+
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -27,29 +27,28 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-15 (17:02)
  */
-@Component(name="com.energyict.mdc.device.config.loadprofiletype.delete.eventhandler", service = Subscriber.class, immediate = true)
-public class LoadProfileTypeDeletionEventHandler extends EventHandler<LocalEvent> {
+@Component(name="com.energyict.mdc.device.config.loadprofiletype.delete.eventhandler", service = TopicHandler.class, immediate = true)
+public class LoadProfileTypeDeletionEventHandler implements TopicHandler {
 
     private static final String TOPIC = "com/energyict/mdc/masterdata/loadprofiletype/VALIDATEDELETE";
 
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public LoadProfileTypeDeletionEventHandler() {
-        super(LocalEvent.class);
-    }
-
     public LoadProfileTypeDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
-        this();
+        super();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... objects) {
-        if (event.getType().getTopic().equals(TOPIC)) {
-            LoadProfileType loadProfileType = (LoadProfileType) event.getSource();
-            this.validateDelete(loadProfileType);
-        }
+    public String getTopicMatcher() {
+        return TOPIC;
+    }
+
+    @Override
+    public void handle(LocalEvent event) {
+        LoadProfileType loadProfileType = (LoadProfileType) event.getSource();
+        this.validateDelete(loadProfileType);
     }
 
     private void validateDelete(LoadProfileType loadProfileType) {

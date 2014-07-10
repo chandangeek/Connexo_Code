@@ -1,17 +1,17 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pubsub.EventHandler;
-import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.RegisterMapping;
+
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -30,31 +30,30 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-15 (16:35)
  */
-@Component(name="com.energyict.mdc.device.config.registermapping.delete.eventhandler", service = Subscriber.class, immediate = true)
-public class RegisterMappingDeletionEventHandler extends EventHandler<LocalEvent> {
+@Component(name="com.energyict.mdc.device.config.registermapping.delete.eventhandler", service = TopicHandler.class, immediate = true)
+public class RegisterMappingDeletionEventHandler implements TopicHandler {
 
     private static final String TOPIC = "com/energyict/mdc/masterdata/registermapping/VALIDATEDELETE";
 
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public RegisterMappingDeletionEventHandler() {
-        super(LocalEvent.class);
-    }
-
     public RegisterMappingDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
-        this();
+        super();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... objects) {
-        if (event.getType().getTopic().equals(TOPIC)) {
-            RegisterMapping registerMapping = (RegisterMapping) event.getSource();
-            this.validateNotUsedByRegisterSpecs(registerMapping);
-            this.validateNotUsedByChannelSpecs(registerMapping);
-            this.validateNotUsedByDeviceTypes(registerMapping);
-        }
+    public String getTopicMatcher() {
+        return TOPIC;
+    }
+
+    @Override
+    public void handle(LocalEvent event) {
+        RegisterMapping registerMapping = (RegisterMapping) event.getSource();
+        this.validateNotUsedByRegisterSpecs(registerMapping);
+        this.validateNotUsedByChannelSpecs(registerMapping);
+        this.validateNotUsedByDeviceTypes(registerMapping);
     }
 
     private void validateNotUsedByRegisterSpecs(RegisterMapping registerMapping) {

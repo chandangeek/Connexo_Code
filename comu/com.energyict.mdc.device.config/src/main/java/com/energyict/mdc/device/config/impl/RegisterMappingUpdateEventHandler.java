@@ -1,11 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pubsub.EventHandler;
-import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -14,6 +8,12 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdatePhenomenonWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.masterdata.RegisterMapping;
+
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
@@ -35,35 +35,34 @@ import static com.elster.jupiter.util.Checks.is;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-15 (15:22)
  */
-@Component(name="com.energyict.mdc.device.config.registermapping.update.eventhandler", service = Subscriber.class, immediate = true)
-public class RegisterMappingUpdateEventHandler extends EventHandler<LocalEvent> {
+@Component(name="com.energyict.mdc.device.config.registermapping.update.eventhandler", service = TopicHandler.class, immediate = true)
+public class RegisterMappingUpdateEventHandler implements TopicHandler {
 
     private static final String TOPIC = "com/energyict/mdc/masterdata/registermapping/UPDATED";
 
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public RegisterMappingUpdateEventHandler() {
-        super(LocalEvent.class);
-    }
-
     public RegisterMappingUpdateEventHandler(DeviceConfigurationService deviceConfigurationService) {
-        this();
+        super();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... objects) {
-        if (event.getType().getTopic().equals(TOPIC)) {
-            RegisterMapping registerMapping = (RegisterMapping) event.getSource();
-            this.validateDeviceConfigurations(registerMapping);
-            if (this.isUsed(registerMapping)) {
-                if (this.obisCodeChanged(event, registerMapping)) {
-                    throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.thesaurus, registerMapping);
-                }
-                if (this.phenomenonChanged(event, registerMapping)) {
-                    throw new CannotUpdatePhenomenonWhenRegisterMappingIsInUseException(this.thesaurus, registerMapping);
-                }
+    public String getTopicMatcher() {
+        return TOPIC;
+    }
+
+    @Override
+    public void handle(LocalEvent event) {
+        RegisterMapping registerMapping = (RegisterMapping) event.getSource();
+        this.validateDeviceConfigurations(registerMapping);
+        if (this.isUsed(registerMapping)) {
+            if (this.obisCodeChanged(event, registerMapping)) {
+                throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.thesaurus, registerMapping);
+            }
+            if (this.phenomenonChanged(event, registerMapping)) {
+                throw new CannotUpdatePhenomenonWhenRegisterMappingIsInUseException(this.thesaurus, registerMapping);
             }
         }
     }

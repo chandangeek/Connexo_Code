@@ -1,17 +1,17 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pubsub.EventHandler;
-import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadProfileTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException;
 import com.energyict.mdc.masterdata.LoadProfileType;
+
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
@@ -33,35 +33,34 @@ import static com.elster.jupiter.util.Checks.is;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-15 (17:02)
  */
-@Component(name="com.energyict.mdc.device.config.loadprofiletype.update.eventhandler", service = Subscriber.class, immediate = true)
-public class LoadProfileTypeUpdateEventHandler extends EventHandler<LocalEvent> {
+@Component(name="com.energyict.mdc.device.config.loadprofiletype.update.eventhandler", service = TopicHandler.class, immediate = true)
+public class LoadProfileTypeUpdateEventHandler implements TopicHandler {
 
     private static final String TOPIC = "com/energyict/mdc/masterdata/loadprofiletype/UPDATED";
 
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public LoadProfileTypeUpdateEventHandler() {
-        super(LocalEvent.class);
-    }
-
     public LoadProfileTypeUpdateEventHandler(DeviceConfigurationService deviceConfigurationService) {
-        this();
+        super();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... objects) {
-        if (event.getType().getTopic().equals(TOPIC)) {
-            LoadProfileType loadProfileType = (LoadProfileType) event.getSource();
-            this.validateDeviceConfigurations(loadProfileType);
-            if (this.isUsed(loadProfileType)) {
-                if (this.obisCodeChanged(event, loadProfileType)) {
-                    throw new CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(this.thesaurus, loadProfileType);
-                }
-                if (this.intervalChanged(event, loadProfileType)) {
-                    throw new CannotUpdateIntervalWhenLoadProfileTypeIsInUseException(this.thesaurus, loadProfileType);
-                }
+    public String getTopicMatcher() {
+        return TOPIC;
+    }
+
+    @Override
+    public void handle(LocalEvent event) {
+        LoadProfileType loadProfileType = (LoadProfileType) event.getSource();
+        this.validateDeviceConfigurations(loadProfileType);
+        if (this.isUsed(loadProfileType)) {
+            if (this.obisCodeChanged(event, loadProfileType)) {
+                throw new CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(this.thesaurus, loadProfileType);
+            }
+            if (this.intervalChanged(event, loadProfileType)) {
+                throw new CannotUpdateIntervalWhenLoadProfileTypeIsInUseException(this.thesaurus, loadProfileType);
             }
         }
     }

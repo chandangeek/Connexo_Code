@@ -1,14 +1,14 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pubsub.EventHandler;
-import com.elster.jupiter.pubsub.Subscriber;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
 import com.energyict.mdc.masterdata.LogBookType;
+
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.Checks;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -24,8 +24,8 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-14 (10:44)
  */
-@Component(name="com.energyict.mdc.masterdata.update.logbooktype.eventhandler", service = Subscriber.class, immediate = true)
-public class LogBookTypeUpdateEventHandler extends EventHandler<LocalEvent> {
+@Component(name="com.energyict.mdc.masterdata.update.logbooktype.eventhandler", service = TopicHandler.class, immediate = true)
+public class LogBookTypeUpdateEventHandler implements TopicHandler {
 
     static final String TOPIC = "com/energyict/mdc/masterdata/logbooktype/UPDATED";
     static final String OLD_OBIS_CODE_PROPERTY_NAME = "oldObisCode";
@@ -34,7 +34,7 @@ public class LogBookTypeUpdateEventHandler extends EventHandler<LocalEvent> {
     private Thesaurus thesaurus;
 
     public LogBookTypeUpdateEventHandler() {
-        super(LocalEvent.class);
+        super();
     }
 
     public LogBookTypeUpdateEventHandler(DeviceConfigurationService deviceConfigurationService) {
@@ -43,15 +43,14 @@ public class LogBookTypeUpdateEventHandler extends EventHandler<LocalEvent> {
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... eventDetails) {
-        if (event.getType().getTopic().equals(TOPIC)) {
-            this.handle(event);
-        }
+    public String getTopicMatcher() {
+        return TOPIC;
     }
 
-    private void handle(LocalEvent localEvent) {
-        LogBookType logBookType = (LogBookType) localEvent.getSource();
-        this.validateObisCodeChange(logBookType, localEvent);
+    @Override
+    public void handle(LocalEvent event) {
+        LogBookType logBookType = (LogBookType) event.getSource();
+        this.validateObisCodeChange(logBookType, event);
         this.validateUpdateLogBookTypeOnDeviceConfigurations(logBookType);
     }
 

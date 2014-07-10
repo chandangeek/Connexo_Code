@@ -1,17 +1,17 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pubsub.EventHandler;
-import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeRegisterMappingUsage;
 import com.energyict.mdc.masterdata.RegisterMapping;
+
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -28,29 +28,28 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-15 (17:44)
  */
-@Component(name="com.energyict.mdc.device.config.registermapping.in.loadprofiletype.delete.eventhandler", service = Subscriber.class, immediate = true)
-public class RegisterMappingDeleteFromLoadProfileTypeEventHandler extends EventHandler<LocalEvent> {
+@Component(name="com.energyict.mdc.device.config.registermapping.in.loadprofiletype.delete.eventhandler", service = TopicHandler.class, immediate = true)
+public class RegisterMappingDeleteFromLoadProfileTypeEventHandler implements TopicHandler {
 
     private static final String TOPIC = "com/energyict/mdc/masterdata/registermappinginloadprofiletype/VALIDATEDELETE";
 
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public RegisterMappingDeleteFromLoadProfileTypeEventHandler() {
-        super(LocalEvent.class);
-    }
-
     public RegisterMappingDeleteFromLoadProfileTypeEventHandler(DeviceConfigurationService deviceConfigurationService) {
-        this();
+        super();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... objects) {
-        if (event.getType().getTopic().equals(TOPIC)) {
-            LoadProfileTypeRegisterMappingUsage registerMappingUsage = (LoadProfileTypeRegisterMappingUsage) event.getSource();
-            this.validateNoChannelSpecForRegisterMapping(registerMappingUsage);
-        }
+    public String getTopicMatcher() {
+        return TOPIC;
+    }
+
+    @Override
+    public void handle(LocalEvent event) {
+        LoadProfileTypeRegisterMappingUsage registerMappingUsage = (LoadProfileTypeRegisterMappingUsage) event.getSource();
+        this.validateNoChannelSpecForRegisterMapping(registerMappingUsage);
     }
 
     private void validateNoChannelSpecForRegisterMapping(LoadProfileTypeRegisterMappingUsage registerMappingUsage) {

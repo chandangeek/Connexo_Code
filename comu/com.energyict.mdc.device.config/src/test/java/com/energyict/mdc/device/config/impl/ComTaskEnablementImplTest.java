@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -18,15 +14,22 @@ import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
 
 import java.util.List;
 
+import org.junit.*;
+import org.mockito.ArgumentCaptor;
+
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ComTaskEnablementImpl} component.
@@ -51,7 +54,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     private static final TemporalExpression EVERY_DAY_AT_3AM = new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(3));
     private static final String DEVICE_TYPE_NAME = ComTaskEnablementImplTest.class.getSimpleName() + "Type";
 
-    private Subscriber subscriber;
+    private TopicHandler topicHandler;
     private ConnectionTypePluggableClass noParamsConnectionTypePluggableClass;
     private DeviceType deviceType;
     private ComTask comTask1;
@@ -127,15 +130,15 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     }
 
     private void registerSubscriber() {
-        this.subscriber = mock(Subscriber.class);
-        when(this.subscriber.getClasses()).thenReturn(new Class[]{LocalEvent.class});
-        inMemoryPersistence.registerSubscriber(this.subscriber);
+        this.topicHandler = mock(TopicHandler.class);
+        when(this.topicHandler.getTopicMatcher()).thenReturn("*");
+        inMemoryPersistence.registerTopicHandler(this.topicHandler);
     }
 
     @After
     public void unregisterSubscriberIfAny () {
-        if (this.subscriber != null) {
-            inMemoryPersistence.unregisterSubscriber(this.subscriber);
+        if (this.topicHandler != null) {
+            inMemoryPersistence.unregisterSubscriber(this.topicHandler);
         }
     }
 
@@ -400,7 +403,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
         // Asserts
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
-        verify(this.subscriber, times(2)).handle(eventArgumentCaptor.capture());
+        verify(this.topicHandler, times(2)).handle(eventArgumentCaptor.capture());
         List<LocalEvent> localEvents = eventArgumentCaptor.getAllValues();
         assertThat(localEvents.get(0).getSource()).isInstanceOf(SwitchFromDefaultConnectionToPartialConnectionTaskEventData.class);
         SwitchFromDefaultConnectionToPartialConnectionTaskEventData eventData = (SwitchFromDefaultConnectionToPartialConnectionTaskEventData) localEvents.get(0).getSource();
@@ -430,7 +433,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
         // Asserts
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
-        verify(this.subscriber, times(2)).handle(eventArgumentCaptor.capture());
+        verify(this.topicHandler, times(2)).handle(eventArgumentCaptor.capture());
         List<LocalEvent> localEvents = eventArgumentCaptor.getAllValues();
         assertThat(localEvents.get(0).getSource()).isInstanceOf(SwitchOffUsingDefaultConnectionEventData.class);
         assertThat(localEvents.get(1).getSource()).isEqualTo(comTaskEnablement);
@@ -458,7 +461,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
         // Asserts
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
-        verify(this.subscriber, times(2)).handle(eventArgumentCaptor.capture());
+        verify(this.topicHandler, times(2)).handle(eventArgumentCaptor.capture());
         List<LocalEvent> localEvents = eventArgumentCaptor.getAllValues();
         assertThat(localEvents.get(0).getSource()).isInstanceOf(SwitchOnUsingDefaultConnectionEventData.class);
         assertThat(localEvents.get(1).getSource()).isEqualTo(comTaskEnablement);
@@ -486,7 +489,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
         // Asserts
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
-        verify(this.subscriber, times(2)).handle(eventArgumentCaptor.capture());    //Once for the connection strategy change and once for the update of the object itself
+        verify(this.topicHandler, times(2)).handle(eventArgumentCaptor.capture());    //Once for the connection strategy change and once for the update of the object itself
         List<LocalEvent> localEvents = eventArgumentCaptor.getAllValues();
         assertThat(localEvents.get(0).getSource()).isInstanceOf(SwitchFromPartialConnectionTaskToDefaultConnectionEventData.class);
         SwitchFromPartialConnectionTaskToDefaultConnectionEventData eventData = (SwitchFromPartialConnectionTaskToDefaultConnectionEventData) localEvents.get(0).getSource();
@@ -516,7 +519,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
         // Asserts
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
-        verify(this.subscriber, times(2)).handle(eventArgumentCaptor.capture());    //Once for the connection strategy change and once for the update of the object itself
+        verify(this.topicHandler, times(2)).handle(eventArgumentCaptor.capture());    //Once for the connection strategy change and once for the update of the object itself
         List<LocalEvent> localEvents = eventArgumentCaptor.getAllValues();
         assertThat(localEvents.get(0).getSource()).isInstanceOf(RemovePartialConnectionTaskEventData.class);
         RemovePartialConnectionTaskEventData eventData = (RemovePartialConnectionTaskEventData) localEvents.get(0).getSource();
@@ -561,7 +564,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
         // Asserts
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
-        verify(this.subscriber, times(2)).handle(eventArgumentCaptor.capture());
+        verify(this.topicHandler, times(2)).handle(eventArgumentCaptor.capture());
         List<LocalEvent> localEvents = eventArgumentCaptor.getAllValues();
         assertThat(localEvents.get(0).getSource()).isInstanceOf(SwitchBetweenPartialConnectionTasksEventData.class);
         SwitchBetweenPartialConnectionTasksEventData eventData = (SwitchBetweenPartialConnectionTasksEventData) localEvents.get(0).getSource();
@@ -591,7 +594,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
         // Asserts
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
-        verify(this.subscriber).handle(eventArgumentCaptor.capture());
+        verify(this.topicHandler).handle(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
         assertThat(localEvent.getType().getTopic()).isEqualTo(EventType.COMTASKENABLEMENT_SUSPEND.topic());
         assertThat(localEvent.getSource()).isEqualTo(comTaskEnablement);
@@ -611,7 +614,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
         // Asserts
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
-        verify(this.subscriber).handle(eventArgumentCaptor.capture());
+        verify(this.topicHandler).handle(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
         assertThat(localEvent.getType().getTopic()).isEqualTo(EventType.COMTASKENABLEMENT_RESUME.topic());
         assertThat(localEvent.getSource()).isEqualTo(comTaskEnablement);
@@ -631,7 +634,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
         // Asserts
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
-        verify(this.subscriber).handle(eventArgumentCaptor.capture());
+        verify(this.topicHandler).handle(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
         assertThat(localEvent.getType().getTopic()).isEqualTo(EventType.COMTASKENABLEMENT_VALIDATEDELETE.topic());
         assertThat(localEvent.getSource()).isEqualTo(comTaskEnablement);

@@ -4,6 +4,8 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bootstrap.h2.impl.ResultSetPrinter;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.License;
@@ -21,6 +23,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.pubsub.impl.PublisherImpl;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -72,9 +75,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.List;
 
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -93,7 +103,7 @@ public class InMemoryPersistence {
     private Principal principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private EventService eventService;
+    private EventServiceImpl eventService;
     private Publisher publisher;
     private NlsService nlsService;
     private MasterDataService masterDataService;
@@ -136,8 +146,8 @@ public class InMemoryPersistence {
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(OrmService.class);
             this.userService = injector.getInstance(UserService.class);
-            this.eventService = injector.getInstance(EventService.class);
             this.publisher = injector.getInstance(Publisher.class);
+            this.eventService = (EventServiceImpl) injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
@@ -212,6 +222,13 @@ public class InMemoryPersistence {
     private void initializeMocks(String testName, boolean mockedProtocolPluggableService) {
         this.mockProtocolPluggableService = mockedProtocolPluggableService;
         this.bundleContext = mock(BundleContext.class);
+        when(this.bundleContext.registerService(eq(Subscriber.class), any(Subscriber.class), isNull(Dictionary.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                ((PublisherImpl) publisher).addHandler((Subscriber) invocationOnMock.getArguments()[1]);
+                return null;
+            }
+        });
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
@@ -308,18 +325,18 @@ public class InMemoryPersistence {
     }
 
     public void registerEventHandlers() {
-        this.logBookTypeDeletionEventHandler = this.registerSubscriber(new LogBookTypeDeletionEventHandler(this.deviceConfigurationService));
-        this.logBookTypeUpdateEventHandler = this.registerSubscriber(new LogBookTypeUpdateEventHandler(this.deviceConfigurationService));
-        this.loadProfileTypeDeletionEventHandler = this.registerSubscriber(new LoadProfileTypeDeletionEventHandler(this.deviceConfigurationService));
-        this.loadProfileTypeUpdateEventHandler = this.registerSubscriber(new LoadProfileTypeUpdateEventHandler(this.deviceConfigurationService));
-        this.registerMappingDeletionEventHandler = this.registerSubscriber(new RegisterMappingDeletionEventHandler(this.deviceConfigurationService));
-        this.registerMappingUpdateEventHandler = this.registerSubscriber(new RegisterMappingUpdateEventHandler(this.deviceConfigurationService));
-        this.registerMappingDeleteFromLoadProfileTypeEventHandler = this.registerSubscriber(new RegisterMappingDeleteFromLoadProfileTypeEventHandler(this.deviceConfigurationService));
+        this.logBookTypeDeletionEventHandler = this.registerTopicHandler(new LogBookTypeDeletionEventHandler(this.deviceConfigurationService));
+        this.logBookTypeUpdateEventHandler = this.registerTopicHandler(new LogBookTypeUpdateEventHandler(this.deviceConfigurationService));
+        this.loadProfileTypeDeletionEventHandler = this.registerTopicHandler(new LoadProfileTypeDeletionEventHandler(this.deviceConfigurationService));
+        this.loadProfileTypeUpdateEventHandler = this.registerTopicHandler(new LoadProfileTypeUpdateEventHandler(this.deviceConfigurationService));
+        this.registerMappingDeletionEventHandler = this.registerTopicHandler(new RegisterMappingDeletionEventHandler(this.deviceConfigurationService));
+        this.registerMappingUpdateEventHandler = this.registerTopicHandler(new RegisterMappingUpdateEventHandler(this.deviceConfigurationService));
+        this.registerMappingDeleteFromLoadProfileTypeEventHandler = this.registerTopicHandler(new RegisterMappingDeleteFromLoadProfileTypeEventHandler(this.deviceConfigurationService));
     }
 
-    <T extends Subscriber> T registerSubscriber(T subscriber) {
-        this.publisher.addThreadSubscriber(subscriber);
-        return subscriber;
+    <T extends TopicHandler> T registerTopicHandler(T topicHandler) {
+        this.eventService.addTopicHandler(topicHandler);
+        return topicHandler;
     }
 
     public void unregisterEventHandlers() {
@@ -332,9 +349,9 @@ public class InMemoryPersistence {
         this.unregisterSubscriber(this.registerMappingDeleteFromLoadProfileTypeEventHandler);
     }
 
-    void unregisterSubscriber(Subscriber subscriber) {
-        if (subscriber != null) {
-            this.publisher.removeThreadSubscriber(subscriber);
+    void unregisterSubscriber(TopicHandler topicHandler) {
+        if (topicHandler != null) {
+            this.eventService.removeTopicHandler(topicHandler);
         }
     }
 

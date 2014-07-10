@@ -1,14 +1,13 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pubsub.EventHandler;
-import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.exceptions.VetoLogBookTypeDeletionBecauseStillUsedByDeviceTypesException;
 import com.energyict.mdc.masterdata.LogBookType;
+
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -21,31 +20,26 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-14 (09:09)
  */
-@Component(name="com.energyict.mdc.masterdata.delete.logbooktype.eventhandler", service = Subscriber.class, immediate = true)
-public class LogBookTypeDeletionEventHandler extends EventHandler<LocalEvent> {
+@Component(name="com.energyict.mdc.masterdata.delete.logbooktype.eventhandler", service = TopicHandler.class, immediate = true)
+public class LogBookTypeDeletionEventHandler implements TopicHandler {
 
     static final String TOPIC = "com/energyict/mdc/masterdata/logbooktype/VALIDATEDELETE";
 
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public LogBookTypeDeletionEventHandler() {
-        super(LocalEvent.class);
-    }
-
     LogBookTypeDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
-        this();
+        super();
         this.setDeviceConfigurationService(deviceConfigurationService);
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... eventDetails) {
-        if (event.getType().getTopic().equals(TOPIC)) {
-            this.handle(event);
-        }
+    public String getTopicMatcher() {
+        return TOPIC;
     }
 
-    private void handle(LocalEvent localEvent) {
-        LogBookType logBookType = (LogBookType) localEvent.getSource();
+    @Override
+    public void handle(LocalEvent event) {
+        LogBookType logBookType = (LogBookType) event.getSource();
         List<DeviceType> deviceTypesUsingLogBookType = this.deviceConfigurationService.findDeviceTypesUsingLogBookType(logBookType);
         if (!deviceTypesUsingLogBookType.isEmpty()) {
             throw new VetoLogBookTypeDeletionBecauseStillUsedByDeviceTypesException(this.getThesaurus(), logBookType, deviceTypesUsingLogBookType);
