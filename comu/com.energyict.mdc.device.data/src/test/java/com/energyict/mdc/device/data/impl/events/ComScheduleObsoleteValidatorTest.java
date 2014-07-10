@@ -46,7 +46,8 @@ public class ComScheduleObsoleteValidatorTest {
 
     @Before
     public void createEventHandler () {
-        this.eventHandler = new ComScheduleObsoleteValidator(this.deviceDataService, this.thesaurus);
+        when(this.deviceDataService.getThesaurus()).thenReturn(this.thesaurus);
+        this.eventHandler = new ComScheduleObsoleteValidator(this.deviceDataService);
     }
 
     @Test

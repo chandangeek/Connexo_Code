@@ -30,15 +30,19 @@ public class ComTaskEnablementDeletionHandler implements TopicHandler {
     }
 
     // For testing purposes only
-    ComTaskEnablementDeletionHandler (ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
+    ComTaskEnablementDeletionHandler (ServerDeviceDataService deviceDataService) {
         this();
         this.deviceDataService = deviceDataService;
-        this.thesaurus = thesaurus;
     }
 
     @Reference
     public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = (ServerDeviceDataService) deviceDataService;
+        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
+    }
+
+    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
+        this.deviceDataService = deviceDataService;
+        this.thesaurus = deviceDataService.getThesaurus();
     }
 
     @Override

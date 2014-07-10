@@ -757,7 +757,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
-    Thesaurus getThesaurus() {
+    @Override
+    public Thesaurus getThesaurus() {
         return thesaurus;
     }
 

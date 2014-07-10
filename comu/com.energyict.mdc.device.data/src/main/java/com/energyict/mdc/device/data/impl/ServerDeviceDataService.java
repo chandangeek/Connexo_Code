@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.base.Optional;
 
 /**
@@ -19,6 +20,8 @@ import com.google.common.base.Optional;
  * @since 2014-04-28 (11:24)
  */
 public interface ServerDeviceDataService extends DeviceDataService {
+
+    public Thesaurus getThesaurus();
 
     /**
      * Tests if the specified {@link ComTaskEnablement} is used

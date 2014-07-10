@@ -24,23 +24,17 @@ public class DeviceConfigurationDeactivationHandler implements TopicHandler {
     static final String TOPIC = "com/energyict/mdc/device/config/deviceconfiguration/VALIDATEDEACTIVATE";
 
     private volatile ServerDeviceDataService deviceDataService;
+    private Thesaurus thesaurus;
 
     @Reference
     public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = (ServerDeviceDataService) deviceDataService;
+        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
     }
 
-    private volatile Thesaurus thesaurus;
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.setThesaurus(nlsService.getThesaurus(DeviceDataService.COMPONENTNAME, Layer.DOMAIN));
+    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
+        this.deviceDataService = deviceDataService;
+        this.thesaurus = deviceDataService.getThesaurus();
     }
-
-    private void setThesaurus(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
-    }
-
 
     /**
      * Vetos the delection of the {@link DeviceConfiguration}

@@ -11,8 +11,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
-
 /**
  * Handles events that are being sent when a {@link ComSchedule} is about to be
  * made obsolete and will veto that when it is in use by at least one device.
@@ -33,15 +31,19 @@ public class ComScheduleObsoleteValidator implements TopicHandler {
     }
 
     // For testing purposes only
-    ComScheduleObsoleteValidator(ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
+    ComScheduleObsoleteValidator(ServerDeviceDataService deviceDataService) {
         this();
-        this.deviceDataService = deviceDataService;
-        this.thesaurus = thesaurus;
+        this.setDeviceDataService(deviceDataService);
     }
 
     @Reference
     public void setDeviceDataService(DeviceDataService deviceDataService) {
-        this.deviceDataService = (ServerDeviceDataService) deviceDataService;
+        this.setDeviceDataService((ServerDeviceDataService) deviceDataService);
+    }
+
+    private void setDeviceDataService(ServerDeviceDataService deviceDataService) {
+        this.deviceDataService = deviceDataService;
+        this.thesaurus = deviceDataService.getThesaurus();
     }
 
     @Override

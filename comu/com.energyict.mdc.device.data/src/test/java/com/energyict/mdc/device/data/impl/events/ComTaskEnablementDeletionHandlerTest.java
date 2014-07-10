@@ -46,6 +46,7 @@ public class ComTaskEnablementDeletionHandlerTest {
 
     @Before
     public void initializeMocks () {
+        when(this.deviceDataService.getThesaurus()).thenReturn(this.thesaurus);
         when(this.deviceConfiguration.getName()).thenReturn(ComTaskEnablementDeletionHandlerTest.class.getSimpleName());
         when(this.deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
         when(this.comTask.getId()).thenReturn(COMTASK_ID);
@@ -87,7 +88,7 @@ public class ComTaskEnablementDeletionHandlerTest {
     }
 
     private ComTaskEnablementDeletionHandler newHandler() {
-        return new ComTaskEnablementDeletionHandler(this.deviceDataService, this.thesaurus);
+        return new ComTaskEnablementDeletionHandler(this.deviceDataService);
     }
 
 }

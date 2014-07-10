@@ -62,7 +62,8 @@ public class PartialConnectionTaskDeletionHandlerTest {
 
     @Before
     public void createEventHandler () {
-        this.eventHandler = new PartialConnectionTaskDeletionHandler(this.deviceDataService, this.thesaurus);
+        when(this.deviceDataService.getThesaurus()).thenReturn(this.thesaurus);
+        this.eventHandler = new PartialConnectionTaskDeletionHandler(this.deviceDataService);
     }
 
     @Test
