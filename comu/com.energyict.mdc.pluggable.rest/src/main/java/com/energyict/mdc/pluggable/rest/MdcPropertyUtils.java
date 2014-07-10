@@ -4,6 +4,9 @@ import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
+import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
+import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
+
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -14,11 +17,8 @@ import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValidationRule;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
-import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
-import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdw.UserFileService;
 
+import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collection;
@@ -26,21 +26,11 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.ws.rs.core.UriInfo;
-
 /**
  * Serves as a utility class to create proper PropertyInfo objects for a set of Properties
  * and their corresponding PropertySpecs
  */
 public class MdcPropertyUtils {
-
-    private final UserFileService userFileService;
-
-    @Inject
-    public MdcPropertyUtils(UserFileService userFileService) {
-        this.userFileService = userFileService;
-    }
 
     public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, List<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
         for (PropertySpec<?> propertySpec : propertySpecs) {
@@ -173,8 +163,6 @@ public class MdcPropertyUtils {
             return new TimeDuration(""+count+" "+timeUnit);
         } else if (propertySpec.getValueFactory().getValueType() == String.class) {
             return value;
-        } else if (propertySpec.getValueFactory().getValueType() == UserFile.class) {
-            return userFileService.findUSerFileById((Integer) ((LinkedHashMap<String, Object>) value).get("userFileReferenceId"));
         } else if (propertySpec.getValueFactory().getValueType() == Boolean.class) {
             if (Boolean.class.isAssignableFrom(value.getClass())) {
                 return value;

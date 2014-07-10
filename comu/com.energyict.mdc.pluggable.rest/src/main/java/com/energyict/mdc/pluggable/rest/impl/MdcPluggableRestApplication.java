@@ -1,5 +1,13 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
+import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -8,22 +16,15 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
-import com.energyict.mdc.common.rest.TransactionWrapper;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdw.UserFileService;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.ws.rs.core.Application;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component(name = "com.energyict.mdc.pluggable.rest", service = Application.class, immediate = true, property = {"alias=/plr"})
 public class MdcPluggableRestApplication extends Application {
@@ -34,7 +35,6 @@ public class MdcPluggableRestApplication extends Application {
     private volatile LicensedProtocolService licensedProtocolService;
     private volatile PropertySpecService propertySpecService;
     private volatile TransactionService transactionService;
-    private volatile UserFileService userFileService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private NlsService nlsService;
     private Thesaurus thesaurus;
@@ -94,11 +94,6 @@ public class MdcPluggableRestApplication extends Application {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    @Reference
-    public void setUserFileService(UserFileService userFileService) {
-        this.userFileService = userFileService;
-    }
-
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -111,7 +106,6 @@ public class MdcPluggableRestApplication extends Application {
             bind(thesaurus).to(Thesaurus.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
-            bind(userFileService).to(UserFileService.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
         }
     }
