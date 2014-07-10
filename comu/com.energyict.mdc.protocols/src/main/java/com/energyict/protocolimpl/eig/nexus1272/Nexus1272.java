@@ -77,7 +77,7 @@ public class Nexus1272 extends AbstractProtocol  {
 	protected List<String> doGetOptionalKeys() {
 		List<String> al = new ArrayList<>();
 		al.add("NexusChannelMapping");
-		al.add("Delta Wired");
+		al.add("Delta_Wired");
 		return al;
 	}
 

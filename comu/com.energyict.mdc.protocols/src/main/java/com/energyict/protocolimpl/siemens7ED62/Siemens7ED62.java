@@ -26,6 +26,7 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
@@ -40,6 +41,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -441,13 +443,12 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        List result = new ArrayList(0);
-        return result;
+        return Collections.emptyList();
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        List result = new ArrayList();
+        List<String> result = new ArrayList<>();
         result.add("Timeout");
         result.add("Retries");
         result.add("EchoCancelling");
@@ -458,7 +459,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         result.add("ChannelMap");
         result.add("TimeSetMethod");
         result.add("Software7E1");
-        return result;
+        return PropertySpecFactory.toPropertySpecs(result);
     }
 
     private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException
