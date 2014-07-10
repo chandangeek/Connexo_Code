@@ -44,6 +44,11 @@
       <artifactId>domain.util</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>properties</artifactId>
+      <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
     </dependency>

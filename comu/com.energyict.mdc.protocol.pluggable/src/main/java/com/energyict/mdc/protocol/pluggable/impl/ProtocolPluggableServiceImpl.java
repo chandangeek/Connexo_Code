@@ -10,6 +10,7 @@ import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.issues.IssueService;
@@ -41,6 +42,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
+import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationSupport;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
 
 import com.elster.jupiter.events.EventService;
@@ -55,6 +57,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -97,6 +100,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
+    private volatile Clock clock;
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile PluggableService pluggableService;
@@ -557,6 +561,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
@@ -734,6 +743,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         } else {
             throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(throwable, pluggableClass.getJavaClassName());
         }
+    }
+
+    @Override
+    public boolean hasSecurityRelations(RelationParticipant securityPropertySet, DeviceProtocol deviceProtocol) {
+        SecurityPropertySetRelationSupport relationSupport = new SecurityPropertySetRelationSupport(securityPropertySet, deviceProtocol, this, this.relationService, this.propertySpecService, this.clock);
+        return relationSupport.hasValues();
     }
 
     private Module getModule() {

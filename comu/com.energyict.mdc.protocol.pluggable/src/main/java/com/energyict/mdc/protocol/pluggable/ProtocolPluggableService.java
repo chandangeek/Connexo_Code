@@ -3,15 +3,18 @@ package com.energyict.mdc.protocol.pluggable;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
-
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+
 import com.google.common.base.Optional;
+
 import java.util.List;
 
 /**
@@ -143,7 +146,7 @@ public interface ProtocolPluggableService {
      * @param name The name of the PluggableClass
      * @param javaClassName The name of the java implementation class
      * @return The PluggableClass that is not yet saved
-     * @see PluggableClass#setProperty(PropertySpec, Object)
+     * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
      * @see PluggableClass#save()
      */
     public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass (String name, String javaClassName);
@@ -163,7 +166,7 @@ public interface ProtocolPluggableService {
      * @param javaClassName The name of the java implementation class
      * @param properties The TypedProperties
      * @return The PluggableClass that is not yet saved
-     * @see PluggableClass#setProperty(PropertySpec, Object)
+     * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
      * @see PluggableClass#save()
      * @see com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol#getPropertySpecs()
      */
@@ -191,7 +194,7 @@ public interface ProtocolPluggableService {
      * @param name The name of the PluggableClass
      * @param javaClassName The name of the java implementation class
      * @return The PluggableClass that is not yet saved
-     * @see PluggableClass#setProperty(PropertySpec, Object)
+     * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
      * @see PluggableClass#save()
      */
     public ConnectionTypePluggableClass newConnectionTypePluggableClass (String name, String javaClassName);
@@ -211,7 +214,7 @@ public interface ProtocolPluggableService {
      * @param javaClassName The name of the java implementation class
      * @param properties The TypedProperties
      * @return The PluggableClass that is not yet saved
-     * @see PluggableClass#setProperty(PropertySpec, Object)
+     * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
      * @see PluggableClass#save()
      * @see com.energyict.mdc.protocol.api.ConnectionType#getPropertySpecs()
      */
@@ -267,4 +270,16 @@ public interface ProtocolPluggableService {
     public ConnectionType createConnectionType(String javaClassName);
 
     public InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass);
+
+    /**
+     * Tests if the SecurityPropertySet has any {@link com.energyict.mdc.dynamic.relation.Relation}s
+     * that hold security property values for Devices that use the {@link DeviceProtocol}
+     * to communicate.
+     *
+     * @param securityPropertySet The SecurityPropertySet
+     * @param deviceProtocol The DeviceProtocol
+     * @return A flag that indicates if the SecurityPropertySet is in use on Devices
+     */
+    public boolean hasSecurityRelations(RelationParticipant securityPropertySet, DeviceProtocol deviceProtocol);
+
 }
