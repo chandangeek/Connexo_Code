@@ -17,6 +17,8 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -87,7 +89,12 @@ public class ConnectionMethodResource {
         } else {
             partialConnectionTasks.addAll(deviceConfiguration.getPartialConnectionTasks());
         }
-
+        Collections.sort(partialConnectionTasks, new Comparator<PartialConnectionTask>() {
+            @Override
+            public int compare(PartialConnectionTask pct1, PartialConnectionTask pct2) {
+                return pct1.getName().compareToIgnoreCase(pct2.getName());
+            }
+        });
         for (PartialConnectionTask partialConnectionTask : partialConnectionTasks) {
             connectionMethodInfos.add(connectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo));
         }
