@@ -10,8 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
-
 /**
  * Handles delete events that are being sent when a {@link ComTaskEnablement}
  * is about to be deleted and will veto the delete when it is in use by at least one device.
@@ -27,9 +25,13 @@ public class ComTaskEnablementDeletionHandler implements TopicHandler {
     private volatile ServerDeviceDataService deviceDataService;
     private volatile Thesaurus thesaurus;
 
-    @Inject
-    ComTaskEnablementDeletionHandler (ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
+    public ComTaskEnablementDeletionHandler() {
         super();
+    }
+
+    // For testing purposes only
+    ComTaskEnablementDeletionHandler (ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
+        this();
         this.deviceDataService = deviceDataService;
         this.thesaurus = thesaurus;
     }

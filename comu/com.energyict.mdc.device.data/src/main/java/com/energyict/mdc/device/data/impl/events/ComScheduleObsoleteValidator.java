@@ -28,9 +28,13 @@ public class ComScheduleObsoleteValidator implements TopicHandler {
     private volatile ServerDeviceDataService deviceDataService;
     private volatile Thesaurus thesaurus;
 
-    @Inject
-    ComScheduleObsoleteValidator(ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
+    public ComScheduleObsoleteValidator() {
         super();
+    }
+
+    // For testing purposes only
+    ComScheduleObsoleteValidator(ServerDeviceDataService deviceDataService, Thesaurus thesaurus) {
+        this();
         this.deviceDataService = deviceDataService;
         this.thesaurus = thesaurus;
     }
