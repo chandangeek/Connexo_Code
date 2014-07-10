@@ -325,7 +325,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         var form = this.getConnectionMethodEditView().down('property-form');
 
         if (properties.count()) {
-            form.loadRecord(objectWithProperties);
+            form.loadRecordAsNotRequired(objectWithProperties);
             form.show();
         } else {
             form.hide();
@@ -398,7 +398,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                             widget.down('form').down('#activateComWindowCheckBox').setValue(true);
                                                         }
                                                         var form = widget.down('property-form');
-                                                        form.loadRecord(connectionMethod);
+                                                        form.loadRecordAsNotRequired(connectionMethod);
                                                         form.show();
                                                         widget.setLoading(false);
                                                     }
