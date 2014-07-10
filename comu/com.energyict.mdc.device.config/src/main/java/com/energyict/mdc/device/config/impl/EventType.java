@@ -122,6 +122,7 @@ public enum EventType {
     DEVICE_COMMUNICATION_CONFIGURATION_DELETED("devicecommunicationconfiguration/DELETED"),
     SECURITY_PROPERTY_SET_CREATED("securitypropertyset/CREATED"),
     SECURITY_PROPERTY_SET_UPDATED("securitypropertyset/UPDATED"),
+    SECURITY_PROPERTY_SET_VALIDATE_DELETE("securitypropertyset/VALIDATE_DELETE"),
     SECURITY_PROPERTY_SET_DELETED("securitypropertyset/DELETED");
 
     private static final String NAMESPACE = "com/energyict/mdc/device/config/";

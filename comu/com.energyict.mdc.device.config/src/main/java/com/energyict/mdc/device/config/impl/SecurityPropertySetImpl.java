@@ -112,6 +112,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         if (!comTaskEnablements.isEmpty()) {
             throw new CannotDeleteSecurityPropertySetWhileInUseException(this.getThesaurus(), this);
         }
+        this.getEventService().postEvent(EventType.SECURITY_PROPERTY_SET_VALIDATE_DELETE.topic(), this);
     }
 
     @Override
