@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -18,23 +19,22 @@ import org.osgi.service.component.annotations.Reference;
  * is being deleted and will check if a ComPortPool is using it.
  * If that is the case, the delete will be vetoed by throwing an exception.
  */
-@Component(name="com.energyict.mdc.device.config.protocol.delete.eventhandler", service = Subscriber.class, immediate = true)
-public class ComPortPoolPluggableClassDeletionEventHandler extends EventHandler<LocalEvent> {
+@Component(name="com.energyict.mdc.device.config.protocol.delete.eventhandler", service = TopicHandler.class, immediate = true)
+public class ComPortPoolPluggableClassDeletionEventHandler implements TopicHandler {
 
     private static final String TOPIC = "com/energyict/mdc/pluggable/pluggableclass/DELETED";
 
     private volatile Thesaurus thesaurus;
     private volatile EngineModelService engineModelService;
 
-    public ComPortPoolPluggableClassDeletionEventHandler() {
-        super(LocalEvent.class);
+    @Override
+    public String getTopicMatcher() {
+        return TOPIC;
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... objects) {
-        if (event.getType().getTopic().equals(TOPIC)) {
-            this.handleDeleteProtocolPluggableClass((PluggableClass) event.getSource());
-        }
+    public void handle(LocalEvent event) {
+        this.handleDeleteProtocolPluggableClass((PluggableClass) event.getSource());
     }
 
     private void handleDeleteProtocolPluggableClass(PluggableClass pluggableClass) {
