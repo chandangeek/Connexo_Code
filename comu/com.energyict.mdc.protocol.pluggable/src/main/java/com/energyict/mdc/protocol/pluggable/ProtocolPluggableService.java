@@ -5,10 +5,12 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.google.common.base.Optional;
 import java.util.List;
 
@@ -261,4 +263,8 @@ public interface ProtocolPluggableService {
      */
     public String marshalDeviceProtocolCache(DeviceProtocolCache deviceProtocolCache);
 
+
+    public ConnectionType createConnectionType(String javaClassName);
+
+    public InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass);
 }

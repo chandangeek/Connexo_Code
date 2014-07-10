@@ -19,7 +19,6 @@ import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -27,6 +26,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 
@@ -47,17 +47,17 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
 
     private DataModel dataModel;
     private RelationService relationService;
-    private ConnectionTypeService connectionTypeService;
     private PropertySpecService propertySpecService;
+    private final ProtocolPluggableService protocolPluggableService;
     private RelationType relationType;  // Cache
 
     @Inject
-    public ConnectionTypePluggableClassImpl(EventService eventService, Thesaurus thesaurus, DataModel dataModel, RelationService relationService, ConnectionTypeService connectionTypeService, PropertySpecService propertySpecService) {
+    public ConnectionTypePluggableClassImpl(EventService eventService, Thesaurus thesaurus, DataModel dataModel, RelationService relationService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService) {
         super(eventService, thesaurus);
         this.dataModel = dataModel;
         this.relationService = relationService;
-        this.connectionTypeService = connectionTypeService;
         this.propertySpecService = propertySpecService;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     static ConnectionTypePluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
@@ -85,7 +85,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     private ConnectionType newInstance (String javaClassName) {
-        return this.connectionTypeService.createConnectionType(javaClassName);
+        return this.protocolPluggableService.createConnectionType(javaClassName);
     }
 
     @Override

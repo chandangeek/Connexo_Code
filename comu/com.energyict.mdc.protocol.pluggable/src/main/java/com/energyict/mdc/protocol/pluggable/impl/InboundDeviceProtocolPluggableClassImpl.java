@@ -7,8 +7,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 
@@ -23,12 +23,12 @@ import java.util.List;
  */
 public final class InboundDeviceProtocolPluggableClassImpl extends PluggableClassWrapper<InboundDeviceProtocol> implements InboundDeviceProtocolPluggableClass {
 
-    private InboundDeviceProtocolService inboundDeviceProtocolService;
+    private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public InboundDeviceProtocolPluggableClassImpl(EventService eventService, Thesaurus thesaurus, InboundDeviceProtocolService inboundDeviceProtocolService) {
+    public InboundDeviceProtocolPluggableClassImpl(EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService) {
         super(eventService, thesaurus);
-        this.inboundDeviceProtocolService = inboundDeviceProtocolService;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     static InboundDeviceProtocolPluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
@@ -52,7 +52,7 @@ public final class InboundDeviceProtocolPluggableClassImpl extends PluggableClas
 
     @Override
     protected InboundDeviceProtocol newInstance(PluggableClass pluggableClass) {
-        return this.inboundDeviceProtocolService.createInboundDeviceProtocolFor(pluggableClass);
+        return this.protocolPluggableService.createInboundDeviceProtocolFor(pluggableClass);
     }
 
     @Override

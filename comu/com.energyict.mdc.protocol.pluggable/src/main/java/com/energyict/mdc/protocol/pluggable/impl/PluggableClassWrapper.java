@@ -120,8 +120,8 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
 
     public void save() {
         this.validate();
-        long id = this.getPluggableClass().getId();
         this.getPluggableClass().save();
+        long id = this.getPluggableClass().getId();
         if (id > 0) {
             this.eventService.postEvent(this.createEventType().topic(), this);
         }
