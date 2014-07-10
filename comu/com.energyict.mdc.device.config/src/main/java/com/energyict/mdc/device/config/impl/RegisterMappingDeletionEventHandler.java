@@ -38,8 +38,12 @@ public class RegisterMappingDeletionEventHandler implements TopicHandler {
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public RegisterMappingDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
+    public RegisterMappingDeletionEventHandler() {
         super();
+    }
+
+    public RegisterMappingDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
+        this();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 

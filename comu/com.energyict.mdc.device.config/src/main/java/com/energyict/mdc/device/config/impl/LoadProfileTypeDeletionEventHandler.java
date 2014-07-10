@@ -35,8 +35,12 @@ public class LoadProfileTypeDeletionEventHandler implements TopicHandler {
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public LoadProfileTypeDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
+    public LoadProfileTypeDeletionEventHandler() {
         super();
+    }
+
+    public LoadProfileTypeDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
+        this();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 

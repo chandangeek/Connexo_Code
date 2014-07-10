@@ -36,8 +36,12 @@ public class RegisterMappingDeleteFromLoadProfileTypeEventHandler implements Top
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public RegisterMappingDeleteFromLoadProfileTypeEventHandler(DeviceConfigurationService deviceConfigurationService) {
+    public RegisterMappingDeleteFromLoadProfileTypeEventHandler() {
         super();
+    }
+
+    public RegisterMappingDeleteFromLoadProfileTypeEventHandler(DeviceConfigurationService deviceConfigurationService) {
+        this();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 

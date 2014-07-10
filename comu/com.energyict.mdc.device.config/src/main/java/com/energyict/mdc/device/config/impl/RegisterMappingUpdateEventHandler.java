@@ -43,8 +43,12 @@ public class RegisterMappingUpdateEventHandler implements TopicHandler {
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public RegisterMappingUpdateEventHandler(DeviceConfigurationService deviceConfigurationService) {
+    public RegisterMappingUpdateEventHandler() {
         super();
+    }
+
+    public RegisterMappingUpdateEventHandler(DeviceConfigurationService deviceConfigurationService) {
+        this();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 

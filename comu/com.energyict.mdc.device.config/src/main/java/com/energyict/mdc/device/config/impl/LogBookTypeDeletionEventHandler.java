@@ -27,8 +27,13 @@ public class LogBookTypeDeletionEventHandler implements TopicHandler {
 
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    LogBookTypeDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
+    public LogBookTypeDeletionEventHandler() {
         super();
+    }
+
+    // For testing purposes only
+    LogBookTypeDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
+        this();
         this.setDeviceConfigurationService(deviceConfigurationService);
     }
 

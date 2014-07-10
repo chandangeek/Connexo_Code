@@ -41,8 +41,12 @@ public class LoadProfileTypeUpdateEventHandler implements TopicHandler {
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public LoadProfileTypeUpdateEventHandler(DeviceConfigurationService deviceConfigurationService) {
+    public LoadProfileTypeUpdateEventHandler() {
         super();
+    }
+
+    public LoadProfileTypeUpdateEventHandler(DeviceConfigurationService deviceConfigurationService) {
+        this();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
