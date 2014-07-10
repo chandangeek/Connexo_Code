@@ -20,11 +20,14 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
@@ -503,6 +506,16 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         @Override
         public String marshalDeviceProtocolCache(DeviceProtocolCache deviceProtocolCache) {
             return protocolPluggableService.marshalDeviceProtocolCache(deviceProtocolCache);
+        }
+
+        @Override
+        public ConnectionType createConnectionType(String javaClassName) {
+            return null;
+        }
+
+        @Override
+        public InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass) {
+            return null;
         }
     }
 
