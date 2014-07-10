@@ -50,6 +50,14 @@ Ext.define('Uni.property.form.Property', {
         this.callParent(arguments);
     },
 
+    loadRecordAsNotRequired: function(record){
+        var properties = record.properties();
+        _.each(properties.data.items,function(item){
+            item.set('required',false)
+        });
+        this.loadRecord(record);
+    },
+
     /**
      * Initialises form, creates form field based on properties specification in property registry:
      * @see Uni.property.controller.Registry
