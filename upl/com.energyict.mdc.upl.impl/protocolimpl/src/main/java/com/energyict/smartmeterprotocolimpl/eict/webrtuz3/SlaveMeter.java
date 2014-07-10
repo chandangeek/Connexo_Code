@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * Date: 3-mrt-2011
  * Time: 16:32:09
  */
-public abstract class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter {
+public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter {
 
     private final WebRTUZ3 meterProtocol;
     private final String serialNumber;
