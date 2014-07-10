@@ -179,7 +179,7 @@ Ext.define('Mdc.widget.ScheduleField', {
             Ext.apply({
                 xtype: 'numberfield',
                 itemId: 'hourField',
-                maxValue: 24,
+                maxValue: 23,
                 minValue: 0,
                 listeners: {
                     blur: {
@@ -196,7 +196,7 @@ Ext.define('Mdc.widget.ScheduleField', {
             Ext.apply({
                 xtype: 'numberfield',
                 itemId: 'minuteField',
-                maxValue: 60,
+                maxValue: 59,
                 minValue: 0,
                 listeners: {
                     blur: {
@@ -221,7 +221,7 @@ Ext.define('Mdc.widget.ScheduleField', {
             Ext.apply({
                 xtype: 'numberfield',
                 itemId: 'secondField',
-                maxValue: 60,
+                maxValue: 59,
                 minValue: 0,
                 listeners: {
                     blur: {

@@ -60,7 +60,7 @@ Ext.define('Mdc.widget.DateTimeField', {
 //                {
 //                    return (value < 10 ? '0' : '') + value;
 //                },
-                maxValue: 24,
+                maxValue: 23,
                 minValue: 0,
                 submitValue: false,
                 margin: '0 5 0 0'
@@ -79,7 +79,7 @@ Ext.define('Mdc.widget.DateTimeField', {
 //                {
 //                    return (value < 10 ? '0' : '') + value;
 //                },
-                maxValue: 60,
+                maxValue: 59,
                 minValue: 0,
                 submitValue: false,
                 margin: '0 5 0 0'

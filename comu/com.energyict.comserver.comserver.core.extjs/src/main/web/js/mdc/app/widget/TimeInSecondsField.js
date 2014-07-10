@@ -30,7 +30,7 @@ Ext.define('Mdc.widget.TimeInSecondsField', {
                 submitValue: false,
                 width: 70,
                 minValue: 0,
-                maxValue: 24,
+                maxValue: 23,
                 margin: '0 5 5 0'
             }, me.valueCfg),
             Ext.apply({
