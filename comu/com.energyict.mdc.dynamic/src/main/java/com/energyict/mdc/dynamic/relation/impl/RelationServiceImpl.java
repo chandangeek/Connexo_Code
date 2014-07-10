@@ -48,9 +48,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
         this.setNlsService(nlsService);
         this.setPropertySpecService(propertySpecService);
         this.activate();
-        if (!this.dataModel.isInstalled()) {
-            this.install();
-        }
+        this.install();
     }
 
     Module getModule() {
