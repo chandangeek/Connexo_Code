@@ -144,7 +144,7 @@ public class ConnectionMethodResource {
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ConnectionMethodInfo<?> updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
+    public Response updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                                        @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                                        @PathParam("connectionMethodId") long connectionMethodId,
                                                        @Context UriInfo uriInfo,
@@ -156,7 +156,7 @@ public class ConnectionMethodResource {
         updateProperties(connectionMethodInfo, partialConnectionTask);
         partialConnectionTask.save();
 
-        return connectionMethodInfoFactory.asInfo(deviceConfigurationService.getPartialConnectionTask(partialConnectionTask.getId()).get(), uriInfo);
+        return Response.ok(connectionMethodInfoFactory.asInfo(deviceConfigurationService.getPartialConnectionTask(partialConnectionTask.getId()).get(), uriInfo)).build();
     }
 
     /**
