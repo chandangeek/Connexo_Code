@@ -2,22 +2,28 @@ Ext.define('Mdc.view.setup.comportpollcomports.View', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comPortPoolsComPortsView',
     itemId: 'comPortPoolsComPortsView',
+
     requires: [
         'Mdc.view.setup.comportpollcomports.Grid',
         'Mdc.view.setup.comportpollcomports.Preview',
         'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.comportpool.SubMenu'
     ],
+
     side: {
         xtype: 'panel',
         ui: 'medium',
         title: Uni.I18n.translate('', 'MDC', 'Communication port pools'),
         width: 350,
-        items: [{
-            xtype: 'comportpoolsubmenu',
-            itemId: 'comportpoolsubmenu'
-        }]
+        items: [
+            {
+                xtype: 'comportpoolsubmenu',
+                itemId: 'comportpoolsubmenu'
+            }
+        ]
     },
+
     content: [
         {
             xtype: 'panel',
@@ -30,38 +36,15 @@ Ext.define('Mdc.view.setup.comportpollcomports.View', {
                         xtype: 'comPortPoolComPortsGrid'
                     },
                     emptyComponent: {
-                        xtype: 'container',
-                        layout: {
-                            type: 'hbox',
-                            align: 'left'
-                        },
-                        minHeight: 20,
-                        items: [
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('comPortPoolPorts.empty.title', 'MDC', 'No communication ports found'),
+                        reasons: [
+                            Uni.I18n.translate('comPortPoolPorts.empty.list.item1', 'MDC', 'No communication ports are associated to this communication port pool.')
+                        ],
+                        stepItems: [
                             {
-                                xtype: 'image',
-                                margin: '0 10 0 0',
-                                src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                height: 20,
-                                width: 20
-                            },
-                            {
-                                xtype: 'container',
-                                items: [
-                                    {
-                                        xtype: 'component',
-                                        name: 'emptyComponent',
-                                        html: '<b>' + Uni.I18n.translate('comPortPoolPorts.empty.title', 'MDC', 'No communication ports found') + '</b><br>' +
-                                            Uni.I18n.translate('comPortPoolPorts.empty.detail', 'MDC', 'There are no communication ports. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                            Uni.I18n.translate('comPortPoolPorts.empty.list.item1', 'MDC', 'No communication ports are associated to this communication port pool.') + '</li></lv><br>' +
-                                            Uni.I18n.translate('comPortPoolPorts.empty.steps', 'MDC', 'Possible steps:')
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        margin: '10 0 0 0',
-                                        action: 'addComPort',
-                                        text: Uni.I18n.translate('comServerComPorts.add', 'MDC', 'Add communication port')
-                                    }
-                                ]
+                                action: 'addComPort',
+                                text: Uni.I18n.translate('comServerComPorts.add', 'MDC', 'Add communication port')
                             }
                         ]
                     },

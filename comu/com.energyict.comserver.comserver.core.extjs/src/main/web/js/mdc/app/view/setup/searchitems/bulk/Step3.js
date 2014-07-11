@@ -1,18 +1,24 @@
 Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
     extend: 'Ext.panel.Panel',
-    requires: [
-        'Mdc.util.ScheduleToStringConverter'
-    ],
     alias: 'widget.searchitems-bulk-step3',
     name: 'selectSchedules',
-    title: Uni.I18n.translate('searchItems.bulk.step3title', 'MDC', 'Bulk action - step 3 of 5: Action details'),
     ui: 'large',
+
+    requires: [
+        'Mdc.util.ScheduleToStringConverter',
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
+    ],
+
+    title: Uni.I18n.translate('searchItems.bulk.step3title', 'MDC', 'Bulk action - step 3 of 5: Action details'),
+
     tbar: {
         xtype: 'panel',
         ui: 'medium',
         title: '',
         itemId: 'searchitemsbulkactiontitle'
     },
+
     items: {
         xtype: 'preview-container',
         grid: {
@@ -160,21 +166,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
             }
         },
         emptyComponent: {
-            xtype: 'container',
-            layout: {
-                type: 'hbox',
-                align: 'left'
-            },
-            minHeight: 20,
-            items: [
-                {
-                    xtype: 'image',
-                    margin: '0 10 0 0',
-                    src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                    height: 20,
-                    width: 20
-                }
-            ]
+            xtype: 'no-items-found-panel',
+            title: Uni.I18n.translate('setup.searchitems.bulk.Step3.NoItemsFoundPanel.title', 'MDC', 'No communication schedules found')
         },
         previewComponent: {
             xtype: 'panel',
@@ -250,7 +243,9 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
             ],
             emptyText: '<h3>' + Uni.I18n.translate('communicationschedule.noCommunicationScheduleSelected', 'MDC', 'No communication schedule selected') + '</h3><p>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a communication schedule to see its details') + '</p>'
         },
-        initGridListeners: function () {}
+
+        initGridListeners: function () {
+        }
     }
 
 });

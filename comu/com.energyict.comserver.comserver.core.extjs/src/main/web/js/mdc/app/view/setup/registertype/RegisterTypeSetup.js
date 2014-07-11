@@ -7,16 +7,9 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
         'Mdc.view.setup.registertype.RegisterTypeGrid',
         'Mdc.view.setup.registertype.RegisterTypePreview',
         'Mdc.view.setup.registertype.RegisterTypeFilter',
-        'Uni.view.container.PreviewContainer'
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
-
-    /*   side: [
-     {
-     xtype: 'registerTypeFilter',
-     name: 'filter'
-     }
-     ],
-     */
 
     content: [
         {
@@ -30,37 +23,15 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
                         xtype: 'registerTypeGrid'
                     },
                     emptyComponent: {
-                        xtype: 'container',
-                        layout: {
-                            type: 'hbox',
-                            align: 'left'
-                        },
-                        minHeight: 20,
-                        items: [
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('registerType.empty.title', 'MDC', 'No register types found'),
+                        reasons: [
+                            Uni.I18n.translate('registerType.empty.list.item1', 'MDC', 'No register types have been created yet.')
+                        ],
+                        stepItems: [
                             {
-                                xtype: 'image',
-                                margin: '0 10 0 0',
-                                src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                height: 20,
-                                width: 20
-                            },
-                            {
-                                xtype: 'container',
-                                items: [
-                                    {
-                                        xtype: 'component',
-                                        html: '<b>' + Uni.I18n.translate('registerType.empty.title', 'MDC', 'No register types found') + '</b><br>' +
-                                            Uni.I18n.translate('registerType.empty.detail', 'MDC', 'There are no register types. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                            Uni.I18n.translate('registerType.empty.list.item1', 'MDC', 'No register types have been created yet.') + '</li></lv><br>' +
-                                            Uni.I18n.translate('registerType.empty.steps', 'MDC', 'Possible steps:')
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        margin: '10 0 0 0',
-                                        text: Uni.I18n.translate('registerType.add', 'MDC', 'Add register type'),
-                                        action: 'createRegisterType'
-                                    }
-                                ]
+                                text: Uni.I18n.translate('registerType.add', 'MDC', 'Add register type'),
+                                action: 'createRegisterType'
                             }
                         ]
                     },
@@ -75,7 +46,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
     initComponent: function () {
         this.callParent(arguments);
     }
-
 });
 
 

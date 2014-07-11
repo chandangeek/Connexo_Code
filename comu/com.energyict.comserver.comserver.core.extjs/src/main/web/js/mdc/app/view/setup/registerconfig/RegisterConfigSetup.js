@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerConfigSetup',
     itemId: 'registerConfigSetup',
+
     deviceTypeId: null,
     deviceConfigId: null,
 
@@ -10,6 +11,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
         'Mdc.view.setup.registerconfig.RegisterConfigFilter',
         'Mdc.view.setup.registerconfig.RegisterConfigPreview',
         'Uni.view.navigation.SubMenu',
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
         'Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer'
     ],
@@ -69,37 +72,16 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                             deviceConfigId: this.deviceConfigId
                         },
                         emptyComponent: {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'left'
-                            },
-                            minHeight: 20,
-                            items: [
+                            xtype: 'no-items-found-panel',
+                            title: Uni.I18n.translate('registerConfig.empty.title', 'MDC', 'No register configurations found'),
+                            reasons: [
+                                Uni.I18n.translate('registerConfig.empty.list.item1', 'MDC', 'No register configurations have been added yet.')
+                            ],
+                            stepItems: [
                                 {
-                                    xtype: 'image',
-                                    margin: '0 10 0 0',
-                                    src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                    height: 20,
-                                    width: 20
-                                },
-                                {
-                                    xtype: 'container',
-                                    items: [
-                                        {
-                                            xtype: 'component',
-                                            html: '<h4>' + Uni.I18n.translate('registerConfig.empty.title', 'MDC', 'No register configurations found') + '</h4><br>' +
-                                                Uni.I18n.translate('registerConfig.empty.detail', 'MDC', 'There are no register configurations. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                                Uni.I18n.translate('registerConfig.empty.list.item1', 'MDC', 'No register configurations have been added yet.') + '</li></lv><br>' +
-                                                Uni.I18n.translate('registerConfig.empty.steps', 'MDC', 'Possible steps:')
-                                        },
-                                        {
-                                            text: Uni.I18n.translate('registerConfig.addRegisterConfiguration', 'MDC', 'Add register configuration'),
-                                            itemId: 'createRegisterConfigurationButton',
-                                            xtype: 'button',
-                                            action: 'createRegisterConfig'
-                                        }
-                                    ]
+                                    text: Uni.I18n.translate('registerConfig.addRegisterConfiguration', 'MDC', 'Add register configuration'),
+                                    itemId: 'createRegisterConfigurationButton',
+                                    action: 'createRegisterConfig'
                                 }
                             ]
                         },

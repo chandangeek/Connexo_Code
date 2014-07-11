@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
         'Mdc.view.setup.registergroup.RegisterGroupGrid',
         'Mdc.view.setup.registergroup.RegisterGroupPreview',
         'Ext.layout.container.Card',
-        'Uni.view.container.EmptyGridContainer'
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     content: [
@@ -26,37 +27,15 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
                         xtype: 'registerGroupGrid'
                     },
                     emptyComponent: {
-                        xtype: 'container',
-                        layout: {
-                            type: 'hbox',
-                            align: 'left'
-                        },
-                        minHeight: 20,
-                        items: [
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('registerGroup.empty.title', 'MDC', 'No register groups found'),
+                        reasons: [
+                            Uni.I18n.translate('registerGroup.empty.list.item1', 'MDC', 'No register groups have been defined yet.')
+                        ],
+                        stepItems: [
                             {
-                                xtype: 'image',
-                                margin: '0 10 0 0',
-                                src: "../mdc/resources/images/information.png",
-                                height: 20,
-                                width: 20
-                            },
-                            {
-                                xtype: 'container',
-                                items: [
-                                    {
-                                        xtype: 'component',
-                                        html: '<b>' + Uni.I18n.translate('registerGroup.empty.title', 'MDC', 'No register groups found') + '</b><br>' +
-                                            Uni.I18n.translate('registerGroup.empty.detail', 'MDC', 'There are no register groups. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                            Uni.I18n.translate('registerGroup.empty.list.item1', 'MDC', 'No register groups have been defined yet.') + '</li></lv><br>' +
-                                            Uni.I18n.translate('registerGroup.empty.steps', 'MDC', 'Possible steps:')
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        margin: '10 0 0 0',
-                                        text: Uni.I18n.translate('registerGroup.add', 'MDC', 'Add register group'),
-                                        action: 'createRegisterGroup'
-                                    }
-                                ]
+                                text: Uni.I18n.translate('registerGroup.add', 'MDC', 'Add register group'),
+                                action: 'createRegisterGroup'
                             }
                         ]
                     },

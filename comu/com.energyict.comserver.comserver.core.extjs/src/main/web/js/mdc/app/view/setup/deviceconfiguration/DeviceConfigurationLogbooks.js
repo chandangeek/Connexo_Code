@@ -1,14 +1,18 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-configuration-logbooks',
+
     deviceConfigurationId: null,
     deviceTypeId: null,
+
     requires: [
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
         'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.deviceconfiguration.ActionMenu',
         'Uni.grid.column.Action'
     ],
+
     content: [
         {
             xtype: 'panel',
@@ -76,45 +80,23 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                         ]
                     },
                     emptyComponent: {
-                        xtype: 'container',
-                        layout: {
-                            type: 'hbox',
-                            align: 'left'
-                        },
-                        minHeight: 20,
-                        items: [
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.title', 'MDC', 'No logbook configuration found'),
+                        reasons: [
+                            Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.list.item1', 'MDC', 'No logbook configuration have been defined yet.'),
+                            Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.list.item2', 'MDC', 'No logbook configuration comply to the filter.')
+                        ],
+                        stepItems: [
                             {
-                                xtype: 'image',
-                                margin: '0 10 0 0',
-                                src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                height: 20,
-                                width: 20
-                            },
-                            {
-                                xtype: 'container',
-                                items: [
-                                    {
-                                        xtype: 'component',
-                                        html: '<b>' + Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.title', 'MDC', 'No logbook configuration found') + '</b><br>' +
-                                            Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.detail', 'MDC', 'There are no logbooks. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                            Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.list.item1', 'MDC', 'No logbook configuration have been defined yet') + '</li>' +
-                                            Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.list.item2', 'MDC', 'No logbook configuration comply to the filter') + '</li></lv><br>' +
-                                            Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.steps', 'MDC', 'Possible steps:')
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        margin: '10 0 0 0',
-                                        text: Uni.I18n.translate('deviceconfiguration.addLogbookConfiguration', 'MDC', 'Add logbook configuration'),
-                                        action: 'add',
-                                        listeners: {
-                                            click: {
-                                                fn: function () {
-                                                    window.location.href = '#/administration/devicetypes/' + this.up('device-configuration-logbooks').deviceTypeId + '/deviceconfigurations/' + this.up('device-configuration-logbooks').deviceConfigurationId + '/logbookconfigurations/add';
-                                                }
-                                            }
+                                text: Uni.I18n.translate('deviceconfiguration.addLogbookConfiguration', 'MDC', 'Add logbook configuration'),
+                                action: 'add',
+                                listeners: {
+                                    click: {
+                                        fn: function () {
+                                            window.location.href = '#/administration/devicetypes/' + this.up('device-configuration-logbooks').deviceTypeId + '/deviceconfigurations/' + this.up('device-configuration-logbooks').deviceConfigurationId + '/logbookconfigurations/add';
                                         }
                                     }
-                                ]
+                                }
                             }
                         ]
                     },

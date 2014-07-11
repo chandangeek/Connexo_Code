@@ -2,26 +2,15 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.protocolDialectSetup',
     itemId: 'protocolDialectSetup',
+
     deviceTypeId: null,
     deviceConfigId: null,
 
     requires: [
         'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
-        'Uni.view.container.PreviewContainer'
-    ],
-
-    side: [
-        {
-            xtype: 'panel',
-            ui: 'medium',
-            items: [
-                {
-                    xtype: 'navigationSubMenu',
-                    itemId: 'stepsMenu'
-                }
-            ]
-        }
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     initComponent: function () {
@@ -40,6 +29,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
                 ]
             }
         ];
+
         this.content = [
             {
                 ui: 'large',
@@ -56,32 +46,10 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
                             deviceConfigId: this.deviceConfigId
                         },
                         emptyComponent: {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'left'
-                            },
-                            minHeight: 20,
-                            items: [
-                                {
-                                    xtype: 'image',
-                                    margin: '0 10 0 0',
-                                    src: "../mdc/resources/images/information.png",
-                                    height: 20,
-                                    width: 20
-                                },
-                                {
-                                    xtype: 'container',
-                                    items: [
-                                        {
-                                            xtype: 'component',
-                                            html: '<h4>' + Uni.I18n.translate('protocolDialects.empty.title', 'MDC', 'No protocol dialects found') + '</h4><br>' +
-                                                Uni.I18n.translate('protocolDialects.empty.detail', 'MDC', 'There are no protocol dialects. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                                Uni.I18n.translate('protocolDialects.empty.list.item1', 'MDC', 'No protocol dialects have been defined yet.') + '</li></lv><br>' +
-                                                Uni.I18n.translate('protocolDialects.empty.steps', 'MDC', 'Possible steps:')
-                                        }
-                                    ]
-                                }
+                            xtype: 'no-items-found-panel',
+                            title: Uni.I18n.translate('protocolDialects.empty.title', 'MDC', 'No protocol dialects found'),
+                            reasons: [
+                                Uni.I18n.translate('protocolDialects.empty.list.item1', 'MDC', 'No protocol dialects have been defined yet.')
                             ]
                         },
                         previewComponent: {
@@ -93,6 +61,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
                 ]
             }
         ];
+
         this.callParent(arguments);
     }
 });

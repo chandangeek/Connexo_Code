@@ -1,35 +1,18 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConfigurationsSetup',
-    deviceTypeId: null,
     itemId: 'deviceConfigurationsSetup',
 
+    deviceTypeId: null,
+
     requires: [
-        'Mdc.view.setup.devicetype.DeviceTypeMenu'
+        'Mdc.view.setup.devicetype.DeviceTypeMenu',
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
-
-
-    content: [
-//        {
-//            ui: 'large',
-//            xtype: 'panel',
-//            title: Uni.I18n.translate('deviceconfiguration.deviceConfigurations', 'MDC', 'Device configurations'),
-//            items: [
-//                {
-//                    xtype: 'container',
-//                    itemId: 'DeviceConfigurationsGridContainer'
-//                },
-//                {
-//                    xtype: 'deviceConfigurationPreview'
-//                }
-//            ]
-//        }
-    ],
-
 
     initComponent: function () {
         this.side = [
-
             {
                 xtype: 'panel',
                 ui: 'medium',
@@ -43,7 +26,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                 ]
             }
         ];
-        this.content =  [
+
+        this.content = [
             {
                 ui: 'large',
                 xtype: 'panel',
@@ -59,37 +43,16 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                             deviceTypeId: this.deviceTypeId
                         },
                         emptyComponent: {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'left'
-                            },
-                            minHeight: 20,
-                            items: [
+                            xtype: 'no-items-found-panel',
+                            title: Uni.I18n.translate('deviceConfiguration.empty.title', 'MDC', 'No device configurations found'),
+                            reasons: [
+                                Uni.I18n.translate('deviceConfiguration.empty.list.item1', 'MDC', 'No device configurations have been added yet.')
+                            ],
+                            stepItems: [
                                 {
-                                    xtype: 'image',
-                                    margin: '0 10 0 0',
-                                    src: "../mdc/resources/images/information.png",
-                                    height: 20,
-                                    width: 20
-                                },
-                                {
-                                    xtype: 'container',
-                                    items: [
-                                        {
-                                            xtype: 'component',
-                                            html: '<h4>' + Uni.I18n.translate('deviceConfiguration.empty.title', 'MDC', 'No device configurations found') + '</h4><br>' +
-                                                Uni.I18n.translate('deviceConfiguration.empty.detail', 'MDC', 'There are no device configurations. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                                Uni.I18n.translate('deviceConfiguration.empty.list.item1', 'MDC', 'No device configurations have been added yet.') + '</li></lv><br>' +
-                                                Uni.I18n.translate('deviceConfiguration.empty.steps', 'MDC', 'Possible steps:')
-                                        },
-                                        {
-                                            text: Uni.I18n.translate('deviceConfiguration.addDeviceConfiguration', 'MDC', 'Add device configuration'),
-                                            itemId: 'createDeviceConfigurationButton',
-                                            xtype: 'button',
-                                            action: 'createDeviceConfiguration'
-                                        }
-                                    ]
+                                    text: Uni.I18n.translate('deviceConfiguration.addDeviceConfiguration', 'MDC', 'Add device configuration'),
+                                    itemId: 'createDeviceConfigurationButton',
+                                    action: 'createDeviceConfiguration'
                                 }
                             ]
                         },

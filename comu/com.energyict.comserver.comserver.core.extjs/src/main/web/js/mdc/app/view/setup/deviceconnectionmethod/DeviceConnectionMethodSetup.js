@@ -2,17 +2,19 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConnectionMethodSetup',
     itemId: 'deviceConnectionMethodSetup',
+
     deviceTypeId: null,
     deviceConfigId: null,
+
     requires: [
         'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.device.DeviceMenu',
-        'Uni.view.container.EmptyGridContainer'
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     initComponent: function () {
         this.side = [
-
             {
                 xtype: 'panel',
                 ui: 'medium',
@@ -26,7 +28,8 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
                 ]
             }
         ];
-        this.content =  [
+
+        this.content = [
             {
                 ui: 'large',
                 xtype: 'panel',
@@ -41,15 +44,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
                             xtype: 'deviceConnectionMethodsGrid',
                             mrid: this.mrid
                         },
-                        emptyComponent: {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'left'
-                            },
-                            minHeight: 20,
-                            items: this.getEmptyContent()
-                        },
+                        emptyComponent: this.getEmptyComponent(),
                         previewComponent: {
                             xtype: 'deviceConnectionMethodPreview'
                         }
@@ -61,64 +56,35 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
         this.callParent(arguments);
     },
 
-    getEmptyContent: function(){
-        if(this.isDirectlyAddressable) {
-            return [
-                {
-                    xtype: 'image',
-                    margin: '0 10 0 0',
-                    src: "../mdc/resources/images/information.png",
-                    height: 20,
-                    width: 20
-                },
-                {
-                    xtype: 'container',
-                    items: [
-                        {
-                            xtype: 'component',
-                            html: '<h4>' + Uni.I18n.translate('deviceconnectionmethod.empty.title', 'MDC', 'No connection methods found') + '</h4><br>' +
-                                Uni.I18n.translate('deviceconnectionmethod.empty.detail', 'MDC', 'There are no connection methods. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                Uni.I18n.translate('deviceconnectionmethod.empty.list.item1', 'MDC', 'No connection methods have been defined yet.') + '</li></lv><br>' +
-                                Uni.I18n.translate('deviceconnectionmethod.empty.steps', 'MDC', 'Possible steps:')
-                        },
-                        {
-                            text: Uni.I18n.translate('deviceconnectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
-                            itemId: 'createDeviceOutboundConnectionButton',
-                            xtype: 'button',
-                            action: 'createDeviceOutboundConnectionMethod',
-                            margin: '0 5 0 0'
-                        },
-                        {
-                            text: Uni.I18n.translate('deviceconnectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
-                            itemId: 'createDeviceInboundConnectionButton',
-                            xtype: 'button',
-                            action: 'createDeviceInboundConnectionMethod'
-                        }
-                    ]
-                }
-            ]
+    getEmptyComponent: function () {
+        if (this.isDirectlyAddressable) {
+            return  {
+                xtype: 'no-items-found-panel',
+                title: Uni.I18n.translate('deviceconnectionmethod.empty.title', 'MDC', 'No connection methods found'),
+                reasons: [
+                    Uni.I18n.translate('deviceconnectionmethod.empty.list.item1', 'MDC', 'No connection methods have been defined yet.')
+                ],
+                stepItems: [
+                    {
+                        text: Uni.I18n.translate('deviceconnectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
+                        itemId: 'createDeviceOutboundConnectionButton',
+                        action: 'createDeviceOutboundConnectionMethod'
+                    },
+                    {
+                        text: Uni.I18n.translate('deviceconnectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
+                        itemId: 'createDeviceInboundConnectionButton',
+                        action: 'createDeviceInboundConnectionMethod'
+                    }
+                ]
+            };
         } else {
-            return [
-                {
-                    xtype: 'image',
-                    margin: '0 10 0 0',
-                    src: "../mdc/resources/images/information.png",
-                    height: 20,
-                    width: 20
-                },
-                {
-                    xtype: 'container',
-                    items: [
-                        {
-                            xtype: 'component',
-
-                            html: '<h4>' + Uni.I18n.translate('deviceconnectionmethod.empty.detailNotAdressable', 'MDC', 'No connection methods can be added') + '</h4><br>' +
-                                Uni.I18n.translate('deviceconnectionmethod.empty.detailNotAdressable', 'MDC', 'No connection methods can be added. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                Uni.I18n.translate('deviceconnectionmethod.empty.list.detailNotAdressableItem1', 'MDC', 'This device configuration is not directly addressable') + '</li></lv><br>'
-                        }
-                    ]
-                }
-            ]
+            return  {
+                xtype: 'no-items-found-panel',
+                title: Uni.I18n.translate('deviceconnectionmethod.empty.detailNotAdressable', 'MDC', 'No connection methods can be added'),
+                reasons: [
+                    Uni.I18n.translate('deviceconnectionmethod.empty.list.detailNotAdressableItem1', 'MDC', 'This device configuration is not directly addressable.')
+                ]
+            };
         }
     }
 });
