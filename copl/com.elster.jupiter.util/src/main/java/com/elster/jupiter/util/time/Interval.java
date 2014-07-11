@@ -218,6 +218,21 @@ public final class Interval {
     }
 
     /**
+     * @return the duration in milliseconds
+     * @throws java.lang.IllegalStateException if the interval is infinite in duration.
+     */
+    public long durationInMillis() {
+        if (isInfinite()) {
+            throw new IllegalStateException();
+        }
+        return end - start;
+    }
+
+    public boolean isInfinite() {
+        return start == -ETERNITY || end == ETERNITY;
+    }
+
+    /**
      * Determines whether the first {@link Interval} abuts the second at the first's from. (i.e. the first starts at the point
      * where the second one ends).
      *
