@@ -663,7 +663,7 @@ Ext.define('Cfg.controller.Validation', {
                 }
 
                 Ext.Array.each(rule.get('properties'), function (item) {
-                    fieldItemId = '#' + item.name;
+                    fieldItemId = '#' + item.key;
                     propField = editRulePanel.down(fieldItemId).setValue(item.value);
                 });
             }
