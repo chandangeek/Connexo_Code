@@ -42,7 +42,8 @@
     }
 
     *[class*='#{$prefix}panel-header-text-container-'] {
-        font-size: 24px;
+        font-family: 'Lato', helvetica, arial, verdana, sans-serif;
+        font-size: 20px;
         color: #686868;
     }
 

@@ -1,4 +1,3 @@
-@import url(http://fonts.googleapis.com/css?family=Lato|Marvel);
 /* including package ext-theme-base */
 /**
  * Creates a background gradient.
@@ -13644,7 +13643,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px Lato; }
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif; }
 
 /* line 21, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-type-text textarea.x-form-invalid-field, .x-form-type-text input.x-form-invalid-field,
@@ -13713,7 +13712,7 @@ textarea.x-form-empty-field {
 
 /* line 11, ../../../ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px Lato;
+  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
   margin-top: 6px; }
 
@@ -14514,7 +14513,7 @@ a.x-color-picker-item:hover {
 
 /* line 100, ../../../ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px Lato;
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
   background-color: white;
   resize: none; }
 
@@ -20649,11 +20648,29 @@ a.x-color-picker-item:hover {
   background-position: 2px -2px; }
 
 /* including package uni-theme-skyline */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: local("Lato Regular"), local("Lato-Regular"), url("fonts/Lato.woff") format("woff"); }
+
+@font-face {
+  font-family: 'Open Sans Condensed';
+  font-style: normal;
+  font-weight: 300;
+  src: local("Open Sans Cond Light"), local("OpenSans-CondensedLight"), url("fonts/Open_Sans_CondensedLight.woff") format("woff"); }
+
+@font-face {
+  font-family: 'Open Sans Condensed';
+  font-style: normal;
+  font-weight: 700;
+  src: local("Open Sans Condensed Bold"), local("OpenSans-CondensedBold"), url("fonts/Open_Sans_CondensedBold.woff") format("woff"); }
+
 /* line 1, ../../sass/src/Headings.scss */
 h1, h2, h3, h4, h5, h6 {
   text-decoration: none;
   font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
   color: #686868;
   margin: 0; }
 
@@ -20716,13 +20733,13 @@ h6 {
   .x-grid-row-selected .uni-actioncolumn-gear, .x-grid-row-focused .uni-actioncolumn-gear, .x-grid-row-over .uni-actioncolumn-gear {
     background-image: url("images/grid/masterActionsHighlight.png"); }
 
-/* line 8, ../../sass/src/Component.scss */
+/* line 9, ../../sass/src/Component.scss */
 .icon-delete {
   background-image: url("images/button/ico_delete.png") !important;
   width: 16px !important;
   height: 16px !important; }
 
-/* line 14, ../../sass/src/Component.scss */
+/* line 15, ../../sass/src/Component.scss */
 .icon-delete:hover {
   background-image: url("images/button/ico_deleteA.png") !important;
   width: 16px !important;
@@ -36290,7 +36307,7 @@ a, a.x-btn {
   color: #007dc3;
   font-size: 60px;
   font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
   line-height: 60px;
   padding: 1px 0 0;
   text-transform: none; }
@@ -36559,7 +36576,7 @@ a, a.x-btn {
   color: #007dc3;
   font-size: 30px;
   font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
   line-height: 30px;
   padding: 1px 0 0;
   text-transform: none; }
@@ -36827,7 +36844,7 @@ a, a.x-btn {
   color: #686868;
   font-size: 30px;
   font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
   line-height: 30px;
   padding: 1px 0 0;
   text-transform: none; }
@@ -38831,7 +38848,7 @@ a, a.x-btn {
   color: #74af74;
   font-size: 25px;
   font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
   line-height: 25px;
   padding: 1px 0 0;
   text-transform: none; }
@@ -40236,9 +40253,10 @@ a, a.x-btn {
     margin-top: 8px; }
   /* line 44, ../../sass/src/panel/NoItemsFound.scss */
   .uni-panel-no-items-found *[class*='x-panel-header-text-container-'] {
-    font-size: 24px;
+    font-family: 'Lato', helvetica, arial, verdana, sans-serif;
+    font-size: 20px;
     color: #686868; }
-  /* line 49, ../../sass/src/panel/NoItemsFound.scss */
+  /* line 50, ../../sass/src/panel/NoItemsFound.scss */
   .uni-panel-no-items-found *[class*='x-panel-body-'] {
     font-size: 13px;
     color: #686868; }

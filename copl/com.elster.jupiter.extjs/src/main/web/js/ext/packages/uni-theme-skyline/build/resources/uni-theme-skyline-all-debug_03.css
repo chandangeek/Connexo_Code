@@ -3107,7 +3107,7 @@
   color: #007dc3;
   font-size: 60px;
   font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
   line-height: 60px;
   padding: 1px 0 0;
   text-transform: none;
@@ -3424,7 +3424,7 @@
   color: #007dc3;
   font-size: 30px;
   font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
   line-height: 30px;
   padding: 1px 0 0;
   text-transform: none;
@@ -3740,7 +3740,7 @@
   color: #686868;
   font-size: 30px;
   font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
   line-height: 30px;
   padding: 1px 0 0;
   text-transform: none;
@@ -6096,7 +6096,7 @@
   color: #74af74;
   font-size: 25px;
   font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
   line-height: 25px;
   padding: 1px 0 0;
   text-transform: none;
@@ -7698,6 +7698,54 @@
 .license-details-toolbar,
 .isu-item-data-table,
 .license-title {
+  color: #686868;
+}
+
+/* line 1, ../../sass/src/panel/NoItemsFound.scss */
+.uni-panel-no-items-found {
+  border: 1px solid #d2d2d2;
+  border-radius: 10px;
+  background-image: url("images/shared/icon-error.png");
+  background-position: 22px 20px;
+  background-repeat: no-repeat;
+  padding-top: 16px;
+  padding-right: 128px;
+  padding-bottom: 24px;
+  padding-left: 64px;
+}
+/* line 16, ../../sass/src/panel/NoItemsFound.scss */
+.uni-panel-no-items-found .message > .x-panel-body {
+  background-color: transparent;
+}
+/* line 20, ../../sass/src/panel/NoItemsFound.scss */
+.uni-panel-no-items-found ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-top: 14px;
+  margin-bottom: 18px;
+}
+/* line 29, ../../sass/src/panel/NoItemsFound.scss */
+.uni-panel-no-items-found ul li {
+  background-image: url("images/container/bullet.png");
+  background-position: left 2px;
+  background-repeat: no-repeat;
+  padding-left: 24px;
+  margin: 0;
+  margin-bottom: 8px;
+}
+/* line 40, ../../sass/src/panel/NoItemsFound.scss */
+.uni-panel-no-items-found .steps {
+  margin-top: 8px;
+}
+/* line 44, ../../sass/src/panel/NoItemsFound.scss */
+.uni-panel-no-items-found *[class*='x-panel-header-text-container-'] {
+  font-size: 24px;
+  color: #686868;
+}
+/* line 49, ../../sass/src/panel/NoItemsFound.scss */
+.uni-panel-no-items-found *[class*='x-panel-body-'] {
+  font-size: 13px;
   color: #686868;
 }
 

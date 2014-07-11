@@ -1,3 +1,20 @@
+/* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-bc {
+  height: 0;
+}
+
+/* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-tl,
+.x-window-header-message-error-top-bl,
+.x-window-header-message-error-top-tr,
+.x-window-header-message-error-top-br,
+.x-window-header-message-error-top-tc,
+.x-window-header-message-error-top-bc,
+.x-window-header-message-error-top-ml,
+.x-window-header-message-error-top-mr {
+  zoom: 1;
+}
+
 /* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-message-error-top-ml,
 .x-window-header-message-error-top-mr {

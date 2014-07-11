@@ -63,7 +63,6 @@
 /* including package ext-theme-neutral */
 /* including package ext-theme-neptune */
 /* including package uni-theme-skyline */
-@import url(http://fonts.googleapis.com/css?family=Lato|Marvel);
 /* including package uni-theme-skyline */
 /**
  * @class Ext.button.Button
@@ -15054,7 +15053,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px Lato;
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
 }
 
 /* line 21, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
@@ -15134,7 +15133,7 @@ textarea.x-form-empty-field {
 
 /* line 11, ../../../ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px Lato;
+  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
   margin-top: 6px;
 }
@@ -16088,7 +16087,7 @@ a.x-color-picker-item:hover {
 
 /* line 100, ../../../ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px Lato;
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
   background-color: white;
   resize: none;
 }
@@ -23286,11 +23285,32 @@ a.x-color-picker-item:hover {
 }
 
 /* including package uni-theme-skyline */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: local("Lato Regular"), local("Lato-Regular"), url("fonts/Lato.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'Open Sans Condensed';
+  font-style: normal;
+  font-weight: 300;
+  src: local("Open Sans Cond Light"), local("OpenSans-CondensedLight"), url("fonts/Open_Sans_CondensedLight.woff") format("woff");
+}
+
+@font-face {
+  font-family: 'Open Sans Condensed';
+  font-style: normal;
+  font-weight: 700;
+  src: local("Open Sans Condensed Bold"), local("OpenSans-CondensedBold"), url("fonts/Open_Sans_CondensedBold.woff") format("woff");
+}
+
 /* line 1, ../../sass/src/Headings.scss */
 h1, h2, h3, h4, h5, h6 {
   text-decoration: none;
   font-weight: normal;
-  font-family: "Marvel", helvetica, arial, verdana, sans-serif;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
   color: #686868;
   margin: 0;
 }
@@ -23366,14 +23386,14 @@ h6 {
   background-image: url("images/grid/masterActionsHighlight.png");
 }
 
-/* line 8, ../../sass/src/Component.scss */
+/* line 9, ../../sass/src/Component.scss */
 .icon-delete {
   background-image: url("images/button/ico_delete.png") !important;
   width: 16px !important;
   height: 16px !important;
 }
 
-/* line 14, ../../sass/src/Component.scss */
+/* line 15, ../../sass/src/Component.scss */
 .icon-delete:hover {
   background-image: url("images/button/ico_deleteA.png") !important;
   width: 16px !important;
@@ -23423,11 +23443,7 @@ h6 {
   /* Standard syntax */
 }
 /* line 45, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher,
-.x-container-navigationheader .nav-toggler,
-.x-container-navigationheader .notifications-anchor,
-.x-container-navigationheader .nav-help,
-.x-container-navigationheader .user-menu {
+.x-container-navigationheader .nav-appswitcher, .x-container-navigationheader .nav-toggler, .x-container-navigationheader .notifications-anchor, .x-container-navigationheader .nav-help, .x-container-navigationheader .user-menu {
   background: none;
   border: none;
   border-radius: 0;
@@ -23437,28 +23453,16 @@ h6 {
   padding: 0 4px;
 }
 /* line 9, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button,
-.x-container-navigationheader .nav-toggler .x-btn-button,
-.x-container-navigationheader .notifications-anchor .x-btn-button,
-.x-container-navigationheader .nav-help .x-btn-button,
-.x-container-navigationheader .user-menu .x-btn-button {
+.x-container-navigationheader .nav-appswitcher .x-btn-button, .x-container-navigationheader .nav-toggler .x-btn-button, .x-container-navigationheader .notifications-anchor .x-btn-button, .x-container-navigationheader .nav-help .x-btn-button, .x-container-navigationheader .user-menu .x-btn-button {
   padding-right: 10px;
   padding-left: 10px;
 }
 /* line 15, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-inner,
-.x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner,
-.x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner,
-.x-container-navigationheader .nav-help .x-btn-button .x-btn-inner,
-.x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
+.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-inner, .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner, .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner, .x-container-navigationheader .nav-help .x-btn-button .x-btn-inner, .x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
   color: white;
 }
 /* line 19, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
+.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-glyph, .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph, .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph, .x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph, .x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
   opacity: 1;
   height: auto;
   line-height: 36px;
@@ -23466,21 +23470,13 @@ h6 {
   margin-left: 10px;
 }
 /* line 48, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher .icon-logout,
-.x-container-navigationheader .nav-toggler .icon-logout,
-.x-container-navigationheader .notifications-anchor .icon-logout,
-.x-container-navigationheader .nav-help .icon-logout,
-.x-container-navigationheader .user-menu .icon-logout {
+.x-container-navigationheader .nav-appswitcher .icon-logout, .x-container-navigationheader .nav-toggler .icon-logout, .x-container-navigationheader .notifications-anchor .icon-logout, .x-container-navigationheader .nav-help .icon-logout, .x-container-navigationheader .user-menu .icon-logout {
   margin: 14px 8px;
   width: 20px !important;
   height: 20px !important;
 }
 /* line 54, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher:hover,
-.x-container-navigationheader .nav-toggler:hover,
-.x-container-navigationheader .notifications-anchor:hover,
-.x-container-navigationheader .nav-help:hover,
-.x-container-navigationheader .user-menu:hover {
+.x-container-navigationheader .nav-appswitcher:hover, .x-container-navigationheader .nav-toggler:hover, .x-container-navigationheader .notifications-anchor:hover, .x-container-navigationheader .nav-help:hover, .x-container-navigationheader .user-menu:hover {
   background-color: #71adc7;
 }
 /* line 60, ../../sass/src/container/NavigationHeader.scss */
