@@ -21,7 +21,8 @@ import java.util.Map;
 @Component(name = "com.elster.jupiter.validators.impl.DefaultValidatorFactory", service = {ValidatorFactory.class, InstallService.class}, property = "name=" + MessageSeeds.COMPONENT_NAME, immediate = true)
 public class DefaultValidatorFactory implements ValidatorFactory, InstallService {
 
-    public static final String THRESHOLD_VALIDATOR = "com.elster.jupiter.validators.impl.ThresholdValidator";
+    public static final String THRESHOLD_VALIDATOR = ThresholdValidator.class.getName();
+    public static final String MISSING_VALUES_VALIDATOR = MissingValuesValidator.class.getName();
     private volatile Thesaurus thesaurus;
 
     @Reference
@@ -56,6 +57,17 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
             @Override
             IValidator createTemplate(Thesaurus thesaurus) {
                 return new ThresholdValidator(thesaurus);
+            }
+        },
+        MISSING_VALUES(MISSING_VALUES_VALIDATOR) {
+            @Override
+            Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
+                return new MissingValuesValidator(thesaurus);
+            }
+
+            @Override
+            IValidator createTemplate(Thesaurus thesaurus) {
+                return new MissingValuesValidator(thesaurus);
             }
         };
 
