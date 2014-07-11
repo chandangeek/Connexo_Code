@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                 items: [
                     {
                         xtype: 'combobox',
-                        name: 'communicationProtocolName',
+                        name: 'deviceProtocolPluggableClass',
                         fieldLabel: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol'),
                         itemId: 'communicationProtocolComboBox',
                         store: this.deviceCommunicationProtocols,

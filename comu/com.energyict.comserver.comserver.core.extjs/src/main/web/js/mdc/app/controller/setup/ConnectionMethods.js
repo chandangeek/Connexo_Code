@@ -183,7 +183,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                                 connectionStrategiesStore.load({
                                     callback: function () {
-                                        connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
+                                        connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('deviceProtocolPluggableClassId'));
                                           connectionTypesStore.getProxy().setExtraParam('filter', Ext.encode([
                                             {
                                                 property: 'direction',
@@ -365,7 +365,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         model.load(deviceConfigId, {
                             success: function (deviceConfig) {
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                                connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('communicationProtocolId'));
+                                connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('deviceProtocolPluggableClassId'));
                                 connectionTypesStore.getProxy().setExtraParam('filter', Ext.encode([
                                     {
                                         property: 'direction',

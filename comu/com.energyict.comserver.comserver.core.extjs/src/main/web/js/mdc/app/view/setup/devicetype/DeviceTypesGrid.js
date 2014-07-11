@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             },
             {
                 header: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol'),
-                dataIndex: 'communicationProtocolName',
+                dataIndex: 'deviceProtocolPluggableClass',
                 flex: 0.4
             },
             {
