@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class DeviceProtocolInfo {
 
-    @JsonProperty("communicationProtocolName")
+    @JsonProperty(DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME)
     public String name;
 
     public DeviceProtocolInfo() {
