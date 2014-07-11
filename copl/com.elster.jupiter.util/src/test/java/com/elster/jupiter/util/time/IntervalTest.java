@@ -340,6 +340,106 @@ public class IntervalTest extends EqualsContractTest {
         assertThat(Interval.sinceEpoch().isInfinite()).isTrue();
     }
 
+    @Test
+    public void testStartsBeforeTrue() {
+        assertThat(new Interval(date3, date5).startsBefore(date4)).isTrue();
+    }
+
+    @Test
+    public void testStartsBeforeFalse() {
+        assertThat(new Interval(date3, date5).startsBefore(date2)).isFalse();
+    }
+
+    @Test
+    public void testStartsBeforeComparedToStartIsFalse() {
+        assertThat(new Interval(date3, date5).startsBefore(date3)).isFalse();
+    }
+
+    @Test
+    public void testStartsBeforeForMinusEternityIsTrue() {
+        assertThat(Interval.endAt(date5).startsBefore(date3)).isTrue();
+    }
+
+    @Test
+    public void testStartsBeforeForMinusEternityComparedToNullIsFalse() {
+        assertThat(Interval.endAt(date5).startsBefore(null)).isFalse();
+    }
+
+    @Test
+    public void testStartsAfterTrue() {
+        assertThat(new Interval(date3, date5).startsAfter(date2)).isTrue();
+    }
+
+    @Test
+    public void testStartsAfterFalse() {
+        assertThat(new Interval(date3, date5).startsAfter(date4)).isFalse();
+    }
+
+    @Test
+    public void testStartsAfterComparedToStartIsFalse() {
+        assertThat(new Interval(date3, date5).startsAfter(date3)).isFalse();
+    }
+
+    @Test
+    public void testStartsAfterForMinusEternityIsFalse() {
+        assertThat(Interval.endAt(date5).startsAfter(date3)).isFalse();
+    }
+
+    @Test
+    public void testStartsAfterForMinusEternityComparedToNullIsFalse() {
+        assertThat(Interval.endAt(date5).startsAfter(null)).isFalse();
+    }
+
+    @Test
+    public void testEndsBeforeTrue() {
+        assertThat(new Interval(date3, date5).endsBefore(date6)).isTrue();
+    }
+
+    @Test
+    public void testEndsBeforeFalse() {
+        assertThat(new Interval(date3, date5).endsBefore(date4)).isFalse();
+    }
+
+    @Test
+    public void testEndsBeforeComparedToEndIsFalse() {
+        assertThat(new Interval(date3, date5).endsBefore(date5)).isFalse();
+    }
+
+    @Test
+    public void testEndsBeforeForEternityIsFalse() {
+        assertThat(Interval.startAt(date5).endsBefore(date6)).isFalse();
+    }
+
+    @Test
+    public void testEndsBeforeForEternityComparedToNullIsFalse() {
+        assertThat(Interval.startAt(date5).endsBefore(null)).isFalse();
+    }
+
+    @Test
+    public void testEndsAfterTrue() {
+        assertThat(new Interval(date3, date5).endsAfter(date4)).isTrue();
+    }
+
+    @Test
+    public void testEndsAfterFalse() {
+        assertThat(new Interval(date3, date5).endsAfter(date6)).isFalse();
+    }
+
+    @Test
+    public void testEndsAfterComparedToEndIsFalse() {
+        assertThat(new Interval(date3, date5).endsAfter(date5)).isFalse();
+    }
+
+    @Test
+    public void testEndsAfterForEternityIsTrue() {
+        assertThat(Interval.startAt(date5).endsAfter(date6)).isTrue();
+    }
+
+    @Test
+    public void testEndsAfterForEternityComparedToNullIsFalse() {
+        assertThat(Interval.startAt(date5).endsAfter(null)).isFalse();
+    }
+
     @Override
     protected boolean canBeSubclassed() {
         return false;

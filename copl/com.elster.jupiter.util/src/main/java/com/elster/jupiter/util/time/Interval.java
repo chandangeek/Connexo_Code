@@ -46,7 +46,16 @@ public final class Interval {
     public static Interval startAt(Date start) {
         return new Interval(start, null);
     }
-	
+
+    /**
+     * Static factory method to create an infinite Interval that ends at the given Date.
+     * @param end
+     * @return
+     */
+    public static Interval endAt(Date end) {
+        return new Interval(null, end);
+    }
+
     public static Interval sinceEpoch() {
     	return SINCE_EPOCH;
     }
