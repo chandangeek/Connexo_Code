@@ -108,7 +108,6 @@ mvn:com.energyict.dataconcentrator.external/serialio/10.0.4.2
 mvn:com.energyict/comserver.core.extjs/1.0.0-SNAPSHOT
 mvn:com.energyict/comserver.core.rest/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.device.config.rest/1.0.0-SNAPSHOT
-mvn:com.energyict/mdc-all/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.common/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.engine.config/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.engine/1.0.0-SNAPSHOT
