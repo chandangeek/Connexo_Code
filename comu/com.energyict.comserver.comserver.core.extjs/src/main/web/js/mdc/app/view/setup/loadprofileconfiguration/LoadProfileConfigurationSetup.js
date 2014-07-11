@@ -2,13 +2,16 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.loadProfileConfigurationSetup',
     itemId: 'loadProfileConfigurationSetup',
+
     requires: [
         'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid',
         'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPreview',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
         'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigAndRulesPreviewContainer'
     ],
+
     side: {
         xtype: 'panel',
         ui: 'medium',
@@ -19,6 +22,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
             }
         ]
     },
+
     content: [
         {
             xtype: 'panel',
@@ -31,40 +35,16 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                         xtype: 'loadProfileConfigurationGrid'
                     },
                     emptyComponent: {
-                        xtype: 'container',
-                        layout: {
-                            type: 'hbox',
-                            align: 'left'
-                        },
-                        minHeight: 20,
-                        items: [
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('loadProfileConfigurations.empty.title', 'MDC', 'No load profile configurations found'),
+                        reasons: [
+                            Uni.I18n.translate('loadProfileConfigurations.empty.list.item1', 'MDC', 'No load profile configurations have been defined yet.'),
+                            Uni.I18n.translate('loadProfileConfigurations.empty.list.item2', 'MDC', 'No load profile configurations comply to the filter.')
+                        ],
+                        stepItems: [
                             {
-                                xtype: 'image',
-                                margin: '0 10 0 0',
-                                src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                height: 20,
-                                width: 20
-                            },
-                            {
-                                xtype: 'container',
-                                items: [
-                                    {
-                                        xtype: 'component',
-                                        html: '<b>' + Uni.I18n.translate('loadProfileConfigurations.empty.title', 'MDC', 'No load profile configurations found') + '</b><br>' +
-                                            Uni.I18n.translate('loadProfileConfigurations.empty.detail', 'MDC', 'There are no load profile configurations. This could be because:') + '<lv><li>' +
-                                            Uni.I18n.translate('loadProfileConfigurations.empty.list.item1', 'MDC', 'No load profile configurations have been defined yet.') + '</li><li>' +
-                                            Uni.I18n.translate('loadProfileConfigurations.empty.list.item2', 'MDC', 'No load profile configurations comply to the filter.') + '</li></lv><br>' +
-                                            Uni.I18n.translate('loadProfileConfigurations.empty.steps', 'MDC', 'Possible steps:')
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        margin: '10 0 0 0',
-                                        text: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
-                                        action: 'addloadprofileconfiguration',
-                                        href: '#',
-                                        hrefTarget: ''
-                                    }
-                                ]
+                                text: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
+                                action: 'addloadprofileconfiguration'
                             }
                         ]
                     },

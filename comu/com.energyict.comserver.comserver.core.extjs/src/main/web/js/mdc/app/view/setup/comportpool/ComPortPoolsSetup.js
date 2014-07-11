@@ -1,10 +1,14 @@
 Ext.define('Mdc.view.setup.comportpool.ComPortPoolsSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comPortPoolsSetup',
+
     requires: [
         'Mdc.view.setup.comportpool.ComPortPoolsGrid',
-        'Mdc.view.setup.comportpool.ComPortPoolPreview'
+        'Mdc.view.setup.comportpool.ComPortPoolPreview',
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
+
     content: [
         {
             xtype: 'panel',
@@ -17,51 +21,30 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsSetup', {
                         xtype: 'comPortPoolsGrid'
                     },
                     emptyComponent: {
-                        xtype: 'container',
-                        layout: {
-                            type: 'hbox',
-                            align: 'left'
-                        },
-                        minHeight: 20,
-                        items: [
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('setup.comportpool.ComPortPoolsSetup.NoItemsFoundPanel.title', 'MDC', 'No comuncation port pools found'),
+                        reasons: [
+                            Uni.I18n.translate('setup.comportpool.ComPortPoolsSetup.NoItemsFoundPanel.reason1', 'MDC', 'No comuncation port pools created yet.')
+                        ],
+                        stepItems: [
                             {
-                                xtype: 'image',
-                                margin: '0 10 0 0',
-                                src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                height: 20,
-                                width: 20
-                            },
-                            {
-                                xtype: 'container',
-                                items: [
-                                    {
-                                        xtype: 'component',
-                                        html: '<b>' + Uni.I18n.translate('', 'MDC', 'No comuncation port pools found') + '</b><br>' +
-                                            Uni.I18n.translate('', 'MDC', 'There are no comuncation port pools. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                            Uni.I18n.translate('', 'MDC', 'No comuncation port pools created yet') + '</li></lv><br>' +
-                                            Uni.I18n.translate('', 'MDC', 'Possible steps:')
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        text: Uni.I18n.translate('comPortPool.addComPortPool', 'MDC', 'Add communication port pool'),
-                                        menu: {
-                                            plain: true,
-                                            border: false,
-                                            shadow: false,
-                                            itemId: 'addComPortPoolMenu',
-                                            items: [
-                                                {
-                                                    text: Uni.I18n.translate('comPortPool.inbound', 'MDC', 'Inbound'),
-                                                    action: 'addInbound'
-                                                },
-                                                {
-                                                    text: Uni.I18n.translate('comPortPool.outbound', 'MDC', 'Outbound'),
-                                                    action: 'addOutbound'
-                                                }
-                                            ]
+                                text: Uni.I18n.translate('comPortPool.addComPortPool', 'MDC', 'Add communication port pool'),
+                                menu: {
+                                    plain: true,
+                                    border: false,
+                                    shadow: false,
+                                    itemId: 'addComPortPoolMenu',
+                                    items: [
+                                        {
+                                            text: Uni.I18n.translate('comPortPool.inbound', 'MDC', 'Inbound'),
+                                            action: 'addInbound'
+                                        },
+                                        {
+                                            text: Uni.I18n.translate('comPortPool.outbound', 'MDC', 'Outbound'),
+                                            action: 'addOutbound'
                                         }
-                                    }
-                                ]
+                                    ]
+                                }
                             }
                         ]
                     },

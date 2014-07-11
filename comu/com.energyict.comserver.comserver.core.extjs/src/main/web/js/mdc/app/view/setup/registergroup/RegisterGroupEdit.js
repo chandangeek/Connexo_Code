@@ -4,7 +4,9 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
     itemId: 'registerGroupEdit',
 
     requires: [
-        'Mdc.store.RegisterTypes'
+        'Mdc.store.RegisterTypes',
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     edit: false,
@@ -88,22 +90,22 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             sortableColumns: false,
                                             // TODO: uncomment this to activate infinite scrolling when JP-2844 is fixed
                                             /*store: new Ext.data.Store({
-                                                model: 'Mdc.model.RegisterType',
-                                                buffered: true,
-                                                leadingBufferZone: 20,
-                                                trailingBufferZone: 20,
-                                                pageSize: 20,
-                                                autoLoad: true,
-                                                proxy: {
-                                                    type: 'rest',
-                                                    url: '../../api/dtc/registertypes',
-                                                    reader: {
-                                                        type: 'json',
-                                                        root: 'registerTypes',
-                                                        totalProperty: 'total'
-                                                    }
-                                                }
-                                            }),*/
+                                             model: 'Mdc.model.RegisterType',
+                                             buffered: true,
+                                             leadingBufferZone: 20,
+                                             trailingBufferZone: 20,
+                                             pageSize: 20,
+                                             autoLoad: true,
+                                             proxy: {
+                                             type: 'rest',
+                                             url: '../../api/dtc/registertypes',
+                                             reader: {
+                                             type: 'json',
+                                             root: 'registerTypes',
+                                             totalProperty: 'total'
+                                             }
+                                             }
+                                             }),*/
                                             store: 'RegisterTypes',
                                             selModel: {
                                                 mode: 'MULTI',
@@ -125,7 +127,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                     renderer: function (value, metaData, record) {
                                                         return '<div class="x-grid-cell-inner" style="float:left; font-size: 13px; line-height: 1em;">'
                                                             + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
-                                                            + '</div>'
+                                                            + '</div>';
                                                     },
                                                     header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                                                     items: [
@@ -156,7 +158,11 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             ]
                                         },
                                         emptyComponent: {
-                                            xtype: 'container'
+                                            xtype: 'no-items-found-panel',
+                                            title: Uni.I18n.translate('setup.registergroup.RegisterGroupEdit.NoItemsFoundPanel.title', 'MDC', 'No register types found'),
+                                            reasons: [
+                                                Uni.I18n.translate('setup.registergroup.RegisterGroupEdit.NoItemsFoundPanel.reason1', 'MDC', 'No register types are associated to this register group.')
+                                            ]
                                         }
                                     },
                                     {

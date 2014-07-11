@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
     requires: [
         'Mdc.view.setup.devicetype.DeviceTypesGrid',
         'Mdc.view.setup.devicetype.DeviceTypePreview',
-        'Uni.view.container.PreviewContainer'
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     content: [
@@ -21,37 +22,15 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                         xtype: 'deviceTypesGrid'
                     },
                     emptyComponent: {
-                        xtype: 'container',
-                        layout: {
-                            type: 'hbox',
-                            align: 'left'
-                        },
-                        minHeight: 20,
-                        items: [
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('deviceType.empty.title', 'MDC', 'No device types found'),
+                        reasons: [
+                            Uni.I18n.translate('deviceType.empty.list.item1', 'MDC', 'No register types are associated to this register group.')
+                        ],
+                        stepItems: [
                             {
-                                xtype: 'image',
-                                margin: '0 10 0 0',
-                                src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                height: 20,
-                                width: 20
-                            },
-                            {
-                                xtype: 'container',
-                                items: [
-                                    {
-                                        xtype: 'component',
-                                        html: '<b>' + Uni.I18n.translate('deviceType.empty.title', 'MDC', 'No device types found') + '</b><br>' +
-                                            Uni.I18n.translate('deviceType.empty.detail', 'MDC', 'There are no device types. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                            Uni.I18n.translate('deviceType.empty.list.item1', 'MDC', 'No device types have been added yet.') + '</li></lv><br>' +
-                                            Uni.I18n.translate('deviceType.empty.steps', 'MDC', 'Possible steps:')
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        margin: '10 0 0 0',
-                                        text: Uni.I18n.translate('deviceType.add', 'MDC', 'Add device type'),
-                                        action: 'createDeviceType'
-                                    }
-                                ]
+                                text: Uni.I18n.translate('deviceType.add', 'MDC', 'Add device type'),
+                                action: 'createDeviceType'
                             }
                         ]
                     },

@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
     requires: [
         'Mdc.view.setup.communicationtask.CommunicationTaskGrid',
         'Mdc.view.setup.communicationtask.CommunicationTaskPreview',
-        'Uni.view.container.PreviewContainer'
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     initComponent: function () {
@@ -42,39 +43,16 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
                             deviceConfigurationId: me.deviceConfigurationId
                         },
                         emptyComponent: {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'left'
-                            },
-                            minHeight: 20,
-                            items: [
+                            xtype: 'no-items-found-panel',
+                            title: Uni.I18n.translate('communicationtasks.empty.title', 'MDC', 'No communication task configurations found'),
+                            reasons: [
+                                Uni.I18n.translate('communicationtasks.empty.list.item1', 'MDC', 'No communication task configurations have been defined yet.'),
+                                Uni.I18n.translate('communicationtasks.empty.list.item2', 'MDC', 'No communication task configurations comply to the filter.')
+                            ],
+                            stepItems: [
                                 {
-                                    xtype: 'image',
-                                    margin: '0 10 0 0',
-                                    src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                    height: 20,
-                                    width: 20
-                                },
-                                {
-                                    xtype: 'container',
-                                    items: [
-                                        {
-                                            xtype: 'component',
-                                            html: '<b>' + Uni.I18n.translate('communicationtasks.empty.title', 'MDC', 'No communication task configurations found') + '</b><br>' +
-                                                Uni.I18n.translate('communicationtasks.empty.detail', 'MDC', 'There are no communication task configurations. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                                Uni.I18n.translate('communicationtasks.empty.list.item1', 'MDC', 'No communication task configurations have been defined yet.') + '</li><li>&nbsp&nbsp' +
-                                                Uni.I18n.translate('communicationtasks.empty.list.item2', 'MDC', 'No communication task configurations comply to the filter.') + '</li></lv><br>' +
-                                                Uni.I18n.translate('communicationtasks.empty.steps', 'MDC', 'Possible steps:')
-                                        },
-                                        {
-                                            xtype: 'button',
-                                            margin: '10 0 0 0',
-                                            text: Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task'),
-                                            hrefTarget: '',
-                                            href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/create'
-                                        }
-                                    ]
+                                    text: Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task'),
+                                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/create'
                                 }
                             ]
                         },

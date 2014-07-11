@@ -1,13 +1,17 @@
 Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-type-logbooks',
+
     deviceTypeId: null,
+
     requires: [
         'Mdc.view.setup.devicetype.DeviceTypeMenu',
         'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.deviceconfiguration.ActionMenu',
         'Uni.grid.column.Action'
     ],
+
     content: [
         {
             xtype: 'panel',
@@ -69,45 +73,23 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                         ]
                     },
                     emptyComponent: {
-                        xtype: 'container',
-                        layout: {
-                            type: 'hbox',
-                            align: 'left'
-                        },
-                        minHeight: 20,
-                        items: [
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('logbooktype.empty.title', 'MDC', 'No logbook types found'),
+                        reasons: [
+                            Uni.I18n.translate('logbooktype.empty.list.item1', 'MDC', 'No logbook types have been defined yet.'),
+                            Uni.I18n.translate('logbooktype.empty.list.item2', 'MDC', 'No logbook types comply to the filter.')
+                        ],
+                        stepItems: [
                             {
-                                xtype: 'image',
-                                margin: '0 10 0 0',
-                                src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                height: 20,
-                                width: 20
-                            },
-                            {
-                                xtype: 'container',
-                                items: [
-                                    {
-                                        xtype: 'component',
-                                        html: '<b>' + Uni.I18n.translate('logbooktype.empty.title', 'MDC', 'No logbook types found') + '</b><br>' +
-                                            Uni.I18n.translate('logbooktype.empty.detail', 'MDC', 'There are no logbooks. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                            Uni.I18n.translate('logbooktype.empty.list.item1', 'MDC', 'No logbook types have been defined yet') + '</li>' +
-                                            Uni.I18n.translate('logbooktype.empty.list.item2', 'MDC', 'No logbook types comply to the filter') + '</li></lv><br>' +
-                                            Uni.I18n.translate('logbooktype.empty.steps', 'MDC', 'Possible steps:')
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        margin: '10 0 0 0',
-                                        text: Uni.I18n.translate('logbooktype.addLogbookType', 'MDC', 'Add logbook type'),
-                                        action: 'add',
-                                        listeners: {
-                                            click: {
-                                                fn: function () {
-                                                    window.location.href = '#/administration/devicetypes/' + this.up('device-type-logbooks').deviceTypeId + '/logbooktypes/add';
-                                                }
-                                            }
+                                text: Uni.I18n.translate('logbooktype.addLogbookType', 'MDC', 'Add logbook type'),
+                                action: 'add',
+                                listeners: {
+                                    click: {
+                                        fn: function () {
+                                            window.location.href = '#/administration/devicetypes/' + this.up('device-type-logbooks').deviceTypeId + '/logbooktypes/add';
                                         }
                                     }
-                                ]
+                                }
                             }
                         ]
                     },

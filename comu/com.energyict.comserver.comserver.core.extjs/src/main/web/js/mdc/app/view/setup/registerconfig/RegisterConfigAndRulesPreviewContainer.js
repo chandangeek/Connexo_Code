@@ -10,7 +10,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
     requires: [
         'Mdc.view.setup.registerconfig.RegisterConfigPreview',
         'Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid',
-        'Uni.view.container.PreviewContainer'
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     layout: {
@@ -40,33 +41,11 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
                 registerId: this.registerId
             },
             emptyComponent: {
-                xtype: 'container',
-                layout: {
-                    type: 'hbox',
-                    align: 'left'
-                },
-                minHeight: 20,
-                items: [
-                    {
-                        xtype: 'image',
-                        margin: '0 10 0 0',
-                        src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                        height: 20,
-                        width: 20
-                    },
-                    {
-                        xtype: 'container',
-                        items: [
-                            {
-                                xtype: 'component',
-                                html: '<h4>' + Uni.I18n.translate('registerConfig.validationRules.empty.title', 'MDC', 'No validation rules found') + '</h4><br>' +
-                                    Uni.I18n.translate('registerConfig.validationRules.empty.detail', 'MDC', 'This could be because:') + '<ul>' +
-                                    '<li>' + Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.') + '</li>' +
-                                    '<li>' + Uni.I18n.translate('registerConfig.validationRules.empty.list.item2', 'MDC', 'Validation rules exists, but you do not have permission to view them.') + '</li>' +
-                                    '</ul>'
-                            }
-                        ]
-                    }
+                xtype: 'no-items-found-panel',
+                title: Uni.I18n.translate('registerConfig.validationRules.empty.title', 'MDC', 'No validation rules found'),
+                reasons: [
+                    Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.'),
+                    Uni.I18n.translate('registerConfig.validationRules.empty.list.item2', 'MDC', 'Validation rules exists, but you do not have permission to view them.')
                 ]
             },
             previewComponent: {
@@ -83,10 +62,5 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
                 ]
             }
         }
-    ],
-
-    updateRegisterConfig: function (registerConfig) {
-
-    }
-
+    ]
 });
