@@ -7,23 +7,23 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
     SHOULD_BE_AT_LEAST(1, Keys.MDC_VALUE_TOO_SMALL, "Minimal acceptable value is {value} seconds.", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Keys.MDC_CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
-    VALUE_NOT_IN_RANGE(3, Keys.MDC_VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}", Level.SEVERE),
+    VALUE_NOT_IN_RANGE(3, Keys.MDC_VALUE_NOT_IN_RANGE, "{0} not in range {min} to {max}", Level.SEVERE),
     INVALID_URL(4, Keys.MDC_INVALID_URL, "{value} is not a valid URL", Level.SEVERE),
     COMSERVER_NAME_INVALID_CHARS(5, Keys.COMSERVER_NAME_INVALID_CHARS, "The name of a communication server should comply with the domain name system (rfc 1035) and can therefore only contain a-z, A-Z, 0-9, . and - characters", Level.SEVERE),
     REQUIRED_FOR_HTTPS(6, Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS, "This field is mandatory in case https is chosen", Level.SEVERE),
     IS_ALREADY_OBSOLETE(7, Keys.MDC_IS_ALREADY_OBSOLETE, "Already obsolete", Level.SEVERE),
-    NOT_UNIQUE(8, Keys.MDC_NOT_UNIQUE , "the element is not unique", Level.SEVERE),
+    NOT_UNIQUE(8, Keys.MDC_NOT_UNIQUE , "Expected to find at most one object that matches the SQL condition(s) but found multiple", Level.SEVERE),
     MUST_HAVE_DISCOVERY_PROTOCOL(9, Keys.DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL, "Discovery protocol pluggable class is mandatory for comportpool", Level.SEVERE),
     ACTIVE_INBOUND_PORT_MUST_HAVE_POOL(10, Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL, "An active inbound comport must have an inbound comportpool", Level.SEVERE),
 
-    DUPLICATE_COMSERVER(101, Keys.MDC_DUPLICATE_COM_SERVER, "Comserver with such name is already exists", Level.SEVERE),
+    DUPLICATE_COMSERVER(101, Keys.MDC_DUPLICATE_COM_SERVER, "Name should be unique", Level.SEVERE),
     OBSOLETE_COMSERVER_CANT_BE_UPDATED(103, Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED, "Obsolete ComServers can no longer be updated", Level.SEVERE),
     ONLINE_COMSERVER_STILL_REFERENCED(104, Keys.MDC_ONLINE_COM_SERVER_STILL_REFERENCED, "Online Comserver is still referenced by remote comserver(s)", Level.SEVERE),
-    DUPLICATE_COMPORT(105, Keys.MDC_DUPLICATE_COM_PORT, "ComPort by this name already exists", Level.SEVERE),
+    DUPLICATE_COMPORT(105, Keys.MDC_DUPLICATE_COM_PORT, "Name should be unique", Level.SEVERE),
     OBSOLETE_COMPORT_CANT_BE_UPDATED(106, Keys.MDC_COMPORT_NO_UPDATE_ALLOWED, "Obsolete ComPorts can no longer be updated", Level.SEVERE),
     COMPORTPOOL_DOES_NOT_MATCH_COMPORT(107, Keys.MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL, "The type of the comPortPool does not match the comPort type", Level.SEVERE),
     DUPLICATE_COM_PORT_NUMBER(108, Keys.MDC_DUPLICATE_COM_PORT_PER_COM_SERVER, "The port number of a ComPort must be unique per ComServer", Level.SEVERE),
-    DUPLICATE_COMPORTPOOL(109, Keys.MDC_DUPLICATE_COM_PORT_POOL, "ComPortPool with name {value} already exists", Level.SEVERE),
+    DUPLICATE_COMPORTPOOL(109, Keys.MDC_DUPLICATE_COM_PORT_POOL, "Name should be unique", Level.SEVERE),
     OBSOLETE_COMPORTPOOL_CANT_BE_UPDATED(110, Keys.MDC_COMPORTPOOL_NO_UPDATE_ALLOWED, "Obsolete ComPortPool can no longer be updated", Level.SEVERE),
     COMPORTPOOL_STILL_REFERENCED(111, Keys.MDC_COMPORTPOOL_STILL_REFERENCED, "Comport pool is still referenced by comport(s)", Level.SEVERE),
     OUTBOUND_COMPORT_STILL_IN_POOL(112, Keys.OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL, "The outbound comport is still contained in a pool", Level.SEVERE),
@@ -43,7 +43,7 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     private String stripComponentNameIfPresent(String key) {
-        if (key.startsWith(EngineModelService.COMPONENT_NAME+".")) {
+        if (key.startsWith("")) {
             return key.substring(EngineModelService.COMPONENT_NAME.length()+1);
         } else {
             return key;
@@ -77,31 +77,31 @@ public enum MessageSeeds implements MessageSeed {
 
     static final class Keys {
 
-        public static final String MDC_VALUE_TOO_SMALL = EngineModelService.COMPONENT_NAME+".ValueTooSmall";
-        public static final String MDC_CAN_NOT_BE_EMPTY = EngineModelService.COMPONENT_NAME+".CanNotBeEmpty";
-        public static final String MDC_VALUE_NOT_IN_RANGE = EngineModelService.COMPONENT_NAME+".ValueNotInRange";
-        public static final String MDC_INVALID_URL = EngineModelService.COMPONENT_NAME+".InvalidURL";
+        public static final String MDC_VALUE_TOO_SMALL = "ValueTooSmall";
+        public static final String MDC_CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
+        public static final String MDC_VALUE_NOT_IN_RANGE = "ValueNotInRange";
+        public static final String MDC_INVALID_URL = "InvalidURL";
         public static final String COMSERVER_NAME_INVALID_CHARS = "InvalidChars";
-        public static final String MDC_CAN_NOT_BE_EMPTY_IF_HTTPS = EngineModelService.COMPONENT_NAME+".CanNotBeEmptyIfHttps";
-        public static final String MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL = EngineModelService.COMPONENT_NAME+".activeInboundPortMustHavePool";
+        public static final String MDC_CAN_NOT_BE_EMPTY_IF_HTTPS = "CanNotBeEmptyIfHttps";
+        public static final String MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL = "activeInboundPortMustHavePool";
 
-        public static final String MDC_DUPLICATE_COM_SERVER = EngineModelService.COMPONENT_NAME+".DuplicateComServer";
-        public static final String MDC_COMSERVER_NO_UPDATE_ALLOWED = EngineModelService.COMPONENT_NAME+".comserver.noUpdateAllowed";
-        public static final String MDC_ONLINE_COM_SERVER_STILL_REFERENCED = EngineModelService.COMPONENT_NAME+".OnlineComServerXStillReferenced";
-        public static final String MDC_COMPORTPOOL_STILL_REFERENCED = EngineModelService.COMPONENT_NAME+".ComPortPoolStillReferenced";
+        public static final String MDC_DUPLICATE_COM_SERVER = "DuplicateComServer";
+        public static final String MDC_COMSERVER_NO_UPDATE_ALLOWED = "comserver.noUpdateAllowed";
+        public static final String MDC_ONLINE_COM_SERVER_STILL_REFERENCED = "OnlineComServerXStillReferenced";
+        public static final String MDC_COMPORTPOOL_STILL_REFERENCED = "ComPortPoolStillReferenced";
 
-        public static final String MDC_DUPLICATE_COM_PORT = EngineModelService.COMPONENT_NAME+".DuplicateComPort";
-        public static final String MDC_COMPORT_NO_UPDATE_ALLOWED = EngineModelService.COMPONENT_NAME+".comport.noUpdateAllowed";
-        public static final String MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL = EngineModelService.COMPONENT_NAME+".ComPortTypeOfComPortDoesNotMatchWithComPortPool";
-        public static final String MDC_DUPLICATE_COM_PORT_PER_COM_SERVER = EngineModelService.COMPONENT_NAME+".DuplicateComPortPerComServer";
-        public static final String MDC_DUPLICATE_COM_PORT_POOL = EngineModelService.COMPONENT_NAME+".DuplicateComPortPool";
-        public static final String MDC_COMPORTPOOL_NO_UPDATE_ALLOWED = EngineModelService.COMPONENT_NAME+".comportpool.noUpdateAllowed";
-        public static final String MDC_IS_ALREADY_OBSOLETE = EngineModelService.COMPONENT_NAME+".isAlreadyObsolete";
-        public static final String MDC_NOT_UNIQUE = EngineModelService.COMPONENT_NAME+".notUnique";
-        public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL = EngineModelService.COMPONENT_NAME+".discoveryProtocol.isMandatory";
-        public static final String OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL = EngineModelService.COMPONENT_NAME+".outboundComPortXStillMemberOfPool";
-        public static final String MDC_COM_PORT_POOL_PLUGGABLE_CLASS_INVALID = EngineModelService.COMPONENT_NAME+".ComPortPool.pluggableClass.invalid";
-        public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y = EngineModelService.COMPONENT_NAME+".discoveryProtocolPluggableClass.XstillInUseByDeviceTypesY";
+        public static final String MDC_DUPLICATE_COM_PORT = "DuplicateComPort";
+        public static final String MDC_COMPORT_NO_UPDATE_ALLOWED = "comport.noUpdateAllowed";
+        public static final String MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL = "ComPortTypeOfComPortDoesNotMatchWithComPortPool";
+        public static final String MDC_DUPLICATE_COM_PORT_PER_COM_SERVER = "DuplicateComPortPerComServer";
+        public static final String MDC_DUPLICATE_COM_PORT_POOL = "DuplicateComPortPool";
+        public static final String MDC_COMPORTPOOL_NO_UPDATE_ALLOWED = "comportpool.noUpdateAllowed";
+        public static final String MDC_IS_ALREADY_OBSOLETE = "isAlreadyObsolete";
+        public static final String MDC_NOT_UNIQUE = "notUnique";
+        public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL = "discoveryProtocol.isMandatory";
+        public static final String OUTBOUND_COM_PORT_STILL_MEMBER_OF_POOL = "outboundComPortXStillMemberOfPool";
+        public static final String MDC_COM_PORT_POOL_PLUGGABLE_CLASS_INVALID = "ComPortPool.pluggableClass.invalid";
+        public static final String DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y = "discoveryProtocolPluggableClass.XstillInUseByDeviceTypesY";
     }
 
 }
