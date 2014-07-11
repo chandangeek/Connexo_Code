@@ -320,6 +320,26 @@ public class IntervalTest extends EqualsContractTest {
         assertThat(interval.spanToInclude(date4)).isSameAs(interval);
     }
 
+    @Test
+    public void testDuration() {
+        assertThat(new Interval(date3, date5).durationInMillis()).isEqualTo(2000L);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testDurationForInfiniteThrowsException() {
+        Interval.sinceEpoch().durationInMillis();
+    }
+
+    @Test
+    public void testIsInfiniteOnFinite() {
+        assertThat(new Interval(date3, date5).isInfinite()).isFalse();
+    }
+
+    @Test
+    public void testIsInfiniteOnInfinite() {
+        assertThat(Interval.sinceEpoch().isInfinite()).isTrue();
+    }
+
     @Override
     protected boolean canBeSubclassed() {
         return false;
