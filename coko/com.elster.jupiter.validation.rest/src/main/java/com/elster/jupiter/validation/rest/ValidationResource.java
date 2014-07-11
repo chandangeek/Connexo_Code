@@ -179,7 +179,7 @@ public class ValidationResource {
                             }
                             Map<String, Quantity> propertyMap = new HashMap<>();
                             for (ValidationRulePropertyInfo propertyInfo : info.properties) {
-                                propertyMap.put(propertyInfo.name, Unit.WATT_HOUR.amount(propertyInfo.value));
+                                propertyMap.put(propertyInfo.key, Unit.WATT_HOUR.amount(propertyInfo.value));
                             }
                             rule = set.updateRule(info.id, info.name, info.implementation, info.active, mRIDs, propertyMap);
                             if (rule == null) {
