@@ -99,11 +99,11 @@ Ext.define('Uni.controller.history.Router', {
      * Add router configuration
      * @param config
      */
-    addConfig: function(config) {
+    addConfig: function (config) {
         _.extend(this.config, config);
 
         var me = this;
-        _.each(config, function(item, key) {
+        _.each(config, function (item, key) {
             me.initRoute(key, item);
         });
     },
@@ -114,7 +114,7 @@ Ext.define('Uni.controller.history.Router', {
      * @param config Object
      * @param prefix string|null
      */
-    initRoute: function(key, config, prefix) {
+    initRoute: function (key, config, prefix) {
         var me = this;
         prefix = typeof prefix !== 'undefined' ? prefix : '';
         var route = prefix + '/' + config.route;
@@ -130,16 +130,16 @@ Ext.define('Uni.controller.history.Router', {
              * Return title of the route
              * @returns string
              */
-            getTitle: function (){
+            getTitle: function () {
                 var route = this;
                 return _.isFunction(this.title)
                     ? this.title.apply(me, [route])
                     : this.title;
             },
 
-            setTitle: function (title){
+            setTitle: function (title) {
                 this.title = title;
-                me.fireEvent('routeChange', this);
+                me.fireEvent('routechange', this);
             },
 
             /**
@@ -154,7 +154,7 @@ Ext.define('Uni.controller.history.Router', {
                     '#' + this.path;
             },
 
-            forward: function(params) {
+            forward: function (params) {
                 window.location.href = this.buildUrl(params);
             }
         });
@@ -165,7 +165,7 @@ Ext.define('Uni.controller.history.Router', {
 
         // register route with crossroads if not disabled
         if (!config.disabled) {
-            me.routes[key].crossroad = crossroads.addRoute(route, function() {
+            me.routes[key].crossroad = crossroads.addRoute(route, function () {
                 me.currentRoute = key;
 
                 // todo: this will not work with optional params
@@ -198,7 +198,7 @@ Ext.define('Uni.controller.history.Router', {
 
         // handle child items
         if (config.items) {
-            _.each(config.items, function(item, itemKey){
+            _.each(config.items, function (item, itemKey) {
                 var path = key + '/' + itemKey;
                 me.initRoute(path, item, route);
             });
@@ -210,7 +210,7 @@ Ext.define('Uni.controller.history.Router', {
      * @param path
      * @returns [Route]
      */
-    buildBreadcrumbs: function(path) {
+    buildBreadcrumbs: function (path) {
         var me = this;
         path = typeof path === 'undefined'
             ? me.currentRoute.split('/')
@@ -234,12 +234,17 @@ Ext.define('Uni.controller.history.Router', {
      * @param path
      * @returns Route
      */
-    getRoute: function(path) {
+    getRoute: function (path) {
         var me = this;
+
+        if (!Ext.isDefined(path)) {
+            path = me.currentRoute;
+        }
+
         return me.routes[path];
     },
 
-    getRouteConfig: function(path) {
+    getRouteConfig: function (path) {
         var route = me.routeConfig;
         path = path.split('/');
 

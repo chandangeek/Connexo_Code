@@ -30,6 +30,9 @@ Ext.define('Uni.controller.Navigation', {
         }
     ],
 
+    applicationTitle: 'Connexo Collect',
+    applicationTitleSeparator: '-',
+
     init: function () {
         var me = this;
 
@@ -49,9 +52,33 @@ Ext.define('Uni.controller.Navigation', {
         });
 
         this.getApplication().on('changemaincontentevent', this.showContent, this);
+        this.getApplication().on('changemainbreadcrumbevent', this.initTitle, this);
         this.getApplication().on('changemainbreadcrumbevent', this.setBreadcrumb, this);
+
         this.getController('Uni.controller.history.Router').on('routematch', this.initBreadcrumbs, this);
-        this.getController('Uni.controller.history.Router').on('routeChange', this.initBreadcrumbs, this);
+        this.getController('Uni.controller.history.Router').on('routechange', this.initBreadcrumbs, this);
+    },
+
+    initTitle: function (breadcrumbItem) {
+        var me = this,
+            text = '';
+
+        if (Ext.isObject(breadcrumbItem)) {
+            text = breadcrumbItem.get('text');
+
+            while (Ext.isDefined(breadcrumbItem.getAssociatedData()['Uni.model.BreadcrumbItem'])) {
+                breadcrumbItem = breadcrumbItem.getChild();
+                text = breadcrumbItem.get('text');
+            }
+        }
+
+        if (!Ext.isEmpty(text)) {
+            Ext.getDoc().dom.title = me.applicationTitle + ' '
+                + me.applicationTitleSeparator + ' '
+                + text;
+        } else {
+            Ext.getDoc().dom.title = me.applicationTitle;
+        }
     },
 
     initBreadcrumbs: function () {
@@ -75,6 +102,8 @@ Ext.define('Uni.controller.Navigation', {
             }
             child = breadcrumb;
         });
+
+        me.initTitle(breadcrumb);
         breadcrumbs.setBreadcrumbItem(breadcrumb);
     },
 
