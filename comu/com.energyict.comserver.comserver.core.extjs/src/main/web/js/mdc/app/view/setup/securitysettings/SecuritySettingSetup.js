@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
     deviceConfigId: null,
 
     requires: [
+        'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.securitysettings.SecuritySettingGrid',
         'Mdc.view.setup.securitysettings.SecuritySettingPreview',
         'Uni.view.container.PreviewContainer'
@@ -44,41 +45,16 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                             deviceConfigId: me.deviceConfigId
                         },
                         emptyComponent: {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'left'
-                            },
-                            minHeight: 20,
-                            items: [
+                            xtype: 'no-items-found-panel',
+                            title: 'No security settings found',
+                            reasons: [
+                                'No security settings have been defined yet.',
+                                'No security settings comply to the filter.'
+                            ],
+                            stepItems: [
                                 {
-                                    xtype: 'image',
-                                    margin: '0 10 0 0',
-                                    src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                    height: 20,
-                                    width: 20
-                                },
-                                {
-                                    xtype: 'container',
-                                    items: [
-                                        {
-                                            xtype: 'component',
-                                            html: "<b>No security settings found</b><br>\
-                                            There are no security settings. This could be because:\
-                                            <lv>\
-                                            <li>No security settings have been defined yet.</li>\
-                                            <li>No security settings comply to the filter.</li>\
-                                            </lv><br>\
-                                            Possible steps:"
-                                        },
-                                        {
-                                            xtype: 'button',
-                                            margin: '10 0 0 0',
-                                            text: 'Add security setting',
-                                            hrefTarget: '',
-                                            href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/create'
-                                        }
-                                    ]
+                                    text: 'Add security setting',
+                                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/create'
                                 }
                             ]
                         },
