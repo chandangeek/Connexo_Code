@@ -3,10 +3,13 @@ Ext.define('Usr.view.user.Browse', {
     alias: 'widget.userBrowse',
     itemId: 'userBrowse',
     overflowY: 'auto',
+
     requires: [
         'Usr.view.user.List',
         'Usr.view.user.Details',
-        'Ext.panel.Panel'
+        'Ext.panel.Panel',
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     content: [
@@ -25,8 +28,8 @@ Ext.define('Usr.view.user.Browse', {
                         xtype: 'userList'
                     },
                     emptyComponent: {
-                        xtype: 'component',
-                        html: 'There are no items'
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('user.Browse.NoItemsFoundPanel.title', 'USR', 'No users found')
                     },
                     previewComponent: {
                         xtype: 'userDetails'
