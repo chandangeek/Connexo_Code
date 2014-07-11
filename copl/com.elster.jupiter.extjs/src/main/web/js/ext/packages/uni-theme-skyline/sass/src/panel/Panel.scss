@@ -3,7 +3,7 @@ $ui: 'large',
 $ui-padding: $panel-padding,
 $ui-header-font-family: $panel-large-header-font-family,
 $ui-header-font-size: $panel-large-header-font-size,
-$ui-header-line-height: $panel-large-header-font-size,
+$ui-header-line-height: $panel-large-header-line-height,
 $ui-header-font-weight: $panel-large-header-font-weight,
 $ui-header-padding: $panel-large-header-padding
 );
@@ -34,6 +34,20 @@ $ui-header-background-color: $panel-filter-background-color,
 $ui-body-color: $panel-filter-body-color,
 $ui-body-background-color: $panel-filter-background-color
 );
+
+// General
+
+*[class*='#{$prefix}panel-header-body-'] {
+    overflow: visible;
+
+    .#{$prefix}box-inner {
+        overflow: visible;
+
+        *[class*='#{$prefix}panel-header-text-container-'] {
+            overflow: visible;
+        }
+    }
+}
 
 // Large
 

@@ -16,22 +16,23 @@ $panel-header-border-width: 0 !default;
 $panel-header-border-style: none !default;
 $panel-header-font-family: $font-family !default;
 
-$panel-header-sub-color: $color-grey;
+$panel-header-sub-color: $color-grey !default;
 
 // Large UI
 $panel-large-header-font-family: $header-font-family !default;
-$panel-large-header-font-size: 60px;
-$panel-large-header-font-weight: normal;
+$panel-large-header-font-size: 60px !default;
+$panel-large-header-line-height: 48px !default;
+$panel-large-header-font-weight: normal !default;
 $panel-large-header-text-padding: 0 !default;
-$panel-large-header-padding: 0 0 16px 0 !default;
-$panel-large-header-sub-font-size: 30px;
+$panel-large-header-padding: 0 0 32px 0 !default;
+$panel-large-header-sub-font-size: 30px !default;
 
 // Medium UI
 $panel-medium-header-font-family: $header-font-family !default;
-$panel-medium-header-font-size: 30px;
-$panel-medium-header-font-weight: normal;
+$panel-medium-header-font-size: 30px !default;
+$panel-medium-header-font-weight: normal !default;
 $panel-medium-header-padding: 0 0 16px 0 !default;
-$panel-medium-header-sub-font-size: 20px;
+$panel-medium-header-sub-font-size: 20px !default;
 
 // Frame UI
 $panel-frame-border-color: $color-grey-7 !default;
@@ -57,8 +58,8 @@ $panel-filter-border-radius: 0 !default;
 $panel-filter-body-color: $color-grey !default;
 $panel-filter-body-background-color: $color-grey-10 !default;
 
-$panel-filter-border-color: none;
-$panel-filter-border-width: 0;
+$panel-filter-border-color: none !default;
+$panel-filter-border-width: 0 !default;
 
 $panel-filter-header-padding: 0 0 16px 0 !default;
 $panel-filter-header-color: $panel-filter-body-color !default;
@@ -66,14 +67,14 @@ $panel-filter-header-background-color: $color-grey-10 !default;
 $panel-filter-header-font-family: $header-font-family !default;
 $panel-filter-header-font-size: 30px !default;
 $panel-filter-header-font-weight: normal !default;
-$panel-filter-background-color: $color-grey-10;
+$panel-filter-background-color: $color-grey-10 !default;
 
 // Form error-msg
 
 $panel-form-error-msg-padding: 5px !default;
 $panel-form-error-msg-border-radius: 10px !default;
 $panel-form-error-msg-border-width: 1px !default;
-$panel-form-error-msg-icon: url("images/form/ico_warning.png") !default;
+$panel-form-error-msg-icon: url('images/form/ico_warning.png') !default;
 
 $panel-border-color: $color-grey-7 !default;
 
