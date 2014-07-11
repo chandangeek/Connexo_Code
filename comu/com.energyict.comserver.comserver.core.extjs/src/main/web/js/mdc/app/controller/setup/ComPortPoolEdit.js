@@ -50,10 +50,12 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         switch (type.toLowerCase()) {
             case 'inbound':
                 title = Uni.I18n.translate('comPortPool.title.addInbound', 'MDC', 'Add inbound communication port pool');
+                me.getStore('Mdc.store.ComPortTypes').load();
                 isInbound = true;
                 break;
             case 'outbound':
                 title = Uni.I18n.translate('comPortPool.title.addOutbound', 'MDC', 'Add outbound communication port pool');
+                me.getStore('Mdc.store.ComPortTypesWithOutServlet').load();
                 widget.down('form combobox[name=type]').store = me.getStore('Mdc.store.ComPortTypesWithOutServlet');
                 break;
         }
