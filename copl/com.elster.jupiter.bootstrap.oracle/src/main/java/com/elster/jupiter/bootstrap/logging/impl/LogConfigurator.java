@@ -1,18 +1,20 @@
 package com.elster.jupiter.bootstrap.logging.impl;
 
-import java.util.Map;
-import java.util.logging.Logger;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 @Component (name="com.elster.jupiter.logging", immediate = true )
 public class LogConfigurator  {
 
     private static final String FORMAT_KEY = "com.elster.jupiter.logging.format";
+    private static final String LOG_LEVEL = "com.elster.jupiter.logging.root.loglevel";
     private static final String DEFAULT_FORMAT = "%5$s";
     private volatile LogService logService;
     private volatile LogHandler handler;
@@ -31,8 +33,13 @@ public class LogConfigurator  {
         if (props != null && props.containsKey(FORMAT_KEY)) {
             format = (String) props.get(FORMAT_KEY);
         }
+        Level level = Level.FINEST;
+        if (props != null && props.containsKey(LOG_LEVEL)) {
+            level = Level.parse((String) (props.get(LOG_LEVEL)));
+        }
         handler = new LogHandler(logService, format);
         Logger.getLogger("").addHandler(handler);
+        Logger.getLogger("").setLevel(level);
     }
 
     @Deactivate
