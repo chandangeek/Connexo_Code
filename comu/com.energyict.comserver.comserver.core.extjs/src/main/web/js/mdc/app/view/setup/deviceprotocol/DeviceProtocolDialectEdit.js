@@ -76,11 +76,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
                         ]
                     },
                     {
-                        title: '<span class="x-form-item-label-right x-form-item-label" style="width: 250px;"><h3>' +
-                            Uni.I18n.translate('connectionmethod.connectionDetails', 'MDC', 'Connection details') +
-                            '</h3></span>',
                         xtype: 'property-form',
-                        hidden: true,
                         width: '100%'
                     },
                     {

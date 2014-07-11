@@ -238,13 +238,13 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 columns: 1,
                                 items: [
                                     {
-                                        boxLabel: 'yes',
+                                        boxLabel: 'Yes',
                                         name: 'allowSimultaneousConnections',
                                         inputValue: true,
                                         margin: '0 10 5 0'
                                     },
                                     {
-                                        boxLabel: 'no',
+                                        boxLabel: 'No',
                                         name: 'allowSimultaneousConnections',
                                         checked: true,
                                         inputValue: false,

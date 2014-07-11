@@ -34,6 +34,11 @@ Ext.define('Mdc.widget.TimeInSecondsField', {
                 margin: '0 5 5 0'
             }, me.valueCfg),
             Ext.apply({
+                xtype: 'displayfield',
+                value: ':',
+                margin: '0 5 5 0'
+            }),
+            Ext.apply({
                 xtype: 'numberfield',
                 itemId: 'minuteField',
                 hideTrigger: false,

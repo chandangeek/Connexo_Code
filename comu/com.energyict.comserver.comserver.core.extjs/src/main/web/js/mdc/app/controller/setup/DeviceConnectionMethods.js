@@ -229,6 +229,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     selectDeviceConfigConnectionMethod: function (comboBox) {
+        this.getDeviceConnectionMethodEditForm().down('#deviceConnectionMethodComboBox').clearInvalid();
         var connectionMethod = comboBox.findRecordByValue(comboBox.getValue());
         this.comPortPoolStore.clearFilter(true);
         var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
@@ -302,8 +303,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     addDeviceConnectionMethod: function (values) {
-        var record = Ext.create(Mdc.model.DeviceConnectionMethod);
-        this.updateRecord(record, values);
+        if(values.name === ""){
+            this.getDeviceConnectionMethodEditForm().down('#deviceConnectionMethodComboBox').markInvalid(
+                Uni.I18n.translate('deviceconnectionmethod.configurationConnectionMethodRequired', 'UNI', 'Configuration connection method is required')
+            );
+        } else {
+            var record = Ext.create(Mdc.model.DeviceConnectionMethod);
+            this.updateRecord(record, values);
+        }
     },
 
     updateRecord: function (record, values) {
@@ -318,8 +325,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 record.set('comWindowEnd', 0);
             }
             var propertyForm = me.getDeviceConnectionMethodEditView().down('property-form');
-            propertyForm.updateRecord(record);
-            record.propertiesStore = propertyForm.getRecord().properties();
+            if(propertyForm){
+                propertyForm.updateRecord(record);
+                record.propertiesStore = propertyForm.getRecord().properties();
+            }
             this.saveRecord(record);
 
         }
