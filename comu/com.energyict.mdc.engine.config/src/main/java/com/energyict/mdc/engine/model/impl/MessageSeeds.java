@@ -8,7 +8,7 @@ public enum MessageSeeds implements MessageSeed {
     SHOULD_BE_AT_LEAST(1, Keys.MDC_VALUE_TOO_SMALL, "Minimal acceptable value is {value} seconds.", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Keys.MDC_CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
     VALUE_NOT_IN_RANGE(3, Keys.MDC_VALUE_NOT_IN_RANGE, "{0} not in range {min} to {max}", Level.SEVERE),
-    INVALID_URL(4, Keys.MDC_INVALID_URL, "{value} is not a valid URL", Level.SEVERE),
+    INVALID_URL(4, Keys.MDC_INVALID_URL, "This is not a valid URL", Level.SEVERE),
     COMSERVER_NAME_INVALID_CHARS(5, Keys.COMSERVER_NAME_INVALID_CHARS, "The name of a communication server should comply with the domain name system (rfc 1035) and can therefore only contain a-z, A-Z, 0-9, . and - characters", Level.SEVERE),
     REQUIRED_FOR_HTTPS(6, Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS, "This field is mandatory in case https is chosen", Level.SEVERE),
     IS_ALREADY_OBSOLETE(7, Keys.MDC_IS_ALREADY_OBSOLETE, "Already obsolete", Level.SEVERE),
@@ -37,17 +37,9 @@ public enum MessageSeeds implements MessageSeed {
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
-        this.key = stripComponentNameIfPresent(key);
+        this.key = key;
         this.defaultFormat = defaultFormat;
         this.level = level;
-    }
-
-    private String stripComponentNameIfPresent(String key) {
-        if (key.startsWith("")) {
-            return key.substring(EngineModelService.COMPONENT_NAME.length()+1);
-        } else {
-            return key;
-        }
     }
 
     @Override
