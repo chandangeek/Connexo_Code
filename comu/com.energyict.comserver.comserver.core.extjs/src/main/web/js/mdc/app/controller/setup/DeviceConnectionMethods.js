@@ -340,6 +340,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         record.save({
             success: function (record) {
                 location.href = '#/devices/' + me.mrid + '/connectionmethods/';
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg', 'MDC', 'Device connection method saved'));
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
@@ -403,6 +404,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             connectionMethodToDelete.destroy({
                 callback: function () {
                     location.href = '#/devices/' + me.mrid + '/connectionmethods';
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg', 'MDC', 'Device connection method removed'));
                 }
             });
 
