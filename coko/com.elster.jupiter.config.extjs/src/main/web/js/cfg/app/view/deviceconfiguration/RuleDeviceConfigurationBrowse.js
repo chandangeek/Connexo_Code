@@ -6,6 +6,7 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationBrowse', {
         'Cfg.view.deviceconfiguration.RuleDeviceConfigurationPreview',
         'Cfg.view.deviceconfiguration.RuleDeviceConfigurationActionMenu',
         'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel',
         'Cfg.view.validation.RuleSetSubMenu'
     ],
     ruleSetId: null,
@@ -25,46 +26,24 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationBrowse', {
                             ruleSetId: me.ruleSetId
                         },
                         emptyComponent: {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'left'
-                            },
-                            minHeight: 20,
-                            items: [
+                            xtype: 'no-items-found-panel',
+                            title: Uni.I18n.translate('validation.empty.deviceconfiguration.title', 'CFG', 'No device configurations found'),
+                            reasons: [
+                                Uni.I18n.translate('validation.empty.deviceconfiguration.list.item1', 'CFG', 'No device configurations have been added yet.')
+                            ],
+                            stepItems: [
                                 {
-                                    xtype: 'image',
-                                    margin: '0 10 0 0',
-                                    src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                    height: 20,
-                                    width: 20
-                                },
-                                {
-                                    xtype: 'container',
-                                    items: [
-                                        {
-                                            xtype: 'component',
-                                            html: '<h4>' + Uni.I18n.translate('validation.empty.deviceconfiguration.title', 'CFG', 'No device configurations found') + '</h4><br>' +
-                                                Uni.I18n.translate('validation.empty.deviceconfiguration.detail', 'CFG', 'There are no device configurations. This could be because:') + '<lv><li>&nbsp&nbsp' +
-                                                Uni.I18n.translate('validation.empty.deviceconfiguration.list.item1', 'CFG', 'No device configurations have been added yet.') + '</li></lv><br>' +
-                                                Uni.I18n.translate('validation.empty.steps', 'CFG', 'Possible steps:')
-                                        },
-                                        {
-                                            xtype: 'button',
-                                            text: Uni.I18n.translate('validation.deviceconfiguration.add', 'CFG', 'Add device configuration'),
-                                            itemId: 'addDeviceConfiguration',
-                                            margin: '10 0 0 0',
-                                            ui: 'action',
-                                            listeners: {
-                                                click: {
-                                                    fn: function () {
-                                                        me.setLoading();
-                                                        window.location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfigurations/add';
-                                                    }
-                                                }
+                                    text: Uni.I18n.translate('validation.deviceconfiguration.add', 'CFG', 'Add device configuration'),
+                                    itemId: 'addDeviceConfiguration',
+                                    ui: 'action',
+                                    listeners: {
+                                        click: {
+                                            fn: function () {
+                                                me.setLoading();
+                                                window.location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfigurations/add';
                                             }
                                         }
-                                    ]
+                                    }
                                 }
                             ]
                         },
