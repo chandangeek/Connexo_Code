@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -13,7 +14,8 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
@@ -47,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
@@ -486,7 +489,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
             if (deviceConfigurations.isEmpty()) {
                 comTasks = taskService.findAllComTasks();
             } else {
-                comTasks = getComTasksPresentInEveryDeviceConfigurations(deviceConfigurations);
+                comTasks = getComTasksEnabledOnAllDeviceConfigurations(deviceConfigurations);
             }
             return new ArrayList<>(comTasks);
         } catch (SQLException e) {
@@ -494,7 +497,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         }
     }
 
-    private Collection<ComTask> getComTasksPresentInEveryDeviceConfigurations(List<DeviceConfiguration> deviceConfigurations) {
+    private Collection<ComTask> getComTasksEnabledOnAllDeviceConfigurations(List<DeviceConfiguration> deviceConfigurations) {
         Multiset<Long> comTasks = HashMultiset.create();
         Map<Long, ComTask> comTaskMap = new HashMap<>();
         for (DeviceConfiguration deviceConfiguration : deviceConfigurations) {
@@ -514,7 +517,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     private List<DeviceConfiguration> getDeviceConfigurationsFromComSchedule(ComSchedule comSchedule, Connection connection) throws SQLException {
         List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
-        try (PreparedStatement preparedStatement = connection.prepareStatement("select distinct deviceConfigId from DDC_DEVICE inner join DDC_DEVICEINCOMSCHEDULE on DDC_DEVICEINCOMSCHEDULE.DEVICEID = DDC_DEVICE.ID where DDC_DEVICEINCOMSCHEDULE.COMSCHEDULEID = ?")) {
+/* Todo: Check with Karel to figure out how to get select distinct activated in code below
+        DataMapper<DeviceConfiguration> mapper = this.dataModel.mapper(DeviceConfiguration.class);
+        SqlBuilder sqlBuilder = mapper.builder("DC");
+        sqlBuilder.append(", DDC_DEVICE DEV, DDC_COMTASKEXEC CTE WHERE DEV.deviceConfigId = DC.ID AND CTE.DEVICEID = DEV.ID AND CTE.COMSCHEDULE = ?");
+        try (Fetcher<DeviceConfiguration> fetcher = mapper.fetcher(sqlBuilder)) {
+            Iterator<DeviceConfiguration> deviceConfigurationIterator = fetcher.iterator();
+            while (deviceConfigurationIterator.hasNext()) {
+                deviceConfigurations.add(deviceConfigurationIterator.next());
+            }
+        }
+*/
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select distinct deviceConfigId from DDC_DEVICE inner join DDC_COMTASKEXEC on DDC_COMTASKEXEC.DEVICEID = DDC_DEVICE.ID where DDC_COMTASKEXEC.COMSCHEDULE = ?")) {
             preparedStatement.setLong(1, comSchedule.getId());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while(resultSet.next()) {
