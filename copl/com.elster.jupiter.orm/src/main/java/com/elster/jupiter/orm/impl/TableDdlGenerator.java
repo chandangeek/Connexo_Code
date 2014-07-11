@@ -157,8 +157,11 @@ class TableDdlGenerator {
                 builder.append(column.getFormula());
                 builder.append(")");
             }
-            if (addNullable && column.isNotNull()) {
-                builder.append(" NOT NULL");
+            if (addNullable) {
+                if (column.isNotNull()) {
+                    builder.append(" NOT");
+                }
+                builder.append(" NULL");
             }
         }
     }

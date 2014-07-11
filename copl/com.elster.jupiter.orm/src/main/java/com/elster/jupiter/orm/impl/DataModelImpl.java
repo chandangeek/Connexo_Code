@@ -182,7 +182,7 @@ public class DataModelImpl implements DataModel {
                         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
                             if (sequenceColumn.getQualifiedSequenceName() != null) {
                                 long sequenceValue = getLastSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
-                                long maxColumnValue = maxColumnValue(sequenceColumn, statement);
+                                long maxColumnValue = fromTable.getColumn(sequenceColumn.getName()) != null ? maxColumnValue(sequenceColumn, statement) : 0;
                                 if (maxColumnValue > sequenceValue) {
                                     upgradeDdl.addAll(toTable.upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
                                 }
@@ -216,7 +216,8 @@ public class DataModelImpl implements DataModel {
         if (resultSet.next()) {
             return resultSet.getLong(1);
         } else {
-            return 0;
+            // to indicate that the sequence is not there
+            return -1;
         }
     }
 
