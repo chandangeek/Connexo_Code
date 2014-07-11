@@ -2,9 +2,9 @@ package com.energyict.mdc.dynamic.impl;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -41,7 +41,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     private static final Logger LOGGER = Logger.getLogger(PropertySpecServiceImpl.class.getName());
 
-    private volatile List<ReferencePropertySpecFinderProvider> factoryProviders = new CopyOnWriteArrayList<>();
+    private volatile Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
     private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
     
     public PropertySpecServiceImpl() {
@@ -114,15 +114,13 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId) {
-        return new JupiterReferencePropertySpec(name, required, this.finderFor(factoryId));
+        return new JupiterReferencePropertySpec<>(name, required, this.finderFor(factoryId));
     }
 
     private CanFindByLongPrimaryKey<? extends HasId> finderFor(FactoryIds factoryId) {
-        for (ReferencePropertySpecFinderProvider factoryProvider : this.factoryProviders) {
-            for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
-                if (factoryId.equals(finder.factoryId())) {
-                    return finder;
-                }
+        for (CanFindByLongPrimaryKey<? extends HasId> finder : finders.values()) {
+            if(factoryId.equals(finder.factoryId())){
+                return finder;
             }
         }
         throw new NoFinderComponentFoundException(factoryId);
@@ -136,8 +134,8 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        if(this.validateUnique(factoryProvider)){
-            this.factoryProviders.add(factoryProvider);
+        for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
+            finders.put(finder.getClass(), finder);
         }
     }
     
@@ -146,30 +144,10 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         this.basicPropertySpecService = propertySpecService;
     }
 
-    private boolean validateUnique(ReferencePropertySpecFinderProvider factoryProvider) {
-        Set<FactoryIds> existingFactoryIds = this.existingFactoryIds();
-        for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
-            if (existingFactoryIds.contains(finder.factoryId())) {
-                LOGGER.warning("Factory " + finder.factoryId().name() + " already registered, ignoring ReferencePropertySpecFinderProvider " + factoryProvider.toString());
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private Set<FactoryIds> existingFactoryIds() {
-        EnumSet<FactoryIds> factoryIds = EnumSet.noneOf(FactoryIds.class);
-        for (ReferencePropertySpecFinderProvider factoryProvider : this.factoryProviders) {
-            for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
-                factoryIds.add(finder.factoryId());
-            }
-
-        }
-        return factoryIds;
-    }
-
     public void removeFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        this.factoryProviders.remove(factoryProvider);
+        for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
+            this.finders.remove(finder);
+        }
     }
 
 }

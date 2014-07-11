@@ -14,7 +14,7 @@ import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 public class JupiterReferencePropertySpec<T extends HasId> extends BasicPropertySpec<T> {
 
     public JupiterReferencePropertySpec(String name, boolean required, CanFindByLongPrimaryKey<T> factory) {
-        super(name, required, new JupiterReferenceFactory<T>(factory));
+        super(name, required, new JupiterReferenceFactory<>(factory));
     }
 
     @Override
