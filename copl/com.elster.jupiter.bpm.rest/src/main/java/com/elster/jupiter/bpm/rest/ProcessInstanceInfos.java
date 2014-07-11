@@ -26,10 +26,12 @@ public class ProcessInstanceInfos {
     public ProcessInstanceInfos(JSONArray instances, int limit, int start) {
         this(instances);
         if ( start + limit > bulkInstances.size() ) {
-            limit = bulkInstances.size();
+            limit = bulkInstances.size() - start;
         }
-        for (int i=start; i < limit; ++i) {
-            this.instances.add(bulkInstances.get(i));
+
+        this.instances = bulkInstances.subList(start, start + limit);
+        if(total > start + limit){
+            total = start + limit + 1;
         }
     }
 
@@ -39,7 +41,7 @@ public class ProcessInstanceInfos {
                 try {
                     JSONObject instance = instanceList.getJSONObject(i);
                     ProcessInstanceInfo result = new ProcessInstanceInfo(instance);
-                    bulkInstances.add(result);
+                    bulkInstances.add(0, result);
                     total++;
                 } catch (JSONException e) {
                     throw new RuntimeException(e);

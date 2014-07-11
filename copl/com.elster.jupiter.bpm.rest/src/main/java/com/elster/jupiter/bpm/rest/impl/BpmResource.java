@@ -47,9 +47,13 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         DeploymentInfos deploymentInfos = getAllDeployments();
-        if (deploymentInfos != null) {
+        if (deploymentInfos != null && deploymentInfos.total > 0) {
             BpmRestCall rest =  new BpmRestCall();
-            for (DeploymentInfo deployment : deploymentInfos.getDeployments()) {
+            // TODO:
+            // Apparently - although not in line with the documentation - all instances are returned regardless of the deployment id
+            // For future versions, we need to revise if this behavior changes
+            //for (DeploymentInfo deployment : deploymentInfos.getDeployments()) {
+                DeploymentInfo deployment = deploymentInfos.deployments.get(0);
                 rest.clearJsonContent();
                 rest.doGet("/rest/runtime/"+deployment.identifier+"/history/instances");
                 jsonContent = rest.getJsonContent();
@@ -61,7 +65,7 @@ public class BpmResource {
                         throw new RuntimeException(e);
                     }
                 }
-            }
+            //}
         }
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         return new ProcessInstanceInfos(arr, queryParameters.getLimit(), queryParameters.getStart());
