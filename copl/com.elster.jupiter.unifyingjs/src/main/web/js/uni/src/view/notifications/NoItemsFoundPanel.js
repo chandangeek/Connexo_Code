@@ -76,6 +76,8 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
      * steps to take if there are no items found. By default an item configuration
      * is assumed to be a button, but any component configuration is possible.
      *
+     * If no steps can or should be taken, the steps section is not shown.
+     *
      *     @example
      *     stepItems = [
      *         {
