@@ -166,7 +166,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         Finder<Device> page =
                 DefaultFinder.
                         of(Device.class, condition, this.dataModel).
-                        paged(1, 1);
+                        paged(0, 1);
         List<Device> allDevices = page.find();
         return !allDevices.isEmpty();
     }
