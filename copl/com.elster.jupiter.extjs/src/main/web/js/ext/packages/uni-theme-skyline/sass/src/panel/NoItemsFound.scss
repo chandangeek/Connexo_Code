@@ -1,0 +1,53 @@
+.uni-panel-no-items-found {
+    border: 1px solid #d2d2d2;
+    border-radius: 10px;
+
+    background-image: url('images/shared/icon-error.png');
+    background-position: 22px 20px;
+    background-repeat: no-repeat;
+
+    padding: {
+        top: 16px;
+        right: 128px;
+        bottom: 24px;
+        left: 64px;
+    }
+
+    .message > .#{$prefix}panel-body {
+        background-color: transparent;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+
+        margin: 0 {
+            top: 14px;
+            bottom: 18px;
+        }
+
+        li {
+            background-image: url('images/container/bullet.png');
+            background-position: left 2px;
+            background-repeat: no-repeat;
+            padding-left: 24px;
+            margin: 0 {
+                bottom: 8px;
+            }
+        }
+    }
+
+    .steps {
+        margin-top: 8px;
+    }
+
+    *[class*='#{$prefix}panel-header-text-container-'] {
+        font-size: 24px;
+        color: #686868;
+    }
+
+    *[class*='#{$prefix}panel-body-'] {
+        font-size: 13px;
+        color: #686868;
+    }
+}
