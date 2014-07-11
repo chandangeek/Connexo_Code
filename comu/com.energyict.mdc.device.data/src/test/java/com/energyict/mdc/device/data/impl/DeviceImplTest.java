@@ -960,17 +960,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(channel).isNull();
     }
 
-    @Test
-    @Transactional
-    public void deviceNotifiesDependentPartiesWhenDeletingTest() {
-        DeviceDependant deviceDependant = mock(DeviceDependant.class);
-        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceDependant.class)).thenReturn(Arrays.asList(deviceDependant));
-        Device simpleDevice = createSimpleDevice();
-        simpleDevice.delete();
-
-        verify(deviceDependant).notifyDeviceDelete(simpleDevice);
-    }
-
     @Test(expected = CannotDeleteComScheduleFromDevice.class)
     @Transactional
     public void removeComScheduleThatWasNotAddedToDevice() {
