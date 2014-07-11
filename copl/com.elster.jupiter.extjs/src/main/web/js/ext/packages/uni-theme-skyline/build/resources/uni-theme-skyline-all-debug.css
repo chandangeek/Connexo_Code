@@ -36288,19 +36288,19 @@ a, a.x-btn {
 
 /* line 245, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-large-horizontal {
-  padding: 0 0 32px 0; }
+  padding: 0 0 16px 0; }
 
 /* line 249, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-large-horizontal-noborder {
-  padding: 0 0 32px 0; }
+  padding: 0 0 16px 0; }
 
 /* line 253, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-large-vertical {
-  padding: 0 0 0 32px; }
+  padding: 0 0 0 16px; }
 
 /* line 257, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-large-vertical-noborder {
-  padding: 0 0 0 32px; }
+  padding: 0 0 0 16px; }
 
 /* line 273, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-text-container-large {
