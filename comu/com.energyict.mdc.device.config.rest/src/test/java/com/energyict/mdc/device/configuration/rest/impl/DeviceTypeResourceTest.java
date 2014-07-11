@@ -204,7 +204,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     public void testCreateDeviceTypeNonExistingProtocol() throws Exception {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.name="newName";
-        deviceTypeInfo.communicationProtocolName="theProtocol";
+        deviceTypeInfo.deviceProtocolPluggableClassName ="theProtocol";
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
 
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.absent();
@@ -219,7 +219,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     public void testCreateDeviceType() throws Exception {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.name="newName";
-        deviceTypeInfo.communicationProtocolName="theProtocol";
+        deviceTypeInfo.deviceProtocolPluggableClassName ="theProtocol";
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
 
         DeviceProtocolPluggableClass protocol = mock(DeviceProtocolPluggableClass.class);
@@ -250,7 +250,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
    public void testCreateDeviceTypeInvalidProtocolName() throws Exception {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.name="newName";
-        deviceTypeInfo.communicationProtocolName="x";
+        deviceTypeInfo.deviceProtocolPluggableClassName ="x";
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
 
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
@@ -388,7 +388,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonDeviceType.get("name")).isEqualTo("unique name").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("canBeGateway")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("canBeDirectlyAddressed")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonDeviceType.get("communicationProtocolName")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceType.get("deviceProtocolPluggableClass")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.containsKey("registerTypes")).describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 

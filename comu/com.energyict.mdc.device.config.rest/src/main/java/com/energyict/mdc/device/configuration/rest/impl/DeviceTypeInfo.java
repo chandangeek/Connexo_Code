@@ -14,7 +14,7 @@ import java.util.List;
 @XmlRootElement
 public class DeviceTypeInfo {
     @JsonIgnore
-    static final String COMMUNICATION_PROTOCOL_NAME = "communicationProtocolName";
+    static final String COMMUNICATION_PROTOCOL_NAME = "deviceProtocolPluggableClass";
 
     public long id;
     public String name;
@@ -25,8 +25,8 @@ public class DeviceTypeInfo {
     public boolean canBeDirectlyAddressed;
     public boolean canBeGateway;
     @JsonProperty(COMMUNICATION_PROTOCOL_NAME)
-    public String communicationProtocolName;
-    public long communicationProtocolId;
+    public String deviceProtocolPluggableClassName;
+    public long deviceProtocolPluggableClassId;
     @JsonProperty("registerTypes")
     public List<RegisterMappingInfo> registerMappings;
 
@@ -54,8 +54,8 @@ public class DeviceTypeInfo {
         deviceTypeInfo.canBeGateway= deviceType.canActAsGateway();
         deviceTypeInfo.canBeDirectlyAddressed = deviceType.isDirectlyAddressable();
         if (deviceProtocolPluggableClass!=null) {
-            deviceTypeInfo.communicationProtocolName=deviceProtocolPluggableClass.getName();
-            deviceTypeInfo.communicationProtocolId =deviceProtocolPluggableClass.getId();
+            deviceTypeInfo.deviceProtocolPluggableClassName =deviceProtocolPluggableClass.getName();
+            deviceTypeInfo.deviceProtocolPluggableClassId =deviceProtocolPluggableClass.getId();
         }
         return deviceTypeInfo;
     }

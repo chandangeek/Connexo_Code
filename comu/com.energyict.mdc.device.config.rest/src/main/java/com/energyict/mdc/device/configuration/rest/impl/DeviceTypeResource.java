@@ -97,12 +97,12 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
-        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.communicationProtocolName);
-        if (Checks.is(deviceTypeInfo.communicationProtocolName).emptyOrOnlyWhiteSpace()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME,deviceTypeInfo.communicationProtocolName);
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.deviceProtocolPluggableClassName);
+        if (Checks.is(deviceTypeInfo.deviceProtocolPluggableClassName).emptyOrOnlyWhiteSpace()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME,deviceTypeInfo.deviceProtocolPluggableClassName);
         }
         if (!deviceProtocolPluggableClass.isPresent()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.PROTOCOL_INVALID_NAME, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.communicationProtocolName);
+            throw new LocalizedFieldValidationException(MessageSeeds.PROTOCOL_INVALID_NAME, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.deviceProtocolPluggableClassName);
         }
         DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceProtocolPluggableClass.get());
         deviceType.save();
@@ -116,7 +116,7 @@ public class DeviceTypeResource {
     public DeviceTypeInfo updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         deviceType.setName(deviceTypeInfo.name);
-        deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.communicationProtocolName);
+        deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
         if (deviceTypeInfo.registerMappings != null) {
             updateRegisterMappingAssociations(deviceType, deviceTypeInfo.registerMappings);
         }
