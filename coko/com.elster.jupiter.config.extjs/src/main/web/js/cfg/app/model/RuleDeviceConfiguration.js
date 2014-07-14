@@ -39,21 +39,14 @@ Ext.define('Cfg.model.RuleDeviceConfiguration', {
             name: 'config_loadProfileCount',
             persist: false,
             mapping: function (data) {
-                return '<a href="#/administration/devicetypes/' + data.deviceType.id + '/deviceconfigurations/' + data.config.id + '/loadprofiles">' + data.config.loadProfileCount + ' load profiles</a>';
+                return '<a href="#/administration/devicetypes/' + data.deviceType.id + '/deviceconfigurations/' + data.config.id + '/loadprofiles">' + data.config.loadProfileCount + ' load profile configurations</a>';
             }
         },
         {
             name: 'config_registerCount',
             persist: false,
             mapping: function (data) {
-                return '<a href="#/administration/devicetypes/' + data.deviceType.id + '/deviceconfigurations/' + data.config.id + '/registerconfigurations">' + data.config.registerCount + ' registers</a>';
-            }
-        },
-        {
-            name: 'config_logBookCount',
-            persist: false,
-            mapping: function (data) {
-                return '<a href="#/administration/devicetypes/' + data.deviceType.id + '/deviceconfigurations/' + data.config.id + '/logbookconfigurations">' + data.config.logBookCount + ' logbooks</a>';
+                return '<a href="#/administration/devicetypes/' + data.deviceType.id + '/deviceconfigurations/' + data.config.id + '/registerconfigurations">' + data.config.registerCount + ' register configurations</a>';
             }
         },
         {

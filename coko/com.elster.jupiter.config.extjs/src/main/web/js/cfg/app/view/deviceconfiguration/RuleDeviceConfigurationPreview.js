@@ -43,11 +43,6 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationPreview', {
             name: 'config_loadProfileCount',
             fieldLabel: '',
             hideEmptyLabel: false
-        },
-        {
-            name: 'config_logBookCount',
-            fieldLabel: '',
-            hideEmptyLabel: false
         }
     ]
 });
