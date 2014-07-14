@@ -5,6 +5,9 @@ Ext.define('Uni.property.form.PropertyHydrator', {
 
     hydrate: function(data, record) {
         var values = data;
+        if (!record.properties()) {
+            return false;
+        }
         record.properties().each(function (property) {
             if (property.get('isInheritedOrDefaultValue') === true) {
                 property.setPropertyValue(null);
