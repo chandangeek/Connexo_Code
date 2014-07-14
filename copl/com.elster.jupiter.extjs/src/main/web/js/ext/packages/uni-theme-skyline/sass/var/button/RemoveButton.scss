@@ -1,4 +1,8 @@
 $button-remove-background-color: #eb5642 !default;
-$button-remove-color: #FFFFFF !default;
-$button-remove-background-color-over: #ed6654;
-$button-remove-background-color-pressed: #d34d3b;
+$button-remove-color: #ffffff !default;
+$button-remove-background-color-over: #ff5740 !default;
+$button-remove-background-color-disabled: #d2d2d2 !default;
+$button-remove-background-color-pressed: linear-gradient(#e0422d, #ec7464 61%) !default;
+$button-remove-background-color-focus: #e0422d !default;
+$button-remove-background-border-focus: 1px solid #a32514 !default;
+$button-remove-border-color-focus: #a32514 !default;

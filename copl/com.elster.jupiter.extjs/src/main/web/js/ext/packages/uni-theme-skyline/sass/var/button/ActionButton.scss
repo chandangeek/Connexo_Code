@@ -1,4 +1,8 @@
-$button-action-background-color: #70bb51;
-$button-action-color: #FFFFFF;
-$button-action-background-color-pressed: #64a848;
-$button-action-background-color-over: #7ec162;
+$button-action-background-color: #70bb51 !default;
+$button-action-color: #ffffff !default;
+$button-action-background-color-over: #6ece46 !default;
+$button-action-background-color-disabled: #d2d2d2 !default;
+$button-action-background-color-pressed: linear-gradient(#4c952e, #5cb636 61%) !default;
+$button-action-background-color-focus: #5cb636 !default;
+$button-action-background-border-focus: 1px solid #457f2c !default;
+$button-action-border-color-focus: #457f2c !default;

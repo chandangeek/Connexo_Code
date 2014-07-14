@@ -1,9 +1,10 @@
-$button-link-background-color: rgba(0,0,0,0) !default;
+$button-link-background-color: rgba(0, 0, 0, 0) !default;
 
-$button-link-glyph-color: $color-grey;
+$button-link-glyph-color: $color-grey !default;
 
-$button-link-color: $color-grey;
-$button-link-color-over: $color-blue-2;
-$button-link-color-focus: $color-blue-2;
-$button-link-color-pressed: $color-blue-1;
-$button-link-color-disabled: $color-grey-5;
+$button-link-color: #686868 !default;
+$button-link-color-over: #1e7d9e !default;
+$button-link-color-focus: #5d5d5d !default;
+$button-link-color-pressed: #1e7d9e !default;
+$button-link-color-disabled: #d2d2d2 !default;
+$button-link-border-color-focus: transparent !default;
