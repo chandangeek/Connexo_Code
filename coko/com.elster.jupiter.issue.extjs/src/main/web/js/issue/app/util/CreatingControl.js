@@ -147,7 +147,7 @@ Ext.define('Isu.util.CreatingControl', {
 
     suffixAppender: function (field, suffix) {
         field.columnWidth = 1;
-        var fieldContainer = {
+        return {
             xtype: 'fieldcontainer',
             layout: 'column',
             defaults: {
@@ -156,8 +156,7 @@ Ext.define('Isu.util.CreatingControl', {
                 validateOnChange: false,
                 validateOnBlur: false
             },
-            items: [ field, { xtype: 'displayfield', margin: '0 0 0 5', value: suffix } ]
+            items: [ field, { xtype: 'displayfield', margin: '0 0 0 5', submitValue: false, value: suffix } ]
         };
-        return fieldContainer;
     }
 });
