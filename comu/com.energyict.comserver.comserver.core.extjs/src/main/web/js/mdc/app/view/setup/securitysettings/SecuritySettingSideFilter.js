@@ -24,7 +24,6 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSideFilter', {
                     name: 'obis',
                     fieldLabel: 'OBIS code',
                     labelAlign: 'top'
-
                 },
                 {
                     xtype: 'button',

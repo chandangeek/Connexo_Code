@@ -109,7 +109,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                     }
                 });
 
-                me.getDeviceConnectionMethodsGrid().getSelectionModel().doSelect(0);
+//                me.getDeviceConnectionMethodsGrid().getSelectionModel().doSelect(0);
             }
         });
     },

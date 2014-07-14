@@ -10,7 +10,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.deviceconfiguration.ActionMenu',
-        'Uni.grid.column.Action'
+        'Uni.grid.column.Action',
+        'Uni.grid.column.Obis',
+        'Uni.form.field.ObisDisplay'
     ],
 
     content: [
@@ -36,9 +38,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                     flex: 5
                                 },
                                 {
-                                    header: 'OBIS code',
-                                    dataIndex: 'overruledObisCode',
-                                    flex: 5
+                                    xtype: 'obis-column',
+                                    dataIndex: 'overruledObisCode'
                                 },
                                 {
                                     xtype: 'uni-actioncolumn',
@@ -135,7 +136,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                                 labelWidth: 160
                                             },
                                             {
-                                                xtype: 'displayfield',
+                                                xtype: 'obis-displayfield',
                                                 fieldLabel: 'Overruled OBIS code',
                                                 name: 'overruledObisCode',
                                                 labelWidth: 160
@@ -145,7 +146,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                     {
                                         items: [
                                             {
-                                                xtype: 'displayfield',
+                                                xtype: 'obis-displayfield',
                                                 fieldLabel: 'Logbook OBIS code',
                                                 labelWidth: 160,
                                                 name: 'obisCode'

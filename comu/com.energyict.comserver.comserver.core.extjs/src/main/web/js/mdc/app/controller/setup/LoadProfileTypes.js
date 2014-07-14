@@ -482,7 +482,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     widget = Ext.widget('loadProfileTypeForm', { loadProfileTypeHeader: Uni.I18n.translate('loadprofiletype.editloadprofiletypes', 'MDC', 'Edit load profile type'), loadProfileTypeAction: 'Save', loadButtonAction: 'save', loadProfileTypeActionHref: me.loadProfileTypeId + '/edit' }),
                     nameField = widget.down('textfield[name=name]'),
                     intervalCombobox = widget.down('combobox[name=timeDuration]'),
-                    obisCodeField = widget.down('textfield[name=obisCode]'),
+                    obisCodeField = widget.down('[name=obisCode]'),
                     measurementTypesView = widget.down('fieldcontainer');
 
                 me.getApplication().fireEvent('loadProfileType', loadProfileType);

@@ -5,7 +5,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
     loadProfileTypeAction: null,
     loadProfileTypeActionHref: null,
     loadButtonAction: null,
-
+    requires: [
+        'Uni.form.field.Obis'
+    ],
     content: [
         {
             items: [
@@ -53,16 +55,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                             editable: false
                         },
                         {
-                            xtype: 'textfield',
-                            allowBlank: false,
-                            required: true,
+                            xtype: 'obis-field',
                             fieldLabel: 'OBIS code',
-                            emptyText: 'x.x.x.x.x.x',
-                            name: 'obisCode',
-                            maskRe: /[\d.]+/,
-                            vtype: 'obisCode',
-                            afterSubTpl: '<div class="x-form-display-field"><i>' + 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."' + '</i></div>',
-                            msgTarget: 'under'
+                            name: 'obisCode'
                         },
                         {
                             xtype: 'fieldcontainer',
@@ -152,13 +147,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                 ui: 'link'
             }
         );
-        Ext.apply(Ext.form.VTypes, {
-            obisCode: function (val, field) {
-                var obis = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
-                return obis.test(val);
-            },
-            obisCodeText: 'OBIS code is wrong'
-        });
     }
 });
 

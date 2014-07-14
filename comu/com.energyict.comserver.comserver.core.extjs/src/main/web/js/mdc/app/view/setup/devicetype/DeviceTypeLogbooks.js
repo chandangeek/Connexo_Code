@@ -9,9 +9,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.deviceconfiguration.ActionMenu',
-        'Uni.grid.column.Action'
+        'Uni.grid.column.Action',
+        'Uni.grid.column.Obis',
+        'Uni.form.field.ObisDisplay'
     ],
-
     content: [
         {
             xtype: 'panel',
@@ -35,9 +36,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                     flex: 5
                                 },
                                 {
-                                    header: 'OBIS code',
-                                    dataIndex: 'obisCode',
-                                    flex: 5
+                                    xtype: 'obis-column',
+                                    dataIndex: 'obisCode'
                                 },
                                 {
                                     xtype: 'uni-actioncolumn',
@@ -133,8 +133,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                     {
                                         items: [
                                             {
-                                                xtype: 'displayfield',
-                                                fieldLabel: 'OBIS code',
+                                                xtype: 'obis-displayfield',
                                                 name: 'obisCode'
                                             }
                                         ]

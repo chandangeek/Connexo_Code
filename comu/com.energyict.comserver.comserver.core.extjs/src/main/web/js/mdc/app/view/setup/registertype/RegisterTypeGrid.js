@@ -10,7 +10,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterTypes',
-        'Mdc.view.setup.registertype.RegisterTypeActionMenu'
+        'Mdc.view.setup.registertype.RegisterTypeActionMenu',
+        'Uni.grid.column.Obis'
     ],
     store: 'RegisterTypes',
     withPaging: true,
@@ -47,9 +48,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 ]
             },
             {
-                header: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
-                dataIndex: 'obisCode',
-                flex: 1
+                xtype: 'obis-column',
+                dataIndex: 'obisCode'
             }
         ];
         if (this.withActions) {

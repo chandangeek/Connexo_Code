@@ -2,7 +2,9 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.add-logbook-types',
     deviceTypeId: null,
-
+    requires: [
+        'Uni.grid.column.Obis'
+    ],
     content: [
         {
             xtype: 'panel',
@@ -57,9 +59,8 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                                 flex: 5
                             },
                             {
-                                header: 'OBIS code',
-                                dataIndex: 'obisCode',
-                                flex: 5
+                                xtype: 'obis-column',
+                                dataIndex: 'obisCode'
                             }
                         ]
                     },

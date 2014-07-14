@@ -14,6 +14,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
         enableKeyNav: false,
         showHeaderCheckbox: false
     },
+    requires: [
+        'Uni.grid.column.Obis'
+    ],
     initComponent: function () {
         this.columns = [
             {
@@ -22,9 +25,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
                 flex: 3
             },
             {
-                header: 'OBIS code',
-                dataIndex: 'obisCode',
-                flex: 2
+                xtype: 'obis-column',
+                dataIndex: 'obisCode'
             },
             {
                 header: Uni.I18n.translate('registerMappings.CIMreadingType', 'MDC', 'CIM Reading type'),

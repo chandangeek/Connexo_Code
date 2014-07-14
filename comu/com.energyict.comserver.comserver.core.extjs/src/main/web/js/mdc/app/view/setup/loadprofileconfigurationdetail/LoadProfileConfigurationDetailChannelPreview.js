@@ -6,7 +6,9 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     frame: true,
     editActionName: null,
     deleteActionName: null,
-
+    requires: [
+        'Uni.form.field.ObisDisplay'
+    ],
     items: [
         {
             xtype: 'form',
@@ -61,9 +63,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                             ]
                         },
                         {
-                            xtype: 'displayfield',
+                            xtype: 'obis-displayfield',
                             labelWidth: 200,
-                            fieldLabel: 'OBIS code',
                             name: 'overruledObisCode'
                         },
                         {

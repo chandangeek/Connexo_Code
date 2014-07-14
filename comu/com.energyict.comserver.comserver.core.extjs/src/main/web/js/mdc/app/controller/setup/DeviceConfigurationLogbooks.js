@@ -37,7 +37,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
     loadGridItemDetail: function (grid, record) {
         var itemPanel = Ext.ComponentQuery.query('device-configuration-logbooks panel[name=details]')[0],
             itemForm = Ext.ComponentQuery.query('device-configuration-logbooks form[name=logbookConfigurationDetails]')[0],
-            overruledField = itemForm.down('[name=overruledObisCode]'),
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: itemPanel
@@ -49,9 +48,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
         this.displayedItemId = record.id;
         this.logbookConfigId = record.internalId;
         itemForm.loadRecord(record);
-        if (record.data.overruledObisCode == record.data.obisCode) {
-            overruledField.setValue('-');
-        }
         itemPanel.setTitle(record.get('name'));
         itemPanel.show();
         preloader.destroy();

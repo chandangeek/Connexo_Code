@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeCreateUpdateForm', {
     requires: [
         'Uni.view.navigation.SubMenu',
         'Ext.form.field.TextArea',
-        'Ext.button.Button'
+        'Ext.button.Button',
+        'Uni.form.field.Obis'
     ],
     content: [
         {
@@ -39,16 +40,10 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeCreateUpdateForm', {
                     msgTarget: 'under'
                 },
                 {
-                    xtype: 'textfield',
+                    xtype: 'obis-field',
                     itemId: 'logbookTypeObis',
                     name: 'obis',
-                    required: true,
-                    disabled: true,
-                    allowBlank: false,
-                    fieldLabel: Uni.I18n.translate('logbooktype.obis', 'MDC', 'OBIS code'),
-                    maskRe: /[\d.]+/,
-                    vtype: 'obisCode',
-                    msgTarget: 'under'
+                    disabled: true
                 }
             ],
             buttons: [
@@ -66,18 +61,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeCreateUpdateForm', {
                 }
             ]
         }
-    ],
-
-    initComponent: function () {
-        Ext.apply(Ext.form.VTypes, {
-            obisCode: function (val, field) {
-                var obis = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
-                return obis.test(val);
-            },
-            obisCodeText: Uni.I18n.translate('logbooktype.obis.wrong', 'MDC', 'OBIS code is wrong')
-        });
-        this.callParent(this);
-    }
+    ]
 });
 
 

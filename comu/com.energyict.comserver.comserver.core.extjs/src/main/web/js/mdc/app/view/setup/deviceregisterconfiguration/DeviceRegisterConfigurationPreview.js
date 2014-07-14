@@ -3,7 +3,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
     alias: 'widget.deviceRegisterConfigurationPreview',
     itemId: 'deviceRegisterConfigurationPreview',
     requires: [
-        'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationActionMenu'
+        'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationActionMenu',
+        'Uni.form.field.ObisDisplay'
     ],
     frame: true,
 
@@ -44,8 +45,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                                 name: 'name'
                             },
                             {
-                                xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.obiscode', 'MDC', 'OBIS code'),
+                                xtype: 'obis-displayfield',
                                 name: 'obisCode'
                             },
                             {

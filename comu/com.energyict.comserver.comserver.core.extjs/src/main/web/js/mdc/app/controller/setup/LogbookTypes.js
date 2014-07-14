@@ -180,7 +180,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
             title = 'Create logbook type';
             btn.setText('Add');
             btn.action = 'create';
-            self.getFormPanel().down('#logbookTypeObis').setDisabled(false);
+            self.getFormPanel().down('obis-field').setDisabled(false);
         }
 
         form.setTitle(title);
@@ -188,7 +188,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
 
     logbookAssigned: function (record) {
         if (!record.raw.isInUse) {
-            this.getFormPanel().down('#logbookTypeObis').setDisabled(false);
+            this.getFormPanel().down('obis-field').setDisabled(false);
         }
     },
 

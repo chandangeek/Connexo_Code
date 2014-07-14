@@ -3,7 +3,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
     alias: 'widget.loadProfileTypePreview',
     itemId: 'loadProfileTypePreview',
     requires: [
-        'Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu'
+        'Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu',
+        'Uni.form.field.ObisDisplay'
     ],
     title: '',
     frame: true,
@@ -36,7 +37,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                         name: 'name'
                     },
                     {
-                        fieldLabel: 'OBIS code',
+                        xtype: 'obis-displayfield',
                         name: 'obisCode'
                     },
                     {
