@@ -37,8 +37,8 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationGrid', {
                             {
                                 xtype: 'pagingtoolbartop',
                                 store: me.store,
-                                displayMsg: Uni.I18n.translate('validation.deviceconfiguration.display.msg', 'CFG', '{0} - {1} of {2} Device configurations'),
-                                displayMoreMsg: Uni.I18n.translate('validation.deviceconfiguration.display.more.msg', 'CFG', '{0} - {1} of more than {2} Device configurations'),
+                                displayMsg: Uni.I18n.translate('validation.deviceconfiguration.display.msg', 'CFG', '{0} - {1} of {2} device configurations'),
+                                displayMoreMsg: Uni.I18n.translate('validation.deviceconfiguration.display.more.msg', 'CFG', '{0} - {1} of more than {2} device configurations'),
                                 emptyMsg: Uni.I18n.translate('validation.deviceconfiguration.pagingtoolbartop.emptyMsg', 'CFG', 'There are no device configurations to display'),
                                 dock: 'top',
                                 border: false
