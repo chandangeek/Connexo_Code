@@ -165,7 +165,8 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
             },
             defaults: {
                 xtype: 'button',
-                hrefTarget: '_self'
+                hrefTarget: '_self',
+                margin: '0 12px 0 0'
             }
         });
 
