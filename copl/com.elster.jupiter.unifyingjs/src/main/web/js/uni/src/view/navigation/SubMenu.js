@@ -26,6 +26,7 @@ Ext.define('Uni.view.navigation.SubMenu', {
     floating: false,
     ui: 'side-menu',
     plain: true,
+    width: 256,
 
     defaults: {
         xtype: 'menuitem',
@@ -52,16 +53,16 @@ Ext.define('Uni.view.navigation.SubMenu', {
         }
     },
 
-    cleanSelection: function() {
+    cleanSelection: function () {
         var cls = this.selectedCls;
-        this.items.each(function(item) {
-            item.removeCls(cls)
+        this.items.each(function (item) {
+            item.removeCls(cls);
         });
     },
 
     checkNavigation: function (token) {
         var me = this;
-        me.items.each(function(item, index) {
+        me.items.each(function (item, index) {
             if ((item.href != null) && (Ext.String.endsWith(item.href, token))) {
                 me.cleanSelection();
                 me.toggleMenuItem(index);
