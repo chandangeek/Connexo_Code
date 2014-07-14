@@ -7,13 +7,11 @@ import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import com.google.common.base.Optional;
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class RegisterConfigInfo {
     @JsonProperty("id")
@@ -85,8 +83,8 @@ public class RegisterConfigInfo {
         registerSpec.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         registerSpec.setMultiplier(this.multiplier);
         registerSpec.setOverflow(this.overflow);
-        registerSpec.setNumberOfDigits(this.numberOfDigits);
-        registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits);
+        registerSpec.setNumberOfDigits(this.numberOfDigits!=null?this.numberOfDigits:0);
+        registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits!=null?this.numberOfFractionDigits:0);
         registerSpec.setOverruledObisCode(this.overruledObisCode);
         registerSpec.setRegisterMapping(registerMapping);
     }
