@@ -148,7 +148,7 @@ public class ConnectionMethodResource {
                                                        @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                                        @PathParam("connectionMethodId") long connectionMethodId,
                                                        @Context UriInfo uriInfo,
-                                                       ConnectionMethodInfo<? super PartialConnectionTask> connectionMethodInfo) {
+                                                       ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(connectionMethodId, deviceConfiguration);
@@ -164,7 +164,7 @@ public class ConnectionMethodResource {
      * Converts String values to correct type
      * Discards properties if there is no matching propertySpec
      */
-    private void updateProperties(ConnectionMethodInfo<?> connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
+    private void updateProperties(ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
         if (connectionMethodInfo.properties !=null) {
             for (PropertySpec<?> propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, connectionMethodInfo.properties);
