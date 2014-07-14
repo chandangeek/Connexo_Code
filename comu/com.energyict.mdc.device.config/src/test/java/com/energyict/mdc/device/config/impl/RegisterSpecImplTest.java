@@ -150,7 +150,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = "numberOfDigits")
     public void createRegisterSpecNegativeDigits() {
-        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setNumberOfDigits(-1).setNumberOfFractionDigits(1).add();
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createRegisterSpec(registerMapping).setNumberOfDigits(-1).setNumberOfFractionDigits(1).setOverflow(BigDecimal.ONE).add();
     }
 
     @Test
@@ -202,6 +202,17 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
+        registerSpecUpdater.update();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED+"}", property = "overflow")
+    public void updateOverflowMissing() {
+        RegisterSpec registerSpec = createDefaultRegisterSpec();
+
+        RegisterSpec.RegisterSpecUpdater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
+        registerSpecUpdater.setOverflow(null);
         registerSpecUpdater.update();
     }
 
