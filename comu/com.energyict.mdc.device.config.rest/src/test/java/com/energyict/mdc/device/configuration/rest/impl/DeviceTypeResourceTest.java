@@ -18,6 +18,8 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
@@ -40,8 +42,6 @@ import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -56,6 +56,7 @@ import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
+
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -64,10 +65,12 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
+
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientResponse;
@@ -201,7 +204,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     public void testCreateDeviceTypeNonExistingProtocol() throws Exception {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.name="newName";
-        deviceTypeInfo.communicationProtocolName="theProtocol";
+        deviceTypeInfo.deviceProtocolPluggableClassName ="theProtocol";
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
 
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.absent();
@@ -216,7 +219,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     public void testCreateDeviceType() throws Exception {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.name="newName";
-        deviceTypeInfo.communicationProtocolName="theProtocol";
+        deviceTypeInfo.deviceProtocolPluggableClassName ="theProtocol";
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
 
         DeviceProtocolPluggableClass protocol = mock(DeviceProtocolPluggableClass.class);
@@ -247,7 +250,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
    public void testCreateDeviceTypeInvalidProtocolName() throws Exception {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.name="newName";
-        deviceTypeInfo.communicationProtocolName="x";
+        deviceTypeInfo.deviceProtocolPluggableClassName ="x";
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
 
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
@@ -385,7 +388,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonDeviceType.get("name")).isEqualTo("unique name").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("canBeGateway")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("canBeDirectlyAddressed")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonDeviceType.get("communicationProtocolName")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceType.get("deviceProtocolPluggableClass")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.containsKey("registerTypes")).describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
@@ -432,7 +435,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("active")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("description")).isEqualTo("describe me").describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonDeviceConfiguration.get("communicationProtocolName")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("deviceProtocolPluggableClass")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("deviceFunction")).isEqualTo("Meter").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("registerCount")).isEqualTo(2).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("logBookCount")).isEqualTo(3).describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -461,7 +464,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceConfigurationService.findDeviceType(6)).thenReturn(deviceType);
 
         Map<String, Object> jsonRegisterConfiguration = target("/devicetypes/6/deviceconfigurations/113/registerconfigurations/1").request().get(Map.class);
-        assertThat(jsonRegisterConfiguration).hasSize(13);
+        assertThat(jsonRegisterConfiguration).hasSize(14);
         assertThat(jsonRegisterConfiguration.get("id")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("name")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("readingType")).describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -475,6 +478,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonRegisterConfiguration.get("multiplier")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("overflowValue")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("timeOfUse")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("multiplierMode")).describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
     @Test

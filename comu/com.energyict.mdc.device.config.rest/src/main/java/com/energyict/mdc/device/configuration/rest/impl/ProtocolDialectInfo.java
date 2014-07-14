@@ -1,12 +1,14 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.pluggable.rest.PropertyInfo;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.ws.rs.core.UriInfo;
 
 public class ProtocolDialectInfo {

@@ -11,45 +11,64 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class RegisterConfigInfo {
-
-    public long id;
+    @JsonProperty("id")
+    public Long id;
+    @JsonProperty("name")
     public String name;
+    @JsonProperty("readingType")
     public ReadingTypeInfo readingType;
+    @JsonProperty("registerMapping")
     public Long registerMapping;
+    @JsonProperty("obisCode")
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
+    @JsonProperty("overruledObisCode")
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode overruledObisCode;
+    @JsonProperty("obisCodeDescription")
     public String obisCodeDescription;
+    @JsonProperty("unitOfMeasure")
     @XmlJavaTypeAdapter(UnitAdapter.class)
     public Unit unitOfMeasure;
-    public int numberOfDigits;
-    public int numberOfFractionDigits;
+    @JsonProperty("numberOfDigits")
+    public Integer numberOfDigits;
+    @JsonProperty("numberOfFractionDigits")
+    public Integer numberOfFractionDigits;
+    @JsonProperty("multiplier")
     public BigDecimal multiplier;
+    @JsonProperty("overflow")
     public BigDecimal overflow;
-    public int timeOfUse;
+    @JsonProperty("timeOfUse")
+    public Integer timeOfUse;
+    @JsonProperty("multiplierMode")
+    @XmlJavaTypeAdapter(MultiplierModeAdapter.class)
+    public MultiplierMode multiplierMode;
 
     public RegisterConfigInfo() {
     }
 
+    public RegisterConfigInfo(RegisterSpec registerSpec) {
+        this.id = registerSpec.getId();
+        this.name = registerSpec.getRegisterMapping().getName();
+        this.readingType = new ReadingTypeInfo(registerSpec.getRegisterMapping().getReadingType());
+        this.obisCode = registerSpec.getObisCode();
+        this.overruledObisCode = registerSpec.getDeviceObisCode();
+        this.obisCodeDescription = registerSpec.getObisCode().getDescription();
+        this.unitOfMeasure = registerSpec.getUnit();
+        this.numberOfDigits = registerSpec.getNumberOfDigits();
+        this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
+        this.multiplier = registerSpec.getMultiplier();
+        this.overflow = registerSpec.getOverflowValue();
+        this.registerMapping = registerSpec.getRegisterMapping().getId();
+        this.timeOfUse = registerSpec.getRegisterMapping().getTimeOfUse();
+        this.multiplierMode = registerSpec.getMultiplierMode();
+    }
+
     public static RegisterConfigInfo from(RegisterSpec registerSpec) {
-        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
-        registerConfigInfo.id = registerSpec.getId();
-        registerConfigInfo.name = registerSpec.getRegisterMapping().getName();
-        registerConfigInfo.readingType = new ReadingTypeInfo(registerSpec.getRegisterMapping().getReadingType());
-        registerConfigInfo.obisCode = registerSpec.getObisCode();
-        registerConfigInfo.overruledObisCode = registerSpec.getDeviceObisCode();
-        registerConfigInfo.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        registerConfigInfo.unitOfMeasure = registerSpec.getUnit();
-        registerConfigInfo.numberOfDigits = registerSpec.getNumberOfDigits();
-        registerConfigInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
-        registerConfigInfo.multiplier = registerSpec.getMultiplier();
-        registerConfigInfo.overflow = registerSpec.getOverflowValue();
-        registerConfigInfo.registerMapping = registerSpec.getRegisterMapping().getId();
-        registerConfigInfo.timeOfUse = registerSpec.getRegisterMapping().getTimeOfUse();
-        return registerConfigInfo;
+        return new RegisterConfigInfo(registerSpec);
     }
 
     public static List<RegisterConfigInfo> from(List<RegisterSpec> registerSpecList) {
@@ -64,8 +83,8 @@ public class RegisterConfigInfo {
         registerSpec.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         registerSpec.setMultiplier(this.multiplier);
         registerSpec.setOverflow(this.overflow);
-        registerSpec.setNumberOfDigits(this.numberOfDigits);
-        registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits);
+        registerSpec.setNumberOfDigits(this.numberOfDigits!=null?this.numberOfDigits:0);
+        registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits!=null?this.numberOfFractionDigits:0);
         registerSpec.setOverruledObisCode(this.overruledObisCode);
         registerSpec.setRegisterMapping(registerMapping);
     }
