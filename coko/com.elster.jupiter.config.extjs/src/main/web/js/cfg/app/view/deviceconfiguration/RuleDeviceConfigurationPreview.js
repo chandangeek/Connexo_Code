@@ -25,7 +25,7 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationPreview', {
     items: [
         {
             fieldLabel: Uni.I18n.translate('validation.deviceConfiguration', 'CFG', 'Device configuration'),
-            name: 'config_name_link'
+            name: 'config_name'
         },
         {
             fieldLabel: Uni.I18n.translate('validation.deviceType', 'CFG', 'Device type'),

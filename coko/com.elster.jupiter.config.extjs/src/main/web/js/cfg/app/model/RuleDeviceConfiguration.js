@@ -11,6 +11,13 @@ Ext.define('Cfg.model.RuleDeviceConfiguration', {
             }
         },
         {
+            name: 'config_name',
+            persist: false,
+            mapping: function (data) {
+                return data.config.name;
+            }
+        },
+        {
             name: 'config_name_link',
             persist: false,
             mapping: function (data) {
