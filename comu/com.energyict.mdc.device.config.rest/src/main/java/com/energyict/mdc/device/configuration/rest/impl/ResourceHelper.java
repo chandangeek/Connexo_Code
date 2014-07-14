@@ -71,4 +71,11 @@ public class ResourceHelper {
         return loadProfileSpec;
     }
 
+    public ChannelSpec findChannelSpec(long channelSpecId) {
+        ChannelSpec channelSpec = deviceConfigurationService.findChannelSpec(channelSpecId);
+        if (channelSpec == null) {
+            throw new WebApplicationException("No channel spec with id " + channelSpecId, Response.Status.NOT_FOUND);
+        }
+        return channelSpec;
+    }
 }

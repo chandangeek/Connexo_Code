@@ -17,9 +17,6 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.google.common.base.Optional;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -37,6 +34,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class DeviceConfigurationResource {
 
@@ -297,7 +297,24 @@ public class DeviceConfigurationResource {
             @BeanParam QueryParameters queryParameters) {
 
         List<ValidationRule> rules = resourceHelper.findRegisterSpec(registerId).getValidationRules();
-        List<ValidationRuleInfo> result = new ArrayList<ValidationRuleInfo>();
+        List<ValidationRuleInfo> result = new ArrayList<>();
+        for (ValidationRule rule : rules) {
+            result.add(new ValidationRuleInfo(rule));
+        }
+        return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
+    }
+
+    @GET
+    @Path("/{deviceConfigurationId}/channels/{channelId}/validationrules")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getValidationRulesForChannel(
+            @PathParam("deviceTypeId") long deviceTypeId,
+            @PathParam("deviceConfigurationId") long deviceConfigurationId,
+            @PathParam("channelId") long channelId,
+            @BeanParam QueryParameters queryParameters) {
+
+        List<ValidationRule> rules = resourceHelper.findChannelSpec(channelId).getValidationRules();
+        List<ValidationRuleInfo> result = new ArrayList<>();
         for (ValidationRule rule : rules) {
             result.add(new ValidationRuleInfo(rule));
         }
