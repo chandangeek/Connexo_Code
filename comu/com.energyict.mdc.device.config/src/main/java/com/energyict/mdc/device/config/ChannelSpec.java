@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -9,6 +10,7 @@ import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -84,6 +86,8 @@ public interface ChannelSpec extends HasId {
     void validateDelete();
 
     void save();
+
+    List<ValidationRule> getValidationRules();
 
     /**
      * Defines a Builder interface to construct a {@link ChannelSpec}

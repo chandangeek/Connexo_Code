@@ -2,11 +2,13 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -28,10 +30,13 @@ import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-import java.math.BigDecimal;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -45,18 +50,18 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     private final DeviceConfigurationService deviceConfigurationService;
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED + "}")
     private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_PHENOMENON_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_PHENOMENON_IS_REQUIRED + "}")
     private final Reference<Phenomenon> phenomenon = ValueReference.absent();
     private final Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED + "}")
     private ReadingMethod readingMethod = ReadingMethod.ENGINEERING_UNIT;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED + "}")
     private ValueCalculationMethod valueCalculationMethod = ValueCalculationMethod.AUTOMATIC;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED + "}")
     private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN + "}")
     private BigDecimal multiplier = BigDecimal.ONE;
     private int nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
@@ -159,6 +164,15 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         super.save();
     }
 
+    @Override
+    public List<ValidationRule> getValidationRules() {
+        return getDeviceConfiguration().getValidationRules(Arrays.asList(getReadingType()));
+    }
+
+    private ReadingType getReadingType() {
+        return getRegisterMapping().getReadingType();
+    }
+
     private void applyDefaultMultiplierForConfiguredOnObjectMode() {
         if (!this.multiplierMode.equals(MultiplierMode.CONFIGURED_ON_OBJECT)) {
             this.multiplier = BigDecimal.ONE;
@@ -173,7 +187,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         validatePhenomenonAndRegisterMappingUnitCompatibility();
     }
 
-    private void validateBeforeAdd () {
+    private void validateBeforeAdd() {
         Save.CREATE.validate(this.dataModel.getValidatorFactory().getValidator(), this);
     }
 
@@ -268,7 +282,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     protected boolean validateUniqueName() {
         return this.validateUniqueName(this.getName())
-            && (   this.getName().length() <= 27
+                && (this.getName().length() <= 27
                 || this.validateUniqueName(this.getName().substring(0, 27)));
     }
 
@@ -444,7 +458,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
         @Override
         public ChannelSpec add() {
-            if(is(tempName).empty()){
+            if (is(tempName).empty()) {
                 this.channelSpec.setName(this.channelSpec.getRegisterMapping().getName());
             } else {
                 this.channelSpec.setName(tempName);
@@ -455,7 +469,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         }
     }
 
-    abstract static class ChannelSpecUpdater implements ChannelSpec.ChannelSpecUpdater{
+    abstract static class ChannelSpecUpdater implements ChannelSpec.ChannelSpecUpdater {
 
         final ChannelSpecImpl channelSpec;
 
