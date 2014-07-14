@@ -33,7 +33,7 @@ public class ComPortResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getComPorts(@BeanParam JsonQueryFilter comPortFilter, @BeanParam QueryParameters queryParameters) {
-        List<? super ComPortInfo> comPortInfos = new ArrayList<>();
+        List<ComPortInfo> comPortInfos = new ArrayList<>();
         if (!comPortFilter.getFilterProperties().isEmpty()) {
             Optional<String> comserverIdProperty = Optional.fromNullable(comPortFilter.getFilterProperties().get("comserver_id"));
             Optional<String> directionProperty = Optional.fromNullable(comPortFilter.getFilterProperties().get("direction"));

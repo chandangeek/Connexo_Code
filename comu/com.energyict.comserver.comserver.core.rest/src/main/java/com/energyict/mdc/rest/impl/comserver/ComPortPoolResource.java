@@ -4,17 +4,13 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,7 +18,16 @@ import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -59,7 +64,7 @@ public class ComPortPoolResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getAllComPortPools(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
-        List<? super ComPortPoolInfo> comPortPoolInfos = new ArrayList<>();
+        List<ComPortPoolInfo> comPortPoolInfos = new ArrayList<>();
         List<ComPortPool> comPortPools = new ArrayList<>();
         String compatibleWithConnectionType = uriInfo.getQueryParameters().getFirst("compatibleWithConnectionType");
         String compatibleWithConnectionTask = uriInfo.getQueryParameters().getFirst("compatibleWithConnectionTask");
@@ -121,7 +126,7 @@ public class ComPortPoolResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createComPortPool(ComPortPoolInfo<? super ComPortPool> comPortPoolInfo) {
+    public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
         ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), protocolPluggableService);
         comPortPool.save();
         comPortPoolInfo.handlePools(comPortPool, engineModelService);
@@ -132,7 +137,7 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortPoolInfo updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<? super ComPortPool> comPortPoolInfo) {
+    public ComPortPoolInfo updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
         Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
         if (!comPortPool.isPresent()) {
             throw new WebApplicationException("No ComPortPool with id " + id, Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build());

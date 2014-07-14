@@ -99,7 +99,7 @@ public class ComServerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createComServer(ComServerInfo<? super ComServer> comServerInfo) {
+    public Response createComServer(ComServerInfo<ComServer> comServerInfo) {
         ComServer comServer = comServerInfo.createNew(engineModelService);
         comServerInfo.writeTo(comServer,engineModelService);
         comServer.save();
@@ -124,7 +124,7 @@ public class ComServerResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<? super ComServer> comServerInfo) {
+    public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<ComServer> comServerInfo) {
         Optional<ComServer> comServer = Optional.fromNullable(engineModelService.findComServer(id));
         if (!comServer.isPresent()) {
             throw new WebApplicationException("No ComServer with id "+id,
