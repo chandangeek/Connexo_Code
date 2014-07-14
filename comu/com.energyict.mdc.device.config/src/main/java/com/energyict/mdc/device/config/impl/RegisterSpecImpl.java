@@ -10,13 +10,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.InvalidValueException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
@@ -27,7 +25,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.Min;
@@ -60,12 +57,12 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Range(min = 1, max = 20, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
     private int numberOfDigits;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
-    //@Min(value=0, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     @Range(min=0, max = 6, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     private Integer numberOfFractionDigits;
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
     @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}") //
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED + "}") //
     private BigDecimal overflow;
     @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_INVALID_MULTIPLIER_VALUE + "}") //
     private BigDecimal multiplier = BigDecimal.ONE;
