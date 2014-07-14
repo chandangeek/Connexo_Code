@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -11,13 +12,16 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -85,7 +89,12 @@ public class ConnectionMethodResource {
         } else {
             partialConnectionTasks.addAll(deviceConfiguration.getPartialConnectionTasks());
         }
-
+        Collections.sort(partialConnectionTasks, new Comparator<PartialConnectionTask>() {
+            @Override
+            public int compare(PartialConnectionTask pct1, PartialConnectionTask pct2) {
+                return pct1.getName().compareToIgnoreCase(pct2.getName());
+            }
+        });
         for (PartialConnectionTask partialConnectionTask : partialConnectionTasks) {
             connectionMethodInfos.add(connectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo));
         }
@@ -135,7 +144,7 @@ public class ConnectionMethodResource {
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ConnectionMethodInfo<?> updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
+    public Response updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                                        @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                                        @PathParam("connectionMethodId") long connectionMethodId,
                                                        @Context UriInfo uriInfo,
@@ -147,7 +156,7 @@ public class ConnectionMethodResource {
         updateProperties(connectionMethodInfo, partialConnectionTask);
         partialConnectionTask.save();
 
-        return connectionMethodInfoFactory.asInfo(deviceConfigurationService.getPartialConnectionTask(partialConnectionTask.getId()).get(), uriInfo);
+        return Response.ok(connectionMethodInfoFactory.asInfo(deviceConfigurationService.getPartialConnectionTask(partialConnectionTask.getId()).get(), uriInfo)).build();
     }
 
     /**
