@@ -1,11 +1,14 @@
 Ext.define('Cfg.view.validation.RuleSetSubMenu', {
     extend: 'Uni.view.navigation.SubMenu',
-    alias: 'widget.ruleSetSubMenu',
+    xtype: 'ruleSetSubMenu',
+
     ruleSetId: null,
     title: null,
     toggle: null,
+
     initComponent: function () {
         this.callParent(this);
+
         this.add(
             {
                 text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
@@ -28,6 +31,7 @@ Ext.define('Cfg.view.validation.RuleSetSubMenu', {
                 hrefTarget: '_self'
             }
         );
+
         this.toggleMenuItem(this.toggle);
     }
 });
