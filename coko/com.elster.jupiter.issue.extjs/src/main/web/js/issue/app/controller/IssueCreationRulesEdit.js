@@ -236,7 +236,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         ruleModel.set('comment', commentField.getValue());
 
         Ext.Array.each(templateDetails.query(), function (formItem) {
-            if (formItem.isFormField) {
+            if (formItem.isFormField && formItem.submitValue) {
                 parameters[formItem.name] = formItem.getValue();
             }
         });
