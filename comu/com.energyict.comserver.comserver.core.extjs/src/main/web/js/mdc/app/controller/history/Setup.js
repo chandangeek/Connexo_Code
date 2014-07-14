@@ -820,7 +820,23 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Registers',
                             route: 'registers',
                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
-                            action: 'showDeviceRegisterConfigurationsView'
+                            action: 'showDeviceRegisterConfigurationsView',
+                            items: {
+                                register: {
+                                    title: 'Register',
+                                    route: '{registerId}',
+                                    controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
+                                    action: 'showDeviceRegisterConfigurationDetailsView',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadRegisterConfiguration', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
