@@ -31,7 +31,7 @@ Ext.define('Uni.view.Viewport', {
                     xtype: 'navigationMenu'
                 }
             ],
-            weight: 20
+            weight: 10
         },
         {
             xtype: 'container',
@@ -53,7 +53,7 @@ Ext.define('Uni.view.Viewport', {
                     itemId: 'breadcrumbTrail'
                 }
             ],
-            weight: 10
+            weight: 20
         }
     ]
 });
