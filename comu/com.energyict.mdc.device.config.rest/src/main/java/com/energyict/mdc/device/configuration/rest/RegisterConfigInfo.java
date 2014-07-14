@@ -7,13 +7,11 @@ import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import com.google.common.base.Optional;
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class RegisterConfigInfo {
     @JsonProperty("id")
@@ -83,27 +81,11 @@ public class RegisterConfigInfo {
 
     public void writeTo(RegisterSpec registerSpec, RegisterMapping registerMapping) {
         registerSpec.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
-        Optional<BigDecimal> multiplier = Optional.fromNullable(this.multiplier);
-        if(multiplier.isPresent()) {
-            registerSpec.setMultiplier(multiplier.get());
-        }
-        Optional<BigDecimal> overflow = Optional.fromNullable(this.overflow);
-        if(overflow.isPresent()) {
-            registerSpec.setOverflow(overflow.get());
-        }
-        Optional<Integer> numberOfDigits = Optional.fromNullable(this.numberOfDigits);
-        if(numberOfDigits.isPresent()) {
-            registerSpec.setNumberOfDigits(numberOfDigits.get());
-        }
-        Optional<Integer> numberOfFractionDigits = Optional.fromNullable(this.numberOfFractionDigits);
-        if(numberOfFractionDigits.isPresent()) {
-            registerSpec.setNumberOfFractionDigits(numberOfFractionDigits.get());
-        }
-        Optional<ObisCode> overruledObisCode = Optional.fromNullable(this.overruledObisCode);
-        if(overruledObisCode.isPresent()) {
-            registerSpec.setOverruledObisCode(overruledObisCode.get());
-        }
-
+        registerSpec.setMultiplier(this.multiplier);
+        registerSpec.setOverflow(this.overflow);
+        registerSpec.setNumberOfDigits(this.numberOfDigits!=null?this.numberOfDigits:0);
+        registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits!=null?this.numberOfFractionDigits:0);
+        registerSpec.setOverruledObisCode(this.overruledObisCode);
         registerSpec.setRegisterMapping(registerMapping);
     }
 }
