@@ -186,6 +186,8 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private ReadingType getReadingType() {
+        // TODO proper implementation (govanni)
+
         return getRegisterMapping().getReadingType();
     }
 
