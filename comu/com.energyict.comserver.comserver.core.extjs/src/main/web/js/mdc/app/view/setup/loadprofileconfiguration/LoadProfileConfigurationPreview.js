@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
     itemId: 'loadProfileConfigurationPreview',
     requires: [
         'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationActionMenu',
-        'Mdc.model.LoadProfileConfiguration'
+        'Mdc.model.LoadProfileConfiguration',
+        'Uni.form.field.ObisDisplay'
     ],
     title: '',
     frame: true,
@@ -47,8 +48,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                         }
                     },
                     {
-                        itemId: 'displayObis',
-                        fieldLabel: 'OBIS code',
+                        xtype: 'obis-displayfield',
                         name: 'overruledObisCode'
                     },
                     {

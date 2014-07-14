@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     itemId: 'registerMappingPreview',
     requires: [
         'Mdc.model.RegisterType',
-        'Mdc.view.setup.register.RegisterMappingActionMenu'
+        'Mdc.view.setup.register.RegisterMappingActionMenu',
+        'Uni.form.field.ObisDisplay'
     ],
     layout: {
         type: 'card',
@@ -113,9 +114,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                         ]
                                     },
                                     {
-                                        xtype: 'displayfield',
+                                        xtype: 'obis-displayfield',
                                         name: 'obisCode',
-                                        fieldLabel: Uni.I18n.translate('registerMapping.obisCode', 'MDC', 'OBIS code'),
                                         labelAlign: 'right',
                                         labelWidth: 250
                                     }

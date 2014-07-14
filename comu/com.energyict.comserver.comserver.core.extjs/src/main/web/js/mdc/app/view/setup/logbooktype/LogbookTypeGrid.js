@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeGrid', {
         'Ext.form.field.ComboBox',
         'Ext.grid.column.Template',
         'Uni.grid.column.Action',
-        'Mdc.view.setup.logbooktype.LogbookTypeActionMenu'
+        'Mdc.view.setup.logbooktype.LogbookTypeActionMenu',
+        'Uni.grid.column.Obis'
     ],
     dockedItems: [
         {
@@ -44,11 +45,8 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeGrid', {
                 flex: 5
             },
             {
-                itemID: 'obisColumn',
-                header: Uni.I18n.translate('logbooktype.obis', 'MDC', 'OBIS code'),
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="obis">{obis}</tpl>',
-                flex: 5
+                xtype: 'obis-column',
+                dataIndex: 'obis'
             },
             {
                 itemId: 'action',

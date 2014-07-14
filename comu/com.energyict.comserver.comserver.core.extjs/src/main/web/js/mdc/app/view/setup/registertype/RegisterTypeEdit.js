@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
     itemId: 'registerTypeEdit',
 
     requires: [
-
+        'Uni.form.field.Obis'
     ],
 
     layout: {
@@ -65,7 +65,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     type: 'vbox'
                                 },
                                 defaults: {
-                                    labelWidth: 250
+                                    labelWidth: 250,
+                                    width: 650,
                                 },
                                 items: [
                                     {
@@ -75,34 +76,12 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         required: true,
                                         fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
                                         itemId: 'editRegisterTypeNameField',
-                                        width: 650,
                                         maxLength: 80,
                                         enforceMaxLength: true
                                     },
                                     {
-                                        xtype: 'textfield',
-                                        name: 'obisCode',
-                                        msgTarget: 'under',
-                                        required: true,
-                                        fieldLabel: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
-                                        emptyText: Uni.I18n.translate('registerType.selectObisCode', 'MDC', 'x.x.x.x.x.x'),
-                                        itemId: 'editObisCodeField',
-                                        cls: 'obisCode',
-                                        width: 650
-                                    },
-                                    {
-                                        xtype: 'fieldcontainer',
-                                        fieldLabel: '&nbsp',
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
-                                        },
-                                        items: [
-                                            {
-                                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerType.obisCodeInfo', 'MDC', 'Provide the values for the 6 attributes of the Obis code, separated by a "."') + '</i></span>',
-                                                xtype: 'component'
-                                            }
-                                        ]
+                                        xtype: 'obis-field',
+                                        name: 'obisCode'
                                     },
                                     {
                                         xtype: 'combobox',
@@ -116,11 +95,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         emptyText: Uni.I18n.translate('registerType.selectMeasurementUnit', 'MDC', 'Select a unit of measure...'),
                                         required: true,
                                         forceSelection: true,
-                                        cls: 'obisCode',
                                         typeAhead: true,
-                                        msgTarget: 'under',
-                                        width: 650
-
+                                        msgTarget: 'under'
                                     },
                                     {
                                         xtype: 'combobox',
@@ -134,7 +110,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         emptyText: Uni.I18n.translate('registerType.selectTimeOfUse', 'MDC', 'Select a time of use...'),
                                         required: true,
                                         forceSelection: true,
-                                        width: 650,
                                         typeAhead: true,
                                         msgTarget: 'under'
                                     },
@@ -142,18 +117,15 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         xtype: 'textfield',
                                         name: 'readingType',
                                         msgTarget: 'under',
-                                        required: false,
                                         fieldLabel: Uni.I18n.translate('registerType.mrid', 'MDC', 'Reading type'),
                                         emptyText: Uni.I18n.translate('registerType.selectReadingType', 'MDC', 'x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x'),
                                         itemId: 'editMrIdField',
                                         required: true,
-                                        disabled: true,
-                                        width: 650
+                                        disabled: true
                                     },
                                     {
                                         xtype: 'fieldcontainer',
                                         fieldLabel: '&nbsp;',
-
                                         layout: {
                                             type: 'hbox',
                                             align: 'stretch'
@@ -192,11 +164,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     }
                                 ]
                             }
-
                         ]
                     }
-
-
                 ]
             }
         ];

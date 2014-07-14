@@ -5,7 +5,10 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     loadProfileConfigurationId: null,
     deviceConfigurationId: null,
     deviceTypeId: null,
-
+    requires: [
+        'Uni.form.field.Obis',
+        'Uni.form.field.ObisDisplay'
+    ],
     content: [
         {
             ui: 'large',
@@ -54,23 +57,14 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     value: 'Select a measurement type first'
                 },
                 {
-                    xtype: 'displayfield',
-                    labelSeparator: ' ',
-                    fieldLabel: 'OBIS code',
+                    xtype: 'obis-displayfield',
                     name: 'obiscode',
                     value: 'Select a measurement type first'
                 },
                 {
-                    //todo: make a common OBIS code field to reduce code duplicateness
-                    xtype: 'textfield',
-                    labelSeparator: ' ',
+                    xtype: 'obis-field',
                     fieldLabel: 'Overruled OBIS code',
-                    emptyText: Uni.I18n.translate('registerType.selectObisCode', 'MDC', 'x.x.x.x.x.x'),
-                    afterSubTpl: '<div class="x-form-display-field"><i>' + 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."' + '</i></div>',
-                    name: 'overruledObisCode',
-                    maskRe: /[\d.]+/,
-                    vtype: 'overruledObisCode',
-                    msgTarget: 'under'
+                    name: 'overruledObisCode'
                 },
                 {
                     xtype: 'combobox',
@@ -148,10 +142,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             }
         );
         Ext.apply(Ext.form.VTypes, {
-            overruledObisCode: function (val, field) {
-                var obis = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
-                return obis.test(val);
-            },
             overflowValue: function (val, field) {
                 var over = /[\d]+/;
                 if (over.test(val)) {
@@ -176,7 +166,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     return false
                 }
             },
-            overruledObisCodeText: 'OBIS code is wrong',
             overflowValueText: 'Overflow value is wrong',
             multiplierText: 'Multiplier is wrong'
         });

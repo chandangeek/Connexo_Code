@@ -77,7 +77,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#registerTypeDetailForm button[action = showReadingTypeInfo]': {
                 showReadingTypeInfo: this.showReadingType
             },
-            '#registerTypeEditForm textfield[cls=obisCode]': {
+            '#registerTypeEditForm obis-field': {
                 blur: this.getReadingType
             }
         });

@@ -4,7 +4,10 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationForm', {
     loadProfileConfigurationAction: null,
     deviceTypeId: null,
     deviceConfigurationId: null,
-
+    requires: [
+        'Uni.form.field.Obis',
+        'Uni.form.field.ObisDisplay'
+    ],
     content: [
         {
             xtype: 'form',
@@ -44,21 +47,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationForm', {
                     queryMode: 'local'
                 },
                 {
-                    xtype: 'displayfield',
-                    labelSeparator: ' ',
-                    fieldLabel: 'OBIS code',
+                    xtype: 'obis-displayfield',
                     name: 'obisCode',
                     value: 'Select a load profile type first'
                 },
                 {
-                    xtype: 'textfield',
-                    labelSeparator: ' ',
+                    xtype: 'obis-field',
                     fieldLabel: 'Overruled OBIS code',
-                    name: 'overruledObisCode',
-                    maskRe: /[\d.]+/,
-                    vtype: 'overruledObisCode',
-                    msgTarget: 'under',
-                    afterSubTpl:'<div class="x-form-display-field"><i>' + 'Provide the value for the 6 attributes of the OBIS code. Separate each value with a "."' + '</i></div>'
+                    name: 'overruledObisCode'
                 },
                 {
                     xtype: 'fieldcontainer',
@@ -101,13 +97,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationForm', {
                 ui: 'link'
             }
         );
-        Ext.apply(Ext.form.VTypes, {
-            overruledObisCode: function (val, field) {
-                var obis = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
-                return obis.test(val);
-            },
-            overruledObisCodeText: 'OBIS code is wrong'
-        });
     }
 });
 

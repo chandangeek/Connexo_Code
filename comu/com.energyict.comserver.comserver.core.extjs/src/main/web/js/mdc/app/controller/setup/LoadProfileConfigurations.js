@@ -399,8 +399,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                                 widget.down('combobox[name=id]').hide();
                                 widget.down('displayfield[name=loadprofiletype]').setValue(record.name);
                                 widget.down('displayfield[name=loadprofiletype]').show();
-                                widget.down('displayfield[name=obisCode]').setValue(record.obisCode);
-                                widget.down('textfield[name=overruledObisCode]').setValue(overruledObisCode);
+                                widget.down('[name=obisCode]').setValue(record.obisCode);
+                                widget.down('[name=overruledObisCode]').setValue(overruledObisCode);
                             }
                         });
                     }

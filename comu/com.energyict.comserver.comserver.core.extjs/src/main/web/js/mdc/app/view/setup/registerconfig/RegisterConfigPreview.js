@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
 
     requires: [
         'Mdc.model.RegisterConfiguration',
-        'Mdc.view.setup.registerconfig.RegisterConfigActionMenu'
+        'Mdc.view.setup.registerconfig.RegisterConfigActionMenu',
+        'Uni.form.field.ObisDisplay'
     ],
 
     title: 'Details',
@@ -87,14 +88,13 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                                 ]
                             },
                             {
-                                xtype: 'displayfield',
+                                xtype: 'obis-displayfield',
                                 name: 'obisCode',
-                                fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
                                 labelAlign: 'right',
                                 labelWidth: 250
                             },
                             {
-                                xtype: 'displayfield',
+                                xtype: 'obis-displayfield',
                                 name: 'overruledObisCode',
                                 fieldLabel: Uni.I18n.translate('registerConfig.overruledObisCode', 'MDC', 'Overruled OBIS code'),
                                 labelAlign: 'right',

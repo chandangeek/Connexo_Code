@@ -1,6 +1,9 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.add-logbook-configurations',
+    requires: [
+        'Uni.grid.column.Obis'
+    ],
     deviceTypeId: null,
     deviceConfigurationId: null,
 
@@ -33,9 +36,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                                 flex: 5
                             },
                             {
-                                header: 'OBIS code',
-                                dataIndex: 'obisCode',
-                                flex: 5
+                                xtype: 'obis-column',
+                                dataIndex: 'obisCode'
                             }
                         ]
                     },
@@ -104,6 +106,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                 }
             ]
         }
-    ],
+    ]
 });
 

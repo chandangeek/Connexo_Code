@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
     requires: [
         'Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu',
         'Uni.grid.column.Action',
+        'Uni.grid.column.Obis',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
@@ -16,9 +17,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
                 flex: 1
             },
             {
-                header: 'OBIS code',
-                dataIndex: 'obisCode',
-                flex: 1
+                xtype: 'obis-column',
+                dataIndex: 'obisCode'
             },
             {
                 header: 'Interval',

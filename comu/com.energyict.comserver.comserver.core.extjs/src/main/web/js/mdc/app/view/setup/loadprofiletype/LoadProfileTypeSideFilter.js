@@ -22,7 +22,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSideFilter', {
                             name: 'obis',
                             fieldLabel: 'OBIS code',
                             labelAlign: 'top'
-
                         }
                     ]
                 }

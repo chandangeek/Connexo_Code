@@ -12,6 +12,9 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypePreview', {
             menu: { xtype: 'logbookTypeActionMenu' }
         }
     ],
+    requires: [
+        'Uni.form.field.ObisDisplay'
+    ],
     items: [
         {
             xtype: 'form',
@@ -37,10 +40,8 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypePreview', {
                 {
                     items: [
                         {
-                            xtype: 'displayfield',
-                            itemId: 'logbookTypeDetailsObis',
-                            name: 'obis',
-                            fieldLabel: Uni.I18n.translate('logbooktype.obis', 'MDC', 'OBIS code')
+                            xtype: 'obis-displayfield',
+                            name: 'obis'
                         }
                     ]
                 }

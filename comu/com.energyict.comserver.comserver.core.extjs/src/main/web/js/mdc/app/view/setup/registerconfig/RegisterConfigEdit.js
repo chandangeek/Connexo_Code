@@ -2,7 +2,9 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerConfigEdit',
     itemId: 'registerConfigEdit',
-
+    requires: [
+        'Uni.form.field.Obis'
+    ],
     edit: false,
 
     isEdit: function () {
@@ -70,22 +72,16 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         ]
                     },
                     {
-                        xtype: 'textfield',
+                        xtype: 'obis-field',
                         name: 'overruledObisCode',
-                        msgTarget: 'under',
-                        fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
                         itemId: 'editOverruledObisCodeField',
-                        //width: 256,
                         width: 450
                     },
                     {
-                        xtype: 'textfield',
+                        xtype: 'obis-field',
                         name: 'obisCode',
-                        msgTarget: 'under',
-                        fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
                         itemId: 'editObisCodeField',
                         width: 450,
-                        //width: 256,
                         hidden: true
                     },
                     {

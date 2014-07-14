@@ -3,7 +3,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationDetailInfo', 
     alias: 'widget.loadProfileConfigurationDetailInfo',
     itemId: 'loadProfileConfigurationDetailInfo',
     intervalStore: null,
-
+    requires: [
+        'Uni.form.field.ObisDisplay'
+    ],
     width: '50%',
     defaults: {
         labelWidth: 200,
@@ -29,8 +31,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileConfigurationDetailInfo', 
             name: 'name'
         },
         {
-            xtype: 'displayfield',
-            fieldLabel: 'OBIS code',
+            xtype: 'obis-displayfield',
             name: 'obisCode'
         },
         {
