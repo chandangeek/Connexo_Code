@@ -18,6 +18,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.google.common.base.Optional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.inject.Inject;
@@ -337,6 +338,7 @@ public class DeviceConfigurationResource {
         for (ValidationRuleSet ruleSet : ruleSets) {
             result.add(new ValidationRuleSetInfo(ruleSet));
         }
+        Collections.sort(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR);
         return Response.ok(PagedInfoList.asJson("validationRuleSets", result, queryParameters)).build();
     }
 
