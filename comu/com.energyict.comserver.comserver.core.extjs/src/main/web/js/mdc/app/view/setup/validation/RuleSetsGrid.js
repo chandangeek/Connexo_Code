@@ -30,7 +30,11 @@ Ext.define('Mdc.view.setup.validation.RuleSetsGrid', {
             {
                 header: Uni.I18n.translate('validation.activeRules', 'MDC', 'Active rule(s)'),
                 dataIndex: 'numberOfRules',
-                flex: 1
+                flex: 1,
+                renderer: function (value, b, record) {
+                    var numberOfActiveRules = record.get('numberOfRules') - record.get('numberOfInactiveRules');
+                    return numberOfActiveRules;
+                }
             },
             {
                 header: Uni.I18n.translate('validation.inactiveRules', 'MDC', 'Inactive rule(s)'),
