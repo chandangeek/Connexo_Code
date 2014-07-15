@@ -8,11 +8,10 @@ import com.energyict.mdc.masterdata.RegisterMapping;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -31,8 +30,8 @@ public class LoadProfileTypeInfo {
     public LoadProfileTypeInfo() {
     }
 
-    public static List<LoadProfileTypeInfo> from(Collection<LoadProfileType> loadProfileTypes) {
-        List<LoadProfileTypeInfo> loadProfileTypeInfos = new ArrayList<>(loadProfileTypes.size());
+    public static List<LoadProfileTypeInfo> from(Iterable<? extends LoadProfileType> loadProfileTypes) {
+        List<LoadProfileTypeInfo> loadProfileTypeInfos = new ArrayList<>();
         for (LoadProfileType loadProfileType : loadProfileTypes) {
             loadProfileTypeInfos.add(LoadProfileTypeInfo.from(loadProfileType, null));
         }
