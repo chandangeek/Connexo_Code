@@ -31,12 +31,16 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('validation.activeRules', 'MDC', 'Active rule(s)'),
+                header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
                 dataIndex: 'numberOfRules',
-                flex: 1
+                flex: 1,
+                renderer: function (value, b, record) {
+                    var numberOfActiveRules = record.get('numberOfRules') - record.get('numberOfInactiveRules');
+                    return numberOfActiveRules;
+                }
             },
             {
-                header: Uni.I18n.translate('validation.inactiveRules', 'MDC', 'Inactive rule(s)'),
+                header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
                 dataIndex: 'numberOfInactiveRules',
                 flex: 1
             },

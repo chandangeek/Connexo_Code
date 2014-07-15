@@ -12,7 +12,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterConfigsOfDeviceConfig',
-        'Mdc.view.setup.registerconfig.RegisterConfigActionMenu'
+        'Mdc.view.setup.registerconfig.RegisterConfigActionMenu',
+        'Uni.grid.column.Obis'
     ],
     store: 'RegisterConfigsOfDeviceConfig',
     initComponent: function () {
@@ -46,9 +47,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                 tdCls: 'view'
             },
             {
-                header: Uni.I18n.translate('registerConfigs.obisCode', 'MDC', 'OBIS code'),
-                dataIndex: 'overruledObisCode',
-                flex: 1
+                xtype: 'obis-column',
+                dataIndex: 'overruledObisCode'
             },
 
             {

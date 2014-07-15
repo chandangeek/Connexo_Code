@@ -11,7 +11,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterTypesOfDevicetype',
-        'Mdc.view.setup.register.RegisterMappingActionMenu'
+        'Mdc.view.setup.register.RegisterMappingActionMenu',
+        'Uni.grid.column.Obis'
     ],
     store: 'RegisterTypesOfDevicetype',
     initComponent: function () {
@@ -46,9 +47,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 width: 300
             },
             {
-                header: Uni.I18n.translate('registerMappings.obisCode', 'MDC', 'OBIS code'),
-                dataIndex: 'obisCode',
-                flex: 1
+                xtype: 'obis-column',
+                dataIndex: 'obisCode'
             },
 
             {

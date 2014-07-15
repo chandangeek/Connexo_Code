@@ -3,6 +3,10 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
     alias: 'widget.edit-logbook-configuration',
     deviceConfigurationId: null,
     logbookConfigurationId: null,
+    requires: [
+        'Uni.form.field.Obis',
+        'Uni.form.field.ObisDisplay'
+    ],
     deviceTypeId: null,
     content: [
         {
@@ -35,21 +39,18 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
                             fieldLabel: 'Name'
                         },
                         {
-                            xtype: 'displayfield',
+                            xtype: 'obis-displayfield',
                             allowBlank: false,
                             required: true,
                             fieldLabel: 'Logbook OBIS code',
                             name: 'obisCode'
                         },
                         {
-                            xtype: 'textfield',
+                            xtype: 'obis-field',
                             allowBlank: false,
                             required: true,
                             fieldLabel: 'Overruled OBIS code',
-                            name: 'overruledObisCode',
-                            maskRe: /[\d.]+/,
-                            vtype: 'obisCode',
-                            msgTarget: 'under'
+                            name: 'overruledObisCode'
                         }
                     ],
                     buttons: [
@@ -75,18 +76,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
                 }
             ]
         }
-    ],
-
-    initComponent: function () {
-        this.callParent(this);
-        Ext.apply(Ext.form.VTypes, {
-            obisCode: function (val, field) {
-                var obis = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
-                return obis.test(val);
-            },
-            obisCodeText: 'OBIS code is wrong'
-        });
-    }
+    ]
 });
 
 

@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
         'Mdc.model.RegisterType',
         'Ext.layout.container.Column',
         'Ext.form.FieldSet',
-        'Mdc.view.setup.registertype.RegisterTypeActionMenu'
+        'Mdc.view.setup.registertype.RegisterTypeActionMenu',
+        'Uni.form.field.ObisDisplay'
     ],
     layout: {
         type: 'vbox',
@@ -87,9 +88,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         ]
                                     },
                                     {
-                                        xtype: 'displayfield',
+                                        xtype: 'obis-displayfield',
                                         name: 'obisCode',
-                                        fieldLabel: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
                                         labelWidth: 150
                                     }
                                 ]

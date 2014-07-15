@@ -16,6 +16,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid',
         enableKeyNav: false,
         showHeaderCheckbox: false
     },
+    requires: [
+        'Uni.grid.column.Obis'
+    ],
     initComponent: function () {
         this.columns = [
             {
@@ -24,9 +27,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid',
                 flex: 3
             },
             {
-                header: 'OBIS code',
-                dataIndex: 'obisCode',
-                flex: 3
+                xtype: 'obis-column',
+                dataIndex: 'obisCode'
             },
             {
                 header: 'Interval',

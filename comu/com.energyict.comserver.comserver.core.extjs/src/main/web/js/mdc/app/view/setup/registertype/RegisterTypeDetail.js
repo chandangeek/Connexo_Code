@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
     itemId: 'registerTypeDetail',
     requires: [
         'Mdc.view.setup.registertype.RegisterTypeGrid',
-        'Mdc.view.setup.registertype.RegisterTypePreview'
+        'Mdc.view.setup.registertype.RegisterTypePreview',
+        'Uni.form.field.ObisDisplay'
     ],
 
     layout: {
@@ -104,9 +105,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                         ]
                                     },
                                     {
-                                        xtype: 'displayfield',
+                                        xtype: 'obis-displayfield',
                                         name: 'obisCode',
-                                        fieldLabel: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
                                         labelAlign: 'right',
                                         labelWidth: 150
                                     }

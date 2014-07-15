@@ -8,6 +8,9 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     editActionName: null,
     deleteActionName: null,
 
+    requires: [
+        'Uni.grid.column.Obis'
+    ],
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' }
     },
@@ -40,9 +43,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 }
             },
             {
-                header: 'OBIS code',
-                dataIndex: 'overruledObisCode',
-                flex: 2
+                xtype: 'obis-column',
+                dataIndex: 'overruledObisCode'
             },
             {
                 xtype: 'uni-actioncolumn',

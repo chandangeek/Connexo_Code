@@ -6,9 +6,9 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
     requires: [
         'Mdc.store.RegisterTypes',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.grid.column.Obis'
     ],
-
     edit: false,
 
     isEdit: function () {
@@ -148,12 +148,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
 
                                                 },
                                                 {
-                                                    header: Uni.I18n.translate('registerType.obisCode', 'MDC', 'OBIS code'),
-                                                    dataIndex: 'obisCode',
-                                                    sortable: false,
-                                                    hideable: false,
-                                                    fixed: true,
-                                                    flex: 1
+                                                    xtype: 'obis-column',
+                                                    dataIndex: 'obisCode'
                                                 }
                                             ]
                                         },

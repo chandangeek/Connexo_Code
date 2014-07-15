@@ -11,7 +11,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.AvailableRegisterTypes'
+        'Mdc.store.AvailableRegisterTypes',
+        'Uni.grid.column.Obis'
     ],
     nbrOfSelectedItems: 0,
     listeners: {
@@ -62,12 +63,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
             hideable: false
         },
         {
-            header: Uni.I18n.translate('registerMappings.obisCode', 'MDC', 'OBIS code'),
-            dataIndex: 'obisCode',
-            flex: 1,
-            sortable: false,
-            fixed: true,
-            hideable: false
+            xtype: 'obis-column',
+            dataIndex: 'obisCode'
         },
         {
             header: Uni.I18n.translate('registerMappings.type', 'MDC', 'Type'),
