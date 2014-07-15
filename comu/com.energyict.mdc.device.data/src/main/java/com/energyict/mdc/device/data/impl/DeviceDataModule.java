@@ -12,6 +12,8 @@ import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+
+import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -31,6 +33,7 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(EventService.class);
         requireBinding(DeviceConfigurationService.class);
         requireBinding(MeteringService.class);
+        requireBinding(ValidationService.class);
         requireBinding(Clock.class);
         requireBinding(RelationService.class);
         requireBinding(ProtocolPluggableService.class);

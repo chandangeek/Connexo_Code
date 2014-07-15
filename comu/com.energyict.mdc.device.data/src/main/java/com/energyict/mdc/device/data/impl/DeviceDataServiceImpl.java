@@ -74,6 +74,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -122,6 +123,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile EngineModelService engineModelService;
     private volatile MeteringService meteringService;
+    private volatile ValidationService validationService;
     private volatile SchedulingService schedulingService;
     private volatile MessageService messagingService;
     private volatile SecurityPropertyService securityPropertyService;
@@ -130,7 +132,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Inject
-    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, SchedulingService schedulingService, MessageService messageService, SecurityPropertyService securityPropertyService) {
+    public DeviceDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, RelationService relationService, ProtocolPluggableService protocolPluggableService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, ValidationService validationService, SchedulingService schedulingService, MessageService messageService, SecurityPropertyService securityPropertyService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -141,6 +143,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setMeteringService(meteringService);
+        this.setValidationService(validationService);
         this.setSchedulingService(schedulingService);
         this.setMessagingService(messageService);
         this.setSecurityPropertyService(securityPropertyService);
@@ -799,6 +802,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
+    @Reference
     public void setSchedulingService(SchedulingService schedulingService) {
         this.schedulingService = schedulingService;
     }
@@ -827,6 +835,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(ValidationService.class).toInstance(validationService);
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(MessageService.class).toInstance(messagingService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);

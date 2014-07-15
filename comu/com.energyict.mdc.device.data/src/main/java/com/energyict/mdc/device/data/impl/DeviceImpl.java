@@ -22,7 +22,6 @@ import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.DeviceDependant;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
@@ -73,6 +72,8 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
@@ -98,6 +99,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 
@@ -111,6 +113,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -129,6 +132,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final MeteringService meteringService;
+    private final ValidationService validationService;
     private final DeviceDataService deviceDataService;
     private final SecurityPropertyService securityPropertyService;
 
@@ -176,24 +180,27 @@ public class DeviceImpl implements Device, PersistenceAware {
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
 
     @Inject
-    public DeviceImpl(DataModel dataModel,
-                      EventService eventService,
-                      Thesaurus thesaurus,
-                      Clock clock,
-                      MeteringService meteringService,
-                      DeviceDataService deviceDataService,
-                      SecurityPropertyService securityPropertyService,
-                      Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
-                      Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
-                      Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
-                      Provider<AdHocComTaskExecutionImpl> adHocComTaskExecutionProvider,
-                      Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
-                      Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
+    public DeviceImpl(
+                DataModel dataModel,
+                EventService eventService,
+                Thesaurus thesaurus,
+                Clock clock,
+                MeteringService meteringService,
+                ValidationService validationService,
+                DeviceDataService deviceDataService,
+                SecurityPropertyService securityPropertyService,
+                Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
+                Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
+                Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
+                Provider<AdHocComTaskExecutionImpl> adHocComTaskExecutionProvider,
+                Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
+                Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.meteringService = meteringService;
+        this.validationService = validationService;
         this.deviceDataService = deviceDataService;
         this.securityPropertyService = securityPropertyService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
@@ -212,6 +219,10 @@ public class DeviceImpl implements Device, PersistenceAware {
         createLoadProfiles();
         createLogBooks();
         return this;
+    }
+
+    ValidationService getValidationService() {
+        return validationService;
     }
 
     private void setDeviceTypeFromDeviceConfiguration() {
@@ -479,7 +490,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     public List<Register> getRegisters() {
         List<Register> registers = new ArrayList<>();
         for (RegisterSpec registerSpec : getDeviceConfiguration().getRegisterSpecs()) {
-            registers.add(new RegisterImpl(registerSpec, this));
+            registers.add(this.newRegisterFor(registerSpec));
         }
         return registers;
     }
@@ -488,10 +499,19 @@ public class DeviceImpl implements Device, PersistenceAware {
     public Register getRegisterWithDeviceObisCode(ObisCode code) {
         for (RegisterSpec registerSpec : getDeviceConfiguration().getRegisterSpecs()) {
             if (registerSpec.getDeviceObisCode().equals(code)) {
-                return new RegisterImpl(registerSpec, this);
+                return this.newRegisterFor(registerSpec);
             }
         }
         return null;
+    }
+
+    private RegisterImpl newRegisterFor(RegisterSpec registerSpec) {
+        for (RegisterFactory factory : RegisterFactory.values()) {
+            if (factory.appliesTo(registerSpec)) {
+                return factory.newRegister(this, registerSpec);
+            }
+        }
+        return RegisterFactory.Numerical.newRegister(this, registerSpec);
     }
 
     @Override
@@ -1011,7 +1031,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         return Collections.emptyList();
     }
 
-    Optional<ReadingRecord> getLastReadingsFor(Register register) {
+    Optional<ReadingRecord> getLastReadingFor(Register register) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateMeterInKore(amrSystem);
@@ -1548,4 +1568,64 @@ public class DeviceImpl implements Device, PersistenceAware {
         this.setDeviceTypeFromDeviceConfiguration();
     }
 
+    private enum RegisterFactory {
+        Text {
+            @Override
+            boolean appliesTo(RegisterSpec registerSpec) {
+                Set<ReadingTypeUnit> textUnits = EnumSet.of(ReadingTypeUnit.NOTAPPLICABLE, ReadingTypeUnit.CHARACTERS);
+                return textUnits.contains(this.getReadingType(registerSpec).getUnit());
+            }
+
+            @Override
+            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+                return new TextRegisterImpl(device, registerSpec);
+            }
+        },
+
+        Event {
+            @Override
+            boolean appliesTo(RegisterSpec registerSpec) {
+                Set<Aggregate> eventAggregates = EnumSet.of(Aggregate.AVERAGE, Aggregate.SUM, Aggregate.MAXIMUM, Aggregate.SECONDMAXIMUM, Aggregate.THIRDMAXIMUM, Aggregate.FOURTHMAXIMUM, Aggregate.FIFTHMAXIMIMUM, Aggregate.MINIMUM, Aggregate.SECONDMINIMUM);
+                return eventAggregates.contains(this.getReadingType(registerSpec).getAggregate());
+            }
+
+            @Override
+            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+                return new EventRegisterImpl(device, registerSpec);
+            }
+        },
+
+        Flags {
+            @Override
+            boolean appliesTo(RegisterSpec registerSpec) {
+                return this.getReadingType(registerSpec).getUnit().equals(ReadingTypeUnit.BOOLEANARRAY);
+            }
+
+            @Override
+            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+                return new FlagsRegisterImpl(device, registerSpec);
+            }
+        },
+
+        Numerical {
+            @Override
+            boolean appliesTo(RegisterSpec registerSpec) {
+                // When all others fail, use numerical
+                return true;
+            }
+
+            @Override
+            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+                return new NumericalRegisterImpl(device, registerSpec);
+            }
+        };
+
+        ReadingType getReadingType (RegisterSpec registerSpec) {
+            return registerSpec.getRegisterMapping().getReadingType();
+        }
+
+        abstract boolean appliesTo(RegisterSpec registerSpec);
+
+        abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
+    }
 }
