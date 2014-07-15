@@ -81,6 +81,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     },
                                     {
                                         xtype: 'obis-field',
+                                        itemId: 'editObisCodeField',
                                         name: 'obisCode'
                                     },
                                     {
