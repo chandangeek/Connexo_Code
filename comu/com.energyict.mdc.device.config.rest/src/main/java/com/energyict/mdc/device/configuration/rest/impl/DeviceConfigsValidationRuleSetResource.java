@@ -9,6 +9,7 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.google.common.base.Optional;
@@ -23,7 +24,6 @@ import java.util.List;
 
 @Path("/validationruleset")
 public class DeviceConfigsValidationRuleSetResource {
-    private static long ADD_ALL_APPLICABLE_DEVICE_CONFIGS_ID = 0;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ValidationService validationService;
     private final Thesaurus thesaurus;
@@ -39,13 +39,14 @@ public class DeviceConfigsValidationRuleSetResource {
     @GET
     @Path("/{validationRuleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getLinkedDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam QueryParameters queryParameters) {
+    public Response getLinkedDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam QueryParameters queryParameters) {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();
         List<DeviceConfiguration> configs = deviceConfigurationService.findDeviceConfigurationsForValidationRuleSet(validationRuleSetId);
         for(DeviceConfiguration config : configs) {
             result.add(config);
         }
-        return PagedInfoList.asJson("deviceConfigurations", result.deviceConfigurations, queryParameters);
+        return Response.ok(PagedInfoList.asJson("deviceConfigurations",
+                ListPager.of(result.deviceConfigurations).from(queryParameters).find(), queryParameters)).build();
     }
 
     @POST
@@ -63,19 +64,11 @@ public class DeviceConfigsValidationRuleSetResource {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();
         ValidationRuleSet ruleset = optional.get();
 
-        if(ids.size() == 1 && ids.get(0) == ADD_ALL_APPLICABLE_DEVICE_CONFIGS_ID) {
-            List<DeviceConfiguration> configs = deviceConfigurationService.findDeviceConfigurationsForValidationRuleSet(validationRuleSetId);
-            for(DeviceConfiguration config : configs) {
-                config.addValidationRuleSet(ruleset);
-                result.add(config);
-            }
-        } else {
-            for (Long id : ids) {
-                DeviceConfiguration deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(id);
-                if(deviceConfiguration != null) {
-                    deviceConfiguration.addValidationRuleSet(ruleset);
-                    result.add(deviceConfiguration);
-                }
+        for (Long id : ids) {
+            DeviceConfiguration deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(id);
+            if(deviceConfiguration != null) {
+                deviceConfiguration.addValidationRuleSet(ruleset);
+                result.add(deviceConfiguration);
             }
         }
         return result;
