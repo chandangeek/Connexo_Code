@@ -7,7 +7,9 @@ import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.masterdata.MasterDataService;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -48,11 +50,16 @@ public class DeviceConfigFieldResource extends FieldResource{
     @GET
     @Path("/timeOfUse")
     public Object getTimeOfUseValues() {
-        List<Integer> ints = new ArrayList<>();
+        List<Map<String, Object>> list = new ArrayList<>(255);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("timeOfUse", list);
         for (int i=0; i< 255; i++) {
-            ints.add(i);
+            HashMap<String, Object> subMap = new HashMap<>();
+            subMap.put("timeOfUse", i);
+            subMap.put("localizedValue", i);
+            list.add(subMap);
         }
-        return asJsonArrayObject("timeOfUse", "timeOfUse", ints);
+        return list;
     }
 
     @GET
