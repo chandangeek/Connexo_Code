@@ -29,6 +29,10 @@
     background: linear-gradient(#2591bf, #47b4e4 61%);
 }
 
+.#{$prefix}btn {
+    margin-right: 8px !important;
+}
+
 @import "RemoveButton";
 
 @import "LinkButton";

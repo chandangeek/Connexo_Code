@@ -21058,6 +21058,10 @@ body.login {
 .x-btn-default-toolbar-large-pressed {
   background: linear-gradient(#2591bf, #47b4e4 61%); }
 
+/* line 32, ../../sass/src/button/Button.scss */
+.x-btn {
+  margin-right: 8px !important; }
+
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small {
   border-color: transparent; }
@@ -36236,44 +36240,49 @@ a, a.x-btn {
 
 /*</if slicer>*/
 /* */
-/* line 2, ../../sass/src/toolbar/Toolbar.scss */
+/* line 1, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar {
   background-color: transparent !important; }
 
-/* line 7, ../../sass/src/toolbar/Toolbar.scss */
+/* line 6, ../../sass/src/toolbar/Toolbar.scss */
 .filter-form .x-toolbar .x-btn {
   margin-top: 0 !important;
-  margin-right: 10px !important;
+  margin-right: 8px !important;
   margin-bottom: 0 !important;
   margin-left: 0 !important; }
 
-/* line 17, ../../sass/src/toolbar/Toolbar.scss */
+/* line 16, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar .x-btn {
-  margin: 0 5px !important; }
+  margin: 0;
+    margin-right: 8px !important; }
+  /* line 21, ../../sass/src/toolbar/Toolbar.scss */
+  .x-toolbar .x-btn:last-child {
+    margin-right: 0 !important; }
 
-/* line 21, ../../sass/src/toolbar/Toolbar.scss */
+/* line 26, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar-text {
   margin: 0 6px 0 0; }
 
-/* line 25, ../../sass/src/toolbar/Toolbar.scss */
+/* line 30, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar-separator {
-  margin: 0 5px !important; }
+  margin: 0 8px !important; }
 
-/* line 29, ../../sass/src/toolbar/Toolbar.scss */
+/* line 34, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-first {
   margin: 4px 0 0 0; }
 
-/* line 33, ../../sass/src/toolbar/Toolbar.scss */
+/* line 38, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-prev {
   margin: 4px 0 0 3px; }
 
-/* line 37, ../../sass/src/toolbar/Toolbar.scss */
+/* line 42, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-next {
   margin: 4px 0 0 6px; }
 
-/* line 41, ../../sass/src/toolbar/Toolbar.scss */
+/* line 46, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-last {
-  margin: 4px 0 0 0; }
+  margin: 4px 0 0 0;
+  margin-right: 0 !important; }
 
 /* line 219, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-large {
@@ -46511,8 +46520,8 @@ div.x-form-spinner-down {
 
 /* line 25, ../../sass/src/toolbar/Paging.scss */
 .x-toolbar-pagingtoolbarbottom .pagenav {
-  padding-left: 13px;
-  padding-right: 2px; }
+  padding-left: 0;
+  padding-right: 8px; }
   /* line 31, ../../sass/src/toolbar/Paging.scss */
   .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text {
     font-size: 14px;
