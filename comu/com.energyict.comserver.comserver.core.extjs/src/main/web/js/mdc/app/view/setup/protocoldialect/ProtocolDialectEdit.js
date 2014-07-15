@@ -100,7 +100,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                                         itemId: 'restoreAllButton',
                                         action: 'restoreAll',
                                         //iconCls: 'x-uni-action-iconD',
-                                        icon: '../mdc/resources/images/redo.png',
+                                        //icon: '../mdc/resources/images/redo.png',
                                         margin: '0 0 0 10',
                                         disabled: true
                                     },

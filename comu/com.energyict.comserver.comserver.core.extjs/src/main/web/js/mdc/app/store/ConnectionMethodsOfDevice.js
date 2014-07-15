@@ -5,7 +5,6 @@ Ext.define('Mdc.store.ConnectionMethodsOfDevice', {
     ],
     model: 'Mdc.model.DeviceConnectionMethod',
     storeId: 'ConnectionMethodsOfDevice',
-    pageSize: 10,
     proxy: {
         type: 'rest',
         url: '../../api/ddr/devices/{mrid}/connectionmethods',
