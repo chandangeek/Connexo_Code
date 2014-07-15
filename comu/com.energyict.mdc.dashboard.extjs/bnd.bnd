@@ -1,0 +1,3 @@
+-classpath: target/classes
+-dsannotations: *
+-include: -../development.bnd
