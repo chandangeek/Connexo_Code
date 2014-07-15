@@ -54,6 +54,10 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.communicationPortPools', 'MDC', 'Communication port pools'),
+                    name: 'outboundComPortPoolIds'
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('comports.preview.communicationPortPools', 'MDC', 'Communication port pools'),
                     name: 'inboundComPortPools'
                 },
                 {
@@ -78,10 +82,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.AtCommandTimeout', 'MDC', 'AT command timeout'),
-                    name: 'atCommandTimeout',
-                    renderer: function (val) {
-                        return val ? val.count ? val.count + (val.timeUnit ? ' ' + val.timeUnit : '') : '' : '';
-                    }
+                    name: 'atCommandTimeout'
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.AtCommandTry', 'MDC', 'AT command try'),

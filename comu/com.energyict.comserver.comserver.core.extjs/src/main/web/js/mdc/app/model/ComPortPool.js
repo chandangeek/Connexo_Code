@@ -10,6 +10,8 @@ Ext.define('Mdc.model.ComPortPool', {
         'direction',
         'taskExecutionTimeout',
         'discoveryProtocolPluggableClassId',
+        'outboundComPorts',
+        'inboundComPorts',
         {
             name: 'comportslink',
             persist: false,
@@ -43,7 +45,7 @@ Ext.define('Mdc.model.ComPortPool', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/comportpools',
+        url: '/api/mdc/comportpools',
         reader: {
             type: 'json'
         }

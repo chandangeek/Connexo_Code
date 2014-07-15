@@ -5,7 +5,6 @@ Ext.define('Mdc.store.RegisterTypes', {
     ],
     model: 'Mdc.model.RegisterType',
     storeId: 'RegisterTypes',
-    pageSize: 10,
     proxy: {
         type: 'rest',
         url: '../../api/dtc/registertypes',

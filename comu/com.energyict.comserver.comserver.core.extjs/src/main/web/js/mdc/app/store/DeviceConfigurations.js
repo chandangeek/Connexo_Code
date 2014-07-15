@@ -5,7 +5,6 @@ Ext.define('Mdc.store.DeviceConfigurations', {
     ],
     model: 'Mdc.model.DeviceConfiguration',
     storeId: 'DeviceConfigurations',
-    pageSize: 10,
     proxy: {
         type: 'rest',
         url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations',

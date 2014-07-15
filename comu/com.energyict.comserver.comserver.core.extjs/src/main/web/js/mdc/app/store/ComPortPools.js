@@ -4,7 +4,6 @@ Ext.define('Mdc.store.ComPortPools',{
         'Mdc.model.ComPortPool'
     ],
     model: 'Mdc.model.ComPortPool',
-    pageSize: 10,
     storeId: 'comPortPools',
     sorters: [{
         property: 'name',

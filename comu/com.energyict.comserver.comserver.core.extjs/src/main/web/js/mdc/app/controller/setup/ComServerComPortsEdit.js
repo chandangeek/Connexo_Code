@@ -255,7 +255,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             portModel,
             addForm,
             comPortPoolsGrid,
-            recordData;
+            recordData,
+            directionField;
 
         me.getApplication().fireEvent('changecontentevent', widget);
         preloader.show();
@@ -292,8 +293,10 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                 me.portDirection = recordData.direction;
                 me.getApplication().fireEvent('loadComPortOnComServer', recordData.name);
                 actionButton = Ext.ComponentQuery.query('#comPortEdit #addEditButton')[0];
+                directionField = Ext.ComponentQuery.query('#comPortEdit displayfield[name=direction]')[0];
                 actionButton.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
                 actionButton.action = 'editModel';
+                directionField.show();
 
                 me.getAddComPortForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + recordData.name + "'");
                 widget.showForm(me.portDirection, me.portType);
@@ -329,7 +332,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
                         break;
                     case 'outbound':
-                        console.log(me.portModel);
                         if (me.portModel) {
                             me.portModel.set('comPortType', me.portType);
                             me.restoreState();
@@ -356,10 +358,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                 comportTypeSelectCombo.disable();
             }
         });
-    },
-
-    capitaliseFirstLetter: function (string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
     },
 
     showAddOutbound: function (id) {

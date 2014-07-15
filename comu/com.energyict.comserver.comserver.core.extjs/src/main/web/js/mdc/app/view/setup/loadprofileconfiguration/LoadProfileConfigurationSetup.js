@@ -61,11 +61,14 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
     initComponent: function () {
         var config = this.config,
             previewContainer = this.content[0].items[0],
+            menu = this.side.items[0],
             addButtons;
 
-        config && config.gridStore && (previewContainer.grid.store = config.gridStore);
-        config && config.deviceTypeId && (this.side.deviceTypeId = config.deviceTypeId);
-        config && config.deviceConfigurationId && (this.side.deviceConfigurationId = config.deviceConfigurationId);
+        if (config) {
+            previewContainer.grid.store = config.gridStore ? config.gridStore : null;
+            menu.deviceTypeId = config.deviceTypeId ? config.deviceTypeId : null;
+            menu.deviceConfigurationId = config.deviceConfigurationId ? config.deviceConfigurationId : null;
+        }
 
         this.callParent(arguments);
 

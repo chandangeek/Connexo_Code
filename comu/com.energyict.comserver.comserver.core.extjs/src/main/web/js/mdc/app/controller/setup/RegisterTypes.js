@@ -77,7 +77,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#registerTypeDetailForm button[action = showReadingTypeInfo]': {
                 showReadingTypeInfo: this.showReadingType
             },
-            '#registerTypeEditForm obis-field': {
+            '#registerTypeEditForm textfield[cls=obisCode]': {
                 blur: this.getReadingType
             }
         });
@@ -117,7 +117,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 widget.down('#editMrIdField').setValue(me.getReadingTypesStore().first().get('mrid'));
             }
         }
-        var obisCode = widget.down('#editObisCodeField').getValue();
+        var obisCode = widget.down('obis-field').getValue();
         var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
         if (obisCode !== '' && measurementUnit !== null) {
             widget.down('#editMrIdField').enable();
@@ -219,11 +219,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                                 widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + registerType.get('name') + '</h1>');
                                 widget.down('#editMrIdField').setValue(registerType.getReadingType().get('mrid'));
                                 if (registerType.get('isLinkedByDeviceType') === true) {
-                                    widget.down('#editObisCodeField').disable();
+                                    widget.down('obis-field').disable();
                                     widget.down('#measurementUnitComboBox').disable();
                                     widget.down('#timeOfUseComboBox').disable();
                                     widget.down('#editMrIdField').disable();
-                                   // widget.down('#editRegisterTypeNameField').disable();
+                                    // widget.down('#editRegisterTypeNameField').disable();
                                     widget.down('#registerTypeEditCreateInformation').update(Uni.I18n.translate('registertype.warningLinkedTodeviceType', 'MDC', 'The register type has been added to a device type.  Only the name is editable.'));
                                     widget.down('#registerTypeEditCreateInformation').show();
                                 } else {
@@ -265,7 +265,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                         widget.setLoading(false);
                     }
                 });
-
             }
         });
     },
@@ -343,7 +342,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
     getReadingType: function (field, newValue, oldValue) {
         var widget = this.getRegisterTypeEditForm();
-        var obisCode = widget.down('#editObisCodeField').getValue();
+        var obisCode = widget.down('obis-field').getValue();
         var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
         //var mrId = widget.down('#editMrIdField').getValue();
 

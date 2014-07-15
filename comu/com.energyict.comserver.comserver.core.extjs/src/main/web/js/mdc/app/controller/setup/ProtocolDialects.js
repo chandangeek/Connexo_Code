@@ -29,6 +29,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     ],
 
     init: function () {
+      //  this.getProtocolDialectEdit().on('enableRestoreAll', this.enableRestoreAllButton(this));
         this.control({
             '#protocoldialectsgrid': {
                 selectionchange: this.previewProtocolDialect
@@ -47,8 +48,12 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             },
             '#protocolDialectEdit property-form': {
                 dirtychange: this.enableRestoreAllButton
+            },
+            '#protocolDialectEdit property-form component': {
+                enableRestoreAll: this.enableRestoreAllButton
             }
         });
+
     },
 
     editProtocolDialectHistory: function (record) {
@@ -178,17 +183,26 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
 
     enableRestoreAllButton: function (form, dirty) {
         var me = this;
-
         if (typeof(me.getRestoreAllButton()) !== 'undefined') {
             me.getRestoreAllButton().disable();
-            if (dirty) {
+            /*if (dirty) {
                 me.getRestoreAllButton().enable();
+            }*/
+            var restoreAllButtons = Ext.ComponentQuery.query('defaultButton');
+            if (restoreAllButtons != null) {
+                restoreAllButtons.forEach(function (restoreButton) {
+                    if (!restoreButton.isHidden()) {
+                        me.getRestoreAllButton().enable();
+                    }
+                })
             }
         }
     },
 
     restoreAllDefaults: function () {
-        this.getProtocolDialectEditView().down('property-form').restoreAll();
+        var me = this;
+        me.getProtocolDialectEditView().down('property-form').restoreAll();
+        me.getRestoreAllButton().disable();
     }
 });
 

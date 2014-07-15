@@ -4,7 +4,6 @@ Ext.define('Mdc.store.DeviceCommunicationProtocolsPaged', {
         'Mdc.model.DeviceCommunicationProtocol'
     ],
     model: 'Mdc.model.DeviceCommunicationProtocol',
-    pageSize: 10,
     storeId: 'DeviceCommunicationProtocols',
     proxy: {
         type: 'rest',

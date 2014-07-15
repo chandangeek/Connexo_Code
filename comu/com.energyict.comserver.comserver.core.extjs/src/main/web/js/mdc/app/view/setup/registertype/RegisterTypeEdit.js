@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                 },
                                 defaults: {
                                     labelWidth: 250,
-                                    width: 650,
+                                    width: 650
                                 },
                                 items: [
                                     {
@@ -81,6 +81,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                     },
                                     {
                                         xtype: 'obis-field',
+                                        itemId: 'editObisCodeField',
                                         name: 'obisCode'
                                     },
                                     {
@@ -96,7 +97,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         required: true,
                                         forceSelection: true,
                                         typeAhead: true,
-                                        msgTarget: 'under'
+                                        msgTarget: 'under',
+                                        cls: 'obisCode'
                                     },
                                     {
                                         xtype: 'combobox',

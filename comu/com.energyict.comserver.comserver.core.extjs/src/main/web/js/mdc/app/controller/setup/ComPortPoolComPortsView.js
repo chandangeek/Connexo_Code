@@ -3,11 +3,17 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
 
     models: [
         'Mdc.model.ComPortPool',
-        'Mdc.model.ComServerComPort'
+        'Mdc.model.ComServerComPort',
+        'Mdc.model.ComPort'
     ],
 
     views: [
-        'Mdc.view.setup.comportpollcomports.View'
+        'Mdc.view.setup.comportpollcomports.View',
+        'Mdc.view.setup.comportpollcomports.addComPortView',
+        'Mdc.view.setup.comportpollcomports.addComPortGrid'
+    ],
+    stores: [
+        'Mdc.store.ComPortPoolComports'
     ],
 
     refs: [
@@ -22,7 +28,24 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         {
             ref: 'comPortsGrid',
             selector: 'comPortPoolsComPortsView comPortPoolComPortsGrid'
+        },
+        {
+            ref: 'addComPortView',
+            selector: '#addComportToComportPoolView'
+        },
+        {
+            ref: 'addComPortGrid',
+            selector: '#addComportToComportPoolGrid'
+        },
+        {
+            ref: 'uncheckComPortsButton',
+            selector: '#uncheckAllComPorts'
+        },
+        {
+            ref: 'comPortsCountContainer',
+            selector: '#comPortsCountContainer'
         }
+
     ],
 
     init: function () {
@@ -33,13 +56,27 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             'comPortPoolsComPortsView comPortPoolComPortPreview [action=passwordVisibleTrigger]': {
                 change: this.passwordVisibleTrigger
             },
+            '#addComportToComportPoolGrid': {
+                selectionchange: this.getCountOfComPorts
+            },
             'comPortPoolsComPortsView button[action=addComPort]': {
                 click: this.addComPort
             },
             'comPortPoolComPortsActionMenu': {
                 click: this.chooseAction
+            },
+            '#addComportToComportPoolView radiogroup[name=AllOrSelectedCommunicationPorts]': {
+                change: this.selectRadioButton
+            },
+            '#uncheckAllComPorts': {
+                click: this.unCheckAllComPorts
+            },
+            '#addComportToComportPoolView  button[name=addcomportstocomportpool]': {
+                click: this.addComPorts
             }
         });
+
+        this.comPortsStoreToAdd = this.getStore('ComPortPoolComports');
     },
 
     showView: function (id) {
@@ -73,8 +110,149 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         }, storesArr);
     },
 
+
     addComPort: function () {
-//        todo: needs to implement JP-3694 "Add communication port on communication port pool"
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('administration/comportpools/detail/comports/add').forward();
+    },
+
+    showAddComPortView: function (id) {
+        var me = this,
+            widget = Ext.widget('addComportToComportPoolView'),
+            comPortPoolModel = me.getModel('Mdc.model.ComPortPool'),
+            comServerStore = Ext.data.StoreManager.get('ComServers'),
+            directionParams = {},
+            recordData,
+            existedRecordsArray,
+            jsonValues;
+        comServerStore.load();
+        me.getApplication().fireEvent('changecontentevent', widget);
+        comPortPoolModel.load(id, {
+            success: function (record) {
+                widget.down('comportpoolsubmenu').setServer(record);
+                recordData = record.getData();
+                switch (recordData.direction) {
+                    case 'Inbound':
+                        existedRecordsArray = recordData.inboundComPorts;
+                        break;
+                    case 'Outbound':
+                        existedRecordsArray = recordData.outboundComPorts;
+                        break;
+                }
+                directionParams['property'] = 'direction';
+                directionParams['value'] = me.lowerFirstLetter(recordData.direction);
+                jsonValues = Ext.JSON.encode(directionParams);
+                me.comPortsStoreToAdd.load(
+                    {
+                        params: {filter: '[' + jsonValues + ']'},
+                        callback: function () {
+                            me.checkAllComPorts();
+                            me.comPortsStoreToAdd.sortByType(record.getData().type);
+                            me.comPortsStoreToAdd.sortByExisted(existedRecordsArray);
+                        }
+                    });
+            }
+        });
+    },
+
+    checkAllComPorts: function () {
+        var grid = this.getAddComPortGrid(),
+            view = this.getAddComPortView(),
+            uncheckComPorts = this.getUncheckComPortsButton(),
+            selectionModel = grid.getView().getSelectionModel();
+        if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
+            selectionModel.selectAll();
+            grid.disable();
+            uncheckComPorts.disable();
+        }
+    },
+
+    unCheckAllComPorts: function () {
+        var grid = this.getAddComPortGrid();
+        grid.getView().getSelectionModel().deselectAll();
+    },
+
+    selectRadioButton: function (radiogroup) {
+        var radioValue = radiogroup.getValue().comPortsRange;
+        switch (radioValue) {
+            case 'ALL':
+                this.checkAllComPorts();
+                break;
+            case 'SELECTED':
+                this.checkSelectedComPorts();
+                break;
+        }
+    },
+
+    checkSelectedComPorts: function () {
+        var grid = this.getAddComPortGrid(),
+            view = this.getAddComPortView(),
+            uncheckComPorts = this.getUncheckComPortsButton();
+        if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
+            grid.enable();
+            uncheckComPorts.enable();
+        }
+    },
+
+    getCountOfComPorts: function () {
+        var grid = this.getAddComPortGrid(),
+            comPortsCountSelected = grid.getView().getSelectionModel().getSelection().length,
+            comPortsCountContainer = this.getComPortsCountContainer(),
+            comPortsMsgWord;
+        comPortsCountSelected > 0 ? comPortsMsgWord = comPortsCountSelected + ' ' + Uni.I18n.translate('comPortPoolComPorts.addPorts.count', 'MDC', 'communication port(s) selected') :
+            comPortsMsgWord = Uni.I18n.translate('comPortPoolComPorts.addPorts.noPortsSelected', 'MDC', 'No communication ports selected');
+        var widget = Ext.widget('container', {
+            html: comPortsMsgWord
+        });
+
+        comPortsCountContainer.removeAll(true);
+        comPortsCountContainer.add(widget);
+    },
+
+    addComPorts: function() {
+        var me = this,
+            grid = me.getAddComPortGrid(),
+            view = me.getAddComPortView(),
+            selectedArray = grid.getView().getSelectionModel().getSelection(),
+            router = me.getController('Uni.controller.history.Router'),
+            comPortPoolModel = me.getModel('Mdc.model.ComPortPool'),
+            poolId = router.routeparams['id'],
+            preloader = Ext.create('Ext.LoadMask', {
+                msg: "Loading...",
+                target: view
+            }),
+            messageText;
+        preloader.show();
+        comPortPoolModel.load(poolId, {
+            success: function (record) {
+                switch (record.getData().direction) {
+                    case 'Inbound':
+                        Ext.Array.each(selectedArray, function (selectedrecord) {
+                            record.inboundComPorts().add(selectedrecord);
+                        });
+                        break;
+                    case 'Outbound':
+                        Ext.Array.each(selectedArray, function (selectedrecord) {
+                            record.outboundComPorts().add(selectedrecord);
+                        });
+                        break;
+                }
+                record.save({
+                    callback: function (records, operation, success) {
+                        if (success) {
+                            messageText =  Uni.I18n.translate('comPortPoolComPorts.addPorts.successMessage', 'MDC', 'Communication ports were added successfully ')
+                            me.getApplication().fireEvent('acknowledge', messageText);
+                            router.getRoute('administration/comportpools/detail/comports').forward();
+                        }
+                        preloader.destroy();
+                    }
+                })
+            }
+        });
+    },
+
+    lowerFirstLetter: function (string) {
+        return string.charAt(0).toLowerCase() + string.slice(1);
     },
 
     deleteComPort: function (record) {
