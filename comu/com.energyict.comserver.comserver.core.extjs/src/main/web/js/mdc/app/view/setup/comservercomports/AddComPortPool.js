@@ -106,10 +106,7 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
                             xtype: 'button',
                             text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                             ui: 'link',
-                            itemId: 'cancelLink',
-                            handler: function (button, event) {
-                                Ext.History.back();
-                            }
+                            itemId: 'cancelLink'
                         }
                     ]
                 }
