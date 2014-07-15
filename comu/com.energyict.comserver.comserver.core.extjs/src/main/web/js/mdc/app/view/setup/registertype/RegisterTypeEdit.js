@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                 },
                                 defaults: {
                                     labelWidth: 250,
-                                    width: 650,
+                                    width: 650
                                 },
                                 items: [
                                     {
