@@ -51,7 +51,10 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                     xtype: 'displayfield',
                     fieldLabel: 'Direction',
                     hidden: true,
-                    name: 'direction'
+                    name: 'direction',
+                    renderer: function (value) {
+                        return value.charAt(0).toUpperCase() + value.slice(1);
+                    }
                 },
                 {
                     xtype: 'combobox',
