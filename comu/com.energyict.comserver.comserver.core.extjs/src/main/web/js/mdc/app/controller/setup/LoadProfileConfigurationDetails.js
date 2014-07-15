@@ -1,6 +1,12 @@
 Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     extend: 'Ext.app.Controller',
-
+    requires: [
+        'Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailRulesGrid',
+        'Cfg.view.validation.RulePreview',
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.view.setup.validation.RuleActionMenu'
+    ],
     views: [
         'setup.register.ReadingTypeDetails',
         'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailSetup',
@@ -8,14 +14,17 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailDockedItems',
         'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailChannelGrid',
         'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailChannelPreview',
-        'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm'
+        'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm',
+        'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailRulesGrid',
+        'Cfg.view.validation.RulePreview'
     ],
 
     stores: [
         'Mdc.store.Intervals',
         'Mdc.store.Phenomenas',
         'Mdc.store.LoadProfileConfigurationDetailChannels',
-        'Mdc.store.MeasurementTypesOnLoadProfileConfiguration'
+        'Mdc.store.MeasurementTypesOnLoadProfileConfiguration',
+        'Mdc.store.ChannelConfigValidationRules'
     ],
 
     refs: [
@@ -63,6 +72,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             },
             'button[action=removeloadprofileconfigurationdetailchannelconfirm]': {
                 click: this.deleteRecord
+            },
+            '#loadProfileConfigurationDetailRulesGrid': {
+                selectionchange: this.previewValidationRule
+            },
+            'validation-rule-actionmenu': {
+                click: this.chooseRuleAction
             }
         });
 
@@ -109,10 +124,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 }
             ]
         }).show({
-                title: "Remove '" + lastSelected.getData().name + "'?",
-                msg: 'This channel will be removed from load profile configuration.',
-                icon: Ext.MessageBox.WARNING
-            })
+            title: "Remove '" + lastSelected.getData().name + "'?",
+            msg: 'This channel will be removed from load profile configuration.',
+            icon: Ext.MessageBox.WARNING
+        })
     },
 
     deleteRecord: function (btn) {
@@ -256,11 +271,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 }
             ]
         }).show({
-                ui: 'notification-error',
-                title: headerText,
-                msg: errormsgs,
-                icon: Ext.MessageBox.ERROR
-            })
+            ui: 'notification-error',
+            title: headerText,
+            msg: errormsgs,
+            icon: Ext.MessageBox.ERROR
+        })
     },
 
 
@@ -286,9 +301,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         });
     },
 
-    loadGridItemDetail: function (grid, record) {
-        var form = this.getLoadProfileConfigurationChannelDetailsForm(),
-            recordData = record.getData(),
+    loadGridItemDetail: function (grid, channelConfig) {
+        var me = this,
+            form = this.getLoadProfileConfigurationChannelDetailsForm(),
+            recordData = channelConfig.getData(),
+            channelId = channelConfig.getId(),
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: form
@@ -299,7 +316,47 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         }
         this.displayedItemId = recordData.id;
         this.getLoadProfileDetailChannelPreview().setTitle(recordData.name);
-        form.loadRecord(record);
+        form.loadRecord(channelConfig);
+        this.getPage().down('#rulesForChannelConfig').setTitle(channelConfig.get('name') + ' validation rules');
+        if (me.getPage().down('#rulesForChannelPreviewContainer')) {
+            me.getPage().down('#rulesForChannelPreviewContainer').destroy();
+        }
+        me.getPage().down('#validationrulesContainer').add(
+            {
+                xtype: 'preview-container',
+                itemId: 'rulesForChannelPreviewContainer',
+                grid: {
+                    xtype: 'load-profile-configuration-detail-rules-grid',
+                    deviceTypeId: me.deviceTypeId,
+                    deviceConfigId: me.deviceConfigurationId,
+                    channelConfigId: channelId
+                },
+                emptyComponent: {
+                    xtype: 'no-items-found-panel',
+                    title: Uni.I18n.translate('registerConfig.validationRules.empty.title', 'MDC', 'No validation rules found'),
+                    reasons: [
+                        Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.'),
+                        Uni.I18n.translate('registerConfig.validationRules.empty.list.item2', 'MDC', 'Validation rules exists, but you do not have permission to view them.')
+                    ]
+                },
+                previewComponent: {
+                    xtype: 'validation-rule-preview',
+                    tools: [
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                            iconCls: 'x-uni-action-iconD',
+                            menu: {
+                                xtype: 'validation-rule-actionmenu'
+                            }
+                        }
+                    ]
+                }
+            }
+        );
+        this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getStore().getProxy().extraParams =
+            ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigurationId, channelConfig: channelId});
+        this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getStore().load();
         preloader.destroy();
     },
 
@@ -330,7 +387,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             method: 'GET',
                             success: function (response) {
                                 var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
-                                    widget = Ext.widget('loadProfileConfigurationDetailSetup', {intervalStore: me.intervalStore, deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId });
+                                    widget = Ext.widget('loadProfileConfigurationDetailSetup', {intervalStore: me.intervalStore, deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId});
                                 me.getApplication().fireEvent('loadLoadProfile', loadProfileConfiguration);
                                 widget.down('#loadProfileConfigurationDetailTitle').html = '<h1>' + loadProfileConfiguration.name + '</h1>';
                                 widget.down('#loadProfileConfigurationDetailChannelConfigurationTitle').html = '<h3>' + Uni.I18n.translate('loadprofileconfiguration.loadprofilechannelconfiguation', 'MDC', 'Channel configurations') + '</h3>';
@@ -382,7 +439,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         {loadProfileConfigurationChannelAction: 'Add', deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId }),
                                     measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
                                     unitOfMeasureCombobox = widget.down('combobox[name=unitOfMeasure]'),
-                                    title =  Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel configuration');
+                                    title = Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel configuration');
 
                                 widget.down('form').setTitle(title);
                                 me.availableMeasurementTypesStore.load();
@@ -421,19 +478,19 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             method: 'GET',
                             success: function (response) {
                                 Ext.Ajax.request({
-                                    url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + me.channelId ,
+                                    url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + me.channelId,
                                     params: {},
                                     method: 'GET',
                                     success: function (response) {
                                         var channel = Ext.JSON.decode(response.responseText).data[0],
                                             widget = Ext.widget('loadProfileConfigurationDetailForm',
                                                 {loadProfileConfigurationChannelAction: 'Save', deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId }),
-                                            title =  Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'),
+                                            title = Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'),
                                             measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
                                             unitOfMeasureCombobox = widget.down('combobox[name=unitOfMeasure]'),
-                                            overruledObisField =  widget.down('textfield[name=overruledObisCode]'),
-                                            overflowValueField =  widget.down('textfield[name=overflowValue]'),
-                                            multiplierField =  widget.down('textfield[name=multiplier]'),
+                                            overruledObisField = widget.down('textfield[name=overruledObisCode]'),
+                                            overflowValueField = widget.down('textfield[name=overflowValue]'),
+                                            multiplierField = widget.down('textfield[name=multiplier]'),
                                             measurementTypeDisplayField = widget.down('displayfield[name=measurementtype]');
 
                                         widget.down('form').setTitle(title);
@@ -469,5 +526,24 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 });
             }
         });
+    },
+
+    previewValidationRule: function (grid, record) {
+        var selectedRules = this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getSelectionModel().getSelection();
+
+        if (selectedRules.length === 1) {
+            var selectedRule = selectedRules[0];
+            this.getPage().down('validation-rule-preview').updateValidationRule(selectedRule);
+            this.getPage().down('validation-rule-preview').show();
+        } else {
+            this.getPage().down('validation-rule-preview').hide();
+        }
+    },
+
+    chooseRuleAction: function (menu, item) {
+        var me = this,
+            record;
+        record = menu.record || this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getSelectionModel().getLastSelected();
+        location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
     }
 });
