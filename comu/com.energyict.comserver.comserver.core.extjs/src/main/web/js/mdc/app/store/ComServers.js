@@ -5,7 +5,6 @@ Ext.define('Mdc.store.ComServers',{
     ],
     model: 'Mdc.model.ComServer',
     storeId: 'ComServers',
-    pageSize: 10,
     sorters: [{
        property: 'name',
        direction: 'ASC'

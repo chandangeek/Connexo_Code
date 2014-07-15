@@ -5,7 +5,6 @@ Ext.define('Mdc.store.RegisterGroups', {
     ],
     model: 'Mdc.model.RegisterGroup',
     storeId: 'RegisterGroups',
-    pageSize: 10,
     proxy: {
         type: 'rest',
         url: '../../api/dtc/registergroups',

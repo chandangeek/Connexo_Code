@@ -15,6 +15,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
         me.side = [
             {
                 xtype: 'panel',
+                title: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
                 ui: 'medium',
                 items: [
                     {

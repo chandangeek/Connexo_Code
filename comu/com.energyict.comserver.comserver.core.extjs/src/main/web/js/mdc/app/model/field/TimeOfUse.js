@@ -1,4 +1,4 @@
-Ext.define('Mdc.model.field.timeOfUse', {
+Ext.define('Mdc.model.field.TimeOfUse', {
     extend: 'Ext.data.Model',
     fields: ['timeOfUse']
 });
