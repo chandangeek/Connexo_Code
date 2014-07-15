@@ -59,7 +59,7 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationAdd', {
                 {
                     xtype: 'grid',
                     store: 'Cfg.store.RuleDeviceConfigurationsNotLinked',
-                    height: 395,
+                    height: 400,
                     itemId: 'addDeviceConfigGrid',
                     selType: 'checkboxmodel',
                     selModel: {
