@@ -296,7 +296,6 @@ Ext.define('Cfg.controller.Validation', {
                         action: 'removeReadingTypeAction',
                         pack: 'center',
                         margin: '0 0 5 5',
-                        width: 30,
                         itemId: 'readingTypeRemoveButton' + me.readingTypeIndex,
                         handler: function () {
                             me.getReadingValuesTextFieldsContainer().remove(Ext.ComponentQuery.query('#readingType' + indexToRemove)[0]);
