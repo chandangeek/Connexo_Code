@@ -14,25 +14,25 @@ public class ValidationRuleSetInfos {
 	public int total;
 	public List<ValidationRuleSetInfo> ruleSets = new ArrayList<>();
 
-	ValidationRuleSetInfos() {
+    public ValidationRuleSetInfos() {
 	}
 
-	ValidationRuleSetInfos(ValidationRuleSet ruleSet) {
+    public ValidationRuleSetInfos(ValidationRuleSet ruleSet) {
 	    add(ruleSet);
 	}
 
-	ValidationRuleSetInfos(Iterable<? extends ValidationRuleSet> sets) {
+    public ValidationRuleSetInfos(Iterable<? extends ValidationRuleSet> sets) {
 	    addAll(sets);
 	}
 
-    ValidationRuleSetInfo add(ValidationRuleSet ruleSet) {
+    public ValidationRuleSetInfo add(ValidationRuleSet ruleSet) {
         ValidationRuleSetInfo result = new ValidationRuleSetInfo(ruleSet);
         ruleSets.add(result);
 	    total++;
 	    return result;
 	}
 
-	void addAll(Iterable<? extends ValidationRuleSet> sets) {
+    public void addAll(Iterable<? extends ValidationRuleSet> sets) {
 	    for (ValidationRuleSet each : sets) {
 	        add(each);
 	    }
