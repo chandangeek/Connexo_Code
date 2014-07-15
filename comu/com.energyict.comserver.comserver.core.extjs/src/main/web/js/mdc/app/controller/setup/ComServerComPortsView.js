@@ -134,7 +134,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         }, storesArr);
     },
 
-    showPreview: function (selectionModel, record) {
+    showPreview: function (selectionModel, record, showComServer) {
         var previewPanel = this.getPreview(),
             model = this.getModel('Mdc.model.ComServerComPort'),
             id = record.getId(),
@@ -152,6 +152,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                     currentForm && currentForm.hide();
                     if (form) {
                         form.show();
+                        if (showComServer) {
+                            form.down('displayfield[name=server]').show();
+                        } else {
+                            form.down('displayfield[name=server]').hide();
+                        }
                         if (record.get('comPortType') != 'SERVLET') {
                             switch (record.get('direction')) {
                                 case 'Inbound':
