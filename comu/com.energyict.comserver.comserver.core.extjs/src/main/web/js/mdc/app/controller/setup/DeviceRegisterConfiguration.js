@@ -18,6 +18,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         {ref: 'deviceRegisterConfigurationPreviewForm', selector: '#deviceRegisterConfigurationPreviewForm'},
         {ref: 'deviceRegisterConfigurationDetailForm', selector: '#deviceRegisterConfigurationDetailForm'},
         {ref: 'deviceRegisterConfigurationPreview', selector: '#deviceRegisterConfigurationPreview'},
+        {ref: 'deviceRegisterConfigurationMenu', selector: '#deviceRegisterConfigurationMenu'},
         {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'previewMrId', selector: '#preview_mrid'}
     ],
@@ -92,6 +93,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         me.getDeviceRegisterConfigurationDetailForm().loadRecord(register);
                         me.getPreviewMrId().setValue(register.getReadingType().get('mrid'));
+                        widget.down('#stepsMenu').setTitle(register.get('name'));
+                    },
+                    callback: function () {
                         widget.setLoading(false);
                     }
                 });
