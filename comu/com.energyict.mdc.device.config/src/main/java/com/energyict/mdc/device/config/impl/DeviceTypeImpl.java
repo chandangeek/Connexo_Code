@@ -389,7 +389,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void validateRegisterMappingNotUsedByRegisterSpec(RegisterMapping registerMapping) {
         List<RegisterSpec> registerSpecs = this.getRegisterSpecsForRegisterMapping(registerMapping);
         if (!registerSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByRegisterSpec(this.thesaurus, registerMapping, registerSpecs);
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByRegisterSpecs(this.thesaurus, registerMapping, registerSpecs);
         }
     }
 
