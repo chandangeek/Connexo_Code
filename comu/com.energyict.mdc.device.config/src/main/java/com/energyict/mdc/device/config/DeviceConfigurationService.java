@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -205,4 +206,6 @@ public interface DeviceConfigurationService {
     public Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
+
+    public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration);
 }

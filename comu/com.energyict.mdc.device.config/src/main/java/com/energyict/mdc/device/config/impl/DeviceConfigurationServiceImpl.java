@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -558,5 +559,19 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return this.getDataModel().
                 query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class).
                 select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("name"));
+    }
+
+    @Override
+    public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration) {
+        List<ReadingType> readingTypes = new ArrayList<>();
+        for (LoadProfileSpec spec : configuration.getLoadProfileSpecs()) {
+            for (RegisterMapping mapping : spec.getLoadProfileType().getRegisterMappings()) {
+                readingTypes.add(mapping.getReadingType());
+            }
+        }
+        for (RegisterSpec spec : configuration.getRegisterSpecs()) {
+            readingTypes.add(spec.getRegisterMapping().getReadingType());
+        }
+        return readingTypes;
     }
 }
