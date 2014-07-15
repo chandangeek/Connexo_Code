@@ -204,5 +204,5 @@ public interface DeviceConfigurationService {
      */
     public Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType);
 
-    public List<DeviceConfiguration> findActiveDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
+    public List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
 }
