@@ -30,6 +30,7 @@ import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
@@ -510,12 +511,12 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     private ListMultimap<Date, ReadingQuality> getExistingReadingQualities(Channel channel, Interval interval) {
         List<ReadingQuality> readingQualities = channel.findReadingQuality(interval);
-        return Multimaps.index(readingQualities, new Function<ReadingQuality, Date>() {
+        return ArrayListMultimap.create(Multimaps.index(readingQualities, new Function<ReadingQuality, Date>() {
             @Override
             public Date apply(ReadingQuality input) {
                 return input.getReadingTimestamp();
             }
-        });
+        }));
     }
 
     private void saveNewReadingQuality(Channel channel, BaseReadingRecord reading, ReadingQualityType readingQualityType) {
