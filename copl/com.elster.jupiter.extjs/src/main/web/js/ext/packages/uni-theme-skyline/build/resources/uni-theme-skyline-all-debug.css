@@ -20705,6 +20705,9 @@ h6 {
   /* line 10, ../../sass/src/breadcrumb/BreadcrumbLink.scss */
   .x-component-link a {
     color: white; }
+    /* line 13, ../../sass/src/breadcrumb/BreadcrumbLink.scss */
+    .x-component-link a:hover {
+      color: #f0f0f0; }
 
 /* line 1, ../../sass/src/breadcrumb/BreadcrumbLinkSeparator.scss */
 .x-component-linkseparator {
@@ -23410,7 +23413,7 @@ body.login {
 /* line 1, ../../sass/src/button/LinkButton.scss */
 a, a.x-btn {
   color: #686868; }
-  /* line 4, ../../sass/src/button/LinkButton.scss */
+  /* line 3, ../../sass/src/button/LinkButton.scss */
   a:hover, a.x-btn:hover {
     color: #1e7d9e; }
 
@@ -23813,11 +23816,11 @@ a, a.x-btn {
 
 /*</if slicer>*/
 /* */
-/* line 11, ../../sass/src/button/LinkButton.scss */
+/* line 10, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-small .x-btn-inner {
   text-decoration: underline; }
 
-/* line 17, ../../sass/src/button/LinkButton.scss */
+/* line 16, ../../sass/src/button/LinkButton.scss */
 .x-pressed.x-btn-link-small .x-btn-inner {
   text-decoration: none; }
 
@@ -24220,11 +24223,11 @@ a, a.x-btn {
 
 /*</if slicer>*/
 /* */
-/* line 11, ../../sass/src/button/LinkButton.scss */
+/* line 10, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-medium .x-btn-inner {
   text-decoration: underline; }
 
-/* line 17, ../../sass/src/button/LinkButton.scss */
+/* line 16, ../../sass/src/button/LinkButton.scss */
 .x-pressed.x-btn-link-medium .x-btn-inner {
   text-decoration: none; }
 
@@ -24627,11 +24630,11 @@ a, a.x-btn {
 
 /*</if slicer>*/
 /* */
-/* line 11, ../../sass/src/button/LinkButton.scss */
+/* line 10, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-large .x-btn-inner {
   text-decoration: underline; }
 
-/* line 17, ../../sass/src/button/LinkButton.scss */
+/* line 16, ../../sass/src/button/LinkButton.scss */
 .x-pressed.x-btn-link-large .x-btn-inner {
   text-decoration: none; }
 
@@ -25042,11 +25045,11 @@ a, a.x-btn {
 
 /*</if slicer>*/
 /* */
-/* line 11, ../../sass/src/button/LinkButton.scss */
+/* line 10, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-toolbar-small .x-btn-inner {
   text-decoration: underline; }
 
-/* line 17, ../../sass/src/button/LinkButton.scss */
+/* line 16, ../../sass/src/button/LinkButton.scss */
 .x-pressed.x-btn-link-toolbar-small .x-btn-inner {
   text-decoration: none; }
 
@@ -25457,11 +25460,11 @@ a, a.x-btn {
 
 /*</if slicer>*/
 /* */
-/* line 11, ../../sass/src/button/LinkButton.scss */
+/* line 10, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-toolbar-medium .x-btn-inner {
   text-decoration: underline; }
 
-/* line 17, ../../sass/src/button/LinkButton.scss */
+/* line 16, ../../sass/src/button/LinkButton.scss */
 .x-pressed.x-btn-link-toolbar-medium .x-btn-inner {
   text-decoration: none; }
 
@@ -25872,20 +25875,20 @@ a, a.x-btn {
 
 /*</if slicer>*/
 /* */
-/* line 11, ../../sass/src/button/LinkButton.scss */
+/* line 10, ../../sass/src/button/LinkButton.scss */
 .x-btn-link-toolbar-large .x-btn-inner {
   text-decoration: underline; }
 
-/* line 17, ../../sass/src/button/LinkButton.scss */
+/* line 16, ../../sass/src/button/LinkButton.scss */
 .x-pressed.x-btn-link-toolbar-large .x-btn-inner {
   text-decoration: none; }
 
-/* line 146, ../../sass/src/button/LinkButton.scss */
+/* line 145, ../../sass/src/button/LinkButton.scss */
 .x-form-fieldcontainer *[class*='x-btn-link-'] {
   margin-top: 2px;
   margin-left: -5px; }
 
-/* line 153, ../../sass/src/button/LinkButton.scss */
+/* line 152, ../../sass/src/button/LinkButton.scss */
 .x-form-fieldcontainer.x-container-actions *[class*='x-btn-link-'] {
   margin-top: 0;
   margin-left: 0; }
