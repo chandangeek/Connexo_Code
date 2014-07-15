@@ -97,7 +97,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                         required: true,
                                         forceSelection: true,
                                         typeAhead: true,
-                                        msgTarget: 'under'
+                                        msgTarget: 'under',
+                                        cls: 'obisCode'
                                     },
                                     {
                                         xtype: 'combobox',
