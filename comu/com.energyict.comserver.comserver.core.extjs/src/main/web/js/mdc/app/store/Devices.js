@@ -5,7 +5,6 @@ Ext.define('Mdc.store.Devices',{
     ],
     model: 'Mdc.model.Device',
     storeId: 'Devices',
-    pageSize: 10,
     proxy: {
         type: 'rest',
         url: '../../api/ddr/devices',
