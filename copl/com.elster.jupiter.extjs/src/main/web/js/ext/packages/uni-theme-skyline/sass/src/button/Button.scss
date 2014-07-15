@@ -20,6 +20,15 @@
     background-image: url('images/button/default-small-arrow.png');
 }
 
+.#{$prefix}btn-default-small-pressed,
+.#{$prefix}btn-default-medium-pressed,
+.#{$prefix}btn-default-large-pressed,
+.#{$prefix}btn-default-toolbar-small-pressed,
+.#{$prefix}btn-default-toolbar-medium-pressed,
+.#{$prefix}btn-default-toolbar-large-pressed {
+    background: linear-gradient(#2591bf, #47b4e4 61%);
+}
+
 @import "RemoveButton";
 
 @import "LinkButton";

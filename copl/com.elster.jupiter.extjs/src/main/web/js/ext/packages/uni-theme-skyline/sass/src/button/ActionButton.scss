@@ -1,7 +1,7 @@
 // Primary Action Button (PAB)
 
 @if $include-button-default-small-ui {
-  @include extjs-button-small-ui(
+    @include extjs-button-small-ui(
     $ui: 'action',
     $background-color: $button-action-background-color,
     $color: $button-action-color,
@@ -10,11 +10,11 @@
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
     $border-color-focus: $button-action-border-color-focus
-  );
+    );
 }
 
 @if $include-button-default-medium-ui {
-  @include extjs-button-medium-ui(
+    @include extjs-button-medium-ui(
     $ui: 'action',
     $background-color: $button-action-background-color,
     $color: $button-action-color,
@@ -23,11 +23,11 @@
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
     $border-color-focus: $button-action-border-color-focus
-  );
+    );
 }
 
 @if $include-button-default-large-ui {
-  @include extjs-button-large-ui(
+    @include extjs-button-large-ui(
     $ui: 'action',
     $background-color: $button-action-background-color,
     $color: $button-action-color,
@@ -36,11 +36,11 @@
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
     $border-color-focus: $button-action-border-color-focus
-  );
+    );
 }
 
 @if $include-button-default-toolbar-small-ui {
-  @include extjs-button-toolbar-small-ui(
+    @include extjs-button-toolbar-small-ui(
     $ui: 'action',
     $background-color: $button-action-background-color,
     $color: $button-action-color,
@@ -49,11 +49,11 @@
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
     $border-color-focus: $button-action-border-color-focus
-  );
+    );
 }
 
 @if $include-button-default-toolbar-medium-ui {
-  @include extjs-button-toolbar-medium-ui(
+    @include extjs-button-toolbar-medium-ui(
     $ui: 'action',
     $background-color: $button-action-background-color,
     $color: $button-action-color,
@@ -62,11 +62,11 @@
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
     $border-color-focus: $button-action-border-color-focus
-  );
+    );
 }
 
 @if $include-button-default-toolbar-large-ui {
-  @include extjs-button-toolbar-large-ui(
+    @include extjs-button-toolbar-large-ui(
     $ui: 'action',
     $background-color: $button-action-background-color,
     $color: $button-action-color,
@@ -75,7 +75,14 @@
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
     $border-color-focus: $button-action-border-color-focus
-  );
+    );
 }
 
-
+.#{$prefix}btn-action-small-pressed,
+.#{$prefix}btn-action-medium-pressed,
+.#{$prefix}btn-action-large-pressed,
+.#{$prefix}btn-action-toolbar-small-pressed,
+.#{$prefix}btn-action-toolbar-medium-pressed,
+.#{$prefix}btn-action-toolbar-large-pressed {
+    background: linear-gradient(#4c952e, #5cb636 61%);
+}

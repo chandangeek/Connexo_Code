@@ -75,3 +75,12 @@
     $border-color-focus: $button-remove-border-color-focus
   );
 }
+
+.#{$prefix}btn-remove-small-pressed,
+.#{$prefix}btn-remove-medium-pressed,
+.#{$prefix}btn-remove-large-pressed,
+.#{$prefix}btn-remove-toolbar-small-pressed,
+.#{$prefix}btn-remove-toolbar-medium-pressed,
+.#{$prefix}btn-remove-toolbar-large-pressed {
+    background: linear-gradient(#e0422d, #ec7464 61%);
+}
