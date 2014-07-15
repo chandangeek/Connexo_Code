@@ -1,0 +1,106 @@
+package com.energyict.mdc.device.configuration.rest.impl;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.google.common.base.Optional;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.inject.Provider;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class DeviceConfigurationResourceTest {
+
+    public static final long DEVICE_TYPE_ID = 564L;
+    public static final long DEVICE_CONFIGURATION_ID = 211L;
+    public static final long RULESET_ID_1 = 1L;
+    public static final long RULESET_ID_2 = 2L;
+
+    private DeviceConfigurationResource deviceConfigurationResource;
+    private MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
+
+    @Mock
+    private ResourceHelper resourceHelper;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private ValidationService validationService;
+    @Mock
+    private Provider<RegisterConfigurationResource> registerConfigurationResourceProvider;
+    @Mock
+    private Provider<ConnectionMethodResource> conectionMethodResourceProvider;
+    @Mock
+    private Provider<ProtocolDialectResource> protocoolDialectResourceProvider;
+    @Mock
+    private Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider;
+    @Mock
+    private Provider<SecurityPropertySetResource> securitySetResourceProvider;
+    @Mock
+    private Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private UriInfo uriInfo;
+    @Mock
+    private ValidationRuleSet validationRuleSet1, validationRuleSet2;
+    @Mock
+    private DeviceType deviceType;
+    @Mock
+    private DeviceConfiguration deviceConfiguration;
+
+    @Before
+    public void setUp() {
+        deviceConfigurationResource = new DeviceConfigurationResource(resourceHelper, deviceConfigurationService, validationService,
+                registerConfigurationResourceProvider, conectionMethodResourceProvider, protocoolDialectResourceProvider,
+                loadProfileConfigurationResourceProvider, securitySetResourceProvider, comTaskEnablementResourceProvider,
+                thesaurus);
+        when(uriInfo.getQueryParameters()).thenReturn(map);
+        when(validationService.getValidationRuleSet(RULESET_ID_1)).thenReturn(Optional.of(validationRuleSet1));
+        when(validationService.getValidationRuleSet(RULESET_ID_2)).thenReturn(Optional.of(validationRuleSet2));
+        when(resourceHelper.findDeviceTypeByIdOrThrowException(DEVICE_TYPE_ID)).thenReturn(deviceType);
+        when(resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, DEVICE_CONFIGURATION_ID)).thenReturn(deviceConfiguration);
+    }
+
+    @After
+    public void tearDown() {
+
+    }
+
+    @Test
+    public void testAddRuleSetsToDeviceConfiguration() throws Exception {
+        deviceConfigurationResource.addRuleSetsToDeviceConfiguration(DEVICE_TYPE_ID, DEVICE_CONFIGURATION_ID, Arrays.asList(RULESET_ID_1, RULESET_ID_2), uriInfo);
+
+        verify(deviceConfiguration).addValidationRuleSet(validationRuleSet1);
+        verify(deviceConfiguration).addValidationRuleSet(validationRuleSet2);
+    }
+
+    @Test
+    public void testAddAllRuleSetsToDeviceConfiguration() throws Exception {
+        map.add("all", Boolean.TRUE.toString());
+
+        when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(validationRuleSet1, validationRuleSet2));
+
+        deviceConfigurationResource.addRuleSetsToDeviceConfiguration(DEVICE_TYPE_ID, DEVICE_CONFIGURATION_ID, Collections.<Long>emptyList(), uriInfo);
+
+        verify(deviceConfiguration).addValidationRuleSet(validationRuleSet1);
+        verify(deviceConfiguration).addValidationRuleSet(validationRuleSet2);
+    }
+
+
+}

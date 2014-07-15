@@ -15,7 +15,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.masterdata.LogBookType;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.collect.Iterables;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -32,6 +34,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
@@ -377,27 +380,39 @@ public class DeviceConfigurationResource {
     @POST
     @Path("/{deviceConfigurationId}/validationrulesets")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response AddRuleSetsToDeviceConfiguration(
+    public Response addRuleSetsToDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            List<Long> ids) {
-        if (ids == null || ids.size() == 0) {
+            List<Long> ids,
+            @Context UriInfo uriInfo) {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        boolean all = queryParameters.containsKey("all") && Boolean.parseBoolean(queryParameters.getFirst("all"));
+
+        if (!all && (ids == null || ids.size() == 0)) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_VALIDATIONRULESET_ID_FOR_ADDING);
         }
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ValidationRuleSetInfo> addedValidationRuleSets = new ArrayList<>(ids.size());
-        for (Long id : ids) {
-            Optional optional = validationService.getValidationRuleSet(id);
-            if (optional.isPresent()) {
-                ValidationRuleSet ruleSet = (ValidationRuleSet) optional.get();
-                deviceConfiguration.addValidationRuleSet(ruleSet);
-                addedValidationRuleSets.add(new ValidationRuleSetInfo(ruleSet));
-            }
+        for (ValidationRuleSet validationRuleSet : all ? allRuleSets() : ruleSetsFor(ids)) {
+                deviceConfiguration.addValidationRuleSet(validationRuleSet);
+                addedValidationRuleSets.add(new ValidationRuleSetInfo(validationRuleSet));
         }
         return Response.ok(addedValidationRuleSets).build();
     }
 
+    private Iterable<? extends ValidationRuleSet> ruleSetsFor(List<Long> ids) {
+        return Iterables.transform(ids, new Function<Long, ValidationRuleSet>() {
+            @Override
+            public ValidationRuleSet apply(Long input) {
+                return validationService.getValidationRuleSet(input).get();
+            }
+        });
+    }
+
+    private Iterable<ValidationRuleSet> allRuleSets() {
+        return validationService.getValidationRuleSets();
+    }
 
 
 }
