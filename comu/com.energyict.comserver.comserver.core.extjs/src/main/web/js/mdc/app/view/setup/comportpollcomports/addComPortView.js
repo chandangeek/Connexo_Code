@@ -54,7 +54,13 @@ Ext.define('Mdc.view.setup.comportpollcomports.addComPortView', {
                     items: [
                         {
                             xtype: 'container',
-                            itemId: 'comPortsCountContainer'
+                            itemId: 'comPortsCountContainer',
+                            items: [
+                                {
+                                    xtype: 'container',
+                                    html: Uni.I18n.translate('comPortPoolComPorts.addPorts.noPortsSelected', 'MDC', 'No communication ports selected')
+                                }
+                            ]
                         },
                         {
                             xtype: 'button',
