@@ -34,20 +34,22 @@ import java.util.Set;
 public class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocket.OnTextMessage {
 
     private final ServiceProvider serviceProvider;
+    private final WebSocketCloseEventListener closeEventListener;
     private EventPublisher systemWideEventPublisher;
     private Connection connection;
     private RequestParser parser;
     private boolean sendBinary = false;
 
-    public WebSocketEventPublisher(ServiceProvider serviceProvider) {
-        this(serviceProvider, EventPublisherImpl.getInstance());
+    public WebSocketEventPublisher(ServiceProvider serviceProvider, WebSocketCloseEventListener closeEventListener) {
+        this(serviceProvider, EventPublisherImpl.getInstance(), closeEventListener);
     }
 
-    public WebSocketEventPublisher(ServiceProvider serviceProvider, EventPublisher systemWideEventPublisher) {
+    public WebSocketEventPublisher(ServiceProvider serviceProvider, EventPublisher systemWideEventPublisher, WebSocketCloseEventListener closeEventListener) {
         super();
         this.serviceProvider = serviceProvider;
+        this.closeEventListener = closeEventListener;
         this.systemWideEventPublisher = systemWideEventPublisher;
-        parser = new RequestParser(serviceProvider);
+        this.parser = new RequestParser(serviceProvider);
     }
 
     @Override
@@ -133,6 +135,7 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     public void onClose (int closeCode, String message) {
         this.connection = null;
         this.systemWideEventPublisher.unregisterAllInterests(this);
+        this.closeEventListener.closedFrom(this);
     }
 
     @Override
