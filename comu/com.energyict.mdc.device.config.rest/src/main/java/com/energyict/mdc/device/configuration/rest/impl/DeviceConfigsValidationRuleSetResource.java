@@ -104,7 +104,7 @@ public class DeviceConfigsValidationRuleSetResource {
 
     private void addConfiguration(DeviceConfiguration configuration, DeviceConfigurationInfos result, long validationRuleSetId) {
         ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
-        List<ReadingType> readingTypes = getReadingTypesRelatedToConfiguration(configuration);
+        List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(configuration);
         if(!ruleSet.getRules(readingTypes).isEmpty()) {
             result.add(configuration);
         }
@@ -125,18 +125,5 @@ public class DeviceConfigsValidationRuleSetResource {
             }
         }
         return false;
-    }
-
-    private List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration) {
-        List<ReadingType> readingTypes = new ArrayList<>();
-        for (LoadProfileSpec spec : configuration.getLoadProfileSpecs()) {
-            for (RegisterMapping mapping : spec.getLoadProfileType().getRegisterMappings()) {
-                readingTypes.add(mapping.getReadingType());
-            }
-        }
-        for (RegisterSpec spec : configuration.getRegisterSpecs()) {
-            readingTypes.add(spec.getRegisterMapping().getReadingType());
-        }
-        return readingTypes;
     }
 }

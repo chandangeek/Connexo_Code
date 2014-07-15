@@ -1,21 +1,21 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.RegisterMapping;
 import com.google.common.base.Optional;
 
 import java.util.Collections;
@@ -358,6 +358,27 @@ public class DeviceConfigurationResource {
         }
         return Response.ok(PagedInfoList.asJson("validationRuleSets",
                 ListPager.of(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR).from(queryParameters).find(), queryParameters)).build();
+    }
+
+    @GET
+    @Path("/{deviceConfigurationId}/linkablevalidationrulesets")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ValidationRuleSetInfos getLinkableValidationsRuleSets(
+            @PathParam("deviceTypeId") long deviceTypeId,
+            @PathParam("deviceConfigurationId") long deviceConfigurationId,
+            @BeanParam QueryParameters queryParameters) {
+        ValidationRuleSetInfos validationRuleSetInfos = new ValidationRuleSetInfos();
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        List<ValidationRuleSet> linkedRuleSets = deviceConfiguration.getValidationRuleSets();
+        List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration);
+        List<ValidationRuleSet> validationRuleSets = validationService.getValidationRuleSets();
+        for(ValidationRuleSet validationRuleSet : validationRuleSets) {
+            if(!validationRuleSet.getRules(readingTypes).isEmpty() && !linkedRuleSets.contains(validationRuleSet)) {
+                validationRuleSetInfos.add(validationRuleSet);
+            }
+        }
+        return validationRuleSetInfos;
     }
 
     @DELETE
