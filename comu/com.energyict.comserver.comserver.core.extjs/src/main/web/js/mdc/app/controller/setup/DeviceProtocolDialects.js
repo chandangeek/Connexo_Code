@@ -24,10 +24,12 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
         {ref: 'deviceProtocolDialectEditView', selector: '#deviceProtocolDialectEdit'},
         {ref: 'deviceProtocolDialectEditForm', selector: '#deviceProtocolDialectEditForm'},
         {ref: 'editProtocolDialectsDetailsTitle', selector: '#editProtocolDialectsDetailsTitle'},
-        {ref: 'protocolDialectsDetailsTitle', selector: '#protocolDialectsDetailsTitle'}
+        {ref: 'protocolDialectsDetailsTitle', selector: '#protocolDialectsDetailsTitle'},
+        {ref: 'restoreAllButton', selector: '#deviceProtocolDialectEdit #restoreAllButton'}
     ],
 
     init: function () {
+        //this.getDeviceProtocolDialectEditForm().on('enableRestoreAll')
         this.control({
             '#deviceprotocoldialectsgrid': {
                 selectionchange: this.previewProtocolDialect
@@ -40,6 +42,15 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
             },
             '#addEditButton[action=editDeviceProtocolDialect]': {
                 click: this.editProtocolDialect
+            },
+            '#deviceProtocolDialectEdit #restoreAllButton[action=restoreAll]': {
+                click: this.restoreAllDefaults
+            },
+            '#deviceProtocolDialectEdit property-form': {
+                dirtychange: this.enableRestoreAllButton
+            },
+            '#deviceProtocolDialectEdit property-form component': {
+                enableRestoreAll: this.enableRestoreAllButton
             }
         });
     },
@@ -154,5 +165,29 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
             });
         }
     },
+
+    enableRestoreAllButton: function (form, dirty) {
+        var me = this;
+        if (typeof(me.getRestoreAllButton()) !== 'undefined') {
+            me.getRestoreAllButton().disable();
+            /*if (dirty) {
+                me.getRestoreAllButton().enable();
+            }*/
+            var restoreAllButtons = Ext.ComponentQuery.query('defaultButton');
+            if (restoreAllButtons != null) {
+                restoreAllButtons.forEach(function (restoreButton) {
+                    if (!restoreButton.isHidden()) {
+                        me.getRestoreAllButton().enable();
+                    }
+                })
+            }
+        }
+    },
+
+    restoreAllDefaults: function () {
+        var me = this;
+        me.getDeviceProtocolDialectEditView().down('property-form').restoreAll();
+        me.getRestoreAllButton().disable();
+    }
 });
 
