@@ -329,7 +329,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
                         break;
                     case 'outbound':
-                        console.log(me.portModel);
                         if (me.portModel) {
                             me.portModel.set('comPortType', me.portType);
                             me.restoreState();

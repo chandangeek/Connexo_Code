@@ -10,8 +10,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
     items: [
         {
             xtype: 'fieldcontainer',
-            required: true,
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.outPools', 'MDC', 'Outbound comport pools'),
+            required: false,
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.outPools', 'MDC', 'Communication port pools'),
             itemId: 'comportpoolid',
             items: [
                 {

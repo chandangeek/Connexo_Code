@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesDoc
     extend: 'Ext.toolbar.Toolbar',
     border: 0,
     alias: 'widget.loadProfileTypeAddMeasurementTypesDockedItems',
-    aling: 'left',
+    align: 'left',
 
     initComponent: function () {
         this.callParent(this);
