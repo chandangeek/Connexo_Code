@@ -334,7 +334,7 @@ public class DeviceConfigurationResource {
             @BeanParam QueryParameters queryParameters) {
 
         List<ValidationRule> rules = resourceHelper.findLoadProfileSpec(loadProfileId).getValidationRules();
-        List<ValidationRuleInfo> result = new ArrayList<ValidationRuleInfo>();
+        List<ValidationRuleInfo> result = new ArrayList<>();
         for (ValidationRule rule : rules) {
             result.add(new ValidationRuleInfo(rule));
         }
@@ -353,7 +353,7 @@ public class DeviceConfigurationResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ValidationRuleSet> ruleSets = deviceConfiguration.getValidationRuleSets();
-        List<ValidationRuleSetInfo> result = new ArrayList<ValidationRuleSetInfo>();
+        List<ValidationRuleSetInfo> result = new ArrayList<>();
         for (ValidationRuleSet ruleSet : ruleSets) {
             result.add(new ValidationRuleSetInfo(ruleSet));
         }
@@ -369,9 +369,9 @@ public class DeviceConfigurationResource {
             @PathParam("validationRuleSetId") long validationRuleSetId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        Optional optional = validationService.getValidationRuleSet(validationRuleSetId);
+        Optional<ValidationRuleSet> optional = validationService.getValidationRuleSet(validationRuleSetId);
         if (optional.isPresent()) {
-            ValidationRuleSet ruleSet = (ValidationRuleSet) optional.get();
+            ValidationRuleSet ruleSet = optional.get();
             deviceConfiguration.removeValidationRuleSet(ruleSet);
         }
         return Response.ok().build();
@@ -385,8 +385,7 @@ public class DeviceConfigurationResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             List<Long> ids,
             @Context UriInfo uriInfo) {
-        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-        boolean all = queryParameters.containsKey("all") && Boolean.parseBoolean(queryParameters.getFirst("all"));
+        boolean all = getBoolean(uriInfo, "all");
 
         if (!all && (ids == null || ids.size() == 0)) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_VALIDATIONRULESET_ID_FOR_ADDING);
@@ -399,6 +398,11 @@ public class DeviceConfigurationResource {
                 addedValidationRuleSets.add(new ValidationRuleSetInfo(validationRuleSet));
         }
         return Response.ok(addedValidationRuleSets).build();
+    }
+
+    private boolean getBoolean(UriInfo uriInfo, String key) {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
     }
 
     private Iterable<? extends ValidationRuleSet> ruleSetsFor(List<Long> ids) {
