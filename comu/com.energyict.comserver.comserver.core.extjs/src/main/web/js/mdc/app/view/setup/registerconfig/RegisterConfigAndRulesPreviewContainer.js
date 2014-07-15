@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
                 xtype: 'no-items-found-panel',
                 title: Uni.I18n.translate('registerConfig.validationRules.empty.title', 'MDC', 'No validation rules found'),
                 reasons: [
-                    Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.'),
+                    Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the register configuration.'),
                     Uni.I18n.translate('registerConfig.validationRules.empty.list.item2', 'MDC', 'Validation rules exists, but you do not have permission to view them.')
                 ]
             },
