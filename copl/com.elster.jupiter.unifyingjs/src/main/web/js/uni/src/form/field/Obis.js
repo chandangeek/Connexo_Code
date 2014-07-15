@@ -6,8 +6,7 @@ Ext.define('Uni.form.field.Obis', {
     requires: [
         'Ext.form.VTypes'
     ],
-    alias: 'widget.obis-field',
-    itemId: 'obis-field',
+    xtype: 'obis-field',
     name: 'obisCode',
     cls: 'obisCode',
     msgTarget: 'under',

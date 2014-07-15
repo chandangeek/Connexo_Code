@@ -107,12 +107,13 @@ Ext.define('Uni.property.view.property.Base', {
 
         if (!resetButtonHidden) {
             button.setTooltip(
-                    Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value')
+                    Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
                     + ' &quot; ' + this.getProperty().get('default') + '&quot;'
             );
 
             button.setVisible(!this.getProperty().get('isInheritedOrDefaultValue'));
         }
+        this.fireEvent('enableRestoreAll', this);
     },
 
     /**
