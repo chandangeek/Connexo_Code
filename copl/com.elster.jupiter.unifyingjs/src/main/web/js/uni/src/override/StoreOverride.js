@@ -4,7 +4,7 @@
  * Stops ExtJS from overriding the storeId property when using the stores property in a controller.
  */
 Ext.define('Uni.override.StoreOverride', {
-    override: 'Ext.app.Application',
+    override: 'Ext.data.Store',
 
     pageSize: 10,
 
