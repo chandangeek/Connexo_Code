@@ -6,6 +6,7 @@ Ext.define('Mdc.store.LoadProfileTypes', {
     model: 'Mdc.model.LoadProfileType',
     storeId: 'LoadProfileTypes',
     autoLoad: false,
+    pageSize: 10,
     proxy: {
         type: 'rest',
         url: '/api/mds/loadprofiles',
