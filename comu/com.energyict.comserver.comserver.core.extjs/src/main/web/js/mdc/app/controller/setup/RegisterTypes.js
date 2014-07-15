@@ -117,7 +117,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 widget.down('#editMrIdField').setValue(me.getReadingTypesStore().first().get('mrid'));
             }
         }
-        var obisCode = widget.down('#editObisCodeField').getValue();
+        var obisCode = widget.down('obis-field').getValue();
         var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
         if (obisCode !== '' && measurementUnit !== null) {
             widget.down('#editMrIdField').enable();
@@ -219,7 +219,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                                 widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + registerType.get('name') + '</h1>');
                                 widget.down('#editMrIdField').setValue(registerType.getReadingType().get('mrid'));
                                 if (registerType.get('isLinkedByDeviceType') === true) {
-                                    widget.down('#editObisCodeField').disable();
+                                    widget.down('obis-field').disable();
                                     widget.down('#measurementUnitComboBox').disable();
                                     widget.down('#timeOfUseComboBox').disable();
                                     widget.down('#editMrIdField').disable();
@@ -343,7 +343,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
     getReadingType: function (field, newValue, oldValue) {
         var widget = this.getRegisterTypeEditForm();
-        var obisCode = widget.down('#editObisCodeField').getValue();
+        var obisCode = widget.down('obis-field').getValue();
         var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
         //var mrId = widget.down('#editMrIdField').getValue();
 
