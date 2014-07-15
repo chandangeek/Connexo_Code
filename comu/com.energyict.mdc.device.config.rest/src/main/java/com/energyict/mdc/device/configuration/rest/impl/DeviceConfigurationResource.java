@@ -10,6 +10,7 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -17,6 +18,7 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.google.common.base.Optional;
 
+import java.util.Collections;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -354,7 +356,8 @@ public class DeviceConfigurationResource {
         for (ValidationRuleSet ruleSet : ruleSets) {
             result.add(new ValidationRuleSetInfo(ruleSet));
         }
-        return Response.ok(PagedInfoList.asJson("validationRuleSets", result, queryParameters)).build();
+        return Response.ok(PagedInfoList.asJson("validationRuleSets",
+                ListPager.of(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR).from(queryParameters).find(), queryParameters)).build();
     }
 
     @DELETE
