@@ -31,7 +31,7 @@ public class RegisterGroupInfo {
 
         registerTypes = new ArrayList<>();
         for (RegisterMapping registerMapping : registerGroup.getRegisterMappings()) {
-            registerTypes.add(new RegisterMappingInfo(registerMapping, false));
+            registerTypes.add(new RegisterMappingInfo(registerMapping, false, false));
         }
 
         Collections.sort(registerTypes, new Comparator<RegisterMappingInfo>(){

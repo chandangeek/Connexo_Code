@@ -35,6 +35,9 @@ public class RegisterTypeResource {
         this.resourceHelper = resourceHelper;
     }
 
+    /**
+     * We should filter out the ChannelTypes from the RegisterTypes list as these have an interval.
+     */
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -42,7 +45,7 @@ public class RegisterTypeResource {
         List<RegisterMapping> registerMappings = this.masterDataService.findAllRegisterMappings().from(queryParameters).find();
         List<RegisterMappingInfo> registerTypeInfos = new ArrayList<>();
         for (RegisterMapping registerMapping : registerMappings) {
-            registerTypeInfos.add(new RegisterMappingInfo(registerMapping, this.deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping)));
+            registerTypeInfos.add(new RegisterMappingInfo(registerMapping, this.deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping), false));
         }
         return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters);
     }
@@ -52,7 +55,7 @@ public class RegisterTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterMappingInfo getRegisterType(@PathParam("id") long id) {
         RegisterMapping registerMapping = this.resourceHelper.findRegisterMappingByIdOrThrowException(id);
-        return new RegisterMappingInfo(registerMapping, this.deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping));
+        return new RegisterMappingInfo(registerMapping, this.deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping), false);
     }
 
     @DELETE
@@ -78,7 +81,7 @@ public class RegisterTypeResource {
                     MessageSeeds.DUPLICATE_OBISCODE, "obisCode", registerMapping.getObisCode().toString(), registerMapping.getPhenomenon().toString(), registerMapping.getTimeOfUse());
 
         }
-        return new RegisterMappingInfo(registerMapping, false); // It's a new one so cannot be used yet in a DeviceType right
+        return new RegisterMappingInfo(registerMapping, false, false); // It's a new one so cannot be used yet in a DeviceType right
     }
 
     @PUT
@@ -95,7 +98,7 @@ public class RegisterTypeResource {
                     MessageSeeds.DUPLICATE_OBISCODE, "obisCode", registerMapping.getObisCode().toString(), registerMapping.getPhenomenon().toString(), registerMapping.getTimeOfUse());
 
         }
-        return new RegisterMappingInfo(registerMapping, this.deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping));
+        return new RegisterMappingInfo(registerMapping, this.deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping), false);
     }
 
     private ReadingType findReadingType(RegisterMappingInfo registerMappingInfo) {

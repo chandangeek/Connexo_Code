@@ -42,7 +42,7 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
         info.multiplier = channelSpec.getMultiplier();
         info.overflowValue = channelSpec.getOverflow();
         // TODO check that it is truth (true for isLinkedByDeviceType)
-        info.registerMapping = new RegisterMappingInfo(channelSpec.getRegisterMapping(), true);
+        info.registerMapping = new RegisterMappingInfo(channelSpec.getRegisterMapping(), true, false);
         info.unitOfMeasure = PhenomenonInfo.from(channelSpec.getPhenomenon());
         return info;
     }

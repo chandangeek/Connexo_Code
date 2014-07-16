@@ -37,7 +37,7 @@ public class DeviceTypeInfo {
         DeviceTypeInfo deviceTypeInfo = from(deviceType);
         deviceTypeInfo.registerMappings = new ArrayList<>();
         for (RegisterMapping registerMapping : registerMappings) {
-            deviceTypeInfo.registerMappings.add(new RegisterMappingInfo(registerMapping, true));
+            deviceTypeInfo.registerMappings.add(new RegisterMappingInfo(registerMapping, true, false));
         }
         return deviceTypeInfo;
     }
