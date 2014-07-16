@@ -2,12 +2,14 @@ package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeRegisterMappingUsage;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -16,6 +18,7 @@ import com.energyict.mdc.masterdata.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterMappingAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.base.Optional;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -76,12 +79,14 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     private List<LoadProfileTypeRegisterMappingUsageImpl> registerMappingUsages = new ArrayList<>();
 
     private Clock clock;
+    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     @Inject
-    public LoadProfileTypeImpl(DataModel dataModel, EventService eventService, MasterDataService masterDataService, Thesaurus thesaurus, Clock clock) {
+    public LoadProfileTypeImpl(DataModel dataModel, EventService eventService, MasterDataService masterDataService, Thesaurus thesaurus, Clock clock, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         super(LoadProfileType.class, dataModel, eventService, thesaurus);
         this.masterDataService = masterDataService;
         this.clock = clock;
+        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
     LoadProfileTypeImpl initialize(String name, ObisCode obisCode, TimeDuration interval) {
@@ -212,13 +217,14 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     @Override
-    public void addRegisterMapping(RegisterMapping registerMapping) {
+    public void addRegisterMapping(RegisterMapping registerMappingWithoutInterval) {
+        RegisterMapping channelType = findOrCreateCorrespondingChannelType(registerMappingWithoutInterval);
         for (LoadProfileTypeRegisterMappingUsageImpl registerMappingUsage : this.registerMappingUsages) {
-            if (registerMappingUsage.sameRegisterMapping(registerMapping)) {
-                throw new RegisterMappingAlreadyInLoadProfileTypeException(this.getThesaurus(), this, registerMapping);
+            if (registerMappingUsage.sameRegisterMapping(channelType)) {
+                throw new RegisterMappingAlreadyInLoadProfileTypeException(this.getThesaurus(), this, channelType);
             }
         }
-        this.registerMappingUsages.add(new LoadProfileTypeRegisterMappingUsageImpl(this, registerMapping));
+        this.registerMappingUsages.add(new LoadProfileTypeRegisterMappingUsageImpl(this, channelType));
     }
 
     @Override
@@ -241,4 +247,16 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.eventService.postEvent(EventType.LOADPROFILETYPE_VALIDATEDELETE.topic(), this);
     }
 
+    private RegisterMapping findOrCreateCorrespondingChannelType(RegisterMapping registerMappingWithoutInterval){
+
+        Optional<ChannelType> channelType = this.masterDataService.findChannelTypeByTemplateRegisterAndInterval(registerMappingWithoutInterval, getInterval());
+        if(!channelType.isPresent()){
+            ReadingType intervalAppliedReadingType = this.mdcReadingTypeUtilService.getIntervalAppliedReadingType(registerMappingWithoutInterval.getReadingType(), getInterval(), registerMappingWithoutInterval.getObisCode());
+            ChannelType newChannelType = masterDataService.newChannelType(registerMappingWithoutInterval, getInterval(), intervalAppliedReadingType);
+            newChannelType.save();
+            return newChannelType;
+        } else {
+            return channelType.get();
+        }
+    }
 }

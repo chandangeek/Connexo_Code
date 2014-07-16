@@ -125,10 +125,21 @@ public interface MasterDataService {
      */
     public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse);
 
+    /**
+     * Creates a ChannelType which is a RegisterMapping with an interval, solely used by a LoadProfileType.
+     * The provided RegisterMapping will serve as a template-register
+     *
+     * @param templateRegisterMapping the model for the new channelType
+     * @param interval                the interval of the channelType
+     * @param readingType             the readingType for the channelType
+     * @return the newly created ChannelType
+     */
+    public ChannelType newChannelType(RegisterMapping templateRegisterMapping, TimeDuration interval, ReadingType readingType);
+
     public Optional<RegisterMapping> findRegisterMappingByObisCodeAndUnitAndTimeOfUse(ObisCode obisCode, Unit unit, int timeOfUse);
 
     /**
-     * Finds all the {@link LoadProfileType LoadProfileTypes} in the systesm
+     * Finds all the {@link LoadProfileType LoadProfileTypes} in the system
      *
      * @return all LoadProfileTypes
      */
@@ -155,4 +166,6 @@ public interface MasterDataService {
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 
     void validateRegisterGroup(RegisterGroup group);
+
+    public Optional<ChannelType> findChannelTypeByTemplateRegisterAndInterval(RegisterMapping templateRegisterMapping, TimeDuration interval);
 }

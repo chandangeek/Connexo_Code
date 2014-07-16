@@ -268,30 +268,6 @@ public class RegisterMappingImplTest {
         assertThat(registerMapping.getPhenomenon()).isEqualToComparingOnlyGivenFields(this.phenomenon2, "name", "unit");
     }
 
-//    @Test(expected = DuplicateObisCodeException.class)
-//    @Transactional
-//    public void testUpdateObisCodeWithDuplicate() {
-//        String registerMappingName = "testUpdateObisCodeWithDuplicate";
-//        RegisterMapping updateCandidate;
-//        this.setupProductSpecsInExistingTransaction();
-//
-//        updateCandidate = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
-//        updateCandidate.setDescription("For testing purposes only");
-//        updateCandidate.save();
-//
-//        RegisterMapping other = inMemoryPersistence.getDeviceConfigurationService().newRegisterMapping("other", obisCode2,  unit1, readingType2, 1);
-//        other.save();
-//
-//        try {
-//            // Business method
-//            updateCandidate.setObisCode(obisCode2);
-//            updateCandidate.save();
-//        } catch (DuplicateObisCodeException e) {
-//            // Asserts
-//            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_OBIS_CODE_TOU_PEHNOMENON_ALREADY_EXISTS);
-//            throw e;
-//        }
-//    }
 
     @Test
     @Transactional
@@ -321,7 +297,7 @@ public class RegisterMappingImplTest {
         this.setupProductSpecsInExistingTransaction();
 
         // Create the RegisterMapping
-        registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(registerMappingName, obisCode1,  unit1, readingType1, 1);
+        registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(registerMappingName, obisCode1, unit1, readingType1, 1);
         registerMapping.setDescription("For testing purposes only");
         registerMapping.save();
 
@@ -330,7 +306,7 @@ public class RegisterMappingImplTest {
 
 
         try {
-            registerMapping.delete();
+        registerMapping.delete();
         } catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
             Assertions.assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE);

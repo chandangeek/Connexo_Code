@@ -30,7 +30,7 @@ public class UniqueReadingTypeValidator implements ConstraintValidator<UniqueRea
             context.disableDefaultConstraintViolation();
             context.
                 buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.REGISTER_MAPPING_DUPLICATE_READING_TYPE + "}").
-                addPropertyNode(RegisterMappingImpl.Fields.READING_TYPE.fieldName()).
+                addPropertyNode(AbstractRegisterMappingImpl.Fields.READING_TYPE.fieldName()).
                 addConstraintViolation();
             return false;
         }

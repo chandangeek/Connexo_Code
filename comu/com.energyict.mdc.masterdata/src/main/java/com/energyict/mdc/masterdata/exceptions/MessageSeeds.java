@@ -37,9 +37,11 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_MAPPING_READING_TYPE_IS_REQUIRED(1406, Keys.REGISTER_MAPPING_READING_TYPE_IS_REQUIRED, "The reading type of a register mapping is required", SEVERE),
     REGISTER_MAPPING_READING_TYPE_ALREADY_USED(1407, Keys.REGISTER_MAPPING_DUPLICATE_READING_TYPE, "Reading type is already used by a register type", SEVERE),
     REGISTER_MAPPING_TIME_OF_USE_TOO_SMALL(1408, Keys.REGISTER_MAPPING_TIMEOFUSE_TOO_SMALL, "The time of use must be a positive number", SEVERE),
-    REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE(1409, "registerMapping.usedBy.loadProfileType", "The register type {0} cannot be deleted because it is still in use by the following load profile type(s): {1}", SEVERE),
+    REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE(1409, Keys.REGISTER_MAPPING_STILL_USED_BY_LOADPROFILE, "The register mapping {0} cannot be deleted because it is still in use by the following load profile type(s): {1}", SEVERE),
     REGISTER_MAPPING_UNIT_DOES_NOT_MATCH_PHENOMENON(1410, "registerMapping.unit.noMatchingPhenomenon" , "The unit {0} could not be associated with an existing phenomenon", SEVERE),
     REGISTER_GROUP_REQUIRES_REGISTER_TYPES(1411, "registerGroup.items.noRegisterType" , "The register group requires at least a register type", SEVERE),
+    CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE(1412, Keys.CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE, "A channel type should have a link to it's corresponding register type", SEVERE),
+    CHANNEL_TYPE_INTERVAL_REQUIRED(1413, Keys.CHANNEL_TYPE_INTERVAL_IS_REQUIRED, "The interval is required", SEVERE),
 
     LOAD_PROFILE_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(1500, "loadProfileType.cannotUpdateObisCode", "The obis code of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(1501, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
@@ -111,6 +113,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REGISTER_MAPPING_TIMEOFUSE_TOO_SMALL = "MDS.timeOfUse.tooSmall";
         public static final String LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED = "MDS.loadProfileType.obisCode.required";
         public static final String FIELD_TOO_LONG = "MDS.incorrect.field.size";
+        public static final String CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE = "channelType.linked.registerType";
+        public static final String CHANNEL_TYPE_INTERVAL_IS_REQUIRED = "channelType.interval.required";
+        public static final String REGISTER_MAPPING_STILL_USED_BY_LOADPROFILE = "registerMapping.usedBy.loadProfileType";
     }
 
 }

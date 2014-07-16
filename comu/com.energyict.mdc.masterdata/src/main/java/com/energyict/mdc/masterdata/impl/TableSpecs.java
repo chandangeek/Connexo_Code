@@ -6,10 +6,13 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.masterdata.*;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LoadProfileTypeRegisterMappingUsage;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterMapping;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 /**
@@ -70,16 +73,20 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<RegisterMapping> table = dataModel.addTable(this.name(), RegisterMapping.class);
-            table.map(RegisterMappingImpl.class);
+            table.map(AbstractRegisterMappingImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_NAME).notNull().map("name").add();
-            table.column("OBISCODE").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_OBIS_CODE).notNull().map(RegisterMappingImpl.Fields.OBIS_CODE.fieldName()).add();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
+            table.column("OBISCODE").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_OBIS_CODE).notNull().map(AbstractRegisterMappingImpl.Fields.OBIS_CODE.fieldName()).add();
             Column phenomenon = table.column("PHENOMENONID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
             Column readingType = table.column("READINGTYPE").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_READING_TYPE).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CUMULATIVE").number().conversion(NUMBER2BOOLEAN).notNull().map("cumulative").add();
             table.column("DESCRIPTION").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_DESCRIPTION).map("description").add();
             table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
+            table.column("INTERVAL").number().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
+            table.column("INTERVALCODE").number().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
+            table.column("TEMPLATEREGISTER").number().conversion(ColumnConversion.NUMBER2INT).map("templateRegisterId").add();
             table.foreignKey("FK_MDS_REGMAP_PHENOMENON").on(phenomenon).references(MDS_PHENOMENON.name()).map("phenomenon").add();
             table.foreignKey("FK_MDS_REGMAP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
             table.unique("UK_MDS_REGMAPPINGNAME").on(name).add();

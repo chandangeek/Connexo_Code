@@ -9,6 +9,7 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -173,6 +174,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
+    public ChannelType newChannelType(RegisterMapping templateRegisterMapping, TimeDuration interval, ReadingType readingType) {
+        return this.getDataModel().getInstance(ChannelTypeImpl.class).initialize(templateRegisterMapping, interval, readingType);
+    }
+
+    @Override
     public Optional<RegisterMapping> findRegisterMappingByName(String name) {
         return this.getDataModel().mapper((RegisterMapping.class)).getUnique("name", name);
     }
@@ -185,9 +191,9 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Override
     public Optional<RegisterMapping> findRegisterMappingByObisCodeAndUnitAndTimeOfUse(ObisCode obisCode, Unit unit, int timeOfUse) {
         List<RegisterMapping> registerMappings = this.getDataModel().query(RegisterMapping.class, Phenomenon.class).
-                select(where(RegisterMappingImpl.Fields.OBIS_CODE.fieldName()).isEqualTo(obisCode.toString()).
-                        and(where(RegisterMappingImpl.Fields.UNIT.fieldName()).isEqualTo(unit.dbString()).
-                                and(where(RegisterMappingImpl.Fields.TIME_OF_USE.fieldName()).isEqualTo(timeOfUse))));
+                select(where(AbstractRegisterMappingImpl.Fields.OBIS_CODE.fieldName()).isEqualTo(obisCode.toString()).
+                        and(where(AbstractRegisterMappingImpl.Fields.UNIT.fieldName()).isEqualTo(unit.dbString()).
+                                and(where(AbstractRegisterMappingImpl.Fields.TIME_OF_USE.fieldName()).isEqualTo(timeOfUse))));
         if (registerMappings.isEmpty()) {
             return Optional.absent();
         }
@@ -289,4 +295,9 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         new Installer(this.dataModel, this.thesaurus, eventService, this.meteringService, this.mdcReadingTypeUtilService, this).install(exeuteDdl, createDefaults);
     }
 
+    @Override
+    public Optional<ChannelType> findChannelTypeByTemplateRegisterAndInterval(RegisterMapping templateRegisterMapping, TimeDuration interval) {
+        return getDataModel().mapper(ChannelType.class).getUnique(AbstractRegisterMappingImpl.Fields.TEMPLATE_REGISTER_ID.fieldName(), templateRegisterMapping.getId(),
+                AbstractRegisterMappingImpl.Fields.INTERVAl.fieldName(), interval);
+    }
 }
