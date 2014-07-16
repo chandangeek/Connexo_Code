@@ -28,19 +28,20 @@ public class V2ProtocolCollectionImpl implements ProtocolCollection {
     public void buildDefaultProtocols() {
         this.protocolClasses = new ArrayList();
         this.protocolNames = new ArrayList();
-
-        this.protocolClasses.add("com.energyict.protocolimplv2.ace4000.ACE4000MBus");  this.protocolNames.add("Actaris ACE4000 MeterXML");
-        this.protocolClasses.add("com.energyict.protocolimplv2.ace4000.ACE4000Outbound");  this.protocolNames.add("Actaris ACE4000 MeterXML Mbus Device");
+        this.protocolClasses.add("com.energyict.protocolimplv2.ace4000.ACE4000Outbound");  this.protocolNames.add("Actaris ACE4000 MeterXML");
+        this.protocolClasses.add("com.energyict.protocolimplv2.ace4000.ACE4000MBus");  this.protocolNames.add("Actaris ACE4000 MeterXML Mbus Device");
         this.protocolClasses.add("com.energyict.protocolimplv2.nta.elster.AM100");  this.protocolNames.add("Elster AS220/AS1440 AM100 DLMS (PRE-NTA)");
         this.protocolClasses.add("com.energyict.protocolimplv2.nta.elster.MbusDevice");  this.protocolNames.add("Elster AS220/AS1440 AM100 DLMS (PRE-NTA) Mbus Slave");
         this.protocolClasses.add("com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155");  this.protocolNames.add("Elster MTU155 CTR");
-        this.protocolClasses.add("com.energyict.protocolimplv2.eict.eiweb.EIWeb");  this.protocolNames.add("EnergyICT RTU EIWeb V2");
-        this.protocolClasses.add("com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer");  this.protocolNames.add("EnergyICT RTU+Server2 DLMS (G3)");
-        this.protocolClasses.add("com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3) Mbus Slave V2");
-        this.protocolClasses.add("com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3) V2");
+        this.protocolClasses.add("com.energyict.protocolimplv2.eict.eiweb.EIWeb");  this.protocolNames.add("EnergyICT RTU EIWeb");
+        this.protocolClasses.add("com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer");  this.protocolNames.add("EnergyICT RTU+Server2 G3 DLMS");
+        this.protocolClasses.add("com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3)");
+        this.protocolClasses.add("com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice");  this.protocolNames.add("EnergyICT WebRTU KP DLMS (NTA DSMR2.3) Mbus Slave");
         this.protocolClasses.add("com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3");  this.protocolNames.add("EnergyICT WebRTU Z3 DLMS Gateway");
         this.protocolClasses.add("com.energyict.protocolimplv2.edp.JanzB280");  this.protocolNames.add("Janz B280 DLMS");
         this.protocolClasses.add("com.energyict.protocolimplv2.edp.CX20009");  this.protocolNames.add("SagemCom CX2000-9 DLMS");
+        this.protocolClasses.add("com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator");  this.protocolNames.add("Elster Concentrator Garnet");
+        this.protocolClasses.add("com.energyict.protocolimplv2.elster.garnet.A100C");  this.protocolNames.add("Elster A100C Garnet");
     }
 
     public String getProtocolName(int index) throws IOException {
