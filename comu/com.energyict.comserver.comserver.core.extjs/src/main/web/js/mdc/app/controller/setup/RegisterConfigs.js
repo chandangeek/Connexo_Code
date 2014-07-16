@@ -90,14 +90,17 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             '#rulesForRegisterConfigGrid actioncolumn': {
                 viewRuleForRegisterConfig: this.viewRule
             },
-            '#ruleForRegisterConfigPreview  button[action = viewRuleForRegisterConfig]': {
-                viewRuleForRegisterConfig: this.viewRule
+            'register-config-and-rules-preview-container rules-for-registerconfig-actionmenu': {
+                click: this.viewRule
             }
         });
     },
 
-    viewRule: function (record) {
-        location.href = '#/administration/validation/rulesets/validationrules/' + record.data.ruleSetId + '/ruleoverview/' + record.data.id;
+    viewRule: function (menu, item) {
+        var me = this,
+            record = menu.record || me.getValidationRulesForRegisterConfigPreview().getRecord();
+
+        location.href = '#/administration/validation/rulesets/' + record.data.ruleSetId + '/rules/' + record.data.id;
     },
 
     previewValidationRule: function (grid, record) {
@@ -105,7 +108,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
         if (selectedRules.length === 1) {
             var selectedRule = selectedRules[0];
-            this.getValidationRulesForRegisterConfigPreview().updateValidationRule(selectedRule)
+            this.getValidationRulesForRegisterConfigPreview().updateValidationRule(selectedRule);
             this.getValidationRulesForRegisterConfigPreview().show();
         } else {
             this.getValidationRulesForRegisterConfigPreview().hide();
