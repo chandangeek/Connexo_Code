@@ -85,7 +85,6 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
                         {
                             header: 'Communication port pool',
                             dataIndex: 'name',
-                            menuDisabled:true,
                             flex: 3
                         },
                         {
