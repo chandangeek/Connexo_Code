@@ -4,14 +4,13 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -19,9 +18,28 @@ import com.elster.jupiter.validation.Validator;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import java.util.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -150,7 +168,7 @@ public class ValidationResource {
                                 rule.addReadingType(readingTypeInfo.mRID);
                             }
                             for (ValidationRulePropertyInfo propertyInfo : info.properties) {
-                                rule.addProperty(propertyInfo.key, Unit.WATT_HOUR.amount(propertyInfo.value));
+                                rule.addProperty(propertyInfo.key, propertyInfo.value);
                             }
                             set.save();
                         }
@@ -177,9 +195,9 @@ public class ValidationResource {
                             for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
                                 mRIDs.add(readingTypeInfo.mRID);
                             }
-                            Map<String, Quantity> propertyMap = new HashMap<>();
+                            Map<String, Object> propertyMap = new HashMap<>();
                             for (ValidationRulePropertyInfo propertyInfo : info.properties) {
-                                propertyMap.put(propertyInfo.key, Unit.WATT_HOUR.amount(propertyInfo.value));
+                                propertyMap.put(propertyInfo.key, propertyInfo.value);
                             }
                             rule = set.updateRule(info.id, info.name, info.implementation, info.active, mRIDs, propertyMap);
                             if (rule == null) {
@@ -242,11 +260,8 @@ public class ValidationResource {
         List<Validator> validators = Bus.getValidationService().getAvailableValidators();
         ValidationRulePropertySpecInfos infos = new ValidationRulePropertySpecInfos();
         for (Validator validator : validators) {
-            for (String property : validator.getRequiredKeys()) {
-                infos.add(validator.getDisplayName(property), property, false, validator.getClass().getName());
-            }
-            for (String property : validator.getOptionalKeys()) {
-                infos.add(validator.getDisplayName(property), property, true, validator.getClass().getName());
+            for (PropertySpec property : validator.getPropertySpecs()) {
+                infos.add(validator.getDisplayName(property.getName()), property.getName(), !property.isRequired(), validator.getClass().getName());
             }
         }
         return infos;
