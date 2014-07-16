@@ -5,7 +5,7 @@ Ext.define('Mdc.model.CommunicationSchedule',{
           {name: 'name', type: 'string', useNull: true},
           {name: 'mRID', type: 'string', useNull: true},
           {name: 'temporalExpression'},
-          {name: 'plannedDate'},
+          {name: 'plannedDate', dateFormat: 'time', type: 'date'},
           {name: 'isInUse',type: 'boolean'},
           {name: 'schedulingStatus', type: 'string'},
           {name: 'startDate'},

@@ -71,14 +71,14 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                         items: [
                             {
                                 itemId: 'allSchedules',
-                                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.allShcedules', 'MDC', 'All communication schedules') + '</b>',
+                                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.allSchedules', 'MDC', 'All communication schedules') + '</b>',
                                 name: 'scheduleRange',
                                 inputValue: 'ALL',
                                 checked: true
                             },
                             {
                                 itemId: 'selectedSchedules',
-                                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.selectedDevices', 'MDC', 'Selected schedule') + '</b></br>' +
+                                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.selectedSchedules', 'MDC', 'Selected schedules') + '</b></br>' +
                                     '</b><span style="color: grey;">' + Uni.I18n.translate('searchItems.bulk.selectedScheduleInTable', 'MDC', 'Select communication schedules in table') +
                                     '</span>',
                                 name: 'scheduleRange',
@@ -154,11 +154,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                         header: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
                         dataIndex: 'plannedDate',
                         renderer: function (value) {
-                            if (value !== null) {
-                                return new Date(value).toLocaleString();
-                            } else {
-                                return '';
-                            }
+                            return Uni.I18n.formatDate('general.dateFormat.long', value, 'MDC', 'M d Y H:i A');
                         },
                         flex: 0.4
                     }
@@ -167,7 +163,17 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
         },
         emptyComponent: {
             xtype: 'no-items-found-panel',
-            title: Uni.I18n.translate('setup.searchitems.bulk.Step3.NoItemsFoundPanel.title', 'MDC', 'No communication schedules found')
+            title: Uni.I18n.translate('setup.searchitems.bulk.Step3.NoItemsFoundPanel.title', 'MDC', 'No communication schedules found'),
+            reasons: [
+                Uni.I18n.translate('communicationschedule.empty.list.item1', 'MDC', 'No communication schedules have been created yet.')
+            ],
+            stepItems: [
+                {
+                    text: Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add communication schedule'),
+                    action: 'createCommunicationSchedule',
+                    itemId: 'createCommunicationSchedule'
+                }
+            ]
         },
         previewComponent: {
             xtype: 'panel',
