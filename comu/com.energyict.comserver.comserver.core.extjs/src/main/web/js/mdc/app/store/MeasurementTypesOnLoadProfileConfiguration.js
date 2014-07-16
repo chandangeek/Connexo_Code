@@ -1,10 +1,10 @@
 Ext.define('Mdc.store.MeasurementTypesOnLoadProfileConfiguration', {
     extend: 'Ext.data.Store',
     requires: [
-        'Mdc.model.RegisterType'
+        'Mdc.model.MeasurementType'
     ],
     autoload: false,
-    model: 'Mdc.model.RegisterType',
+    model: 'Mdc.model.MeasurementType',
 
     proxy: {
         type: 'rest',

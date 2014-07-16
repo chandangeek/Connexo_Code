@@ -153,7 +153,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     changeDisplayedObisCodeAndCIM: function (combobox, newValue) {
         var record = combobox.getStore().getById(newValue),
             form = this.getChannelForm();
-
         if (record) {
             form.down('[name=cimreadingtype]').setValue(record.get('readingType').mrid);
             form.down('[name=obiscode]').setValue(record.get('obisCode'));
@@ -437,18 +436,25 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
                                     widget = Ext.widget('loadProfileConfigurationDetailForm',
                                         {loadProfileConfigurationChannelAction: 'Add', deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId }),
+                                    preloader = Ext.create('Ext.LoadMask', {
+                                        msg: "Loading...",
+                                        target: widget
+                                    }),
                                     measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
                                     unitOfMeasureCombobox = widget.down('combobox[name=unitOfMeasure]'),
                                     title = Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel configuration');
-
+                                me.getApplication().fireEvent('changecontentevent', widget);
+                                preloader.show();
                                 widget.down('form').setTitle(title);
-                                me.availableMeasurementTypesStore.load();
-                                me.phenomenasStore.load();
                                 measurementTypeCombobox.store = me.availableMeasurementTypesStore;
                                 unitOfMeasureCombobox.store = me.phenomenasStore;
+                                me.phenomenasStore.load();
+                                me.availableMeasurementTypesStore.load({callback: function() {
+                                    preloader.destroy();
+                                }});
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
-                                me.getApplication().fireEvent('changecontentevent', widget);
+
                             }
                         });
                     }
@@ -485,6 +491,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         var channel = Ext.JSON.decode(response.responseText).data[0],
                                             widget = Ext.widget('loadProfileConfigurationDetailForm',
                                                 {loadProfileConfigurationChannelAction: 'Save', deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, loadProfileConfigurationId: loadProfileConfigurationId }),
+                                            preloader = Ext.create('Ext.LoadMask', {
+                                                msg: "Loading...",
+                                                target: widget
+                                            }),
                                             title = Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'),
                                             measurementTypeCombobox = widget.down('combobox[name=measurementType]'),
                                             unitOfMeasureCombobox = widget.down('combobox[name=unitOfMeasure]'),
@@ -493,6 +503,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                             multiplierField = widget.down('textfield[name=multiplier]'),
                                             measurementTypeDisplayField = widget.down('displayfield[name=measurementtype]');
 
+                                        me.getApplication().fireEvent('changecontentevent', widget);
+                                        preloader.show();
                                         widget.down('form').setTitle(title);
                                         if (channel.isLinkedByActiveDeviceConfiguration) {
                                             measurementTypeCombobox.hide();
@@ -508,6 +520,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                             channel.measurementType.phenomenon = channel.unitOfMeasure;
                                             me.availableMeasurementTypesStore.add(channel.measurementType);
                                             measurementTypeCombobox.setValue(channel.measurementType.id);
+                                            preloader.destroy();
                                         }});
 
                                         overruledObisField.setValue(channel.overruledObisCode);
@@ -516,7 +529,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
                                         me.deviceTypeName = deviceType.get('name');
                                         me.deviceConfigName = deviceConfig.get('name');
-                                        me.getApplication().fireEvent('changecontentevent', widget);
+
                                     }
                                 });
                             }
