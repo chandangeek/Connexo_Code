@@ -557,6 +557,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         var me = this,
             record;
         record = menu.record || this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getSelectionModel().getLastSelected();
-        location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
+        location.href = '#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId();
     }
 });
