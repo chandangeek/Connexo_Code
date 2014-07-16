@@ -44,7 +44,7 @@ public class LoadProfileResource {
             info.name = timeDurationEntry.getValue().toString(thesaurus);
             infos.add(info);
         }
-        return Response.ok(PagedInfoList.asJson("data", infos, queryParameters)).build();
+        return Response.ok(infos).build();
     }
 
     @GET

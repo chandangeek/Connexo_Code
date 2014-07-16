@@ -48,7 +48,7 @@ public class LoadProfileTypeInfo {
 
         info.registerMappings = new ArrayList<>(loadProfileType.getRegisterMappings().size());
         for (RegisterMapping registerMapping : loadProfileType.getRegisterMappings()) {
-            info.registerMappings.add(new RegisterMappingInfo(registerMapping, false));
+            info.registerMappings.add(new RegisterMappingInfo(registerMapping, false, true));
         }
 
         info.isLinkedToActiveDeviceConf = isInUse;

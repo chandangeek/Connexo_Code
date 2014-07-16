@@ -6,7 +6,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.masterdata.RegisterMapping;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.energyict.mdc.masterdata.ChannelType;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -29,18 +29,18 @@ public class RegisterMappingInfo {
     public RegisterMappingInfo() {
     }
 
-    public RegisterMappingInfo(RegisterMapping registerMapping, boolean isLinkedByDeviceType) {
+    public RegisterMappingInfo(RegisterMapping registerMapping, boolean isLinkedByDeviceType, boolean inLoadProfileType) {
         this.id = registerMapping.getId();
-        this.name = registerMapping.getName();
+        this.name = inLoadProfileType? ((ChannelType) registerMapping).getTemplateRegister().getName():registerMapping.getName();
         this.obisCode = registerMapping.getObisCode();
         this.isLinkedByDeviceType = isLinkedByDeviceType;
         this.timeOfUse = registerMapping.getTimeOfUse();
         this.unit = registerMapping.getUnit();
-        this.readingType = new ReadingTypeInfo(registerMapping.getReadingType());
+        this.readingType = new ReadingTypeInfo(inLoadProfileType? ((ChannelType) registerMapping).getTemplateRegister().getReadingType():registerMapping.getReadingType());
     }
 
     public RegisterMappingInfo(RegisterMapping registerMapping, boolean isLinkedByDeviceType, boolean isLinkedByActiveRegisterSpec, boolean isLinkedByInactiveRegisterSpec) {
-        this(registerMapping, isLinkedByDeviceType);
+        this(registerMapping, isLinkedByDeviceType, false);
         this.isLinkedByActiveRegisterConfig = isLinkedByActiveRegisterSpec;
         this.isLinkedByInactiveRegisterConfig = isLinkedByInactiveRegisterSpec;
     }
