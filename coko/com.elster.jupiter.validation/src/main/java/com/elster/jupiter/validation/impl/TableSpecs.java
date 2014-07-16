@@ -55,7 +55,8 @@ public enum TableSpecs {
             table.setJournalTableName("VAL_VALIDATIONRULEPROPSJRNL");
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.addQuantityColumns("VALUE", true, "value");
+            table.column("VALUE").varChar(SHORT_DESCRIPTION_LENGTH).map("stringValue").add();
+            //table.addQuantityColumns("VALUE", true, "value");
             table.primaryKey("VAL_PK_VALRULEPROPS").on(ruleIdColumn, nameColumn).add();
             table.foreignKey("VAL_FK_RULEPROPS").references("VAL_VALIDATIONRULE").onDelete(RESTRICT).map("rule").reverseMap("properties").composition().on(ruleIdColumn).add();
         }

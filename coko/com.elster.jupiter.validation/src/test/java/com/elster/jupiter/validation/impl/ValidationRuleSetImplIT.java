@@ -11,6 +11,8 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
@@ -20,7 +22,6 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -64,7 +65,9 @@ public class ValidationRuleSetImplIT {
     @Mock
     private ValidatorFactory validatorFactory;
     @Mock
-    private Validator validator;
+    private Validator minMax, consecZero;
+    @Mock
+    private PropertySpec min, max, consZero;
 
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -73,6 +76,7 @@ public class ValidationRuleSetImplIT {
     private String MIN = "min";
     private String MAX = "max";
     private ReadingType readingType;
+    private BigDecimalFactory valueFactory = new BigDecimalFactory();
 
 
     private class MockModule extends AbstractModule {
@@ -105,8 +109,16 @@ public class ValidationRuleSetImplIT {
                 new NlsModule()
         );
         when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX, CONSEC_ZEROS_VALIDATOR_CLASS));
-        when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(validator);
-        when(validatorFactory.createTemplate(eq(CONSEC_ZEROS_VALIDATOR_CLASS))).thenReturn(validator);
+        when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
+        when(validatorFactory.createTemplate(eq(CONSEC_ZEROS_VALIDATOR_CLASS))).thenReturn(consecZero);
+        when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
+        when(min.getName()).thenReturn(MIN);
+        when(min.getValueFactory()).thenReturn(valueFactory);
+        when(max.getName()).thenReturn(MAX);
+        when(max.getValueFactory()).thenReturn(valueFactory);
+        when(consecZero.getPropertySpecs()).thenReturn(Arrays.asList(consZero));
+        when(consZero.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
+        when(consZero.getValueFactory()).thenReturn(valueFactory);
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override
             public Void perform() {
@@ -131,12 +143,12 @@ public class ValidationRuleSetImplIT {
                 ValidationRuleSet validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
                 ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
                 zeroesRule.addReadingType(readingType);
-                zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
+                zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
                 zeroesRule.activate();
                 ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
                 minMaxRule.addReadingType(readingType);
-                minMaxRule.addProperty(MIN, Unit.WATT_HOUR.amount(BigDecimal.valueOf(1), 3));
-                minMaxRule.addProperty(MAX, Unit.WATT_HOUR.amount(BigDecimal.valueOf(100), 3));
+                minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
+                minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
                 minMaxRule.activate();
                 validationRuleSet.save();
 
@@ -156,7 +168,7 @@ public class ValidationRuleSetImplIT {
             validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
             ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
             zeroesRule.addReadingType(readingType);
-            zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
+            zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
             zeroesRule.activate();
             validationRuleSet.save();
             context.commit();
@@ -166,8 +178,8 @@ public class ValidationRuleSetImplIT {
             validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();
             ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
             minMaxRule.addReadingType(readingType);
-            minMaxRule.addProperty(MIN, Unit.WATT_HOUR.amount(BigDecimal.valueOf(1), 3));
-            minMaxRule.addProperty(MAX, Unit.WATT_HOUR.amount(BigDecimal.valueOf(100), 3));
+            minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
+            minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
             minMaxRule.activate();
             validationRuleSet.save();
             context.commit();
@@ -187,7 +199,7 @@ public class ValidationRuleSetImplIT {
             validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
             ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
             zeroesRule.addReadingType(readingType);
-            zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
+            zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
             zeroesRule.activate();
             validationRuleSet.save();
             context.commit();
@@ -197,8 +209,8 @@ public class ValidationRuleSetImplIT {
             validationRuleSet = injector.getInstance(ValidationService.class).getValidationRuleSet(validationRuleSet.getId()).get();
             ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
             minMaxRule.addReadingType(readingType);
-            minMaxRule.addProperty(MIN, Unit.WATT_HOUR.amount(BigDecimal.valueOf(1), 3));
-            minMaxRule.addProperty(MAX, Unit.WATT_HOUR.amount(BigDecimal.valueOf(100), 3));
+            minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
+            minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
             minMaxRule.activate();
             validationRuleSet.save();
             context.commit();

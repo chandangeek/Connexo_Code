@@ -11,7 +11,6 @@ import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.UtcInstant;
-import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -255,16 +254,16 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     @Override
-    public IValidationRule updateRule(long id, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Quantity> properties) {
+    public IValidationRule updateRule(long id, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
         IValidationRule rule = getExistingRule(id, implementation);
         return doUpdateRule(rule, name, implementation, activeStatus, mRIDs, properties);
     }
 
-    private IValidationRule doUpdateRule(IValidationRule rule, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Quantity> properties) {
+    private IValidationRule doUpdateRule(IValidationRule rule, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
         rule.rename(name);
         rule.setImplementation(implementation);
 
-        if(activeStatus != rule.isActive()) {
+        if (activeStatus != rule.isActive()) {
             rule.toggleActivation();
         }
         updateReadingTypes(rule, mRIDs);

@@ -14,11 +14,11 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
-import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationResult;
@@ -119,18 +119,18 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
-    public ValidationRuleProperties addProperty(String name, Quantity value) {
+    public ValidationRuleProperties addProperty(String name, Object value) {
         ValidationRulePropertiesImpl newProperty = ValidationRulePropertiesImpl.from(dataModel, this, name, value);
         properties.add(newProperty);
         return newProperty;
     }
 
     @Override
-    public void setProperties(Map<String, Quantity> propertyMap) {
+    public void setProperties(Map<String, Object> propertyMap) {
         DiffList<ValidationRuleProperties> entryDiff = ArrayDiffList.fromOriginal(getProperties());
         entryDiff.clear();
         List<ValidationRuleProperties> newProperties = new ArrayList<>();
-        for (Map.Entry<String, Quantity> property : propertyMap.entrySet()) {
+        for (Map.Entry<String, Object> property : propertyMap.entrySet()) {
             ValidationRulePropertiesImpl newProperty = ValidationRulePropertiesImpl.from(dataModel, this, property.getKey(), property.getValue());
             newProperties.add(newProperty);
         }
@@ -195,8 +195,14 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
-    public boolean isRequired(String propertyKey) {
-        return getValidator().getRequiredKeys().contains(propertyKey);
+    public boolean isRequired(final String propertyKey) {
+        Optional<PropertySpec> propertySpecOptional = Iterables.tryFind(getValidator().getPropertySpecs(), new Predicate<PropertySpec>() {
+            @Override
+            public boolean apply(PropertySpec input) {
+                return propertyKey.equals(input.getName());
+            }
+        });
+        return propertySpecOptional.isPresent() && propertySpecOptional.get().isRequired();
     }
 
     private Validator getValidator() {
@@ -249,8 +255,8 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
-    public Map<String, Quantity> getProps() {
-        ImmutableMap.Builder<String, Quantity> builder = ImmutableMap.builder();
+    public Map<String, Object> getProps() {
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
         for (ValidationRuleProperties validationRuleProperties : getProperties()) {
             builder.put(validationRuleProperties.getName(), validationRuleProperties.getValue());
         }
@@ -291,6 +297,16 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     @Override
     public boolean isActive() {
         return active;
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(final String name) {
+        return Iterables.find(getValidator().getPropertySpecs(), new Predicate<PropertySpec>() {
+            @Override
+            public boolean apply(PropertySpec input) {
+                return name.equals(input.getName());
+            }
+        });
     }
 
     public void save() {

@@ -1,15 +1,13 @@
 package com.elster.jupiter.validation;
 
-import com.elster.jupiter.util.units.Quantity;
-
 public interface ValidationRuleProperties {
     String getName();
 
     String getDisplayName();
 
-    Quantity getValue();
+    Object getValue();
 
-    void setValue(Quantity value);
+    void setValue(Object value);
 
     ValidationRule getRule();
 }

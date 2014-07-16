@@ -17,6 +17,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
@@ -26,7 +28,6 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -95,7 +96,13 @@ public class ValidationIT {
     @Mock
     private ValidatorFactory validatorFactory;
     @Mock
-    private Validator validator;
+    private Validator minMax;
+    @Mock
+    private Validator conseqZero;
+    @Mock
+    private PropertySpec min, max, conZero;
+
+    private BigDecimalFactory valueFactory = new BigDecimalFactory();
     private MeterActivation meterActivation;
 
 
@@ -129,11 +136,20 @@ public class ValidationIT {
                 new NlsModule()
         );
         when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX, CONSECUTIVE_ZEROES));
-        when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(validator);
-        when(validatorFactory.createTemplate(eq(CONSECUTIVE_ZEROES))).thenReturn(validator);
-        when(validatorFactory.create(eq(CONSECUTIVE_ZEROES), any(Map.class))).thenReturn(validator);
-        when(validatorFactory.create(eq(MIN_MAX), any(Map.class))).thenReturn(validator);
-        when(validator.getReadingQualityTypeCode()).thenReturn(Optional.<ReadingQualityType>absent());
+        when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
+        when(validatorFactory.createTemplate(eq(CONSECUTIVE_ZEROES))).thenReturn(conseqZero);
+        when(validatorFactory.create(eq(CONSECUTIVE_ZEROES), any(Map.class))).thenReturn(conseqZero);
+        when(validatorFactory.create(eq(MIN_MAX), any(Map.class))).thenReturn(minMax);
+        when(minMax.getReadingQualityTypeCode()).thenReturn(Optional.<ReadingQualityType>absent());
+        when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
+        when(min.getName()).thenReturn(MIN);
+        when(min.getValueFactory()).thenReturn(valueFactory);
+        when(max.getName()).thenReturn(MAX);
+        when(max.getValueFactory()).thenReturn(valueFactory);
+        when(conseqZero.getReadingQualityTypeCode()).thenReturn(Optional.<ReadingQualityType>absent());
+        when(conseqZero.getPropertySpecs()).thenReturn(Arrays.asList(conZero));
+        when(conZero.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
+        when(conZero.getValueFactory()).thenReturn(valueFactory);
 
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override
@@ -155,13 +171,13 @@ public class ValidationIT {
                 ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSECUTIVE_ZEROES, "consecutivezeros");
                 zeroesRule.addReadingType(readingType1);
                 zeroesRule.addReadingType(readingType2);
-                zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
+                zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
                 zeroesRule.activate();
                 ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
                 minMaxRule.addReadingType(readingType3);
                 minMaxRule.addReadingType(readingType2);
-                minMaxRule.addProperty(MIN, Unit.WATT_HOUR.amount(BigDecimal.valueOf(1), 3));
-                minMaxRule.addProperty(MAX, Unit.WATT_HOUR.amount(BigDecimal.valueOf(100), 3));
+                minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
+                minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
                 minMaxRule.activate();
                 validationRuleSet.save();
 

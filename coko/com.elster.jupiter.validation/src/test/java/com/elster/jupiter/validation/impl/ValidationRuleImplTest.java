@@ -13,6 +13,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
@@ -96,6 +98,10 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     private Thesaurus thesaurus;
     @Mock
     private EventService eventService;
+    @Mock
+    private PropertySpec properySpec;
+    @Mock
+    private ValueFactory valueFactory;
 
     @Before
     public void setUp() {
@@ -122,6 +128,10 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(dataModel.mapper(ReadingTypeInValidationRule.class)).thenReturn(readingTypesInRuleFactory);
         when(dataModel.mapper(ValidationRuleProperties.class)).thenReturn(rulePropertiesFactory);
         when(validatorCreator.getValidator(eq(IMPLEMENTATION), any(Map.class))).thenReturn(validator);
+        when(validatorCreator.getTemplateValidator(eq(IMPLEMENTATION))).thenReturn(validator);
+        when(validator.getPropertySpecs()).thenReturn(Arrays.asList(properySpec));
+        when(properySpec.getName()).thenReturn(PROPERTY_NAME);
+        when(properySpec.getValueFactory()).thenReturn(valueFactory);
         when(validator.getReadingQualityTypeCode()).thenReturn(Optional.<ReadingQualityType>absent());
         when(channel.getIntervalReadings(readingType2, INTERVAL.withStart(new Date(INTERVAL.dbStart() - 1)))).thenReturn(Arrays.asList(intervalReadingRecord));
         when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));
@@ -219,6 +229,13 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Test
     public void testUpdateWithRulesPerformsNecessaryDBOperations() {
+        PropertySpec propertySpec2 = mock(PropertySpec.class);
+        when(propertySpec2.getName()).thenReturn(PROPERTY_NAME_2);
+        when(propertySpec2.getValueFactory()).thenReturn(valueFactory);
+        PropertySpec propertySpec3 = mock(PropertySpec.class);
+        when(propertySpec3.getName()).thenReturn(PROPERTY_NAME_3);
+        when(propertySpec3.getValueFactory()).thenReturn(valueFactory);
+        when(validator.getPropertySpecs()).thenReturn(Arrays.asList(properySpec, propertySpec2, propertySpec3));
         ValidationRuleProperties property1 = validationRule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
         ValidationRuleProperties property2 = validationRule.addProperty(PROPERTY_NAME_2, PROPERTY_VALUE);
         when(rulePropertiesFactory.find()).thenReturn(Arrays.asList(property1, property2));

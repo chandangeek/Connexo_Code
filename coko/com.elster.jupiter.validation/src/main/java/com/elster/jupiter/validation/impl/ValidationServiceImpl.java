@@ -18,7 +18,6 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
@@ -161,7 +160,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     @Override
     public Optional<ValidationRule> getValidationRule(long id) {
         Optional<ValidationRule> ruleRef = dataModel.mapper(ValidationRule.class).getOptional(id);
-        if(ruleRef.isPresent() && ruleRef.get().getObsoleteDate() != null) {
+        if (ruleRef.isPresent() && ruleRef.get().getObsoleteDate() != null) {
             ruleRef = Optional.absent();
         }
         return ruleRef;
@@ -271,7 +270,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     class DefaultValidatorCreator implements ValidatorCreator {
 
         @Override
-        public Validator getValidator(String implementation, Map<String, Quantity> props) {
+        public Validator getValidator(String implementation, Map<String, Object> props) {
             for (ValidatorFactory factory : validatorFactories) {
                 if (factory.available().contains(implementation)) {
                     return factory.create(implementation, props);

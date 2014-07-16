@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
@@ -14,9 +15,7 @@ import java.util.Map;
 
 public interface Validator {
 
-    List<String> getRequiredKeys();
-
-    List<String> getOptionalKeys();
+    List<PropertySpec> getPropertySpecs();
 
     Optional<ReadingQualityType> getReadingQualityTypeCode();
 
