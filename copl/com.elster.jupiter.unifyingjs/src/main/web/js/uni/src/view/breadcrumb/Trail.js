@@ -18,8 +18,18 @@ Ext.define('Uni.view.breadcrumb.Trail', {
     },
 
     setBreadcrumbItem: function (item) {
-        this.removeAll();
-        this.addBreadcrumbItem(item);
+        var me = this;
+
+        if (me.rendered) {
+            Ext.suspendLayouts();
+        }
+
+        me.removeAll();
+        me.addBreadcrumbItem(item);
+
+        if (me.rendered) {
+            Ext.resumeLayouts(true);
+        }
     },
 
     addBreadcrumbItem: function (item, baseHref) {
