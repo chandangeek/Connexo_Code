@@ -2,6 +2,7 @@ package com.elster.jupiter.bpm.rest.impl;
 
 import org.ow2.util.base64.Base64;
 
+import javax.ws.rs.WebApplicationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +18,7 @@ public class BpmRestCall {
         this.jsonContent = "";
     }
 
-    void doGet(String targetURL){
+    void doGet(String targetURL) throws IOException {
         try {
             String basicAuth = "Basic " + new String(Base64.encode((BpmStartup.getInstance().getUser() + ":" + BpmStartup.getInstance().getPassword()).getBytes()));
             URL targetUrl = new URL(BpmStartup.getInstance().getUrl() + targetURL);
@@ -38,10 +39,7 @@ public class BpmRestCall {
                 this.jsonContent += output;
             }
 
-        } catch ( IOException e) {
-            throw new RuntimeException(e);
-        }
-        finally {
+        } finally {
             if (httpConnection != null){
                 httpConnection.disconnect();
             }
