@@ -13,7 +13,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         'Mdc.view.setup.comservercomports.SerialForm',
         'Mdc.view.setup.comservercomports.ServletForm',
         'Mdc.view.setup.comservercomports.ComPortPoolsGrid',
-        'Mdc.view.setup.comservercomports.AddComPortPool'
+        'Mdc.view.setup.comservercomports.AddComPortPool',
+        'Mdc.view.setup.comservercomports.addComportPoolsToComportGrid'
     ],
     stores: [
         'Mdc.store.ComPorts',
