@@ -54,9 +54,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
                 '->',
                 {
                     text: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
-                    action: 'addloadprofileconfiguration',
-                    href: '#',
-                    hrefTarget: ''
+                    action: 'addloadprofileconfiguration'
                 }
             ]
         },
