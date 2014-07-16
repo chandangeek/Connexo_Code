@@ -5,6 +5,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @XmlRootElement
@@ -33,9 +34,14 @@ public class ValidationRuleSetInfo {
     public ValidationRuleSetInfo() {
     }
 
+    public static Comparator<ValidationRuleSetInfo> VALIDATION_RULESET_NAME_COMPARATOR
+            = new Comparator<ValidationRuleSetInfo>() {
 
-    
-    
-    
-
+        public int compare(ValidationRuleSetInfo ruleset1, ValidationRuleSetInfo ruleset2) {
+            if(ruleset1 == null || ruleset1.name == null || ruleset2 == null || ruleset2.name == null) {
+                throw new IllegalArgumentException("Ruleset information is missed");
+            }
+            return ruleset1.name.compareToIgnoreCase(ruleset2.name);
+        }
+    };
 }
