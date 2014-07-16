@@ -13,6 +13,15 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.connectionCount', 'MDC', 'Simultaneous connections'),
             required: true,
             minValue: 1,
+            listeners: {
+                blur: {
+                    fn: function(field){
+                        if(Ext.isEmpty(field.getValue())) {
+                            field.setValue(1);
+                        }
+                    }
+                }
+            },
             allowBlank: false,
             name: 'numberOfSimultaneousConnections',
             value: 1,
@@ -35,6 +44,15 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
             required: true,
             hidden: true,
             minValue: 1,
+            listeners: {
+                blur: {
+                    fn: function(field){
+                        if(Ext.isEmpty(field.getValue())) {
+                            field.setValue(1);
+                        }
+                    }
+                }
+            },
             allowBlank: false,
             name: 'portNumber',
             value: 1,
@@ -46,6 +64,16 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
             required: true,
             allowBlank: false,
             name: 'bufferSize',
+            minValue: 1,
+            listeners: {
+                blur: {
+                    fn: function(field){
+                        if(Ext.isEmpty(field.getValue())) {
+                            field.setValue(1024);
+                        }
+                    }
+                }
+            },
             value: 1024,
             width: 350
         },
