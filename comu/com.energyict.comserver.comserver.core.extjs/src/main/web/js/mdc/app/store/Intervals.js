@@ -1,7 +1,7 @@
 Ext.define('Mdc.store.Intervals', {
     extend: 'Ext.data.Store',
     model: 'Mdc.model.Interval',
-
+    pageSize: undefined,
     autoLoad: true,
     proxy: {
         type: 'rest',
