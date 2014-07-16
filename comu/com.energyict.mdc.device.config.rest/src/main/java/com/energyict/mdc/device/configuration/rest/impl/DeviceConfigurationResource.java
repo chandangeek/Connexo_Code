@@ -13,14 +13,15 @@ import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.google.common.base.Function;
-import com.energyict.mdc.masterdata.RegisterMapping;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 
-import java.util.Collections;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -306,6 +307,7 @@ public class DeviceConfigurationResource {
         for (ValidationRule rule : rules) {
             result.add(new ValidationRuleInfo(rule));
         }
+        result = ListPager.of(result).from(queryParameters).find();
         return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
     }
 
