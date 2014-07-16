@@ -48,4 +48,15 @@ public interface MdcReadingTypeUtilService {
      * @return the ReadingType string modeled by the given arguments
      */
     public String getReadingTypeFrom(ObisCode obisCode, Unit unit, TimeDuration interval);
+
+    /**
+     * Creates a readingType based in the given ReadingType with the given interval applied
+     *
+     * @param readingType the ReadingType to start from
+     * @param interval the Interval to apply
+     * @param registerObisCode the ObisCode of the register for the ReadingType
+     *
+     * @return the interval applied ReadingType
+     */
+    public ReadingType getIntervalAppliedReadingType(ReadingType readingType, TimeDuration interval, ObisCode registerObisCode);
 }

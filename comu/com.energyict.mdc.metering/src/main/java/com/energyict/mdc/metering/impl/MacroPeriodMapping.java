@@ -28,7 +28,7 @@ enum MacroPeriodMapping {
             ItemMatcher.itemMatcherFor(TimeDuration.days(1).getSeconds())),
     WEEKS(MacroPeriod.WEEKLYS, RangeMatcher.rangeMatcherFor(new Range(0, 63)), Matcher.DONT_CARE,
             ItemMatcher.itemMatcherFor(TimeDuration.weeks(1).getSeconds())),
-    MONTHS(MacroPeriod.MONTHLY, RangeMatcher.rangeMatcherFor(new Range(0, 63)), Matcher.DONT_CARE,
+    MONTHS(MacroPeriod.MONTHLY, RangeMatcher.rangeMatcherFor(new Range(0, 63)), ItemMatcher.itemMatcherFor(255),
             ItemMatcher.itemMatcherFor(TimeDuration.months(1).getSeconds())),
     NOTAPPLICABLE(MacroPeriod.NOTAPPLICABLE, Matcher.DONT_CARE, ItemMatcher.itemMatcherFor(255), Matcher.DONT_CARE);
 

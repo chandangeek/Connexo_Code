@@ -1,5 +1,7 @@
 package com.energyict.mdc.metering.impl;
 
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -10,7 +12,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.logging.Logger;
 
 /**
@@ -25,7 +29,17 @@ import java.util.logging.Logger;
                 "osgi.command.function=getReadingTypeFrom"},  immediate = true)
 public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService {
 
+    private volatile MeteringService meteringService;
+
     Logger logger = Logger.getLogger(MdcReadingTypeUtilServiceImpl.class.getName());
+
+    public MdcReadingTypeUtilServiceImpl() {
+    }
+
+    @Inject
+    public MdcReadingTypeUtilServiceImpl(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
 
     @Activate
     public void activate(BundleContext context) {
@@ -82,4 +96,36 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     public String getReadingTypeFrom(ObisCode obisCode, Unit unit, TimeDuration interval){
         return ObisCodeToReadingTypeFactory.createMRIDFromObisCodeUnitAndInterval(obisCode, unit, interval);
     }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Override
+    public ReadingType getIntervalAppliedReadingType(ReadingType readingType, TimeDuration interval, ObisCode registerObisCode) {
+        ReadingTypeCodeBuilder readingTypeCodeBuilder = copyReadingTypeFields(readingType);
+
+        readingTypeCodeBuilder.period(MeasuringPeriodMapping.getMeasuringPeriodFor(registerObisCode, interval));
+        readingTypeCodeBuilder.period(MacroPeriodMapping.getMacroPeriodFor(registerObisCode, interval));
+
+        return this.meteringService.getReadingType(readingTypeCodeBuilder.code()).orNull();
+    }
+
+    private ReadingTypeCodeBuilder copyReadingTypeFields(ReadingType readingType) {
+        return ReadingTypeCodeBuilder.of(readingType.getCommodity())
+                .accumulate(readingType.getAccumulation())
+                .aggregate(readingType.getAggregate())
+                .argument(((int) readingType.getArgument().getNumerator()), (int) readingType.getArgument().getDenominator())
+                .cpp(readingType.getCpp())
+                .currency(readingType.getCurrency())
+                .flow(readingType.getFlowDirection())
+                .harmonic(((int) readingType.getInterharmonic().getNumerator()), (int) readingType.getInterharmonic().getDenominator())
+                .in(readingType.getMultiplier(), readingType.getUnit())
+                .measure(readingType.getMeasurementKind())
+                .phase(readingType.getPhases())
+                .tier(readingType.getConsumptionTier())
+                .tou(readingType.getTou());
+    }
+
 }
