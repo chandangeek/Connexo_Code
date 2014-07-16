@@ -239,6 +239,17 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                             gridView.refresh();
                             me.getComPortsGrid().fireEvent('select', gridView, record);
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortOnComServer.changeState.msg', 'MDC', 'Communication port ' + ' ' + msg));
+                        },
+                        failure:function (response) {
+                            var title = Uni.I18n.translate('comServerComPorts.activation.failure', 'MDC', 'Activation cannot be performed'),
+                                errorsArray = Ext.JSON.decode(response.responseText).errors,
+                                message = '';
+
+                            Ext.Array.each(errorsArray, function(obj) {
+                                message += obj.msg + '.</br>'
+                            });
+
+                            me.getApplication().getController('Uni.controller.Error').showError(title, message);
                         }
                     });
                 }
