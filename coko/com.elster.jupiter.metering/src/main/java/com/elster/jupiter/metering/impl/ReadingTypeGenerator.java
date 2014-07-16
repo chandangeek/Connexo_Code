@@ -1,10 +1,15 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.cbo.Accumulation.DELTADELTA;
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
@@ -18,8 +23,13 @@ import static com.elster.jupiter.cbo.TimeAttribute.*;
 
 public final class ReadingTypeGenerator {
 
-	private static final TimeAttribute[] timeAttributes = {MINUTE1,MINUTE2,MINUTE3,MINUTE5,MINUTE10,MINUTE15,MINUTE20,MINUTE30,MINUTE60,HOUR24};
+    private static final Logger LOGGER = Logger.getLogger(ReadingTypeGenerator.class.getName());
+
+    private static final TimeAttribute[] timeAttributes = {MINUTE1,MINUTE2,MINUTE3,MINUTE5,MINUTE10,MINUTE15,MINUTE20,MINUTE30,MINUTE60,HOUR24};
+    private static final MacroPeriod[] macroPeriods = {MacroPeriod.DAILY, MacroPeriod.MONTHLY};
+
 	private static final String[] timeAttributeNames = {"1m","2m","3m","5m","10m","15m","20m","30m","Hourly","Daily"};
+    private static final String[] macroPeriodsNames = {"Daily", "Monthly"};
 
     private ReadingTypeGenerator(MeteringServiceImpl meteringService) {
         this.meteringService = meteringService;
@@ -60,16 +70,46 @@ public final class ReadingTypeGenerator {
 	}
 	
 	private void generate(Root root) {
-		for (int i = 0 ; i < timeAttributes.length ; i++) {
-			String code = root.builder.period(timeAttributes[i]).accumulate(DELTADELTA).code();
-			String name = timeAttributeNames[i] + " " + root.name;		
-			readingTypes.add(meteringService.createReadingType(code, name));
-			code = root.builder.period(timeAttributes[i]).accumulate(Accumulation.BULKQUANTITY).code();
-			name = timeAttributeNames[i] + " " + root.name + " Cumulative index";
-			readingTypes.add(meteringService.createReadingType(code, name));
-		}
-		String code = root.builder.period(TimeAttribute.NOTAPPLICABLE).accumulate(Accumulation.BULKQUANTITY).code();
-		String name = root.name + " Cumulative index";
-		readingTypes.add(meteringService.createReadingType(code, name));
-	}
+        addTheTimeAttributeRelatedReadingTypes(root);
+        addTheMacroPeriodRelatedReadingTypes(root);
+        String code = root.builder.period(TimeAttribute.NOTAPPLICABLE).accumulate(Accumulation.BULKQUANTITY).code();
+        String name = root.name + " Cumulative index";
+        try {
+            readingTypes.add(meteringService.createReadingType(code, name));
+        } catch (UnderlyingSQLFailedException e) {
+            LOGGER.log(Level.FINE, "Error creating readingtype : " + code + " - " + e.getMessage(), e);
+        }
+    }
+
+    private void addTheMacroPeriodRelatedReadingTypes(Root root) {
+        for (int i = 0; i < macroPeriods.length; i++) {
+            root.builder.period(TimeAttribute.NOTAPPLICABLE);
+            String code = root.builder.period(macroPeriods[i]).accumulate(DELTADELTA).code();
+            try {
+                String name = macroPeriodsNames[i] + " " + root.name;
+                readingTypes.add(meteringService.createReadingType(code, name));
+                code = root.builder.period(macroPeriods[i]).accumulate(Accumulation.BULKQUANTITY).code();
+                name = macroPeriodsNames[i] + " " + root.name + " Cumulative index";
+                readingTypes.add(meteringService.createReadingType(code, name));
+            } catch (UnderlyingSQLFailedException e) {
+                LOGGER.log(Level.FINE, "Error creating readingtype : " + code + " - " + e.getMessage(), e);
+            }
+        }
+    }
+
+    private void addTheTimeAttributeRelatedReadingTypes(Root root) {
+        for (int i = 0; i < timeAttributes.length; i++) {
+            root.builder.period(MacroPeriod.NOTAPPLICABLE);
+            String code = root.builder.period(timeAttributes[i]).accumulate(DELTADELTA).code();
+            try {
+                String name = timeAttributeNames[i] + " " + root.name;
+                readingTypes.add(meteringService.createReadingType(code, name));
+                code = root.builder.period(timeAttributes[i]).accumulate(Accumulation.BULKQUANTITY).code();
+                name = timeAttributeNames[i] + " " + root.name + " Cumulative index";
+                readingTypes.add(meteringService.createReadingType(code, name));
+            } catch (UnderlyingSQLFailedException e) {
+                LOGGER.log(Level.FINE, "Error creating readingtype : " + code + " - " + e.getMessage(), e);
+            }
+        }
+    }
 }
