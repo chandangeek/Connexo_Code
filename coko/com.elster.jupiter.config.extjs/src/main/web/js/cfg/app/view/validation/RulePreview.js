@@ -67,10 +67,19 @@ Ext.define('Cfg.view.validation.RulePreview', {
 
     updateValidationRule: function (validationRule) {
         var me = this;
+
+        if (me.rendered) {
+            Ext.suspendLayouts();
+        }
+
         me.loadRecord(validationRule);
         me.setTitle(validationRule.get('name'));
         me.addProperties(validationRule);
         me.addReadingTypes(validationRule);
+
+        if (me.rendered) {
+            Ext.resumeLayouts(true);
+        }
     },
 
     addProperties: function (selectedRule) {
