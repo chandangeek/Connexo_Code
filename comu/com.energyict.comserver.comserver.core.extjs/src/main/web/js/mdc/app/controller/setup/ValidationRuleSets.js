@@ -257,7 +257,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         var action = item.action,
             record = menu.record;
         if (action === 'viewRule') {
-            window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
+            window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId();
         } else {
             window.location.href = '#/administration/validation/rulesets/' + record.getId();
         }
@@ -270,7 +270,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         switch (action) {
             case 'viewRule':
-                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
+                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId();
                 break;
             case 'viewRuleSet':
                 window.location.href = '#/administration/validation/rulesets/' + record.getId();
@@ -288,7 +288,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         switch (action) {
             case 'viewRule':
-                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
+                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId();
                 break;
         }
     },
@@ -300,7 +300,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         switch (action) {
             case 'viewRule':
-                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId();
+                window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId();
                 break;
         }
     },

@@ -100,7 +100,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         var me = this,
             record = menu.record || me.getValidationRulesForRegisterConfigPreview().getRecord();
 
-        location.href = '#/administration/validation/rulesets/' + record.data.ruleSetId + '/rules/' + record.data.id;
+        location.href = '#/administration/validation/rulesets/' + record.data.ruleSet.id + '/rules/' + record.data.id;
     },
 
     previewValidationRule: function (grid, record) {

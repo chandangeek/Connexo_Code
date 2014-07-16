@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         me.columns = [
             { header: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'), dataIndex: 'name', flex: 0.3,
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.getId() + '">' + value + '</a>'
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSet').id + '/rules/' + record.getId() + '">' + value + '</a>'
                 }
             },
             { header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 0.3,
@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
                 dataIndex: 'ruleSetName',
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/' + record.data.ruleSetId + '">' + record.raw.ruleSetName + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.data.ruleSet.id + '">' + record.data.ruleSet.name + '</a>';
                 },
                 flex: 0.3
             },

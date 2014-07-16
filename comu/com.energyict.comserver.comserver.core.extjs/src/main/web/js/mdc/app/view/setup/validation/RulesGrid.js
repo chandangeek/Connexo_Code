@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
                 dataIndex: 'name',
                 flex: 1,
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId')
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSet').id
                         + '/rules/' + record.getId() + '">' + value + '</a>';
                 }
             },
