@@ -105,14 +105,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     previewValidationRule: function (grid, record) {
         var selectedRules = this.getRulesForRegisterConfigGrid().getSelectionModel().getSelection();
-
-        if (selectedRules.length === 1) {
-            var selectedRule = selectedRules[0];
-            this.getValidationRulesForRegisterConfigPreview().updateValidationRule(selectedRule);
-            this.getValidationRulesForRegisterConfigPreview().show();
-        } else {
-            this.getValidationRulesForRegisterConfigPreview().hide();
-        }
+        this.getValidationRulesForRegisterConfigPreview().updateValidationRule(selectedRules[0]);
     },
 
 
