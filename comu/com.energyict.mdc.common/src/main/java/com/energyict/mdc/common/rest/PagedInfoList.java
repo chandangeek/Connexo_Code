@@ -1,13 +1,14 @@
 package com.energyict.mdc.common.rest;
 
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * generic helper class to json-serialize a list of info-objects into a json format that is understood by our ExtJS paging component.
@@ -17,10 +18,10 @@ public class PagedInfoList {
 
     private final String jsonListName;
     private boolean couldHaveNextPage;
-    private List infos = new ArrayList<>();
+    private List<?> infos = new ArrayList<>();
     private QueryParameters queryParameters;
 
-    public int getTotal() {
+    int getTotal() {
         int total = infos.size();
         if (queryParameters.getStart()!=null) {
             total+=queryParameters.getStart();
@@ -31,11 +32,11 @@ public class PagedInfoList {
         return total;
     }
 
-    List getInfos() {
+    List<?> getInfos() {
         return ImmutableList.copyOf(infos);
     }
 
-    private PagedInfoList(String jsonListName, List infos, QueryParameters queryParameters) {
+    private PagedInfoList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
         this.queryParameters = queryParameters;
         this.jsonListName = jsonListName;
         this.infos = infos;
@@ -64,7 +65,7 @@ public class PagedInfoList {
      *                        if the returned 'page' was full, if so, total is incremented by 1 to indicate to ExtJS there could be a next page.
      * @return A map that will be correctly serialized as JSON paging object, understood by ExtJS
      */
-    public static PagedInfoList asJson(String jsonListName, List infos, QueryParameters queryParameters) {
+    public static PagedInfoList asJson(String jsonListName, List<?> infos, QueryParameters queryParameters) {
         return new PagedInfoList(jsonListName, infos, queryParameters);
     }
 
