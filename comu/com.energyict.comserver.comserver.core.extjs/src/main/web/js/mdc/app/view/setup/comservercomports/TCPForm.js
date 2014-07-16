@@ -14,10 +14,18 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
             required: true,
             allowBlank: false,
             minValue: 1,
+            listeners: {
+                blur: {
+                    fn: function(field){
+                        if(Ext.isEmpty(field.getValue())) {
+                            field.setValue(1);
+                        }
+                    }
+                }
+            },
             name: 'numberOfSimultaneousConnections',
             value: 1,
-            width: 350
-        },
+            width: 350                                    },
         {
             xtype: 'fieldcontainer',
             required: false,
@@ -35,8 +43,17 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
             required: true,
             allowBlank: false,
             minValue: 1,
+            listeners: {
+                blur: {
+                    fn: function(field){
+                        if(Ext.isEmpty(field.getValue())) {
+                            field.setValue(1);
+                        }
+                    }
+                }
+            },
             name: 'portNumber',
-            value: 0,
+            value: 1,
             width: 350
         },
         {

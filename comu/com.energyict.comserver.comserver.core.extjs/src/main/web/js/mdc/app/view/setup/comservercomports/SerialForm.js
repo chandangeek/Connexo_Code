@@ -158,14 +158,16 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             required: true,
             allowBlank: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.ringCount', 'MDC', 'Ring count'),
-            name: 'ringCount'
+            name: 'ringCount',
+            minValue: 0
         },
         {
             xtype: 'numberfield',
             required: true,
             allowBlank: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.errorNum', 'MDC', 'Number of errors'),
-            name: 'maximumNumberOfDialErrors'
+            name: 'maximumNumberOfDialErrors',
+            minValue: 0
         },
         {
             xtype: 'fieldcontainer',
@@ -181,7 +183,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     name: 'connectTimeout[count]',
                     itemId: 'connectTimeoutCount',
                     margin: '0 8 0 0',
-                    flex: 2
+                    flex: 2,
+                    minValue: 0
                 },
                 {
                     xtype: 'combobox',
@@ -210,7 +213,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     allowBlank: false,
                     name: 'delayAfterConnect[count]',
                     margin: '0 8 0 0',
-                    flex: 2
+                    flex: 2,
+                    minValue: 0
                 },
                 {
                     xtype: 'combobox',
@@ -239,7 +243,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     allowBlank: false,
                     name: 'delayBeforeSend[count]',
                     margin: '0 8 0 0',
-                    flex: 2
+                    flex: 2,
+                    minValue: 0
                 },
                 {
                     xtype: 'combobox',
@@ -268,7 +273,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     allowBlank: false,
                     name: 'atCommandTimeout[count]',
                     margin: '0 8 0 0',
-                    flex: 2
+                    flex: 2,
+                    minValue: 0
                 },
                 {
                     xtype: 'combobox',
@@ -288,7 +294,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             required: true,
             allowBlank: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.atTry', 'MDC', 'AT command try'),
-            name: 'atCommandTry'
+            name: 'atCommandTry',
+            minValue: 0
         }
     ],
 

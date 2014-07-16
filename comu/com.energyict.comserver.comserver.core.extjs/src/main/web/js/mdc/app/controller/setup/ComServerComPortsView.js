@@ -152,7 +152,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                     currentForm && currentForm.hide();
                     if (form) {
                         form.show();
-                        if (showComServer) {
+                        if (showComServer === true) {
                             form.down('displayfield[name=server]').show();
                         } else {
                             form.down('displayfield[name=server]').hide();
