@@ -438,13 +438,15 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 //        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
         connectionMethod.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
         connectionMethod.save({
-            callback: function () {
-                me.getConnectionMethodsOfDeviceConfigurationStore().load();
+            success: function () {
                 if(connectionMethod.get('isDefault') === true) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.setAsDefault', 'MDC', 'Connection method set as default'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.removeDefault', 'MDC', 'Connection method removed as default'));
                 }
+            },
+            callback: function () {
+                me.getConnectionMethodsOfDeviceConfigurationStore().load();
                 me.previewConnectionMethod();
             }
         });

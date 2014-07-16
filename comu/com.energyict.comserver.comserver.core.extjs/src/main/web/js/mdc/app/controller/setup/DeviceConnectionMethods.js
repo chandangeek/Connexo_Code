@@ -298,7 +298,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     editDeviceConnectionMethod: function (values) {
         var record = this.getDeviceConnectionMethodEditForm().getRecord();
-        this.updateRecord(record, values);
+        this.updateRecord(record, values, false);
 
     },
 
@@ -309,11 +309,11 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             );
         } else {
             var record = Ext.create(Mdc.model.DeviceConnectionMethod);
-            this.updateRecord(record, values);
+            this.updateRecord(record, values, true);
         }
     },
 
-    updateRecord: function (record, values) {
+    updateRecord: function (record, values, isNewRecord) {
         var me = this;
         if (record) {
             record.set(values);
@@ -329,18 +329,22 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 propertyForm.updateRecord(record);
                 record.propertiesStore = propertyForm.getRecord().properties();
             }
-            this.saveRecord(record);
+            this.saveRecord(record, isNewRecord);
 
         }
     },
 
-    saveRecord: function(record){
+    saveRecord: function(record, isNewRecord){
         var me=this;
         record.getProxy().extraParams = ({mrid: me.mrid});
         record.save({
             success: function (record) {
                 location.href = '#/devices/' + me.mrid + '/connectionmethods/';
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg', 'MDC', 'Device connection method saved'));
+                if (isNewRecord === true) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.add', 'MDC', 'Connection method added'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.edit', 'MDC', 'Connection method saved'));
+                }
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
@@ -356,7 +360,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                             title: Uni.I18n.translate('deviceconnectionmethod.createIncomplete.title', 'MDC', 'One or more required attributes are missing'),
                             config: {
                                 me: me,
-                                record: record
+                                record: record,
+                                isNewRecord: isNewRecord
                             },
 
                             fn: me.saveAsIncomplete
@@ -376,7 +381,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if(btn === 'confirm'){
             var record = opt.config.record;
             record.set('status','connectionTaskStatusIncomplete');
-            opt.config.me.saveRecord(record);
+            var isNewRecord = opt.config.isNewRecord;
+            opt.config.me.saveRecord(record, isNewRecord);
         }
     },
 
@@ -404,7 +410,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             connectionMethodToDelete.destroy({
                 callback: function () {
                     location.href = '#/devices/' + me.mrid + '/connectionmethods';
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg', 'MDC', 'Device connection method removed'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.remove', 'MDC', 'Connection method removed'));
                 }
             });
 
@@ -506,6 +512,13 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 //        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
         connectionMethod.getProxy().extraParams = ({mrid: this.mrid});
         connectionMethod.save({
+            success: function () {
+                if(connectionMethod.get('isDefault') === true) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.setAsDefault', 'MDC', 'Connection method set as default'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.removeDefault', 'MDC', 'Connection method removed as default'));
+                }
+            },
             callback: function () {
                 me.getConnectionMethodsOfDeviceStore().load();
                 me.previewDeviceConnectionMethod();
@@ -530,6 +543,13 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         //connectionMethod.propertiesStore = this.getPropertiesController().updateProperties();
         connectionMethod.getProxy().extraParams = ({mrid: this.mrid});
         connectionMethod.save({
+            success: function () {
+                if(connectionMethod.get('status') === 'connectionTaskStatusActive') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.activated', 'MDC', 'Connection method activated'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.deactivated', 'MDC', 'Connection method deactivated'));
+                }
+            },
             callback: function () {
                 me.getConnectionMethodsOfDeviceStore().load();
                 me.previewDeviceConnectionMethod();
