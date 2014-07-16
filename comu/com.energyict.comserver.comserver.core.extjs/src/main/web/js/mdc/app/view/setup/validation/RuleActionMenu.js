@@ -1,6 +1,6 @@
 Ext.define('Mdc.view.setup.validation.RuleActionMenu', {
     extend: 'Ext.menu.Menu',
-    xtype: 'validation-rule-actionmenu',
+    alias: 'widget.validation-rule-actionmenu',
 
     plain: true,
     border: false,

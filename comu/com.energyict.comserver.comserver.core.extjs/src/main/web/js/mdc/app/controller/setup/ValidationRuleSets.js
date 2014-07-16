@@ -3,7 +3,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
     requires: [
         'Mdc.store.DeviceConfigValidationRuleSets',
-        'Cfg.store.ValidationRuleSets'
+        'Cfg.store.ValidationRuleSets',
+        'Mdc.store.ValidationRuleSetsForDeviceConfig'
     ],
 
     views: [
@@ -12,7 +13,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     ],
 
     stores: [
-        'DeviceConfigValidationRuleSets'
+        'DeviceConfigValidationRuleSets',
+        'Mdc.store.ValidationRuleSetsForDeviceConfig'
     ],
 
     refs: [
@@ -118,6 +120,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 deviceConfigRuleSetsStore.load({
                     callback: function () {
                         ruleSetsStore = me.getAddValidationRuleSetsGrid().getStore();
+                        ruleSetsStore.getProxy().extraParams =
+                            ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
                         ruleSetsStore.load(
                             {
                                 callback: function () {
