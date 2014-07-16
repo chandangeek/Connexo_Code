@@ -137,8 +137,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     text: '+ ' + Uni.I18n.translate('validation.addAnother', 'CFG', 'Add another'),
                                     xtype: 'button',
                                     action: 'addReadingTypeAction',
-                                    itemId: 'addReadingTypeAction',
-                                    width: 100
+                                    itemId: 'addReadingTypeAction'
                                 }
                             ]
                         },
@@ -168,8 +167,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     xtype: 'button',
                                     ui: 'action',
                                     action: 'createRuleAction',
-                                    itemId: 'createRuleAction',
-                                    width: 100
+                                    itemId: 'createRuleAction'
                                 },
                                 {
                                     xtype: 'button',
@@ -177,9 +175,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     href: '#/administration/validation',
                                     itemId: 'cancelAddRuleLink',
                                     ui: 'link',
-                                    padding: '3 0 0 0',
-                                    margin: '0 0 0 20',
-                                    width: 100
+                                    margin: '0 0 0 8px'
                                 }
                             ]
                         }
