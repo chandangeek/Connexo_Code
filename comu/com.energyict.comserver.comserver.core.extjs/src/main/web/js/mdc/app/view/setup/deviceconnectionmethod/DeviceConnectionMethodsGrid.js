@@ -3,28 +3,27 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
     alias: 'widget.deviceConnectionMethodsGrid',
     overflowY: 'auto',
     itemId: 'deviceconnectionmethodsgrid',
+
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.ConnectionMethodsOfDevice',
         'Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMenu'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
+
     store: 'ConnectionMethodsOfDevice',
-    //padding: '10 10 10 10',
+
     initComponent: function () {
         var me = this;
-        this.columns = [
+
+        me.columns = [
             {
                 header: Uni.I18n.translate('deviceconnectionmethod.default', 'MDC', 'Default'),
                 dataIndex: 'isDefault',
                 renderer: function (value, metadata) {
                     if (value === true) {
-                      //  metadata.style = "padding: 6px 16px 6px 16px;";
                         metadata.style = "padding: 6px 16px 6px 16px;";
-                        return '<img src="../mdc/resources/images/defaultItem.png">';
+                        return '<img src="../ext/packages/uni-theme-skyline/resources/images/grid/defaultItem.png">';
                     } else {
                         return '';
                     }
@@ -35,9 +34,6 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
             {
                 header: Uni.I18n.translate('deviceconnectionmethod.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-//                renderer: function(value,b,record){
-//                    return '<a href="#/administration/devicetypes/' + record.get('id') + '">' + value + '</a>';;
-//                },
                 flex: 0.3
             },
             {
@@ -53,7 +49,7 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
             {
                 header: Uni.I18n.translate('deviceconnectionmethod.status', 'MDC', 'Status'),
                 dataIndex: 'status',
-                renderer: function(value,b,record){
+                renderer: function (value, b, record) {
                     switch (value) {
                         case 'connectionTaskStatusIncomplete':
                             return Uni.I18n.translate('deviceconnectionmethod.status.incomplete', 'MDC', 'Incomplete');
@@ -73,10 +69,11 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
             }
 
         ];
-        this.dockedItems = [
+
+        me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: this.store,
+                store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} connection methods'),
                 displayMoreMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} connection methods'),
@@ -111,16 +108,16 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                store: this.store,
+                store: me.store,
                 params: [
-                    {mrid: this.mrid}
+                    {mrid: me.mrid}
                 ],
                 itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connection methods per page'),
                 dock: 'bottom'
             }
         ];
 
-        this.callParent();
+        me.callParent();
     }
 });
 

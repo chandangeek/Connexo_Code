@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                                 },
                                 {
                                     xtype: 'button',
-                                    icon: '../mdc/resources/images/information.png',
+                                    icon: '../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png',
                                     cls: 'uni-btn-transparent',
                                     handler: function (item, test) {
                                         var record = this.up('#loadProfileConfigurationChannelDetailsForm').form.getRecord();

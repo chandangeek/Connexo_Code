@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
                     var id = Ext.id();
                     Ext.defer(function () {
                         Ext.widget('button', {
-                            icon: '../mdc/resources/images/information.png',
+                            icon: '../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png',
                             cls: 'uni-btn-transparent',
                             margin: '0 0 0 32',
                             handler: function (item, test) {

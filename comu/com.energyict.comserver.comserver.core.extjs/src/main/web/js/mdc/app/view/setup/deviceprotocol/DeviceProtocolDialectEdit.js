@@ -110,7 +110,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
                                         itemId: 'restoreAllButton',
                                         action: 'restoreAll',
                                         //iconCls: 'x-uni-action-iconD',
-                                       // icon: '../mdc/resources/images/redo.png',
+                                        // icon: '../ext/packages/uni-theme-skyline/resources/images/form/restore.png',
                                         margin: '0 0 0 10',
                                         disabled: true
                                     },

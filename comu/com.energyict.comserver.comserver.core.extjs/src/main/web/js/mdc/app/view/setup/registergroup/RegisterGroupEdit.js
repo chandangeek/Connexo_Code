@@ -194,13 +194,12 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                     type: 'hbox',
                                     align: 'left'
                                 },
-                                //padding: '10 10 10 0',
                                 minHeight: 20,
                                 items: [
                                     {
                                         xtype: 'image',
                                         margin: '0 10 0 0',
-                                        src: "../mdc/resources/images/information.png",
+                                        src: '../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png',
                                         height: 20,
                                         width: 20
                                     },
@@ -229,7 +228,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                     }
                 ]
             }
-        ]
+        ];
+
         this.callParent(arguments);
 
         if (this.isEdit()) {
