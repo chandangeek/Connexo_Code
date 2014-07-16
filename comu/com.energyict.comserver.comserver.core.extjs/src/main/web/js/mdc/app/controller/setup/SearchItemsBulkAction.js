@@ -119,6 +119,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             },
             '#searchitemsBulkNavigation': {
                 movetostep: this.navigateToStep
+            },
+            'searchitems-wizard #createCommunicationSchedule': {
+                click: this.createCommunicationSchedule
             }
         });
     },
@@ -127,11 +130,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         var me = this,
             widget = Ext.widget('searchitems-bulk-browse');
         me.getApplication().fireEvent('changecontentevent', widget);
-        me.getSchedulesGrid().getView().disable();
         me.getDeviceGrid().getView().disable();
         me.getStore('Mdc.store.CommunicationSchedules').load({
             callback: function () {
                 me.getSchedulesGrid().getSelectionModel().selectAll();
+                me.getSearchItemsWizard().down('#allSchedules').setValue(true);
             }
         });
         me.getDeviceGrid().getSelectionModel().selectAll();
@@ -146,7 +149,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             label = me.getSelectedScheduleQty(),
             count = selected.length,
             wizard = me.getSearchItemsWizard(),
-            nextBtn = wizard.down('#nextButton');
+            nextBtn = wizard.down('#nextButton'),
+            scheduleSelectionRange = wizard.down('#shceduleSelectionRange');
+
+        if ((selModel.getStore().getCount() > count) && (scheduleSelectionRange.getValue().scheduleRange === 'ALL')) {
+            scheduleSelectionRange.down('#selectedSchedules').setValue(true);
+        }
 
         if (count > 0) {
             nextBtn.enable();
@@ -165,9 +173,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     schedulesSelectionRangeChange: function (obj, newValue) {
         if (newValue.scheduleRange == 'ALL') {
             this.getSchedulesGrid().getSelectionModel().selectAll();
-            this.getSchedulesGrid().getView().disable();
-        } else if (newValue.scheduleRange == 'SELECTED') {
-            this.getSchedulesGrid().getView().enable();
         }
     },
 
@@ -238,6 +243,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
     confirmClick: function () {
         var me = this,
+            finishBtn = me.getSearchItemsWizard().down('#finishButton'),
             scheduleIds = [],
             deviceMRID = [],
             url = '/api/ddr/devices/schedules',
@@ -255,20 +261,20 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         request.deviceMRIDs = deviceMRID;
         request.scheduleIds = scheduleIds;
         jsonData = Ext.encode(request);
-        console.log(jsonData);
         Ext.Ajax.request({
             url: url,
             method: method,
             jsonData: jsonData,
             success: function (response) {
-                var resp = Ext.decode(response.responseText);
+                var resp = Ext.decode(response.responseText, true);
                 me.getStatusPage().removeAll();
-                Ext.each(resp.actions, function (item) {
+                Ext.each(resp ? resp.actions : [], function (item) {
                     (item.successCount > 0) &&
-                    me.showStatusMsg(me.buildSuccessMessage(item.successCount, item.actionTitle));
+                    me.showStatusMsg(me.buildSuccessMessage(item));
                     (item.failCount > 0) &&
-                    me.showStatusMsg(me.buildFailMessage(item.fails, item.actionTitle));
+                    me.showStatusMsg(me.buildFailMessage(item));
                 });
+                finishBtn.enable();
             }
         });
         me.nextClick();
@@ -289,27 +295,77 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         me.getStatusPage().add(msg)
     },
 
-    buildSuccessMessage: function (count, actionTitle) {
+    buildSuccessMessage: function (successful) {
         var me = this,
-            msg,
+            count = parseInt(successful.successCount),
+            messageHeader = '',
             message = {
-                xtype: 'container',
-                cls: 'isu-bulk-assign-confirmation-request-panel'
+                xtype: 'panel'
             };
+
         switch (me.operation) {
             case 'add':
-                msg = 'Successfuly added communication schedule "' + actionTitle + '" to ' + count + ' devices.';
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyAddedCommunicationSchedule', count, 'MDC', 'Successfully added communication schedule \'{0}\' to {1} devices');
                 break;
             case 'remove':
-                msg = '<h3>Successfuly removed communication schedule "' + actionTitle + '" from ' + count + ' devices.</h3>';
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyRemovedCommunicationSchedule', count, 'MDC', 'Successfully removed communication schedule \'{0}\' from {1} devices');
                 break;
         }
-        message.html = msg;
+
+        messageHeader && (messageHeader = Ext.String.format(messageHeader, successful.actionTitle, count));
+
+        message.title = messageHeader;
+
         return message;
     },
 
-    buildFailMessage: function (count, actionTitle) {
+    buildFailMessage: function (failure) {
+        var me = this,
+            count = parseInt(failure.failCount),
+            messageHeader = '',
+            messageBody = '',
+            grouping = [],
+            message = {
+                xtype: 'panel'
+            };
 
+        switch (me.operation) {
+            case 'add':
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToAddCommunicationSchedule', count, 'MDC', 'Failed to add communication schedule \'{0}\' to {1} devices');
+                break;
+            case 'remove':
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToRemoveCommunicationSchedule', count, 'MDC', 'Failed to remove communication schedule \'{0}\' from {1} devices');
+                break;
+        }
+
+        messageHeader && (messageHeader = Ext.String.format(messageHeader, failure.actionTitle, count));
+
+        Ext.Array.each(failure.fails, function (item) {
+            var sameMessageGroup = Ext.Array.findBy(grouping, function (search) {
+                return search.messageGroup === item.messageGroup;
+            });
+
+            if (sameMessageGroup) {
+                sameMessageGroup.devices.push(item.id);
+            } else {
+                grouping.push({
+                    messageGroup: item.messageGroup,
+                    message: item.message,
+                    devices: [item.id]
+                });
+            }
+        });
+
+        Ext.Array.each(grouping, function (group) {
+            messageBody += group.message +
+                '<br><br>' +
+                '<a href="javascript:void(0)">' + Uni.I18n.translate('searchItems.bulk.viewDevices', 'MDC', 'View devices') + '</a><br><br><br>';
+        });
+
+        message.title = messageHeader;
+        message.html = messageBody;
+
+        return message;
     },
 
     navigateToStep: function (index) {
@@ -333,8 +389,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.schedules = currentCmp.down('#schedulesgrid').getSelectionModel().getSelection();
         }
         if (nextCmp.name == 'confirmPage') {
-            var message = me.buildConfirmMessage();
-            nextCmp.showMessage(message);
+            nextCmp.showMessage(me.buildConfirmMessage());
         }
         if (nextCmp.name == 'statusPage') {
             var pb = Ext.create('Ext.ProgressBar', {width: '50%'});
@@ -372,16 +427,18 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             deviceWord,
             startStr,
             finishStr,
-            scheduleList,
+            scheduleList = '',
             unit,
             deviceCount = me.devices.length;
-        me.schedules.length > 1 ? scheduleWord = Uni.I18n.translate('searchItems.bulk.comSchedules', 'MDC', 'communication schedules') :
-            scheduleWord = Uni.I18n.translate('searchItems.bulk.comSchedule', 'MDC', 'communication schedule');
-        deviceCount > 1 ? deviceWord = Uni.I18n.translate('searchItems.bulk.devices', 'MDC', 'devices') :
-            deviceWord = Uni.I18n.translate('searchItems.bulk.device', 'MDC', 'device');
-        Ext.each(me.schedules, function (item) {
-            scheduleList ? scheduleList += item.get('name') + ', ' : scheduleList = item.get('name') ;
-        });
+        scheduleWord = Uni.I18n.translatePlural('searchItems.bulk.comSchedules', parseInt(me.schedules.length), 'MDC', 'communication schedules');
+        deviceWord = Uni.I18n.translatePlural('searchItems.bulk.devices', parseInt(deviceCount), 'MDC', 'devices');
+        if (me.schedules.length === 1) {
+            scheduleList = me.schedules[0].get('name');
+        } else {
+            Ext.each(me.schedules, function (item, index) {
+                scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+            });
+        }
         switch (me.operation) {
             case 'add':
                 startStr = Uni.I18n.translate('general.add', 'MDC', 'Add');
@@ -394,8 +451,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 unit = Uni.I18n.translate('general.unitFrom', 'MDC', 'from');
                 break;
         }
-        message = '<h3>' + startStr + ' ' + scheduleWord + ' ' + scheduleList + ' ' + unit + ' ' +
-            deviceCount + ' ' + deviceWord + '?' + '</h3><br>' + finishStr;
+        message = {
+            title: startStr + ' ' + scheduleWord + ' ' + scheduleList + ' ' + unit + ' ' +
+                deviceCount + ' ' + deviceWord + '?',
+            body: finishStr
+        };
         return message;
     },
 
@@ -406,12 +466,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             nextBtn = wizard.down('#nextButton'),
             confirmBtn = wizard.down('#confirmButton'),
             finishBtn = wizard.down('#finishButton'),
-            cancelBtn = wizard.down('#cancelButton');
+            cancelBtn = wizard.down('#cancelButton'),
+            communicationSchedulesStore = this.getStore('Mdc.store.CommunicationSchedules');
         activePage.name == 'selectDevices' ? backBtn.disable() : backBtn.enable();
         switch (activePage.name) {
             case 'selectDevices' :
                 backBtn.show();
                 nextBtn.show();
+                nextBtn.setDisabled(false);
                 confirmBtn.hide();
                 finishBtn.hide();
                 cancelBtn.show();
@@ -419,6 +481,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             case 'selectOperation' :
                 backBtn.show();
                 nextBtn.show();
+                nextBtn.setDisabled(false);
                 confirmBtn.hide();
                 finishBtn.hide();
                 cancelBtn.show();
@@ -426,6 +489,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             case 'selectSchedules' :
                 backBtn.show();
                 nextBtn.show();
+                nextBtn.setDisabled(communicationSchedulesStore.getCount() ? false : true);
                 confirmBtn.hide();
                 finishBtn.hide();
                 cancelBtn.show();
@@ -446,6 +510,19 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 cancelBtn.hide();
                 break;
         }
+    },
+
+    createCommunicationSchedule: function () {
+        var title = Uni.I18n.translate('general.warning', 'MDC', 'Warning'),
+            message = Uni.I18n.translate('searchItems.newComScheduleAddWarningMsg', 'MDC', 'When you have finished creating a new communication schedule on the other tab, you should refresh this page.'),
+            config = {
+                icon: Ext.MessageBox.WARNING
+            },
+            newTab = window.open('#/administration/communicationschedules/create','_blank');
+
+        newTab && newTab.blur();
+        window.focus();
+        this.getApplication().getController('Uni.controller.Error').showError(title, message, config);
     }
 
 });
