@@ -6,6 +6,9 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationActionMenu', {
     itemId: 'device-configuration-action-menu',
     shadow: false,
     items: [
-
+        {
+            text: Uni.I18n.translate('general.view', 'CFG', 'View'),
+            action: 'view'
+        }
     ]
 });

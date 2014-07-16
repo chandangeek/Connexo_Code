@@ -22,7 +22,9 @@ Ext.define('Cfg.view.deviceconfiguration.RuleDeviceConfigurationGrid', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
-                    items: 'Cfg.view.deviceconfiguration.RuleDeviceConfigurationActionMenu'
+                    menu: {
+                        xtype: 'rule-device-configuration-action-menu'
+                    }
                 }
             ];
         me.dockedItems = [

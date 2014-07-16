@@ -41,6 +41,9 @@ Ext.define('Cfg.controller.RuleDeviceConfigurations', {
             },
             'rule-device-configuration-add radiogroup': {
                 change: this.onChangeRadio
+            },
+            'rule-device-configuration-action-menu': {
+                click: this.chooseAction
             }
         });
     },
@@ -182,5 +185,11 @@ Ext.define('Cfg.controller.RuleDeviceConfigurations', {
                 me.getRuleDeviceConfigurationAddPanel().setLoading(false);
             }
         });
+    },
+
+    chooseAction: function (menu, item) {
+        var record;
+        record = menu.record || this.getRuleDeviceConfigurationBrowsePanel().down('rule-device-configuration-grid').getSelectionModel().getLastSelected();
+        location.href = '#/administration/devicetypes/' + record.data.deviceType.id + '/deviceconfigurations/' + record.data.config.id;
     }
 });
