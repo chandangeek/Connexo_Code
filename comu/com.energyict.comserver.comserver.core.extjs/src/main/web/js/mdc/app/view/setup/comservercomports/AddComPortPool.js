@@ -21,13 +21,13 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
                     items: [
                         {
                             boxLabel: '<b>' +  Uni.I18n.translate('comServerComPorts.allComPortPools', 'MDC', 'All communication port pools') + '</b><br/>' +
-                                '<span style="color: grey;">' + Uni.I18n.translate('general.selectAllItems', 'MDC', 'Select all items (related to filters on previous screen)') + '</span>',
+                                '<span style="color: grey;"><i>' + Uni.I18n.translate('general.selectAllItems', 'MDC', 'Select all items (related to filters on previous screen)') + '</i></span>',
                             name: 'comPortPoolsRange',
                             checked: true,
                             inputValue: 'ALL'
                         },
                         {
-                            boxLabel: '<b>' +  Uni.I18n.translate('comServerComPorts.selectedComPortPools', 'MDC', 'Selected communication port pools') + '</b><br/><span style="color: grey;">' + Uni.I18n.translate('general.selectItemsInTable', 'MDC', 'Select items in table') + '</span>',
+                            boxLabel: '<b>' +  Uni.I18n.translate('comServerComPorts.selectedComPortPools', 'MDC', 'Selected communication port pools') + '</b><br/><span style="color: grey;"><i>' + Uni.I18n.translate('general.selectItemsInTable', 'MDC', 'Select items in table') + '</i></span>',
                             name: 'comPortPoolsRange',
                             inputValue: 'SELECTED'
                         }
@@ -53,7 +53,8 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
                             text: Uni.I18n.translate('general.uncheckall', 'MDC', 'Uncheck All'),
                             action: 'uncheckallcomportPools',
                             itemId: 'uncheckAllComPortPools',
-                            ui: 'action'
+                            ui: 'action',
+                            margin: '0 0 0 10'
                         },
                         {
                             xtype: 'container',
@@ -61,12 +62,13 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
                         },
                         {
                             xtype: 'button',
+                            border: 0,
                             ui: 'link',
                             text: Uni.I18n.translate('comServerComPorts.addPools.,manageComPorts', 'MDC', 'Manage communication port pools')
                         }]
                 },
                 {
-                    xtype: 'grid',
+                    xtype: 'gridpanel',
                     itemId: 'addComPortPoolsGrid',
                     store: 'Mdc.store.OutboundComPortPools',
                     scroll: false,
@@ -87,9 +89,16 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
                         },
                         {
                             header: 'Status',
-                            dataIndex: 'type',
-                            flex: 1
-                        }
+                            dataIndex: 'active',
+                            flex: 1,
+                            renderer: function (value) {
+                                if (value === true) {
+                                    return Uni.I18n.translate('general.active', 'MDC', 'Active');
+                                } else {
+                                    return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
+                                }
+                            }
+                        },
                     ]
                 },
                 {

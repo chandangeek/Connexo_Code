@@ -138,6 +138,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
                 {
                     xtype: 'textfield',
                     required: true,
+                    allowBlank: false,
                     name: 'trustStorePassword',
                     inputType: 'password'
                 },
