@@ -21,11 +21,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 public aspect ComCommandJournaling {
 
     declare precedence:
-            com.energyict.comserver.aspects.performance.ComCommandPerformance,
-            com.energyict.comserver.aspects.statistics.outbound.CommunicationStatisticsMonitor,
+            com.energyict.mdc.engine.impl.core.aspects.performance.ComCommandPerformance ,
+            com.energyict.mdc.engine.impl.core.aspects.statistics.OutboundCommunicationStatisticsMonitor,
             ComCommandJournaling,
-            com.energyict.comserver.aspects.logging.ComCommandLogging,
-            com.energyict.comserver.aspects.events.ComCommandLogEventPublisher;
+            com.energyict.mdc.engine.impl.core.aspects.logging.ComCommandLogging,
+            com.energyict.mdc.engine.impl.core.aspects.events.ComCommandLogEventPublisher;
 
     private pointcut startComTaskExecution(JobExecution jobExecution, ComTaskExecution comTaskExecution):
         execution(void start(ComTaskExecution))

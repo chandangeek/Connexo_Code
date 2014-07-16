@@ -666,7 +666,7 @@ public class SingleThreadedScheduledComPortTest {
         CountDownLatch stopLatch = new CountDownLatch(1);
         CountDownLatch deviceCommandExecutorStartedLatch = new CountDownLatch(1);
         when(comServerDAO.findExecutableOutboundComTasks(comPort)).thenReturn(jobs).thenReturn(Collections.<ComJob>emptyList());;
-        DeviceCommandExecutor deviceCommandExecutor = spy(new RealTimeWorkingLatchDrivenDeviceCommandExecutor(comServer, 10, 1, 1, ComServer.LogLevel.TRACE, comServerDAO, deviceCommandExecutorStartedLatch, stopLatch));
+        DeviceCommandExecutor deviceCommandExecutor = spy(new RealTimeWorkingLatchDrivenDeviceCommandExecutor(comServer.getName(), 10, 1, 1, ComServer.LogLevel.TRACE, new ComServerThreadFactory(comServer), comServerDAO, deviceCommandExecutorStartedLatch, stopLatch));
         deviceCommandExecutor.start();
         SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
 
@@ -919,8 +919,8 @@ public class SingleThreadedScheduledComPortTest {
         private CountDownLatch startedLatch;
         private CountDownLatch executeLatch;
 
-        private RealTimeWorkingLatchDrivenDeviceCommandExecutor(ComServer comServer, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ComServerDAO comServerDAO,  CountDownLatch startedLatch, CountDownLatch executeLatch) {
-            super(comServer, queueCapacity, numberOfThreads, threadPriority, logLevel, comServerDAO, threadPrincipalService, userService);
+        private RealTimeWorkingLatchDrivenDeviceCommandExecutor(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, ComServerDAO comServerDAO,  CountDownLatch startedLatch, CountDownLatch executeLatch) {
+            super(comServerName, queueCapacity, numberOfThreads, threadPriority, logLevel, threadFactory, comServerDAO, threadPrincipalService, userService);
             this.startedLatch = startedLatch;
             this.executeLatch = executeLatch;
         }

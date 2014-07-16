@@ -51,18 +51,14 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     private ComServerDAO comServerDAO;
     private String name;
 
-    public DeviceCommandExecutorImpl(ComServer comServer, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ComServerDAO comServerDAO, ThreadPrincipalService threadPrincipalService, UserService userService) {
-        this(comServer, queueCapacity, numberOfThreads, threadPriority, logLevel, new ComServerThreadFactory(comServer), comServerDAO, threadPrincipalService, userService);
-    }
-
-    public DeviceCommandExecutorImpl(ComServer comServer, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, ComServerDAO comServerDAO, ThreadPrincipalService threadPrincipalService, UserService userService) {
+    public DeviceCommandExecutorImpl(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, ComServerDAO comServerDAO, ThreadPrincipalService threadPrincipalService, UserService userService) {
         super();
         this.workQueue = new WorkQueue(queueCapacity);
         this.threadFactory = new PriorityConfigurableThreadFactory(threadFactory, threadPriority, name);
         this.numberOfThreads = numberOfThreads;
         this.logLevel = logLevel;
         this.comServerDAO = comServerDAO;
-        this.name = "Device command executor for " + comServer.getName();
+        this.name = "Device command executor for " + comServerName;
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
     }

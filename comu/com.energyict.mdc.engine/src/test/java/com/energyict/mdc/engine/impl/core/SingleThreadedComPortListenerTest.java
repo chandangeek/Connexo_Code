@@ -104,9 +104,9 @@ public class SingleThreadedComPortListenerTest {
                         mock(ComServerDAO.class),
                         threadFactory,
                         this.deviceCommandExecutor,
-                        new InboundComPortExecutorFactoryImpl(),
-                        inboundComPortConnectorFactory,
-                        this.serviceProvider);
+                        new InboundComPortExecutorFactoryImpl(this.serviceProvider),
+                        inboundComPortConnectorFactory
+                );
 
         // business method
         singleThreadedComPortListener.start();
@@ -131,9 +131,9 @@ public class SingleThreadedComPortListenerTest {
                         mock(ComServerDAO.class),
                         threadFactory,
                         this.deviceCommandExecutor,
-                        new InboundComPortExecutorFactoryImpl(),
-                        inboundComPortConnectorFactory,
-                        this.serviceProvider);
+                        new InboundComPortExecutorFactoryImpl(this.serviceProvider),
+                        inboundComPortConnectorFactory
+                );
 
         // business method
         singleThreadedComPortListener.start();
@@ -162,9 +162,9 @@ public class SingleThreadedComPortListenerTest {
                         mock(ComServerDAO.class),
                         threadFactory,
                         this.deviceCommandExecutor,
-                        new InboundComPortExecutorFactoryImpl(),
-                        inboundComPortConnectorFactory,
-                        this.serviceProvider));
+                        new InboundComPortExecutorFactoryImpl(this.serviceProvider),
+                        inboundComPortConnectorFactory
+                ));
         // business method
         singleThreadedComPortListener.start();
         startLatch.await(); // wait until the accept has occurred
@@ -193,7 +193,7 @@ public class SingleThreadedComPortListenerTest {
                         mock(ComServerDAO.class),
                         threadFactory,
                         this.deviceCommandExecutor,
-                        new InboundComPortExecutorFactoryImpl(),
+                        new InboundComPortExecutorFactoryImpl(this.serviceProvider),
                         inboundComPortConnectorFactory,
                         this.serviceProvider));
         singleThreadedComPortListener.setCounter(protocolLatch);
@@ -281,7 +281,7 @@ public class SingleThreadedComPortListenerTest {
         private CountDownLatch counter;
 
         private LatchDrivenSingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, InboundComPortExecutorFactory inboundComPortExecutorFactory, InboundComPortConnectorFactory inboundComPortConnectorFactory, ServiceProvider serviceProvider) {
-            super(comPort, comServerDAO, threadFactory, deviceCommandExecutor, inboundComPortExecutorFactory, inboundComPortConnectorFactory, serviceProvider);
+            super(comPort, comServerDAO, threadFactory, deviceCommandExecutor, inboundComPortExecutorFactory, inboundComPortConnectorFactory);
         }
 
         private void setCounter(CountDownLatch countDownLatch){

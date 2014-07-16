@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
+
 import org.joda.time.DateTimeConstants;
 
 import java.util.List;
@@ -24,6 +25,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 2012-04-03 (10:07)
  */
 public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable {
+
+    public interface ServiceProvider extends JobExecution.ServiceProvider {
+    }
 
     private final ServiceProvider serviceProvider;
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
@@ -200,15 +204,15 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
-        return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTask, serviceProvider);
+        return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTask, this.serviceProvider);
     }
 
     protected ScheduledComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
-        return new ScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, serviceProvider);
+        return new ScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, this.serviceProvider);
     }
 
     protected ScheduledComTaskExecutionGroup newComTaskGroup (ComJob groupComJob) {
-        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) groupComJob.getConnectionTask();
+        ScheduledConnectionTask connectionTask = groupComJob.getConnectionTask();
         ScheduledComTaskExecutionGroup group = newComTaskGroup(connectionTask);
         for (ComTaskExecution scheduledComTask : groupComJob.getComTaskExecutions()) {
             group.add(scheduledComTask);
@@ -220,4 +224,5 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     ServiceProvider getServiceProvider() {
         return serviceProvider;
     }
+
 }

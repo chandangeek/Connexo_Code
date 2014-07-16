@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
@@ -29,16 +30,16 @@ import java.util.Map;
  */
 public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
 
-    private OnlineComServer comServer;
+    private RunningOnlineComServer comServer;
     private Connection connection;
 
-    public WebSocketQueryApiService (OnlineComServer comServer) {
+    public WebSocketQueryApiService (RunningOnlineComServer comServer) {
         super();
         this.comServer = comServer;
     }
 
     public OnlineComServer getComServer () {
-        return comServer;
+        return this.comServer.getComServer();
     }
 
     @Override
@@ -62,6 +63,19 @@ public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
     }
 
     private String execute (QueryMethod queryMethod, JSONObject jsonQuery) throws JSONException, IOException {
+        long startTime = System.currentTimeMillis();
+        try {
+            String result = this.doExecute(queryMethod, jsonQuery);
+            this.comServer.queryApiCallCompleted(System.currentTimeMillis() - startTime);
+            return result;
+        }
+        catch (JSONException | RuntimeException | IOException e) {
+            this.comServer.queryApiCallFailed(System.currentTimeMillis() - startTime);
+            throw e;
+        }
+    }
+
+    private String doExecute (QueryMethod queryMethod, JSONObject jsonQuery) throws JSONException, IOException {
         Map<String, Object> parameters = this.extractQueryParameters(jsonQuery);
         StringWriter writer = new StringWriter();
         ObjectMapper mapper = new ObjectMapper();
@@ -106,6 +120,7 @@ public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
     @Override
     public void onClose (int closeCode, String message) {
         this.connection = null;
+        this.comServer.queryApiClientUnregistered();
     }
 
     private void sendMessage (String message) {

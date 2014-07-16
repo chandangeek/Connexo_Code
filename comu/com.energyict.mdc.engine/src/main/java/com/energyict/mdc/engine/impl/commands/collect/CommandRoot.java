@@ -28,6 +28,22 @@ import com.energyict.mdc.tasks.history.TaskHistoryService;
  */
 public interface CommandRoot extends CompositeComCommand {
 
+    public interface ServiceProvider {
+
+        public IssueService issueService();
+
+        public Clock clock();
+
+        public DeviceDataService deviceDataService();
+
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+
+        public TaskHistoryService taskHistoryService();
+
+        public TransactionService transactionService();
+
+    }
+
     /**
      * Gets the {@link com.energyict.mdc.engine.impl.core.ExecutionContext} in which
      * all the {@link ComCommand}s are running.
@@ -258,18 +274,4 @@ public interface CommandRoot extends CompositeComCommand {
      */
     public ServiceProvider getServiceProvider();
 
-    interface ServiceProvider {
-
-        public IssueService issueService();
-
-        public Clock clock();
-
-        public DeviceDataService deviceDataService();
-
-        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
-
-        public TaskHistoryService taskHistoryService();
-
-        public TransactionService transactionService();
-    }
 }

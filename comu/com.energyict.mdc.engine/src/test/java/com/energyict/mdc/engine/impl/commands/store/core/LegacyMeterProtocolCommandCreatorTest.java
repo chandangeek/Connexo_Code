@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -29,22 +28,25 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.logging.Logger;
 
+import org.junit.*;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * @author sva
@@ -165,7 +167,8 @@ public class LegacyMeterProtocolCommandCreatorTest {
                 new ExecutionContext(
                         mock(JobExecution.class),
                         connectionTask,
-                        comPort, commandRootServiceProvider);
+                        comPort,
+                        this.serviceProvider);
         executionContext.setLogger(logger);
         return executionContext;
     }

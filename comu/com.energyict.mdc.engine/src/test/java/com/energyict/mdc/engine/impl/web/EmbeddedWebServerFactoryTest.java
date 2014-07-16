@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.model.OfflineComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
@@ -154,9 +155,11 @@ public class EmbeddedWebServerFactoryTest {
         OnlineComServer comServer = mock(OnlineComServerImpl.class);
         when(comServer.getQueryApiPostUri()).thenReturn("http://localhost/remote/query-api");
         doCallRealMethod().when(comServer).getQueryApiPostUriIfSupported();
+        RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
+        when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        EmbeddedWebServer eventWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateRemoteQueryWebServer(comServer);
+        EmbeddedWebServer eventWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateRemoteQueryWebServer(runningOnlineComServer);
 
         // Asserts
         assertThat(eventWebServer).isNotNull();
@@ -168,10 +171,12 @@ public class EmbeddedWebServerFactoryTest {
         OnlineComServer comServer = mock(OnlineComServerImpl.class);
         when(comServer.getQueryApiPostUri()).thenReturn(INVALID_URI);
         doCallRealMethod().when(comServer).getQueryApiPostUriIfSupported();
+        RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
+        when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
         try {
-            EmbeddedWebServerFactory.DEFAULT.get().findOrCreateRemoteQueryWebServer(comServer);
+            EmbeddedWebServerFactory.DEFAULT.get().findOrCreateRemoteQueryWebServer(runningOnlineComServer);
         }
         catch (CodingException e) {
             Assertions.assertThat(e.getCause()).isInstanceOf(URISyntaxException.class);
@@ -183,9 +188,11 @@ public class EmbeddedWebServerFactoryTest {
     public void testQueriesWithOnlineComServerThatDoesNotSupportRemoteQueries () throws BusinessException {
         OnlineComServer comServer = mock(OnlineComServerImpl.class);
         doThrow(BusinessException.class).when(comServer).getQueryApiPostUriIfSupported();
+        RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
+        when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        EmbeddedWebServer eventWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateRemoteQueryWebServer(comServer);
+        EmbeddedWebServer eventWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateRemoteQueryWebServer(runningOnlineComServer);
 
         // Asserts
         assertThat(eventWebServer).isNotNull();

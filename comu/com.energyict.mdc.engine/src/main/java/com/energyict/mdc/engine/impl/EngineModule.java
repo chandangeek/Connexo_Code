@@ -1,5 +1,19 @@
 package com.energyict.mdc.engine.impl;
 
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactoryImpl;
+import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
+import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactoryImpl;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.monitor.ManagementBeanFactory;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
@@ -7,16 +21,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.services.HexService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
-
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.SocketService;
 import com.google.inject.AbstractModule;
@@ -48,7 +52,10 @@ public class EngineModule extends AbstractModule {
         requireBinding(ProtocolPluggableService.class);
         requireBinding(SocketService.class);
         requireBinding(SerialComponentService.class);
+        requireBinding(WebSocketQueryApiServiceFactory.class);
 
+        bind(WebSocketQueryApiServiceFactory.class).to(WebSocketQueryApiServiceFactoryImpl.class).in(Scopes.SINGLETON);
+        bind(ManagementBeanFactory.class).to(ManagementBeanFactoryImpl.class).in(Scopes.SINGLETON);
         bind(EngineService.class).to(EngineServiceImpl.class).in(Scopes.SINGLETON);
     }
 }

@@ -30,7 +30,7 @@ public interface ManagementBeanFactory {
      * @param onlineComServer The OnlineComServer
      * @return The ComServerMonitorImplMBean
      */
-    public ComServerMonitorImplMBean findOrCreateFor (OnlineComServer onlineComServer);
+    public ComServerMonitorImplMBean findFor(OnlineComServer onlineComServer);
 
     /**
      * Removes the {@link ComServerMonitorImplMBean}

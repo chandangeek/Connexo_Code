@@ -5,12 +5,14 @@ import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ConnectionEvent;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -58,8 +60,17 @@ public class TextBasedEventFilterIntegrationTest {
     private EngineModelService engineModelService;
     @Mock
     private DeviceDataService deviceDataService;
+    @Mock
+    private OnlineComServer comServer;
+    @Mock
+    private RunningOnlineComServer runningComServer;
 
     private ServiceProvider serviceProvider = new FakeServiceProvider();
+
+    @Before
+    public void initializeMocks () {
+        when(this.runningComServer.getComServer()).thenReturn(this.comServer);
+    }
 
     /**
      * Tests that the a client receives a "message not understood"
@@ -323,7 +334,7 @@ public class TextBasedEventFilterIntegrationTest {
         private OutboundComPortPool comPortPool;
 
         private EventGenerator () {
-            super(clock, engineModelService, deviceDataService);
+            super(runningComServer, clock, engineModelService, deviceDataService);
             this.device = mock(BaseDevice.class);
             this.connectionTask = mock(OutboundConnectionTask.class);
             this.comPort = mock(OutboundComPort.class);

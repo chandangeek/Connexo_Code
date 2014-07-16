@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -12,6 +13,8 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.Inboun
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -22,6 +25,11 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +67,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     @Override
     protected List<PreparedComTaskExecution> prepareAll(List<? extends ComTaskExecution> comTaskExecutions) {
         List<PreparedComTaskExecution> allPreparedComTaskExecutions = new ArrayList<>();
-        CommandRoot root = new CommandRootImpl(this.offlineDevice, getExecutionContext(), serviceProvider);
+        CommandRoot root = new CommandRootImpl(this.offlineDevice, getExecutionContext(), new CommandRootServiceProvider());
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             List<ServerCollectedData> data = receivedCollectedDataFor(comTaskExecution);
             if (!data.isEmpty()) {
@@ -78,10 +86,11 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                     InboundCollectedLogBookCommandImpl inboundCollectedLogBookReadCommand = new InboundCollectedLogBookCommandImpl((LogBooksTask) logBooksTask, offlineDevice, root, comTaskExecution, data, serviceProvider.deviceDataService());
                     addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedLogBookReadCommand);
 
-                    //tOdO reenable onces Messages are ported
-//                } else if (messageTask != null) {
-//                    InboundCollectedMessageListCommandImpl inboundCollectedMessageListCommand = new InboundCollectedMessageListCommandImpl((ServerMessagesTask) messageTask, offlineDevice, root, data);
-//                    addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedMessageListCommand);
+                /*Todo reenable onces Messages are ported
+                } else if (messageTask != null) {
+                    InboundCollectedMessageListCommandImpl inboundCollectedMessageListCommand = new InboundCollectedMessageListCommandImpl((ServerMessagesTask) messageTask, offlineDevice, root, data);
+                    addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedMessageListCommand);
+                 */
                 }
             }
         }
@@ -154,6 +163,39 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
             }
         }
         return collectedDatas;
+    }
+
+    private class CommandRootServiceProvider implements CommandRoot.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
+        }
+
+        @Override
+        public IssueService issueService() {
+            return serviceProvider.issueService();
+        }
+
+        @Override
+        public DeviceDataService deviceDataService() {
+            return serviceProvider.deviceDataService();
+        }
+
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return serviceProvider.mdcReadingTypeUtilService();
+        }
+
+        @Override
+        public TaskHistoryService taskHistoryService() {
+            return serviceProvider.taskHistoryService();
+        }
+
+        @Override
+        public TransactionService transactionService() {
+            return serviceProvider.transactionService();
+        }
+
     }
 
 }

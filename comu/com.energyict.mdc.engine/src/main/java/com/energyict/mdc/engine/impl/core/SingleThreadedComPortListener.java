@@ -21,11 +21,10 @@ import java.util.concurrent.ThreadFactory;
  */
 public class SingleThreadedComPortListener extends ComChannelBasedComPortListenerImpl {
 
-    private final ServiceProvider serviceProvider;
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
     public SingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        this(comPort, comServerDAO, threadFactory, deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(), serviceProvider);
+        this(comPort, comServerDAO, threadFactory, deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(serviceProvider), serviceProvider);
     }
 
     public SingleThreadedComPortListener(
@@ -40,25 +39,23 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
                 threadFactory,
                 deviceCommandExecutor,
                 inboundComPortExecutorFactory,
-                new InboundComPortConnectorFactoryImpl(serviceProvider.serialComponentService(), serviceProvider.socketService()),
-                serviceProvider);
+                new InboundComPortConnectorFactoryImpl(serviceProvider.serialComponentService(), serviceProvider.socketService())
+        );
     }
 
     public SingleThreadedComPortListener(
-                        InboundComPort comPort,
-                        ComServerDAO comServerDAO,
-                        ThreadFactory threadFactory,
-                        DeviceCommandExecutor deviceCommandExecutor,
-                        InboundComPortExecutorFactory inboundComPortExecutorFactory,
-                        InboundComPortConnectorFactory inboundComPortConnectorFactory,
-                        ServiceProvider serviceProvider) {
+                InboundComPort comPort,
+                ComServerDAO comServerDAO,
+                ThreadFactory threadFactory,
+                DeviceCommandExecutor deviceCommandExecutor,
+                InboundComPortExecutorFactory inboundComPortExecutorFactory,
+                InboundComPortConnectorFactory inboundComPortConnectorFactory) {
         super(comPort,
                 comServerDAO,
                 inboundComPortConnectorFactory,
                 threadFactory,
                 deviceCommandExecutor);
         this.inboundComPortExecutorFactory = inboundComPortExecutorFactory;
-        this.serviceProvider = serviceProvider;
     }
 
     @Override
@@ -84,6 +81,7 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
      * @param comChannel the CommunicationChannel which can be used to transfer bits and bytes over to the Device
      */
     protected void handleInboundDeviceProtocol(ComPortRelatedComChannel comChannel) {
-        this.inboundComPortExecutorFactory.create(getServerInboundComPort(), getComServerDAO(), getDeviceCommandExecutor(), serviceProvider).execute(comChannel);
+        this.inboundComPortExecutorFactory.create(getServerInboundComPort(), getComServerDAO(), getDeviceCommandExecutor()).execute(comChannel);
     }
+
 }

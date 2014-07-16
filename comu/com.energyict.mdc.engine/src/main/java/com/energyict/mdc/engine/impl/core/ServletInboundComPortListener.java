@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -17,11 +18,11 @@ import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
  */
 public class ServletInboundComPortListener extends ServletBasedComPortListenerImpl {
 
-    private final ServiceProvider serviceProvider;
+    private final InboundCommunicationHandler.ServiceProvider serviceProvider;
     private EmbeddedWebServer embeddedWebServer;
     private long sleepTime;
 
-    public ServletInboundComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    public ServletInboundComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor);
         this.serviceProvider = serviceProvider;
         this.embeddedWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateFor(getServletBasedInboundComPort(), comServerDAO, deviceCommandExecutor, serviceProvider);

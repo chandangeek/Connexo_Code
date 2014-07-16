@@ -13,17 +13,14 @@ import java.util.Date;
 public interface OperationalStatistics {
 
     /**
-     * Gets the timestamp on which the monitored
-     * RunningComServer
-     * was started.
+     * Gets the timestamp on which the monitored RunningComServer was started.
      *
      * @return The timestamp on which the RunningComServer was started
      */
     public Date getStartTimestamp ();
 
     /**
-     * Gets the {@link TimeDuration} that indicates
-     * how long the RunningComServer
+     * Gets the {@link TimeDuration} that indicates how long the RunningComServer
      * has been running for. This is a convenience method for client code
      * to not have to calculate the difference between current time
      * and the start timestamp.
@@ -43,18 +40,14 @@ public interface OperationalStatistics {
     public TimeDuration getChangesInterPollDelay ();
 
     /**
-     * Gets the timestamp on which the
-     * RunningComServer
-     * last checked for changes.
+     * Gets the timestamp on which the RunningComServer last checked for changes.
      *
      * @return The timestamp on which the RunningComServer last checked for changes
      */
     public Date getLastCheckForChangesTimestamp ();
 
     /**
-     * Sets the timestamp on which the
-     * RunningComServer
-     * last checked for changes.
+     * Sets the timestamp on which the RunningComServer last checked for changes.
      *
      * @param lastCheckForChangesTimestamp The timestamp on which the RunningComServer last checked for changes
      */

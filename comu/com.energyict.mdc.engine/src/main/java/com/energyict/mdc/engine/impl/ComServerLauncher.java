@@ -1,23 +1,28 @@
 package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.OnlineRunningComServerImpl;
-import com.energyict.mdc.engine.impl.core.RemoteRunningComServerImpl;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServerImpl;
+import com.energyict.mdc.engine.impl.core.RunningRemoteComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.engine.impl.meterdata.DefaultCollectedDataFactoryProvider;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.HostName;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
 import org.apache.log4j.PropertyConfigurator;
 
 import java.io.File;
@@ -43,13 +48,13 @@ public final class ComServerLauncher {
 
     private static final String LOG4J_PROPERTIES_FILE_NAME = "./comserver-log4j.properties";
     private static final int MAXIMUM_CONNECT_ATTEMPTS = 6;
-    private final ServiceProvider serviceProvider;
+    private final RunningComServerImpl.ServiceProvider serviceProvider;
 
     private ComServerLauncherLogger logger;
     private String remoteQueryApiUrl;
     private RunningComServer runningComServer;
 
-    public ComServerLauncher(ServiceProvider serviceProvider) {
+    public ComServerLauncher(RunningComServerImpl.ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
         initializeLogging();
     }
@@ -92,7 +97,6 @@ public final class ComServerLauncher {
 
     private void initializeProviders() {
         CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
-        EventPublisherImpl.setInstance(new EventPublisherImpl(serviceProvider.clock(), serviceProvider.engineModelService(), serviceProvider.deviceDataService()));
     }
 
     public void stopComServer(){
@@ -129,7 +133,7 @@ public final class ComServerLauncher {
     }
 
     private void startOnlineComServer() {
-        ComServerDAO comServerDAO = new ComServerDAOImpl(serviceProvider);
+        ComServerDAO comServerDAO = new ComServerDAOImpl(new ComServerDaoServiceProvider());
         ComServer thisComServer = comServerDAO.getThisComServer();
         if (thisComServer == null) {
             this.logger.comServerNotFound(HostName.getCurrent());
@@ -138,7 +142,7 @@ public final class ComServerLauncher {
         } else {
             if (thisComServer.isOnline()) {
                 this.logger.starting(thisComServer.getName());
-                this.runningComServer = new OnlineRunningComServerImpl((OnlineComServer) thisComServer, serviceProvider);
+                this.runningComServer = new RunningOnlineComServerImpl((OnlineComServer) thisComServer, serviceProvider);
                 this.runningComServer.start();
             } else {
                 this.logger.notAnOnlineComeServer(thisComServer.getClass().getSimpleName());
@@ -147,7 +151,7 @@ public final class ComServerLauncher {
     }
 
     private void startRemoteComServer () {
-        RemoteComServerDAOImpl comServerDAO = new RemoteComServerDAOImpl(this.remoteQueryApiUrl, serviceProvider);
+        RemoteComServerDAOImpl comServerDAO = new RemoteComServerDAOImpl(this.remoteQueryApiUrl, new RemoteComServerDaoServiceProvider());
         try {
             comServerDAO.start();
             String hostNameOfThisMachine = HostName.getCurrent();
@@ -159,7 +163,7 @@ public final class ComServerLauncher {
             } else {
                 if (thisComServer.isRemote()) {
                     this.logger.starting(thisComServer.getName());
-                    this.runningComServer = new RemoteRunningComServerImpl((RemoteComServer) thisComServer, comServerDAO, serviceProvider);
+                    this.runningComServer = new RunningRemoteComServerImpl((RemoteComServer) thisComServer, comServerDAO, serviceProvider);
                     this.runningComServer.start();
                 } else {
                     this.logger.notARemoteComeServer(thisComServer.getClass().getSimpleName());
@@ -168,6 +172,52 @@ public final class ComServerLauncher {
         } catch (ApplicationException e) {
             this.logger.failedToStartQueryApi(e.getCause(), this.remoteQueryApiUrl);
         }
+    }
+
+    private class ComServerDaoServiceProvider implements ComServerDAOImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
+        }
+
+        @Override
+        public EngineModelService engineModelService() {
+            return serviceProvider.engineModelService();
+        }
+
+        @Override
+        public DeviceDataService deviceDataService() {
+            return serviceProvider.deviceDataService();
+        }
+
+        @Override
+        public TransactionService transactionService() {
+            return serviceProvider.transactionService();
+        }
+
+        @Override
+        public EngineService engineService() {
+            return serviceProvider.engineService();
+        }
+
+        @Override
+        public EventService eventService() {
+            return serviceProvider.eventService();
+        }
+
+    }
+
+    private class RemoteComServerDaoServiceProvider implements RemoteComServerDAOImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
+        }
+
+        @Override
+        public EngineModelService engineModelService() {
+            return serviceProvider.engineModelService();
+        }
+
     }
 
 }

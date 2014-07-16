@@ -5,6 +5,7 @@ import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
+import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
 
@@ -18,23 +19,28 @@ import java.util.concurrent.ThreadFactory;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-08 (15:54)
  */
-public class OnlineRunningComServerImpl extends RunningComServerImpl {
+public class RunningOnlineComServerImpl extends RunningComServerImpl implements RunningOnlineComServer {
 
     private OnlineComServer comServer;
     private EmbeddedWebServer remoteQueryApi;
 
-    public OnlineRunningComServerImpl(OnlineComServer comServer, ServiceProvider serviceProvider) {
+    public RunningOnlineComServerImpl(OnlineComServer comServer, ServiceProvider serviceProvider) {
         this(comServer, new ComServerDAOImpl(serviceProvider), serviceProvider);
     }
 
-    private OnlineRunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ServiceProvider serviceProvider) {
+    private RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, null, null, new ComServerThreadFactory(comServer), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         this.comServer = comServer;
     }
 
-    public OnlineRunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
+    public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup, serviceProvider);
         this.comServer = comServer;
+    }
+
+    @Override
+    public OnlineComServer getComServer() {
+        return this.comServer;
     }
 
     @Override
@@ -51,7 +57,7 @@ public class OnlineRunningComServerImpl extends RunningComServerImpl {
     }
 
     private void startQueryApiListener () {
-        this.remoteQueryApi = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateRemoteQueryWebServer(this.comServer);
+        this.remoteQueryApi = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateRemoteQueryWebServer(this);
         this.remoteQueryApi.start();
     }
 
@@ -66,7 +72,6 @@ public class OnlineRunningComServerImpl extends RunningComServerImpl {
                 this.remoteQueryApi.shutdown();
             }
         }
-//        this.systemTopicHandler.shutDownImmediate();
     }
 
     @Override
@@ -81,6 +86,31 @@ public class OnlineRunningComServerImpl extends RunningComServerImpl {
     @Override
     public boolean isRemoteQueryApiStarted () {
         return this.remoteQueryApi != null && ServerProcessStatus.STARTED.equals(this.remoteQueryApi.getStatus());
+    }
+
+    @Override
+    public WebSocketQueryApiService newWebSocketQueryApiService() {
+        return this.getServiceProvider().webSocketQueryApiServiceFactory().newWebSocketQueryApiService(this);
+    }
+
+    @Override
+    public void queryApiClientRegistered () {
+        this.findOrCreateComServerMonitor().getQueryApiStatistics().clientRegistered();
+    }
+
+    @Override
+    public void queryApiClientUnregistered () {
+        this.findOrCreateComServerMonitor().getQueryApiStatistics().clientUnregistered();
+    }
+
+    @Override
+    public void queryApiCallCompleted(long executionTimeInMillis) {
+        this.findOrCreateComServerMonitor().getQueryApiStatistics().callCompleted(executionTimeInMillis);
+    }
+
+    @Override
+    public void queryApiCallFailed(long executionTimeInMillis) {
+        this.findOrCreateComServerMonitor().getQueryApiStatistics().callFailed(executionTimeInMillis);
     }
 
 }

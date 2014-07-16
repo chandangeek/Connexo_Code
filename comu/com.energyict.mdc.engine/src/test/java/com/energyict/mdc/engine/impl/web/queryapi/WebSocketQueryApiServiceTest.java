@@ -8,6 +8,7 @@ import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
 import com.energyict.mdc.engine.model.ComPort;
@@ -134,7 +135,9 @@ public class WebSocketQueryApiServiceTest {
     @Test
     public void testGetThisComServer () throws SQLException, BusinessException, JSONException {
         OnlineComServer comServer = this.createComServerForThisMachine();
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactory().newWebSocketQueryApiService(comServer);
+        RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
+        when(runningComServer.getComServer()).thenReturn(comServer);
+        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactoryImpl().newWebSocketQueryApiService(runningComServer);
         TestConnection connection = new TestConnection();
         queryApiService.onOpen(connection);
         String queryId = "testGetThisComServer";
@@ -158,7 +161,9 @@ public class WebSocketQueryApiServiceTest {
     public void testGetOnlineComServer () throws SQLException, BusinessException, JSONException {
         String hostName = "online.WebSocketQueryApiServiceTest";
         OnlineComServer comServer = this.createOnlineComServer(hostName);
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactory().newWebSocketQueryApiService(comServer);
+        RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
+        when(runningComServer.getComServer()).thenReturn(comServer);
+        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactoryImpl().newWebSocketQueryApiService(runningComServer);
         TestConnection connection = new TestConnection();
         queryApiService.onOpen(connection);
         String queryId = "testGetComServer";
@@ -182,9 +187,11 @@ public class WebSocketQueryApiServiceTest {
     public void testGetRemoteComServer () throws SQLException, BusinessException, JSONException {
         String onlineHostName = "online.testGetRemoteComServer";
         OnlineComServer onlineComServer = this.createOnlineComServer(onlineHostName);
+        RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
+        when(runningComServer.getComServer()).thenReturn(onlineComServer);
         String remoteHostName = "remote.testGetRemoteComServer";
         RemoteComServer comServer = this.createRemoteComServer(remoteHostName, onlineComServer);
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactory().newWebSocketQueryApiService(onlineComServer);
+        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactoryImpl().newWebSocketQueryApiService(runningComServer);
         TestConnection connection = new TestConnection();
         queryApiService.onOpen(connection);
         String queryId = "testGetComServer";
@@ -206,7 +213,9 @@ public class WebSocketQueryApiServiceTest {
     @Test
     public void testGetComServerThatDoesNotExist () throws SQLException, BusinessException, JSONException {
         OnlineComServer comServer = this.createOnlineComServer("testGetComServerThatDoesNotExist");
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactory().newWebSocketQueryApiService(comServer);
+        RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
+        when(runningComServer.getComServer()).thenReturn(comServer);
+        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactoryImpl().newWebSocketQueryApiService(runningComServer);
         TestConnection connection = new TestConnection();
         queryApiService.onOpen(connection);
         String queryId = "testGetComServer";
@@ -230,11 +239,13 @@ public class WebSocketQueryApiServiceTest {
     public void testRefreshComPortWithoutChanges () throws SQLException, BusinessException, JSONException {
         String onlineHostName = "online.testRefreshComPortWithoutChanges";
         OnlineComServer onlineComServer = this.createOnlineComServer(onlineHostName);
+        RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
+        when(runningComServer.getComServer()).thenReturn(onlineComServer);
         String remoteHostName = "remote.testRefreshComPortWithoutChanges";
         RemoteComServer comServer = this.createRemoteComServerWithOneOutboundComPort(remoteHostName, onlineComServer);
         OutboundComPort comPort = comServer.getOutboundComPorts().get(0);
 
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactory().newWebSocketQueryApiService(onlineComServer);
+        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactoryImpl().newWebSocketQueryApiService(runningComServer);
         TestConnection connection = new TestConnection();
         queryApiService.onOpen(connection);
         String queryId = "testRefreshComPortWithoutChanges";
@@ -258,12 +269,14 @@ public class WebSocketQueryApiServiceTest {
     public void testRefreshComPortWithChanges () throws SQLException, BusinessException, JSONException {
         String onlineHostName = "online.testRefreshComPortWithChanges";
         OnlineComServer onlineComServer = this.createOnlineComServer(onlineHostName);
+        RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
+        when(runningComServer.getComServer()).thenReturn(onlineComServer);
         String remoteHostName = "remote.testRefreshComPortWithChanges";
         RemoteComServer comServer = this.createRemoteComServerWithOneOutboundComPort(remoteHostName, onlineComServer);
         OutboundComPort comPort = comServer.getOutboundComPorts().get(0);
         Date creationDate = comPort.getModificationDate();
 
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactory().newWebSocketQueryApiService(onlineComServer);
+        WebSocketQueryApiService queryApiService = new WebSocketQueryApiServiceFactoryImpl().newWebSocketQueryApiService(runningComServer);
         TestConnection connection = new TestConnection();
         queryApiService.onOpen(connection);
         String queryId = "testRefreshComPortWithChanges";

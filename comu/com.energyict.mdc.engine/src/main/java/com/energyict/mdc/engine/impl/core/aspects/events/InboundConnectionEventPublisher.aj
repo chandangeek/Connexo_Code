@@ -25,7 +25,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
  */
 public privileged aspect InboundConnectionEventPublisher extends AbstractCommunicationStatisticsMonitor {
 
-    /* Similar comment as in com.energyict.comserver.aspects.statistics.inbound.CommunicationStatisticsMonitor. */
+    /* Similar comment as in com.energyict.mdc.engine.impl.core.aspects.statistics.InboundCommunicationStatisticsMonitor. */
     private pointcut handle (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContext context):
             execution(void handle (InboundDeviceProtocol, InboundDiscoveryContext))
          && target(handler)

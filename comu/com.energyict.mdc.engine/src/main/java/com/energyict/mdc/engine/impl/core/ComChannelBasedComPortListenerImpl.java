@@ -6,6 +6,9 @@ import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 
+import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
+import com.energyict.protocols.mdc.services.SocketService;
+
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -17,6 +20,14 @@ import java.util.concurrent.ThreadFactory;
  * Time: 9:07
  */
 public abstract class ComChannelBasedComPortListenerImpl extends ComPortListenerImpl {
+
+    public interface ServiceProvider extends InboundComPortExecutorImpl.ServiceProvider {
+
+        public SerialComponentService serialComponentService();
+
+        public SocketService socketService();
+
+    }
 
     private final InboundComPortConnector inboundComPortConnector;
 

@@ -1,11 +1,5 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -20,6 +14,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
@@ -29,7 +24,6 @@ import com.energyict.mdc.engine.impl.core.ComJobFactory;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -52,7 +46,16 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -67,8 +70,23 @@ import java.util.List;
  */
 public class ComServerDAOImpl implements ComServerDAO {
 
-    private final ServiceProvider serviceProvider;
+    public interface ServiceProvider {
 
+        public Clock clock();
+
+        public EngineModelService engineModelService();
+
+        public DeviceDataService deviceDataService();
+
+        public EngineService engineService();
+
+        public TransactionService transactionService();
+
+        public EventService eventService();
+
+    }
+
+    private final ServiceProvider serviceProvider;
     private ServerProcessStatus status = ServerProcessStatus.STARTING;
 
     public ComServerDAOImpl(ServiceProvider serviceProvider) {

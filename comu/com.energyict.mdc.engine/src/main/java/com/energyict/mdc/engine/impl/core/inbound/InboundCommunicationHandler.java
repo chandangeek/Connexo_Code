@@ -16,7 +16,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -33,6 +33,7 @@ import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
@@ -57,6 +58,12 @@ import java.util.List;
  * @since 2012-10-12 (14:11)
  */
 public class InboundCommunicationHandler {
+
+    public interface ServiceProvider extends JobExecution.ServiceProvider {
+
+        public ProtocolPluggableService protocolPluggableService();
+
+    }
 
     private final ServiceProvider serviceProvider;
 
@@ -281,7 +288,8 @@ public class InboundCommunicationHandler {
                         getComPort(),
                         comServerDAO,
                         deviceCommandExecutor,
-                        getContext(), serviceProvider);
+                        getContext(),
+                        this.serviceProvider);
         inboundJobExecutionGroup.setToken(token);
         inboundJobExecutionGroup.setConnectionTask(this.connectionTask);
         inboundJobExecutionGroup.executeDeviceProtocol(this.deviceComTaskExecutions);
@@ -295,7 +303,8 @@ public class InboundCommunicationHandler {
                         deviceCommandExecutor,
                         getContext(),
                         inboundDeviceProtocol,
-                        offlineDevice, serviceProvider);
+                        offlineDevice,
+                        this.serviceProvider);
         inboundJobExecutionDataProcessor.setToken(token);
         inboundJobExecutionDataProcessor.setConnectionTask(this.connectionTask);
         inboundJobExecutionDataProcessor.executeDeviceProtocol(this.deviceComTaskExecutions);
@@ -312,4 +321,5 @@ public class InboundCommunicationHandler {
             return true;
         }
     }
+
 }

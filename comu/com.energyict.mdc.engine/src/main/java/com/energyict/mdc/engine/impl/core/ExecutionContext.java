@@ -2,6 +2,8 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
+import com.elster.jupiter.util.time.Clock;
+
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -25,6 +27,7 @@ import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
@@ -34,6 +37,7 @@ import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -50,8 +54,19 @@ import static com.energyict.mdc.tasks.history.ComTaskExecutionSession.SuccessInd
 * Time: 16:12
 */
 public final class ExecutionContext {
+
+    public interface ServiceProvider {
+
+        public Clock clock();
+
+        public IssueService issueService();
+
+        public TaskHistoryService taskHistoryService();
+
+    }
+
     private final JobExecution jobExecution;
-    private final CommandRoot.ServiceProvider serviceProvider;
+    private final ServiceProvider serviceProvider;
 
     private ComPortRelatedComChannel comPortRelatedComChannel;
     private ComSessionBuilder sessionBuilder;
@@ -68,11 +83,11 @@ public final class ExecutionContext {
     private CompositeDeviceCommand storeCommand;
     private boolean basicCheckFailed = false;
 
-    public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, CommandRoot.ServiceProvider serviceProvider) {
+    public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, ServiceProvider serviceProvider) {
         this(jobExecution, connectionTask, comPort, true, serviceProvider);
     }
 
-    public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, boolean logConnectionProperties, CommandRoot.ServiceProvider serviceProvider) {
+    public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, boolean logConnectionProperties, ServiceProvider serviceProvider) {
         super();
         this.jobExecution = jobExecution;
         this.comPort = comPort;

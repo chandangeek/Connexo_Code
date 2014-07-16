@@ -1,15 +1,21 @@
 package com.energyict.mdc.engine.impl;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.monitor.ManagementBeanFactory;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
@@ -18,15 +24,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.services.HexService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
-
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.SocketService;
 import com.google.common.base.Optional;
@@ -60,6 +61,8 @@ public class EngineServiceImpl implements EngineService, InstallService {
     private volatile IssueService issueService;
     private volatile DeviceDataService deviceDataService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private volatile ManagementBeanFactory managementBeanFactory;
+    private volatile WebSocketQueryApiServiceFactory webSocketQueryApiService;
     private volatile UserService userService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -74,6 +77,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
                              EngineModelService engineModelService, ThreadPrincipalService threadPrincipalService, TaskHistoryService taskHistoryService, IssueService issueService,
                              DeviceDataService deviceDataService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
                              ProtocolPluggableService protocolPluggableService,
+                             ManagementBeanFactory managementBeanFactory, WebSocketQueryApiServiceFactory webSocketQueryApiService,
                              SocketService socketService,
                              SerialComponentService serialComponentService) {
         this();
@@ -94,6 +98,8 @@ public class EngineServiceImpl implements EngineService, InstallService {
         setProtocolPluggableService(protocolPluggableService);
         setSocketService(socketService);
         setSerialComponentService(serialComponentService);
+        this.setManagementBeanFactory(managementBeanFactory);
+        this.setWebSocketQueryApiService(webSocketQueryApiService);
         this.install();
         activate();
     }
@@ -146,6 +152,16 @@ public class EngineServiceImpl implements EngineService, InstallService {
     @Reference
     public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
+    }
+
+    @Reference
+    public void setManagementBeanFactory(ManagementBeanFactory managementBeanFactory) {
+        this.managementBeanFactory = managementBeanFactory;
+    }
+
+    @Reference
+    public void setWebSocketQueryApiService(WebSocketQueryApiServiceFactory webSocketQueryApiService) {
+        this.webSocketQueryApiService = webSocketQueryApiService;
     }
 
     @Reference
@@ -214,6 +230,8 @@ public class EngineServiceImpl implements EngineService, InstallService {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+                bind(WebSocketQueryApiServiceFactory.class).toInstance(webSocketQueryApiService);
+                bind(ManagementBeanFactory.class).toInstance(managementBeanFactory);
             }
         };
     }
@@ -316,6 +334,15 @@ public class EngineServiceImpl implements EngineService, InstallService {
             return serialComponentService;
         }
 
+        @Override
+        public ManagementBeanFactory managementBeanFactory() {
+            return managementBeanFactory;
+        }
+
+        @Override
+        public WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory() {
+            return webSocketQueryApiService;
+        }
     }
 
 }

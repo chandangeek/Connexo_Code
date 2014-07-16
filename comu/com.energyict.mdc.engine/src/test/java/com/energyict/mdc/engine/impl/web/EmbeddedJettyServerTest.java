@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.web;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
@@ -218,7 +219,9 @@ public class EmbeddedJettyServerTest {
         OnlineComServer comServer = mock(OnlineComServer.class);
         String queryPostURI = "http://localhost:8081/remote/queries";
         when(comServer.getQueryApiPostUri()).thenReturn(queryPostURI);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI(queryPostURI), comServer);
+        RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
+        when(runningOnlineComServer.getComServer()).thenReturn(comServer);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI(queryPostURI), runningOnlineComServer);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -238,7 +241,9 @@ public class EmbeddedJettyServerTest {
             fail("Failed to start server on port " + PORT_NUMBER + " so testing that starting a second because the port is already in use does not make sense.");
         }
         OnlineComServer comServer = mock(OnlineComServer.class);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:" + PORT_NUMBER + "/remote/queries"), comServer);
+        RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
+        when(runningOnlineComServer.getComServer()).thenReturn(comServer);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:" + PORT_NUMBER + "/remote/queries"), runningOnlineComServer);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -250,7 +255,9 @@ public class EmbeddedJettyServerTest {
     @Test
     public void testQueriesShutdown () throws URISyntaxException {
         OnlineComServer comServer = mock(OnlineComServer.class);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:8082/remote/queries"), comServer);
+        RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
+        when(runningOnlineComServer.getComServer()).thenReturn(comServer);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:8082/remote/queries"), runningOnlineComServer);
         this.embeddedJettyServer.start();
 
         // Business method
@@ -263,7 +270,9 @@ public class EmbeddedJettyServerTest {
     @Test
     public void testQueriesShutdownImmediate () throws URISyntaxException {
         OnlineComServer comServer = mock(OnlineComServer.class);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:8083/remote/queries"), comServer);
+        RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
+        when(runningOnlineComServer.getComServer()).thenReturn(comServer);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:8083/remote/queries"), runningOnlineComServer);
         this.embeddedJettyServer.start();
 
         // Business method

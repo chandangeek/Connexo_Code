@@ -144,6 +144,11 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     }
 
     @Override
+    public void shutdown() {
+        this.connection.close();
+    }
+
+    @Override
     public void registerInterest (EventReceiver receiver) {
         this.systemWideEventPublisher.registerInterest(this);
     }

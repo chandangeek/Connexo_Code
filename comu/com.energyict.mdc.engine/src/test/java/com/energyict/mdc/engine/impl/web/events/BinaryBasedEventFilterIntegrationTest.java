@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
@@ -15,6 +16,7 @@ import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.tasks.ComTask;
@@ -79,6 +81,10 @@ public class BinaryBasedEventFilterIntegrationTest {
     private OutboundComPortPool comPortPool;
     @Mock
     private AbstractComServerEventImpl.ServiceProvider eventServiceProvider;
+    @Mock
+    private OnlineComServer comServer;
+    @Mock
+    private RunningOnlineComServer runningComServer;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private Clock clock = new DefaultClock();
@@ -102,6 +108,7 @@ public class BinaryBasedEventFilterIntegrationTest {
         this.serviceProvider.setClock(this.clock);
         this.serviceProvider.setDeviceDataService(this.deviceDataService);
         this.serviceProvider.setEngineModelService(this.engineModelService);
+        when(this.runningComServer.getComServer()).thenReturn(this.comServer);
     }
 
     @After
@@ -358,7 +365,7 @@ public class BinaryBasedEventFilterIntegrationTest {
     private class EventGenerator extends EventPublisherImpl {
 
         private EventGenerator() {
-            super(clock, engineModelService, deviceDataService);
+            super(runningComServer, clock, engineModelService, deviceDataService);
         }
 
         public void produceConnectDisconnectEvents () {

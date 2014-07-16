@@ -17,8 +17,8 @@ import javax.management.openmbean.CompositeData;
  * @since 2013-04-03 (14:08)
  */
 public class ComServerMonitorImpl implements ComServerMonitorImplMBean, ComServerMonitor {
-    private final Clock clock;
 
+    private final Clock clock;
     private RunningComServer comServer;
     private ComServerOperationalStatisticsImpl operationalStatistics;
     private EventAPIStatisticsImpl eventAPIStatistics;

@@ -17,6 +17,9 @@ import java.util.logging.Logger;
  */
 public class InboundComPortExecutorImpl implements InboundComPortExecutor {
 
+    public interface ServiceProvider extends InboundCommunicationHandler.ServiceProvider {
+    }
+
     private final InboundComPort comPort;
     private final ComServerDAO comServerDAO;
     private final DeviceCommandExecutor deviceCommandExecutor;
@@ -31,7 +34,7 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
 
     @Override
     public void execute(ComPortRelatedComChannel comChannel) {
-        final InboundCommunicationHandler inboundCommunicationHandler = new InboundCommunicationHandler(getServerInboundComPort(), this.comServerDAO, this.deviceCommandExecutor, serviceProvider);
+        final InboundCommunicationHandler inboundCommunicationHandler = new InboundCommunicationHandler(getServerInboundComPort(), this.comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
         BinaryInboundDeviceProtocol inboundDeviceProtocol = this.newInboundDeviceProtocol();
         InboundDiscoveryContextImpl context = this.newInboundDiscoveryContext(comChannel);
         inboundDeviceProtocol.initializeDiscoveryContext(context);
@@ -44,7 +47,7 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
     }
 
     private InboundDiscoveryContextImpl newInboundDiscoveryContext (ComPortRelatedComChannel comChannel) {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, comChannel, serviceProvider.taskHistoryService());
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, comChannel, this.serviceProvider.taskHistoryService());
         // Todo: needs revision as soon as we get more experience with inbound protocols that need encryption
         context.setLogger(Logger.getAnonymousLogger());
         return context;

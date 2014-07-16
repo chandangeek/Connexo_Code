@@ -3,14 +3,14 @@ package com.energyict.mdc.engine.impl.core.factories;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ComServerThreadFactory;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComPortListener;
 import com.energyict.mdc.engine.impl.core.ServletInboundComPortListener;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener;
-import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.issues.IssueService;
@@ -21,10 +21,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.ThreadFactory;
 
-import com.energyict.protocols.mdc.services.SocketService;
 import org.junit.*;
 import org.junit.runner.*;
-
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -32,7 +30,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests the {@link ComPortListenerFactoryImpl} component.
@@ -73,10 +70,10 @@ public class ComPortListenerFactoryImplTest {
 
     @Test
     public void testWithActivePort () {
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory);
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, this.serviceProvider);
 
         // Busines method
-        ComPortListener comPortListener = factory.newFor(this.activeComPort(), this.serviceProvider);
+        ComPortListener comPortListener = factory.newFor(this.activeComPort());
 
         // Asserts
         assertNotNull("Was NOT expecting the factory to return null for an active port", comPortListener);
@@ -84,36 +81,36 @@ public class ComPortListenerFactoryImplTest {
 
     @Test
     public void testWithInactivePort () {
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory);
-        assertNull("Was expecting the factory to return null for an inactive port", factory.newFor(this.inactiveComPort(), this.serviceProvider));
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, this.serviceProvider);
+        assertNull("Was expecting the factory to return null for an inactive port", factory.newFor(this.inactiveComPort()));
     }
 
     @Test
     public void testWithActivePortWithZeroSimultaneousConnections () {
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory);
-        assertNull("Was expecting the factory to return null for active port with 0 simultaneous connections", factory.newFor(this.activeComPortWithZeroSimultaneousConnections(), this.serviceProvider));
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, this.serviceProvider);
+        assertNull("Was expecting the factory to return null for active port with 0 simultaneous connections", factory.newFor(this.activeComPortWithZeroSimultaneousConnections()));
     }
 
     @Test
     public void testServletBasedInboundComPortListener(){
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory);
-        final ComPortListener comPortListener = factory.newFor(this.servletBasedInboundComPort(), this.serviceProvider);
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, this.serviceProvider);
+        final ComPortListener comPortListener = factory.newFor(this.servletBasedInboundComPort());
         assertNotNull(comPortListener);
         assertTrue(comPortListener instanceof ServletInboundComPortListener);
     }
 
     @Test
     public void testSingleThreadedComPortListener(){
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory);
-        final ComPortListener comPortListener = factory.newFor(this.singleThreadedInboundComPort(), this.serviceProvider);
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, this.serviceProvider);
+        final ComPortListener comPortListener = factory.newFor(this.singleThreadedInboundComPort());
         assertNotNull(comPortListener);
         assertTrue(comPortListener instanceof SingleThreadedComPortListener);
     }
 
     @Test
     public void testMultiThreadedComPortListener(){
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory);
-        final ComPortListener comPortListener = factory.newFor(this.multiThreadedInboundComPort(), this.serviceProvider);
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, this.serviceProvider);
+        final ComPortListener comPortListener = factory.newFor(this.multiThreadedInboundComPort());
         assertNotNull(comPortListener);
         assertTrue(comPortListener instanceof MultiThreadedComPortListener);
     }

@@ -2,7 +2,8 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
@@ -30,7 +31,7 @@ public interface EmbeddedWebServerFactory {
      * @param serviceProvider The IssueService
      * @return The EmbeddedWebServer
      */
-    public EmbeddedWebServer findOrCreateFor(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider);
+    public EmbeddedWebServer findOrCreateFor(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider);
 
     /**
      * Finds or creates the {@link EmbeddedWebServer} that hosts
@@ -49,9 +50,9 @@ public interface EmbeddedWebServerFactory {
      * to execute queries using the specified
      * {@link com.energyict.mdc.engine.model.OnlineComServer}.
      *
-     * @param comServer The OnlineComServer
+     * @param comServer The RunningOnlineComServer
      * @return The EmbeddedWebServer
      */
-    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (OnlineComServer comServer);
+    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (RunningOnlineComServer comServer);
 
 }

@@ -2,13 +2,15 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.EventServlet;
 import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -53,11 +55,11 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param deviceCommandExecutor The DeviceCommandExecutor
      * @param serviceProvider The IssueService
      */
-    public static EmbeddedJettyServer newForInboundDeviceCommunication(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    public static EmbeddedJettyServer newForInboundDeviceCommunication(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         return new EmbeddedJettyServer(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
-    private EmbeddedJettyServer(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    private EmbeddedJettyServer(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
         this.jetty = new Server();
         if (comPort.isHttps()) {
@@ -143,13 +145,13 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param queryApiPostUri The URI on which the servlet should be listening
      * @param comServer The OnlineComServer
      */
-    public static EmbeddedJettyServer newForQueryApi (URI queryApiPostUri, OnlineComServer comServer) {
+    public static EmbeddedJettyServer newForQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer) {
         EmbeddedJettyServer server = new EmbeddedJettyServer();
         server.addQueryApi(queryApiPostUri, comServer);
         return server;
     }
 
-    public void addQueryApi (URI queryApiPostUri, OnlineComServer comServer) {
+    public void addQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer) {
         this.jetty = new Server(getPortNumber(queryApiPostUri, ComServer.DEFAULT_QUERY_API_PORT_NUMBER));
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
         ServletHolder servletHolder = new ServletHolder(new QueryApiServlet(comServer));

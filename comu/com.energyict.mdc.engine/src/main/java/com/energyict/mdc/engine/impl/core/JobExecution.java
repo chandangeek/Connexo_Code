@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -14,6 +15,7 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
@@ -70,6 +72,21 @@ import static com.energyict.mdc.tasks.history.ComTaskExecutionSession.SuccessInd
  * Time: 16:27
  */
 public abstract class JobExecution implements ScheduledJob {
+
+    public interface ServiceProvider extends ExecutionContext.ServiceProvider {
+
+        public DeviceConfigurationService deviceConfigurationService();
+
+        public DeviceDataService deviceDataService();
+
+        public EngineService engineService();
+
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+
+        public TransactionService transactionService();
+
+    }
+
     private final ComPort comPort;
     private final ComServerDAO comServerDAO;
     private final DeviceCommandExecutor deviceCommandExecutor;
@@ -216,7 +233,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected ExecutionContext newExecutionContext(ConnectionTask<?, ?> connectionTask, ComPort comPort, boolean logConnectionProperties) {
-        return new ExecutionContext(this, connectionTask, comPort, logConnectionProperties, new ComCommandServiceProvider());
+        return new ExecutionContext(this, connectionTask, comPort, logConnectionProperties, this.serviceProvider);
     }
 
     protected void performPreparedComTaskExecution(PreparedComTaskExecution preparedComTaskExecution) {

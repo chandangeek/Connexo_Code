@@ -17,7 +17,7 @@ import com.energyict.mdc.engine.model.ComServer;
  * @since 2012-05-14 (13:37)
  */
 public aspect InboundComPortLogging {
-    declare precedence : InboundComPortLogging, com.energyict.comserver.scheduling.aspects.logging.ComPortLogging;
+    declare precedence : InboundComPortLogging, ComPortLogging;
 
     private pointcut started (ComPortListenerImpl comPort):
             execution(void ComPortListenerImpl.start())

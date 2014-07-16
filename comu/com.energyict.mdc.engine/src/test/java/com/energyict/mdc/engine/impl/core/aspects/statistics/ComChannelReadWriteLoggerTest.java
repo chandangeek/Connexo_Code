@@ -4,7 +4,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ConfigurableReadComChannel;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
@@ -17,6 +16,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.tasks.history.ComSessionBuilder;
@@ -433,6 +433,31 @@ public class ComChannelReadWriteLoggerTest {
         return comChannel;
     }
 
+    private static class ExecutionContextServiceProvider implements ExecutionContext.ServiceProvider {
+        private final JobExecution.ServiceProvider serviceProvider;
+
+        private ExecutionContextServiceProvider(JobExecution.ServiceProvider serviceProvider) {
+            super();
+            this.serviceProvider = serviceProvider;
+        }
+
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
+        }
+
+        @Override
+        public IssueService issueService() {
+            return serviceProvider.issueService();
+        }
+
+        @Override
+        public TaskHistoryService taskHistoryService() {
+            return serviceProvider.taskHistoryService();
+        }
+
+    }
+
     private class MockJobExecution extends JobExecution {
         private ComPortRelatedComChannel comChannel;
 
@@ -443,7 +468,7 @@ public class ComChannelReadWriteLoggerTest {
             ComPortPool comPortPool = mock(ComPortPool.class);
             when(comPortPool.getId()).thenReturn((long)COMPORT_POOL_ID);
             when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-            this.setExecutionContext(new ExecutionContext(this, connectionTask, comPort, new CommandRootServiceProviderAdapter(serviceProvider)));
+            this.setExecutionContext(new ExecutionContext(this, connectionTask, comPort, new ExecutionContextServiceProvider(serviceProvider)));
         }
 
         @Override
