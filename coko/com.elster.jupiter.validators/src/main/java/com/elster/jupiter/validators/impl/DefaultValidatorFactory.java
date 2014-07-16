@@ -6,7 +6,8 @@ import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validators.MessageSeeds;
@@ -24,24 +25,27 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
     public static final String THRESHOLD_VALIDATOR = ThresholdValidator.class.getName();
     public static final String MISSING_VALUES_VALIDATOR = MissingValuesValidator.class.getName();
     private volatile Thesaurus thesaurus;
+    private volatile PropertySpecService propertySpecService;
 
     @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public void install() {
         List<Translation> translations = new ArrayList<>(ValidatorDefinition.values().length);
         for (ValidatorDefinition validatorDefinition : ValidatorDefinition.values()) {
-            IValidator validator = validatorDefinition.createTemplate(thesaurus);
+            IValidator validator = validatorDefinition.createTemplate(thesaurus, propertySpecService);
             Translation translation = SimpleTranslation.translation(validator.getNlsKey(), Locale.ENGLISH, validator.getDefaultFormat());
             translations.add(translation);
-            for (String key : validator.getRequiredKeys()) {
-                translations.add(SimpleTranslation.translation(validator.getPropertyNlsKey(key), Locale.ENGLISH, validator.getPropertyDefaultFormat(key)));
-            }
-            for (String key : validator.getOptionalKeys()) {
-                translations.add(SimpleTranslation.translation(validator.getPropertyNlsKey(key), Locale.ENGLISH, validator.getPropertyDefaultFormat(key)));
+            for (PropertySpec key : validator.getPropertySpecs()) {
+                translations.add(SimpleTranslation.translation(validator.getPropertyNlsKey(key.getName()), Locale.ENGLISH, validator.getPropertyDefaultFormat(key.getName())));
             }
         }
         thesaurus.addTranslations(translations);
@@ -50,24 +54,24 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
     private enum ValidatorDefinition {
         THRESHOLD(THRESHOLD_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
-                return new ThresholdValidator(thesaurus, props);
+            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
+                return new ThresholdValidator(thesaurus, propertySpecService, props);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus) {
-                return new ThresholdValidator(thesaurus);
+            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+                return new ThresholdValidator(thesaurus, propertySpecService);
             }
         },
         MISSING_VALUES(MISSING_VALUES_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
-                return new MissingValuesValidator(thesaurus);
+            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
+                return new MissingValuesValidator(thesaurus, propertySpecService);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus) {
-                return new MissingValuesValidator(thesaurus);
+            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+                return new MissingValuesValidator(thesaurus, propertySpecService);
             }
         };
 
@@ -81,8 +85,9 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
             this.implementation = implementation;
         }
 
-        abstract Validator create(Thesaurus thesaurus, Map<String, Quantity> props);
-        abstract IValidator createTemplate(Thesaurus thesaurus);
+        abstract Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props);
+
+        abstract IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService);
     }
 
     @Override
@@ -95,10 +100,10 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
     }
 
     @Override
-    public Validator create(String implementation, Map<String, Quantity> props) {
+    public Validator create(String implementation, Map<String, Object> props) {
         for (ValidatorDefinition definition : ValidatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
-                return definition.create(thesaurus, props);
+                return definition.create(thesaurus, propertySpecService, props);
             }
         }
         throw new IllegalArgumentException("Unsupported implementation " + implementation);
@@ -108,7 +113,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
     public Validator createTemplate(String implementation) {
         for (ValidatorDefinition definition : ValidatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
-                return definition.createTemplate(thesaurus);
+                return definition.createTemplate(thesaurus, propertySpecService);
             }
         }
         throw new IllegalArgumentException("Unsupported implementation " + implementation);

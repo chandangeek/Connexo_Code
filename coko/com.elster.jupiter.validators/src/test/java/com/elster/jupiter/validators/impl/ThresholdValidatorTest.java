@@ -1,5 +1,7 @@
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -7,6 +9,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationResult;
@@ -30,14 +34,16 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ThresholdValidatorTest {
 
-    public static final Quantity MINIMUM = Quantity.create(BigDecimal.valueOf(1000L), 1, "Wh");
-    public static final Quantity MAXIMUM = Quantity.create(BigDecimal.valueOf(5000L), 1, "Wh");
-    public static final Quantity BELOW_MINIMUM = Quantity.create(BigDecimal.valueOf(0L), 1, "Wh");
-    public static final Quantity ABOVE_MAXIMUM = Quantity.create(BigDecimal.valueOf(6000L), 1, "Wh");
-    public static final Quantity IN_THE_MIDDLE = Quantity.create(BigDecimal.valueOf(3000L), 1, "Wh");
+    public static final BigDecimal MINIMUM = BigDecimal.valueOf(1000L);
+    public static final BigDecimal MAXIMUM = BigDecimal.valueOf(5000L);
+    public static final Quantity BELOW_MINIMUM = Quantity.create(BigDecimal.valueOf(0L), 3, "Wh");
+    public static final Quantity ABOVE_MAXIMUM = Quantity.create(BigDecimal.valueOf(6000L), 3, "Wh");
+    public static final Quantity IN_THE_MIDDLE = Quantity.create(BigDecimal.valueOf(3000L), 3, "Wh");
     public static final String THRESHOLD_VIOLATION = "Threshold violation";
     @Mock
     private Thesaurus thesaurus;
+
+    private PropertySpecService propertySpecService = new PropertySpecServiceImpl();
     @Mock
     private IntervalReadingRecord intervalReadingRecord;
     @Mock
@@ -51,8 +57,10 @@ public class ThresholdValidatorTest {
 
     @Before
     public void setUp() {
-        ImmutableMap<String, Quantity> properties = ImmutableMap.of("minimum", MINIMUM, "maximum", MAXIMUM);
-        thresholdValidator = new ThresholdValidator(thesaurus, properties);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        ImmutableMap<String, Object> properties = ImmutableMap.of("minimum", (Object) MINIMUM, "maximum", MAXIMUM);
+        thresholdValidator = new ThresholdValidator(thesaurus, propertySpecService, properties);
         thresholdValidator.init(channel, readingType, new Interval(new Date(7000L), new Date(14000L)));
     }
 
@@ -81,7 +89,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationOnMinimumPasses() {
-        when(intervalReadingRecord.getQuantity(readingType)).thenReturn(MINIMUM);
+        when(intervalReadingRecord.getQuantity(readingType)).thenReturn(Quantity.create(MINIMUM, 3, "Wh"));
 
         ValidationResult validationResult = thresholdValidator.validate(intervalReadingRecord);
 
@@ -90,7 +98,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationOnMaximumPasses() {
-        when(intervalReadingRecord.getQuantity(readingType)).thenReturn(MAXIMUM);
+        when(intervalReadingRecord.getQuantity(readingType)).thenReturn(Quantity.create(MAXIMUM, 3, "Wh"));
 
         ValidationResult validationResult = thresholdValidator.validate(intervalReadingRecord);
 
@@ -117,8 +125,8 @@ public class ThresholdValidatorTest {
 
     @Test(expected = MissingRequiredProperty.class)
     public void testConstructionWithoutRequiredProperty() {
-        ImmutableMap<String, Quantity> properties = ImmutableMap.of("minimum", MINIMUM);
-        thresholdValidator = new ThresholdValidator(thesaurus, properties);
+        ImmutableMap<String, Object> properties = ImmutableMap.of("minimum", (Object) MINIMUM);
+        thresholdValidator = new ThresholdValidator(thesaurus, propertySpecService, properties);
     }
 
     @Test
@@ -141,7 +149,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationOnMinimumPassesForReadingRecord() {
-        when(readingRecord.getQuantity(readingType)).thenReturn(MINIMUM);
+        when(readingRecord.getQuantity(readingType)).thenReturn(Quantity.create(MINIMUM, 3, "Wh"));
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 
@@ -150,7 +158,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationOnMaximumPassesForReadingRecord() {
-        when(readingRecord.getQuantity(readingType)).thenReturn(MAXIMUM);
+        when(readingRecord.getQuantity(readingType)).thenReturn(Quantity.create(MAXIMUM, 3, "Wh"));
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 

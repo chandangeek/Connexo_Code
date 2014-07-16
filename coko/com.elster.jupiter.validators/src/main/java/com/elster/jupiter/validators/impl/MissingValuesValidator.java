@@ -9,6 +9,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MessageSeeds;
@@ -24,7 +26,7 @@ import java.util.Map;
 
 /**
  * This Validator will interpret Intervals as being closed. i.e. start and end time are included in the interval. So when validating missing readings for a five minute interval over a period of five minutes will expect 2 readings.
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 10/07/2014
  * Time: 14:29
@@ -38,8 +40,8 @@ public class MissingValuesValidator extends AbstractValidator {
     private BitSet bitSet;
     private int expectedReadings;
 
-    MissingValuesValidator(Thesaurus thesaurus) {
-        super(thesaurus);
+    MissingValuesValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        super(thesaurus, propertySpecService);
     }
 
     @Override
@@ -60,12 +62,7 @@ public class MissingValuesValidator extends AbstractValidator {
     }
 
     @Override
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
+    public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
 

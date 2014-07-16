@@ -2,8 +2,12 @@ package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 import java.util.Collections;
 import java.util.Date;
@@ -17,9 +21,11 @@ import java.util.Map;
 abstract class AbstractValidator implements IValidator {
 
     private final Thesaurus thesaurus;
+    private final PropertySpecService propertySpecService;
 
-    AbstractValidator(Thesaurus thesaurus) {
+    AbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -32,8 +38,12 @@ abstract class AbstractValidator implements IValidator {
         return Collections.emptyMap();
     }
 
-    Thesaurus getThesaurus() {
+    final Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    final PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     @Override
@@ -46,7 +56,12 @@ abstract class AbstractValidator implements IValidator {
         return getThesaurus().getString(getNlsKey().getKey(), getDefaultFormat());
     }
 
-    boolean isAProperty(String property) {
-        return getRequiredKeys().contains(property) || getOptionalKeys().contains(property);
+    boolean isAProperty(final String property) {
+        return Iterables.any(getPropertySpecs(), new Predicate<PropertySpec>() {
+            @Override
+            public boolean apply(PropertySpec input) {
+                return property.equals(input.getName());
+            }
+        });
     }
 }

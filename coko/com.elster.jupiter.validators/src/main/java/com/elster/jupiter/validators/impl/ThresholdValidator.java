@@ -9,6 +9,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationResult;
@@ -16,6 +18,7 @@ import com.elster.jupiter.validators.MessageSeeds;
 import com.elster.jupiter.validators.MissingRequiredProperty;
 import com.google.common.collect.ImmutableList;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,44 +30,53 @@ class ThresholdValidator extends AbstractValidator {
     private static final String MIN = "minimum";
     private static final String MAX = "maximum";
     public static final String BASE_KEY = ThresholdValidator.class.getName();
+    private final Map<String, Object> properties;
 
     private Quantity minimum;
     private Quantity maximum;
     private ReadingType readingType;
 
-    ThresholdValidator(Thesaurus thesaurus) {
-        super(thesaurus);
+    ThresholdValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        super(thesaurus, propertySpecService);
+        this.properties = Collections.emptyMap();
     }
 
-    public ThresholdValidator(Thesaurus thesaurus, Map<String, Quantity> properties) {
-        super(thesaurus);
-        Quantity min = getRequiredQuantity(properties, MIN);
-        Quantity max = getRequiredQuantity(properties, MAX);
-        minimum = min;
-        maximum = max;
+    public ThresholdValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
+        super(thesaurus, propertySpecService);
+        checkProperty(MIN, properties);
+        checkProperty(MAX, properties);
+        this.properties = properties;
     }
 
-    private Quantity getRequiredQuantity(Map<String, Quantity> properties, String key) {
-        Quantity quantity = properties.get(key);
+    private void checkProperty(String propertyName, Map<String, Object> properties) {
+        if (!properties.containsKey(propertyName)) {
+            throw new MissingRequiredProperty(getThesaurus(), propertyName);
+        }
+
+    }
+
+    private Quantity getRequiredQuantity(Map<String, Object> properties, String key, ReadingType readingType) {
+        BigDecimal quantity = (BigDecimal) properties.get(key);
         if (quantity == null) {
             throw new MissingRequiredProperty(getThesaurus(), key);
         }
-        return quantity;
+        return readingType.getUnit().getUnit().amount(quantity, readingType.getMultiplier().getMultiplier());
     }
 
     @Override
-    public List<String> getRequiredKeys() {
-        return ImmutableList.of(MIN, MAX);
-    }
+    public List<PropertySpec> getPropertySpecs() {
+        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+        builder.add(getPropertySpecService().bigDecimalPropertySpec(MIN, true, BigDecimal.ZERO));
+        builder.add(getPropertySpecService().bigDecimalPropertySpec(MAX, true, BigDecimal.ZERO));
 
-    @Override
-    public List<String> getOptionalKeys() {
-        return Collections.emptyList();
+        return builder.build();
     }
 
     @Override
     public void init(Channel channel, ReadingType readingType, Interval interval) {
         this.readingType = readingType;
+        this.minimum = getRequiredQuantity(properties, MIN, readingType);
+        this.maximum = getRequiredQuantity(properties, MAX, readingType);
     }
 
     @Override
