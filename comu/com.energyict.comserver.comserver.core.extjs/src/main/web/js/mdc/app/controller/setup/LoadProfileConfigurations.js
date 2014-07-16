@@ -59,6 +59,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             'loadProfileConfigurationSetup': {
                 afterrender: this.loadStore
             },
+            'loadProfileConfigurationSetup button[action=addloadprofileconfiguration]': {
+                click: this.renderAddPage
+            },
             'loadProfileConfigurationSetup loadProfileConfigurationGrid': {
                 select: this.loadGridItemDetail
             },
@@ -99,6 +102,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             }
     },
 
+    renderAddPage: function () {
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/add').forward(router.routeparams);
+    },
 
     editRecord: function () {
         var grid = this.getLoadConfigurationGrid(),
