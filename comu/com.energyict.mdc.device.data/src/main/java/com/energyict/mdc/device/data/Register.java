@@ -49,6 +49,15 @@ public interface Register<R extends Reading> extends BaseRegister {
      */
     public List<R> getReadings(Interval interval);
 
+    /**
+     * Gets the {@link Reading} with the specified timestamp.
+     *
+     * @param timestamp The timestamp of the Reading
+     * @return The Reading
+     * @see Reading#getTimeStamp()
+     */
+    public Optional<R> getReading(Date timestamp);
+
     public Optional<R> getLastReading();
 
     /**

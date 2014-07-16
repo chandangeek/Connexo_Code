@@ -55,6 +55,17 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     }
 
     @Override
+    public Optional<R> getReading(Date timestamp) {
+        List<R> atMostOne = this.getReadings(new Interval(timestamp, timestamp));
+        if (atMostOne.isEmpty()) {
+            return Optional.absent();
+        }
+        else {
+            return Optional.of(atMostOne.get(0));
+        }
+    }
+
+    @Override
     public List<R> getReadings(Interval interval) {
         List<ReadingRecord> koreReadings = this.device.getReadingsFor(this, interval);
         List<List<ReadingQuality>> readingQualities = this.getReadingQualities(koreReadings);
