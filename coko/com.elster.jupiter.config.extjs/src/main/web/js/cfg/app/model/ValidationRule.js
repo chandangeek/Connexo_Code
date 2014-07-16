@@ -8,13 +8,24 @@ Ext.define('Cfg.model.ValidationRule', {
         'readingTypes',
         'properties',
         'name',
-        'ruleSetId',
-        'ruleSetName',
+        'ruleSet',
+        {
+            name: 'ruleSetId',
+            convert: function (value, record) {
+                return record.data.ruleSet.id;
+            }
+        },
+        {
+            name: 'ruleSetName',
+            convert: function (value, record) {
+                return record.data.ruleSet.name;
+            }
+        },
         {
             name: 'rule_name',
             persist: false,
             mapping: function (data) {
-                return '<a href="#/administration/validation/rulesets/validationrules/' + data.ruleSetId + '/ruleoverview/' + data.id + '">' + data.name + '</a>';
+                return '<a href="#/administration/validation/rulesets/validationrules/' + data.ruleSet.id + '/ruleoverview/' + data.id + '">' + data.name + '</a>';
             }
         }
     ],
