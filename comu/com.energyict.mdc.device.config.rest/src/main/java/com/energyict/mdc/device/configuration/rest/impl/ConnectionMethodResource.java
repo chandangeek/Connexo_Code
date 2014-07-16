@@ -133,7 +133,7 @@ public class ConnectionMethodResource {
     public Response createConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                            @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                            @Context UriInfo uriInfo,
-                                           ConnectionMethodInfo<?> connectionMethodInfo) {
+                                           ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         PartialConnectionTask created = connectionMethodInfo.createPartialTask(deviceConfiguration, engineModelService, protocolPluggableService,mdcPropertyUtils);
