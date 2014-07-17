@@ -86,7 +86,7 @@ Ext.define('Uni.property.view.property.Period', {
 
             return result;
         } else {
-            return value
+            return value;
         }
     }
 });
