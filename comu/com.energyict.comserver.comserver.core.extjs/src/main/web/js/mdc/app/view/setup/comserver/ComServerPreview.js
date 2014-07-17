@@ -89,7 +89,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                         name: 'communicationLogLevel'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('comserver.preview.shedulingInterPollDelay', 'MDC', 'Sheduling inter poll delay'),
+                        fieldLabel: Uni.I18n.translate('comserver.preview.schedulingInterPollDelay', 'MDC', 'Scheduling inter poll delay'),
                         name: 'schedulingInterPollDelay',
                         renderer: function (val) {
                             val ? val = val.count + ' ' + val.timeUnit : null;
