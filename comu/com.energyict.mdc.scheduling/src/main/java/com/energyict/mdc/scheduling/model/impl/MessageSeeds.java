@@ -28,17 +28,9 @@ public enum MessageSeeds implements MessageSeed {
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
-        this.key = stripComponentNameIfPresent(key);
+        this.key = key;
         this.defaultFormat = defaultFormat;
         this.level = level;
-    }
-
-    private String stripComponentNameIfPresent(String key) {
-        if (key.startsWith(SchedulingService.COMPONENT_NAME+".")) {
-            return key.substring(SchedulingService.COMPONENT_NAME.length()+1);
-        } else {
-            return key;
-        }
     }
 
     @Override
@@ -68,22 +60,22 @@ public enum MessageSeeds implements MessageSeed {
 
     static final class Keys {
 
-        public static final String VALUE_TOO_SMALL = SchedulingService.COMPONENT_NAME+".ValueTooSmall";
-        public static final String CAN_NOT_BE_EMPTY = SchedulingService.COMPONENT_NAME+".CanNotBeEmpty";
-        public static final String VALUE_NOT_IN_RANGE = SchedulingService.COMPONENT_NAME+".ValueNotInRange";
-        public static final String INVALID_URL = SchedulingService.COMPONENT_NAME+".InvalidURL";
-        public static final String INVALID_CHARS = SchedulingService.COMPONENT_NAME+".InvalidChars";
-        public static final String CAN_NOT_BE_EMPTY_IF_HTTPS = SchedulingService.COMPONENT_NAME+".CanNotBeEmptyIfHttps";
-        public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY = SchedulingService.COMPONENT_NAME+".nextExecutionSpecs.offsetGreaterThanFrequency";
-        public static final String NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY = SchedulingService.COMPONENT_NAME+".nextExecutionSpecs.temporalExpression.required";
-        public static final String NOT_UNIQUE = SchedulingService.COMPONENT_NAME+".notUnique";
-        public static final String TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY = SchedulingService.COMPONENT_NAME+".temporalExpression.every.required";
-        public static final String TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY = SchedulingService.COMPONENT_NAME+".temporalExpression.unknown.unit";
-        public static final String TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY = SchedulingService.COMPONENT_NAME+".temporalExpression.every.count.positive";
-        public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY = SchedulingService.COMPONENT_NAME+".temporalExpression.offset.count.positive";
+        public static final String VALUE_TOO_SMALL = "ValueTooSmall";
+        public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
+        public static final String VALUE_NOT_IN_RANGE = "ValueNotInRange";
+        public static final String INVALID_URL = "InvalidURL";
+        public static final String INVALID_CHARS = "InvalidChars";
+        public static final String CAN_NOT_BE_EMPTY_IF_HTTPS = "CanNotBeEmptyIfHttps";
+        public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY_KEY = "nextExecutionSpecs.offsetGreaterThanFrequency";
+        public static final String NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY = "nextExecutionSpecs.temporalExpression.required";
+        public static final String NOT_UNIQUE = "notUnique";
+        public static final String TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED_KEY = "temporalExpression.every.required";
+        public static final String TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY = "temporalExpression.unknown.unit";
+        public static final String TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY = "temporalExpression.every.count.positive";
+        public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY = "temporalExpression.offset.count.positive";
 
-        public static final String TOO_LONG = SchedulingService.COMPONENT_NAME + ".tooLong";
-        public static final String COMTASK_NOT_ENABLED = SchedulingService.COMPONENT_NAME + ".comTaskNotEnabled";
+        public static final String TOO_LONG = "tooLong";
+        public static final String COMTASK_NOT_ENABLED = "comTaskNotEnabled";
     }
 
 }
