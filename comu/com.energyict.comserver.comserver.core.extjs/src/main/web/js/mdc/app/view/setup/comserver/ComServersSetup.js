@@ -22,11 +22,11 @@ Ext.define('Mdc.view.setup.comserver.ComServersSetup', {
                     xtype: 'no-items-found-panel',
                     title: Uni.I18n.translate('comserver.empty.title', 'MDC', 'No communication servers found'),
                     reasons: [
-                        Uni.I18n.translate('comserver.empty.list.item1', 'MDC', 'No comunication servers created yet')
+                        Uni.I18n.translate('comserver.empty.list.item1', 'MDC', 'No communication servers created yet')
                     ],
                     stepItems: [
                         {
-                            text: Uni.I18n.translate('deviceType.add', 'MDC', 'Add online comunication server'),
+                            text: Uni.I18n.translate('deviceType.add', 'MDC', 'Add online communication server'),
                             action: 'addOnlineComServer',
                             href: '#/administration/comservers/add/online'
                         }
