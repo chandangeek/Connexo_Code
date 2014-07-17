@@ -268,8 +268,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         } else {
             this.getScheduleField().setVisible(false);
             this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(true);
-            this.getScheduleField().clear();
         }
+        this.getScheduleField().clear();
     },
 
     addDeviceOutboundConnectionMethod: function () {

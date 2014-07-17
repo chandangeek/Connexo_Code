@@ -91,7 +91,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this;
 
         if(newValue === false) {
-            me.getScheduleField().clear();
+            me.getScheduleField().clearOnlyOffsetValues();
             me.getScheduleField().setValue({
                 every: {
                     count: 15,
