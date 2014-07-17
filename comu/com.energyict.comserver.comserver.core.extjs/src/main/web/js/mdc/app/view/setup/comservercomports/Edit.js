@@ -73,24 +73,29 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                 {
                     xtype: 'container',
                     name: 'addFormNest',
-                    itemId: 'addFormNest'
-                }
-            ],
-            buttons: [
-                {
-                    text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                    xtype: 'button',
-                    ui: 'action',
-                    action: 'addModel',
-                    itemId: 'addEditButton'
+                    itemId: 'addFormNest',
+                    margin: '0 0 -20 0'
                 },
                 {
-                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                    xtype: 'button',
-                    ui: 'link',
-                    action: 'cancel',
-                    itemId: 'cancelLink',
-                    href: ''
+                    xtype: 'fieldcontainer',
+                    ui: 'actions',
+                    fieldLabel: '&nbsp',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            xtype: 'button',
+                            ui: 'action',
+                            action: 'addModel',
+                            itemId: 'addEditButton'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            xtype: 'button',
+                            ui: 'link',
+                            action: 'cancel',
+                            itemId: 'cancelLink'
+                        }
+                    ]
                 }
             ]
         }
