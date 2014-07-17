@@ -12,11 +12,12 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         itemId: 'searchitemsbulkactiontitle'
     },
     showMessage: function (message) {
-        this.removeAll();
-        widget = Ext.widget('container', {
-            cls: 'isu-bulk-assign-confirmation-request-panel',
-            html: message
+        var widget = Ext.widget('Ext.panel.Panel', {
+            title: message.title,
+            html: message.body
         });
+
+        this.removeAll();
         this.add(widget)
     }
 });

@@ -161,9 +161,19 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
         this.callParent(arguments);
     },
 
-    updateRegisterConfig: function(registerConfig) {
-        this.loadRecord(registerConfig);
-        this.setTitle(registerConfig.get('name'));
-        this.down('#preview_mrid').setValue(registerConfig.getReadingType().get('mrid'));
+    updateRegisterConfig: function (registerConfig) {
+        var me = this;
+
+        if (me.rendered) {
+            Ext.suspendLayouts();
+        }
+
+        me.loadRecord(registerConfig);
+        me.setTitle(registerConfig.get('name'));
+        me.down('#preview_mrid').setValue(registerConfig.getReadingType().get('mrid'));
+
+        if (me.rendered) {
+            Ext.resumeLayouts(true);
+        }
     }
 });

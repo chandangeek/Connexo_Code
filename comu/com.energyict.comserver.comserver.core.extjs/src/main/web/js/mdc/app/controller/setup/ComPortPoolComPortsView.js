@@ -51,7 +51,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
     init: function () {
         this.control({
             'comPortPoolsComPortsView comPortPoolComPortsGrid': {
-                select: this.showPreview
+                select: this.showPreviewWithServerName
             },
             'comPortPoolsComPortsView comPortPoolComPortPreview [action=passwordVisibleTrigger]': {
                 change: this.passwordVisibleTrigger
@@ -77,6 +77,10 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         });
 
         this.comPortsStoreToAdd = this.getStore('ComPortPoolComports');
+    },
+
+    showPreviewWithServerName: function(selectionModel, record) {
+        this.showPreview(selectionModel, record, true);
     },
 
     showView: function (id) {
@@ -240,7 +244,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                 record.save({
                     callback: function (records, operation, success) {
                         if (success) {
-                            messageText =  Uni.I18n.translate('comPortPoolComPorts.addPorts.successMessage', 'MDC', 'Communication ports were added successfully ')
+                            messageText =  Uni.I18n.translate('comPortPoolComPorts.addPorts.successMessage', 'MDC', 'Communication port(s) added');
                             me.getApplication().fireEvent('acknowledge', messageText);
                             router.getRoute('administration/comportpools/detail/comports').forward();
                         }

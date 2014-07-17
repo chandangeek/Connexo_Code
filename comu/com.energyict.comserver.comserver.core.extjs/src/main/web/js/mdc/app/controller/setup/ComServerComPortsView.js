@@ -134,7 +134,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         }, storesArr);
     },
 
-    showPreview: function (selectionModel, record) {
+    showPreview: function (selectionModel, record, showComServer) {
         var previewPanel = this.getPreview(),
             model = this.getModel('Mdc.model.ComServerComPort'),
             id = record.getId(),
@@ -152,6 +152,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                     currentForm && currentForm.hide();
                     if (form) {
                         form.show();
+                        if (showComServer === true) {
+                            form.down('displayfield[name=server]').show();
+                        } else {
+                            form.down('displayfield[name=server]').hide();
+                        }
                         if (record.get('comPortType') != 'SERVLET') {
                             switch (record.get('direction')) {
                                 case 'Inbound':
@@ -234,6 +239,17 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                             gridView.refresh();
                             me.getComPortsGrid().fireEvent('select', gridView, record);
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortOnComServer.changeState.msg', 'MDC', 'Communication port ' + ' ' + msg));
+                        },
+                        failure:function (response) {
+                            var title = Uni.I18n.translate('comServerComPorts.activation.failure', 'MDC', 'Failed to activate') + " " + record.get('name'),
+                                errorsArray = Ext.JSON.decode(response.responseText).errors,
+                                message = '';
+
+                            Ext.Array.each(errorsArray, function(obj) {
+                                message += obj.msg + '.</br>'
+                            });
+
+                            me.getApplication().getController('Uni.controller.Error').showError(title, message);
                         }
                     });
                 }

@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 header: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/validationrules/' + record.data.ruleSetId + '/ruleoverview/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.data.ruleSet.id + '/rules/' + record.getId() + '">' + value + '</a>';
                 },
                 flex: 1
             },
@@ -41,9 +41,9 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
             },
             {
                 header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
-                dataIndex: 'ruleSetName',
+                dataIndex: 'ruleSet',
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/validation/rulesets/overview/' + record.data.ruleSetId + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + value.id + '">' + value.name + '</a>';
                 },
                 flex: 1
             },

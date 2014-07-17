@@ -1,8 +1,8 @@
 Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.addComPortPool',
-    required: [
-    ],
+    itemId: 'addComPortPoolToComPort',
+
     content: [
         {
             ui: 'large',
@@ -10,39 +10,51 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
             buttonAlign: 'left',
             items: [
                 {
-                    xtype: 'grid',
-                    width: '60%',
-                    hideHeaders: true,
-                    itemId: 'addComPortPoolsGrid',
-                    store: 'Mdc.store.OutboundComPortPools',
-                    selType: 'checkboxmodel',
-                    selModel: {
-                        checkOnly: true,
-                        enableKeyNav: false
+                    xtype: 'radiogroup',
+                    name: 'AllOrSelectedCommunicationPortPools',
+                    columns: 1,
+                    vertical: true,
+                    submitValue: false,
+                    defaults: {
+                        padding: '0 0 30 0'
                     },
-                    buttonAlign: 'left',
-                    columns: [
+                    items: [
                         {
-                            header: 'Communication port pool',
-                            dataIndex: 'name',
-                            flex: 3
+                            boxLabel: '<b>' +  Uni.I18n.translate('comServerComPorts.allComPortPools', 'MDC', 'All communication port pools') + '</b><br/>' +
+                                '<span style="color: grey;"><i>' + Uni.I18n.translate('general.selectAllItems', 'MDC', 'Select all items (related to filters on previous screen)') + '</i></span>',
+                            name: 'comPortPoolsRange',
+                            checked: true,
+                            inputValue: 'ALL'
                         },
                         {
-                            header: 'status',
-                            dataIndex: 'type',
-                            flex: 1
+                            boxLabel: '<b>' +  Uni.I18n.translate('comServerComPorts.selectedComPortPools', 'MDC', 'Selected communication port pools') + '</b><br/><span style="color: grey;"><i>' + Uni.I18n.translate('general.selectItemsInTable', 'MDC', 'Select items in table') + '</i></span>',
+                            name: 'comPortPoolsRange',
+                            inputValue: 'SELECTED'
                         }
-                    ],
-                    tbar: [
+                    ]
+                },
+                {
+                    xtype: 'toolbar',
+                    border: 0,
+                    align: 'left',
+                    items: [
                         {
-                            xtype: 'label',
-                            text: 'No communication port pools selected',
-                            itemId: 'comPortPoolsGridSelection'
+                            xtype: 'container',
+                            itemId: 'comPortPoolsCountContainer',
+                            items: [
+                                {
+                                    xtype: 'container',
+                                    html: Uni.I18n.translate('comServerComPorts.addPools.noSelectedCount', 'MDC', 'No communication port pools selected')
+                                }
+                            ]
                         },
                         {
                             xtype: 'button',
-                            text: 'Uncheck all',
-                            action: 'uncheckAll'
+                            text: Uni.I18n.translate('general.uncheckall', 'MDC', 'Uncheck All'),
+                            action: 'uncheckallcomportPools',
+                            itemId: 'uncheckAllComPortPools',
+                            ui: 'action',
+                            margin: '0 0 0 10'
                         },
                         {
                             xtype: 'container',
@@ -50,24 +62,63 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
                         },
                         {
                             xtype: 'button',
+                            border: 0,
                             ui: 'link',
-                            text: 'Manage comport pools'
-                        }
-                    ],
-                    buttons: [
+                            text: Uni.I18n.translate('comServerComPorts.addPools.,manageComPorts', 'MDC', 'Manage communication port pools'),
+                            handler: function (button, event) {
+                                window.open('#/administration/comportpools');
+                            }
+                        }]
+                },
+                {
+                    xtype: 'gridpanel',
+                    itemId: 'addComPortPoolsGrid',
+                    store: 'Mdc.store.OutboundComPortPools',
+                    scroll: false,
+                    viewConfig: {
+                        style: { overflow: 'auto', overflowX: 'hidden' }
+                    },
+                    selType: 'checkboxmodel',
+                    selModel: {
+                        checkOnly: true,
+                        enableKeyNav: false,
+                        showHeaderCheckbox: false
+                    },
+                    columns: [
                         {
-                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                            xtype: 'button',
-                            ui: 'action',
-                            action: 'saveModel',
-                            itemId: 'createEditButton'
+                            header: 'Communication port pool',
+                            dataIndex: 'name',
+                            flex: 3
                         },
                         {
-                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            header: 'Status',
+                            dataIndex: 'active',
+                            flex: 1,
+                            renderer: function (value) {
+                                if (value === true) {
+                                    return Uni.I18n.translate('general.active', 'MDC', 'Active');
+                                } else {
+                                    return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
+                                }
+                            }
+                        },
+                    ]
+                },
+                {
+                    xtype: 'container',
+                    items: [
+                        {
                             xtype: 'button',
+                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            action: 'saveModel',
+                            itemId: 'createEditButton',
+                            ui: 'action'
+                        },
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                             ui: 'link',
-                            itemId: 'cancelLink',
-                            href: ''
+                            itemId: 'cancelLink'
                         }
                     ]
                 }

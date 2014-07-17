@@ -71,11 +71,5 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
         }
 
         this.callParent(arguments);
-
-        addButtons = this.query('button[action=addloadprofileconfiguration]');
-
-        config && config.deviceTypeId && config.deviceConfigurationId && Ext.Array.each(addButtons, function (button) {
-            button.href = '#/administration/devicetypes/' + config.deviceTypeId + '/deviceconfigurations/' + config.deviceConfigurationId + '/loadprofiles/add';
-        });
     }
 });

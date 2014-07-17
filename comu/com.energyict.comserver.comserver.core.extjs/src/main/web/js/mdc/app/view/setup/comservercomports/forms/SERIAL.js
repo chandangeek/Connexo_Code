@@ -21,6 +21,10 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
                     name: 'name'
                 },
                 {
+                    fieldLabel: Uni.I18n.translate('comports.preview.comServer', 'MDC', 'Communication server'),
+                    name: 'server'
+                },
+                {
                     fieldLabel: Uni.I18n.translate('comports.preview.direction', 'MDC', 'Direction'),
                     name: 'direction'
                 },

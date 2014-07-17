@@ -56,13 +56,13 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                             labelWidth: 250
                         },
                         items: [
-                           /* {
-                                xtype: 'displayfield',
-                                name: 'name',
-                                fieldLabel: Uni.I18n.translate('protocolDialect.name', 'MDC', 'Name'),
-                                itemId: 'editProtocolDialectNameField',
-                                width: 650
-                            }*/
+                            /* {
+                             xtype: 'displayfield',
+                             name: 'name',
+                             fieldLabel: Uni.I18n.translate('protocolDialect.name', 'MDC', 'Name'),
+                             itemId: 'editProtocolDialectNameField',
+                             width: 650
+                             }*/
                         ]
                     },
                     {
@@ -100,7 +100,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                                         itemId: 'restoreAllButton',
                                         action: 'restoreAll',
                                         //iconCls: 'x-uni-action-iconD',
-                                        //icon: '../mdc/resources/images/redo.png',
+                                        //icon: '../ext/packages/uni-theme-skyline/resources/images/form/restore.png',
                                         margin: '0 0 0 10',
                                         disabled: true
                                     },

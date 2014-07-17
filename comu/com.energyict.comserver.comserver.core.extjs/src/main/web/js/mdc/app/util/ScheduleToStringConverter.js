@@ -2,7 +2,9 @@ Ext.define('Mdc.util.ScheduleToStringConverter',{
     singleton: true,
     convert: function(temporalExpression){
         if(temporalExpression!==null && temporalExpression !== ''){
-            var formattedSchedule = Ext.util.Format.format('Every {0} {1}', temporalExpression.every.count,  Uni.I18n.translate(temporalExpression.every.timeUnit, 'MDC'));
+            var timeUnit = temporalExpression.every.timeUnit,
+                count = temporalExpression.every.count,
+                formattedSchedule = Ext.String.format('Every {0} {1}', count,  Uni.I18n.translatePlural('general.timeUnit.' + timeUnit, count, 'MDC', timeUnit));
             return formattedSchedule + this.formatOffset(temporalExpression);
         } else {
             return undefined;
@@ -32,16 +34,16 @@ Ext.define('Mdc.util.ScheduleToStringConverter',{
                 if(temporalExpression.lastDay===false){
                     return Ext.util.Format.format(
                         Uni.I18n.translate('scheduleToStringConverter.monthOffset', 'MDC', ' on the {0} day at {1} hours, {2} minutes and {3} seconds')
-                        ,Math.floor(Math.floor(offSet.count/86400))
-                        ,Math.floor((offSet.count%86400)/3600)
-                        ,((offSet.count%86400)%3600)/60
-                        ,((offSet.count%86400)%3600)%60);
+                        ,Math.floor(Math.floor(offset.count/86400))
+                        ,Math.floor((offset.count%86400)/3600)
+                        ,((offset.count%86400)%3600)/60
+                        ,((offset.count%86400)%3600)%60);
                 } else {
                     return Ext.util.Format.format(
                     Uni.I18n.translate('scheduleToStringConverter.monthOffset', 'MDC', ' on the last day at {0} hours, {1} minutes and {2} seconds')
                         ,Math.floor((offSet.count%86400)/3600)
-                        ,((offSet.count%86400)%3600)/60
-                        ,((offSet.count%86400)%3600)%60);
+                        ,((offset.count%86400)%3600)/60
+                        ,((offset.count%86400)%3600)%60);
                 }
         }
         return '';

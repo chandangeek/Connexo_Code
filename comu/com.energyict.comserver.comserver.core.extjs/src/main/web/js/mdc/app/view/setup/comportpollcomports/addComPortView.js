@@ -35,13 +35,13 @@ Ext.define('Mdc.view.setup.comportpollcomports.addComPortView', {
                     items: [
                         {
                             boxLabel: '<b>' +  Uni.I18n.translate('comPortPoolComPort.allComPorts', 'MDC', 'All communication ports') + '</b><br/>' +
-                                '<span style="color: grey;">' + Uni.I18n.translate('general.selectAllItems', 'MDC', 'Select all items (related to filters on previous screen)') + '</span>',
+                                '<span style="color: grey;"><i>' + Uni.I18n.translate('general.selectAllItems', 'MDC', 'Select all items (related to filters on previous screen)') + '</i></span>',
                             name: 'comPortsRange',
                             checked: true,
                             inputValue: 'ALL'
                         },
                         {
-                            boxLabel: '<b>' +  Uni.I18n.translate('comPortPoolComPort.selectedComPorts', 'MDC', 'Selected communication ports') + '</b><br/><span style="color: grey;">' + Uni.I18n.translate('general.selectItemsInTable', 'MDC', 'Select items in table') + '</span>',
+                            boxLabel: '<b>' +  Uni.I18n.translate('comPortPoolComPort.selectedComPorts', 'MDC', 'Selected communication ports') + '</b><br/><span style="color: grey;"><i>' + Uni.I18n.translate('general.selectItemsInTable', 'MDC', 'Select items in table') + '</i></span>',
                             name: 'comPortsRange',
                             inputValue: 'SELECTED'
                         }
@@ -54,14 +54,21 @@ Ext.define('Mdc.view.setup.comportpollcomports.addComPortView', {
                     items: [
                         {
                             xtype: 'container',
-                            itemId: 'comPortsCountContainer'
+                            itemId: 'comPortsCountContainer',
+                            items: [
+                                {
+                                    xtype: 'container',
+                                    html: Uni.I18n.translate('comPortPoolComPorts.addPorts.noPortsSelected', 'MDC', 'No communication ports selected')
+                                }
+                            ]
                         },
                         {
                             xtype: 'button',
                             text: Uni.I18n.translate('general.uncheckall', 'MDC', 'Uncheck All'),
                             action: 'uncheckallcomports',
                             itemId: 'uncheckAllComPorts',
-                            ui: 'action'
+                            ui: 'action',
+                            margin: '0 0 0 10'
                         }]
                 },
                 {

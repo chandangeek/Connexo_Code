@@ -76,6 +76,13 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             form;
 
         model.set('comServerType', 'Online');
+        model.set('serverLogLevel' , 'Warning');
+        model.set('communicationLogLevel' , 'Warning');
+        model.set('changesInterPollDelay' , {count: '5', timeUnit: 'minutes'});
+        model.set('schedulingInterPollDelay' , {count: '60', timeUnit: 'seconds'});
+        model.set('storeTaskQueueSize' , 50);
+        model.set('numberOfStoreTaskThreads' , 1);
+        model.set('storeTaskThreadPriority' , 5);
 
         this.comServerModel = model;
 

@@ -3,19 +3,19 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
     alias: 'widget.connectionMethodsGrid',
     overflowY: 'auto',
     itemId: 'connectionmethodsgrid',
+
     deviceTypeId: null,
     deviceConfigId: null,
+
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
         'Mdc.view.setup.connectionmethod.ConnectionMethodActionMenu'
     ],
-//    controllers: [
-//        'Mdc.controller.setup.DeviceTypes'
-//    ],
+
     store: 'ConnectionMethodsOfDeviceConfiguration',
-    //padding: '10 10 10 10',
+
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                 renderer: function (value, metadata) {
                     if (value === true) {
                         metadata.style = "padding: 6px 16px 6px 16px;";
-                        return '<img src="../mdc/resources/images/defaultItem.png">';
+                        return '<img src="../ext/packages/uni-theme-skyline/resources/images/grid/defaultItem.png">';
                     } else {
                         return '';
                     }
@@ -36,9 +36,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
             {
                 header: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-//                renderer: function(value,b,record){
-//                    return '<a href="#/administration/devicetypes/' + record.get('id') + '">' + value + '</a>';;
-//                },
                 flex: 0.3
             },
             {

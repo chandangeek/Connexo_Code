@@ -297,6 +297,14 @@ Ext.define('Mdc.widget.ScheduleField', {
     clear: function(){
         var me = this;
 
+        me.clearConnectionScheduleValues();
+        me.hideOffsetGui();
+        me.clearOffsetValues();
+    },
+
+    clearOnlyOffsetValues: function(){
+        var me = this;
+
         me.hideOffsetGui();
         me.clearOffsetValues();
     },
@@ -309,6 +317,12 @@ Ext.define('Mdc.widget.ScheduleField', {
         me.secondField.setValue(0);
         me.dayField.setValue(1);
         me.dayIndexField.setValue(1);
+    },
+
+    clearConnectionScheduleValues: function() {
+        var me = this;
+        me.valueField.setValue(0);
+        me.unitField.setValue(0);
     },
 
     hideOffsetGui: function(){

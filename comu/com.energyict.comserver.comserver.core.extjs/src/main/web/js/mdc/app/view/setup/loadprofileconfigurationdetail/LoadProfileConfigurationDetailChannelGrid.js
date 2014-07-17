@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     Ext.defer(function () {
                         Ext.widget('button', {
                             renderTo: id,
-                            icon: '../mdc/resources/images/information.png',
+                            icon: '../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png',
                             cls: 'uni-btn-transparent',
                             handler: function (item, test) {
                                 this.fireEvent('showReadingTypeInfo', record.getMeasurementType());

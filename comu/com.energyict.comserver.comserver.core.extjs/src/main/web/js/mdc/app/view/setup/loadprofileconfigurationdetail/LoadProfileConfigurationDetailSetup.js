@@ -1,12 +1,12 @@
 Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDetailSetup', {
     extend: 'Ext.container.Container',
     xtype: 'loadProfileConfigurationDetailSetup',
-
     intervalStore: null,
     deviceTypeId: null,
     deviceConfigId: null,
     loadProfileConfigurationId: null,
     autoDestroy: false,
+    autoScroll: true,
     padding: '0 10 0 10',
 
     layout: {
@@ -80,6 +80,16 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
         {
             xtype: 'container',
             itemId: 'loadProfileConfigurationDetailChannelPreviewContainer'
+        },
+        {
+            xtype: 'panel',
+            ui: 'medium',
+            padding: '32 0 0 0',
+            itemId: 'rulesForChannelConfig'
+        },
+        {
+            xtype: 'container',
+            itemId: 'validationrulesContainer'
         }
     ],
 

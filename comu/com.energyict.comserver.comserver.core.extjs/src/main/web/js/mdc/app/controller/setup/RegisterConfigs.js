@@ -90,26 +90,22 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             '#rulesForRegisterConfigGrid actioncolumn': {
                 viewRuleForRegisterConfig: this.viewRule
             },
-            '#ruleForRegisterConfigPreview  button[action = viewRuleForRegisterConfig]': {
-                viewRuleForRegisterConfig: this.viewRule
+            'register-config-and-rules-preview-container rules-for-registerconfig-actionmenu': {
+                click: this.viewRule
             }
         });
     },
 
-    viewRule: function (record) {
-        location.href = '#/administration/validation/rulesets/validationrules/' + record.data.ruleSetId + '/ruleoverview/' + record.data.id;
+    viewRule: function (menu, item) {
+        var me = this,
+            record = menu.record || me.getValidationRulesForRegisterConfigPreview().getRecord();
+
+        location.href = '#/administration/validation/rulesets/' + record.data.ruleSet.id + '/rules/' + record.data.id;
     },
 
     previewValidationRule: function (grid, record) {
         var selectedRules = this.getRulesForRegisterConfigGrid().getSelectionModel().getSelection();
-
-        if (selectedRules.length === 1) {
-            var selectedRule = selectedRules[0];
-            this.getValidationRulesForRegisterConfigPreview().updateValidationRule(selectedRule)
-            this.getValidationRulesForRegisterConfigPreview().show();
-        } else {
-            this.getValidationRulesForRegisterConfigPreview().hide();
-        }
+        this.getValidationRulesForRegisterConfigPreview().updateValidationRule(selectedRules[0]);
     },
 
 
@@ -254,6 +250,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
             record.save({
                 success: function (record) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.added', 'MDC', 'Register configuration added'));
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/registerconfigurations';
                 },
                 failure: function (record, operation) {
@@ -292,7 +289,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             var me = opt.config.me;
             registerConfigurationToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
             registerConfigurationToDelete.destroy({
-                callback: function () {
+                success: function () {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.removed', 'MDC', 'Register configuration removed'));
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/registerconfigurations';
                 }
             });
@@ -375,8 +373,15 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             }
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
             record.save({
-                callback: function (record) {
+                success: function (record) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.saved', 'MDC', 'Register configuration saved'));
                     location.href = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        me.getRegisterConfigEditForm().getForm().markInvalid(json.errors);
+                    }
                 }
             });
         }

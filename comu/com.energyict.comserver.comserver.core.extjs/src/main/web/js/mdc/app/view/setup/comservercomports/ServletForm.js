@@ -14,6 +14,16 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             required: true,
             allowBlank: false,
             name: 'numberOfSimultaneousConnections',
+            minValue: 1,
+            listeners: {
+                blur: {
+                    fn: function(field){
+                        if(Ext.isEmpty(field.getValue())) {
+                            field.setValue(1);
+                        }
+                    }
+                }
+            },
             value: 1,
             width: 350
         },
@@ -23,6 +33,16 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             required: true,
             allowBlank: false,
             name: 'portNumber',
+            minValue: 1,
+            listeners: {
+                blur: {
+                    fn: function(field){
+                        if(Ext.isEmpty(field.getValue())) {
+                            field.setValue(1);
+                        }
+                    }
+                }
+            },
             value: 1,
             width: 350
         },
@@ -138,6 +158,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
                 {
                     xtype: 'textfield',
                     required: true,
+                    allowBlank: false,
                     name: 'trustStorePassword',
                     inputType: 'password'
                 },
