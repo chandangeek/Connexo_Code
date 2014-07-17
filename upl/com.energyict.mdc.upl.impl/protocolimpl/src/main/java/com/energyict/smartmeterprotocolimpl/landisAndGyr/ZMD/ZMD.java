@@ -1,6 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSObis;
@@ -113,6 +116,20 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
     }
 
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
+        try {
+            getDlmsSession().init();
+        } catch (IOException e) {
+            getLogger().warning("Failed while initializing the DLMS connection.");
+        }
+        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                            //HDLC:         9600 baud, 8N1
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
+        hhuSignOn.enableDataReadout(datareadout);
+        getDlmsSession().getDLMSConnection().setHHUSignOn(hhuSignOn, "", 0);      //IEC1107:      300 baud, 7E1
+//        getDlmsSession().getDLMSConnection().setSNRMType(1);
+    }
+
     protected SecurityProvider getSecurityProvider() {
         return getProperties().getSecurityProvider();
     }
@@ -169,31 +186,13 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         if ((getProperties().getSerialNumber() == null) || ("".compareTo(getProperties().getSerialNumber()) == 0)) {
             return;
         }
-        String sn = getSerialNumber();
+        String sn = getMeterSerialNumber();
         String configuredSerial = getProperties().getSerialNumber();
         configuredSerial = configuredSerial.toLowerCase().startsWith("lgz") ? configuredSerial.substring(3) : configuredSerial;
         if ((sn != null) && (sn.compareTo(configuredSerial) == 0)) {
             return;
         }
         throw new ConnectionException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + configuredSerial);
-    }
-
-    public String getSerialNumber() throws ConnectionException {
-        /** The serial number is present in a reserved object: COSEM Logical device name object
-         * In order to facilitate access using SN referencing, this object has a reserved short name by DLMS/COSEM convention: 0xFD00.
-         * See topic  'Reserved base_names for special COSEM objects' in the DLMS Blue Book.
-        **/
-        try {
-            String retrievedSerial = getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
-            if (retrievedSerial.toLowerCase().startsWith("lgz")) {
-                return retrievedSerial.substring(3);
-            } else {
-                return retrievedSerial;
-            }
-        } catch (IOException e) {
-            getLogger().log(Level.FINEST, e.getMessage());
-            throw new ConnectionException("Could not retrieve the Serial number object." + e);
-        }
     }
 
     /**
@@ -259,13 +258,28 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
     }
 
     /**
+     * The serial number is present in a reserved object: COSEM Logical device name object
+     * In order to facilitate access using SN referencing, this object has a reserved short name by DLMS/COSEM convention: 0xFD00.
+     * See topic  'Reserved base_names for special COSEM objects' in the DLMS Blue Book.
+     * <p/>
      * Get the SerialNumber of the device
      *
      * @return the serialNumber of the device
-     * @throws java.io.IOException thrown in case of an exception
+     * @throws ConnectionException thrown in case of an exception
      */
-    public String getMeterSerialNumber() throws IOException {
-        return getSerialNumber();
+    public String getMeterSerialNumber() throws ConnectionException {
+
+        try {
+            String retrievedSerial = getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
+            if (retrievedSerial.toLowerCase().startsWith("lgz")) {
+                return retrievedSerial.substring(3);
+            } else {
+                return retrievedSerial;
+            }
+        } catch (IOException e) {
+            getLogger().log(Level.FINEST, e.getMessage());
+            throw new ConnectionException("Could not retrieve the Serial number object." + e);
+        }
     }
 
     public com.energyict.dlms.cosem.CosemObjectFactory getCosemObjectFactory() {

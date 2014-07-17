@@ -6,11 +6,21 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.VisibleString;
-import com.energyict.dlms.cosem.*;
-import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.RegisterMonitor;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.generic.ParseUtils;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -78,7 +88,7 @@ public class ObisCodeMapper {
                 throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
             }
         } else if (obisCode.equals(ObisCode.fromString("0.0.96.1.0.255"))) {  // but we will read the 1.0.0.0.0.255   -   SerialNumber
-            return new RegisterValue(register, this.protocol.getSerialNumber());
+            return new RegisterValue(register, this.protocol.getMeterSerialNumber());
         } else if (obisCode.equals(ObisCode.fromString("0.0.96.1.5.255"))) {  // but we will read the 1.0.0.2.0.255   -   FirmwareVersion
             return new RegisterValue(register, this.protocol.getFirmwareVersion());
         } else if (obisCode.equals(ObisCode.fromString("0.0.96.1.4.255"))) {  // but we will read the 0.0.96.2.0.255  -   Program Counter

@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
 import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 /**
  * Copyrights EnergyICT
@@ -9,7 +10,7 @@ import com.energyict.protocol.IntervalStateBits;
  * Time: 17:17
  */
 
-public class ZMDProfileIntervalStatusBits implements com.energyict.protocolimpl.base.ProfileIntervalStatusBits {
+public class ZMDProfileIntervalStatusBits implements ProfileIntervalStatusBits {
 
     static final int CORRUPTED_MEASUREMENT = 0x04;
     static final int TIME_DATE_ADJUSTED = 0x20;

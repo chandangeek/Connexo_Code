@@ -76,7 +76,7 @@ public class LoadProfileBuilder {
 
         for (LoadProfileReader lpr : expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getSerialNumber());
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getMeterSerialNumber());
 
             try {
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), lpr.getProfileObisCode());
@@ -129,7 +129,7 @@ public class LoadProfileBuilder {
                 channelMask = "1" + channelMask;
                 String registerObisCodeString = capturedObject.getLogicalName().toString();
                 // Add register to the list
-                registerList.add(new Register(-1, ObisCode.fromString(registerObisCodeString), meterProtocol.getSerialNumber()));
+                registerList.add(new Register(-1, ObisCode.fromString(registerObisCodeString), meterProtocol.getMeterSerialNumber()));
             } else {
                 channelMask = "0" + channelMask;
             }
