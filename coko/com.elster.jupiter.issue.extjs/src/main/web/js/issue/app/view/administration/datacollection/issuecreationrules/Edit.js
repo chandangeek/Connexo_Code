@@ -16,7 +16,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                         labelWidth: 150,
                         validateOnChange: false,
                         validateOnBlur: false,
-                        anchor: '100%'
+                        width: 700
                     },
                     items: [
                         {
@@ -64,14 +64,12 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             itemId: 'templateDetails',
                             xtype: 'container',
                             name: 'templateDetails',
-                            layout: 'fit',
-                            anchor: '70%',
                             defaults: {
                                 labelWidth: 150,
                                 margin: '0 0 10 0',
                                 validateOnChange: false,
                                 validateOnBlur: false,
-                                anchor: '100%'
+                                width: 700
                             }
                         },
                         {
@@ -88,103 +86,86 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             editable: false
                         },
                         {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox'
-                            },
+                            xtype: 'fieldcontainer',
+                            fieldLabel: 'Due date',
+                            layout: 'hbox',
                             items: [
                                 {
-                                    xtype: 'label',
-                                    text: 'Due date',
-                                    itemId: 'dueDate',
-                                    cls: 'x-form-item-label x-form-item-label-right',
-                                    width: 140
+                                    itemId: 'dueDateTrigger',
+                                    xtype: 'radiogroup',
+                                    name: 'dueDateTrigger',
+                                    formBind: false,
+                                    columns: 1,
+                                    vertical: true,
+                                    width: 100,
+                                    defaults: {
+                                        name: 'dueDate',
+                                        formBind: false,
+                                        submitValue: false
+                                    },
+                                    items: [
+                                        {
+                                            itemId: 'noDueDate',
+                                            boxLabel: 'No due date',
+                                            inputValue: false
+                                        },
+                                        {
+                                            itemId: 'dueIn',
+                                            boxLabel: 'Due in',
+                                            inputValue: true
+                                        }
+                                    ],
+                                    listeners: {
+                                        change: {
+                                            fn: function (radioGroup, newValue, oldValue) {
+                                                this.up('issues-creation-rules-edit').dueDateTrigger(radioGroup, newValue, oldValue);
+                                            }
+                                        }
+                                    }
                                 },
                                 {
+                                    itemId: 'dueDateValues',
                                     xtype: 'container',
-                                    margin: '0 16 0 26',
+                                    name: 'dueDateValues',
+                                    margin: '30 0 10 0',
                                     layout: {
                                         type: 'hbox'
                                     },
                                     items: [
                                         {
-                                            itemId: 'dueDateTrigger',
-                                            xtype: 'radiogroup',
-                                            name: 'dueDateTrigger',
-                                            formBind: false,
-                                            columns: 1,
-                                            vertical: true,
-                                            width: 100,
-                                            defaults: {
-                                                name: 'dueDate',
-                                                formBind: false,
-                                                submitValue: false
-                                            },
-                                            items: [
-                                                {
-                                                    itemId: 'noDueDate',
-                                                    boxLabel: 'No due date',
-                                                    inputValue: false
-                                                },
-                                                {
-                                                    itemId: 'dueIn',
-                                                    boxLabel: 'Due in',
-                                                    inputValue: true
-                                                }
-                                            ],
+                                            itemId: 'dueIn.number',
+                                            xtype: 'numberfield',
+                                            name: 'dueIn.number',
+                                            minValue: 1,
+                                            width: 60,
+                                            margin: '0 10 0 0',
                                             listeners: {
-                                                change: {
-                                                    fn: function (radioGroup, newValue, oldValue) {
-                                                        this.up('issues-creation-rules-edit').dueDateTrigger(radioGroup, newValue, oldValue);
+                                                focus: {
+                                                    fn: function () {
+                                                        var radioButton = Ext.ComponentQuery.query('issues-creation-rules-edit [boxLabel=Due in]')[0];
+                                                        radioButton.setValue(true);
                                                     }
                                                 }
                                             }
                                         },
                                         {
-                                            itemId: 'dueDateValues',
-                                            xtype: 'container',
-                                            name: 'dueDateValues',
-                                            margin: '30 0 10 0',
-                                            layout: {
-                                                type: 'hbox'
-                                            },
-                                            items: [
-                                                {
-                                                    itemId: 'dueIn.number',
-                                                    xtype: 'numberfield',
-                                                    name: 'dueIn.number',
-                                                    minValue: 1,
-                                                    width: 60,
-                                                    margin: '0 10 0 0',
-                                                    listeners: {
-                                                        focus: {
-                                                            fn: function () {
-                                                                var radioButton = Ext.ComponentQuery.query('issues-creation-rules-edit [boxLabel=Due in]')[0];
-                                                                radioButton.setValue(true);
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    itemId: 'dueIn.type',
-                                                    xtype: 'combobox',
-                                                    name: 'dueIn.type',
-                                                    store: 'Isu.store.DueinType',
-                                                    queryMode: 'local',
-                                                    displayField: 'displayValue',
-                                                    valueField: 'name',
-                                                    editable: false,
-                                                    width: 100,
-                                                    listeners: {
-                                                        focus: {
-                                                            fn: function () {
-                                                                var radioButton = Ext.ComponentQuery.query('issues-creation-rules-edit [boxLabel=Due in]')[0];
-                                                                radioButton.setValue(true);
-                                                            }
-                                                        }
+                                            itemId: 'dueIn.type',
+                                            xtype: 'combobox',
+                                            name: 'dueIn.type',
+                                            store: 'Isu.store.DueinType',
+                                            queryMode: 'local',
+                                            displayField: 'displayValue',
+                                            valueField: 'name',
+                                            editable: false,
+                                            width: 100,
+                                            listeners: {
+                                                focus: {
+                                                    fn: function () {
+                                                        var radioButton = Ext.ComponentQuery.query('issues-creation-rules-edit [boxLabel=Due in]')[0];
+                                                        radioButton.setValue(true);
                                                     }
                                                 }
-                                            ]
+                                            }
                                         }
                                     ]
                                 }
@@ -196,68 +177,49 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             name: 'comment',
                             fieldLabel: 'Comment',
                             emptyText: 'Provide a comment (optionally)'
-                        }
-                    ]
-                },
-                {
-                    xtype: 'container',
-                    layout: {
-                        type: 'hbox'
-                    },
-                    items: [
-                        {
-                            itemId: 'actionsL',
-                            xtype: 'component',
-                            html: '<b>Actions</b>',
-                            width: 150,
-                            cls: 'x-form-item-label uni-form-item-bold x-form-item-label-right'
                         },
                         {
-                            itemId: 'actionToolbar',
-                            xtype: 'toolbar',
-                            border: false,
+                            xtype: 'fieldcontainer',
+                            fieldLabel: 'Actions',
                             items: [
                                 {
+                                    xtype: 'button',
                                     itemId: 'addAction',
                                     text: 'Add action',
                                     action: 'addAction',
-                                    ui: 'action',
-                                    margin: '0 5 0 -5'
+                                    ui: 'action'
+                                },
+                                {
+                                    xtype: 'issues-creation-rules-actions-list',
+                                    hidden: true
+                                },
+                                {
+                                    name: 'noactions',
+                                    html: 'There are no actions added yet to this rule',
+                                    hidden: true
                                 }
                             ]
-                        }
-                    ]
-                },
-                {
-                    xtype: 'issues-creation-rules-actions-list',
-                    margin: '15 20 0 165',
-                    hidden: true
-                },
-                {
-                    name: 'noactions',
-                    html: 'There are no actions added yet to this rule',
-                    margin: '15 20 0 165',
-                    hidden: true
-                },
-                {
-                    xtype: 'container',
-                    layout: 'hbox',
-                    defaultType: 'button',
-                    margin: '20 165',
-                    items: [
-                        {
-                            itemId: 'ruleAction',
-                            name: 'ruleAction',
-                            ui: 'action',
-                            formBind: false,
-                            action: 'save'
                         },
                         {
-                            itemId: 'cancel',
-                            text: 'Cancel',
-                            ui: 'link',
-                            name: 'cancel',
-                            href: '#/administration/issue/creationrules'
+                            xtype: 'fieldcontainer',
+                            ui: 'actions',
+                            fieldLabel: '&nbsp',
+                            defaultType: 'button',
+                            items: [
+                                {
+                                    itemId: 'ruleAction',
+                                    name: 'ruleAction',
+                                    ui: 'action',
+                                    action: 'save'
+                                },
+                                {
+                                    itemId: 'cancel',
+                                    text: 'Cancel',
+                                    ui: 'link',
+                                    name: 'cancel',
+                                    href: '#/administration/issue/creationrules'
+                                }
+                            ]
                         }
                     ]
                 }
