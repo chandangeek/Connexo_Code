@@ -19,7 +19,7 @@ public class ChannelInfo implements java.io.Serializable {
 
     private int id;
     /**
-     * Logical name of the channel. Use OBIS code from the registerMapping is used.
+     * Logical name of the channel. Use OBIS code from the ChannelType is used.
      */
     private String name;
     /**

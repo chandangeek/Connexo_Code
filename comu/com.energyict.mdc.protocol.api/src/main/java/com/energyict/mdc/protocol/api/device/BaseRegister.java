@@ -7,7 +7,7 @@ import com.energyict.mdc.common.ObisCode;
  */
 public interface BaseRegister {
 
-    ObisCode getRegisterMappingObisCode();
+    ObisCode getRegisterTypeObisCode();
 
     ObisCode getRegisterSpecObisCode();
 

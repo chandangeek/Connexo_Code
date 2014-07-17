@@ -22,7 +22,7 @@ public interface OfflineRegister extends Offline {
     /**
      * Returns the ObisCode for this Register, known by the Device. The will be the overruled ObisCode,
      * or if no overrule was defined, this will return the same ObisCode as {@link #getAmrRegisterObisCode()}<br/>
-     * (actually the ObisCode from the RegisterMapping)
+     * (actually the ObisCode from the ChannelType)
      *
      * @return the ObisCode
      */
