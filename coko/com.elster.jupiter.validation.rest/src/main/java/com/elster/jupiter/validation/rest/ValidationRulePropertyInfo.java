@@ -15,6 +15,7 @@ public class ValidationRulePropertyInfo {
 
     public ValidationRulePropertyInfo(ValidationRuleProperties validationRuleProperties) {
         name = validationRuleProperties.getDisplayName();
+        key = validationRuleProperties.getName();
         value = validationRuleProperties.getValue();
         required = validationRuleProperties.getRule().isRequired(validationRuleProperties.getName());
     }
