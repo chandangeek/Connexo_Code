@@ -34,5 +34,16 @@ Ext.define('Uni.property.view.property.Date', {
             }
         }
         this.callParent([value]);
+    },
+
+    getValue: function (value) {
+        if (value !== null && value !== '') {
+            var newDate = new Date(value.getFullYear(), value.getMonth(), value.getDate(),
+                0, 0, 0, 0);
+            return newDate.getTime();
+        } else
+        {
+            return value;
+        }
     }
 });
