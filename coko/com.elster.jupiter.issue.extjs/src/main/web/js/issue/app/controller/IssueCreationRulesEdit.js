@@ -183,7 +183,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     name,
                     value;
 
-                if (data.parameters) {
+                if (data.parameters) {console.info(data.parameters);
                     for (name in data.parameters) {
                         formField = templateDetails.down('[name=' + name + ']');
                         value = data.parameters[name];

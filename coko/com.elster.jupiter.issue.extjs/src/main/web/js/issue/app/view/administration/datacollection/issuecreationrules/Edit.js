@@ -11,7 +11,6 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
             items: [
                 {
                     xtype: 'form',
-                    width: '75%',
                     defaults: {
                         labelWidth: 150,
                         validateOnChange: false,
@@ -176,12 +175,13 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                             xtype: 'textareafield',
                             name: 'comment',
                             fieldLabel: 'Comment',
-                            emptyText: 'Provide a comment (optionally)'
+                            emptyText: 'Provide a comment (optionally)',
+                            height: 100
                         },
                         {
                             xtype: 'fieldcontainer',
                             fieldLabel: 'Actions',
-                            width: 930,
+                            width: 900,
                             items: [
                                 {
                                     xtype: 'button',
