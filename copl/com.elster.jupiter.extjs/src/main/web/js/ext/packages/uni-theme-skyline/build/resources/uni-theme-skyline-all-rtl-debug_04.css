@@ -1,3 +1,173 @@
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-window-message-error:after {
+  display: none;
+  content: "x-slicer:corners:url(images/window/window-message-error-corners.gif), sides:url(images/window/window-message-error-sides.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 210, ../../../ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-body-message-error {
+  border-color: #86b9cf;
+  border-width: 0;
+  border-style: none;
+  background: transparent;
+  color: #70bb51;
+  font-size: 13px;
+  font-weight: normal;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+}
+
+/* line 224, ../../../ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-message-error {
+  font-size: 13px;
+  border-color: #70bb51;
+  zoom: 1;
+  background-color: transparent;
+}
+/* line 230, ../../../ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-message-error .x-tool-img {
+  background-image: url(images/tools/tool-sprites-dark.png);
+  background-color: transparent;
+}
+
+/* line 241, ../../../ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-message-error-vertical .x-window-header-text-container {
+  -webkit-transform: rotate(90deg);
+  -webkit-transform-origin: 0 0;
+  -moz-transform: rotate(90deg);
+  -moz-transform-origin: 0 0;
+  -o-transform: rotate(90deg);
+  -o-transform-origin: 0 0;
+  transform: rotate(90deg);
+  transform-origin: 0 0;
+}
+
+/* line 246, ../../../ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-message-error-vertical .x-rtl.x-window-header-text-container {
+  -webkit-transform: rotate(270deg);
+  -webkit-transform-origin: 100% 0;
+  -moz-transform: rotate(270deg);
+  -moz-transform-origin: 100% 0;
+  -o-transform: rotate(270deg);
+  -o-transform-origin: 100% 0;
+  transform: rotate(270deg);
+  transform-origin: 100% 0;
+}
+
+/* line 251, ../../../ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-text-container-message-error {
+  color: #70bb51;
+  font-weight: bold;
+  line-height: 15px;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  font-size: 13px;
+  padding: 0;
+  text-transform: none;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top {
+  -moz-border-radius-topleft: 10px;
+  -webkit-border-top-left-radius: 10px;
+  border-top-left-radius: 10px;
+  -moz-border-radius-topright: 10px;
+  -webkit-border-top-right-radius: 10px;
+  border-top-right-radius: 10px;
+  -moz-border-radius-bottomright: 0;
+  -webkit-border-bottom-right-radius: 0;
+  border-bottom-right-radius: 0;
+  -moz-border-radius-bottomleft: 0;
+  -webkit-border-bottom-left-radius: 0;
+  border-bottom-left-radius: 0;
+  padding: 10px 10px 0 10px;
+  border-width: 0 0 0 0;
+  border-style: solid;
+  background-color: transparent;
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-mc {
+  background-color: transparent;
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-window-header-message-error-top {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-frameInfo {
+  font-family: dh-10-10-0-0-0-0-0-0-10-10-0-10;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-tl {
+  background-position: 0 -20px;
+}
+
+/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-tr {
+  background-position: right -30px;
+}
+
+/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-bl {
+  background-position: 0 -40px;
+}
+
+/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-br {
+  background-position: right -50px;
+}
+
+/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-tc {
+  background-position: 0 0;
+}
+
+/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-bc {
+  background-position: 0 -10px;
+}
+
+/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-tr,
+.x-window-header-message-error-top-br,
+.x-window-header-message-error-top-mr {
+  padding-right: 10px;
+}
+
+/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-tl,
+.x-window-header-message-error-top-bl,
+.x-window-header-message-error-top-ml {
+  padding-left: 10px;
+}
+
+/* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-top-tc {
+  height: 10px;
+}
+
 /* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-message-error-top-bc {
   height: 0;
@@ -1503,8 +1673,16 @@ a.x-datepicker-date:hover {
 .x-grid-body .x-grid-row a:hover {
   text-decoration: underline;
 }
-/* line 54, ../../sass/src/panel/Table.scss */
+/* line 52, ../../sass/src/panel/Table.scss */
+.x-grid-body .x-grid-row .x-form-display-field {
+  margin: 0;
+}
+/* line 57, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected a, .x-grid-body .x-grid-row-over a {
+  color: white;
+}
+/* line 60, ../../sass/src/panel/Table.scss */
+.x-grid-body .x-grid-row-selected .x-form-display-field, .x-grid-body .x-grid-row-over .x-form-display-field {
   color: white;
 }
 
@@ -1742,26 +1920,26 @@ a.x-datepicker-date:hover {
   border: 0;
   margin: 0;
 }
-/* line 59, ../../sass/src/menu/Menu.scss */
+/* line 60, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .x-menu-item .x-menu-item-text {
   color: #686868;
   font-size: 14px;
 }
-/* line 63, ../../sass/src/menu/Menu.scss */
+/* line 65, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .current {
   border-right: 4px solid #74af74;
   cursor: default;
 }
-/* line 66, ../../sass/src/menu/Menu.scss */
+/* line 68, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .current .x-menu-item-text {
   color: #74af74;
   font-weight: bold;
 }
-/* line 70, ../../sass/src/menu/Menu.scss */
+/* line 73, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .x-menu-item-active {
   background: #d4d4d4;
 }
-/* line 72, ../../sass/src/menu/Menu.scss */
+/* line 75, ../../sass/src/menu/Menu.scss */
 .x-panel-side-menu .x-menu-body .x-menu-item-active x-menu-item-text {
   color: white;
 }

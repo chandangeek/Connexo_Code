@@ -49,9 +49,19 @@
 //      color: $button-link-color-over;
       text-decoration: underline;
     }
+
+    .#{$prefix}form-display-field-body {
+      height: auto;
+      .#{$prefix}form-display-field {
+        margin: 0;
+      }
+    }
   }
   .#{$prefix}grid-row-selected, .#{$prefix}grid-row-over {
     a {
+      color: $grid-row-cell-selected-color;
+    }
+    .#{$prefix}form-display-field {
       color: $grid-row-cell-selected-color;
     }
   }

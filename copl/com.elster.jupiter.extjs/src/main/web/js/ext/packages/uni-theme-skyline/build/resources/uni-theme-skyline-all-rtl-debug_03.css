@@ -1,3 +1,103 @@
+.x-btn-sort-medium-icon-text-left .x-rtl.x-btn-inner {
+  padding-left: 8px;
+  padding-right: 29px;
+}
+/* line 404, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
+  padding-right: 29px;
+}
+/* line 409, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-left .x-btn-icon-el {
+  width: 24px;
+  right: auto;
+}
+/* line 415, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-sort-medium-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-sort-medium-icon-text-left .x-btn-icon-el {
+  height: 24px;
+}
+/* line 422, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-left .x-rtl.x-btn-icon-el {
+  left: auto;
+  right: 0;
+}
+
+/* line 430, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-right .x-btn-button {
+  height: 24px;
+}
+/* line 435, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-right .x-btn-inner {
+  line-height: 24px;
+  padding-right: 29px;
+}
+/* line 441, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-right .x-rtl.x-btn-inner {
+  padding-right: 8px;
+  padding-left: 29px;
+}
+/* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-right .x-btn-icon-el {
+  width: 24px;
+  left: auto;
+}
+/* line 453, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-sort-medium-icon-text-right .x-btn-icon-el, .x-quirks .x-ie .x-btn-sort-medium-icon-text-right .x-btn-icon-el {
+  height: 24px;
+}
+/* line 460, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-right .x-rtl.x-btn-icon-el {
+  left: 0;
+  right: auto;
+}
+
+/* line 468, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-top .x-btn-inner {
+  padding-top: 29px;
+}
+/* line 472, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-top .x-btn-icon-el {
+  height: 24px;
+  bottom: auto;
+}
+/* line 480, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-sort-medium-icon-text-top .x-btn-icon-el, .x-quirks .x-ie .x-btn-sort-medium-icon-text-top .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 488, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-bottom .x-btn-inner {
+  padding-bottom: 29px;
+}
+/* line 492, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon-text-bottom .x-btn-icon-el {
+  height: 24px;
+  top: auto;
+}
+/* line 500, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-ie6 .x-btn-sort-medium-icon-text-bottom .x-btn-icon-el, .x-quirks .x-ie .x-btn-sort-medium-icon-text-bottom .x-btn-icon-el {
+  width: 100%;
+}
+
+/* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-focus {
+  border-color: #11739e;
+  background-image: none;
+  background-color: #c6c6c6;
+}
+
+/* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-over {
+  background-image: none;
+  background-color: #ebebeb;
+}
+
+/* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-menu-active,
+.x-btn-sort-medium-pressed {
+  background-image: none;
+  background-color: #d4d4d4;
+}
+
 /* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-medium-focus .x-frame-tl,
 .x-btn-sort-medium-focus .x-frame-bl,
@@ -168,7 +268,7 @@
 /* */
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-large {
-  border-color: #6194ab;
+  border-color: transparent;
 }
 
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -178,8 +278,8 @@
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: #d8d8d8;
 }
@@ -203,7 +303,7 @@
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-sort-large-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -483,14 +583,13 @@
 
 /* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-large-focus {
-  border-color: #59889d;
+  border-color: #11739e;
   background-image: none;
   background-color: #c6c6c6;
 }
 
 /* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-large-over {
-  border-color: #59889d;
   background-image: none;
   background-color: #ebebeb;
 }
@@ -498,7 +597,6 @@
 /* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-large-menu-active,
 .x-btn-sort-large-pressed {
-  border-color: #486f80;
   background-image: none;
   background-color: #d4d4d4;
 }
@@ -683,8 +781,8 @@
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: #d8d8d8;
 }
@@ -708,7 +806,7 @@
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-sort-toolbar-small-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -1194,8 +1292,8 @@
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: #d8d8d8;
 }
@@ -1219,7 +1317,7 @@
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-sort-toolbar-medium-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -1705,8 +1803,8 @@
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: #d8d8d8;
 }
@@ -1730,7 +1828,7 @@
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-sort-toolbar-large-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -2283,7 +2381,7 @@
 
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-active-small {
-  border-color: #6194ab;
+  border-color: transparent;
 }
 
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -2293,8 +2391,8 @@
   -ms-border-radius: 12px;
   -o-border-radius: 12px;
   border-radius: 12px;
-  padding: 12px 12px 12px 12px;
-  border-width: 0;
+  padding: 11px 11px 11px 11px;
+  border-width: 1px;
   border-style: solid;
   background-color: #70bb51;
 }
@@ -2318,7 +2416,7 @@
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-step-active-small-frameInfo {
-  font-family: th-12-12-12-12-0-0-0-0-12-12-12-12;
+  font-family: th-12-12-12-12-1-1-1-1-11-11-11-11;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -2598,14 +2696,13 @@
 
 /* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-active-small-focus {
-  border-color: #59889d;
+  border-color: #11739e;
   background-image: none;
   background-color: #67ac4a;
 }
 
 /* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-active-small-over {
-  border-color: #59889d;
   background-image: none;
   background-color: #7ec162;
 }
@@ -2613,7 +2710,6 @@
 /* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-active-small-menu-active,
 .x-btn-step-active-small-pressed {
-  border-color: #486f80;
   background-image: none;
   background-color: #64a848;
 }
@@ -3293,7 +3389,7 @@
 /* */
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-non-completed-small {
-  border-color: #6194ab;
+  border-color: transparent;
 }
 
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -3303,8 +3399,8 @@
   -ms-border-radius: 12px;
   -o-border-radius: 12px;
   border-radius: 12px;
-  padding: 12px 12px 12px 12px;
-  border-width: 0;
+  padding: 11px 11px 11px 11px;
+  border-width: 1px;
   border-style: solid;
   background-color: #686868;
 }
@@ -3328,7 +3424,7 @@
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-step-non-completed-small-frameInfo {
-  font-family: th-12-12-12-12-0-0-0-0-12-12-12-12;
+  font-family: th-12-12-12-12-1-1-1-1-11-11-11-11;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -3608,14 +3704,13 @@
 
 /* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-non-completed-small-focus {
-  border-color: #59889d;
+  border-color: #11739e;
   background-image: none;
   background-color: #5f5f5f;
 }
 
 /* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-non-completed-small-over {
-  border-color: #59889d;
   background-image: none;
   background-color: #777777;
 }
@@ -3623,7 +3718,6 @@
 /* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-non-completed-small-menu-active,
 .x-btn-step-non-completed-small-pressed {
-  border-color: #486f80;
   background-image: none;
   background-color: #5d5d5d;
 }
@@ -3798,7 +3892,7 @@
 /* */
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-active-small {
-  border-color: #6194ab;
+  border-color: transparent;
 }
 
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -3808,8 +3902,8 @@
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: rgba(0, 0, 0, 0);
 }
@@ -3833,7 +3927,7 @@
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-step-label-active-small-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -4113,14 +4207,13 @@
 
 /* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-active-small-focus {
-  border-color: #59889d;
+  border-color: #11739e;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
 
 /* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-active-small-over {
-  border-color: #59889d;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
@@ -4132,7 +4225,6 @@
 /* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-active-small-menu-active,
 .x-btn-step-label-active-small-pressed {
-  border-color: #486f80;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
@@ -4312,7 +4404,7 @@
 /* */
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-completed-small {
-  border-color: #6194ab;
+  border-color: transparent;
 }
 
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -4322,8 +4414,8 @@
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: rgba(0, 0, 0, 0);
 }
@@ -4347,7 +4439,7 @@
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-step-label-completed-small-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -4627,14 +4719,13 @@
 
 /* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-completed-small-focus {
-  border-color: #59889d;
+  border-color: #11739e;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
 
 /* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-completed-small-over {
-  border-color: #59889d;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
@@ -4646,7 +4737,6 @@
 /* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-completed-small-menu-active,
 .x-btn-step-label-completed-small-pressed {
-  border-color: #486f80;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
@@ -4826,7 +4916,7 @@
 /* */
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-non-completed-small {
-  border-color: #6194ab;
+  border-color: transparent;
 }
 
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -4836,8 +4926,8 @@
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: rgba(0, 0, 0, 0);
 }
@@ -4861,7 +4951,7 @@
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-step-label-non-completed-small-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -5141,14 +5231,13 @@
 
 /* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-non-completed-small-focus {
-  border-color: #59889d;
+  border-color: #11739e;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
 
 /* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-non-completed-small-over {
-  border-color: #59889d;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
@@ -5160,7 +5249,6 @@
 /* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-non-completed-small-menu-active,
 .x-btn-step-label-non-completed-small-pressed {
-  border-color: #486f80;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
@@ -5350,8 +5438,8 @@
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: #828282;
 }
@@ -5375,7 +5463,7 @@
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-gridnav-toolbar-small-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -5942,7 +6030,7 @@
   font-size: 60px;
   font-weight: normal;
   font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
-  line-height: 60px;
+  line-height: 48px;
   padding: 1px 0 0;
   text-transform: none;
 }
@@ -7064,61 +7152,74 @@
 }
 
 /* line 40, ../../sass/src/panel/Panel.scss */
+*[class*='x-panel-header-body-'] {
+  overflow: visible;
+}
+/* line 43, ../../sass/src/panel/Panel.scss */
+*[class*='x-panel-header-body-'] .x-box-inner {
+  overflow: visible;
+}
+/* line 46, ../../sass/src/panel/Panel.scss */
+*[class*='x-panel-header-body-'] .x-box-inner *[class*='x-panel-header-text-container-'] {
+  overflow: visible;
+}
+
+/* line 54, ../../sass/src/panel/Panel.scss */
 .x-panel-large {
   padding: 16px 0 0 0;
 }
 
-/* line 46, ../../sass/src/panel/Panel.scss */
+/* line 60, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed {
   overflow: visible;
 }
-/* line 49, ../../sass/src/panel/Panel.scss */
+/* line 63, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header {
   border-color: #71adc7;
   background: #71adc7;
 }
-/* line 52, ../../sass/src/panel/Panel.scss */
+/* line 66, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-panel-header-text-container {
   color: white;
 }
-/* line 56, ../../sass/src/panel/Panel.scss */
+/* line 70, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-btn-default-small {
   background-color: transparent;
 }
-/* line 62, ../../sass/src/panel/Panel.scss */
+/* line 76, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-btn-default-small-menu-active,
 .x-panel-default-framed .x-panel-header .x-btn-default-small-focus,
 .x-panel-default-framed .x-panel-header .x-btn-default-small-over {
   background-color: #1e7d9e;
 }
-/* line 66, ../../sass/src/panel/Panel.scss */
+/* line 80, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header-top {
   padding: 4px 4px 4px 16px;
 }
-/* line 69, ../../sass/src/panel/Panel.scss */
+/* line 83, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel {
   padding: 0;
 }
 
-/* line 75, ../../sass/src/panel/Panel.scss */
+/* line 89, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text {
   float: none;
   color: #686868;
   clear: both;
   display: block;
 }
-/* line 81, ../../sass/src/panel/Panel.scss */
+/* line 95, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-medium {
   font-size: 20px;
   line-height: 20px;
 }
-/* line 85, ../../sass/src/panel/Panel.scss */
+/* line 99, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-large {
   font-size: 30px;
   line-height: 20px;
 }
 
-/* line 91, ../../sass/src/panel/Panel.scss */
+/* line 105, ../../sass/src/panel/Panel.scss */
 .x-panel-filter {
   background-color: #ebebeb;
   -webkit-border-radius: 10px;
@@ -7127,26 +7228,26 @@
   -o-border-radius: 10px;
   border-radius: 10px;
 }
-/* line 95, ../../sass/src/panel/Panel.scss */
+/* line 109, ../../sass/src/panel/Panel.scss */
 .x-panel-filter .x-panel-body {
   background: transparent;
 }
 
-/* line 100, ../../sass/src/panel/Panel.scss */
+/* line 114, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar {
   padding: 8px 0;
 }
-/* line 102, ../../sass/src/panel/Panel.scss */
+/* line 116, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-header-text-container {
   width: 64px;
   color: #686868;
   font-weight: bold;
 }
-/* line 107, ../../sass/src/panel/Panel.scss */
+/* line 121, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-box-item {
   margin-right: 8px;
 }
-/* line 110, ../../sass/src/panel/Panel.scss */
+/* line 124, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-panel-body {
   background: transparent;
 }
@@ -9265,7 +9366,7 @@
   border-width: 1px !important;
 }
 
-/* line 133, ../../sass/src/panel/Panel.scss */
+/* line 147, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
 }
@@ -11084,10 +11185,11 @@
 }
 /* line 44, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found *[class*='x-panel-header-text-container-'] {
-  font-size: 24px;
+  font-family: 'Lato', helvetica, arial, verdana, sans-serif;
+  font-size: 18px;
   color: #686868;
 }
-/* line 49, ../../sass/src/panel/NoItemsFound.scss */
+/* line 50, ../../sass/src/panel/NoItemsFound.scss */
 .uni-panel-no-items-found *[class*='x-panel-body-'] {
   font-size: 13px;
   color: #686868;
@@ -17146,174 +17248,4 @@ div.x-form-spinner-down {
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-message-error-mc {
   padding: 0px 15px 7px 7px;
-}
-
-/*<if slicer>*/
-/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-window-message-error:after {
-  display: none;
-  content: "x-slicer:corners:url(images/window/window-message-error-corners.gif), sides:url(images/window/window-message-error-sides.gif)";
-}
-
-/*</if slicer>*/
-/* */
-/* line 210, ../../../ext-theme-neutral/sass/src/window/Window.scss */
-.x-window-body-message-error {
-  border-color: #86b9cf;
-  border-width: 0;
-  border-style: none;
-  background: transparent;
-  color: #70bb51;
-  font-size: 13px;
-  font-weight: normal;
-  font-family: "Lato", helvetica, arial, verdana, sans-serif;
-}
-
-/* line 224, ../../../ext-theme-neutral/sass/src/window/Window.scss */
-.x-window-header-message-error {
-  font-size: 13px;
-  border-color: #70bb51;
-  zoom: 1;
-  background-color: transparent;
-}
-/* line 230, ../../../ext-theme-neutral/sass/src/window/Window.scss */
-.x-window-header-message-error .x-tool-img {
-  background-image: url(images/tools/tool-sprites-dark.png);
-  background-color: transparent;
-}
-
-/* line 241, ../../../ext-theme-neutral/sass/src/window/Window.scss */
-.x-window-header-message-error-vertical .x-window-header-text-container {
-  -webkit-transform: rotate(90deg);
-  -webkit-transform-origin: 0 0;
-  -moz-transform: rotate(90deg);
-  -moz-transform-origin: 0 0;
-  -o-transform: rotate(90deg);
-  -o-transform-origin: 0 0;
-  transform: rotate(90deg);
-  transform-origin: 0 0;
-}
-
-/* line 246, ../../../ext-theme-neutral/sass/src/window/Window.scss */
-.x-window-header-message-error-vertical .x-rtl.x-window-header-text-container {
-  -webkit-transform: rotate(270deg);
-  -webkit-transform-origin: 100% 0;
-  -moz-transform: rotate(270deg);
-  -moz-transform-origin: 100% 0;
-  -o-transform: rotate(270deg);
-  -o-transform-origin: 100% 0;
-  transform: rotate(270deg);
-  transform-origin: 100% 0;
-}
-
-/* line 251, ../../../ext-theme-neutral/sass/src/window/Window.scss */
-.x-window-header-text-container-message-error {
-  color: #70bb51;
-  font-weight: bold;
-  line-height: 15px;
-  font-family: "Lato", helvetica, arial, verdana, sans-serif;
-  font-size: 13px;
-  padding: 0;
-  text-transform: none;
-}
-
-/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top {
-  -moz-border-radius-topleft: 10px;
-  -webkit-border-top-left-radius: 10px;
-  border-top-left-radius: 10px;
-  -moz-border-radius-topright: 10px;
-  -webkit-border-top-right-radius: 10px;
-  border-top-right-radius: 10px;
-  -moz-border-radius-bottomright: 0;
-  -webkit-border-bottom-right-radius: 0;
-  border-bottom-right-radius: 0;
-  -moz-border-radius-bottomleft: 0;
-  -webkit-border-bottom-left-radius: 0;
-  border-bottom-left-radius: 0;
-  padding: 10px 10px 0 10px;
-  border-width: 0 0 0 0;
-  border-style: solid;
-  background-color: transparent;
-}
-
-/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-mc {
-  background-color: transparent;
-}
-
-/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-nbr .x-window-header-message-error-top {
-  padding: 0 !important;
-  border-width: 0 !important;
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  -ms-border-radius: 0px;
-  -o-border-radius: 0px;
-  border-radius: 0px;
-  background-color: transparent;
-}
-
-/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-frameInfo {
-  font-family: dh-10-10-0-0-0-0-0-0-10-10-0-10;
-}
-
-/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-tl {
-  background-position: 0 -20px;
-}
-
-/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-tr {
-  background-position: right -30px;
-}
-
-/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-bl {
-  background-position: 0 -40px;
-}
-
-/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-br {
-  background-position: right -50px;
-}
-
-/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-ml {
-  background-position: 0 top;
-}
-
-/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-mr {
-  background-position: right top;
-}
-
-/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-tc {
-  background-position: 0 0;
-}
-
-/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-bc {
-  background-position: 0 -10px;
-}
-
-/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-tr,
-.x-window-header-message-error-top-br,
-.x-window-header-message-error-top-mr {
-  padding-right: 10px;
-}
-
-/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-tl,
-.x-window-header-message-error-top-bl,
-.x-window-header-message-error-top-ml {
-  padding-left: 10px;
-}
-
-/* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-message-error-top-tc {
-  height: 10px;
 }
