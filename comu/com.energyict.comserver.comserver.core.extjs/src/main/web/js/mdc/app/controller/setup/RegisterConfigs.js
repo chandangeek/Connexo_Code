@@ -250,6 +250,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
             record.save({
                 success: function (record) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.added', 'MDC', 'Register configuration added'));
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/registerconfigurations';
                 },
                 failure: function (record, operation) {
@@ -288,7 +289,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             var me = opt.config.me;
             registerConfigurationToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
             registerConfigurationToDelete.destroy({
-                callback: function () {
+                success: function () {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.removed', 'MDC', 'Register configuration removed'));
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/registerconfigurations';
                 }
             });
@@ -371,8 +373,15 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             }
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
             record.save({
-                callback: function (record) {
+                success: function (record) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.saved', 'MDC', 'Register configuration saved'));
                     location.href = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        me.getRegisterConfigEditForm().getForm().markInvalid(json.errors);
+                    }
                 }
             });
         }
