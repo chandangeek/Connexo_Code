@@ -40,6 +40,8 @@ Ext.define('Uni.property.controller.Registry', {
         TIMEOFDAY: 'Uni.property.view.property.Time',
         CODETABLE: 'Uni.property.view.property.CodeTable',
         REFERENCE: 'Uni.property.view.property.Reference',
+        EAN13: 'Uni.property.view.property.Text',
+        EAN18: 'Uni.property.view.property.Text',
         ENCRYPTED_STRING: 'Uni.property.view.property.Text',
         UNKNOWN: 'Uni.property.view.property.Text'
     },
