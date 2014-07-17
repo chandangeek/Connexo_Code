@@ -11,11 +11,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -30,12 +26,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 @Path("/comportpools")
 public class ComPortPoolResource {
 
+    public static final String ALL = "all";
     private final EngineModelService engineModelService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -52,7 +55,7 @@ public class ComPortPoolResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortPoolInfo getComPortPool(@PathParam("id") int id) {
+    public ComPortPoolInfo<?> getComPortPool(@PathParam("id") int id) {
         Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
         if (comPortPool.isPresent()) {
             return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineModelService);
@@ -64,7 +67,7 @@ public class ComPortPoolResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getAllComPortPools(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
-        List<ComPortPoolInfo> comPortPoolInfos = new ArrayList<>();
+        List<ComPortPoolInfo<?>> comPortPoolInfos = new ArrayList<>();
         List<ComPortPool> comPortPools = new ArrayList<>();
         String compatibleWithConnectionType = uriInfo.getQueryParameters().getFirst("compatibleWithConnectionType");
         String compatibleWithConnectionTask = uriInfo.getQueryParameters().getFirst("compatibleWithConnectionTask");
@@ -126,10 +129,10 @@ public class ComPortPoolResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
+    public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
         ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), protocolPluggableService);
         comPortPool.save();
-        comPortPoolInfo.handlePools(comPortPool, engineModelService);
+        comPortPoolInfo.handlePools(comPortPool, engineModelService, getBoolean(uriInfo, ALL));
         return Response.status(Response.Status.CREATED).entity(ComPortPoolInfoFactory.asInfo(comPortPool, engineModelService)).build();
     }
 
@@ -137,13 +140,13 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortPoolInfo updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
+    public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
         Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
         if (!comPortPool.isPresent()) {
             throw new WebApplicationException("No ComPortPool with id " + id, Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build());
         }
         comPortPoolInfo.writeTo(comPortPool.get(), protocolPluggableService);
-        comPortPoolInfo.handlePools(comPortPool.get(), engineModelService);
+        comPortPoolInfo.handlePools(comPortPool.get(), engineModelService, getBoolean(uriInfo, ALL));
         comPortPool.get().save();
         return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineModelService);
     }
@@ -151,6 +154,11 @@ public class ComPortPoolResource {
     @Path("/{comPortPoolId}/comports")
     public ComPortPoolComPortResource getComPortResource() {
         return comPortPoolComPortResourceProvider.get();
+    }
+
+    private boolean getBoolean(UriInfo uriInfo, String key) {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
     }
 
 }

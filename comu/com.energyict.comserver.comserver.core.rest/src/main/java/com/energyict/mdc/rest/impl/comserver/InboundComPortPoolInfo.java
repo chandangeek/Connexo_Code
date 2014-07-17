@@ -46,7 +46,7 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
     }
 
     @Override
-    protected void handlePools(InboundComPortPool inboundComPortPool, EngineModelService engineModelService) {
+    protected void handlePools(InboundComPortPool inboundComPortPool, EngineModelService engineModelService, boolean all) {
         // Nothing to do: ComPorts are handled through ComPort, not ComPortPool
         // TODO throw an exception when comPorts differ: should be managed by ComPort, not InboundComPortPool
 //            throw new WebApplicationException("Could not find comPort with id " + inboundComPortInfo.id, Response.Status.BAD_REQUEST);

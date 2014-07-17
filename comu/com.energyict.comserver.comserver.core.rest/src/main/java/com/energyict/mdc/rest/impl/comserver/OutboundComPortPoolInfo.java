@@ -9,13 +9,13 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
 public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool> {
 
@@ -55,12 +55,12 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
     }
 
     @Override
-    protected void handlePools(OutboundComPortPool outboundComPortPool, EngineModelService engineModelService) {
-        updateComPorts(outboundComPortPool, this.outboundComPorts, engineModelService);
+    protected void handlePools(OutboundComPortPool outboundComPortPool, EngineModelService engineModelService, boolean all) {
+        updateComPorts(outboundComPortPool, this.outboundComPorts, engineModelService, all);
     }
 
-    private void updateComPorts(OutboundComPortPool outboundComPortPool, List<OutboundComPortInfo> newComPorts, EngineModelService engineModelService) {
-        Map<Long, ComPortInfo> newComPortIdMap = asIdz(newComPorts);
+    private void updateComPorts(OutboundComPortPool outboundComPortPool, List<OutboundComPortInfo> newComPorts, EngineModelService engineModelService, boolean all) {
+        Map<Long, OutboundComPortInfo> newComPortIdMap = all ? getAllComPorts(engineModelService) : asIdz(newComPorts);
         for (OutboundComPort comPort : outboundComPortPool.getComPorts()) {
             if (newComPortIdMap.containsKey(comPort.getId())) {
                 // Updating ComPorts not allowed here
@@ -70,7 +70,7 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
             }
         }
 
-        for (ComPortInfo comPortInfo : newComPortIdMap.values()) {
+        for (OutboundComPortInfo comPortInfo : newComPortIdMap.values()) {
             Optional<? extends ComPort> comPort = Optional.fromNullable(engineModelService.findComPort(comPortInfo.id));
             if (!comPort.isPresent()) {
                 throw new WebApplicationException("No ComPort with id "+comPortInfo.id,
@@ -85,9 +85,17 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
         }
     }
 
-    private Map<Long, ComPortInfo> asIdz(Collection<? extends ComPortInfo> comPortInfos) {
-        Map<Long, ComPortInfo> comPortIdMap = new HashMap<>();
-        for (ComPortInfo comPort : comPortInfos) {
+    private Map<Long, OutboundComPortInfo> getAllComPorts(EngineModelService engineModelService) {
+        Map<Long, OutboundComPortInfo> map = new HashMap<>();
+        for (OutboundComPort comPort : engineModelService.findAllOutboundComPorts()) {
+            map.put(comPort.getId(), ComPortInfoFactory.asOutboundInfo(comPort, engineModelService));
+        }
+        return map;
+    }
+
+    private Map<Long, OutboundComPortInfo> asIdz(Collection<? extends OutboundComPortInfo> comPortInfos) {
+        Map<Long, OutboundComPortInfo> comPortIdMap = new HashMap<>();
+        for (OutboundComPortInfo comPort : comPortInfos) {
             comPortIdMap.put(comPort.id, comPort);
         }
         return comPortIdMap;
