@@ -18,7 +18,7 @@ import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -45,7 +45,6 @@ import static junit.framework.Assert.assertNotNull;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -300,11 +299,11 @@ public class OfflineDeviceImplTest {
         RegisterGroup rtuRegisterGroup = mock(RegisterGroup.class);
         when(rtuRegisterGroup.getId()).thenReturn(rtuRegisterGroupId);
         Device device = createMockDevice();
-        RegisterMapping registerMapping = mock(RegisterMapping.class);
-        when(registerMapping.getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
-        RegisterSpec registerSpec = createMockedRegisterSpec(registerMapping);
+        MeasurementType measurementType = mock(MeasurementType.class);
+        when(measurementType.getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
+        RegisterSpec registerSpec = createMockedRegisterSpec(measurementType);
         Register register1 = createMockedRegister(registerSpec, device);
-        when(register1.getRegisterSpec().getRegisterMapping().getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
+        when(register1.getRegisterSpec().getRegisterType().getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
         OfflineRegister offlineRegister1 = mock(OfflineRegister.class);
         when(offlineRegister1.inGroup(rtuRegisterGroupId)).thenReturn(true);
         when(offlineRegister1.inAtLeastOneGroup(Arrays.asList(rtuRegisterGroupId))).thenReturn(true);
@@ -323,9 +322,9 @@ public class OfflineDeviceImplTest {
         return mock(RegisterSpec.class, RETURNS_DEEP_STUBS);
     }
 
-    private RegisterSpec createMockedRegisterSpec(RegisterMapping registerMapping) {
+    private RegisterSpec createMockedRegisterSpec(MeasurementType measurementType) {
         RegisterSpec registerSpec = mock(RegisterSpec.class);
-        when(registerSpec.getRegisterMapping()).thenReturn(registerMapping);
+        when(registerSpec.getRegisterType()).thenReturn(measurementType);
         return registerSpec;
     }
 
