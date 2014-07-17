@@ -12,8 +12,9 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LoadProfileTypeRegisterMappingUsage;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
@@ -299,92 +300,90 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateWithRegisterMapping() {
+    public void testCreateWithRegisterType() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        String loadProfileTypeName = "testCreateWithRegisterMapping";
+        String loadProfileTypeName = "testCreateWithRegisterType";
         TimeDuration interval = INTERVAL_15_MINUTES;
 
         LoadProfileType loadProfileType;
         this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup RegisterMapping
-        RegisterMapping registerMapping = masterDataService.findRegisterMappingByReadingType(readingType).get();
+        // Setup RegisterType
+        RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
-        // Setup LoadProfileType with RegisterMapping
+        // Setup LoadProfileType with RegisterType
         loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
         loadProfileType.setDescription("For testing purposes only");
-        loadProfileType.addRegisterMapping(registerMapping);
+        loadProfileType.createChannelTypeForRegisterType(registerType);
 
         // Business method
         loadProfileType.save();
 
         // Asserts
         assertThat(loadProfileType).isNotNull();
-        assertThat(loadProfileType.getRegisterMappings()).hasSize(1);
-        Optional<ChannelType> channelTypeByTemplateRegisterAndInterval = masterDataService.findChannelTypeByTemplateRegisterAndInterval(registerMapping, interval);
+        assertThat(loadProfileType.getChannelTypes()).hasSize(1);
+        Optional<ChannelType> channelTypeByTemplateRegisterAndInterval = masterDataService.findChannelTypeByTemplateRegisterAndInterval(registerType, interval);
 
-        RegisterMapping registerMapping2 = loadProfileType.getRegisterMappings().get(0);
-        assertThat(registerMapping2.getId()).isEqualTo(channelTypeByTemplateRegisterAndInterval.get().getId());
+        MeasurementType measurementType2 = loadProfileType.getChannelTypes().get(0);
+        assertThat(measurementType2.getId()).isEqualTo(channelTypeByTemplateRegisterAndInterval.get().getId());
     }
 
     @Test
     @Transactional
-    public void testAddRegisterMapping() {
+    public void testAddRegisterType() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        String loadProfileTypeName = "testAddRegisterMapping";
+        String loadProfileTypeName = "testAddRegisterType";
         TimeDuration interval = INTERVAL_15_MINUTES;
 
-        RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
         this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup RegisterMapping
-        registerMapping = masterDataService.findRegisterMappingByReadingType(readingType).get();
+        // Setup RegisterType
+        RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
-        // Setup LoadProfileType without RegisterMapping
+        // Setup LoadProfileType without RegisterType
         loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
         loadProfileType.setDescription("For testing purposes only");
         loadProfileType.save();
 
         // Business method
-        loadProfileType.addRegisterMapping(registerMapping);
+        loadProfileType.createChannelTypeForRegisterType(registerType);
 
         // Asserts
         assertThat(loadProfileType).isNotNull();
-        Optional<ChannelType> channelTypeByTemplateRegisterAndInterval = masterDataService.findChannelTypeByTemplateRegisterAndInterval(registerMapping, interval);
-        assertThat(loadProfileType.getRegisterMappings()).hasSize(1);
-        assertThat(loadProfileType.getRegisterMappings().get(0).getId()).isEqualTo(channelTypeByTemplateRegisterAndInterval.get().getId());
+        Optional<ChannelType> channelTypeByTemplateRegisterAndInterval = masterDataService.findChannelTypeByTemplateRegisterAndInterval(registerType, interval);
+        assertThat(loadProfileType.getChannelTypes()).hasSize(1);
+        assertThat(loadProfileType.getChannelTypes().get(0).getId()).isEqualTo(channelTypeByTemplateRegisterAndInterval.get().getId());
     }
 
     @Test
     @Transactional
-    public void testRemoveRegisterMapping() {
+    public void testRemoveRegisterType() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        String loadProfileTypeName = "testRemoveRegisterMapping";
+        String loadProfileTypeName = "testRemoveRegisterType";
         TimeDuration interval = INTERVAL_15_MINUTES;
 
-        RegisterMapping registerMapping;
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
         this.setupPhenomenaInExistingTransaction();
 
-        // Setup RegisterMapping
-        registerMapping = masterDataService.findRegisterMappingByReadingType(readingType).get();
+        // Setup RegisterType
+        RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
-        // Setup LoadProfileType with RegisterMapping
+        // Setup LoadProfileType with RegisterType
         loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
         loadProfileType.setDescription("For testing purposes only");
-        loadProfileType.addRegisterMapping(registerMapping);
+        loadProfileType.createChannelTypeForRegisterType(registerType);
         loadProfileType.save();
 
         // Business method
-        loadProfileType.removeRegisterMapping(loadProfileType.getRegisterMappings().get(0));
+        loadProfileType.removeChannelType(loadProfileType.getChannelTypes().get(0));
 
         // Asserts
         assertThat(loadProfileType).isNotNull();
-        assertThat(loadProfileType.getRegisterMappings()).isEmpty();
+        assertThat(loadProfileType.getChannelTypes()).isEmpty();
     }
 
     @Test
@@ -408,23 +407,23 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testSimpleDeleteWithRegisterMappings() throws SQLException {
+    public void testSimpleDeleteWithChannelTypes() throws SQLException {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
-        String loadProfileTypeName = "testSimpleDeleteWithRegisterMapping";
+        String loadProfileTypeName = "testSimpleDeleteWithChannelTypes";
         TimeDuration interval = INTERVAL_15_MINUTES;
 
-        RegisterMapping registerMapping;
+        RegisterType registerType;
         LoadProfileType loadProfileType;
         this.setupReadingTypeInExistingTransaction();
         this.setupPhenomenaInExistingTransaction();
 
-        // Setup RegisterMapping
-        registerMapping = masterDataService.findRegisterMappingByReadingType(readingType).get();
+        // Setup RegisterType
+        registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
-        // Setup LoadProfileType with RegisterMapping
+        // Setup LoadProfileType with RegisterType
         loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
         loadProfileType.setDescription("For testing purposes only");
-        loadProfileType.addRegisterMapping(registerMapping);
+        loadProfileType.createChannelTypeForRegisterType(registerType);
         loadProfileType.save();
 
         // Business method
@@ -432,7 +431,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
         // Asserts
         this.assertLoadProfileTypeDoesNotExist(loadProfileType);
-        this.assertRegisterMappingsDoNotExist(loadProfileType);
+        this.assertRegisterTypessDoNotExist(loadProfileType);
     }
 
     private void assertLoadProfileTypeDoesNotExist(LoadProfileType loadProfileType) {
@@ -440,10 +439,10 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         assertThat(loadProfileTypes).as("Was not expecting to find any LoadProfileTypes after deletinon.").isEmpty();
     }
 
-    private void assertRegisterMappingsDoNotExist(LoadProfileType loadProfileType) {
-        List<LoadProfileTypeRegisterMappingUsage> usages = PersistenceTest.inMemoryPersistence.getMasterDataService()
+    private void assertRegisterTypessDoNotExist(LoadProfileType loadProfileType) {
+        List<LoadProfileTypeChannelTypeUsage> usages = PersistenceTest.inMemoryPersistence.getMasterDataService()
                 .getDataModel()
-                .mapper(LoadProfileTypeRegisterMappingUsage.class)
+                .mapper(LoadProfileTypeChannelTypeUsage.class)
                 .find("LOADPROFILETYPEID", loadProfileType.getId());
         assertThat(usages).as("Was not expecting to find any register mapping usages for LoadProfileType {0} after deletion", loadProfileType.getName()).isEmpty();
     }

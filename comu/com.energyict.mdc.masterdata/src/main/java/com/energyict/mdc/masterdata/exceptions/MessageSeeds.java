@@ -28,17 +28,17 @@ public enum MessageSeeds implements MessageSeed {
 
     PHENOMENON_NAME_IS_REQUIRED(1300, "phenomenon.name.required", "The name of a phenomenon is required", SEVERE),
 
-    REGISTER_MAPPING_NAME_IS_REQUIRED(1400, "registerMapping.name.required", "The name of a register type is required", SEVERE),
-    REGISTER_MAPPING_OBIS_CODE_TOU_PHENOMENON_ALREADY_EXISTS(1401, "registerMapping.duplicateObisCodeX", "A register type with obis code \"{0}\", phenomenon \"{1}\" and time of use \"{2}\" already exists", SEVERE),
-    REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED(1402, Keys.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED, "The obis code of a register type is required", SEVERE),
+    REGISTER_MAPPING_NAME_IS_REQUIRED(1400, "registerType.name.required", "The name of a register type is required", SEVERE),
+    REGISTER_MAPPING_OBIS_CODE_TOU_PHENOMENON_ALREADY_EXISTS(1401, "registerType.duplicateObisCodeX", "A register type with obis code \"{0}\", phenomenon \"{1}\" and time of use \"{2}\" already exists", SEVERE),
+    REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED(1402, Keys.REGISTER_TYPE_OBIS_CODE_IS_REQUIRED, "The obis code of a register type is required", SEVERE),
     PRODUCT_SPEC_IS_REQUIRED(1403, Keys.PRODUCT_SPEC_IS_REQUIRED, "The product spec of a register type is required", SEVERE),
-    REGISTER_MAPPING_OBIS_CODE_CANNOT_BE_UPDATED(1404, "registerMapping.cannotUpdateObisCode", "The obis code of the register mapping \"{0}\" cannot be updated because it is in use", SEVERE),
-    REGISTER_MAPPING_UNIT_IS_REQUIRED(1405, Keys.REGISTER_MAPPING_UNIT_IS_REQUIRED, "The unit of a register type is required", SEVERE),
-    REGISTER_MAPPING_READING_TYPE_IS_REQUIRED(1406, Keys.REGISTER_MAPPING_READING_TYPE_IS_REQUIRED, "The reading type of a register mapping is required", SEVERE),
-    REGISTER_MAPPING_READING_TYPE_ALREADY_USED(1407, Keys.REGISTER_MAPPING_DUPLICATE_READING_TYPE, "Reading type is already used by a register type", SEVERE),
-    REGISTER_MAPPING_TIME_OF_USE_TOO_SMALL(1408, Keys.REGISTER_MAPPING_TIMEOFUSE_TOO_SMALL, "The time of use must be a positive number", SEVERE),
+    REGISTER_MAPPING_OBIS_CODE_CANNOT_BE_UPDATED(1404, "registerType.cannotUpdateObisCode", "The obis code of the register mapping \"{0}\" cannot be updated because it is in use", SEVERE),
+    REGISTER_MAPPING_UNIT_IS_REQUIRED(1405, Keys.REGISTER_TYPE_UNIT_IS_REQUIRED, "The unit of a register type is required", SEVERE),
+    REGISTER_MAPPING_READING_TYPE_IS_REQUIRED(1406, Keys.REGISTER_TYPE_READING_TYPE_IS_REQUIRED, "The reading type of a register mapping is required", SEVERE),
+    REGISTER_MAPPING_READING_TYPE_ALREADY_USED(1407, Keys.REGISTER_TYPE_DUPLICATE_READING_TYPE, "Reading type is already used by a register type", SEVERE),
+    REGISTER_MAPPING_TIME_OF_USE_TOO_SMALL(1408, Keys.REGISTER_TYPE_TIMEOFUSE_TOO_SMALL, "The time of use must be a positive number", SEVERE),
     REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE(1409, Keys.REGISTER_MAPPING_STILL_USED_BY_LOADPROFILE, "The register mapping {0} cannot be deleted because it is still in use by the following load profile type(s): {1}", SEVERE),
-    REGISTER_MAPPING_UNIT_DOES_NOT_MATCH_PHENOMENON(1410, "registerMapping.unit.noMatchingPhenomenon" , "The unit {0} could not be associated with an existing phenomenon", SEVERE),
+    REGISTER_MAPPING_UNIT_DOES_NOT_MATCH_PHENOMENON(1410, "registerType.unit.noMatchingPhenomenon" , "The unit {0} could not be associated with an existing phenomenon", SEVERE),
     REGISTER_GROUP_REQUIRES_REGISTER_TYPES(1411, "registerGroup.items.noRegisterType" , "The register group requires at least a register type", SEVERE),
     CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE(1412, Keys.CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE, "A channel type should have a link to it's corresponding register type", SEVERE),
     CHANNEL_TYPE_INTERVAL_REQUIRED(1413, Keys.CHANNEL_TYPE_INTERVAL_IS_REQUIRED, "The interval is required", SEVERE),
@@ -52,7 +52,7 @@ public enum MessageSeeds implements MessageSeed {
     INTERVAL_IN_MONTHS_MUST_BE_ONE(1506, "loadProfileType.interval.notsupported.multiplemonths", "The number of months of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
     INTERVAL_IN_YEARS_MUST_BE_ONE(1507, "loadProfileType.interval.notsupported.multipleyears", "The number of years of the interval of a load profile type cannot be greater than 1 but got {0}", SEVERE),
     INTERVAL_MUST_BE_STRICTLY_POSITIVE(1508, "loadProfileType.interval.notsupported.negative", "The value of the interval of a load profile type must be a strictly positive number and not {0}", SEVERE),
-    DUPLICATE_REGISTER_MAPPING_IN_LOAD_PROFILE_TYPE(1509, "loadProfileType.registerMapping.duplicate", "The register type {0} was already added to the load profile type {1}", SEVERE),
+    DUPLICATE_REGISTER_TYPE_IN_LOAD_PROFILE_TYPE(1509, "loadProfileType.registerType.duplicate", "The register type {0} was already added to the load profile type {1}", SEVERE),
     ;
 
     private final int number;
@@ -105,17 +105,17 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NAME_REQUIRED = "MDS.X.name.required";
         public static final String NAME_UNIQUE = "MDS.X.name.unique";
         public static final String LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED = "MDS.logBookType.obisCode.required";
-        public static final String PRODUCT_SPEC_IS_REQUIRED = "MDS.registerMapping.productSpec.required";
-        public static final String REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED = "MDS.registerMapping.obisCode.required";
-        public static final String REGISTER_MAPPING_UNIT_IS_REQUIRED = "MDS.registerMapping.unit.required";
-        public static final String REGISTER_MAPPING_READING_TYPE_IS_REQUIRED = "MDS.registerMapping.readingType.required";
-        public static final String REGISTER_MAPPING_DUPLICATE_READING_TYPE = "MDS.registerMapping.duplicateReadingType";
-        public static final String REGISTER_MAPPING_TIMEOFUSE_TOO_SMALL = "MDS.timeOfUse.tooSmall";
+        public static final String PRODUCT_SPEC_IS_REQUIRED = "MDS.registerType.productSpec.required";
+        public static final String REGISTER_TYPE_OBIS_CODE_IS_REQUIRED = "MDS.registerType.obisCode.required";
+        public static final String REGISTER_TYPE_UNIT_IS_REQUIRED = "MDS.registerType.unit.required";
+        public static final String REGISTER_TYPE_READING_TYPE_IS_REQUIRED = "MDS.registerType.readingType.required";
+        public static final String REGISTER_TYPE_DUPLICATE_READING_TYPE = "MDS.registerType.duplicateReadingType";
+        public static final String REGISTER_TYPE_TIMEOFUSE_TOO_SMALL = "MDS.timeOfUse.tooSmall";
         public static final String LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED = "MDS.loadProfileType.obisCode.required";
         public static final String FIELD_TOO_LONG = "MDS.incorrect.field.size";
         public static final String CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE = "channelType.linked.registerType";
         public static final String CHANNEL_TYPE_INTERVAL_IS_REQUIRED = "channelType.interval.required";
-        public static final String REGISTER_MAPPING_STILL_USED_BY_LOADPROFILE = "registerMapping.usedBy.loadProfileType";
+        public static final String REGISTER_MAPPING_STILL_USED_BY_LOADPROFILE = "registerType.usedBy.loadProfileType";
     }
 
 }

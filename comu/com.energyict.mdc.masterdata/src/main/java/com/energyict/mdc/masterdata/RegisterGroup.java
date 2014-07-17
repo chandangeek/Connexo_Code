@@ -13,14 +13,14 @@ import java.util.List;
 public interface RegisterGroup extends HasId {
 
     /**
-     * Returns number that uniquely identifies this LoadProfileType.
+     * Returns number that uniquely identifies this RegisterGroup.
      *
      * @return the id
      */
     public long getId();
 
     /**
-     * Returns the name that uniquely identifies this LoadProfileType.
+     * Returns the name that uniquely identifies this RegisterGroup.
      *
      * @return the name
      */
@@ -32,13 +32,13 @@ public interface RegisterGroup extends HasId {
 
     public void delete();
 
-    public List<RegisterMapping> getRegisterMappings();
+    public List<RegisterType> getRegisterTypes();
 
-    public void addRegisterMapping (RegisterMapping registerMapping);
+    public void addRegisterType(RegisterType registerType);
 
-    public void removeRegisterMapping (RegisterMapping registerMapping);
+    public void removeRegisterType(RegisterType registerType);
 
-    public void removeRegisterMappings ();
+    public void removeRegisterTypes();
 
-    public boolean updateRegisterMappings(HashMap<Long, RegisterMapping> registerMappings);
+    public boolean updateRegisterTypes(HashMap<Long, RegisterType> registerTypes);
 }

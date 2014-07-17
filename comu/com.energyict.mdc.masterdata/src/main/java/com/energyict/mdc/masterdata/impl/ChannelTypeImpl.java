@@ -9,9 +9,9 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LoadProfileTypeRegisterMappingUsage;
+import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 
@@ -27,12 +27,12 @@ import java.util.Set;
  * Date: 7/15/14
  * Time: 10:01 AM
  */
-public class ChannelTypeImpl extends AbstractRegisterMappingImpl implements ChannelType {
+public class ChannelTypeImpl extends MeasurementTypeImpl implements ChannelType {
 
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_TYPE_INTERVAL_IS_REQUIRED + "}")
     private TimeDuration interval;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE + "}")
-    private RegisterMapping templateRegister;
+    private RegisterType templateRegister;
 
     private long templateRegisterId;
 
@@ -41,20 +41,20 @@ public class ChannelTypeImpl extends AbstractRegisterMappingImpl implements Chan
         super(dataModel, eventService, thesaurus, clock, masterDataService);
     }
 
-    public ChannelType initialize(RegisterMapping templateRegisterMapping, TimeDuration interval, ReadingType readingType) {
+    public ChannelType initialize(RegisterType templateRegisterType, TimeDuration interval, ReadingType readingType) {
         this.setName(readingType.getName());
-        this.setObisCode(templateRegisterMapping.getObisCode());
-        this.setPhenomenon(templateRegisterMapping.getPhenomenon());
+        this.setObisCode(templateRegisterType.getObisCode());
+        this.setPhenomenon(templateRegisterType.getPhenomenon());
         this.setReadingType(readingType);
         this.setTimeOfUse(readingType.getTou());
         this.setInterval(interval);
-        this.setTemplateRegister(templateRegisterMapping);
+        this.setTemplateRegister(templateRegisterType);
         return this;
     }
 
     @Override
     public void postLoad() {
-        this.templateRegister = this.masterDataService.findRegisterMapping(templateRegisterId).get();
+        this.templateRegister = this.masterDataService.findRegisterType(templateRegisterId).get();
     }
 
     @Override
@@ -67,11 +67,11 @@ public class ChannelTypeImpl extends AbstractRegisterMappingImpl implements Chan
     }
 
     @Override
-    public RegisterMapping getTemplateRegister() {
+    public RegisterType getTemplateRegister() {
         return templateRegister;
     }
 
-    public void setTemplateRegister(RegisterMapping templateRegister) {
+    public void setTemplateRegister(RegisterType templateRegister) {
         this.templateRegister = templateRegister;
         this.templateRegisterId = this.templateRegister.getId();
     }
@@ -82,13 +82,13 @@ public class ChannelTypeImpl extends AbstractRegisterMappingImpl implements Chan
     }
 
     private void validateNotUsedByLoadProfileTypes() {
-        List<LoadProfileTypeRegisterMappingUsage> loadProfileTypeUsages = this.dataModel.mapper(LoadProfileTypeRegisterMappingUsage.class).find("registerMapping", this);
+        List<LoadProfileTypeChannelTypeUsage> loadProfileTypeUsages = this.dataModel.mapper(LoadProfileTypeChannelTypeUsage.class).find("channelType", this);
         if (!loadProfileTypeUsages.isEmpty()) {
             Set<LoadProfileType> loadProfileTypes = new HashSet<>();
-            for (LoadProfileTypeRegisterMappingUsage loadProfileTypeUsage : loadProfileTypeUsages) {
+            for (LoadProfileTypeChannelTypeUsage loadProfileTypeUsage : loadProfileTypeUsages) {
                 loadProfileTypes.add(loadProfileTypeUsage.getLoadProfileType());
             }
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByLoadprofileTypes(this.getThesaurus(), this, new ArrayList<>(loadProfileTypes));
+            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByLoadprofileTypes(this.getThesaurus(), this.getTemplateRegister(), new ArrayList<>(loadProfileTypes));
         }
     }
 }

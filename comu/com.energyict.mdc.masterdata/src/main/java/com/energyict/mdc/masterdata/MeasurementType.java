@@ -11,21 +11,19 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Represents a register definition.
- *
- * @author Geert
+ * Represents the definition of a Measurement
  */
-public interface RegisterMapping extends HasId {
+public interface MeasurementType extends HasId {
 
     /**
-     * Returns number that uniquely identifies this RegisterMapping.
+     * Returns number that uniquely identifies this MeasurementType.
      *
      * @return the id
      */
     public long getId();
 
     /**
-     * Returns the name that uniquely identifies this RegisterMapping.
+     * Returns the name that uniquely identifies this MeasurementType.
      *
      * @return the name
      */
@@ -65,13 +63,6 @@ public interface RegisterMapping extends HasId {
     public void setReadingType(ReadingType readingType);
 
     public Phenomenon getPhenomenon();
-
-    /**
-     * Returns the <code>RegisterGroup</code> the receiver belongs to
-     *
-     * @return the <code>RegisterGroup</code> the receiver belongs to
-     */
-    public List<RegisterGroup> getRegisterGroups();
 
     /**
      * Returns the receiver's description

@@ -9,14 +9,12 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
@@ -25,14 +23,11 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.elster.jupiter.util.Checks.is;
-import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Copyrights EnergyICT
@@ -40,14 +35,14 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * Time: 9:56 AM
  */
 @UniqueReadingType(groups = { Save.Create.class, Save.Update.class })
-public abstract class AbstractRegisterMappingImpl  extends PersistentNamedObject<RegisterMapping> implements RegisterMapping, PersistenceAware {
+public abstract class MeasurementTypeImpl extends PersistentNamedObject<MeasurementType> implements MeasurementType, PersistenceAware {
 
     protected static final String REGISTER_DISCRIMINATOR = "0";
     protected static final String CHANNEL_DISCRIMINATOR = "1";
 
-    static final Map<String, Class<? extends RegisterMapping>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends RegisterMapping>>of(
-                    REGISTER_DISCRIMINATOR, RegisterMappingImpl.class,
+    static final Map<String, Class<? extends MeasurementType>> IMPLEMENTERS =
+            ImmutableMap.<String, Class<? extends MeasurementType>>of(
+                    REGISTER_DISCRIMINATOR, RegisterTypeImpl.class,
                     CHANNEL_DISCRIMINATOR, ChannelTypeImpl.class);
 
     protected final MasterDataService masterDataService;
@@ -55,25 +50,25 @@ public abstract class AbstractRegisterMappingImpl  extends PersistentNamedObject
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(max= StringColumnLengthConstraints.REGISTER_MAPPING_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= StringColumnLengthConstraints.MEASUREMENT_TYPE_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     private ObisCode obisCodeCached;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_OBIS_CODE_IS_REQUIRED + "}")
     private String obisCode;
     private String oldObisCode;
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_MAPPING_UNIT_IS_REQUIRED + "}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_UNIT_IS_REQUIRED + "}")
     private Reference<Phenomenon> phenomenon = ValueReference.absent();
     private long oldPhenomenon;
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_MAPPING_READING_TYPE_IS_REQUIRED + "}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_READING_TYPE_IS_REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
     private boolean cumulative;
     private String description;
     private Date modificationDate;
-    @Min(value=0, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_MAPPING_TIMEOFUSE_TOO_SMALL + "}")
+    @Min(value=0, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_TYPE_TIMEOFUSE_TOO_SMALL + "}")
     private int timeOfUse;
 
-    protected AbstractRegisterMappingImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, MasterDataService masterDataService) {
-        super(RegisterMapping.class, dataModel, eventService, thesaurus);
+    protected MeasurementTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, MasterDataService masterDataService) {
+        super(MeasurementType.class, dataModel, eventService, thesaurus);
         this.clock = clock;
         this.masterDataService = masterDataService;
     }
@@ -102,17 +97,17 @@ public abstract class AbstractRegisterMappingImpl  extends PersistentNamedObject
 
     @Override
     protected CreateEventType createEventType() {
-        return CreateEventType.REGISTERMAPPING;
+        return CreateEventType.MEASUREMENTTYPE;
     }
 
     @Override
     protected UpdateEventType updateEventType() {
-        return UpdateEventType.REGISTERMAPPING;
+        return UpdateEventType.MEASUREMENTTYPE;
     }
 
     @Override
     protected DeleteEventType deleteEventType() {
-        return DeleteEventType.REGISTERMAPPING;
+        return DeleteEventType.MEASUREMENTTYPE;
     }
 
     @Override
@@ -152,41 +147,6 @@ public abstract class AbstractRegisterMappingImpl  extends PersistentNamedObject
     // Used by the update event
     public String getOldObisCode() {
         return oldObisCode;
-    }
-
-    private RegisterMapping findOtherByObisCodeAndPhenomenonAndTimeOfUse() {
-        Condition condition =
-                where(Fields.OBIS_CODE.fieldName()).isEqualTo(this.getObisCode().toString()).
-            and(where("phenomenon").isEqualTo(this.getPhenomenon()).
-            and(where("timeOfUse").isEqualTo(this.getTimeOfUse())));
-        List<RegisterMapping> registerMappings = this.getDataMapper().select(condition);
-        if (!registerMappings.isEmpty()) {
-            for (RegisterMapping registerMapping : registerMappings) {
-                if (registerMapping.getId() != this.getId()) {
-                    // The RegisterMapping that was found is NOT the one we are updating so we have found another one
-                    return registerMapping;
-                }
-            }
-            // No other RegisterMapping found
-            return null;
-        }
-        else {
-            // No other RegisterMapping found or this RegisterMapping is not peristent yet or the other is really different because the id does not match
-            return null;
-        }
-    }
-
-    @Override
-    public List<RegisterGroup> getRegisterGroups() {
-        Map<Long, RegisterGroup> groups = new HashMap<>();
-        List<RegisterMappingInGroup> registerMappingInGroups = this.dataModel.mapper(RegisterMappingInGroup.class).find("registerMapping", this);
-        for (RegisterMappingInGroup registerMappingInGroup : registerMappingInGroups) {
-            RegisterGroup group = registerMappingInGroup.getRegisterGroup();
-            if (!groups.containsKey(group.getId())) {
-                groups.put(group.getId(), group);
-            }
-        }
-        return new ArrayList<>(groups.values());
     }
 
     private boolean phenomenonChanged(Phenomenon phenomenon) {
@@ -231,11 +191,11 @@ public abstract class AbstractRegisterMappingImpl  extends PersistentNamedObject
     }
 
     protected void validateDelete() {
-        List<RegisterMapping> registerMappings = this.dataModel.mapper(RegisterMapping.class).find(Fields.TEMPLATE_REGISTER_ID.fieldName(), getId());
-        for (RegisterMapping registerMapping : registerMappings) {
-            registerMapping.delete();
+        List<MeasurementType> measurementTypes = this.dataModel.mapper(MeasurementType.class).find(Fields.TEMPLATE_REGISTER_ID.fieldName(), getId());
+        for (MeasurementType measurementType : measurementTypes) {
+            measurementType.delete();
         }
-        this.eventService.postEvent(EventType.REGISTERMAPPING_VALIDATEDELETE.topic(), this);
+        this.eventService.postEvent(EventType.MEASUREMENTTYPE_VALIDATEDELETE.topic(), this);
     }
 
     @Override

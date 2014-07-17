@@ -11,12 +11,12 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LoadProfileTypeRegisterMappingUsage;
+import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.energyict.mdc.masterdata.exceptions.RegisterMappingAlreadyInLoadProfileTypeException;
+import com.energyict.mdc.masterdata.exceptions.RegisterTypeAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.base.Optional;
@@ -76,7 +76,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     @Size(max= StringColumnLengthConstraints.LOAD_PROFILE_TYPE_DESCRIPTION, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
     private Date modificationDate;
-    private List<LoadProfileTypeRegisterMappingUsageImpl> registerMappingUsages = new ArrayList<>();
+    private List<LoadProfileTypeChannelTypeUsageImpl> channelTypeUsages = new ArrayList<>();
 
     private Clock clock;
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
@@ -123,7 +123,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     protected void doDelete() {
-        this.registerMappingUsages.clear();
+        this.channelTypeUsages.clear();
         this.getDataMapper().remove(this);
     }
 
@@ -208,35 +208,36 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.description = newDescription;
     }
 
-    public List<RegisterMapping> getRegisterMappings() {
-        List<RegisterMapping> registerMappings = new ArrayList<>(this.registerMappingUsages.size());
-        for (LoadProfileTypeRegisterMappingUsage registerMappingUsage : this.registerMappingUsages) {
-            registerMappings.add(registerMappingUsage.getRegisterMapping());
+    public List<ChannelType> getChannelTypes() {
+        List<ChannelType> measurementTypes = new ArrayList<>(this.channelTypeUsages.size());
+        for (LoadProfileTypeChannelTypeUsage channelTypeUsage : this.channelTypeUsages) {
+            measurementTypes.add(channelTypeUsage.getChannelType());
         }
-        return registerMappings;
+        return measurementTypes;
     }
 
     @Override
-    public void addRegisterMapping(RegisterMapping registerMappingWithoutInterval) {
-        RegisterMapping channelType = findOrCreateCorrespondingChannelType(registerMappingWithoutInterval);
-        for (LoadProfileTypeRegisterMappingUsageImpl registerMappingUsage : this.registerMappingUsages) {
-            if (registerMappingUsage.sameRegisterMapping(channelType)) {
-                throw new RegisterMappingAlreadyInLoadProfileTypeException(this.getThesaurus(), this, channelType);
+    public ChannelType createChannelTypeForRegisterType(RegisterType measurementTypeWithoutInterval) {
+        ChannelType channelType = findOrCreateCorrespondingChannelType(measurementTypeWithoutInterval);
+        for (LoadProfileTypeChannelTypeUsageImpl channelTypeUsage : this.channelTypeUsages) {
+            if (channelTypeUsage.sameChannelType(channelType)) {
+                throw new RegisterTypeAlreadyInLoadProfileTypeException(this.getThesaurus(), this, channelType);
             }
         }
-        this.registerMappingUsages.add(new LoadProfileTypeRegisterMappingUsageImpl(this, channelType));
+        this.channelTypeUsages.add(new LoadProfileTypeChannelTypeUsageImpl(this, channelType));
+        return channelType;
     }
 
     @Override
-    public void removeRegisterMapping(RegisterMapping registerMapping) {
-        Iterator<LoadProfileTypeRegisterMappingUsageImpl> iterator = this.registerMappingUsages.iterator();
+    public void removeChannelType(ChannelType channelType) {
+        Iterator<LoadProfileTypeChannelTypeUsageImpl> iterator = this.channelTypeUsages.iterator();
         while (iterator.hasNext()) {
-            LoadProfileTypeRegisterMappingUsageImpl registerMappingUsage = iterator.next();
-            if (registerMappingUsage.sameRegisterMapping(registerMapping)) {
+            LoadProfileTypeChannelTypeUsageImpl channelTypeUsage = iterator.next();
+            if (channelTypeUsage.sameChannelType(channelType)) {
                 /* Todo: Legacy code validated that there were no Channels that used the mapping
-                 * by calling ChannelFactory#hasChannelsForLoadProfileTypeAndMapping(this, registerMapping).
+                 * by calling ChannelFactory#hasChannelsForLoadProfileTypeAndMapping(this, channelType).
                  * This will now have to be dealt with via events. */
-                this.eventService.postEvent(EventType.REGISTERMAPPING_LOADPROFILETYPE_VALIDATEDELETE.topic(), registerMappingUsage);
+                this.eventService.postEvent(EventType.CHANNEL_TYPE_LOADPROFILETYPE_VALIDATEDELETE.topic(), channelTypeUsage);
                 iterator.remove();
             }
         }
@@ -247,12 +248,12 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.eventService.postEvent(EventType.LOADPROFILETYPE_VALIDATEDELETE.topic(), this);
     }
 
-    private RegisterMapping findOrCreateCorrespondingChannelType(RegisterMapping registerMappingWithoutInterval){
+    private ChannelType findOrCreateCorrespondingChannelType(RegisterType measurementTypeWithoutInterval){
 
-        Optional<ChannelType> channelType = this.masterDataService.findChannelTypeByTemplateRegisterAndInterval(registerMappingWithoutInterval, getInterval());
+        Optional<ChannelType> channelType = this.masterDataService.findChannelTypeByTemplateRegisterAndInterval(measurementTypeWithoutInterval, getInterval());
         if(!channelType.isPresent()){
-            ReadingType intervalAppliedReadingType = this.mdcReadingTypeUtilService.getIntervalAppliedReadingType(registerMappingWithoutInterval.getReadingType(), getInterval(), registerMappingWithoutInterval.getObisCode());
-            ChannelType newChannelType = masterDataService.newChannelType(registerMappingWithoutInterval, getInterval(), intervalAppliedReadingType);
+            ReadingType intervalAppliedReadingType = this.mdcReadingTypeUtilService.getIntervalAppliedReadingType(measurementTypeWithoutInterval.getReadingType(), getInterval(), measurementTypeWithoutInterval.getObisCode());
+            ChannelType newChannelType = masterDataService.newChannelType(measurementTypeWithoutInterval, getInterval(), intervalAppliedReadingType);
             newChannelType.save();
             return newChannelType;
         } else {

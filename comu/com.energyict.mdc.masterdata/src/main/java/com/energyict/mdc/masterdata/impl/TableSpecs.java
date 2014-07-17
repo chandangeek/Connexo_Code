@@ -7,10 +7,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LoadProfileTypeRegisterMappingUsage;
+import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -69,66 +69,66 @@ public enum TableSpecs {
         }
     },
 
-    MDS_REGISTERMAPPING {
+    MDS_MEASUREMENTTYPE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<RegisterMapping> table = dataModel.addTable(this.name(), RegisterMapping.class);
-            table.map(AbstractRegisterMappingImpl.IMPLEMENTERS);
+            Table<MeasurementType> table = dataModel.addTable(this.name(), MeasurementType.class);
+            table.map(MeasurementTypeImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_NAME).notNull().map("name").add();
+            Column name = table.column("NAME").varChar(StringColumnLengthConstraints.MEASUREMENT_TYPE_NAME).notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            table.column("OBISCODE").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_OBIS_CODE).notNull().map(AbstractRegisterMappingImpl.Fields.OBIS_CODE.fieldName()).add();
+            table.column("OBISCODE").varChar(StringColumnLengthConstraints.MEASUREMENT_TYPE_OBIS_CODE).notNull().map(MeasurementTypeImpl.Fields.OBIS_CODE.fieldName()).add();
             Column phenomenon = table.column("PHENOMENONID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
-            Column readingType = table.column("READINGTYPE").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_READING_TYPE).add();
+            Column readingType = table.column("READINGTYPE").varChar(StringColumnLengthConstraints.MEASUREMENT_TYPE_READING_TYPE).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CUMULATIVE").number().conversion(NUMBER2BOOLEAN).notNull().map("cumulative").add();
-            table.column("DESCRIPTION").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_DESCRIPTION).map("description").add();
+            table.column("DESCRIPTION").varChar(StringColumnLengthConstraints.MEASUREMENT_TYPE_DESCRIPTION).map("description").add();
             table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
             table.column("INTERVAL").number().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
             table.column("INTERVALCODE").number().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.column("TEMPLATEREGISTER").number().conversion(ColumnConversion.NUMBER2INT).map("templateRegisterId").add();
-            table.foreignKey("FK_MDS_REGMAP_PHENOMENON").on(phenomenon).references(MDS_PHENOMENON.name()).map("phenomenon").add();
-            table.foreignKey("FK_MDS_REGMAP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
-            table.unique("UK_MDS_REGMAPPINGNAME").on(name).add();
-            table.unique("UK_MDS_REGMREADINGTYPE").on(readingType).add();
-            table.primaryKey("PK_MDS_REGISTERMAPPING").on(id).add();
+            table.foreignKey("FK_MDS_MEASTP_PHENOMENON").on(phenomenon).references(MDS_PHENOMENON.name()).map("phenomenon").add();
+            table.foreignKey("FK_MDS_MEASTP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
+            table.unique("UK_MDS_MEASTYPENAME").on(name).add();
+            table.unique("UK_MDS_MTREADINGTYPE").on(readingType).add();
+            table.primaryKey("PK_MDS_MEASUREMENTTYPE").on(id).add();
         }
     },
 
-    MDS_REGISTERMAPPINGINGROUP {
+    MDS_REGISTERTYPEINGROUP {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<RegisterMappingInGroup> table = dataModel.addTable(this.name(), RegisterMappingInGroup.class);
-            table.map(RegisterMappingInGroup.class);
-            Column registerMapping = table.column("REGISTERMAPPINGID").number().notNull().add();
+            Table<RegisterTypeInGroup> table = dataModel.addTable(this.name(), RegisterTypeInGroup.class);
+            table.map(RegisterTypeInGroup.class);
+            Column registerType = table.column("REGISTERTYPEID").number().notNull().add();
             Column registerGroup = table.column("REGISTERGROUPID").number().notNull().add();
             table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.primaryKey("USR_PK_REGISTERMAPPINGINGROUP").on(registerMapping , registerGroup).add();
-            table.foreignKey("FK_REGMAPPINGINGROUP2MAPPING").
-                    on(registerMapping).
-                    references(MDS_REGISTERMAPPING.name()).
-                    onDelete(CASCADE).map("registerMapping").
+            table.primaryKey("USR_PK_REGTYPEINGROUP").on(registerType , registerGroup).add();
+            table.foreignKey("FK_REGTYPEINGROUP2TYPE").
+                    on(registerType).
+                    references(MDS_MEASUREMENTTYPE.name()).
+                    onDelete(CASCADE).map("registerType").
                     add();
-            table.foreignKey("FK_REGMAPPINGINGROUP2GROUP").
+            table.foreignKey("FK_REGTYPEINGROUP2GROUP").
                     on(registerGroup).
                     references(MDS_REGISTERGROUP.name()).
                     onDelete(CASCADE).
                     map("registerGroup").
-                    reverseMap("mappingsInGroup").
+                    reverseMap("registerTypeInGroups").
                     add();
         }
     },
 
-    MDS_REGMAPINLOADPROFILETYPE {
+    MDS_CHNTYPEINLOADPROFILETYPE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<LoadProfileTypeRegisterMappingUsage> table = dataModel.addTable(name(), LoadProfileTypeRegisterMappingUsage.class);
-            table.map(LoadProfileTypeRegisterMappingUsageImpl.class);
+            Table<LoadProfileTypeChannelTypeUsage> table = dataModel.addTable(name(), LoadProfileTypeChannelTypeUsage.class);
+            table.map(LoadProfileTypeChannelTypeUsageImpl.class);
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
-            Column registerMapping = table.column("REGMAPPINGID").number().notNull().add();
-            table.primaryKey("PK_REGMAPPINGINLOADPROFILETYPE").on(loadProfileType, registerMapping).add();
-            table.foreignKey("FK_REGMAPLPT_LOADPROFILETYPEID").on(loadProfileType).references(MDS_LOADPROFILETYPE.name()).map("loadProfileType").reverseMap("registerMappingUsages").composition().add();
-            table.foreignKey("FK_REGMAPLPT_REGMAPPINGID").on(registerMapping).references(MDS_REGISTERMAPPING.name()).map("registerMapping").add();
+            Column channelType = table.column("CHTYPEID").number().notNull().add();
+            table.primaryKey("PK_CHTYPEINLOADPROFILETYPE").on(loadProfileType, channelType).add();
+            table.foreignKey("FK_CHTPLPT_LOADPROFILETYPEID").on(loadProfileType).references(MDS_LOADPROFILETYPE.name()).map("loadProfileType").reverseMap("channelTypeUsages").composition().add();
+            table.foreignKey("FK_CHTPLPT_CHANTYPEID").on(channelType).references(MDS_MEASUREMENTTYPE.name()).map("channelType").add();
         }
     },
 

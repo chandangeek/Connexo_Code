@@ -22,10 +22,10 @@ public final class StringColumnLengthConstraints {
     public static final int LOG_BOOK_TYPE_OBIS_CODE = DEFAULT_OBISCODE_LENGTH;
 
     public static final int REGISTER_GROUP_NAME = 256;
-    public static final int REGISTER_MAPPING_NAME = 126;
-    public static final int REGISTER_MAPPING_OBIS_CODE = DEFAULT_OBISCODE_LENGTH;
-    public static final int REGISTER_MAPPING_READING_TYPE = 100;
-    public static final int REGISTER_MAPPING_DESCRIPTION = DEFAULT_DESCRIPTION_LENGTH;
+    public static final int MEASUREMENT_TYPE_NAME = 126;
+    public static final int MEASUREMENT_TYPE_OBIS_CODE = DEFAULT_OBISCODE_LENGTH;
+    public static final int MEASUREMENT_TYPE_READING_TYPE = 100;
+    public static final int MEASUREMENT_TYPE_DESCRIPTION = DEFAULT_DESCRIPTION_LENGTH;
 
     public static final int PHENOMENON_NAME = DEFAULT_NAME_LENGTH;
     public static final int PHENOMENON_UNIT = 7;

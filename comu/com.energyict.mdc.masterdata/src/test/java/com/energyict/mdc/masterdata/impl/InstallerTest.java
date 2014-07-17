@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.energyict.mdc.common.interval.Phenomenon;
 import org.assertj.core.api.Condition;
-import org.assertj.core.data.Index;
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +33,7 @@ public class InstallerTest {
         this.inMemoryPersistence.initializeDatabase("com.energyict.mdc.masterdata.impl.InstallerTest", false, false);
 
         // Asserts
-        assertThat(inMemoryPersistence.getMasterDataService().findAllRegisterMappings().find()).isEmpty();
+        assertThat(inMemoryPersistence.getMasterDataService().findAllMeasurementTypes().find()).isEmpty();
         assertThat(inMemoryPersistence.getMasterDataService().findAllPhenomena()).isEmpty();
     }
 
@@ -46,7 +45,7 @@ public class InstallerTest {
         this.inMemoryPersistence.initializeDatabase("com.energyict.mdc.masterdata.impl.InstallerTest", false, true);
 
         // Asserts
-        assertThat(inMemoryPersistence.getMasterDataService().findAllRegisterMappings().find()).isNotEmpty();
+        assertThat(inMemoryPersistence.getMasterDataService().findAllMeasurementTypes().find()).isNotEmpty();
         List<Phenomenon> allPhenomena = inMemoryPersistence.getMasterDataService().findAllPhenomena();
         assertThat(allPhenomena).isNotEmpty();
         assertThat(allPhenomena).areExactly(1, new Condition<Phenomenon>() {

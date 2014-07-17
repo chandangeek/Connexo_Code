@@ -6,10 +6,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.google.common.base.Optional;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
@@ -20,7 +19,7 @@ import java.util.*;
 public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> implements RegisterGroup {
 
     private Date modificationDate;
-    private List<RegisterMappingInGroup> mappingsInGroup = new ArrayList<>();
+    private List<RegisterTypeInGroup> registerTypeInGroups = new ArrayList<>();
 
     private final Clock clock;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
@@ -75,46 +74,46 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     }
 
     protected void validateDelete() {
-        if (!getRegisterMappingInGroup().isEmpty()) {
-            List<RegisterMapping> registerMappings = new ArrayList<>();
-            for(RegisterMappingInGroup mappingInGroup : getRegisterMappingInGroup()){
-                registerMappings.add(mappingInGroup.getRegisterMapping());
+        if (!getRegisterTypesInGroup().isEmpty()) {
+            List<RegisterType> registerTypes = new ArrayList<>();
+            for(RegisterTypeInGroup registerTypeInGroup : getRegisterTypesInGroup()){
+                registerTypes.add(registerTypeInGroup.getRegisterType());
             }
 
-            throw CannotDeleteBecauseStillInUseException.registerGroupIsStillInUse(this.getThesaurus(), this, registerMappings);
+            throw CannotDeleteBecauseStillInUseException.registerGroupIsStillInUse(this.getThesaurus(), this, registerTypes);
         }
     }
 
-    private List<RegisterMappingInGroup> getRegisterMappingInGroup() {
-        if (mappingsInGroup == null) {
-            mappingsInGroup = dataModel.mapper(RegisterMappingInGroup.class).find("registerGroupId", getId());
+    private List<RegisterTypeInGroup> getRegisterTypesInGroup() {
+        if (registerTypeInGroups == null) {
+            registerTypeInGroups = dataModel.mapper(RegisterTypeInGroup.class).find("registerGroupId", getId());
         }
-        return mappingsInGroup;
-    }
-
-    @Override
-    public List<RegisterMapping> getRegisterMappings() {
-        List<RegisterMapping> registerMappings = new ArrayList<>();
-        for(RegisterMappingInGroup mappingInGroup : getRegisterMappingInGroup()){
-            registerMappings.add(mappingInGroup.getRegisterMapping());
-        }
-
-        return registerMappings;
+        return registerTypeInGroups;
     }
 
     @Override
-    public void addRegisterMapping(RegisterMapping registerMapping) {
-        RegisterMappingInGroup mappingInGroup = RegisterMappingInGroup.from(dataModel, this, registerMapping);
+    public List<RegisterType> getRegisterTypes() {
+        List<RegisterType> measurementTypes = new ArrayList<>();
+        for(RegisterTypeInGroup registerTypeInGroup : getRegisterTypesInGroup()){
+            measurementTypes.add(registerTypeInGroup.getRegisterType());
+        }
+
+        return measurementTypes;
+    }
+
+    @Override
+    public void addRegisterType(RegisterType registerType) {
+        RegisterTypeInGroup mappingInGroup = RegisterTypeInGroup.from(dataModel, this, registerType);
         mappingInGroup.persist();
-        getRegisterMappingInGroup().add(mappingInGroup);
+        getRegisterTypesInGroup().add(mappingInGroup);
     }
 
     @Override
-    public void removeRegisterMapping(RegisterMapping registerMapping) {
-        Iterator<RegisterMappingInGroup> it = getRegisterMappingInGroup().iterator();
+    public void removeRegisterType(RegisterType registerType) {
+        Iterator<RegisterTypeInGroup> it = getRegisterTypesInGroup().iterator();
         while (it.hasNext()) {
-            RegisterMappingInGroup each = it.next();
-            if (each.getRegisterMapping().equals(registerMapping)) {
+            RegisterTypeInGroup each = it.next();
+            if (each.getRegisterType().equals(registerType)) {
                 each.delete();
                 it.remove();
             }
@@ -122,31 +121,31 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     }
 
     @Override
-    public void removeRegisterMappings() {
-        Iterator<RegisterMappingInGroup> it = getRegisterMappingInGroup().iterator();
+    public void removeRegisterTypes() {
+        Iterator<RegisterTypeInGroup> it = getRegisterTypesInGroup().iterator();
         while (it.hasNext()) {
-            RegisterMappingInGroup each = it.next();
+            RegisterTypeInGroup each = it.next();
             each.delete();
         }
 
-        mappingsInGroup = null;
+        registerTypeInGroups = null;
     }
 
     @Override
-    public boolean updateRegisterMappings(HashMap<Long, RegisterMapping> registerMappings){
-        HashMap<Long, RegisterMapping> existing = new HashMap<>();
-        for(RegisterMappingInGroup mappingInGroup : getRegisterMappingInGroup()){
-            existing.put(mappingInGroup.getRegisterMapping().getId(), mappingInGroup.getRegisterMapping());
+    public boolean updateRegisterTypes(HashMap<Long, RegisterType> registerTypes){
+        HashMap<Long, RegisterType> existing = new HashMap<>();
+        for(RegisterTypeInGroup mappingInGroup : getRegisterTypesInGroup()){
+            existing.put(mappingInGroup.getRegisterType().getId(), mappingInGroup.getRegisterType());
         }
 
         boolean modified = false;
-        modified |= unlinkToRegisterMappings(existing, registerMappings);
-        modified |= linkToRegisterMappings(existing, registerMappings);
+        modified |= unlinkToRegisterTypes(existing, registerTypes);
+        modified |= linkToRegisterTypes(existing, registerTypes);
         return modified;
     }
 
-    private boolean unlinkToRegisterMappings(HashMap<Long, RegisterMapping> current, HashMap<Long, RegisterMapping> target){
-        HashMap<Long, RegisterMapping> toRemove = new HashMap<>(current);
+    private boolean unlinkToRegisterTypes(HashMap<Long, RegisterType> current, HashMap<Long, RegisterType> target){
+        HashMap<Long, RegisterType> toRemove = new HashMap<>(current);
         for(Map.Entry entry : target.entrySet()){
             if(toRemove.containsKey(entry.getKey())){
                 toRemove.remove(entry.getKey());
@@ -155,14 +154,14 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
         boolean modified = (toRemove.size()>0);
         for (Map.Entry entry : toRemove.entrySet()) {
             modified = true;
-            removeRegisterMapping((RegisterMapping) entry.getValue());
+            removeRegisterType((RegisterType) entry.getValue());
         }
 
         return modified;
     }
 
-    private boolean linkToRegisterMappings(HashMap<Long, RegisterMapping> current, HashMap<Long, RegisterMapping> target){
-        HashMap<Long, RegisterMapping> toAdd = new HashMap<>(target);
+    private boolean linkToRegisterTypes(HashMap<Long, RegisterType> current, HashMap<Long, RegisterType> target){
+        HashMap<Long, RegisterType> toAdd = new HashMap<>(target);
         for(Map.Entry entry : current.entrySet()){
             if(toAdd.containsKey(entry.getKey())){
                 toAdd.remove(entry.getKey());
@@ -170,7 +169,7 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
         }
         boolean modified = (toAdd.size()>0);
         for (Map.Entry entry : toAdd.entrySet()) {
-            addRegisterMapping((RegisterMapping) entry.getValue());
+            addRegisterType((RegisterType) entry.getValue());
         }
 
         return modified;

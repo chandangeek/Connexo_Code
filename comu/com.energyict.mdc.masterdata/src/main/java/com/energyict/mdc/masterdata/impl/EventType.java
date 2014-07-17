@@ -26,7 +26,7 @@ public enum EventType {
     },
     LOADPROFILETYPE_DELETED("loadprofiletype/DELETED"),
     LOADPROFILETYPE_VALIDATEDELETE("loadprofiletype/VALIDATEDELETE"),
-    REGISTERMAPPING_LOADPROFILETYPE_VALIDATEDELETE("registermappinginloadprofiletype/VALIDATEDELETE") {
+    CHANNEL_TYPE_LOADPROFILETYPE_VALIDATEDELETE("channeltypeinloadprofiletype/VALIDATEDELETE") {
         @Override
         void install(EventService eventService) {
             EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
@@ -38,8 +38,8 @@ public enum EventType {
             this.addCustomProperties(builder).create().save();
         }
     },
-    REGISTERMAPPING_CREATED("registermapping/CREATED"),
-    REGISTERMAPPING_UPDATED("registermapping/UPDATED") {
+    MEASUREMENTTYPE_CREATED("measurementtype/CREATED"),
+    MEASUREMENTTYPE_UPDATED("measurementtype/UPDATED") {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
             EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
@@ -48,8 +48,8 @@ public enum EventType {
             return eventTypeBuilder;
         }
     },
-    REGISTERMAPPING_DELETED("registermapping/DELETED"),
-    REGISTERMAPPING_VALIDATEDELETE("registermapping/VALIDATEDELETE"),
+    MEASUREMENTTYPE_DELETED("measurementtype/DELETED"),
+    MEASUREMENTTYPE_VALIDATEDELETE("measurementtype/VALIDATEDELETE"),
     REGISTERGROUP_CREATED("registergroup/CREATED"),
     REGISTERGROUP_UPDATED("registergroup/UPDATED"),
     REGISTERGROUP_DELETED("registergroup/DELETED"),
