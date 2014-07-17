@@ -105,8 +105,6 @@ public class LoadProfileTypeResource {
         return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
     }
 
-
-
     @DELETE
     @Path("/{loadProfileTypeId}")
     @Produces(MediaType.APPLICATION_JSON)
