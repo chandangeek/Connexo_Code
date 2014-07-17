@@ -245,7 +245,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                     record.getProxy().url = record.getProxy().url.replace('{comServerId}', me.comServerId);
                     break;
                 case 'editModel':
-                    actionType = Uni.I18n.translate('general.updated', 'MDC', 'updated');
+                    actionType = Uni.I18n.translate('general.saved', 'MDC', 'saved');
                     record = me.formToModel(form, me.recordToEdit);
                     break;
             }
@@ -271,10 +271,10 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
         switch (portDirection) {
             case 'inbound':
-                messageText = Uni.I18n.translate('comServerComPorts.form.addInboundSuccess', 'MDC', 'Inbound communication port successfully ') + actionType;
+                messageText = Uni.I18n.translate('comServerComPorts.form.addInboundSuccess', 'MDC', 'Inbound communication port') + ' ' + actionType;
                 break;
             case 'outbound':
-                messageText = Uni.I18n.translate('comServerComPorts.form.addOutboundSuccess', 'MDC', 'Outbound communication port successfully ') + actionType;
+                messageText = Uni.I18n.translate('comServerComPorts.form.addOutboundSuccess', 'MDC', 'Outbound communication port') + ' ' + actionType;
                 break;
         }
         this.getApplication().fireEvent('acknowledge', messageText);
