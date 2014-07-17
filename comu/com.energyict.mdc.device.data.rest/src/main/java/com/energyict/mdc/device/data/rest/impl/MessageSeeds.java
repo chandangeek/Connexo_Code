@@ -24,18 +24,10 @@ public enum MessageSeeds implements MessageSeed {
 
     private MessageSeeds(int number, String key, String format) {
         this.number = number;
-        this.key = stripComponentNameIfPresent(key);
+        this.key = key;
         this.format = format;
     }
 
-    private String stripComponentNameIfPresent(String key) {
-        if (key.startsWith(DeviceConfigurationApplication.COMPONENT_NAME+".")) {
-            return key.substring(DeviceConfigurationApplication.COMPONENT_NAME.length()+1);
-        } else {
-            return key;
-        }
-    }
-    
     @Override
     public String getModule() {
         return DeviceConfigurationApplication.COMPONENT_NAME;
