@@ -2,11 +2,14 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.registerMappingsGrid',
     overflowY: 'auto',
-    deviceTypeId: null,
     itemId: 'registermappinggrid',
+
+    deviceTypeId: null,
+
     selModel: {
         mode: 'SINGLE'
     },
+
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
@@ -14,7 +17,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
         'Mdc.view.setup.register.RegisterMappingActionMenu',
         'Uni.grid.column.Obis'
     ],
+
     store: 'RegisterTypesOfDevicetype',
+
     initComponent: function () {
         var me = this;
         this.columns = [
@@ -33,11 +38,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                 items: [
                     {
-                        icon: '../mdc/resources/images/info.png',
+                        icon: '../ext/packages/uni-theme-skyline/resources/images/icon-info-small.png',
                         iconCls: 'uni-info-icon',
                         tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
                         handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            //var record = grid.getStore().getAt(rowIndex);
                             this.fireEvent('showReadingTypeInfo', record);
                         }
                     }
@@ -56,6 +60,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 items: 'Mdc.view.setup.register.RegisterMappingActionMenu'
             }
         ];
+
         this.dockedItems = [
             {
 

@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceRegisterConfigurationDetail',
     itemId: 'deviceRegisterConfigurationDetail',
+
     mRID: null,
     registerId: null,
 
@@ -12,6 +13,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
 
     initComponent: function () {
         var me = this;
+
         me.side = [
             {
                 xtype: 'panel',
@@ -115,7 +117,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                                                     },
                                                     {
                                                         xtype: 'button',
-                                                        icon: '../mdc/resources/images/info.png',
+                                                        icon: '../ext/packages/uni-theme-skyline/resources/images/icon-info-small.png',
                                                         tooltip: Uni.I18n.translate('deviceregisterconfiguration.readingType.tooltip', 'MDC', 'Reading type info'),
                                                         cls: 'uni-btn-transparent',
                                                         handler: function () {
@@ -142,8 +144,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                                                 xtype: 'displayfield',
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.overflow', 'MDC', 'Overflow'),
                                                 name: 'overflow',
-                                                renderer: function(value) {
-                                                    if(!Ext.isEmpty(value)) {
+                                                renderer: function (value) {
+                                                    if (!Ext.isEmpty(value)) {
                                                         return value;
                                                     }
 
@@ -154,8 +156,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                                                 xtype: 'displayfield',
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.multiplierMode', 'MDC', 'Multiplier mode'),
                                                 name: 'multiplierMode',
-                                                renderer: function(value) {
-                                                    if(!Ext.isEmpty(value)) {
+                                                renderer: function (value) {
+                                                    if (!Ext.isEmpty(value)) {
                                                         return Uni.I18n.translate(value, 'MDC', value);
                                                     }
 

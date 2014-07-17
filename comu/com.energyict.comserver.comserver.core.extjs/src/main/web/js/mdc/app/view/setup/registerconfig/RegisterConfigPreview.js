@@ -75,7 +75,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                                     },
                                     {
                                         xtype: 'button',
-                                        icon: '../mdc/resources/images/info.png',
+                                        icon: '../ext/packages/uni-theme-skyline/resources/images/icon-info-small.png',
                                         tooltip: 'Reading type info',
                                         cls: 'uni-btn-transparent',
                                         handler: function (item, test) {

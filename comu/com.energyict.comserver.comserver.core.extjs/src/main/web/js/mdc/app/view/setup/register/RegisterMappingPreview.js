@@ -3,11 +3,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     frame: true,
     alias: 'widget.registerMappingPreview',
     itemId: 'registerMappingPreview',
+
     requires: [
         'Mdc.model.RegisterType',
         'Mdc.view.setup.register.RegisterMappingActionMenu',
         'Uni.form.field.ObisDisplay'
     ],
+
     layout: {
         type: 'card',
         align: 'stretch'
@@ -27,8 +29,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     ],
 
     deviceTypeId: null,
+
     initComponent: function () {
         var me = this;
+
         this.items = [
             {
                 xtype: 'panel',
@@ -100,7 +104,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                             },
                                             {
                                                 xtype: 'button',
-                                                icon: '../mdc/resources/images/info.png',
+                                                icon: '../ext/packages/uni-theme-skyline/resources/images/icon-info-small.png',
                                                 tooltip: 'Reading type info',
                                                 cls: 'uni-btn-transparent',
                                                 handler: function (item, test) {
@@ -129,13 +133,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                     align: 'stretch'
                                 },
                                 items: [
-                                   /* {
-                                        xtype: 'displayfield',
-                                        name: 'dataCollectionGroup',
-                                        fieldLabel: Uni.I18n.translate('registerMapping.dataCollectionGroup', 'MDC', 'Data collection group'),
-                                        labelAlign: 'right',
-                                        labelWidth: 250
-                                    }*/
+                                    /* {
+                                     xtype: 'displayfield',
+                                     name: 'dataCollectionGroup',
+                                     fieldLabel: Uni.I18n.translate('registerMapping.dataCollectionGroup', 'MDC', 'Data collection group'),
+                                     labelAlign: 'right',
+                                     labelWidth: 250
+                                     }*/
                                     {
                                         xtype: 'displayfield',
                                         name: 'unit',
