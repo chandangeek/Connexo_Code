@@ -132,7 +132,7 @@ public class ObisCodeMapper {
                         if ((obisCode.getF() >= 0) && (obisCode.getF() <= 7)) {
                             Integer systemStatus = rFactory.getSystemStatus().getSystemStatus(obisCode.getE());
                             if (systemStatus != null) {
-                                systemStatus = (systemStatus & (1 << obisCode.getF()));
+                                systemStatus = (systemStatus & (1 << obisCode.getF())) == (1 << obisCode.getF()) ? 1 : 0;
                                 registerValue = new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(systemStatus), Unit.get(255)));
                             } else {
                                 registerValue = new RegisterValue(obisCode, "System status not available");
@@ -164,7 +164,7 @@ public class ObisCodeMapper {
                         if ((obisCode.getF() >= 0) && (obisCode.getF() <= 7)) {
                             Integer systemError = rFactory.getSystemStatus().getSystemError(obisCode.getE());
                             if (systemError != null) {
-                                systemError = (systemError & (1 << obisCode.getF()));
+                                systemError = (systemError & (1 << obisCode.getF())) == (1 << obisCode.getF()) ? 1 : 0;
                                 registerValue = new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(systemError), Unit.get(255)));
                             } else {
                                 registerValue = new RegisterValue(obisCode, "System error not available");

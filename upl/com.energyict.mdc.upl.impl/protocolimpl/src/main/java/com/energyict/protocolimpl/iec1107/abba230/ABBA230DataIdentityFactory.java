@@ -5,7 +5,9 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -144,7 +146,7 @@ public class ABBA230DataIdentityFactory {
 //        add("545", 280,5,ABBA230DataIdentity.STREAMEABLE);
 
         // Meter current system status
-        add("724", 13,ABBA230DataIdentity.NOT_STREAMEABLE);
+        add("724", 21,ABBA230DataIdentity.NOT_STREAMEABLE);
         
         // (C)MD register sources
         add("668", 8,ABBA230DataIdentity.NOT_STREAMEABLE);

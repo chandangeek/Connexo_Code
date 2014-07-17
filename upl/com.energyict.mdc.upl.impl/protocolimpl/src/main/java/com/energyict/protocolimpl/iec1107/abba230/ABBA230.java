@@ -528,7 +528,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         }
     }
 
-    /** Protocol version **/
     public String getProtocolVersion() {
         return "$Date$";
     }
