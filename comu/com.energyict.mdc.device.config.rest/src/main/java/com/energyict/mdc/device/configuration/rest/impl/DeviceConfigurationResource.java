@@ -325,6 +325,7 @@ public class DeviceConfigurationResource {
         for (ValidationRule rule : rules) {
             result.add(new ValidationRuleInfo(rule));
         }
+        result = ListPager.of(result).from(queryParameters).find();
         return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
     }
 
@@ -342,6 +343,7 @@ public class DeviceConfigurationResource {
         for (ValidationRule rule : rules) {
             result.add(new ValidationRuleInfo(rule));
         }
+        result = ListPager.of(result).from(queryParameters).find();
         return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
     }
 
@@ -361,14 +363,14 @@ public class DeviceConfigurationResource {
         for (ValidationRuleSet ruleSet : ruleSets) {
             result.add(new ValidationRuleSetInfo(ruleSet));
         }
-        return Response.ok(PagedInfoList.asJson("validationRuleSets",
-                ListPager.of(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR).from(queryParameters).find(), queryParameters)).build();
+        result = ListPager.of(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR).from(queryParameters).find();
+        return Response.ok(PagedInfoList.asJson("validationRuleSets", result, queryParameters)).build();
     }
 
     @GET
     @Path("/{deviceConfigurationId}/linkablevalidationrulesets")
     @Produces(MediaType.APPLICATION_JSON)
-    public ValidationRuleSetInfos getLinkableValidationsRuleSets(
+    public Response getLinkableValidationsRuleSets(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam QueryParameters queryParameters) {
@@ -383,7 +385,9 @@ public class DeviceConfigurationResource {
                 validationRuleSetInfos.add(validationRuleSet);
             }
         }
-        return validationRuleSetInfos;
+        List<ValidationRuleSetInfo> infolist = validationRuleSetInfos.ruleSets;
+        infolist = ListPager.of(infolist).from(queryParameters).find();
+        return Response.ok(PagedInfoList.asJson("validationRuleSets", infolist, queryParameters)).build();
     }
 
     @DELETE

@@ -16,11 +16,11 @@ import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Path("/validationruleset")
 public class DeviceConfigsValidationRuleSetResource {
@@ -78,18 +78,19 @@ public class DeviceConfigsValidationRuleSetResource {
     @GET
     @Path("/{validationRuleSetId}/linkabledeviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceConfigurationInfos getLinkableDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId,
+    public Response getLinkableDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId,
                                                                              @BeanParam QueryParameters queryParameters) {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
-        List<DeviceType> allDeviceTypes = deviceTypeFinder.from(queryParameters).find();
+        List<DeviceType> allDeviceTypes = deviceTypeFinder.find();
         for(DeviceType deviceType : allDeviceTypes) {
             Finder<DeviceConfiguration> deviceConfigurationFinder = deviceConfigurationService.findDeviceConfigurationsUsingDeviceType(deviceType);
-            List<DeviceConfiguration>  allDeviceConfigurationPerDeviceTypes = deviceConfigurationFinder.from(queryParameters).find();
+            List<DeviceConfiguration>  allDeviceConfigurationPerDeviceTypes = deviceConfigurationFinder.find();
             addLinkableConfigurations(allDeviceConfigurationPerDeviceTypes, result, validationRuleSetId);
         }
         Collections.sort(result.deviceConfigurations, DeviceConfigurationInfos.DEVICE_CONFIG_NAME_COMPARATOR);
-        return result;
+        result.deviceConfigurations = ListPager.of(result.deviceConfigurations).from(queryParameters).find();
+        return Response.ok(PagedInfoList.asJson("deviceConfigurations", result.deviceConfigurations, queryParameters)).build();
     }
 
     private void addLinkableConfigurations(List<DeviceConfiguration>  allDeviceConfigurationPerDeviceTypes,
