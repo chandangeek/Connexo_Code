@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactoryImpl;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactoryImpl;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;

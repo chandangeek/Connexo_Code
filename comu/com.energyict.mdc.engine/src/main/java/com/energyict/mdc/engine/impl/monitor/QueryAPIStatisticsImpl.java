@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.tools.JmxStatistics;
-import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 import com.energyict.mdc.engine.model.ComServer;
 
 import javax.management.openmbean.CompositeType;

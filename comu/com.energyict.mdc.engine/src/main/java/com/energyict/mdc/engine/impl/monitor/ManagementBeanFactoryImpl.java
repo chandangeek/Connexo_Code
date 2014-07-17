@@ -4,14 +4,13 @@ import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.monitor.ComServerMonitorImplMBean;
-import com.energyict.mdc.engine.monitor.InboundComPortMBean;
-import com.energyict.mdc.engine.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.monitor.OutboundComPortMBean;
+import com.energyict.mdc.engine.model.OutboundComPort;
 
 import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -79,16 +78,16 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     }
 
     @Override
-    public ComServerMonitorImplMBean findFor(OnlineComServer onlineComServer) {
+    public Optional<ComServerMonitorImplMBean> findFor(OnlineComServer onlineComServer) {
         synchronized (this.registeredMBeans) {
             ObjectName jmxName = this.nameFor(onlineComServer);
             Object registeredMBean = this.registeredMBeans.get(jmxName);
             if (registeredMBean == null) {
                 LOGGER.severe("Unable to find ComServerMonitorMBean for online comserver " + onlineComServer.getName());
-                return null;
+                return Optional.absent();
             }
             else {
-                return (ComServerMonitorImplMBean) registeredMBean;
+                return Optional.of((ComServerMonitorImplMBean) registeredMBean);
             }
         }
     }
@@ -119,8 +118,46 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     }
 
     @Override
-    public OutboundComPortMBean findOrCreateFor(ScheduledComPort outboundComPort) {
-        return null;
+    public ScheduledComPortImplMBean findOrCreateFor(ScheduledComPort comPort) {
+        synchronized (this.registeredMBeans) {
+            ObjectName jmxName = this.nameFor(comPort);
+            Object registeredMBean = this.registeredMBeans.get(jmxName);
+            ScheduledComPortImplMBean comPortMBean;
+            if (registeredMBean == null) {
+                comPortMBean = new ScheduledComPortMonitorImpl(comPort, this.clock);
+                this.registerMBean(comPortMBean, jmxName);
+            }
+            else {
+                comPortMBean = (ScheduledComPortMonitorImpl) registeredMBean;
+            }
+            return comPortMBean;
+        }
+    }
+
+    @Override
+    public Optional<ScheduledComPortImplMBean> findFor(OutboundComPort comPort) {
+        synchronized (this.registeredMBeans) {
+            ObjectName jmxName = this.nameFor(comPort);
+            Object registeredMBean = this.registeredMBeans.get(jmxName);
+            if (registeredMBean == null) {
+                LOGGER.severe("Unable to find ComPortMonitorMBean for outbound comport " + comPort.getName());
+                return Optional.absent();
+            }
+            else {
+                return Optional.of((ScheduledComPortImplMBean) registeredMBean);
+            }
+        }
+    }
+
+    @Override
+    public void removeIfExistsFor(ScheduledComPort comPort) {
+        synchronized (this.registeredMBeans) {
+            ObjectName jmxName = this.nameFor(comPort);
+            Object registeredMBean = this.registeredMBeans.get(jmxName);
+            if (registeredMBean != null) {
+                this.unRegisterMBean(jmxName);
+            }
+        }
     }
 
     @Override
@@ -134,10 +171,33 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
 
     private ObjectName nameFor(ComServer comServer) {
         try {
-            return new ObjectName("EIServer:type=ComServer,name=" + comServer.getName());
+            return new ObjectName(this.comServerBaseName(comServer));
         }
         catch (MalformedObjectNameException e) {
             throw CodingException.malformedObjectName(comServer, e);
+        }
+    }
+
+    /**
+     * Returns the base name of components that relate to the specified ComServer.
+     *
+     * @param comServer The ComServer
+     * @return The base name
+     */
+    private String comServerBaseName(ComServer comServer) {
+        return "Connexo:type=ComServer,name=" + comServer.getName();
+    }
+
+    private ObjectName nameFor(ScheduledComPort comPort) {
+        return this.nameFor(comPort.getComPort());
+    }
+
+    private ObjectName nameFor(ComPort comPort) {
+        try {
+            return new ObjectName(this.comServerBaseName(comPort.getComServer()) + ",process=Ports,name=" + comPort.getName());
+        }
+        catch (MalformedObjectNameException e) {
+            throw CodingException.malformedObjectName(comPort, e);
         }
     }
 

@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.monitor;
+package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.common.TimeDuration;
 
@@ -12,7 +12,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-03 (10:50)
  */
-public interface OutboundComPortOperationalStatistics extends OperationalStatistics {
+public interface ScheduledComPortOperationalStatistics extends OperationalStatistics {
 
     /**
      * Gets the {@link TimeDuration} between each poll for communication
@@ -23,21 +23,17 @@ public interface OutboundComPortOperationalStatistics extends OperationalStatist
     public TimeDuration getSchedulingInterPollDelay ();
 
     /**
-     * Gets the timestamp on which the
-     * ScheduledComPort
-     * last checked for work.
+     * Gets the timestamp on which the ScheduledComPort last checked for work.
      *
      * @return The timestamp on which the ScheduledComPort last checked for work
      */
     public Date getLastCheckForWorkTimestamp ();
 
     /**
-     * Gets the timestamp on which last activity
-     * was detected on each of the threads
-     * that actually communicate with devices.
+     * Sets the timestamp on which the ScheduledComPort last checked for work.
      *
-     * @return The timestamp of last activity of every thread
+     * @param lastCheckForWorkTimestamp The timestamp
      */
-    public List<Date> getLastActivityDate ();
+    public void setLastCheckForWorkTimestamp(Date lastCheckForWorkTimestamp);
 
 }

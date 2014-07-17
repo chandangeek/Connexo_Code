@@ -95,22 +95,22 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
 
     @Override
     public void queryApiClientRegistered () {
-        this.findOrCreateComServerMonitor().getQueryApiStatistics().clientRegistered();
+        this.getOperationalMonitor().getQueryApiStatistics().clientRegistered();
     }
 
     @Override
     public void queryApiClientUnregistered () {
-        this.findOrCreateComServerMonitor().getQueryApiStatistics().clientUnregistered();
+        this.getOperationalMonitor().getQueryApiStatistics().clientUnregistered();
     }
 
     @Override
     public void queryApiCallCompleted(long executionTimeInMillis) {
-        this.findOrCreateComServerMonitor().getQueryApiStatistics().callCompleted(executionTimeInMillis);
+        this.getOperationalMonitor().getQueryApiStatistics().callCompleted(executionTimeInMillis);
     }
 
     @Override
     public void queryApiCallFailed(long executionTimeInMillis) {
-        this.findOrCreateComServerMonitor().getQueryApiStatistics().callFailed(executionTimeInMillis);
+        this.getOperationalMonitor().getQueryApiStatistics().callFailed(executionTimeInMillis);
     }
 
 }

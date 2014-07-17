@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.monitor;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
@@ -22,18 +21,21 @@ public class ComServerOperationalStatisticsImpl extends OperationalStatisticsImp
     public static final String COMMUNICATION_LOG_LEVEL_ITEM_NAME = "communicationLogLevel";
     private static final String COMMUNICATION_LOG_LEVEL_ITEM_DESCRIPTION = "communication log level";
 
+    private RunningComServer runningComServer;
+
     public ComServerOperationalStatisticsImpl(RunningComServer runningComServer, Clock clock) {
-        super(runningComServer, clock);
+        super(clock, runningComServer.getComServer().getChangesInterPollDelay());
+        this.runningComServer = runningComServer;
     }
 
     @Override
     public ComServer.LogLevel getServerLogLevel () {
-        return this.getRunningComServer().getComServer().getServerLogLevel();
+        return this.runningComServer.getComServer().getServerLogLevel();
     }
 
     @Override
     public ComServer.LogLevel getCommunicationLogLevel () {
-        return this.getRunningComServer().getComServer().getCommunicationLogLevel();
+        return this.runningComServer.getComServer().getCommunicationLogLevel();
     }
 
     @Override

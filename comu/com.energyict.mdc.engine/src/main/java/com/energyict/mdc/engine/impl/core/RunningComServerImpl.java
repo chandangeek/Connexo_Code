@@ -21,7 +21,7 @@ import com.energyict.mdc.engine.model.OutboundCapable;
 import com.energyict.mdc.engine.model.OutboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.engine.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -93,6 +93,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     private DeviceCommandExecutorImpl deviceCommandExecutor;
     private CleanupDuringStartup cleanupDuringStartup;
     private TimeOutMonitor timeOutMonitor;
+    private ComServerMonitor operationalMonitor;
 
     protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         this(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, new ComServerThreadFactory(comServer), cleanupDuringStartup, serviceProvider);
@@ -277,7 +278,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private void registerAsMBean() {
-        this.serviceProvider.managementBeanFactory().findOrCreateFor(this);
+        this.operationalMonitor = (ComServerMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor(this);
     }
 
     private void unregisterAsMBean() {
@@ -788,24 +789,24 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     @Override
     public void eventClientRegistered() {
-        ComServerMonitor monitor = this.findOrCreateComServerMonitor();
+        ComServerMonitor monitor = this.getOperationalMonitor();
         monitor.getEventApiStatistics().clientRegistered();
     }
 
     @Override
     public void eventClientUnregistered() {
-        ComServerMonitor monitor = this.findOrCreateComServerMonitor();
+        ComServerMonitor monitor = this.getOperationalMonitor();
         monitor.getEventApiStatistics().clientUnregistered();
     }
 
     @Override
     public void eventWasPublished() {
-        ComServerMonitor monitor = this.findOrCreateComServerMonitor();
+        ComServerMonitor monitor = this.getOperationalMonitor();
         monitor.getEventApiStatistics().eventWasPublished();
     }
 
-    protected ComServerMonitor findOrCreateComServerMonitor() {
-        return (ComServerMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor(this);
+    protected ComServerMonitor getOperationalMonitor() {
+        return this.operationalMonitor;
     }
 
     private class EventMechanism {
