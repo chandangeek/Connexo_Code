@@ -16,7 +16,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.EditAction
                         labelWidth: 150,
                         validateOnChange: false,
                         validateOnBlur: false,
-                        anchor: '100%'
+                        width: 700
                     },
                     items: [
                         {
@@ -51,15 +51,12 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.EditAction
                             itemId: 'actionTypeDetails',
                             xtype: 'container',
                             name: 'actionTypeDetails',
-                            layout: 'fit',
-                            margin: 0,
-                            anchor: '100%',
                             defaults: {
                                 labelWidth: 150,
                                 margin: '0 0 10 0',
                                 validateOnChange: false,
                                 validateOnBlur: false,
-                                anchor: '100%'
+                                width: 700
                             }
                         }
                     ],

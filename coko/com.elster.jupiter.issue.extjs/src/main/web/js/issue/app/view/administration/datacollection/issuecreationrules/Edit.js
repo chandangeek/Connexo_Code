@@ -181,13 +181,15 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Edit', {
                         {
                             xtype: 'fieldcontainer',
                             fieldLabel: 'Actions',
+                            width: 930,
                             items: [
                                 {
                                     xtype: 'button',
                                     itemId: 'addAction',
                                     text: 'Add action',
                                     action: 'addAction',
-                                    ui: 'action'
+                                    ui: 'action',
+                                    margin: '0 0 10 0'
                                 },
                                 {
                                     xtype: 'issues-creation-rules-actions-list',

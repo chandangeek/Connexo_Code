@@ -97,7 +97,6 @@ Ext.define('Isu.util.CreatingControl', {
             fieldLabel: obj.label,
             allowBlank: !obj.constraint.required,
             required: obj.constraint.required,
-            width: 500,
             height: 150,
             formBind: false
         };
@@ -116,7 +115,6 @@ Ext.define('Isu.util.CreatingControl', {
             xtype: 'textarea',
             itemId: 'emailList',
             name: obj.key,
-            width: 500,
             height: 150,
             allowBlank: !obj.constraint.required,
             required: obj.constraint.required,
