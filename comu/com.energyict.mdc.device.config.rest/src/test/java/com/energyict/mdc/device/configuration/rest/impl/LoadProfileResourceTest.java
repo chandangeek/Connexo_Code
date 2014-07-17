@@ -84,8 +84,12 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         ids.add(1);
-        ids.add(9999);
+
         response = target("/devicetypes/1/loadprofiletypes").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ids.add(9999);
+        response = target("/devicetypes/1/loadprofiletypes").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 }
