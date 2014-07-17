@@ -37,7 +37,7 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
                 if (register.getDeviceObisCode() != null && register.getDeviceObisCode().equals(registerObisCode)) {
                     this.register = register;
                     break;
-                } else if (register.getRegisterMappingObisCode().equals(registerObisCode)) {
+                } else if (register.getRegisterTypeObisCode().equals(registerObisCode)) {
                     this.register = register;
                     break;
                 }
