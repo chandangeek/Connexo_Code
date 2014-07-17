@@ -15,7 +15,7 @@ Ext.define('Mdc.model.RegisterConfiguration', {
         {name: 'multiplier', type: 'number', useNull: true},
         {name: 'overflow', type: 'number', useNull: true},
         {name: 'timeOfUse', type:'number', useNull: true},
-        {name: 'registerMapping', type:'number', useNull: true},
+        {name: 'registerType', type:'number', useNull: true},
         {name: 'multiplierMode', type:'string', useNull: true}
     ],
     associations: [

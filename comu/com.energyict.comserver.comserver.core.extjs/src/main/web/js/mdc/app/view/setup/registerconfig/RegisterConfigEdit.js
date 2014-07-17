@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                 items: [
                     {
                         xtype: 'combobox',
-                        name: 'registerMapping',
+                        name: 'registerType',
                         fieldLabel: Uni.I18n.translate('registerConfig.registerType', 'MDC', 'Register type'),
                         itemId: 'registerTypeComboBox',
                         store: this.registerTypesOfDeviceType,
