@@ -4,7 +4,7 @@ import com.energyict.mdc.common.Unit;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-public class UnitAdapter extends XmlAdapter<String, Unit> {
+public class PhenomenonAdapter extends XmlAdapter<String, Unit> {
 
     @Override
     public Unit unmarshal(String unitString) throws Exception {
