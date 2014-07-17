@@ -15,7 +15,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_LOAD_PROFILE_TYPE_FOUND(7, "DCR.NoLoadProfileTypeFound", "No Load Profile type with id {0}"),
     NO_PHENOMENON_FOUND(8, "DCR.NoPhenomenonFound", "No Phenomenon with id {0}"),
     NO_CHANNEL_SPEC_FOUND(9, "DCR.NoChannelSpecFound", "No channel specification with id {0}"),
-    INVALID_REFERENCE_TO_REGISTER_MAPPING(10, "DCR.NoSuchRegisterMapping", "Register type could not be found"),
+    INVALID_REFERENCE_TO_REGISTER_TYPE(10, "DCR.NoSuchRegisterType", "Register type could not be found"),
     DUPLICATE_OBISCODE(11, "DCR.DuplicateObisCode", "A register mapping with obis code ''{0}'', phenomenon ''{1}'' and time of use ''{2}'' already exists"),
     AS_SOON_AS_POSSIBLE(12, "DCR.asSoonAsPossible", "As soon a possible"),
     MINIMIZE_CONNECTIONS(13, "DCR.minimizeConnections", "Minimize connections"),

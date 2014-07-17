@@ -1,16 +1,11 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.Finder;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
-import com.google.common.base.Optional;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -58,18 +53,18 @@ public class RegisterGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
-        List<RegisterMappingInfo> registerMappingInfos = registerGroupInfo.registerTypes;
+        List<RegisterTypeInfo> registerTypeInfos = registerGroupInfo.registerTypes;
         if(queryParameters.getStart() != null && queryParameters.getStart() < registerGroupInfo.registerTypes.size()){
-            registerMappingInfos = registerMappingInfos.subList(queryParameters.getStart(), registerMappingInfos.size());
+            registerTypeInfos = registerTypeInfos.subList(queryParameters.getStart(), registerTypeInfos.size());
         }
-        return PagedInfoList.asJson("registerTypes", registerMappingInfos, queryParameters);
+        return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters);
     }
 
     @DELETE
     @Path("/{id}")
     public Response deleteRegisterGroup(@PathParam("id") long id) {
         RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
-        group.removeRegisterMappings();
+        group.removeRegisterTypes();
         group.delete();
         return Response.ok().build();
     }
@@ -81,7 +76,7 @@ public class RegisterGroupResource {
         RegisterGroup newGroup = this.masterDataService.newRegisterGroup(registerGroupInfo.name);
         newGroup.save();
 
-        return updateRegisterMappingInGroup(newGroup, registerGroupInfo, true);
+        return updateRegisterTypeInGroup(newGroup, registerGroupInfo, true);
 
     }
 
@@ -97,16 +92,16 @@ public class RegisterGroupResource {
             modified = true;
         }
 
-        return updateRegisterMappingInGroup(group, registerGroupInfo, modified);
+        return updateRegisterTypeInGroup(group, registerGroupInfo, modified);
     }
 
-    private RegisterGroupInfo updateRegisterMappingInGroup(RegisterGroup group, RegisterGroupInfo registerGroupInfo, boolean modified){
-        HashMap<Long, RegisterMapping> registerMappings = new HashMap<>();
-        for(RegisterMappingInfo mapping : registerGroupInfo.registerTypes){
-            registerMappings.put(mapping.id, resourceHelper.findRegisterMappingByIdOrThrowException(mapping.id));
+    private RegisterGroupInfo updateRegisterTypeInGroup(RegisterGroup group, RegisterGroupInfo registerGroupInfo, boolean modified){
+        HashMap<Long, RegisterType> registerType = new HashMap<>();
+        for(RegisterTypeInfo mapping : registerGroupInfo.registerTypes){
+            registerType.put(mapping.id, resourceHelper.findRegisterTypeByIdOrThrowException(mapping.id));
         }
 
-        modified |= group.updateRegisterMappings(registerMappings);
+        modified |= group.updateRegisterTypes(registerType);
 
         if(modified){
             this.masterDataService.validateRegisterGroup(group);

@@ -103,7 +103,7 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
 
         LoadProfileSpecInfo info = new LoadProfileSpecInfo();
         Entity<LoadProfileSpecInfo> json = Entity.json(info);
-        LoadProfileType loadProfileType = mockLoadProfileType(1, "loadProfile", getRandomTimeDuration(), new ObisCode(0, 1, 2, 3, 4, 5), getRegisterMappings(1));
+        LoadProfileType loadProfileType = mockLoadProfileType(1, "loadProfile", getRandomTimeDuration(), new ObisCode(0, 1, 2, 3, 4, 5), getRegisterTypes(1));
         LoadProfileSpec.LoadProfileSpecBuilder specBuilder = mock(LoadProfileSpec.LoadProfileSpecBuilder.class);
         LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(15, "spec");
 

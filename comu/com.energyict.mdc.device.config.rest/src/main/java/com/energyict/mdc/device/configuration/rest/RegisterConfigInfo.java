@@ -5,7 +5,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,8 +20,8 @@ public class RegisterConfigInfo {
     public String name;
     @JsonProperty("readingType")
     public ReadingTypeInfo readingType;
-    @JsonProperty("registerMapping")
-    public Long registerMapping;
+    @JsonProperty("registerType")
+    public Long registerType;
     @JsonProperty("obisCode")
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
@@ -52,8 +52,8 @@ public class RegisterConfigInfo {
 
     public RegisterConfigInfo(RegisterSpec registerSpec) {
         this.id = registerSpec.getId();
-        this.name = registerSpec.getRegisterMapping().getName();
-        this.readingType = new ReadingTypeInfo(registerSpec.getRegisterMapping().getReadingType());
+        this.name = registerSpec.getRegisterType().getName();
+        this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
         this.obisCode = registerSpec.getObisCode();
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
@@ -62,8 +62,8 @@ public class RegisterConfigInfo {
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         this.multiplier = registerSpec.getMultiplier();
         this.overflow = registerSpec.getOverflowValue();
-        this.registerMapping = registerSpec.getRegisterMapping().getId();
-        this.timeOfUse = registerSpec.getRegisterMapping().getTimeOfUse();
+        this.registerType = registerSpec.getRegisterType().getId();
+        this.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();
         this.multiplierMode = registerSpec.getMultiplierMode();
     }
 
@@ -79,13 +79,13 @@ public class RegisterConfigInfo {
         return registerConfigs;
     }
 
-    public void writeTo(RegisterSpec registerSpec, RegisterMapping registerMapping) {
+    public void writeTo(RegisterSpec registerSpec, RegisterType registerType) {
         registerSpec.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         registerSpec.setMultiplier(this.multiplier);
         registerSpec.setOverflow(this.overflow);
         registerSpec.setNumberOfDigits(this.numberOfDigits!=null?this.numberOfDigits:0);
         registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits!=null?this.numberOfFractionDigits:0);
         registerSpec.setOverruledObisCode(this.overruledObisCode);
-        registerSpec.setRegisterMapping(registerMapping);
+        registerSpec.setRegisterType(registerType);
     }
 }

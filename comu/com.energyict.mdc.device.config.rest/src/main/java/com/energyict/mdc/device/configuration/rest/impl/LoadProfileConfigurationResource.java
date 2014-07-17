@@ -6,9 +6,10 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.google.common.base.Optional;
 
@@ -172,11 +173,11 @@ public class LoadProfileConfigurationResource {
 
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        RegisterMapping registerMapping = resourceHelper.findRegisterMappingByIdOrThrowException(request.registerMapping.id);
+        ChannelType channelType = resourceHelper.findChannelTypeByIdOrThrowException(request.registerTypeInfo.id);
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
         Phenomenon phenomenon = findPhenomenonByIdOrThrowException(request.unitOfMeasure.id);
 
-        ChannelSpec.ChannelSpecBuilder channelBuilder = deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelBuilder = deviceConfiguration.createChannelSpec(channelType, phenomenon, loadProfileSpec);
         channelBuilder.setOverflow(request.overflowValue);
         channelBuilder.setMultiplier(request.multiplier);
         channelBuilder.setOverruledObisCode(request.overruledObisCode);
@@ -199,8 +200,8 @@ public class LoadProfileConfigurationResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         ChannelSpec channelSpec = findChannelSpecByIdOrThrowException(channelId);
-        if (request.registerMapping != null && request.registerMapping.id > 0) {
-            channelSpec.setRegisterMapping(resourceHelper.findRegisterMappingByIdOrThrowException(request.registerMapping.id));
+        if (request.registerTypeInfo != null && request.registerTypeInfo.id > 0) {
+            channelSpec.setChannelType(resourceHelper.findChannelTypeByIdOrThrowException(request.registerTypeInfo.id));
         }
         if (request.unitOfMeasure != null && request.unitOfMeasure.id > 0) {
             channelSpec.setPhenomenon(findPhenomenonByIdOrThrowException(request.unitOfMeasure.id));
@@ -239,15 +240,15 @@ public class LoadProfileConfigurationResource {
             @PathParam("loadProfileSpecId") int loadProfileSpecId,
             @BeanParam QueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
-        Map<Long, RegisterMapping> availableRegisterMappings = new HashMap<>();
-        for (RegisterMapping registerMapping : loadProfileSpec.getLoadProfileType().getRegisterMappings()) {
-            availableRegisterMappings.put(registerMapping.getId(), registerMapping);
+        Map<Long, ChannelType> channelTypes = new HashMap<>();
+        for (ChannelType measurementType : loadProfileSpec.getLoadProfileType().getChannelTypes()) {
+            channelTypes.put(measurementType.getId(), measurementType);
         }
         List<ChannelSpec> channelSpecs = deviceConfigurationService.findChannelSpecsForLoadProfileSpec(loadProfileSpec);
         for (ChannelSpec channelSpec : channelSpecs) {
-            availableRegisterMappings.remove(channelSpec.getRegisterMapping().getId());
+            channelTypes.remove(channelSpec.getChannelType().getId());
         }
-        return Response.ok(PagedInfoList.asJson("data", MeasurementTypeShortInfo.from(availableRegisterMappings.values()), queryParameters)).build();
+        return Response.ok(PagedInfoList.asJson("data", MeasurementTypeShortInfo.from(channelTypes.values()), queryParameters)).build();
     }
 
     public Collection<LoadProfileType> findAvailableLoadProfileTypesForDeviceConfiguration(DeviceType deviceType, DeviceConfiguration deviceConfiguration){

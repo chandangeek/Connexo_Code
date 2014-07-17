@@ -7,9 +7,10 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.DuplicateObisCodeException;
-import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -42,10 +43,10 @@ public class RegisterTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getRegisterTypes(@BeanParam QueryParameters queryParameters) {
-        List<RegisterMapping> registerMappings = this.masterDataService.findAllRegisterMappings().from(queryParameters).find();
-        List<RegisterMappingInfo> registerTypeInfos = new ArrayList<>();
-        for (RegisterMapping registerMapping : registerMappings) {
-            registerTypeInfos.add(new RegisterMappingInfo(registerMapping, this.deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping), false));
+        List<RegisterType> registerTypes = this.masterDataService.findAllRegisterTypes().from(queryParameters).find();
+        List<RegisterTypeInfo> registerTypeInfos = new ArrayList<>();
+        for (RegisterType registerType : registerTypes) {
+            registerTypeInfos.add(new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false));
         }
         return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters);
     }
@@ -53,56 +54,56 @@ public class RegisterTypeResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public RegisterMappingInfo getRegisterType(@PathParam("id") long id) {
-        RegisterMapping registerMapping = this.resourceHelper.findRegisterMappingByIdOrThrowException(id);
-        return new RegisterMappingInfo(registerMapping, this.deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping), false);
+    public RegisterTypeInfo getRegisterType(@PathParam("id") long id) {
+        RegisterType registerType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
+        return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
     }
 
     @DELETE
     @Path("/{id}")
     public Response deleteRegisterType(@PathParam("id") long id) {
-        RegisterMapping registerMapping = this.resourceHelper.findRegisterMappingByIdOrThrowException(id);
-        registerMapping.delete();
+        MeasurementType measurementType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
+        measurementType.delete();
         return Response.ok().build();
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public RegisterMappingInfo createRegisterMapping(RegisterMappingInfo registerMappingInfo) {
-        ReadingType readingType = findReadingType(registerMappingInfo);
+    public RegisterTypeInfo createRegisterType(RegisterTypeInfo registerTypeInfo) {
+        ReadingType readingType = findReadingType(registerTypeInfo);
 
-        RegisterMapping registerMapping = this.masterDataService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, registerMappingInfo.unit, readingType, registerMappingInfo.timeOfUse);
-        registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo));
+        MeasurementType measurementType = this.masterDataService.newRegisterType(registerTypeInfo.name, registerTypeInfo.obisCode, registerTypeInfo.unit, readingType, registerTypeInfo.timeOfUse);
+        registerTypeInfo.writeTo(measurementType, findReadingType(registerTypeInfo));
         try {
-            registerMapping.save();
+            measurementType.save();
         } catch (DuplicateObisCodeException e) {
             throw new LocalizedFieldValidationException(
-                    MessageSeeds.DUPLICATE_OBISCODE, "obisCode", registerMapping.getObisCode().toString(), registerMapping.getPhenomenon().toString(), registerMapping.getTimeOfUse());
+                    MessageSeeds.DUPLICATE_OBISCODE, "obisCode", measurementType.getObisCode().toString(), measurementType.getPhenomenon().toString(), measurementType.getTimeOfUse());
 
         }
-        return new RegisterMappingInfo(registerMapping, false, false); // It's a new one so cannot be used yet in a DeviceType right
+        return new RegisterTypeInfo(measurementType, false, false); // It's a new one so cannot be used yet in a DeviceType right
     }
 
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public RegisterMappingInfo updateRegisterMapping(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
-        RegisterMapping registerMapping = this.resourceHelper.findRegisterMappingByIdOrThrowException(id);
-        registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo));
+    public RegisterTypeInfo updateRegisterType(@PathParam("id") long id, RegisterTypeInfo registerTypeInfo) {
+        RegisterType registerType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
+        registerTypeInfo.writeTo(registerType, findReadingType(registerTypeInfo));
         try {
-            registerMapping.save();
+            registerType.save();
         } catch (DuplicateObisCodeException e) {
             throw new LocalizedFieldValidationException(
-                    MessageSeeds.DUPLICATE_OBISCODE, "obisCode", registerMapping.getObisCode().toString(), registerMapping.getPhenomenon().toString(), registerMapping.getTimeOfUse());
+                    MessageSeeds.DUPLICATE_OBISCODE, "obisCode", registerType.getObisCode().toString(), registerType.getPhenomenon().toString(), registerType.getTimeOfUse());
 
         }
-        return new RegisterMappingInfo(registerMapping, this.deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping), false);
+        return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
     }
 
-    private ReadingType findReadingType(RegisterMappingInfo registerMappingInfo) {
-        return meteringService.getReadingType(registerMappingInfo.readingType.mrid).orNull();
+    private ReadingType findReadingType(RegisterTypeInfo registerTypeInfo) {
+        return meteringService.getReadingType(registerTypeInfo.readingType.mrid).orNull();
     }
 
 }

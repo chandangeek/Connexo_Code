@@ -54,7 +54,7 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
     public void testDeleteLoadProfileTypeFromDeviceType(){
         mockNlsMessageFormat();
         DeviceType deviceType = mockDeviceType("device", 2);
-        LoadProfileType loadProfileType = mockLoadProfileType(2, "name", getRandomTimeDuration(), new ObisCode(0, 1, 2, 3, 4, 5), getRegisterMappings(1));
+        LoadProfileType loadProfileType = mockLoadProfileType(2, "name", getRandomTimeDuration(), new ObisCode(0, 1, 2, 3, 4, 5), getRegisterTypes(1));
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(null);
         when(deviceConfigurationService.findDeviceType(2)).thenReturn(deviceType);
         when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.<LoadProfileType>absent());
@@ -74,7 +74,7 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         mockNlsMessageFormat();
         List<Integer> ids = new ArrayList<>();
         Entity<List<Integer>> json = Entity.json(ids);
-        LoadProfileType loadProfileType = mockLoadProfileType(1, "name", getRandomTimeDuration(), new ObisCode(0, 1, 2, 3, 4, 5), getRegisterMappings(1));
+        LoadProfileType loadProfileType = mockLoadProfileType(1, "name", getRandomTimeDuration(), new ObisCode(0, 1, 2, 3, 4, 5), getRegisterTypes(1));
 
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(deviceType);
         when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.of(loadProfileType));

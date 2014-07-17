@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -11,7 +10,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -130,12 +129,12 @@ public class DeviceConfigsValidationRuleSetResource {
     private List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration) {
         List<ReadingType> readingTypes = new ArrayList<>();
         for (LoadProfileSpec spec : configuration.getLoadProfileSpecs()) {
-            for (RegisterMapping mapping : spec.getLoadProfileType().getRegisterMappings()) {
+            for (MeasurementType mapping : spec.getLoadProfileType().getChannelTypes()) {
                 readingTypes.add(mapping.getReadingType());
             }
         }
         for (RegisterSpec spec : configuration.getRegisterSpecs()) {
-            readingTypes.add(spec.getRegisterMapping().getReadingType());
+            readingTypes.add(spec.getRegisterType().getReadingType());
         }
         return readingTypes;
     }
