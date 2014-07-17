@@ -56,12 +56,6 @@ public class MeterIssueEvent extends AbstractEvent {
         setDevice(device);
     }
 
-    @SuppressWarnings("unused")
-    // Used in Drool's rule (@see BasicMeterRuleTemplate)
-    public String getEndDeviceEventType(){
-        return endDeviceEventType;
-    }
-
     @Override
     public String getEventType() {
         return endDeviceEventType;

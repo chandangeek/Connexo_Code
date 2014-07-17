@@ -18,11 +18,6 @@ public enum MessageSeeds implements MessageSeed {
     TREND_PERIOD_UNIT_HOURS(6, "TrendPeriodUnitHours", " hours", Level.INFO),
     ISSUE_CREATION_RULE_PARAMETER_ABSENT(7, "IssueCreationRuleParameterAbsent", "Required parameter is absent", Level.SEVERE),
 
-    METER_TEMPLATE_NAME(8, "TemapleMeterName", "Basic meter issues", Level.INFO),
-    METER_TEMPLATE_DESCRIPTION(9, "TemapleMeterDescription", "Creates issue based on specified meter", Level.INFO),
-    PARAMETER_NAME_END_DEVICE_TYPE(10, "ParameterNameEndDeviceType", "Event", Level.INFO),
-    PARAMETER_NAME_EVENT_TOPIC(11, "ParameterNameEventTopic", "Event", Level.INFO),
-
     PARAMETER_NAME_MAX_SLOPE(12, "ParameterNameMaxSlope", "Threshold", Level.INFO),
     PARAMETER_NAME_READING_TYPE(13, "ParameterNameReadingType", "CIM Reading type", Level.INFO),
     PARAMETER_NAME_TREND_PERIOD(14, "ParameterNameTrendPeriod", "Trend period", Level.INFO),

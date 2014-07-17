@@ -102,7 +102,19 @@ public class EventTypeParameter extends TranslatedParameter {
 
     private void searchEventTypesInEndDeviceEventTypes(String userValue){
         String dbSearchString = "%" + userValue + "%";
-        // TODO search in DB
+        /*
+        TODO search in DB
+        getAvailableEndDeviceEventTypes() retruns more than 10000 records! So we need to have an ability to search
+        EndDeviceEventTypes by name / id
+        for(EndDeviceEventType endDeviceEventType : meteringService.getAvailableEndDeviceEventTypes()) {
+            ComboBoxControl.Values info = new ComboBoxControl.Values();
+            info.id = endDeviceEventType.getMRID();
+            info.title = endDeviceEventType.getName();
+            eventTypes.add(info);
+        }
+        For now we use only this two, see the
+        http://confluence.eict.vpdc/display/JUP/Create+an+issue+for+the+event%2C+mapping+of+event+to+issue?focusedCommentId=26674337#comment-26674337
+        */
         ComboBoxControl.Values info = new ComboBoxControl.Values();
         info.id = "0.36.116.85";
         info.title = "Time sync failed";
