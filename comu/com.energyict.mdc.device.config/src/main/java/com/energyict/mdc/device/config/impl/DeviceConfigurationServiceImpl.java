@@ -567,12 +567,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration) {
         List<ReadingType> readingTypes = new ArrayList<>();
         for (LoadProfileSpec spec : configuration.getLoadProfileSpecs()) {
-            for (RegisterMapping mapping : spec.getLoadProfileType().getRegisterMappings()) {
-                readingTypes.add(mapping.getReadingType());
+            for (ChannelType channelType : spec.getLoadProfileType().getChannelTypes()) {
+                readingTypes.add(channelType.getReadingType());
             }
         }
         for (RegisterSpec spec : configuration.getRegisterSpecs()) {
-            readingTypes.add(spec.getRegisterMapping().getReadingType());
+            readingTypes.add(spec.getRegisterType().getReadingType());
         }
         return readingTypes;
     }

@@ -391,7 +391,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void validateRegisterTypeNotUsedByRegisterSpec(MeasurementType measurementType) {
         List<RegisterSpec> registerSpecs = this.getRegisterSpecsForRegisterType(measurementType);
         if (!registerSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByRegisterSpec(this.thesaurus, measurementType, registerSpecs);
+            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByRegisterSpecs(this.thesaurus, measurementType, registerSpecs);
         }
     }
 
