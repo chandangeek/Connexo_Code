@@ -1,4 +1,4 @@
-Ext.define('Uni.property.view.property.Password', {
+Ext.define('Uni.property.view.property.Hexstring', {
     extend: 'Uni.property.view.property.Text',
 
     getNormalCmp: function () {
