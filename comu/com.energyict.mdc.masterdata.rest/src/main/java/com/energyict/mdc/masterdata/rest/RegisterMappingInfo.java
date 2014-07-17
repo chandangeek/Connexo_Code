@@ -2,11 +2,10 @@ package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.common.rest.UnitAdapter;
+import com.energyict.mdc.common.rest.PhenomenonAdapter;
 import com.energyict.mdc.masterdata.RegisterMapping;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -22,8 +21,8 @@ public class RegisterMappingInfo {
     public Boolean isLinkedByActiveRegisterConfig; // This property makes no sense if the register mapping was retrieved outside the scope of a device type. It will be null.
     public Boolean isLinkedByInactiveRegisterConfig; // This property makes no sense if the register mapping was retrieved outside the scope of a device type. It will be null.
     public int timeOfUse;
-    @XmlJavaTypeAdapter(UnitAdapter.class)
-    public Unit unit;
+    @XmlJavaTypeAdapter(PhenomenonAdapter.class)
+    public Phenomenon phenomenon;
     public ReadingTypeInfo readingType;
 
     public RegisterMappingInfo() {
@@ -35,7 +34,7 @@ public class RegisterMappingInfo {
         this.obisCode = registerMapping.getObisCode();
         this.isLinkedByDeviceType = isLinkedByDeviceType;
         this.timeOfUse = registerMapping.getTimeOfUse();
-        this.unit = registerMapping.getUnit();
+        this.phenomenon = registerMapping.getPhenomenon();
         this.readingType = new ReadingTypeInfo(registerMapping.getReadingType());
     }
 
@@ -49,7 +48,7 @@ public class RegisterMappingInfo {
         registerMapping.setName(this.name);
         registerMapping.setObisCode(this.obisCode);
         registerMapping.setTimeOfUse(this.timeOfUse);
-        registerMapping.setUnit(this.unit);
+        registerMapping.setPhenomenon(this.phenomenon);
         registerMapping.setReadingType(readingType);
     }
 
