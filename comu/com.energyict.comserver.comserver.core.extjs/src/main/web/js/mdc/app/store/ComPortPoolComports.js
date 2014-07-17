@@ -25,7 +25,9 @@ Ext.define('Mdc.store.ComPortPoolComports',{
     sortByExisted: function(recordsArr) {
         var me= this;
         Ext.Array.each (recordsArr, function(record) {
-            me.remove(me.getById(record.id));
+            if (me.getById(record.id)){
+                me.remove(me.getById(record.id));
+            }
         });
     }
 });
