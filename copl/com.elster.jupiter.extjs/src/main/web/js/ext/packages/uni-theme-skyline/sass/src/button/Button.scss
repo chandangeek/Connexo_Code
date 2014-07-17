@@ -29,6 +29,10 @@
     background: linear-gradient(#2591bf, #47b4e4 61%);
 }
 
+*[class*='#{$prefix}btn-link-toolbar-'] {
+    border-color: transparent !important;
+}
+
 .#{$prefix}btn {
     margin-right: 8px !important;
 }
