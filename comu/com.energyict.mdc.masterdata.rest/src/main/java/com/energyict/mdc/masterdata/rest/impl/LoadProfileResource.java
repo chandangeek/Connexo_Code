@@ -5,12 +5,13 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
-import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -74,7 +75,7 @@ public class LoadProfileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addNewLoadProfileType(LoadProfileTypeInfo request) {
         LoadProfileType loadProfileType = masterDataService.newLoadProfileType(request.name, request.obisCode, request.timeDuration);
-        addRegisterMappingsToLoadProfileType(loadProfileType, request);
+        addChannelTypesToLoadProfileType(loadProfileType, request);
         loadProfileType.save();
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, false)).build();
     }
@@ -90,7 +91,7 @@ public class LoadProfileResource {
         if (!isInUse){
             loadProfileType.setInterval(request.timeDuration);
             loadProfileType.setObisCode(request.obisCode);
-            editRegisterMappingsToLoadProfileType(loadProfileType, request);
+            editChannelTypesToLoadProfileType(loadProfileType, request);
         }
         loadProfileType.save();
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isInUse)).build();
@@ -116,27 +117,27 @@ public class LoadProfileResource {
     }
 
 
-    private void addRegisterMappingsToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
-        if (request.registerMappings != null) {
-            for (RegisterMappingInfo registerMapping : request.registerMappings) {
-                Optional<RegisterMapping> registerMappingRef = masterDataService.findRegisterMapping(registerMapping.id);
-                if (registerMappingRef.isPresent()) {
-                    loadProfileType.addRegisterMapping(registerMappingRef.get());
+    private void addChannelTypesToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
+        if (request.registerTypes != null) {
+            for (RegisterTypeInfo registerTypeInfo : request.registerTypes) {
+                Optional<RegisterType> registerType = masterDataService.findRegisterType(registerTypeInfo.id);
+                if (registerType.isPresent()) {
+                    loadProfileType.createChannelTypeForRegisterType(registerType.get());
                 }
             }
         }
     }
 
-    private void editRegisterMappingsToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
-        if (request.registerMappings != null) {
-            List<RegisterMapping> mappingsOnLoadProfile = loadProfileType.getRegisterMappings();
-            for (RegisterMapping registerMapping : mappingsOnLoadProfile) {
-                loadProfileType.removeRegisterMapping(registerMapping);
+    private void editChannelTypesToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
+        if (request.registerTypes != null) {
+            List<ChannelType> mappingsOnLoadProfile = loadProfileType.getChannelTypes();
+            for (ChannelType channelType : mappingsOnLoadProfile) {
+                loadProfileType.removeChannelType(channelType);
             }
-            for (RegisterMappingInfo registerMapping : request.registerMappings) {
-                Optional<RegisterMapping> registerMappingRef = masterDataService.findRegisterMapping(registerMapping.id);
-                if (registerMappingRef.isPresent()) {
-                    loadProfileType.addRegisterMapping(registerMappingRef.get());
+            for (RegisterTypeInfo measurementType : request.registerTypes) {
+                Optional<RegisterType> registerType = masterDataService.findRegisterType(measurementType.id);
+                if (registerType.isPresent()) {
+                    loadProfileType.createChannelTypeForRegisterType(registerType.get());
                 }
             }
         }

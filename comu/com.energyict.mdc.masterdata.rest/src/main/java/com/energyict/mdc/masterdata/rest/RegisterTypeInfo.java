@@ -5,14 +5,14 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.UnitAdapter;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.ChannelType;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
-public class RegisterMappingInfo {
+public class RegisterTypeInfo {
 
     public long id;
     public String name;
@@ -26,31 +26,34 @@ public class RegisterMappingInfo {
     public Unit unit;
     public ReadingTypeInfo readingType;
 
-    public RegisterMappingInfo() {
+    public RegisterTypeInfo() {
     }
 
-    public RegisterMappingInfo(RegisterMapping registerMapping, boolean isLinkedByDeviceType, boolean inLoadProfileType) {
-        this.id = registerMapping.getId();
-        this.name = inLoadProfileType? ((ChannelType) registerMapping).getTemplateRegister().getName():registerMapping.getName();
-        this.obisCode = registerMapping.getObisCode();
+    public RegisterTypeInfo(MeasurementType measurementType, boolean isLinkedByDeviceType, boolean inLoadProfileType) {
+        if(inLoadProfileType){
+            measurementType = ((ChannelType) measurementType).getTemplateRegister();
+        }
+        this.id = measurementType.getId();
+        this.name = measurementType.getName();
+        this.obisCode = measurementType.getObisCode();
         this.isLinkedByDeviceType = isLinkedByDeviceType;
-        this.timeOfUse = registerMapping.getTimeOfUse();
-        this.unit = registerMapping.getUnit();
-        this.readingType = new ReadingTypeInfo(inLoadProfileType? ((ChannelType) registerMapping).getTemplateRegister().getReadingType():registerMapping.getReadingType());
+        this.timeOfUse = measurementType.getTimeOfUse();
+        this.unit = measurementType.getUnit();
+        this.readingType = new ReadingTypeInfo(measurementType.getReadingType());
     }
 
-    public RegisterMappingInfo(RegisterMapping registerMapping, boolean isLinkedByDeviceType, boolean isLinkedByActiveRegisterSpec, boolean isLinkedByInactiveRegisterSpec) {
-        this(registerMapping, isLinkedByDeviceType, false);
+    public RegisterTypeInfo(MeasurementType measurementType, boolean isLinkedByDeviceType, boolean isLinkedByActiveRegisterSpec, boolean isLinkedByInactiveRegisterSpec) {
+        this(measurementType, isLinkedByDeviceType, false);
         this.isLinkedByActiveRegisterConfig = isLinkedByActiveRegisterSpec;
         this.isLinkedByInactiveRegisterConfig = isLinkedByInactiveRegisterSpec;
     }
 
-    public void writeTo(RegisterMapping registerMapping, ReadingType readingType) {
-        registerMapping.setName(this.name);
-        registerMapping.setObisCode(this.obisCode);
-        registerMapping.setTimeOfUse(this.timeOfUse);
-        registerMapping.setUnit(this.unit);
-        registerMapping.setReadingType(readingType);
+    public void writeTo(MeasurementType measurementType, ReadingType readingType) {
+        measurementType.setName(this.name);
+        measurementType.setObisCode(this.obisCode);
+        measurementType.setTimeOfUse(this.timeOfUse);
+        measurementType.setUnit(this.unit);
+        measurementType.setReadingType(readingType);
     }
 
 }

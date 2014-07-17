@@ -4,7 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -25,7 +25,7 @@ public class LoadProfileTypeInfo {
     @XmlJavaTypeAdapter(LocalizedTimeDuration.Adapter.class)
     public TimeDuration timeDuration;
     @JsonProperty("measurementTypes")
-    public List<RegisterMappingInfo> registerMappings;
+    public List<RegisterTypeInfo> registerTypes;
     public Boolean isLinkedToActiveDeviceConf;
 
     public LoadProfileTypeInfo() {
@@ -46,9 +46,9 @@ public class LoadProfileTypeInfo {
         info.obisCode = loadProfileType.getObisCode();
         info.timeDuration=loadProfileType.getInterval();
 
-        info.registerMappings = new ArrayList<>(loadProfileType.getRegisterMappings().size());
-        for (RegisterMapping registerMapping : loadProfileType.getRegisterMappings()) {
-            info.registerMappings.add(new RegisterMappingInfo(registerMapping, false, true));
+        info.registerTypes = new ArrayList<>(loadProfileType.getChannelTypes().size());
+        for (MeasurementType measurementType : loadProfileType.getChannelTypes()) {
+            info.registerTypes.add(new RegisterTypeInfo(measurementType, false, true));
         }
 
         info.isLinkedToActiveDeviceConf = isInUse;
