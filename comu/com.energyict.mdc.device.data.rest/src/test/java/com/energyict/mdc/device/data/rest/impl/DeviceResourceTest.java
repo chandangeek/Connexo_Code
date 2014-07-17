@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -8,6 +9,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -18,6 +20,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -30,10 +33,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.google.common.base.Optional;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -48,13 +56,9 @@ import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 6/19/14.
@@ -69,6 +73,7 @@ public class DeviceResourceTest extends JerseyTest {
     private static EngineModelService engineModelService;
     private static IssueService issueService;
     private static MdcPropertyUtils mdcPropertyUtils;
+    private static SchedulingService schedulingService;
     private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
 
     @BeforeClass
@@ -81,6 +86,7 @@ public class DeviceResourceTest extends JerseyTest {
         nlsService = mock(NlsService.class);
         thesaurus = mock(Thesaurus.class);
         mdcPropertyUtils = mock(MdcPropertyUtils.class);
+        schedulingService = mock(SchedulingService.class);
     }
 
     @Override
@@ -89,6 +95,9 @@ public class DeviceResourceTest extends JerseyTest {
         super.setUp();
         reset(deviceImportService, engineModelService);
         when(thesaurus.getString(anyString(), anyString())).thenReturn(DUMMY_THESAURUS_STRING);
+        NlsMessageFormat mft = mock(NlsMessageFormat.class);
+        when(mft.format(any(Object[].class))).thenReturn("format");
+        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(mft);
     }
 
     @Override
@@ -117,6 +126,7 @@ public class DeviceResourceTest extends JerseyTest {
                 bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
                 bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
+                bind(schedulingService).to(SchedulingService.class);
             }
         });
         return resourceConfig;
@@ -351,5 +361,66 @@ public class DeviceResourceTest extends JerseyTest {
         Response response = target("/devices/1/connectionmethods/5").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(deviceDataService, never()).clearDefaultConnectionTask(device);
+    }
+
+    @Test
+    public void testComSchedulesBulkActionsWithWrongDevice(){
+        BulkRequestInfo request = new BulkRequestInfo();
+        request.deviceMRIDs = Arrays.asList("mrid1", "unexisting");
+        request.scheduleIds = Arrays.asList(1L);
+        Entity<BulkRequestInfo> json = Entity.json(request);
+
+        ScheduledComTaskExecutionBuilder builder = mock(ScheduledComTaskExecutionBuilder.class);
+
+        Device device = mock(Device.class);
+        when(device.getmRID()).thenReturn("mrid1");
+        when(device.getName()).thenReturn("Device with mrid1");
+        when(device.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
+        when(deviceDataService.findByUniqueMrid("mrid1")).thenReturn(device);
+        when(deviceDataService.findByUniqueMrid("unexisting")).thenReturn(null);
+
+        ComSchedule schedule = mock(ComSchedule.class);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(schedule));
+
+        ComSchedulesBulkInfo response = target("/devices/schedules").request().put(json, ComSchedulesBulkInfo.class);
+        assertThat(response.actions.size()).isEqualTo(1);
+        assertThat(response.actions.get(0).successCount).isEqualTo(1);
+        assertThat(response.actions.get(0).failCount).isEqualTo(1);
+        assertThat(response.actions.get(0).fails.size()).isEqualTo(1);
+        assertThat(response.actions.get(0).fails.get(0).message).isNotEmpty();
+    }
+
+    @Test
+    public void testComSchedulesBulkActionsAddAlreadyAdded(){
+        BulkRequestInfo request = new BulkRequestInfo();
+        request.deviceMRIDs = Arrays.asList("mrid1", "mrid2");
+        request.scheduleIds = Arrays.asList(1L);
+        Entity<BulkRequestInfo> json = Entity.json(request);
+
+        ScheduledComTaskExecutionBuilder builder = mock(ScheduledComTaskExecutionBuilder.class);
+
+        Device device1 = mock(Device.class);
+        when(device1.getmRID()).thenReturn("mrid1");
+        when(device1.getName()).thenReturn("Device with mrid1");
+        when(device1.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
+        when(deviceDataService.findByUniqueMrid("mrid1")).thenReturn(device1);
+        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+
+        Device device2 = mock(Device.class);
+        when(device2.getmRID()).thenReturn("mrid2");
+        when(device2.getName()).thenReturn("Device with mrid2");
+        when(device2.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
+        doThrow(new ConstraintViolationException("already exists", null)).when(device2).save();
+        when(deviceDataService.findByUniqueMrid("mrid2")).thenReturn(device2);
+
+        ComSchedule schedule = mock(ComSchedule.class);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(schedule));
+
+        ComSchedulesBulkInfo response = target("/devices/schedules").request().put(json, ComSchedulesBulkInfo.class);
+        assertThat(response.actions.size()).isEqualTo(1);
+        assertThat(response.actions.get(0).successCount).isEqualTo(1);
+        assertThat(response.actions.get(0).failCount).isEqualTo(1);
+        assertThat(response.actions.get(0).fails.size()).isEqualTo(1);
+        assertThat(response.actions.get(0).fails.get(0).message).isNotEmpty();
     }
 }
