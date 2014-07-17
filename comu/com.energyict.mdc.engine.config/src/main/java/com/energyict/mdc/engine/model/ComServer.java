@@ -75,7 +75,7 @@ public interface ComServer {
          * recovery from these types of problems and the current
          * process will likely have stopped or been abandonned.
          */
-        ERROR {
+        ERROR("Error") {
             @Override
             public String toString () {
                 return "logLevel_error";
@@ -86,7 +86,7 @@ public interface ComServer {
          * Shows only warning messages that are indicators for potential problems
          * that may occur later on in the process.
          */
-        WARN {
+        WARN("Warning") {
             @Override
             public String toString () {
                 return "logLevel_warning";
@@ -97,7 +97,7 @@ public interface ComServer {
          * Shows only informational messages that provide high level
          * understanding of what the process is doing.
          */
-        INFO {
+        INFO("Information") {
             @Override
             public String toString () {
                 return "logLevel_info";
@@ -108,7 +108,7 @@ public interface ComServer {
         /**
          * Fairly detailed log level, typically used for diagnosing/debugging problems.
          */
-        DEBUG {
+        DEBUG("Debug") {
             @Override
             public String toString () {
                 return "logLevel_debug";
@@ -118,13 +118,22 @@ public interface ComServer {
         /**
          * The most detailed log level, showing all possible messages.
          */
-        TRACE {
+        TRACE("Trace") {
             @Override
             public String toString () {
                 return "logLevel_trace";
             }
         };
 
+        private String nameKey;
+
+        private LogLevel(String nameKey) {
+            this.nameKey = nameKey;
+        }
+
+        public String getNameKey() {
+            return nameKey;
+        }
     }
 
     public long getId();
