@@ -3,6 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -69,8 +70,8 @@ public class RegisterTypeResource {
     public RegisterMappingInfo createRegisterMapping(RegisterMappingInfo registerMappingInfo) {
         ReadingType readingType = findReadingType(registerMappingInfo);
 
-        RegisterMapping registerMapping = this.masterDataService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, registerMappingInfo.phenomenon, readingType, registerMappingInfo.timeOfUse);
-        registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo));
+        RegisterMapping registerMapping = this.masterDataService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, null, readingType, registerMappingInfo.timeOfUse);
+        registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo), findPhenomenon(registerMappingInfo));
         try {
             registerMapping.save();
         } catch (DuplicateObisCodeException e) {
@@ -81,13 +82,17 @@ public class RegisterTypeResource {
         return new RegisterMappingInfo(registerMapping, false); // It's a new one so cannot be used yet in a DeviceType right
     }
 
+    private Phenomenon findPhenomenon(RegisterMappingInfo registerMappingInfo) {
+        return this.masterDataService.findPhenomenon(registerMappingInfo.unitOfMeasure.id).orNull();
+    }
+
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterMappingInfo updateRegisterMapping(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
         RegisterMapping registerMapping = this.resourceHelper.findRegisterMappingByIdOrThrowException(id);
-        registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo));
+        registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo), findPhenomenon(registerMappingInfo));
         try {
             registerMapping.save();
         } catch (DuplicateObisCodeException e) {
