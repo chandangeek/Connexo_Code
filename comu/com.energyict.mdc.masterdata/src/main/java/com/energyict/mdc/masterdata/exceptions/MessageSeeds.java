@@ -18,11 +18,11 @@ public enum MessageSeeds implements MessageSeed {
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "The name must be unique", SEVERE),
 
-    LOG_BOOK_TYPE_NAME_IS_REQUIRED(1102, "MDS.logBookType.name.required", "The name of a log book type is required", SEVERE),
-    LOG_BOOK_TYPE_ALREADY_EXISTS(1103, "MDS.logBookType.duplicateNameX", "A log book type with name \"{0}\" already exists", SEVERE),
+    LOG_BOOK_TYPE_NAME_IS_REQUIRED(1102, "logBookType.name.required", "The name of a log book type is required", SEVERE),
+    LOG_BOOK_TYPE_ALREADY_EXISTS(1103, "logBookType.duplicateNameX", "A log book type with name \"{0}\" already exists", SEVERE),
     LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED(1104, Keys.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED, "The obis code of a log book type is required", SEVERE),
-    LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(1105, "MDS.logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be deleted because it is still in use by the following log book spec(s): {1}", SEVERE),
-    LOG_BOOK_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(1106, "MDS.logBookType.XstillInUseByDeviceTypesY", "The log book type {0} cannot be deleted because it is still in use by the following device type(s): {1}", SEVERE),
+    LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(1105, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be deleted because it is still in use by the following log book spec(s): {1}", SEVERE),
+    LOG_BOOK_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(1106, "logBookType.XstillInUseByDeviceTypesY", "The log book type {0} cannot be deleted because it is still in use by the following device type(s): {1}", SEVERE),
 
     REGISTER_GROUP_STILL_IN_USE(1200, "registerGroup.XstillInUseByY", "The register group with name \"{0}\" cannot be deleted because it is still in use by the following register mappings: {1}", SEVERE),
 
@@ -62,7 +62,7 @@ public enum MessageSeeds implements MessageSeed {
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
-        this.key = stripComponentNameIfPresent(key);
+        this.key = key;
         this.defaultFormat = defaultFormat;
         this.level = level;
     }
@@ -92,15 +92,6 @@ public enum MessageSeeds implements MessageSeed {
         return MasterDataService.COMPONENTNAME;
     }
 
-    private String stripComponentNameIfPresent(String key) {
-        if (key.startsWith(MasterDataService.COMPONENTNAME + ".")) {
-            return key.substring(MasterDataService.COMPONENTNAME.length() + 1);
-        }
-        else {
-            return key;
-        }
-    }
-
     public static class Keys {
         public static final String NAME_REQUIRED = "MDS.X.name.required";
         public static final String NAME_UNIQUE = "MDS.X.name.unique";
@@ -116,6 +107,17 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE = "channelType.linked.registerType";
         public static final String CHANNEL_TYPE_INTERVAL_IS_REQUIRED = "channelType.interval.required";
         public static final String REGISTER_MAPPING_STILL_USED_BY_LOADPROFILE = "registerType.usedBy.loadProfileType";
+        public static final String NAME_REQUIRED = "X.name.required";
+        public static final String NAME_UNIQUE = "X.name.unique";
+        public static final String LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED = "logBookType.obisCode.required";
+        public static final String PRODUCT_SPEC_IS_REQUIRED = "registerMapping.productSpec.required";
+        public static final String REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED = "registerMapping.obisCode.required";
+        public static final String REGISTER_MAPPING_UNIT_IS_REQUIRED = "registerMapping.unit.required";
+        public static final String REGISTER_MAPPING_READING_TYPE_IS_REQUIRED = "registerMapping.readingType.required";
+        public static final String REGISTER_MAPPING_DUPLICATE_READING_TYPE = "registerMapping.duplicateReadingType";
+        public static final String REGISTER_MAPPING_TIMEOFUSE_TOO_SMALL = "timeOfUse.tooSmall";
+        public static final String LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED = "loadProfileType.obisCode.required";
+        public static final String FIELD_TOO_LONG = "incorrect.field.size";
     }
 
 }
