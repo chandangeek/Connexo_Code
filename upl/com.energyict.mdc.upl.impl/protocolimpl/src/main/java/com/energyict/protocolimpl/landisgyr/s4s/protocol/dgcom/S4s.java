@@ -146,7 +146,7 @@ public class S4s extends AbstractProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.8 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

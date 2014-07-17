@@ -63,7 +63,7 @@ public class Hawkeye extends Modbus  {
     }
 
     public String getProtocolVersion() {
-        return "$Revision: 1.5 $";
+        return "$Date$";
     }
     
     protected void initRegisterFactory() {
