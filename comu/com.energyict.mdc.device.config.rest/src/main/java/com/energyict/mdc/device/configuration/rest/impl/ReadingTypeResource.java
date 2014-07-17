@@ -8,9 +8,9 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.PhenomenonAdapter;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.rest.ReadingTypeComparator;
-import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.configuration.rest.ReadingTypeInfo;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -46,7 +46,7 @@ public class ReadingTypeResource {
             String unitString = queryFilter.getFilterProperties().get("unit");
             ObisCode obisCode = queryFilter.getProperty("obisCode", new ObisCodeAdapter());
 
-            Unit unit = queryFilter.getProperty("unit", new UnitAdapter());
+            Unit unit = queryFilter.getProperty("unit", new PhenomenonAdapter());
             String mrid = readingTypeUtilService.getReadingTypeFrom(obisCode, unit);
             Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
             if (readingType.isPresent()) {

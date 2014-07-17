@@ -3,7 +3,7 @@ package com.energyict.mdc.device.configuration.rest;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.common.rest.UnitAdapter;
+import com.energyict.mdc.common.rest.PhenomenonAdapter;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
@@ -31,7 +31,7 @@ public class RegisterConfigInfo {
     @JsonProperty("obisCodeDescription")
     public String obisCodeDescription;
     @JsonProperty("unitOfMeasure")
-    @XmlJavaTypeAdapter(UnitAdapter.class)
+    @XmlJavaTypeAdapter(PhenomenonAdapter.class)
     public Unit unitOfMeasure;
     @JsonProperty("numberOfDigits")
     public Integer numberOfDigits;

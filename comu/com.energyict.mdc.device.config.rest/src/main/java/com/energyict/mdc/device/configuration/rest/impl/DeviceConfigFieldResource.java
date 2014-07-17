@@ -3,7 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.FieldResource;
-import com.energyict.mdc.common.rest.UnitAdapter;
+import com.energyict.mdc.common.rest.PhenomenonAdapter;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.masterdata.MasterDataService;
 import java.util.ArrayList;
@@ -36,10 +36,10 @@ public class DeviceConfigFieldResource extends FieldResource{
     @Path("/unit")
     public Object getUnitValues() {
         List<String> allUnitsWithPhenomena = new ArrayList<>();
-        UnitAdapter unitAdapter = new UnitAdapter();
+        PhenomenonAdapter phenomenonAdapter = new PhenomenonAdapter();
         for (Phenomenon phenomenon : this.masterDataService.findAllPhenomena()) {
             try {
-                allUnitsWithPhenomena.add(unitAdapter.marshal(phenomenon.getUnit()));
+                allUnitsWithPhenomena.add(phenomenon.getName());
             } catch (Exception e) {
                 throw new WebApplicationException("Failed to convert unit into JSON", Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(phenomenon).build());
             }

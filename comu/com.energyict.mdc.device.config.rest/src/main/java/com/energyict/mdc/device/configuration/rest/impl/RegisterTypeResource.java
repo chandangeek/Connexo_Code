@@ -69,7 +69,7 @@ public class RegisterTypeResource {
     public RegisterMappingInfo createRegisterMapping(RegisterMappingInfo registerMappingInfo) {
         ReadingType readingType = findReadingType(registerMappingInfo);
 
-        RegisterMapping registerMapping = this.masterDataService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, registerMappingInfo.unit, readingType, registerMappingInfo.timeOfUse);
+        RegisterMapping registerMapping = this.masterDataService.newRegisterMapping(registerMappingInfo.name, registerMappingInfo.obisCode, registerMappingInfo.phenomenon, readingType, registerMappingInfo.timeOfUse);
         registerMappingInfo.writeTo(registerMapping, findReadingType(registerMappingInfo));
         try {
             registerMapping.save();
