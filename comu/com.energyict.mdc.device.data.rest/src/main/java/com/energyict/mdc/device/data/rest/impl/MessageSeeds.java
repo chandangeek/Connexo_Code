@@ -9,13 +9,13 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
 
-    NO_SUCH_DEVICE(14, "DDR.noSuchDevice", "No device with mrId {0}"),
-    DEVICE_DOES_NOT_MATCH_CONFIG(15, "DDR.deviceDoesNotMatchConfig", "Device does not match device configuration"),
-    NO_SUCH_PARTIAL_CONNECTION_TASK(16, "DDR.NoSuchPartialConnectionTask", "No such connection method on device config"),
-    NO_SUCH_CONNECTION_METHOD(17, "DDR.NoSuchConnectionTask" , "Device {0} has no connection method {1}"),
-    NO_SUCH_REGISTER(18, "DDR.NoSuchRegister" , "No register with id {0}"),
-    NO_SUCH_COM_SCHEDULE(19, "DDR.NoSuchComSchedule" , "No communication schedule with id {0}"),
-    DEVICE_VALIDATION_BULK_MSG(20, "DDR.DeviceValidationBulkMessage" , "This bulk operation for {0} schedule on {1} device is invalid"),
+    NO_SUCH_DEVICE(14, "noSuchDevice", "No device with mrId {0}"),
+    DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
+    NO_SUCH_PARTIAL_CONNECTION_TASK(16, "NoSuchPartialConnectionTask", "No such connection method on device config"),
+    NO_SUCH_CONNECTION_METHOD(17, "NoSuchConnectionTask" , "Device {0} has no connection method {1}"),
+    NO_SUCH_REGISTER(18, "NoSuchRegister" , "No register with id {0}"),
+    NO_SUCH_COM_SCHEDULE(19, "NoSuchComSchedule" , "No communication schedule with id {0}"),
+    DEVICE_VALIDATION_BULK_MSG(20, "DeviceValidationBulkMessage" , "This bulk operation for {0} schedule on {1} device is invalid"),
     ;
 
     private final int number;
