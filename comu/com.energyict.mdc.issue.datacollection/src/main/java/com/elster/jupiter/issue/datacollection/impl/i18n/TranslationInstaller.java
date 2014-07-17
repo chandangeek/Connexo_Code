@@ -1,9 +1,6 @@
 package com.elster.jupiter.issue.datacollection.impl.i18n;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.nls.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,15 +26,11 @@ public class TranslationInstaller {
                 SimpleNlsKey nlsKey = SimpleNlsKey
                         .key(thesaurus.getComponent(), Layer.DOMAIN, messageSeed.getKey())
                         .defaultMessage(messageSeed.getDefaultFormat());
-                translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
+                translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
             }
             thesaurus.addTranslations(translations);
         } catch (Exception e) {
             LOG.severe(e.getMessage());
         }
-    }
-
-    private Translation toTranslation(SimpleNlsKey nlsKey, Locale locale, String translation) {
-        return new SimpleTranslation(nlsKey, locale, translation);
     }
 }

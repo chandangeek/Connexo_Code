@@ -20,8 +20,8 @@ public class EventAggregationRuleTemplate extends AbstractTemplate {
     private volatile MeteringService meteringService;
     @Activate
     public void activate(){
-        addParameterDefinition(new EventTypeParameter(getThesaurus(), meteringService));
         addParameterDefinition(new ThresholdParameter(getThesaurus()));
+        addParameterDefinition(new EventTypeParameter(getThesaurus(), meteringService));
     }
 
     @Reference
