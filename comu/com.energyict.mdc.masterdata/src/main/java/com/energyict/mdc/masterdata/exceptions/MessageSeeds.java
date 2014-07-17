@@ -93,31 +93,20 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     public static class Keys {
-        public static final String NAME_REQUIRED = "MDS.X.name.required";
-        public static final String NAME_UNIQUE = "MDS.X.name.unique";
-        public static final String LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED = "MDS.logBookType.obisCode.required";
-        public static final String PRODUCT_SPEC_IS_REQUIRED = "MDS.registerType.productSpec.required";
-        public static final String REGISTER_TYPE_OBIS_CODE_IS_REQUIRED = "MDS.registerType.obisCode.required";
-        public static final String REGISTER_TYPE_UNIT_IS_REQUIRED = "MDS.registerType.unit.required";
-        public static final String REGISTER_TYPE_READING_TYPE_IS_REQUIRED = "MDS.registerType.readingType.required";
-        public static final String REGISTER_TYPE_DUPLICATE_READING_TYPE = "MDS.registerType.duplicateReadingType";
-        public static final String REGISTER_TYPE_TIMEOFUSE_TOO_SMALL = "MDS.timeOfUse.tooSmall";
-        public static final String LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED = "MDS.loadProfileType.obisCode.required";
-        public static final String FIELD_TOO_LONG = "MDS.incorrect.field.size";
-        public static final String CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE = "channelType.linked.registerType";
-        public static final String CHANNEL_TYPE_INTERVAL_IS_REQUIRED = "channelType.interval.required";
-        public static final String REGISTER_MAPPING_STILL_USED_BY_LOADPROFILE = "registerType.usedBy.loadProfileType";
         public static final String NAME_REQUIRED = "X.name.required";
         public static final String NAME_UNIQUE = "X.name.unique";
         public static final String LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED = "logBookType.obisCode.required";
-        public static final String PRODUCT_SPEC_IS_REQUIRED = "registerMapping.productSpec.required";
-        public static final String REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED = "registerMapping.obisCode.required";
-        public static final String REGISTER_MAPPING_UNIT_IS_REQUIRED = "registerMapping.unit.required";
-        public static final String REGISTER_MAPPING_READING_TYPE_IS_REQUIRED = "registerMapping.readingType.required";
-        public static final String REGISTER_MAPPING_DUPLICATE_READING_TYPE = "registerMapping.duplicateReadingType";
-        public static final String REGISTER_MAPPING_TIMEOFUSE_TOO_SMALL = "timeOfUse.tooSmall";
+        public static final String PRODUCT_SPEC_IS_REQUIRED = "registerType.productSpec.required";
+        public static final String REGISTER_TYPE_OBIS_CODE_IS_REQUIRED = "registerType.obisCode.required";
+        public static final String REGISTER_TYPE_UNIT_IS_REQUIRED = "registerType.unit.required";
+        public static final String REGISTER_TYPE_READING_TYPE_IS_REQUIRED = "registerType.readingType.required";
+        public static final String REGISTER_TYPE_DUPLICATE_READING_TYPE = "registerType.duplicateReadingType";
+        public static final String REGISTER_TYPE_TIMEOFUSE_TOO_SMALL = "timeOfUse.tooSmall";
         public static final String LOAD_PROFILE_TYPE_OBIS_CODE_IS_REQUIRED = "loadProfileType.obisCode.required";
         public static final String FIELD_TOO_LONG = "incorrect.field.size";
+        public static final String CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE = "channelType.linked.registerType";
+        public static final String CHANNEL_TYPE_INTERVAL_IS_REQUIRED = "channelType.interval.required";
+        public static final String REGISTER_MAPPING_STILL_USED_BY_LOADPROFILE = "registerType.usedBy.loadProfileType";
     }
 
 }
