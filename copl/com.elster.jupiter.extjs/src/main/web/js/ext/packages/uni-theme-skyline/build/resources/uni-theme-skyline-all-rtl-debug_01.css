@@ -7455,7 +7455,7 @@ a.x-tab {
  */
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small {
-  border-color: #6194ab;
+  border-color: transparent;
 }
 
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -7465,15 +7465,15 @@ a.x-tab {
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
-  background-color: #a0a0a0;
+  background-color: #71adc7;
 }
 
 /* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-default-small-mc {
-  background-color: #a0a0a0;
+  background-color: #71adc7;
 }
 
 /* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -7490,7 +7490,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-default-small-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -7605,7 +7605,7 @@ a.x-tab {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 5px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small .x-btn-arrow {
@@ -7633,7 +7633,7 @@ a.x-tab {
 }
 /* line 313, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie8m .x-btn-default-small .x-btn-glyph {
-  color: #cfcfcf;
+  color: #b8d6e3;
 }
 
 /* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -7663,7 +7663,7 @@ a.x-tab {
 .x-btn-default-small-icon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-small-noicon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-small-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
-  padding-right: 5px;
+  padding-right: 4px;
   padding-left: 0;
 }
 
@@ -7689,7 +7689,7 @@ a.x-tab {
 }
 /* line 399, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-icon-text-left .x-rtl.x-btn-inner {
-  padding-left: 5px;
+  padding-left: 4px;
   padding-right: 22px;
 }
 /* line 404, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -7722,7 +7722,7 @@ a.x-tab {
 }
 /* line 441, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-icon-text-right .x-rtl.x-btn-inner {
-  padding-right: 5px;
+  padding-right: 4px;
   padding-left: 22px;
 }
 /* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -7770,24 +7770,22 @@ a.x-tab {
 
 /* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-focus {
-  border-color: #59889d;
+  border-color: #11739e;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #71adc7;
 }
 
 /* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-over {
-  border-color: #59889d;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #51add5;
 }
 
 /* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-menu-active,
 .x-btn-default-small-pressed {
-  border-color: #486f80;
   background-image: none;
-  background-color: #909090;
+  background-color: #47b4e4;
 }
 
 /* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -7806,7 +7804,7 @@ a.x-tab {
 }
 /* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-focus .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #71adc7;
   background-image: url(images/btn/btn-default-small-focus-fbg.gif);
 }
 
@@ -7826,7 +7824,7 @@ a.x-tab {
 }
 /* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-over .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #51add5;
   background-image: url(images/btn/btn-default-small-over-fbg.gif);
 }
 
@@ -7855,7 +7853,7 @@ a.x-tab {
 /* line 640, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-menu-active .x-frame-mc,
 .x-btn-default-small-pressed .x-frame-mc {
-  background-color: #909090;
+  background-color: #47b4e4;
   background-image: url(images/btn/btn-default-small-pressed-fbg.gif);
 }
 
@@ -7960,7 +7958,7 @@ a.x-tab {
 /* */
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium {
-  border-color: #6194ab;
+  border-color: transparent;
 }
 
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -7970,15 +7968,15 @@ a.x-tab {
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
-  background-color: #a0a0a0;
+  background-color: #71adc7;
 }
 
 /* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-default-medium-mc {
-  background-color: #a0a0a0;
+  background-color: #71adc7;
 }
 
 /* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -7995,7 +7993,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-default-medium-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -8110,7 +8108,7 @@ a.x-tab {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 8px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium .x-btn-arrow {
@@ -8138,7 +8136,7 @@ a.x-tab {
 }
 /* line 313, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie8m .x-btn-default-medium .x-btn-glyph {
-  color: #cfcfcf;
+  color: #b8d6e3;
 }
 
 /* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -8168,7 +8166,7 @@ a.x-tab {
 .x-btn-default-medium-icon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-medium-noicon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-medium-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
-  padding-right: 8px;
+  padding-right: 4px;
   padding-left: 0;
 }
 
@@ -8194,7 +8192,7 @@ a.x-tab {
 }
 /* line 399, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-icon-text-left .x-rtl.x-btn-inner {
-  padding-left: 8px;
+  padding-left: 4px;
   padding-right: 29px;
 }
 /* line 404, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -8227,7 +8225,7 @@ a.x-tab {
 }
 /* line 441, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-icon-text-right .x-rtl.x-btn-inner {
-  padding-right: 8px;
+  padding-right: 4px;
   padding-left: 29px;
 }
 /* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -8275,24 +8273,22 @@ a.x-tab {
 
 /* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-focus {
-  border-color: #59889d;
+  border-color: #11739e;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #71adc7;
 }
 
 /* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-over {
-  border-color: #59889d;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #51add5;
 }
 
 /* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-menu-active,
 .x-btn-default-medium-pressed {
-  border-color: #486f80;
   background-image: none;
-  background-color: #909090;
+  background-color: #47b4e4;
 }
 
 /* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -8311,7 +8307,7 @@ a.x-tab {
 }
 /* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-focus .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #71adc7;
   background-image: url(images/btn/btn-default-medium-focus-fbg.gif);
 }
 
@@ -8331,7 +8327,7 @@ a.x-tab {
 }
 /* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-over .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #51add5;
   background-image: url(images/btn/btn-default-medium-over-fbg.gif);
 }
 
@@ -8360,7 +8356,7 @@ a.x-tab {
 /* line 640, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-menu-active .x-frame-mc,
 .x-btn-default-medium-pressed .x-frame-mc {
-  background-color: #909090;
+  background-color: #47b4e4;
   background-image: url(images/btn/btn-default-medium-pressed-fbg.gif);
 }
 
@@ -8465,7 +8461,7 @@ a.x-tab {
 /* */
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large {
-  border-color: #6194ab;
+  border-color: transparent;
 }
 
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -8475,15 +8471,15 @@ a.x-tab {
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
-  background-color: #a0a0a0;
+  background-color: #71adc7;
 }
 
 /* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-default-large-mc {
-  background-color: #a0a0a0;
+  background-color: #71adc7;
 }
 
 /* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -8500,7 +8496,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-default-large-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -8615,7 +8611,7 @@ a.x-tab {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 10px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large .x-btn-arrow {
@@ -8643,7 +8639,7 @@ a.x-tab {
 }
 /* line 313, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie8m .x-btn-default-large .x-btn-glyph {
-  color: #cfcfcf;
+  color: #b8d6e3;
 }
 
 /* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -8673,7 +8669,7 @@ a.x-tab {
 .x-btn-default-large-icon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-large-noicon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-large-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
-  padding-right: 10px;
+  padding-right: 4px;
   padding-left: 0;
 }
 
@@ -8699,7 +8695,7 @@ a.x-tab {
 }
 /* line 399, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-icon-text-left .x-rtl.x-btn-inner {
-  padding-left: 10px;
+  padding-left: 4px;
   padding-right: 37px;
 }
 /* line 404, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -8732,7 +8728,7 @@ a.x-tab {
 }
 /* line 441, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-icon-text-right .x-rtl.x-btn-inner {
-  padding-right: 10px;
+  padding-right: 4px;
   padding-left: 37px;
 }
 /* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -8780,24 +8776,22 @@ a.x-tab {
 
 /* line 507, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-focus {
-  border-color: #59889d;
+  border-color: #11739e;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #71adc7;
 }
 
 /* line 531, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-over {
-  border-color: #59889d;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #51add5;
 }
 
 /* line 556, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-menu-active,
 .x-btn-default-large-pressed {
-  border-color: #486f80;
   background-image: none;
-  background-color: #909090;
+  background-color: #47b4e4;
 }
 
 /* line 588, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -8816,7 +8810,7 @@ a.x-tab {
 }
 /* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-focus .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #71adc7;
   background-image: url(images/btn/btn-default-large-focus-fbg.gif);
 }
 
@@ -8836,7 +8830,7 @@ a.x-tab {
 }
 /* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-over .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #51add5;
   background-image: url(images/btn/btn-default-large-over-fbg.gif);
 }
 
@@ -8865,7 +8859,7 @@ a.x-tab {
 /* line 640, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-menu-active .x-frame-mc,
 .x-btn-default-large-pressed .x-frame-mc {
-  background-color: #909090;
+  background-color: #47b4e4;
   background-image: url(images/btn/btn-default-large-pressed-fbg.gif);
 }
 
@@ -8980,8 +8974,8 @@ a.x-tab {
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: #a0a0a0;
 }
@@ -9005,7 +8999,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-default-toolbar-small-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -9120,7 +9114,7 @@ a.x-tab {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 5px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-small .x-btn-arrow {
@@ -9178,7 +9172,7 @@ a.x-tab {
 .x-btn-default-toolbar-small-icon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-toolbar-small-noicon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-toolbar-small-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
-  padding-right: 5px;
+  padding-right: 4px;
   padding-left: 0;
 }
 
@@ -9204,7 +9198,7 @@ a.x-tab {
 }
 /* line 399, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-small-icon-text-left .x-rtl.x-btn-inner {
-  padding-left: 5px;
+  padding-left: 4px;
   padding-right: 22px;
 }
 /* line 404, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -9237,7 +9231,7 @@ a.x-tab {
 }
 /* line 441, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-small-icon-text-right .x-rtl.x-btn-inner {
-  padding-right: 5px;
+  padding-right: 4px;
   padding-left: 22px;
 }
 /* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -9491,8 +9485,8 @@ a.x-tab {
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: #a0a0a0;
 }
@@ -9516,7 +9510,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-default-toolbar-medium-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -9631,7 +9625,7 @@ a.x-tab {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 8px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-medium .x-btn-arrow {
@@ -9689,7 +9683,7 @@ a.x-tab {
 .x-btn-default-toolbar-medium-icon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-toolbar-medium-noicon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-toolbar-medium-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
-  padding-right: 8px;
+  padding-right: 4px;
   padding-left: 0;
 }
 
@@ -9715,7 +9709,7 @@ a.x-tab {
 }
 /* line 399, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-medium-icon-text-left .x-rtl.x-btn-inner {
-  padding-left: 8px;
+  padding-left: 4px;
   padding-right: 29px;
 }
 /* line 404, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -9748,7 +9742,7 @@ a.x-tab {
 }
 /* line 441, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-medium-icon-text-right .x-rtl.x-btn-inner {
-  padding-right: 8px;
+  padding-right: 4px;
   padding-left: 29px;
 }
 /* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -10002,8 +9996,8 @@ a.x-tab {
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: #a0a0a0;
 }
@@ -10027,7 +10021,7 @@ a.x-tab {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-default-toolbar-large-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -10142,7 +10136,7 @@ a.x-tab {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 10px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-large .x-btn-arrow {
@@ -10200,7 +10194,7 @@ a.x-tab {
 .x-btn-default-toolbar-large-icon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-toolbar-large-noicon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-default-toolbar-large-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
-  padding-right: 10px;
+  padding-right: 4px;
   padding-left: 0;
 }
 
@@ -10226,7 +10220,7 @@ a.x-tab {
 }
 /* line 399, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-large-icon-text-left .x-rtl.x-btn-inner {
-  padding-left: 10px;
+  padding-left: 4px;
   padding-right: 37px;
 }
 /* line 404, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -10259,7 +10253,7 @@ a.x-tab {
 }
 /* line 441, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-large-icon-text-right .x-rtl.x-btn-inner {
-  padding-right: 10px;
+  padding-right: 4px;
   padding-left: 37px;
 }
 /* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -16416,7 +16410,7 @@ div.x-form-spinner-down {
 .x-datepicker-arrow {
   width: 12px;
   height: 12px;
-  top: 10px;
+  top: 11px;
   cursor: pointer;
   background-color: #70bb51;
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
@@ -21014,8 +21008,8 @@ a.x-color-picker-item:hover {
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: transparent;
 }
@@ -21039,7 +21033,7 @@ a.x-color-picker-item:hover {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-plain-toolbar-small-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -21142,7 +21136,7 @@ a.x-color-picker-item:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 5px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-small .x-btn-arrow {
@@ -21200,7 +21194,7 @@ a.x-color-picker-item:hover {
 .x-btn-plain-toolbar-small-icon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-plain-toolbar-small-noicon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-plain-toolbar-small-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
-  padding-right: 5px;
+  padding-right: 4px;
   padding-left: 0;
 }
 
@@ -21226,7 +21220,7 @@ a.x-color-picker-item:hover {
 }
 /* line 399, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-small-icon-text-left .x-rtl.x-btn-inner {
-  padding-left: 5px;
+  padding-left: 4px;
   padding-right: 22px;
 }
 /* line 404, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -21259,7 +21253,7 @@ a.x-color-picker-item:hover {
 }
 /* line 441, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-small-icon-text-right .x-rtl.x-btn-inner {
-  padding-right: 5px;
+  padding-right: 4px;
   padding-left: 22px;
 }
 /* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -21513,8 +21507,8 @@ a.x-color-picker-item:hover {
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: transparent;
 }
@@ -21538,7 +21532,7 @@ a.x-color-picker-item:hover {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-plain-toolbar-medium-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -21641,7 +21635,7 @@ a.x-color-picker-item:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 8px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-medium .x-btn-arrow {
@@ -21699,7 +21693,7 @@ a.x-color-picker-item:hover {
 .x-btn-plain-toolbar-medium-icon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-plain-toolbar-medium-noicon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-plain-toolbar-medium-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
-  padding-right: 8px;
+  padding-right: 4px;
   padding-left: 0;
 }
 
@@ -21725,7 +21719,7 @@ a.x-color-picker-item:hover {
 }
 /* line 399, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-medium-icon-text-left .x-rtl.x-btn-inner {
-  padding-left: 8px;
+  padding-left: 4px;
   padding-right: 29px;
 }
 /* line 404, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -21758,7 +21752,7 @@ a.x-color-picker-item:hover {
 }
 /* line 441, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-medium-icon-text-right .x-rtl.x-btn-inner {
-  padding-right: 8px;
+  padding-right: 4px;
   padding-left: 29px;
 }
 /* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -22012,8 +22006,8 @@ a.x-color-picker-item:hover {
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
   border-radius: 5px;
-  padding: 5px 5px 5px 5px;
-  border-width: 0;
+  padding: 4px 4px 4px 4px;
+  border-width: 1px;
   border-style: solid;
   background-color: transparent;
 }
@@ -22037,7 +22031,7 @@ a.x-color-picker-item:hover {
 
 /* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-plain-toolbar-large-frameInfo {
-  font-family: th-5-5-5-5-0-0-0-0-5-5-5-5;
+  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
 }
 
 /* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -22140,7 +22134,7 @@ a.x-color-picker-item:hover {
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 10px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-large .x-btn-arrow {
@@ -22198,7 +22192,7 @@ a.x-color-picker-item:hover {
 .x-btn-plain-toolbar-large-icon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-plain-toolbar-large-noicon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-plain-toolbar-large-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
-  padding-right: 10px;
+  padding-right: 4px;
   padding-left: 0;
 }
 
@@ -22224,7 +22218,7 @@ a.x-color-picker-item:hover {
 }
 /* line 399, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-large-icon-text-left .x-rtl.x-btn-inner {
-  padding-left: 10px;
+  padding-left: 4px;
   padding-right: 37px;
 }
 /* line 404, ../../../ext-theme-neutral/sass/src/button/Button.scss */
@@ -22257,7 +22251,7 @@ a.x-color-picker-item:hover {
 }
 /* line 441, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-large-icon-text-right .x-rtl.x-btn-inner {
-  padding-right: 10px;
+  padding-right: 4px;
   padding-left: 37px;
 }
 /* line 447, ../../../ext-theme-neutral/sass/src/button/Button.scss */
