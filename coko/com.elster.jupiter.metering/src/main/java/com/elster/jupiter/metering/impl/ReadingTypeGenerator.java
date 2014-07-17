@@ -72,7 +72,7 @@ public final class ReadingTypeGenerator {
 	private void generate(Root root) {
         addTheTimeAttributeRelatedReadingTypes(root);
         addTheMacroPeriodRelatedReadingTypes(root);
-        String code = root.builder.period(TimeAttribute.NOTAPPLICABLE).accumulate(Accumulation.BULKQUANTITY).code();
+        String code = root.builder.period(TimeAttribute.NOTAPPLICABLE).period(MacroPeriod.NOTAPPLICABLE).accumulate(Accumulation.BULKQUANTITY).code();
         String name = root.name + " Cumulative index";
         try {
             readingTypes.add(meteringService.createReadingType(code, name));
