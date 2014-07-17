@@ -88,7 +88,8 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                             {
                                 xtype: 'text',
                                 itemId: 'selection-counter',
-                                text: Uni.I18n.translate('validation.noValidationRuleSetSelected', 'MDC', 'No validation rule set selected')
+                                text: Uni.I18n.translate('validation.noValidationRuleSetSelected', 'MDC', 'No validation rule set selected'),
+                                margin: '0 8 0 0'
                             },
                             {
                                 xtype: 'button',
@@ -102,7 +103,6 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
             {
                 xtype: 'toolbar',
                 dock: 'bottom',
-                margin: '0 0 0 -10',
                 items: [
                     {
                         xtype: 'button',
