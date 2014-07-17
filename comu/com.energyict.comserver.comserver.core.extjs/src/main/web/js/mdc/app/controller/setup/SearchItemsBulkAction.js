@@ -305,14 +305,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         switch (me.operation) {
             case 'add':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyAddedCommunicationSchedule', count, 'MDC', 'Successfully added communication schedule \'{0}\' to {1} devices');
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyAddedCommunicationSchedule', count, 'MDC', 'Successfully added communication schedule \'{1}\' to {0} devices');
                 break;
             case 'remove':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyRemovedCommunicationSchedule', count, 'MDC', 'Successfully removed communication schedule \'{0}\' from {1} devices');
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyRemovedCommunicationSchedule', count, 'MDC', 'Successfully removed communication schedule \'{1}\' from {0} devices');
                 break;
         }
 
-        messageHeader && (messageHeader = Ext.String.format(messageHeader, successful.actionTitle, count));
+        messageHeader && (messageHeader = Ext.String.format(messageHeader, count, successful.actionTitle));
 
         message.title = messageHeader;
 
@@ -331,14 +331,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         switch (me.operation) {
             case 'add':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToAddCommunicationSchedule', count, 'MDC', 'Failed to add communication schedule \'{0}\' to {1} devices');
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToAddCommunicationSchedule', count, 'MDC', 'Failed to add communication schedule \'{1}\' to {0} devices');
                 break;
             case 'remove':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToRemoveCommunicationSchedule', count, 'MDC', 'Failed to remove communication schedule \'{0}\' from {1} devices');
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToRemoveCommunicationSchedule', count, 'MDC', 'Failed to remove communication schedule \'{1}\' from {0} devices');
                 break;
         }
 
-        messageHeader && (messageHeader = Ext.String.format(messageHeader, failure.actionTitle, count));
+        messageHeader && (messageHeader = Ext.String.format(messageHeader, count, failure.actionTitle));
 
         Ext.Array.each(failure.fails, function (item) {
             var sameMessageGroup = Ext.Array.findBy(grouping, function (search) {
