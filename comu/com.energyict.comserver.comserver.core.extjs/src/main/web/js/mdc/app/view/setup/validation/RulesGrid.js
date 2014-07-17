@@ -55,18 +55,31 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
                 displayMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMsgRule', 'MDC', '{0} - {1} of {2} validation rules'),
                 displayMoreMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMoreMsgRule', 'MDC', '{0} - {1} of more than {2} validation rules'),
                 emptyMsg: Uni.I18n.translate('validation.pagingtoolbartop.emptyMsgRule', 'MDC', 'There are no validation rules to display')
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                pageSizeParam: 'limit2',
+                pageStartParam: 'start2',
+                deferLoading: true,
+                store: me.store,
+                itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.itemsPerPageRule', 'MDC', 'Validation rules per page'),
+                dock: 'bottom',
+                params: {
+                    ruleSetId: me.validationRuleSetId
+                }
             }
-            // TODO Currently the bottom toolbar messes up the grid, why?
-//            ,
-//            {
-//                xtype: 'pagingtoolbarbottom',
-//                store: me.store,
-//                itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.itemsPerPageRule', 'MDC', 'Validation rules per page'),
-//                dock: 'bottom'
-//            }
         ];
 
         me.callParent();
+    },
+
+    updateValidationRuleSetId: function (validationRuleSetId) {
+        var me = this;
+
+        me.validationRuleSetId = validationRuleSetId;
+        me.down('pagingtoolbarbottom').params = {
+            id: me.validationRuleSetId
+        };
     }
 });
 

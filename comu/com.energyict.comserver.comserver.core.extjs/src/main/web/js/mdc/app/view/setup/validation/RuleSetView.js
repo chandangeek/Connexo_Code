@@ -37,7 +37,8 @@ Ext.define('Mdc.view.setup.validation.RuleSetView', {
                     ]
                 },
                 grid: {
-                    xtype: 'validation-rules-grid'
+                    xtype: 'validation-rules-grid',
+                    validationRuleSetId: me.validationRuleSetId
                 },
                 previewComponent: {
                     xtype: 'validation-rule-preview',
@@ -66,6 +67,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetView', {
         me.setTitle(validationRuleSet.get('name'));
         me.validationRuleSetId = validationRuleSet.get('id');
         addButton.setHref('#/administration/validation/addRule/' + me.validationRuleSetId);
+        grid.updateValidationRuleSetId(me.validationRuleSetId);
 
         grid.store.load({params: {
             id: me.validationRuleSetId
