@@ -35,17 +35,43 @@ import java.util.logging.Logger;
 public class MasterDataGenerator {
 
     private static final Logger LOGGER = Logger.getLogger(MasterDataGenerator.class.getName());
+    private static String[][] phenomenaList = new String[][] {
+            {"Active Energy","kWh"},
+            {"Active Power","kW"},
+            {"Apparent Energy","kVAh"},
+            {"Apparent Power","kVA"},
+            {"Capacitive Power","kvar"},
+            {"Capactive Energy","kvarh"},
+            {"Capactive Power","kvar"},
+            {"Current","A"},
+            {"Energy","kWh"},
+            {"Energy","MJ"},
+            {"Gas Consumption","kWh"},
+            {"Gas Flow","m3/h"},
+            {"Gas Normalized Flow","Nm3/h"},
+            {"Gas Normalized Volume","Nm3"},
+            {"Gas Volume","m3"},
+            {"Heat","kWh"},
+            {"Inductive Energy","kvarh"},
+            {"Inductive Power","kvar"},
+            {"Pressure","bar"},
+            {"Reactive Energy","kvarh"},
+            {"Reactive Power","kvar"},
+            {"Temperature","°C"},
+            {"Temperature","K"},
+            {"Voltage","V"},
+            {"Water Volume","m3"}
+    };
 
-    static List<Phenomenon> generatePhenomena(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, MasterDataService masterDataService) {
+    static List<Phenomenon> generatePhenomena(MasterDataService masterDataService) {
         List<Phenomenon> phenomena = new ArrayList<>();
         Set<Unit> unitsToKeepTrack = new HashSet<>();
-        for (ReadingType readingType : meteringService.getAvailableReadingTypes()) {
+        for (String[] phenomenaEntry: phenomenaList) {
             try {
-                ReadingTypeInformation readingTypeInformation = readingTypeUtilService.getReadingTypeInformationFor(readingType);
-                Unit unit = readingTypeInformation.getUnit();
+                Unit unit = Unit.get(phenomenaEntry[1]);
                 if (!unitsToKeepTrack.contains(unit)) {
                     unitsToKeepTrack.add(unit);
-                    Phenomenon phenomenon = masterDataService.newPhenomenon(readingType.getUnit().name(), unit);
+                    Phenomenon phenomenon = masterDataService.newPhenomenon(phenomenaEntry[0]+" ("+phenomenaEntry[1]+")", unit);
                     phenomenon.save();
                     phenomena.add(phenomenon);
                 }
@@ -55,6 +81,7 @@ public class MasterDataGenerator {
         }
         return phenomena;
     }
+
 
     static List<RegisterMapping> generateRegisterMappings(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, MasterDataService masterDataService) {
         List<RegisterMapping> registerMappings = new ArrayList<>();

@@ -77,11 +77,11 @@ public class Installer {
         } catch (Exception e) {
             logger.severe(e.getMessage());
         }
-        this.generatePhenomenaFromReadingTypes();
+        this.generatePhenomenaFromStaticList();
     }
 
-    private void generatePhenomenaFromReadingTypes() {
-        MasterDataGenerator.generatePhenomena(meteringService, mdcReadingTypeUtilService, masterDataService);
+    private void generatePhenomenaFromStaticList() {
+        MasterDataGenerator.generatePhenomena(masterDataService);
     }
 
     private void createTranslations() {

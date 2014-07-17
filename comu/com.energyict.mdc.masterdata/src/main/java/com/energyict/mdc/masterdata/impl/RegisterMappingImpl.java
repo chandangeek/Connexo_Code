@@ -237,6 +237,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
         return phenomenon.get();
     }
 
+    @Override
     public void setPhenomenon(Phenomenon phenomenon) {
         if (phenomenon == null) {
             this.phenomenon.setNull();

@@ -5,8 +5,6 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.masterdata.RegisterGroup;
-
 import java.util.Date;
 import java.util.List;
 
@@ -61,6 +59,8 @@ public interface RegisterMapping extends HasId {
     public void setUnit(Unit unit);
 
     public ReadingType getReadingType ();
+
+    void setPhenomenon(Phenomenon phenomenon);
 
     public void setReadingType(ReadingType readingType);
 
