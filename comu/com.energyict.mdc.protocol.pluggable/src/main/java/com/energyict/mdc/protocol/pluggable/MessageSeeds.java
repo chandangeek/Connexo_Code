@@ -25,19 +25,10 @@ public enum MessageSeeds implements MessageSeed {
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
-        this.key = stripComponentNameIfPresent(key);
+        this.key = key;
         this.defaultFormat = defaultFormat;
         this.level = level;
     }
-
-    private String stripComponentNameIfPresent(String key) {
-        if (key.startsWith(ProtocolPluggableService.COMPONENTNAME+".")) {
-            return key.substring(ProtocolPluggableService.COMPONENTNAME.length()+1);
-        } else {
-            return key;
-        }
-    }
-
 
     @Override
     public int getNumber() {
@@ -65,10 +56,10 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     public class Constants {
-        public static final String PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY = ProtocolPluggableService.COMPONENTNAME+".protocolDialectPropertyXIsNotInSpec";
-        public static final String PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY = ProtocolPluggableService.COMPONENTNAME+".protocolDialectProperty.value.invalid";
-        public static final String PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY = ProtocolPluggableService.COMPONENTNAME+".protocolDialectProperty.required";
-        public static final String PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE = ProtocolPluggableService.COMPONENTNAME+".PluggableClass.newInstance.failure";
+        public static final String PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY = "protocolDialectPropertyXIsNotInSpec";
+        public static final String PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY = "protocolDialectProperty.value.invalid";
+        public static final String PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY = "protocolDialectProperty.required";
+        public static final String PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE = "PluggableClass.newInstance.failure";
     }
 }
 
