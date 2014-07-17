@@ -5,7 +5,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
@@ -18,8 +18,8 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.List;
 
 /**
- * Handles delete events that are being sent when a {@link RegisterMapping}
- * is about to be deleted and will veto the delete when the RegisterMapping is still used by:
+ * Handles delete events that are being sent when a {@link com.energyict.mdc.masterdata.MeasurementType}
+ * is about to be deleted and will veto the delete when the MeasurementType is still used by:
  * <ul>
  * <li>a {@link com.energyict.mdc.device.config.DeviceType}
  * <li>a {@link com.energyict.mdc.device.config.RegisterSpec}
@@ -30,19 +30,19 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-15 (16:35)
  */
-@Component(name="com.energyict.mdc.device.config.registermapping.delete.eventhandler", service = TopicHandler.class, immediate = true)
-public class RegisterMappingDeletionEventHandler implements TopicHandler {
+@Component(name="com.energyict.mdc.device.config.measurementtype.delete.eventhandler", service = TopicHandler.class, immediate = true)
+public class MeasurementTypeDeletionEventHandler implements TopicHandler {
 
-    private static final String TOPIC = "com/energyict/mdc/masterdata/registermapping/VALIDATEDELETE";
+    private static final String TOPIC = "com/energyict/mdc/masterdata/measurementtype/VALIDATEDELETE";
 
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public RegisterMappingDeletionEventHandler() {
+    public MeasurementTypeDeletionEventHandler() {
         super();
     }
 
-    public RegisterMappingDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
+    public MeasurementTypeDeletionEventHandler(DeviceConfigurationService deviceConfigurationService) {
         this();
         this.deviceConfigurationService = deviceConfigurationService;
     }
@@ -54,30 +54,30 @@ public class RegisterMappingDeletionEventHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent event) {
-        RegisterMapping registerMapping = (RegisterMapping) event.getSource();
-        this.validateNotUsedByRegisterSpecs(registerMapping);
-        this.validateNotUsedByChannelSpecs(registerMapping);
-        this.validateNotUsedByDeviceTypes(registerMapping);
+        MeasurementType measurementType = (MeasurementType) event.getSource();
+        this.validateNotUsedByRegisterSpecs(measurementType);
+        this.validateNotUsedByChannelSpecs(measurementType);
+        this.validateNotUsedByDeviceTypes(measurementType);
     }
 
-    private void validateNotUsedByRegisterSpecs(RegisterMapping registerMapping) {
-        List<RegisterSpec> registerSpecs = this.deviceConfigurationService.findRegisterSpecsByRegisterMapping(registerMapping);
+    private void validateNotUsedByRegisterSpecs(MeasurementType measurementType) {
+        List<RegisterSpec> registerSpecs = this.deviceConfigurationService.findRegisterSpecsByMeasurementType(measurementType);
         if (!registerSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByRegisterSpecs(this.thesaurus, registerMapping, registerSpecs);
+            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByRegisterSpecs(this.thesaurus, measurementType, registerSpecs);
         }
     }
 
-    private void validateNotUsedByChannelSpecs(RegisterMapping registerMapping) {
-        List<ChannelSpec> channelSpecs = this.deviceConfigurationService.findChannelSpecsForRegisterMapping(registerMapping);
+    private void validateNotUsedByChannelSpecs(MeasurementType measurementType) {
+        List<ChannelSpec> channelSpecs = this.deviceConfigurationService.findChannelSpecsForMeasurementType(measurementType);
         if (!channelSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByChannelSpecs(this.thesaurus, registerMapping, channelSpecs);
+            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByChannelSpecs(this.thesaurus, measurementType, channelSpecs);
         }
     }
 
-    private void validateNotUsedByDeviceTypes(RegisterMapping registerMapping) {
-        List<DeviceType> deviceTypes = this.deviceConfigurationService.findDeviceTypesUsingRegisterMapping(registerMapping);
+    private void validateNotUsedByDeviceTypes(MeasurementType measurementType) {
+        List<DeviceType> deviceTypes = this.deviceConfigurationService.findDeviceTypesUsingRegisterType(measurementType);
         if (!deviceTypes.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByDeviceTypes(this.thesaurus, registerMapping, deviceTypes);
+            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByDeviceTypes(this.thesaurus, measurementType, deviceTypes);
         }
     }
 

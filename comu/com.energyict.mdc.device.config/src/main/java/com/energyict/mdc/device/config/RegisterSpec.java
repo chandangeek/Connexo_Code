@@ -4,7 +4,8 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -32,7 +33,7 @@ public interface RegisterSpec extends HasId {
      *
      * @return the register mapping
      */
-    public RegisterMapping getRegisterMapping();
+    public RegisterType getRegisterType();
 
 
     /**
@@ -108,7 +109,7 @@ public interface RegisterSpec extends HasId {
      */
     public BigDecimal getOverflowValue();
 
-    void setRegisterMapping(RegisterMapping registerMapping);
+    void setRegisterType(RegisterType registerType);
 
     void setNumberOfDigits(int numberOfDigits);
 
@@ -150,7 +151,7 @@ public interface RegisterSpec extends HasId {
      */
     interface RegisterSpecBuilder {
 
-        RegisterSpecBuilder setRegisterMapping(RegisterMapping registerMapping);
+        RegisterSpecBuilder setRegisterType(RegisterType registerType);
 
         RegisterSpecBuilder setNumberOfDigits(int numberOfDigits);
 
@@ -191,8 +192,6 @@ public interface RegisterSpec extends HasId {
      * Defines a updater component to update a {@link RegisterSpec}
      */
     interface RegisterSpecUpdater {
-
-        RegisterSpecUpdater setRegisterMapping(RegisterMapping registerMapping);
 
         RegisterSpecUpdater setNumberOfDigits(int numberOfDigits);
 

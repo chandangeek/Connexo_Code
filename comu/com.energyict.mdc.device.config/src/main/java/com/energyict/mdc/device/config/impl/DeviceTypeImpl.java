@@ -17,10 +17,12 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseE
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInDeviceTypeException;
+import com.energyict.mdc.device.config.exceptions.RegisterTypeAlreadyInDeviceTypeException;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -51,7 +53,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
-    private List<DeviceTypeRegisterMappingUsage> registerMappingUsages = new ArrayList<>();
+    private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
     private long deviceProtocolPluggableClassId;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -94,7 +96,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     protected void doDelete() {
-        this.registerMappingUsages.clear();
+        this.registerTypeUsages.clear();
         this.loadProfileTypeUsages.clear();
         this.logBookTypeUsages.clear();
         Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
@@ -253,12 +255,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public List<RegisterMapping> getRegisterMappings() {
-        List<RegisterMapping> registerMappings = new ArrayList<>(this.registerMappingUsages.size());
-        for (DeviceTypeRegisterMappingUsage registerMappingUsage : this.registerMappingUsages) {
-            registerMappings.add(registerMappingUsage.getRegisterMapping());
+    public List<RegisterType> getRegisterTypes() {
+        List<RegisterType> measurementTypes = new ArrayList<>(this.registerTypeUsages.size());
+        for (DeviceTypeRegisterTypeUsage registerTypeUsage : this.registerTypeUsages) {
+            measurementTypes.add(registerTypeUsage.getRegisterType());
         }
-        return registerMappings;
+        return measurementTypes;
     }
 
     @Override
@@ -337,77 +339,77 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public void addRegisterMapping(RegisterMapping registerMapping) {
-        for (DeviceTypeRegisterMappingUsage registerMappingUsage : this.registerMappingUsages) {
-            if (registerMappingUsage.sameRegisterMapping(registerMapping)) {
-                throw new RegisterMappingAlreadyInDeviceTypeException(this.getThesaurus(), this, registerMapping);
+    public void addRegisterType(RegisterType registerType) {
+        for (DeviceTypeRegisterTypeUsage registerTypeUsage : this.registerTypeUsages) {
+            if (registerTypeUsage.sameRegisterType(registerType)) {
+                throw new RegisterTypeAlreadyInDeviceTypeException(this.getThesaurus(), this, registerType);
             }
         }
-        this.registerMappingUsages.add(new DeviceTypeRegisterMappingUsage(this, registerMapping));
+        this.registerTypeUsages.add(new DeviceTypeRegisterTypeUsage(this, registerType));
     }
 
     @Override
-    public void removeRegisterMapping(RegisterMapping registerMapping) {
-        Iterator<DeviceTypeRegisterMappingUsage> iterator = this.registerMappingUsages.iterator();
+    public void removeRegisterType(RegisterType registerType) {
+        Iterator<DeviceTypeRegisterTypeUsage> iterator = this.registerTypeUsages.iterator();
         while (iterator.hasNext()) {
-            DeviceTypeRegisterMappingUsage registerMappingUsage = iterator.next();
-            if (registerMappingUsage.sameRegisterMapping(registerMapping)) {
-                this.validateRegisterMappingNotUsedByRegisterSpec(registerMapping);
-                this.validateRegisterMappingNotUsedByChannelSpec(registerMapping);
+            DeviceTypeRegisterTypeUsage registerTypeUsage = iterator.next();
+            if (registerTypeUsage.sameRegisterType(registerType)) {
+                this.validateRegisterTypeNotUsedByRegisterSpec(registerType);
+                this.validateRegisterTypeNotUsedByChannelSpec(registerType);
                 iterator.remove();
             }
         }
     }
 
-    private void validateRegisterMappingNotUsedByChannelSpec(RegisterMapping registerMapping) {
-        List<ChannelSpec> channelSpecs = this.getChannelSpecsForRegisterMapping(registerMapping);
+    private void validateRegisterTypeNotUsedByChannelSpec(MeasurementType measurementType) {
+        List<ChannelSpec> channelSpecs = this.getChannelSpecsForChannelType(measurementType);
         if (!channelSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByChannelSpecs(this.thesaurus, registerMapping, channelSpecs);
+            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByChannelSpecs(this.thesaurus, measurementType, channelSpecs);
         }
     }
 
-    private List<ChannelSpec> getChannelSpecsForRegisterMapping(RegisterMapping registerMapping) {
+    private List<ChannelSpec> getChannelSpecsForChannelType(MeasurementType measurementType) {
         List<ChannelSpec> channelSpecs = new ArrayList<>();
-        this.collectChannelSpecsForRegisterMapping(registerMapping, channelSpecs);
+        this.collectChannelSpecsForChannelType(measurementType, channelSpecs);
         return channelSpecs;
     }
 
-    private void collectChannelSpecsForRegisterMapping(RegisterMapping registerMapping, List<ChannelSpec> channelSpecs) {
+    private void collectChannelSpecsForChannelType(MeasurementType measurementType, List<ChannelSpec> channelSpecs) {
         for (DeviceConfiguration deviceConfiguration : this.getConfigurations()) {
-            this.collectChannelSpecsForRegisterMapping(registerMapping, deviceConfiguration, channelSpecs);
+            this.collectChannelSpecsForChannelType(measurementType, deviceConfiguration, channelSpecs);
         }
     }
 
-    private void collectChannelSpecsForRegisterMapping(RegisterMapping registerMapping, DeviceConfiguration deviceConfiguration, List<ChannelSpec> channelSpecs) {
+    private void collectChannelSpecsForChannelType(MeasurementType measurementType, DeviceConfiguration deviceConfiguration, List<ChannelSpec> channelSpecs) {
         for (ChannelSpec channelSpec : deviceConfiguration.getChannelSpecs()) {
-            if(channelSpec.getRegisterMapping().getId() == registerMapping.getId()){
+            if(channelSpec.getChannelType().getId() == measurementType.getId()){
                 channelSpecs.add(channelSpec);
             }
         }
     }
 
-    private void validateRegisterMappingNotUsedByRegisterSpec(RegisterMapping registerMapping) {
-        List<RegisterSpec> registerSpecs = this.getRegisterSpecsForRegisterMapping(registerMapping);
+    private void validateRegisterTypeNotUsedByRegisterSpec(MeasurementType measurementType) {
+        List<RegisterSpec> registerSpecs = this.getRegisterSpecsForRegisterType(measurementType);
         if (!registerSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByRegisterSpec(this.thesaurus, registerMapping, registerSpecs);
+            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByRegisterSpec(this.thesaurus, measurementType, registerSpecs);
         }
     }
 
-    private List<RegisterSpec> getRegisterSpecsForRegisterMapping(RegisterMapping registerMapping) {
+    private List<RegisterSpec> getRegisterSpecsForRegisterType(MeasurementType measurementType) {
         List<RegisterSpec> registerSpecs = new ArrayList<>();
-        this.collectRegisterSpecsForRegisterMapping(registerMapping, registerSpecs);
+        this.collectRegisterSpecsForRegisterType(measurementType, registerSpecs);
         return registerSpecs;
     }
 
-    private void collectRegisterSpecsForRegisterMapping(RegisterMapping registerMapping, List<RegisterSpec> registerSpecs) {
+    private void collectRegisterSpecsForRegisterType(MeasurementType measurementType, List<RegisterSpec> registerSpecs) {
         for (DeviceConfiguration deviceConfiguration : this.getConfigurations()) {
-            this.collectRegisterSpecsForRegisterMapping(registerMapping, deviceConfiguration, registerSpecs);
+            this.collectRegisterSpecsForRegisterType(measurementType, deviceConfiguration, registerSpecs);
         }
     }
 
-    private void collectRegisterSpecsForRegisterMapping(RegisterMapping registerMapping, DeviceConfiguration deviceConfiguration, List<RegisterSpec> registerSpecs) {
+    private void collectRegisterSpecsForRegisterType(MeasurementType measurementType, DeviceConfiguration deviceConfiguration, List<RegisterSpec> registerSpecs) {
         for (RegisterSpec registerSpec : deviceConfiguration.getRegisterSpecs()) {
-            if (registerSpec.getRegisterMapping().getId() == registerMapping.getId()) {
+            if (registerSpec.getRegisterType().getId() == measurementType.getId()) {
                 registerSpecs.add(registerSpec);
             }
         }
@@ -619,22 +621,22 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(registerMapping, phenomenon, loadProfileSpec);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(channelType, phenomenon, loadProfileSpec);
             this.nestedBuilders.add(new ChannelSpecBuilder(builder));
             return builder;
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
-            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+            ChannelSpec.ChannelSpecBuilder builder = this.underConstruction.createChannelSpec(channelType, phenomenon, loadProfileSpecBuilder);
             this.nestedBuilders.add(new ChannelSpecBuilder(builder));
             return builder;
         }
 
         @Override
-        public RegisterSpec.RegisterSpecBuilder newRegisterSpec(RegisterMapping registerMapping) {
-            RegisterSpec.RegisterSpecBuilder builder = this.underConstruction.createRegisterSpec(registerMapping);
+        public RegisterSpec.RegisterSpecBuilder newRegisterSpec(RegisterType registerType) {
+            RegisterSpec.RegisterSpecBuilder builder = this.underConstruction.createRegisterSpec(registerType);
             this.nestedBuilders.add(new RegisterSpecBuilder(builder));
             return builder;
         }

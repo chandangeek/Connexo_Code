@@ -18,8 +18,9 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
-import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredOnDeviceTypeException;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import org.hibernate.validator.constraints.Range;
 public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implements RegisterSpec {
 
     enum Fields {
-        REGISTER_MAPPING("registerMapping"),
+        REGISTER_TYPE("registerType"),
         NUMBER_OF_DIGITS("numberOfDigits"),
         NUMBER_OF_FRACTION_DIGITS("numberOfFractionDigits"),
         MULTIPLIER("multiplier");
@@ -52,8 +53,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     private final Reference<DeviceConfiguration> deviceConfig = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED + "}")
-    private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED + "}")
+    private final Reference<RegisterType> registerType = ValueReference.absent();
     @Range(min = 1, max = 20, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
     private int numberOfDigits;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
@@ -75,9 +76,9 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         super(RegisterSpec.class, dataModel, eventService, thesaurus);
     }
 
-    private RegisterSpecImpl initialize(DeviceConfiguration deviceConfig, RegisterMapping registerMapping) {
+    private RegisterSpecImpl initialize(DeviceConfiguration deviceConfig, RegisterType registerType) {
         this.setDeviceConfig(deviceConfig);
-        this.setRegisterMapping(registerMapping);
+        this.setRegisterType(registerType);
         return this;
     }
 
@@ -87,23 +88,23 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     @Override
-    public RegisterMapping getRegisterMapping() {
-        return registerMapping.get();
+    public RegisterType getRegisterType() {
+        return registerType.get();
     }
 
     @Override
     public ObisCode getObisCode() {
-        return getRegisterMapping().getObisCode();
+        return getRegisterType().getObisCode();
     }
 
     @Override
     public boolean isCumulative() {
-        return getRegisterMapping().isCumulative();
+        return getRegisterType().isCumulative();
     }
 
     @Override
     public Unit getUnit() {
-        return getRegisterMapping().getUnit();
+        return getRegisterType().getUnit();
     }
 
     @Override
@@ -148,20 +149,20 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     private void validate() {
         validateOverFlowAndNumberOfDigits();
         validateNumberOfFractionDigitsOfOverFlowValue();
-        validateDeviceTypeContainsRegisterMapping();
+        validateDeviceTypeContainsRegisterType();
     }
 
-    private void validateDeviceTypeContainsRegisterMapping() {
+    private void validateDeviceTypeContainsRegisterType() {
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
         boolean found = false;
-        for (RegisterMapping mapping : deviceType.getRegisterMappings()) {
-            if (mapping.getId()==getRegisterMapping().getId()) {
+        for (MeasurementType mapping : deviceType.getRegisterTypes()) {
+            if (mapping.getId()== getRegisterType().getId()) {
                 found=true;
             }
         }
 
         if (!found) {
-            throw new RegisterMappingIsNotConfiguredOnDeviceTypeException(this.thesaurus, getRegisterMapping());
+            throw new RegisterTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getRegisterType());
         }
     }
 
@@ -198,7 +199,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     public String toString() {
-        return getDeviceConfiguration().getName() + " - " + getRegisterMapping().getName();
+        return getDeviceConfiguration().getName() + " - " + getRegisterType().getName();
     }
 
     public void setDeviceConfig(DeviceConfiguration deviceConfig) {
@@ -206,8 +207,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     @Override
-    public void setRegisterMapping(RegisterMapping registerMapping) {
-        this.registerMapping.set(registerMapping);
+    public void setRegisterType(RegisterType registerType) {
+        this.registerType.set(registerType);
     }
 
     @Override
@@ -278,14 +279,14 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         private static final BigDecimal DEFAULT_MULTIPLIER = BigDecimal.ONE;
         final RegisterSpecImpl registerSpec;
 
-        RegisterSpecBuilder(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
-            registerSpec = registerSpecProvider.get().initialize(deviceConfiguration, registerMapping);
+        RegisterSpecBuilder(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterType registerType) {
+            registerSpec = registerSpecProvider.get().initialize(deviceConfiguration, registerType);
             registerSpec.setMultiplier(DEFAULT_MULTIPLIER);
         }
 
         @Override
-        public RegisterSpec.RegisterSpecBuilder setRegisterMapping(RegisterMapping registerMapping) {
-            this.registerSpec.setRegisterMapping(registerMapping);
+        public RegisterSpec.RegisterSpecBuilder setRegisterType(RegisterType registerType) {
+            this.registerSpec.setRegisterType(registerType);
             return this;
         }
 
@@ -344,7 +345,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     public List<ValidationRule> getValidationRules() {
         List<ReadingType> readingTypes = new ArrayList<ReadingType>();
-        readingTypes.add(getRegisterMapping().getReadingType());
+        readingTypes.add(getRegisterType().getReadingType());
         List<ValidationRule> result = new ArrayList<ValidationRule>();
         return getDeviceConfiguration().getValidationRules(readingTypes);
     }
@@ -355,12 +356,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
         RegisterSpecUpdater(RegisterSpec registerSpec) {
             this.registerSpec = registerSpec;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setRegisterMapping(RegisterMapping registerMapping) {
-            this.registerSpec.setRegisterMapping(registerMapping);
-            return this;
         }
 
         @Override

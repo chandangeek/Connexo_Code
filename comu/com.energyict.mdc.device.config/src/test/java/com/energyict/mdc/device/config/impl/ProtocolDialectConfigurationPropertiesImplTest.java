@@ -18,7 +18,6 @@ import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.masterdata.impl.RegisterMappingImpl;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -106,7 +105,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the peristence aspects of the {@link RegisterMappingImpl} component
+ * Tests the peristence aspects of the {@link com.energyict.mdc.masterdata.impl.RegisterTypeImpl} component
  * as provided by the {@link com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl}.
  *
  * @author Rudi Vankeirsbilck (rudi)

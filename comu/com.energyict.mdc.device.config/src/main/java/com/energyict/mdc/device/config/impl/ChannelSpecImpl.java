@@ -17,16 +17,17 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.exceptions.CannotChangeChannelTypeOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
-import com.energyict.mdc.device.config.exceptions.CannotChangeRegisterMappingOfChannelSpecException;
-import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;
+import com.energyict.mdc.device.config.exceptions.DuplicateChannelTypeException;
 import com.energyict.mdc.device.config.exceptions.IncompatibleUnitsException;
 import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredException;
+import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredException;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
@@ -56,8 +57,8 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     private String name;
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED + "}")
-    private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED + "}")
+    private final Reference<ChannelType> channelType = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_PHENOMENON_IS_REQUIRED + "}")
     private final Reference<Phenomenon> phenomenon = ValueReference.absent();
     private final Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
@@ -81,15 +82,15 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-        this.initialize(deviceConfiguration, registerMapping, phenomenon);
+    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+        this.initialize(deviceConfiguration, channelType, phenomenon);
         setLoadProfileSpec(loadProfileSpec);
         return this;
     }
 
-    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon) {
+    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon) {
         this.deviceConfiguration.set(deviceConfiguration);
-        setRegisterMapping(registerMapping);
+        setChannelType(channelType);
         setPhenomenon(phenomenon);
         return this;
     }
@@ -105,8 +106,8 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     @Override
-    public RegisterMapping getRegisterMapping() {
-        return registerMapping.get();
+    public com.energyict.mdc.masterdata.ChannelType getChannelType() {
+        return channelType.get();
     }
 
     @Override
@@ -120,7 +121,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public ObisCode getObisCode() {
-        return getRegisterMapping().getObisCode();
+        return getChannelType().getObisCode();
     }
 
     @Override
@@ -188,7 +189,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     private ReadingType getReadingType() {
         // TODO proper implementation (govanni)
 
-        return getRegisterMapping().getReadingType();
+        return getChannelType().getReadingType();
     }
 
     private void applyDefaultMultiplierForConfiguredOnObjectMode() {
@@ -199,10 +200,10 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     private void validate() {
         validateInterval();
-        validateDeviceTypeContainsRegisterMapping();
-        validateChannelSpecsForDuplicateRegisterMappings();
+        validateDeviceTypeContainsChannelType();
+        validateChannelSpecsForDuplicateChannelTypes();
         validateDeviceConfigurationContainsLoadProfileSpec();
-        validatePhenomenonAndRegisterMappingUnitCompatibility();
+        validatePhenomenonAndChannelTypeUnitCompatibility();
     }
 
     private void validateBeforeAdd() {
@@ -229,33 +230,33 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         }
     }
 
-    private void validateChannelSpecsForDuplicateRegisterMappings() {
-        ChannelSpec channelSpec = this.deviceConfigurationService.findChannelSpecForLoadProfileSpecAndRegisterMapping(getLoadProfileSpec(), getRegisterMapping());
+    private void validateChannelSpecsForDuplicateChannelTypes() {
+        ChannelSpec channelSpec = this.deviceConfigurationService.findChannelSpecForLoadProfileSpecAndChannelType(getLoadProfileSpec(), getChannelType());
         if (channelSpec != null && channelSpec.getId() != getId()) {
-            throw DuplicateRegisterMappingException.forChannelSpecInLoadProfileSpec(thesaurus, channelSpec, getRegisterMapping(), this.getLoadProfileSpec());
+            throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(thesaurus, channelSpec, getChannelType(), this.getLoadProfileSpec());
         }
     }
 
-    private void validatePhenomenonAndRegisterMappingUnitCompatibility() {
-        if (this.registerMapping.isPresent() && this.phenomenon.isPresent()) {
-            Unit registerMappingUnit = getRegisterMapping().getUnit();
+    private void validatePhenomenonAndChannelTypeUnitCompatibility() {
+        if (this.channelType.isPresent() && this.phenomenon.isPresent()) {
+            Unit channelTypeUnit = getChannelType().getUnit();
             Phenomenon phenomenon = this.getPhenomenon();
-            if (!phenomenon.isUndefined() && !registerMappingUnit.isUndefined()) {
-                if (!phenomenon.getUnit().equalBaseUnit(registerMappingUnit)) {
-                    throw IncompatibleUnitsException.forChannelSpecPhenomenonAndRegisterMappingUnit(thesaurus, phenomenon, registerMappingUnit);
+            if (!phenomenon.isUndefined() && !channelTypeUnit.isUndefined()) {
+                if (!phenomenon.getUnit().equalBaseUnit(channelTypeUnit)) {
+                    throw IncompatibleUnitsException.forChannelSpecPhenomenonAndChannelTypeUnit(thesaurus, phenomenon, channelTypeUnit);
                 }
             }
         }
     }
 
-    private void validateDeviceTypeContainsRegisterMapping() {
-        if (this.loadProfileSpec.isPresent()) { // then the RegisterMapping should be included in the LoadProfileSpec
-            if (!doesListContainIdObject(getLoadProfileSpec().getLoadProfileType().getRegisterMappings(), getRegisterMapping())) {
-                throw RegisterMappingIsNotConfiguredException.forChannelInLoadProfileSpec(thesaurus, getLoadProfileSpec(), getRegisterMapping(), this);
+    private void validateDeviceTypeContainsChannelType() {
+        if (this.loadProfileSpec.isPresent()) { // then the ChannelType should be included in the LoadProfileSpec
+            if (!doesListContainIdObject(getLoadProfileSpec().getLoadProfileType().getChannelTypes(), getChannelType())) {
+                throw RegisterTypeIsNotConfiguredException.forChannelInLoadProfileSpec(thesaurus, getLoadProfileSpec(), getChannelType(), this);
             }
-        } else { // then the RegisterMapping should be included in the DeviceType
-            if (!doesListContainIdObject(getDeviceConfiguration().getDeviceType().getRegisterMappings(), getRegisterMapping())) {
-                throw RegisterMappingIsNotConfiguredException.forChannelInDeviceType(thesaurus, this, getRegisterMapping(), getDeviceConfiguration().getDeviceType());
+        } else { // then the ChannelType should be included in the DeviceType
+            if (!doesListContainIdObject(getDeviceConfiguration().getDeviceType().getRegisterTypes(), getChannelType())) {
+                throw RegisterTypeIsNotConfiguredException.forChannelInDeviceType(thesaurus, this, getChannelType(), getDeviceConfiguration().getDeviceType());
             }
         }
     }
@@ -320,18 +321,18 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     @Override
-    public void setRegisterMapping(RegisterMapping registerMapping) {
-        if (this.registerMapping.isPresent()) {
-            validateRegisterMappingForUpdate(registerMapping);
+    public void setChannelType(ChannelType channelType) {
+        if (this.channelType.isPresent()) {
+            validateChannelTypeForUpdate(channelType);
         }
-        this.registerMapping.set(registerMapping);
+        this.channelType.set(channelType);
     }
 
-    private void validateRegisterMappingForUpdate(RegisterMapping registerMapping) {
+    private void validateChannelTypeForUpdate(MeasurementType measurementType) {
         DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
-        RegisterMapping myRegisterMapping = this.getRegisterMapping();
-        if (deviceConfiguration != null && deviceConfiguration.isActive() && myRegisterMapping != null && myRegisterMapping.getId() != registerMapping.getId()) {
-            throw new CannotChangeRegisterMappingOfChannelSpecException(this.thesaurus);
+        MeasurementType myMeasurementType = this.getChannelType();
+        if (deviceConfiguration != null && deviceConfiguration.isActive() && myMeasurementType != null && myMeasurementType.getId() != measurementType.getId()) {
+            throw new CannotChangeChannelTypeOfChannelSpecException(this.thesaurus);
         }
     }
 
@@ -406,12 +407,12 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         final ChannelSpecImpl channelSpec;
         String tempName;
 
-        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-            this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+            this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, channelType, phenomenon, loadProfileSpec);
         }
 
-        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
-            this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon);
+        ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+            this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, channelType, phenomenon);
             loadProfileSpecBuilder.notifyOnAdd(this);
         }
 
@@ -477,7 +478,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         @Override
         public ChannelSpec add() {
             if (is(tempName).empty()) {
-                this.channelSpec.setName(this.channelSpec.getRegisterMapping().getName());
+                this.channelSpec.setName(this.channelSpec.getChannelType().getName());
             } else {
                 this.channelSpec.setName(tempName);
             }

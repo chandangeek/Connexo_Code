@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import java.util.List;
@@ -85,11 +86,11 @@ public interface DeviceType {
 
     public void removeLogBookType (LogBookType logBookType);
 
-    public List<RegisterMapping> getRegisterMappings();
+    public List<RegisterType> getRegisterTypes();
 
-    public void addRegisterMapping (RegisterMapping registerMapping);
+    public void addRegisterType(RegisterType registerType);
 
-    public void removeRegisterMapping (RegisterMapping registerMapping);
+    public void removeRegisterType(RegisterType registerType);
 
     public List<LoadProfileType> getLoadProfileTypes();
 
@@ -131,14 +132,14 @@ public interface DeviceType {
          * Note that there is no need to call the add method as that
          * will be done by the {@link DeviceConfigurationBuilder#add()} method.
          *
-         * @param registerMapping The RegisterMapping
+         * @param channelType The ChannelType
          * @param phenomenon The Phenomenon
          * @param loadProfileSpec The LoadProfileSpec
          * @return The builder
-         * @see DeviceConfiguration#createChannelSpec(RegisterMapping, Phenomenon, LoadProfileSpec)
+         * @see DeviceConfiguration#createChannelSpec(ChannelType, com.energyict.mdc.common.interval.Phenomenon, LoadProfileSpec)
          * @see #add()
          */
-        public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
 
         /**
          * Returns a builder for a new {@link ChannelSpec} whose {@link LoadProfileSpec}
@@ -147,14 +148,14 @@ public interface DeviceType {
          * Note that there is no need to call the add method as that
          * will be done by the {@link DeviceConfigurationBuilder#add()} method.
          *
-         * @param registerMapping The RegisterMapping
+         * @param channelType The ChannelType
          * @param phenomenon The Phenomenon
          * @param loadProfileSpecBuilder The LoadProfileSpecBuilder
          * @return The builder
-         * @see DeviceConfiguration#createChannelSpec(RegisterMapping, Phenomenon, LoadProfileSpec)
+         * @see DeviceConfiguration#createChannelSpec(ChannelType, com.energyict.mdc.common.interval.Phenomenon, LoadProfileSpec)
          * @see #add()
          */
-        public ChannelSpec.ChannelSpecBuilder newChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
+        public ChannelSpec.ChannelSpecBuilder newChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
 
         /**
          * Returns a builder for a new {@link RegisterSpec} in the
@@ -162,12 +163,12 @@ public interface DeviceType {
          * Note that there is no need to call the add method as that
          * will be done by the {@link DeviceConfigurationBuilder#add()} method.
          *
-         * @param registerMapping The RegisterMapping
+         * @param registerType The RegisterType
          * @return The builder
-         * @see DeviceConfiguration#createRegisterSpec(RegisterMapping)
+         * @see DeviceConfiguration#createRegisterSpec(RegisterType)
          * @see #add()
          */
-        public RegisterSpec.RegisterSpecBuilder newRegisterSpec(RegisterMapping registerMapping);
+        public RegisterSpec.RegisterSpecBuilder newRegisterSpec(RegisterType registerType);
 
         /**
          * Returns a builder for a new {@link LoadProfileSpec} in the

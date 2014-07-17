@@ -22,9 +22,11 @@ import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigu
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.google.common.base.Optional;
 import java.util.Arrays;
@@ -241,14 +243,15 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Test(expected = CannotAddToActiveDeviceConfigurationException.class)
     @Transactional
     public void cannotAddChannelSpecToActiveDeviceConfigTest() {
-        RegisterMapping registerMapping = createDefaultRegisterMapping();
+        RegisterType registerType = createDefaultRegisterType();
         LoadProfileType loadProfileType = createDefaultLoadProfileType();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DevConfName");
 
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder1.add();
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfiguration.createLoadProfileSpec(loadProfileType);
         deviceConfiguration.activate();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder.add());
+        ChannelType channelTypeForRegisterType = loadProfileType.createChannelTypeForRegisterType(registerType);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfiguration.createChannelSpec(channelTypeForRegisterType, phenomenon, loadProfileSpecBuilder.add());
         try {
             channelSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
@@ -260,28 +263,24 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         }
     }
 
-    private RegisterMapping createDefaultRegisterMapping() {
+    private RegisterType createDefaultRegisterType() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         Unit unit = Unit.get("kWh");
         this.phenomenon = this.createPhenomenonIfMissing(unit);
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         ObisCode obisCode = ObisCode.fromString("1.0.1.8.0.255");
-        Optional<RegisterMapping> xRegisterMapping =
-                inMemoryPersistence.getMasterDataService().
-                        findRegisterMappingByObisCodeAndUnitAndTimeOfUse(
-                                obisCode,
-                                unit,
-                                readingType.getTou());
-        RegisterMapping registerMapping;
-        if (xRegisterMapping.isPresent()) {
-            registerMapping = xRegisterMapping.get();
+        Optional<RegisterType> xregisterType =
+                inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType);
+        RegisterType registerType;
+        if (xregisterType.isPresent()) {
+            registerType = xregisterType.get();
         }
         else {
-            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping("RMName", obisCode, unit, readingType, readingType.getTou());
-            registerMapping.save();
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType("RMName", obisCode, unit, readingType, readingType.getTou());
+            registerType.save();
         }
-        this.deviceType.addRegisterMapping(registerMapping);
-        return registerMapping;
+        this.deviceType.addRegisterType(registerType);
+        return registerType;
     }
 
     private Phenomenon createPhenomenonIfMissing(Unit unit) {
@@ -299,13 +298,13 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Test(expected = CannotAddToActiveDeviceConfigurationException.class)
     @Transactional
     public void cannotAddRegisterSpecToActiveDeviceConfigTest() {
-        RegisterMapping registerMapping = createDefaultRegisterMapping();
+        RegisterType registerType = createDefaultRegisterType();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DevConfName");
 
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder1.add();
         deviceConfiguration.activate();
 
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(10).setNumberOfFractionDigits(0);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = deviceConfiguration.createRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(0);
         try {
             registerSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {

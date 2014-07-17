@@ -10,7 +10,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 
 import java.util.List;
 
@@ -26,38 +26,38 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
 
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link RegisterMapping}
+     * situation that occurs when an attempt is made to delete a {@link com.energyict.mdc.masterdata.MeasurementType}
      * while it is still used by the specified {@link RegisterSpec}s.
      *
      * @param thesaurus The Thesaurus
      * @return The CannotDeleteBecauseStillInUseException
      */
-    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByRegisterSpecs(Thesaurus thesaurus, RegisterMapping registerMapping, List<RegisterSpec> registerSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC, registerMapping.getName(), namesToStringListForRegisterSpecs(registerSpecs));
+    public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByRegisterSpecs(Thesaurus thesaurus, MeasurementType measurementType, List<RegisterSpec> registerSpecs) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC, measurementType.getName(), namesToStringListForRegisterSpecs(registerSpecs));
     }
 
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link RegisterMapping}
+     * situation that occurs when an attempt is made to delete a {@link com.energyict.mdc.masterdata.MeasurementType}
      * while it is still used by the specified {@link ChannelSpec}s.
      *
      * @param thesaurus The Thesaurus
      * @return The CannotDeleteBecauseStillInUseException
      */
-    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByChannelSpecs(Thesaurus thesaurus, RegisterMapping registerMapping, List<ChannelSpec> channelSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC, registerMapping.getName(), namesToStringListForChannelSpecs(channelSpecs));
+    public static CannotDeleteBecauseStillInUseException channelTypeIsStillInUseByChannelSpecs(Thesaurus thesaurus, MeasurementType measurementType, List<ChannelSpec> channelSpecs) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC, measurementType.getName(), namesToStringListForChannelSpecs(channelSpecs));
     }
 
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link RegisterMapping}
+     * situation that occurs when an attempt is made to delete a {@link com.energyict.mdc.masterdata.MeasurementType}
      * while it is still used by the specified {@link DeviceType}s.
      *
      * @param thesaurus The Thesaurus
      * @return The CannotDeleteBecauseStillInUseException
      */
-    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByDeviceTypes(Thesaurus thesaurus, RegisterMapping registerMapping, List<DeviceType> deviceTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_DEVICE_TYPE, registerMapping.getName(), namesToStringListForDeviceTypes(deviceTypes));
+    public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByDeviceTypes(Thesaurus thesaurus, MeasurementType measurementType, List<DeviceType> deviceTypes) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_DEVICE_TYPE, measurementType.getName(), namesToStringListForDeviceTypes(deviceTypes));
     }
 
     /**
@@ -92,8 +92,8 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @param thesaurus The Thesaurus
      * @return The CannotDeleteBecauseStillInUseException
      */
-    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByRegisterSpec(Thesaurus thesaurus, RegisterMapping registerMapping, List<RegisterSpec> registerSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC, registerMapping.getName(), namesToStringListForRegisterSpecs(registerSpecs));
+    public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByRegisterSpec(Thesaurus thesaurus, MeasurementType measurementType, List<RegisterSpec> registerSpecs) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC, measurementType.getName(), namesToStringListForRegisterSpecs(registerSpecs));
     }
 
     /**
@@ -137,14 +137,14 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
 
     }
 
-    private static String namesToStringListForRegisterMappings(List<RegisterMapping> registerMappings) {
+    private static String namesToStringListForMeasurementTypes(List<MeasurementType> measurementTypes) {
         StringBuilder builder = new StringBuilder();
         boolean notFirst = false;
-        for (RegisterMapping registerMapping : registerMappings) {
+        for (MeasurementType measurementType : measurementTypes) {
             if (notFirst) {
                 builder.append(", ");
             }
-            builder.append(registerMapping.getName());
+            builder.append(measurementType.getName());
             notFirst = true;
         }
         return builder.toString();

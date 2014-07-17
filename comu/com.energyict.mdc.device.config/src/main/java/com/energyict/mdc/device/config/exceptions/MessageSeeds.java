@@ -22,12 +22,12 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required", SEVERE),
     READING_TYPE_ALREADY_EXISTS(2002, Keys.READING_TYPE_ALREADY_EXISTS, "Reading type {0} already exists", SEVERE),
     DEFAULT_PRODUCT_SPEC_CANNOT_BE_DELETED(2003, "productSpec.cannotDeleteDefault", "The default product spec cannot be deleted", SEVERE),
-    PRODUCT_SPEC_STILL_IN_USE(2004, "productSpec.XstillInUseByY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following register mappings: {1}", SEVERE),
-    REGISTER_MAPPING_OBIS_CODE_CANNOT_BE_UPDATED(3006, "registerMapping.cannotUpdateObisCode", "The obis code of the register mapping \"{0}\" cannot be updated because it is in use", SEVERE),
-    REGISTER_MAPPING_PHENOMENON_CANNOT_BE_UPDATED(3007, "registerMapping.cannotUpdatePhenomenon", "The phenomenon of the register mapping \"{0}\" cannot be updated because it is in use", SEVERE),
-    REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC(3008, "registerMapping.usedBy.registerSpec", "The register type {0} cannot be deleted because it is still in use by the following register configuration(s): {1}", SEVERE),
-    REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC(3009, "registerMapping.usedBy.channelSpec", "The register type {0} cannot be deleted because it is still in use by the following channel configuration(s): {1}", SEVERE),
-    REGISTER_MAPPING_STILL_USED_BY_DEVICE_TYPE(3011, "registerMapping.usedBy.deviceType", "The register type {0} cannot be deleted because it is still in use by the following device configuration(s): {1}", SEVERE),
+    PRODUCT_SPEC_STILL_IN_USE(2004, "productSpec.XstillInUseByY", "The product spec with reading type {0} cannot be deleted because it is still in use by the following measurement types: {1}", SEVERE),
+    MEASUREMENT_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(3006, "measurementType.cannotUpdateObisCode", "The obis code of the measurement type \"{0}\" cannot be updated because it is in use", SEVERE),
+    MEASUREMENT_TYPE_PHENOMENON_CANNOT_BE_UPDATED(3007, "measurementType.cannotUpdatePhenomenon", "The phenomenon of the measurement type \"{0}\" cannot be updated because it is in use", SEVERE),
+    REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC(3008, "measurementType.usedBy.registerSpec", "The register type {0} cannot be deleted because it is still in use by the following register configuration(s): {1}", SEVERE),
+    CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC(3009, "measurementType.usedBy.channelSpec", "The register type {0} cannot be deleted because it is still in use by the following channel configuration(s): {1}", SEVERE),
+    REGISTER_TYPE_STILL_USED_BY_DEVICE_TYPE(3011, "measurementType.usedBy.deviceType", "The register type {0} cannot be deleted because it is still in use by the following device configuration(s): {1}", SEVERE),
     LOAD_PROFILE_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(4009, "loadProfileType.cannotUpdateObisCode", "The obis code of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(4010, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS(4011, "loadProfileType.XstillInUseByLoadProfileSpecsY", "The load profile type with reading type {0} cannot be deleted because it is still in use by the following load profile spec(s): {1}", SEVERE),
@@ -36,15 +36,15 @@ public enum MessageSeeds implements MessageSeed {
     LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5001, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be deleted because it is still in use by the following log book spec(s): {1}", SEVERE),
     REGISTER_SPEC_NUMBER_OF_DIGITS_INVALID(6001, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least {min} digit is required, maximum is {max}", SEVERE),
     REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED(6002, Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED, "The number of digits can not be decreased", SEVERE),
-    REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED(6003, Keys.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED,"The register type of a register configuration is required", SEVERE),
+    REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED(6003, Keys.REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED,"The register type of a register configuration is required", SEVERE),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED(6004, Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED, "The number of fraction digits can not be decreased", SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, "registerSpec.overflow.exceed","The provided overflow value \"{0}\" may not exceed \"{1}\" (according to the provided number of digits \"{2}\")", SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_ZERO(6006, "registerSpec.overflow.invalidValue","The provided overflow value must be larger then zero (0))", SEVERE),
     REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, "registerSpec.overflow.fractionDigits","The provided overflow value \"{0}\" more fraction digits \"{1}\" than provided \"{2}\")", SEVERE),
     REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG(6009, "registerSpec.delete.active.config","It is not allowed to delete a register configuration from an active device configuration", SEVERE),
     REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG(6010, "registerSpec.add.active.config","You can not add a register configuration to an active device configuration", SEVERE),
-    REGISTER_SPEC_REGISTER_MAPPING_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register configuration contains a register type {0} which is not configured on the device type", SEVERE),
-    REGISTER_SPEC_REGISTER_MAPPING_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Keys.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG,"The register type can not be modified if the device configuration is active", SEVERE),
+    REGISTER_SPEC_REGISTER_TYPE_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register configuration contains a register type {0} which is not configured on the device type", SEVERE),
+    REGISTER_SPEC_REGISTER_TYPE_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Keys.REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG,"The register type can not be modified if the device configuration is active", SEVERE),
     REGISTER_SPEC_MULTIPLIER_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6013, Keys.REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG,"The register type can not be modified if the device configuration is active", SEVERE),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(6014, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits.", Level.SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_ONE(6015, Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be above 0", Level.SEVERE),
@@ -56,7 +56,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_LOAD_PROFILE_TYPE_IN_DEVICE_TYPE(7005, "deviceType.loadProfileType.duplicate", "The load profile type {0} was already added to the device type {1}", SEVERE),
     DUPLICATE_LOG_BOOK_TYPE_IN_DEVICE_TYPE(7006, "deviceType.logBookType.duplicate", "The log book type {0} was already added to the device type {1}", SEVERE),
     DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS(7007, Keys.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS, "The protocol of a device type cannot change when the device type has configurations", SEVERE),
-    DUPLICATE_REGISTER_MAPPING_IN_DEVICE_TYPE(7008, "deviceType.registerMapping.duplicate", "The register type {0} was already added to the device type {1}", SEVERE),
+    DUPLICATE_REGISTER_TYPE_IN_DEVICE_TYPE(7008, "deviceType.registerType.duplicate", "The register type {0} was already added to the device type {1}", SEVERE),
     LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE(8002, "loadProfileSpec.cannotAddLoadProfileSpecOfTypeXBecauseDeviceTypeYDoesNotContainIt", "The load profile configuration contains a load profile type {0} which is not configured on the device type", SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(8003, "loadProfileSpec.active.configuration", "You can not add a load profile configuration to an active device configuration", SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(8004, "loadProfileSpec.change.configuration", "You can not change the device configuration of an existing load profile configuration", SEVERE),
@@ -76,22 +76,22 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(11003, "channelSpec.active.configuration", "You can not add a channel configuration to an active device configuration", SEVERE),
     CHANNEL_SPEC_LOAD_PROFILE_SPEC_IS_NOT_ON_DEVICE_CONFIGURATION(11004, "channelSpec.cannotAddChannelSpecOfTypeXBecauseDeviceConfigYDoesNotContainIt", "The channel configuration is linked to a load profile configuration \"{0}\" which is not configuration on the device type", SEVERE),
     CHANNEL_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(11005, "channelSpec.cannot.delete.active.config", "You can not delete a channel configuration \"{0}\" from an active device configuration \"{1}\"", SEVERE),
-    CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED(11006, Keys.CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED, "The register type of a channel configuration is required", SEVERE),
-    CHANNEL_SPEC_REGISTER_MAPPING_IS_NOT_IN_LOAD_PROFILE_SPEC(11007, "channelSpec.registerMapping.not.configured.loadProfileSpec","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the linked load profile configuration \"{2}\"", SEVERE),
-    CHANNEL_SPEC_REGISTER_MAPPING_IS_NOT_ON_DEVICE_TYPE(11008, "channelSpec.registerMapping.not.configured.deviceType","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the device type \"{2}\"", SEVERE),
+    CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED(11006, Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED, "The register type of a channel configuration is required", SEVERE),
+    CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_IN_LOAD_PROFILE_SPEC(11007, "channelSpec.measurementType.not.configured.loadProfileSpec","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the linked load profile configuration \"{2}\"", SEVERE),
+    CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_ON_DEVICE_TYPE(11008, "channelSpec.measurementType.not.configured.deviceType","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the device type \"{2}\"", SEVERE),
     CHANNEL_SPEC_PHENOMENON_IS_REQUIRED(11009, Keys.CHANNEL_SPEC_PHENOMENON_IS_REQUIRED, "The phenomenon of a channel configuration is required", SEVERE),
     CHANNEL_SPEC_UNITS_NOT_COMPATIBLE(11010, "channelSpec.units.not.compatible","The channel configuration defines a phenomenon \"{0}\" which is not compatible with the unit of the linked register type \"{1}\"", SEVERE),
     CHANNEL_SPEC_READING_METHOD_IS_REQUIRED(11011, Keys.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED, "The reading method of a channel configuration is required", SEVERE),
     CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED(11012, Keys.CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED, "The multiplier mode of a channel configuration is required", SEVERE),
     CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED(11013, Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED, "The value calculation method of a channel configuration is required", SEVERE),
     CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN(11014, Keys.CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN, "The multiplier of a channel configuration \"{0}\" is required when the multiplier mode is set to \"{1}\"", SEVERE),
-    CHANNEL_SPEC_DUPLICATE_REGISTER_MAPPING_IN_LOAD_PROFILE_SPEC(11015, "channelSpec.duplicate.registerMapping.loadProfileSpec","The load profile configuration \"{0}\" already contains a channel configuration \"{1}\" with the given register type \"{2}\"", SEVERE),
+    CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC(11015, "channelSpec.duplicate.measurementType.loadProfileSpec","The load profile configuration \"{0}\" already contains a channel configuration \"{1}\" with the given register type \"{2}\"", SEVERE),
     CHANNEL_SPEC_WITHOUT_LOAD_PROFILE_SPEC_INTERVAL_IS_REQUIRED(11016, "channelSpec.interval.required.loadProfileSpec","The interval of a channel configuration is required when no load profile configuration is defined", SEVERE),
     CHANNEL_SPEC_INVALID_INTERVAL_COUNT(11017, "channelSpec.interval.invalid.count","The amount in the interval of a channel configuration should be larger than zero, but was \"{0}\"", SEVERE),
     CHANNEL_SPEC_INVALID_INTERVAL_COUNT_LARGE_UNIT(11018, "channelSpec.interval.invalid.count.large.unit","The amount in the interval of a channel configuration should be '1' if the interval unit is larger than 'hours', but was \"{0}\"", SEVERE),
     CHANNEL_SPEC_INTERVAL_IN_WEEKS_IS_NOT_SUPPORTED(11019, "channelSpec.interval.notsupported.weeks", "The interval of a channel configuration cannot be expressed in number of weeks", SEVERE),
     CHANNEL_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(11020, "channelSpec.change.configuration", "You can not change the device configuration of an existing channel configuration", SEVERE),
-    CHANNEL_SPEC_CANNOT_CHANGE_REGISTER_MAPPING(11023, "channelSpec.change.registerMapping", "You can not change the register type of an existing channel configuration", SEVERE),
+    CHANNEL_SPEC_CANNOT_CHANGE_CHANNEL_TYPE(11023, "channelSpec.change.measurementType", "You can not change the register type of an existing channel configuration", SEVERE),
     CHANNEL_SPEC_CANNOT_CHANGE_LOAD_PROFILE_SPEC(11024, "channelSpec.change.loadProfileSpec", "You can not change the load profile configuration of an existing channel configuration", SEVERE),
     DEVICE_CONFIGURATION_NAME_IS_REQUIRED(12001, "deviceConfig.name.required", "The name of the device configuration is required", SEVERE),
     DEVICE_CONFIGURATION_DEVICE_TYPE_IS_REQUIRED(12002, "deviceConfig.deviceType.required", "The device type of the device configuration is required", SEVERE),
@@ -200,13 +200,13 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS = "deviceType.protocol.noupdate";
         public static final String LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED = "logBookSpec.logbookType.required";
         public static final String LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED = "loadProfileSpec.loadProfileType.required";
-        public static final String CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED = "channelSpec.registerMapping.required";
+        public static final String CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED = "channelSpec.channelType.required";
         public static final String CHANNEL_SPEC_PHENOMENON_IS_REQUIRED = "channelSpec.phenomenon.required";
         public static final String CHANNEL_SPEC_READING_METHOD_IS_REQUIRED = "channelSpec.readingMethod.required";
         public static final String CHANNEL_SPEC_MULTIPLIER_IS_REQUIRED_WHEN = "channelSpec.multiplier.required.when";
         public static final String CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED = "channelSpec.valueCalculationMethod.required";
         public static final String CHANNEL_SPEC_MULTIPLIER_MODE_IS_REQUIRED = "channelSpec.multiplierMode.required";
-        public static final String REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED = "registerSpec.registerMapping.required";
+        public static final String REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED = "registerSpec.registerType.required";
         public static final String READING_TYPE_ALREADY_EXISTS = "productSpec.duplicateReadingTypeX";
         public static final String NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED = "nextExecutionSpecs.temporalExpression.required";
         public static final String TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED = "temporalExpression.every.required";
@@ -218,7 +218,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS = "registerSpec.invalidNumberOfDigits";
         public static final String REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED = "registerSpec.numberOfDigits.decreased";
         public static final String REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "registerSpec.numberOfFractionDigits.decreased";
-        public static final String REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG = "registerSpec.registerMapping.activeDeviceConfig";
+        public static final String REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG = "registerSpec.measurementType.activeDeviceConfig";
         public static final String REGISTER_SPEC_MULTIPLIER_ACTIVE_DEVICE_CONFIG = "registerSpec.multiplier.activeDeviceConfig";
         public static final String PROTOCOLDIALECT_REQUIRED = "protocolDialectConfigurationProperties.dialectName.required";
         public static final String PROTOCOLDIALECT_CONF_PROPS_DUPLICATE = "protocolDialectConfigurationProperties.duplicate";

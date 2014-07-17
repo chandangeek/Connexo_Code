@@ -9,6 +9,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.RegisterType;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.energyict.mdc.common.ObisCode;
@@ -25,7 +27,7 @@ import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
@@ -274,7 +276,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public void validateUpdateRegisterMapping(RegisterMapping registerMapping) {
+    public void validateUpdateMeasurementTypes(MeasurementType measurementType) {
         this.validateAllChannelSpecsHaveUniqueObisCodes();
         this.validateAllRegisterSpecsHaveUniqueObisCodes();
     }
@@ -295,7 +297,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private void validateAllChannelSpecsHaveUniqueObisCodes() {
         Map<Long, Set<String>> loadProfileTypeObisCodes = new HashMap<>();
         for (ChannelSpec each : this.getChannelSpecs()) {
-            ObisCode obisCode = each.getRegisterMapping().getObisCode();
+            ObisCode obisCode = each.getChannelType().getObisCode();
             String obisCodeValue = obisCode.getValue();
             long loadProfileTypeId = each.getLoadProfileSpec().getLoadProfileType().getId();
             Set<String> obisCodesForLoadProfileType = loadProfileTypeObisCodes.get(loadProfileTypeId);
@@ -354,14 +356,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterMapping registerMapping) {
-        return new RegisterSpecBuilderForConfig(registerSpecProvider, this, registerMapping);
+    public RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterType registerType) {
+        return new RegisterSpecBuilderForConfig(registerSpecProvider, this, registerType);
     }
 
     class RegisterSpecBuilderForConfig extends RegisterSpecImpl.RegisterSpecBuilder {
 
-        RegisterSpecBuilderForConfig(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
-            super(registerSpecProvider, deviceConfiguration, registerMapping);
+        RegisterSpecBuilderForConfig(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterType registerType) {
+            super(registerSpecProvider, deviceConfiguration, registerType);
         }
 
         @Override
@@ -421,23 +423,23 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-        return new ChannelSpecBuilderForConfig(channelSpecProvider, this, registerMapping, phenomenon, loadProfileSpec);
+    public ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+        return new ChannelSpecBuilderForConfig(channelSpecProvider, this, channelType, phenomenon, loadProfileSpec);
     }
 
     @Override
-    public ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
-        return new ChannelSpecBuilderForConfig(channelSpecProvider, this, registerMapping, phenomenon, loadProfileSpecBuilder);
+    public ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+        return new ChannelSpecBuilderForConfig(channelSpecProvider, this, channelType, phenomenon, loadProfileSpecBuilder);
     }
 
     class ChannelSpecBuilderForConfig extends ChannelSpecImpl.ChannelSpecBuilder {
 
-        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-            super(channelSpecProvider, deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+            super(channelSpecProvider, deviceConfiguration, channelType, phenomenon, loadProfileSpec);
         }
 
-        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
-            super(channelSpecProvider, deviceConfiguration, registerMapping, phenomenon, loadProfileSpecBuilder);
+        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+            super(channelSpecProvider, deviceConfiguration, channelType, phenomenon, loadProfileSpecBuilder);
         }
 
         @Override

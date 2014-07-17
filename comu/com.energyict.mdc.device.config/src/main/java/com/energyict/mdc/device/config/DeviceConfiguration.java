@@ -5,9 +5,12 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
+
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +54,7 @@ public interface DeviceConfiguration extends HasId, DeviceCommunicationConfigura
 
     List<RegisterSpec> getRegisterSpecs();
 
-    RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterMapping registerMapping);
+    RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterType registerType);
 
     RegisterSpec.RegisterSpecUpdater getRegisterSpecUpdaterFor(RegisterSpec registerSpec);
 
@@ -59,9 +62,9 @@ public interface DeviceConfiguration extends HasId, DeviceCommunicationConfigura
 
     List<ChannelSpec> getChannelSpecs();
 
-    ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
+    ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
 
-    ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
+    ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
 
     ChannelSpec.ChannelSpecUpdater getChannelSpecUpdaterFor(ChannelSpec channelSpec);
 

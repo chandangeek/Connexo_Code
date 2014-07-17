@@ -69,26 +69,26 @@ public enum TableSpecs {
         }
     },
 
-    DTC_REGMAPFORDEVICETYPE {
+    DTC_REGTYPEFORDEVICETYPE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<DeviceTypeRegisterMappingUsage> table = dataModel.addTable(name(), DeviceTypeRegisterMappingUsage.class);
-            table.map(DeviceTypeRegisterMappingUsage.class);
-            Column registermapping = table.column("REGISTERMAPPINGID").number().notNull().add();
+            Table<DeviceTypeRegisterTypeUsage> table = dataModel.addTable(name(), DeviceTypeRegisterTypeUsage.class);
+            table.map(DeviceTypeRegisterTypeUsage.class);
+            Column registerType = table.column("REGISTERTYPEID").number().notNull().add();
             Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
-            table.primaryKey("PK_DTC_REGMAPFORDEVICETYPE").on(registermapping, deviceType).add();
-            table.foreignKey("FK_DTC_DEVTYPE_REGMAP_DEVTYPE").
+            table.primaryKey("PK_DTC_REGTYPEFORDEVICETYPE").on(registerType, deviceType).add();
+            table.foreignKey("FK_DTC_DEVTYPE_REGTYPE_DEVTYPE").
                     on(deviceType).
                     references(DTC_DEVICETYPE.name()).
                     map("deviceType").
-                    reverseMap("registerMappingUsages").
+                    reverseMap("registerTypeUsages").
                     composition().
                     onDelete(CASCADE).
                     add();
-            table.foreignKey("FK_DTC_MAPID_REGMAP_DEVTYPE").
-                    on(registermapping).
-                    references(MasterDataService.COMPONENTNAME, "MDS_REGISTERMAPPING")
-                    .map("registerMapping").
+            table.foreignKey("FK_DTC_MAPID_REGTYPE_DEVTYPE").
+                    on(registerType).
+                    references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE")
+                    .map("registerType").
                     add();
         }
     },
@@ -175,7 +175,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(StringColumnLengthConstraints.CHANNEL_SPEC_NAME).notNull().map("name").add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            Column registerMapping = table.column("REGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column channelTypeId = table.column("CHANNELTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("nbrOfFractionDigits").add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
@@ -197,9 +197,9 @@ public enum TableSpecs {
                     onDelete(CASCADE).
                     add();
             table.foreignKey("FK_DTC_CHANNELSPEC_REGMAP").
-                    on(registerMapping).
-                    references(MasterDataService.COMPONENTNAME, "MDS_REGISTERMAPPING").
-                    map("registerMapping").
+                    on(channelTypeId).
+                    references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE").
+                    map("channelType").
                     add();
             table.foreignKey("FK_DTC_CHANNELSPEC_PHENOM").
                     on(phenomenon).
@@ -220,7 +220,7 @@ public enum TableSpecs {
             Table<RegisterSpec> table = dataModel.addTable(name(), RegisterSpec.class);
             table.map(RegisterSpecImpl.class);
             Column id = table.addAutoIdColumn();
-            Column registerMapping = table.column("REGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column registerTypeId = table.column("REGISTERTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).notNull().map(RegisterSpecImpl.Fields.NUMBER_OF_DIGITS.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("DEVICEOBISCODE").varChar(80).map("overruledObisCodeString").add();
@@ -231,9 +231,9 @@ public enum TableSpecs {
             table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
             table.primaryKey("PK_DTC_REGISTERSPEC").on(id).add();
             table.foreignKey("FK_DTC_REGISTERSPEC_REGMAP").
-                    on(registerMapping).
-                    references(MasterDataService.COMPONENTNAME, "MDS_REGISTERMAPPING").
-                    map(RegisterSpecImpl.Fields.REGISTER_MAPPING.fieldName()).
+                    on(registerTypeId).
+                    references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE").
+                    map(RegisterSpecImpl.Fields.REGISTER_TYPE.fieldName()).
                     add();
             table.foreignKey("FK_DTC_REGISTERSPEC_DEVCONFIG").
                     on(deviceConfiguration).

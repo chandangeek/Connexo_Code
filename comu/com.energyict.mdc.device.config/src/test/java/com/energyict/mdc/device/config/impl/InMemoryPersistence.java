@@ -124,9 +124,9 @@ public class InMemoryPersistence {
     private LogBookTypeDeletionEventHandler logBookTypeDeletionEventHandler;
     private LoadProfileTypeUpdateEventHandler loadProfileTypeUpdateEventHandler;
     private LoadProfileTypeDeletionEventHandler loadProfileTypeDeletionEventHandler;
-    private RegisterMappingUpdateEventHandler registerMappingUpdateEventHandler;
-    private RegisterMappingDeletionEventHandler registerMappingDeletionEventHandler;
-    private RegisterMappingDeleteFromLoadProfileTypeEventHandler registerMappingDeleteFromLoadProfileTypeEventHandler;
+    private MeasurementTypeUpdateEventHandler measurementTypeUpdateEventHandler;
+    private MeasurementTypeDeletionEventHandler measurementTypeDeletionEventHandler;
+    private ChannelTypeDeleteFromLoadProfileTypeEventHandler channelTypeDeleteFromLoadProfileTypeEventHandler;
     private OrmService ormService;
     private LicenseService licenseService;
 
@@ -329,9 +329,9 @@ public class InMemoryPersistence {
         this.logBookTypeUpdateEventHandler = this.registerTopicHandler(new LogBookTypeUpdateEventHandler(this.deviceConfigurationService));
         this.loadProfileTypeDeletionEventHandler = this.registerTopicHandler(new LoadProfileTypeDeletionEventHandler(this.deviceConfigurationService));
         this.loadProfileTypeUpdateEventHandler = this.registerTopicHandler(new LoadProfileTypeUpdateEventHandler(this.deviceConfigurationService));
-        this.registerMappingDeletionEventHandler = this.registerTopicHandler(new RegisterMappingDeletionEventHandler(this.deviceConfigurationService));
-        this.registerMappingUpdateEventHandler = this.registerTopicHandler(new RegisterMappingUpdateEventHandler(this.deviceConfigurationService));
-        this.registerMappingDeleteFromLoadProfileTypeEventHandler = this.registerTopicHandler(new RegisterMappingDeleteFromLoadProfileTypeEventHandler(this.deviceConfigurationService));
+        this.measurementTypeDeletionEventHandler = this.registerTopicHandler(new MeasurementTypeDeletionEventHandler(this.deviceConfigurationService));
+        this.measurementTypeUpdateEventHandler = this.registerTopicHandler(new MeasurementTypeUpdateEventHandler(this.deviceConfigurationService));
+        this.channelTypeDeleteFromLoadProfileTypeEventHandler = this.registerTopicHandler(new ChannelTypeDeleteFromLoadProfileTypeEventHandler(this.deviceConfigurationService));
     }
 
     <T extends TopicHandler> T registerTopicHandler(T topicHandler) {
@@ -344,9 +344,9 @@ public class InMemoryPersistence {
         this.unregisterSubscriber(this.logBookTypeUpdateEventHandler);
         this.unregisterSubscriber(this.loadProfileTypeDeletionEventHandler);
         this.unregisterSubscriber(this.loadProfileTypeUpdateEventHandler);
-        this.unregisterSubscriber(this.registerMappingDeletionEventHandler);
-        this.unregisterSubscriber(this.registerMappingUpdateEventHandler);
-        this.unregisterSubscriber(this.registerMappingDeleteFromLoadProfileTypeEventHandler);
+        this.unregisterSubscriber(this.measurementTypeDeletionEventHandler);
+        this.unregisterSubscriber(this.measurementTypeUpdateEventHandler);
+        this.unregisterSubscriber(this.channelTypeDeleteFromLoadProfileTypeEventHandler);
     }
 
     void unregisterSubscriber(TopicHandler topicHandler) {

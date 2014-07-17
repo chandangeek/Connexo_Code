@@ -3,7 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 
 /**
  * Add behavior to {@link ServerDeviceConfiguration} that is
@@ -36,10 +36,10 @@ public interface ServerDeviceConfiguration extends DeviceConfiguration {
 
     /**
      * Validates that none of the DeviceConfiguration constraints are violated by the
-     * changes that have been applied to th RegisterMapping.
-     * @param registerMapping The RegisterMapping
+     * changes that have been applied to the RegisterType.
+     * @param measurementType The RegisterType
      */
-    public void validateUpdateRegisterMapping(RegisterMapping registerMapping);
+    public void validateUpdateMeasurementTypes(MeasurementType measurementType);
 
     /**
      * Prepares the device config for removal: i.e. clean all references to child records

@@ -5,7 +5,8 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
@@ -35,7 +36,7 @@ public interface ChannelSpec extends HasId {
 
     public void setName(String name);
 
-    RegisterMapping getRegisterMapping();
+    ChannelType getChannelType();
 
     ObisCode getDeviceObisCode();
 
@@ -61,7 +62,7 @@ public interface ChannelSpec extends HasId {
 
     DeviceConfiguration getDeviceConfiguration();
 
-    void setRegisterMapping(RegisterMapping registerMapping);
+    void setChannelType(ChannelType channelType);
 
     void setOverruledObisCode(ObisCode overruledObisCode);
 

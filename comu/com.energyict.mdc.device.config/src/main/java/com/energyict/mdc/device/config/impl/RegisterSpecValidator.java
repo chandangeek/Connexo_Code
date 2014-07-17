@@ -40,11 +40,11 @@ public class RegisterSpecValidator implements ConstraintValidator<ValidRegisterS
                     addConstraintViolation();
         }
         if (freshRegisterSpec.getDeviceConfiguration().isActive()) {
-            if (freshRegisterSpec.getRegisterMapping().getId()!=registerSpec.getRegisterMapping().getId()) {
+            if (freshRegisterSpec.getRegisterType().getId()!=registerSpec.getRegisterType().getId()) {
                 valid=false;
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_REGISTER_MAPPING_ACTIVE_DEVICE_CONFIG+"}").
-                        addPropertyNode(RegisterSpecImpl.Fields.REGISTER_MAPPING.fieldName()).
+                context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG +"}").
+                        addPropertyNode(RegisterSpecImpl.Fields.REGISTER_TYPE.fieldName()).
                         addConstraintViolation();
             }
             if (!freshRegisterSpec.getMultiplier().equals(registerSpec.getMultiplier())) {
