@@ -64,7 +64,10 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
                             xtype: 'button',
                             border: 0,
                             ui: 'link',
-                            text: Uni.I18n.translate('comServerComPorts.addPools.,manageComPorts', 'MDC', 'Manage communication port pools')
+                            text: Uni.I18n.translate('comServerComPorts.addPools.,manageComPorts', 'MDC', 'Manage communication port pools'),
+                            handler: function (button, event) {
+                                window.open('#/administration/comportpools');
+                            }
                         }]
                 },
                 {
