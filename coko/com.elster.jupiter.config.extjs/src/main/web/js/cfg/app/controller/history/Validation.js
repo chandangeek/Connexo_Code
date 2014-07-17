@@ -76,13 +76,13 @@ Ext.define('Cfg.controller.history.Validation', {
                                 deviceconfigurations: {
                                     title: 'Device configurations',
                                     route: 'deviceconfigurations',
-                                    controller: 'Cfg.controller.RuleDeviceConfigurations',
+                                    controller: 'Mdc.controller.setup.RuleDeviceConfigurations',
                                     action: 'showDeviceConfigView',
                                     items: {
                                         add: {
                                             title: 'Add',
                                             route: 'add',
-                                            controller: 'Cfg.controller.RuleDeviceConfigurations',
+                                            controller: 'Mdc.controller.setup.RuleDeviceConfigurations',
                                             action: 'showAddDeviceConfigView'
                                         }
                                     }
