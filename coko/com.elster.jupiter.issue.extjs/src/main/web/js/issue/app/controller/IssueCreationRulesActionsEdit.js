@@ -38,6 +38,10 @@ Ext.define('Isu.controller.IssueCreationRulesActionsEdit', {
         }
     ],
 
+    models: [
+        'Isu.model.CreationRuleAction'
+    ],
+
     mixins: [
         'Isu.util.CreatingControl'
     ],
@@ -92,7 +96,7 @@ Ext.define('Isu.controller.IssueCreationRulesActionsEdit', {
                 switch (action) {
                     case 'create':
                         prefix = btnTxt = 'Add ';
-                        self.actionModel = {};
+                        self.actionModel = Ext.create('Isu.model.CreationRuleAction');
                         break;
                 }
 
@@ -126,18 +130,17 @@ Ext.define('Isu.controller.IssueCreationRulesActionsEdit', {
             action = actionStore.getById(actionField.getValue()),
             parameters = {};
 
-        model.type = action.getData();
-        delete model.type.parameters;
-        model.phase = {
+        model.set('type', action.getData());
+        delete model.get('type').parameters;
+        model.set('phase', {
             uuid: phaseField.getValue().phase
-        };
+        });
         Ext.Array.each(form.down('[name=actionTypeDetails]').query(), function (formItem) {
             if (formItem.isFormField) {
                 parameters[formItem.name] = formItem.getValue();
             }
         });
-        model.parameters = parameters;
-
+        model.set('parameters', parameters);
 
         return model;
     },
@@ -167,17 +170,9 @@ Ext.define('Isu.controller.IssueCreationRulesActionsEdit', {
         if (rule) {
             if (form.isValid()) {
                 newAction = this.formToModel(this.actionModel);
-                actions = rule.get('actions');
-
+                actions = rule.actions();
                 formErrorsPanel.hide();
-
-                if (Ext.isArray(actions)) {
-                    actions.push(newAction);
-                } else {
-                    actions = [];
-                    actions.push(newAction);
-                }
-
+                actions.add(newAction);
                 this.finishEdit();
             } else {
                 formErrorsPanel.show();

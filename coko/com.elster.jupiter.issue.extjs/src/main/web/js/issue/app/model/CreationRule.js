@@ -15,10 +15,6 @@ Ext.define('Isu.model.CreationRule', {
             type: 'auto'
         },
         {
-            name: 'actions',
-            type: 'auto'
-        },
-        {
             name: 'comment',
             type: 'string'
         },
@@ -79,6 +75,15 @@ Ext.define('Isu.model.CreationRule', {
 
                 return dueIn;
             }
+        }
+    ],
+
+    associations: [
+        {
+            name: 'actions',
+            type: 'hasMany',
+            model: 'Isu.model.CreationRuleAction',
+            associationKey: 'actions'
         }
     ],
 

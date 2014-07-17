@@ -17,6 +17,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         'Isu.view.workspace.issues.MessagePanel'
     ],
 
+    models: [
+        'Isu.model.CreationRuleAction'
+    ],
+
     refs: [
         {
             ref: 'page',
@@ -76,48 +80,56 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     showCreate: function (id) {
         var widget = Ext.widget('issues-creation-rules-edit');
 
-        this.setPage(id, 'create');
+        this.setPage(id, 'create', widget);
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showEdit: function (id) {
         var widget = Ext.widget('issues-creation-rules-edit');
 
-        this.setPage(id, 'edit');
+        this.setPage(id, 'edit', widget);
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
-    setPage: function (id, action) {
-        var self = this,
-            ruleActionBtn = self.getRuleActionBtn(),
+    clearActionsStore: function (widget) {
+        var actionsGrid = widget ?  widget.down('issues-creation-rules-actions-list') : this.getActionsGrid(),
+            actionsStore = actionsGrid.getStore();
+
+        actionsStore.removeAll();
+    },
+
+    setPage: function (id, action, widget) {
+        var me = this,
+            ruleActionBtn = me.getRuleActionBtn(),
             clipboard = this.getStore('Isu.store.Clipboard'),
             savedData = clipboard.get('issuesCreationRuleState'),
-            page = self.getPage(),
             prefix,
             btnTxt;
+
+        this.clearActionsStore(widget);
 
         switch (action) {
             case 'edit':
                 prefix = 'Edit ';
                 btnTxt = 'Save';
                 if (savedData) {
-                    self.ruleModel = savedData;
+                    me.ruleModel = savedData;
                     clipboard.clear('issuesCreationRuleState');
-                    page.on('afterrender', function () {
-                        self.modelToForm(self.ruleModel);
-                    }, self, {single: true});
+                    widget.on('afterrender', function () {
+                        me.modelToForm(me.ruleModel);
+                    }, me, {single: true});
                 } else {
-                    self.getModel('Isu.model.CreationRule').load(id, {
+                    me.getModel('Isu.model.CreationRule').load(id, {
                         success: function (record) {
-                            self.ruleModel = record;
-                            delete self.ruleModel.data.creationDate;
-                            delete self.ruleModel.data.modificationDate;
-                            if (page.isVisible()) {
-                                self.modelToForm(record);
+                            me.ruleModel = record;
+                            delete me.ruleModel.data.creationDate;
+                            delete me.ruleModel.data.modificationDate;
+                            if (widget.isVisible()) {
+                                me.modelToForm(record);
                             } else {
-                                page.on('afterrender', function () {
-                                    self.modelToForm(record);
-                                }, self, {single: true});
+                                widget.on('afterrender', function () {
+                                    me.modelToForm(record);
+                                }, me, {single: true});
                             }
                         }
                     });
@@ -126,20 +138,20 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             case 'create':
                 prefix = btnTxt = 'Create ';
                 if (savedData) {
-                    self.ruleModel = savedData;
+                    me.ruleModel = savedData;
                     clipboard.clear('issuesCreationRuleState');
                 } else {
-                    self.ruleModel = Isu.model.CreationRule.create();
-                    delete self.ruleModel.data.id;
-                    self.ruleModel.data.actions = [];
+                    me.ruleModel = Isu.model.CreationRule.create();
+                    delete me.ruleModel.data.id;
+                    me.ruleModel.data.actions = [];
                 }
-                page.on('afterrender', function () {
-                    self.modelToForm(self.ruleModel);
-                }, self, {single: true});
+                widget.on('afterrender', function () {
+                    me.modelToForm(me.ruleModel);
+                }, me, {single: true});
                 break;
         }
 
-        self.getPageTitle().title = prefix + 'issue creation rule';
+        me.getPageTitle().title = prefix + 'issue creation rule';
         ruleActionBtn.setText(btnTxt);
     },
 
@@ -150,8 +162,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     },
 
     modelToForm: function (record) {
-        var self = this,
-            form = self.getRuleForm(),
+        var me = this,
+            form = me.getRuleForm(),
             data = record.getData(),
             nameField = form.down('[name=name]'),
             issueTypeField = form.down('[name=issueType]'),
@@ -162,11 +174,11 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             dueInNumberField = form.down('[name=dueIn.number]'),
             dueInTypeField = form.down('[name=dueIn.type]'),
             commentField = form.down('[name=comment]'),
-            page = self.getPage();
+            page = me.getPage();
 
         if (record.get('template') && record.get('template').uid) {
             page.setLoading(true);
-            self.on('templateloaded', function () {
+            me.on('templateloaded', function () {
                 var formField,
                     name,
                     value;
@@ -181,7 +193,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 }
 
                 page.setLoading(false);
-            }, self, {single: true});
+            }, me, {single: true});
         }
 
         nameField.setValue(data.name);
@@ -189,7 +201,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             issueTypeField.setValue(data.issueType.uid || issueTypeField.getStore().getAt(0).get('uid'));
             templateField.getStore().on('load', function () {
                 templateField.setValue(data.template.uid);
-            }, self, {single: true});
+            }, me, {single: true});
         });
         reasonField.getStore().load(function () {
             reasonField.setValue(data.reason.id);
@@ -203,7 +215,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
         }
         commentField.setValue(data.comment);
 
-        self.loadActionsToForm(data.actions);
+        me.loadActionsToForm(record.actions().getRange());
     },
 
     formToModel: function (model) {
@@ -261,8 +273,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     },
 
     setRuleTemplate: function (combo, newValue) {
-        var self = this,
-            templateDetails = self.getTemplateDetails(),
+        var me = this,
+            templateDetails = me.getTemplateDetails(),
             templateModel = combo.getStore().model,
             formItem;
 
@@ -274,13 +286,13 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     var description = template.get('description'),
                         parameters = template.get('parameters');
 
-                    self.addTemplateDescription(combo, description);
+                    me.addTemplateDescription(combo, description);
 
                     Ext.Array.each(parameters, function (obj) {
-                        formItem = self.createControl(obj);
+                        formItem = me.createControl(obj);
                         formItem && templateDetails.add(formItem);
                     });
-                    self.fireEvent('templateloaded');
+                    me.fireEvent('templateloaded');
                 }
             });
         }
@@ -335,14 +347,14 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     },
 
     ruleSave: function (button) {
-        var self = this,
-            form = self.getRuleForm().getForm(),
-            rule = self.formToModel(self.ruleModel),
-            formErrorsPanel = self.getRuleForm().down('[name=form-errors]'),
-            store = self.getStore('Isu.store.CreationRule'),
-            templateCombo = self.getRuleForm().down('combobox[name=template]'),
+        var me = this,
+            form = me.getRuleForm().getForm(),
+            rule = me.formToModel(me.ruleModel),
+            formErrorsPanel = me.getRuleForm().down('[name=form-errors]'),
+            store = me.getStore('Isu.store.CreationRule'),
+            templateCombo = me.getRuleForm().down('combobox[name=template]'),
             router = this.getController('Uni.controller.history.Router'),
-            page = self.getPage();
+            page = me.getPage();
 
         if (form.isValid()) {
             page.setLoading('Saving...');
@@ -365,21 +377,21 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                                 messageText = Uni.I18n.translate('administration.issueCreationRules.updateSuccess.msg', 'ISE', 'Issue creation rule updated');
                                 break;
                         }
-                        self.getApplication().fireEvent('acknowledge', messageText);
+                        me.getApplication().fireEvent('acknowledge', messageText);
                         router.getRoute('administration/issue/creationrules').forward();
                     } else {
                         json = Ext.decode(operation.response.responseText);
                         if (json && json.errors) {
                             form.markInvalid(json.errors);
                             formErrorsPanel.show();
-                            self.comboTemplateResize(templateCombo);
+                            me.comboTemplateResize(templateCombo);
                         }
                     }
                 }
             });
         } else {
             formErrorsPanel.show();
-            self.comboTemplateResize(templateCombo);
+            me.comboTemplateResize(templateCombo);
         }
     },
 
@@ -398,11 +410,9 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             noActionsText = this.getPage().down('[name=noactions]'),
             phasesStore = this.getStore('Isu.store.CreationRuleActionPhases');
 
-        actionsStore.removeAll();
-
         if (actions.length) {
             phasesStore.load(function () {
-                actionsStore.add(actions);
+                actionsStore.loadData(actions, false);
                 actionsGrid.show();
                 noActionsText.hide();
             });
@@ -413,16 +423,12 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     },
 
     loadActionsToModel: function (model) {
-        var self = this,
-            actionsGrid = this.getActionsGrid(),
+        var me = this,
+            actionsGrid = me.getActionsGrid(),
             actionsStore = actionsGrid.getStore(),
-            actions = [];
+            actions = actionsStore.getRange();
 
-        actionsStore.each(function (action) {
-            actions.push(action.getData());
-        }, self);
-
-        model.set('actions', actions);
+        model.actions().loadData(actions, false);
     },
 
     chooseActionOperation: function (menu, item) {

@@ -2,28 +2,12 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionsLis
     extend: 'Ext.grid.Panel',
     requires: [
         'Ext.grid.column.Template',
-        'Uni.grid.column.Action'
+        'Uni.grid.column.Action',
+        'Isu.model.CreationRuleAction'
     ],
     alias: 'widget.issues-creation-rules-actions-list',
     store: Ext.create('Ext.data.Store', {
-        fields: [
-            {
-                name: 'id',
-                type: 'int'
-            },
-            {
-                name: 'type',
-                type: 'auto'
-            },
-            {
-                name: 'phase',
-                type: 'auto'
-            },
-            {
-                name: 'parameters',
-                type: 'auto'
-            }
-        ]
+        model: 'Isu.model.CreationRuleAction'
     }),
     enableColumnHide: false,
     columns: {
