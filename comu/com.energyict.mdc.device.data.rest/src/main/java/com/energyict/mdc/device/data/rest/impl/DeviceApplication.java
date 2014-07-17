@@ -24,6 +24,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -51,6 +52,7 @@ public class DeviceApplication extends Application implements InstallService{
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile EngineModelService engineModelService;
+    private volatile SchedulingService schedulingService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -126,6 +128,11 @@ public class DeviceApplication extends Application implements InstallService{
         this.engineModelService = engineModelService;
     }
 
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
+    }
+
     @Override
     public void install() {
         Installer installer = new Installer();
@@ -152,6 +159,7 @@ public class DeviceApplication extends Application implements InstallService{
             bind(deviceImportService).to(DeviceImportService.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(schedulingService).to(SchedulingService.class);
         }
     }
 
