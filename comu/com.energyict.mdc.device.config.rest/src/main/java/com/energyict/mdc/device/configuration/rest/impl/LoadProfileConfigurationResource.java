@@ -164,7 +164,7 @@ public class LoadProfileConfigurationResource {
     @Path("{loadProfileSpecId}/channels")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createChannelForDeviceConfiguartion(
+    public Response createChannelForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") int loadProfileSpecId,
