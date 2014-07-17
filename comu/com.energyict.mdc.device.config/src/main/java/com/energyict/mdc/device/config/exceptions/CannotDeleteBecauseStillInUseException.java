@@ -74,30 +74,6 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
 
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link LogBookType}
-     * while it is still used by the specified {@link DeviceType}s.
-     *
-     * @param thesaurus The Thesaurus
-     * @return The CannotDeleteBecauseStillInUseException
-     */
-    public static CannotDeleteBecauseStillInUseException logBookTypeIsStillInUseByDeviceType(Thesaurus thesaurus, LogBookType logBookType, List<DeviceType> deviceTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS, logBookType.getName(), namesToStringListForDeviceTypes(deviceTypes));
-    }
-
-    /**
-     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link LogBookType}
-     * while it is still used by the specified {@link LogBookSpec}s.
-     *
-     * @param thesaurus The Thesaurus
-     * @return The CannotDeleteBecauseStillInUseException
-     */
-    public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByRegisterSpec(Thesaurus thesaurus, MeasurementType measurementType, List<RegisterSpec> registerSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC, measurementType.getName(), namesToStringListForRegisterSpecs(registerSpecs));
-    }
-
-    /**
-     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
      * situation that occurs when an attempt is made to delete a {@link LoadProfileType}
      * while it is still used by the specified {@link LoadProfileSpec}s.
      *
@@ -211,9 +187,10 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
             if (notFirst) {
                 builder.append(", ");
             }
-            builder.append(registerSpec.getDeviceConfiguration().getName());
-            builder.append(":");
+            builder.append("register configuration with Obis code ");
             builder.append(registerSpec.getDeviceObisCode().toString());
+            builder.append(" in device configuration ");
+            builder.append(registerSpec.getDeviceConfiguration().getName());
             notFirst = true;
         }
         return builder.toString();

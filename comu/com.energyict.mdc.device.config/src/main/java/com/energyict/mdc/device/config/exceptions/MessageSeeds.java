@@ -152,7 +152,7 @@ public enum MessageSeeds implements MessageSeed {
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
-        this.key = stripComponentNameIfPresent(key);
+        this.key = key;
         this.defaultFormat = defaultFormat;
         this.level = level;
     }
@@ -181,15 +181,6 @@ public enum MessageSeeds implements MessageSeed {
     public String getModule() {
         return DeviceConfigurationService.COMPONENTNAME;
     }
-
-    private String stripComponentNameIfPresent(String key) {
-        if (key.startsWith(DeviceConfigurationService.COMPONENTNAME+".")) {
-            return key.substring(DeviceConfigurationService.COMPONENTNAME.length()+1);
-        } else {
-            return key;
-        }
-    }
-
 
     public static class Keys {
         public static final String NAME_REQUIRED = "X.name.required";
