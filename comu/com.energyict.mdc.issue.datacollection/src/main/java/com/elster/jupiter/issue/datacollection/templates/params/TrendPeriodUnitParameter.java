@@ -20,7 +20,7 @@ public class TrendPeriodUnitParameter extends TranslatedParameter{
         values = new ArrayList<>(TrendPeriodUnit.values().length);
         for (TrendPeriodUnit trendPeriodUnit : TrendPeriodUnit.values()) {
             ComboBoxControl.Values info = new ComboBoxControl.Values();
-            info.id = trendPeriodUnit.getId();
+            info.id = String.valueOf(trendPeriodUnit.getId());
             info.title = trendPeriodUnit.getTitle(getThesaurus());
             values.add(info);
         }

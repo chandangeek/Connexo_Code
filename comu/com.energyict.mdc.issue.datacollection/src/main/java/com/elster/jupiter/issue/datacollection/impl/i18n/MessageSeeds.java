@@ -22,7 +22,7 @@ public enum MessageSeeds implements MessageSeed {
     PARAMETER_NAME_READING_TYPE(13, "ParameterNameReadingType", "CIM Reading type", Level.INFO),
     PARAMETER_NAME_TREND_PERIOD(14, "ParameterNameTrendPeriod", "Trend period", Level.INFO),
     PARAMETER_NAME_TREND_PERIOD_UNIT(15, "ParameterNameTrendPeriodUnit", "Trend period units", Level.INFO),
-    PARAMETER_NAME_MAX_SLOPE_SUFFIX(16, "ParameterNameTrendPeriodUnitSuffix", "&deg;C/hours", Level.INFO),
+    PARAMETER_NAME_MAX_SLOPE_SUFFIX(16, "ParameterNameTrendPeriodUnitSuffix", "&deg;C/hour", Level.INFO),
     PARAMETER_NAME_READING_TYPE_DESCRIPTION(17, "ParameterNameReadingTypeDescription", "Provide the value for the 18 attributes of the CIM reading type. Separate each value with a \".\"", Level.INFO),
     TEMPLATE_EVT_AGGREGATION_NAME (18, "TemapleEvtAggregationName", "Events from meters of concentrator", Level.INFO),
     TEMPLATE_EVT_AGGREGATION_DESCRIPTION (19, "TemapleEvtAggregationDescription", "Create an issue based on multiple events that are related", Level.INFO),
