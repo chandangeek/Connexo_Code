@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -28,26 +29,18 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDependant;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
-
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
 import org.fest.assertions.core.Condition;
 import org.junit.After;
 import org.junit.Before;
@@ -55,10 +48,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -931,9 +930,9 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void getChannelWithExistingNameTest() {
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
         List<ChannelSpec> channelSpecs = deviceConfigurationWithTwoChannelSpecs.getChannelSpecs();
-        String channelSpecName = "RegisterMapping1";
+        String channelSpecName = "ChannelType1";
         for (ChannelSpec channelSpec : channelSpecs) {
-            if (channelSpec.getRegisterMapping().getReadingType().getName().equals(readingType1.getName())) {
+            if (channelSpec.getChannelType().getReadingType().getName().equals(readingType1.getName())) {
                 channelSpecName = channelSpec.getName();
             }
         }
@@ -991,53 +990,66 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
-        RegisterMapping registerMapping1 = this.createRegisterMappingIfMissing("RegisterMapping1", obisCode1, unit1, readingType1, 0);
-        RegisterMapping registerMapping2 = this.createRegisterMappingIfMissing("RegisterMapping2", obisCode2, unit2, readingType2, 0);
-        deviceType.addRegisterMapping(registerMapping1);
-        deviceType.addRegisterMapping(registerMapping2);
-        DeviceType.DeviceConfigurationBuilder configurationWithRegisterMappings = deviceType.newConfiguration("ConfigurationWithRegisterMappings");
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder1 = configurationWithRegisterMappings.newRegisterSpec(registerMapping1);
+        RegisterType registerType1 = this.createRegisterTypeIfMissing("RegisterType1", obisCode1, unit1, readingType1, 0);
+        RegisterType registerType2 = this.createRegisterTypeIfMissing("RegisterType2", obisCode2, unit2, readingType2, 0);
+        deviceType.addRegisterType(registerType1);
+        deviceType.addRegisterType(registerType2);
+        DeviceType.DeviceConfigurationBuilder configurationWithRegisterTypes = deviceType.newConfiguration("ConfigurationWithRegisterTypes");
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder1 = configurationWithRegisterTypes.newRegisterSpec(registerType1);
         registerSpecBuilder1.setNumberOfDigits(9);
         registerSpecBuilder1.setNumberOfFractionDigits(0);
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder2 = configurationWithRegisterMappings.newRegisterSpec(registerMapping2);
+        RegisterSpec.RegisterSpecBuilder registerSpecBuilder2 = configurationWithRegisterTypes.newRegisterSpec(registerType2);
         registerSpecBuilder2.setNumberOfDigits(9);
         registerSpecBuilder2.setNumberOfFractionDigits(0);
-        DeviceConfiguration deviceConfiguration = configurationWithRegisterMappings.add();
+        DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
         deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoChannelSpecs() {
-        RegisterMapping registerMapping1 = this.createRegisterMappingIfMissing("RegisterMapping1", obisCode1, unit1, readingType1, 0);
-        RegisterMapping registerMapping2 = this.createRegisterMappingIfMissing("RegisterMapping2", obisCode2, unit2, readingType2, 0);
-        registerMapping2.save();
+        RegisterType registerType1 = createRegisterTypeIfMissing("ChannelType1", obisCode1, unit1, readingType1, 0);
+        RegisterType registerType2 = createRegisterTypeIfMissing("ChannelType2", obisCode2, unit2, readingType2, 0);
+        registerType2.save();
         loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileType", loadProfileObisCode, interval);
-        loadProfileType.addRegisterMapping(registerMapping1);
-        loadProfileType.addRegisterMapping(registerMapping2);
+        ChannelType channelTypeForRegisterType1 = loadProfileType.createChannelTypeForRegisterType(registerType1);
+        ChannelType channelTypeForRegisterType2 = loadProfileType.createChannelTypeForRegisterType(registerType2);
         loadProfileType.save();
         deviceType.addLoadProfileType(loadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping1, phenomenon1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping2, phenomenon2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, phenomenon1, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, phenomenon2, loadProfileSpecBuilder);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }
 
-    private RegisterMapping createRegisterMappingIfMissing(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
-        Optional<RegisterMapping> xRegisterMapping = inMemoryPersistence.getMasterDataService().findRegisterMappingByReadingType(readingType);
-        RegisterMapping registerMapping;
-        if (xRegisterMapping.isPresent()) {
-            registerMapping = xRegisterMapping.get();
+    private RegisterType createRegisterTypeIfMissing(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
+        Optional<RegisterType> xRegisterType = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType);
+        RegisterType measurementType;
+        if (xRegisterType.isPresent()) {
+            measurementType = xRegisterType.get();
         }
         else {
-            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(name, obisCode, unit, readingType, timeOfUse);
-            registerMapping.save();
+            measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(name, obisCode, unit, readingType, timeOfUse);
+            measurementType.save();
         }
-        return registerMapping;
+        return measurementType;
+    }
+
+    private ChannelType createChannelTypeIfMissing(RegisterType registerType, TimeDuration timeDuration, ReadingType readingType) {
+        Optional<ChannelType> xRegisterType = inMemoryPersistence.getMasterDataService().findChannelTypeByReadingType(readingType);
+        ChannelType channelType;
+        if (xRegisterType.isPresent()) {
+            channelType = xRegisterType.get();
+        }
+        else {
+            channelType = inMemoryPersistence.getMasterDataService().newChannelType(registerType, timeDuration, readingType);
+            channelType.save();
+        }
+        return channelType;
     }
 
 }

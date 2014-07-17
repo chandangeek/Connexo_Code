@@ -16,11 +16,12 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -59,8 +60,8 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     private Unit unit1;
     private Unit unit2;
     private DeviceConfiguration deviceConfigurationWithLoadProfileAndChannels;
-    private RegisterMapping registerMapping1;
-    private RegisterMapping registerMapping2;
+    private RegisterType registerType1;
+    private RegisterType registerType2;
     private LoadProfileType loadProfileType;
 
     @Before
@@ -109,34 +110,34 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     }
 
     private DeviceConfiguration createDeviceConfigurationWithLoadProfileSpecAndTwoChannelSpecsSpecs() {
-        this.registerMapping1 = this.createRegisterMappingIfMissing("RegisterMapping1", this.obisCode1, this.unit1, this.readingType1, 0);
-        this.registerMapping2 = this.createRegisterMappingIfMissing("RegisterMapping2", this.obisCode2, this.unit2, this.readingType2, 0);
+        this.registerType1 = this.createRegisterTypeIfMissing("RegisterType1", this.obisCode1, this.unit1, this.readingType1, 0);
+        this.registerType2 = this.createRegisterTypeIfMissing("RegisterType2", this.obisCode2, this.unit2, this.readingType2, 0);
         loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileType", loadProfileObisCode, interval);
-        loadProfileType.addRegisterMapping(registerMapping1);
-        loadProfileType.addRegisterMapping(registerMapping2);
+        ChannelType channelTypeForRegisterType1 = loadProfileType.createChannelTypeForRegisterType(registerType1);
+        ChannelType channelTypeForRegisterType2 = loadProfileType.createChannelTypeForRegisterType(registerType2);
         loadProfileType.save();
         deviceType.addLoadProfileType(loadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping1, phenomenon1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping2, phenomenon2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, phenomenon1, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, phenomenon2, loadProfileSpecBuilder);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }
 
-    private RegisterMapping createRegisterMappingIfMissing(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
-        Optional<RegisterMapping> xRegisterMapping = inMemoryPersistence.getMasterDataService().findRegisterMappingByReadingType(readingType);
-        RegisterMapping registerMapping;
-        if (xRegisterMapping.isPresent()) {
-            registerMapping = xRegisterMapping.get();
+    private RegisterType createRegisterTypeIfMissing(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
+        Optional<RegisterType> xRegisterType = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType);
+        RegisterType registerType;
+        if (xRegisterType.isPresent()) {
+            registerType = xRegisterType.get();
         }
         else {
-            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping(name, obisCode, unit, readingType, timeOfUse);
-            registerMapping.save();
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(name, obisCode, unit, readingType, timeOfUse);
+            registerType.save();
         }
-        return registerMapping;
+        return registerType;
     }
 
     private Device createSimpleDeviceWithLoadProfiles() {
@@ -277,10 +278,12 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
 
         DeviceType slaveDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("SlaveDeviceType", slaveDeviceProtocolPluggableClass);
         slaveDeviceType.addLoadProfileType(loadProfileType);
+        ChannelType channelTypeForRegisterType1 = loadProfileType.createChannelTypeForRegisterType(registerType1);
+        ChannelType channelTypeForRegisterType2 = loadProfileType.createChannelTypeForRegisterType(registerType2);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = slaveDeviceType.newConfiguration("SlaveConfig");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping1, phenomenon1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping2, phenomenon2, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, phenomenon1, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, phenomenon2, loadProfileSpecBuilder);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         slaveDeviceType.save();
         deviceConfiguration.activate();
@@ -298,7 +301,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         masterWithLoadProfile.save();
 
         LoadProfileType slaveLoadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("SlaveType", ObisCode.fromString("0.x.24.3.0.255"), interval);
-        slaveLoadProfileType.addRegisterMapping(registerMapping1);
+        ChannelType channelTypeForRegisterType = slaveLoadProfileType.createChannelTypeForRegisterType(registerType1);
         slaveLoadProfileType.save();
         DeviceProtocolPluggableClass slaveDeviceProtocolPluggableClass = createSlaveDeviceProtocol();
 
@@ -306,7 +309,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         slaveDeviceType.addLoadProfileType(slaveLoadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = slaveDeviceType.newConfiguration("SlaveConfig");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(slaveLoadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(registerMapping1, phenomenon1, loadProfileSpecBuilder);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType, phenomenon1, loadProfileSpecBuilder);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         slaveDeviceType.save();
         deviceConfiguration.activate();

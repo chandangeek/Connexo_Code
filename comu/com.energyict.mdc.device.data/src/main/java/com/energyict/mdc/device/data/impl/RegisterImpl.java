@@ -69,8 +69,8 @@ public class RegisterImpl implements Register {
     }
 
     @Override
-    public ObisCode getRegisterMappingObisCode() {
-        return getRegisterSpec().getRegisterMapping().getObisCode();
+    public ObisCode getRegisterTypeObisCode() {
+        return getRegisterSpec().getRegisterType().getObisCode();
     }
 
     @Override
