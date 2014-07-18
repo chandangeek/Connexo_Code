@@ -7,6 +7,7 @@ import com.elster.jupiter.issue.datacollection.templates.params.ReadingTypeParam
 import com.elster.jupiter.issue.datacollection.templates.params.TrendPeriodParameter;
 import com.elster.jupiter.issue.datacollection.templates.params.TrendPeriodUnitParameter;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import org.osgi.service.component.annotations.Activate;
@@ -17,17 +18,24 @@ import org.osgi.service.component.annotations.Reference;
 public class SlopeDetectionRuleTemplate extends AbstractTemplate {
     public static final String SLOPE_DETECTION_ID = "7b1c7ccc-f248-47c6-81f3-18d123870133";
 
+    private volatile MeteringService meteringService;
+
     @Activate
     public void activate(){
         addParameterDefinition(new ReadingTypeParameter(getThesaurus()));
         addParameterDefinition(new TrendPeriodParameter(getThesaurus()));
         addParameterDefinition(new TrendPeriodUnitParameter(getThesaurus()));
-        addParameterDefinition(new MaxSlopeParameter(getThesaurus()));
+        addParameterDefinition(new MaxSlopeParameter(getThesaurus(), meteringService));
     }
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
         setThesaurus(nlsService.getThesaurus(ModuleConstants.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    @Reference
+    public final void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Override

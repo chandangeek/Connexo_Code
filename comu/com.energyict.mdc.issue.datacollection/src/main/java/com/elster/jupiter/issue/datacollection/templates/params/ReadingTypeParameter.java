@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.share.cep.controls.SimpleControl;
 import com.elster.jupiter.nls.Thesaurus;
 
 public class ReadingTypeParameter extends TranslatedParameter{
+    public static final String READING_TYPE_PARAMETER_KEY = "readingType";
     private static final ParameterConstraint CONSTRAINT = new StringParameterConstraint(false, 2, 80);
 
     private ParameterControl control;
@@ -18,7 +19,7 @@ public class ReadingTypeParameter extends TranslatedParameter{
 
     @Override
     public String getKey() {
-        return "readingType";
+        return READING_TYPE_PARAMETER_KEY;
     }
 
     @Override
