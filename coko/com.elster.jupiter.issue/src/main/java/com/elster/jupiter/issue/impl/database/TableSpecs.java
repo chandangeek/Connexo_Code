@@ -13,7 +13,8 @@ import java.util.ListIterator;
 
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.*;
 import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 public enum TableSpecs {
 
