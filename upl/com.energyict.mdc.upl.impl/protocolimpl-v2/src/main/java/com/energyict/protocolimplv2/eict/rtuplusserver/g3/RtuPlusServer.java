@@ -3,10 +3,11 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
@@ -57,6 +58,7 @@ public class RtuPlusServer implements DeviceProtocol {
     private G3GatewayRegisters g3GatewayRegisters;
     private G3GatewayEvents g3GatewayEvents;
     private RtuPlusServerMessages rtuPlusServerMessages;
+    private DLMSCache dlmsCache = null;
 
     @Override
     public String getProtocolDescription() {
@@ -92,6 +94,7 @@ public class RtuPlusServer implements DeviceProtocol {
     @Override
     public void logOn() {
         getDlmsSession().connect();
+        checkCacheObjects();
     }
 
     @Override
@@ -217,7 +220,7 @@ public class RtuPlusServer implements DeviceProtocol {
     /**
      * Holder for all properties: security, general and dialects.
      */
-    private DlmsSessionProperties getDlmsSessionProperties() {
+    private G3GatewayProperties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new G3GatewayProperties();
         }
@@ -309,11 +312,41 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        //Not used
+        this.dlmsCache = (DLMSCache) deviceProtocolCache;
     }
 
     @Override
     public DeviceProtocolCache getDeviceCache() {
-        return null;    //Not used
+        return dlmsCache;
+    }
+
+    private void checkCacheObjects() {
+        if (getDeviceCache() == null) {
+            setDeviceCache(new DLMSCache());
+        }
+        DLMSCache dlmsCache = (DLMSCache) getDeviceCache();
+        if (dlmsCache.getObjectList() == null || getDlmsSessionProperties().isReadCache()) {
+            readObjectList();
+            dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
+        } else {
+            getDlmsSession().getMeterConfig().setInstantiatedObjectList(dlmsCache.getObjectList());
+        }
+    }
+
+    /**
+     * Request Association buffer list out of the meter.
+     */
+    private void readObjectList() {
+        try {
+            if (getDlmsSession().getReference() == ProtocolLink.LN_REFERENCE) {
+                getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDlmsSession().getCosemObjectFactory().getAssociationLN().getBuffer());
+            } else if (getDlmsSession().getReference() == ProtocolLink.SN_REFERENCE) {
+                getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDlmsSession().getCosemObjectFactory().getAssociationSN().getBuffer());
+            } else {
+                throw new IllegalArgumentException("Invalid reference method, only 0 and 1 are allowed.");
+            }
+        } catch (IOException e) {
+            throw IOExceptionHandler.handle(e, getDlmsSession());
+        }
     }
 }
