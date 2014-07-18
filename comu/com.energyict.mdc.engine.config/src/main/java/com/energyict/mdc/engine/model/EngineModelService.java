@@ -7,20 +7,23 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.sql.SQLException;
 import java.util.List;
+
+import com.google.common.base.Optional;
 import org.json.JSONObject;
 
 public interface EngineModelService {
 
     String COMPONENT_NAME = "MDC";
 
-    public ComServer findComServer(String name);
+    public Optional<ComServer> findComServer(String name);
+
     /**
      * Finds the ComServer with the specified unique identifier.
      *
      * @param id the ComServer id
      * @return The ComServer or <code>null</code> if no such ComServer exists
      */
-    public ComServer findComServer(long id);
+    public Optional<ComServer> findComServer(long id);
 
     /**
      * Find all ComServers including the ones that were made obsolete.
@@ -34,7 +37,7 @@ public interface EngineModelService {
      *
      * @return the ComServer or <code>null</code> if no such ComServer exists
      */
-    public ComServer findComServerBySystemName ();
+    public Optional<ComServer> findComServerBySystemName ();
 
     /**
      * Finds all {@link com.energyict.mdc.engine.model.OnlineComServer onlineComServers}
@@ -57,12 +60,6 @@ public interface EngineModelService {
      * @return a List of {@link} RemoteComServer remoteComServers}
      */
     public List<RemoteComServer> findRemoteComServersForOnlineComServer(OnlineComServer onlineComServer);
-
-    /**
-     * Returns the number of offline servers
-     * @return the number of offline servers
-     */
-    int getOfflineServerCount();
 
     /**
      * Finds all {@link com.energyict.mdc.engine.model.OfflineComServer offlineComServers}

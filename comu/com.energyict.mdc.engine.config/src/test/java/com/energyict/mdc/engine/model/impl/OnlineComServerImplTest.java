@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.Expected;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
@@ -11,10 +8,16 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.RemoteComServer;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.orm.DataModel;
 import com.google.inject.Provider;
+
 import java.sql.SQLException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -156,7 +159,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
         String name = NO_VIOLATIONS_NAME+3;
         OnlineComServer createdComServer = this.createWithoutComPortsWithoutViolations(name);
 
-        OnlineComServer loadedOnlineServer = (OnlineComServer) getEngineModelService().findComServer((int) createdComServer.getId());
+        OnlineComServer loadedOnlineServer = (OnlineComServer) getEngineModelService().findComServer(createdComServer.getId()).get();
 
         // Asserts
         assertThat(name).isEqualTo(loadedOnlineServer.getName());

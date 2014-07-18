@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.Expected;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
@@ -13,15 +10,20 @@ import com.energyict.mdc.engine.model.OfflineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.orm.DataModel;
 import com.google.inject.Provider;
+
 import java.sql.SQLException;
 import java.util.List;
-import org.junit.Test;
+
+import org.junit.*;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
 * Tests the {@link OfflineComServerImpl} component.
@@ -113,17 +115,17 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     public void loadTest() throws BusinessException, SQLException {
         String name = NO_VIOLATIONS_NAME;
-        OfflineComServer shadow = getEngineModelService().newOfflineComServerInstance();
-        shadow.setName(name);
-        shadow.setActive(true);
-        shadow.setServerLogLevel(SERVER_LOG_LEVEL);
-        shadow.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        shadow.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        shadow.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        OfflineComServer comServer = getEngineModelService().newOfflineComServerInstance();
+        comServer.setName(name);
+        comServer.setActive(true);
+        comServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        comServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
 
         // Business method
-        shadow.save();
-        ComServer loadedOfflineServer = getEngineModelService().findComServer(shadow.getId());
+        comServer.save();
+        ComServer loadedOfflineServer = getEngineModelService().findComServer(comServer.getId()).get();
 
         // asserts
         assertThat(name).isEqualTo(loadedOfflineServer.getName());
@@ -150,7 +152,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         // Business method
         offlineComServer.save();
 
-        ComServer comServer = getEngineModelService().findComServer(name);
+        ComServer comServer = getEngineModelService().findComServer(name).get();
         assertThat(comServer.getComPorts()).isNotEmpty();
     }
 
@@ -297,7 +299,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         offlineComServer.save();
 
-        OfflineComServer retrievedComServer = (OfflineComServer) getEngineModelService().findComServer(name);
+        OfflineComServer retrievedComServer = (OfflineComServer) getEngineModelService().findComServer(name).get();
 
         // Business method
         String changedName = "Name-Updated";
@@ -335,7 +337,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         creationShadow.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         this.addComPort(creationShadow);
         creationShadow.save();
-        OfflineComServer retrievedComServer = (OfflineComServer) getEngineModelService().findComServer(name);
+        OfflineComServer retrievedComServer = (OfflineComServer) getEngineModelService().findComServer(name).get();
 
         // Business method
         String changedName = "Name-Updated2";
@@ -375,7 +377,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         addComPort(offlineComServer);
         offlineComServer.save();
-        OfflineComServer comServer = (OfflineComServer) getEngineModelService().findComServer(name);
+        OfflineComServer comServer = (OfflineComServer) getEngineModelService().findComServer(name).get();
 
         // Business method
         String changedName = "Name-Updated3";
@@ -420,7 +422,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         comServer.makeObsolete();
 
         // Asserts
-        assertThat(getEngineModelService().findComServer(id)).isNotNull();
+        assertThat(getEngineModelService().findComServer(id).isPresent()).isTrue();
         for (OutboundComPort outbound : comPorts) {
             assertThat(outbound.isObsolete());
         }
@@ -441,8 +443,9 @@ public class OfflineComServerImplTest extends PersistenceTest {
         addComPort(comServer);
         comServer.save();
         comServer.makeObsolete();
+
         // Business method
-        ComServer deletedComServer = getEngineModelService().findComServer(comServer.getId());
+        ComServer deletedComServer = getEngineModelService().findComServer(comServer.getId()).get();
 
         // Asserts
         assertTrue("DeleteDate should be filled in", comServer.getObsoleteDate() != null);

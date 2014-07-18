@@ -37,6 +37,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.proxy.LazyLoader;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.json.JSONException;
@@ -145,14 +146,14 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public ComServer findComServer(String name) {
+    public Optional<ComServer> findComServer(String name) {
         Condition condition = Where.where("name").isEqualTo(name).and(Where.where("obsoleteDate").isNull());
-        return unique(getComServerDataMapper().select(condition));
+        return Optional.fromNullable(unique(getComServerDataMapper().select(condition)));
    }
 
     @Override
-    public ComServer findComServer(long id) {
-        return getComServerDataMapper().getUnique("id", id).orNull();
+    public Optional<ComServer> findComServer(long id) {
+        return getComServerDataMapper().getUnique("id", id);
     }
 
     @Override
@@ -161,7 +162,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public ComServer findComServerBySystemName() {
+    public Optional<ComServer> findComServerBySystemName() {
         return this.findComServer(HostName.getCurrent());
     }
 
@@ -182,11 +183,6 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     @Override
     public List<OfflineComServer> findAllOfflineComServers() {
         return convertComServerListToOfflineComServers(getComServerDataMapper().find("class", OFFLINE_COMSERVER_DISCRIMINATOR));
-    }
-
-    @Override
-    public int getOfflineServerCount() {
-        return getComServerDataMapper().find("class", OFFLINE_COMSERVER_DISCRIMINATOR).size();
     }
 
     @Override
@@ -509,7 +505,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
         @Override
         public ComServer load() {
-            return findComServer(this.comServerName);
+            return findComServer(this.comServerName).orNull();
         }
 
         @Override

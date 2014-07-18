@@ -24,7 +24,7 @@ public class ComServerCrudTest extends PersistenceTest {
         offlineComServer.setActive(false);
         offlineComServer.save();
 
-        offlineComServer = (OfflineComServer) getEngineModelService().findComServer("Offliner");
+        offlineComServer = (OfflineComServer) getEngineModelService().findComServer("Offliner").get();
         assertTrue(offlineComServer instanceof OfflineComServer);
         assertThat(offlineComServer.getChangesInterPollDelay()).isEqualTo(new TimeDuration(600));
         assertThat(offlineComServer.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(900));
@@ -61,7 +61,7 @@ public class ComServerCrudTest extends PersistenceTest {
         remoteComServer.setOnlineComServer((OnlineComServer) getEngineModelService().findComServer("Online4Remote"));
         remoteComServer.save();
 
-        ComServer offlineComServer = getEngineModelService().findComServer("Remoter");
+        ComServer offlineComServer = getEngineModelService().findComServer("Remoter").get();
         assertTrue(offlineComServer instanceof RemoteComServer);
         assertThat(offlineComServer.getChangesInterPollDelay()).isEqualTo(new TimeDuration(60));
         assertThat(offlineComServer.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(90));
@@ -123,7 +123,7 @@ public class ComServerCrudTest extends PersistenceTest {
 
         onlineComServer.save();
 
-        ComServer reloaded = getEngineModelService().findComServer("Onliner-2");
+        ComServer reloaded = getEngineModelService().findComServer("Onliner-2").get();
         assertTrue(reloaded instanceof OnlineComServer);
         assertThat(reloaded.getChangesInterPollDelay()).isEqualTo(new TimeDuration(120));
         assertThat(reloaded.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(300));
@@ -157,7 +157,7 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServer.save();
         onlineComServer.newOutboundComPort("some comport", 4).comPortType(ComPortType.TCP).add();
 
-        ComServer reloaded = getEngineModelService().findComServer("Onliner-3");
+        ComServer reloaded = getEngineModelService().findComServer("Onliner-3").get();
         assertTrue(reloaded instanceof OnlineComServer);
         assertThat(reloaded.getComPorts()).hasSize(1);
     }

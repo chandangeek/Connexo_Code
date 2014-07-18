@@ -40,7 +40,7 @@ public class EngineModelServiceImplTest extends PersistenceTest {
         createOnlineComServer("serverOne");
         createOfflineComServer("lapbvn").makeObsolete();
         createOfflineComServer("lapbvn");
-        ComServer comServerBySystemName = getEngineModelService().findComServerBySystemName();
+        ComServer comServerBySystemName = getEngineModelService().findComServerBySystemName().get();
         assertThat(comServerBySystemName.getName()).isEqualTo("lapbvn");
     }
 

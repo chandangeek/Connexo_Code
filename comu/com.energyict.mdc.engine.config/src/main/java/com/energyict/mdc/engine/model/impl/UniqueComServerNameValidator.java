@@ -2,6 +2,9 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+
+import com.google.common.base.Optional;
+
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -26,8 +29,8 @@ public class UniqueComServerNameValidator implements ConstraintValidator<UniqueN
         if (comServer==null) {
             return true;
         }
-        ComServer comServerWithTheSameName = engineModelService.findComServer(comServer.getName());
-        if (comServerWithTheSameName != null && comServer.getId() != comServerWithTheSameName.getId() && !comServerWithTheSameName.isObsolete()) {
+        Optional<ComServer> comServerWithTheSameName = engineModelService.findComServer(comServer.getName());
+        if (comServerWithTheSameName.isPresent() && comServer.getId() != comServerWithTheSameName.get().getId() && !comServerWithTheSameName.get().isObsolete()) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message).addPropertyNode(ComServerImpl.FieldNames.NAME.getName()).addConstraintViolation();
                 return false;

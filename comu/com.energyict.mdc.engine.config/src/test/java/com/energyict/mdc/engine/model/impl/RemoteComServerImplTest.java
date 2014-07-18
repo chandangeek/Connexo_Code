@@ -1,25 +1,24 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.RemoteComServer;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.orm.DataModel;
 import com.google.inject.Provider;
+
 import java.sql.SQLException;
-import org.junit.Test;
+
+import org.junit.*;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
 * Tests the {@link RemoteComServerImpl} component.
@@ -76,7 +75,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
         // Business method
         remoteComServer.save();
-        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name);
+        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
 
         // Asserts
         assertEquals(name, comServer.getName());
@@ -109,7 +108,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
         // Business method
         remoteComServer.save();
-        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name);
+        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
 
         // Asserts
         assertTrue(comServer.usesDefaultEventRegistrationUri());
@@ -196,7 +195,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setOnlineComServer(createOnlineComServer());
         // Business method
         remoteComServer.save();
-        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name);
+        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
 
         // Asserts
         assertEquals(EVENT_REGISTRATION_URI, comServer.getEventRegistrationUri());
@@ -244,7 +243,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
         // Business method
         remoteComServer.save();
-        RemoteComServer loadedRemoteComServer = (RemoteComServer) getEngineModelService().findComServer(remoteComServer.getId());
+        RemoteComServer loadedRemoteComServer = (RemoteComServer) getEngineModelService().findComServer(remoteComServer.getId()).get();
 
         // asserts
         assertNotNull(loadedRemoteComServer);
@@ -401,7 +400,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setEventRegistrationUri(EVENT_REGISTRATION_URI);
         remoteComServer.save();
 
-        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name);
+        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
 
         // Business method
         String changedName = "Name-Updated";
@@ -447,7 +446,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setEventRegistrationUri(EVENT_REGISTRATION_URI);
         remoteComServer.save();
 
-        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name);
+        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
         String eventRegistrationUri = comServer.getEventRegistrationUri();
 
         // Business method
@@ -476,7 +475,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setEventRegistrationUri(EVENT_REGISTRATION_URI);
         remoteComServer.save();
 
-        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name);
+        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
         String eventRegistrationUri = comServer.getEventRegistrationUri();
 
         // Business method
@@ -505,7 +504,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setOnlineComServer(onlineComServer);
         remoteComServer.save();
 
-        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name);
+        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
 
         // Business method
         String changedName = "Name-Updated2";

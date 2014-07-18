@@ -32,6 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -94,7 +95,7 @@ public class ComServerComPortTest extends PersistenceTest {
         this.addComPorts(shadow, numberOfComPorts);
 
         // Business method
-        OnlineComServer loadedOnlineServer = (OnlineComServer) getEngineModelService().findComServer(shadow.getId());
+        OnlineComServer loadedOnlineServer = (OnlineComServer) getEngineModelService().findComServer(shadow.getId()).get();
 
         // Asserts
         assertTrue("Was expecting the new com server to be active", loadedOnlineServer.isActive());
@@ -121,7 +122,7 @@ public class ComServerComPortTest extends PersistenceTest {
         assertEquals("The number of com ports does not match.", numberOfComPorts, onlineComServer.getOutboundComPorts().size());
 
         // Reload to make sure to work with an empty ComPort cache.
-        OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(onlineComServer.getId());
+        OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(onlineComServer.getId()).get();
         assertEquals("The number of com ports does not match.", numberOfComPorts, reloaded.getOutboundComPorts().size());
     }
 
@@ -139,7 +140,7 @@ public class ComServerComPortTest extends PersistenceTest {
         assertEquals("The number of com ports does not match.", 1, onlineComServer.getOutboundComPorts().size());
 
         // Reload to make sure to work with an empty ComPort cache.
-        OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(onlineComServer.getId());
+        OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(onlineComServer.getId()).get();
         assertEquals("The number of com ports does not match.", 1, reloaded.getOutboundComPorts().size());
     }
 
@@ -157,7 +158,7 @@ public class ComServerComPortTest extends PersistenceTest {
         assertEquals("The number of com ports does not match.", 3, comServer.getInboundComPorts().size());
 
         // Reload to make sure to work with an empty ComPort cache.
-        OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(comServer.getId());
+        OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(comServer.getId()).get();
         assertEquals("The number of com ports does not match.", 3, reloaded.getInboundComPorts().size());
     }
 
@@ -184,7 +185,7 @@ public class ComServerComPortTest extends PersistenceTest {
         assertEquals("The number of com ports does not match.", numberOfComPorts, onlineComServer.getOutboundComPorts().size());
 
         // Reload to make sure to have emptied the cache of ComPorts;
-        OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(onlineComServer.getId());
+        OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(onlineComServer.getId()).get();
         assertEquals("The number of com ports does not match.", numberOfComPorts, reloaded.getOutboundComPorts().size());
         for (OutboundComPort comPort : reloaded.getOutboundComPorts()) {
             assertTrue("Was expecting the name has changed", comPort.getName().startsWith("Updated"));
@@ -210,7 +211,7 @@ public class ComServerComPortTest extends PersistenceTest {
         assertEquals("The number of com ports does not match.", numberOfComPorts - 1, comServer.getOutboundComPorts().size());
 
         // Reload to make sure to work with empty ComPort cache
-        OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(comServer.getId());
+        OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(comServer.getId()).get();
         assertEquals("The number of com ports does not match.", numberOfComPorts - 1, reloaded.getOutboundComPorts().size());
         for (OutboundComPort comPort : reloaded.getOutboundComPorts()) {
             comPortIds.remove(comPort.getId());
@@ -235,7 +236,7 @@ public class ComServerComPortTest extends PersistenceTest {
         comServer.delete();
 
         // Asserts
-        assertNull(getEngineModelService().findComServer(id));
+        assertFalse(getEngineModelService().findComServer(id).isPresent());
     }
 
     @Test
@@ -254,7 +255,7 @@ public class ComServerComPortTest extends PersistenceTest {
         comServer.makeObsolete();
 
         // Asserts
-        assertNotNull(getEngineModelService().findComServer(id));
+        assertTrue(getEngineModelService().findComServer(id).isPresent());
         for (Long comPortId : comPortIds) {
             ComPort obsoleteComPort = getEngineModelService().findComPort(comPortId);
             assertNotNull(obsoleteComPort);
