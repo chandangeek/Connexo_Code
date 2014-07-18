@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                 ],
                 items: [
                     {
-                        xtype: 'emptygridcontainer',
+                        xtype: 'preview-container',
                         itemId: 'registerTypeEmptyGrid',
                         grid: {
                             xtype: 'registerTypeGrid',
