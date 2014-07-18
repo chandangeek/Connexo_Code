@@ -143,14 +143,14 @@ public class NextExecutionSpecsWithMinimizeConnectionsStrategyValidator implemen
             protected void addViolation(ConstraintValidatorContext context, MessageSeeds messageSeed) {
                 context.disableDefaultConstraintViolation();
                 context
-                        .buildConstraintViolationWithTemplate("{" + messageSeed.getFullyQualifiedKey() + "}")
+                        .buildConstraintViolationWithTemplate("{" + messageSeed.getKey() + "}")
                         .addPropertyNode("nextExecutionSpecs").addConstraintViolation();
             }
         },
         MORE {
             @Override
             protected void addViolation(ConstraintValidatorContext context, MessageSeeds messageSeed) {
-                context.buildConstraintViolationWithTemplate("{" + messageSeed.getFullyQualifiedKey() + "}");
+                context.buildConstraintViolationWithTemplate("{" + messageSeed.getKey() + "}");
             }
         };
 

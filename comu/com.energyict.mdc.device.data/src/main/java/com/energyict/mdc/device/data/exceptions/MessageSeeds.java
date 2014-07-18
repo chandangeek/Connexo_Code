@@ -14,13 +14,13 @@ import static java.util.logging.Level.SEVERE;
  * @since 2014-03-06 (14:41)
  */
 public enum MessageSeeds implements MessageSeed {
-    LEGACY(100, "DDC.legacy.exception", "Coding: BusinessException or SQLException from legacy code that has not been ported to the jupiter ORM framework", Level.SEVERE),
+    LEGACY(100, "legacy.exception", "Coding: BusinessException or SQLException from legacy code that has not been ported to the jupiter ORM framework", Level.SEVERE),
     NAME_IS_REQUIRED(1000, Constants.NAME_REQUIRED_KEY, "The name is required", Level.SEVERE),
-    CODING_RELATION_IS_ALREADY_OBSOLETE(1001, "DDC.relation.isAlreadyObsolete", "Cannot delete a property because the relation (of type ''{0}'') that holds it is already obsolete", Level.SEVERE),
-    CODING_NO_PROPERTIES_EXPECTED(1002, "DDC.noAttributesExpected", "Was not expecting a value to be added for property ''{0}'' because the pluggable does not have any properties", Level.SEVERE),
-    UNEXPECTED_RELATION_TRANSACTION_ERROR(1003, "DDC.unExpectedRelationTransactionError", "Unexpected problem occurred in the relation transaction framework", Level.SEVERE),
+    CODING_RELATION_IS_ALREADY_OBSOLETE(1001, "relation.isAlreadyObsolete", "Cannot delete a property because the relation (of type ''{0}'') that holds it is already obsolete", Level.SEVERE),
+    CODING_NO_PROPERTIES_EXPECTED(1002, "noAttributesExpected", "Was not expecting a value to be added for property ''{0}'' because the pluggable does not have any properties", Level.SEVERE),
+    UNEXPECTED_RELATION_TRANSACTION_ERROR(1003, "unExpectedRelationTransactionError", "Unexpected problem occurred in the relation transaction framework", Level.SEVERE),
     COMPORT_TYPE_NOT_SUPPORTED(1004, Constants.COMPORT_TYPE_NOT_SUPPORTED_KEY, "The communication port type of the communication port pool must be supported by the connection type", Level.SEVERE),
-    CONNECTION_METHOD_ALREADY_EXISTS(1005, "DDC.connectionMethod.duplicateNameX", "A connection method with name '{0}' already exists", Level.SEVERE),
+    CONNECTION_METHOD_ALREADY_EXISTS(1005, "connectionMethod.duplicateNameX", "A connection method with name '{0}' already exists", Level.SEVERE),
     CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED(1006, Constants.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY, "A connection method requires a connection type pluggable class", Level.SEVERE),
     CONNECTION_METHOD_COMPORT_POOL_REQUIRED(1007, Constants.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY, "A connection method requires a communication port pool", Level.SEVERE),
     MRID_IS_REQUIRED(1008, Constants.MRID_REQUIRED_KEY, "The MRID is required", Level.SEVERE),
@@ -78,20 +78,10 @@ public enum MessageSeeds implements MessageSeed {
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
-        this.key = stripComponentNameIfPresent(key);
+        this.key = key;
         this.defaultFormat = defaultFormat;
         this.level = level;
     }
-
-    private String stripComponentNameIfPresent(String key) {
-        if (key.startsWith(DeviceDataService.COMPONENTNAME+".")) {
-            return key.substring(DeviceDataService.COMPONENTNAME.length()+1);
-        } else {
-            return key;
-        }
-    }
-
-
 
     @Override
     public int getNumber() {
@@ -101,10 +91,6 @@ public enum MessageSeeds implements MessageSeed {
     @Override
     public String getKey() {
         return key;
-    }
-
-    public String getFullyQualifiedKey() {
-        return DeviceDataService.COMPONENTNAME+"."+key;
     }
 
     @Override
@@ -123,70 +109,70 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     public static class Constants {
-        public static final String NAME_REQUIRED_KEY = "DDC.X.name.required";
-        public static final String MRID_REQUIRED_KEY = "DDC.mRIDRequired";
-        public static final String DEVICE_TYPE_REQUIRED_KEY = "DDC.deviceTypeRequired";
-        public static final String DEVICE_CONFIGURATION_REQUIRED_KEY = "DDC.deviceConfigurationRequired";
-        public static final String COMPORT_TYPE_NOT_SUPPORTED_KEY = "DDC.comPortTypeOfComPortPoolMustBeSupportedByConnectionType";
-        public static final String CONNECTION_TASK_DEVICE_REQUIRED_KEY = "DDC.connectionType.device.required";
-        public static final String CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY = "DDC.connectionType.partialConnectionTask.required";
-        public static final String DUPLICATE_CONNECTION_TASK_KEY = "DDC.connectionType.duplicate";
-        public static final String CONNECTION_TASK_INCOMPATIBLE_PARTIAL_KEY = "DDC.connectionType.incompatiblePartialConnectionTask";
-        public static final String CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION_KEY = "DDC.connectionType.partialConnectionTaskNotInConfiguration";
-        public static final String CONNECTION_TASK_IS_ALREADY_OBSOLETE_KEY = "DDC.connectionTask.isAlreadyObsolete";
-        public static final String CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE_KEY = "DDC.connectionTask.isExecutingAndCannotObsolete";
-        public static final String DEFAULT_CONNECTION_TASK_IS_IN_USE_AND_CANNOT_OBSOLETE_KEY = "DDC.defaultConnectionTask.isInUseAndCannotObsolete";
-        public static final String CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE_KEY = "DDC.connectionTask.isObsoleteAndCannotUpdate";
-        public static final String CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY = "DDC.connectionMethod.pluggableClass.required";
-        public static final String CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY = "DDC.connectionMethod.comPortPool.required";
-        public static final String CONNECTION_TASK_INVALID_PROPERTY_KEY = "DDC.connectionTask.property.invalid";
-        public static final String CONNECTION_TASK_PROPERTY_NOT_IN_SPEC_KEY = "DDC.connectionTaskPropertyXIsNotInConnectionTypeSpec";
-        public static final String CONNECTION_TASK_PROPERTY_INVALID_VALUE_KEY = "DDC.connectionTaskProperty.value.invalid";
-        public static final String CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY = "DDC.connectionTaskProperty.required";
-        public static final String CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE_KEY = "DDC.inboundConnectionTask.comPortPool.uniquePerDevice";
-        public static final String OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED_KEY = "DDC.outboundConnectionTask.strategy.required";
-        public static final String OUTBOUND_CONNECTION_TASK_MINIMIZE_STRATEGY_NOT_COMPATIBLE_WITH_SIMULTANEOUS_CONNECTIONS_KEY = "DDC.outboundConnectionTask.strategy.incompatibleWithSimultaneous";
-        public static final String OUTBOUND_CONNECTION_TASK_NEXT_EXECUTION_SPECS_REQUIRED_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.required";
-        public static final String OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.offsetBiggerThenFrequency";
-        public static final String OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.offsetNotWithinWindow";
-        public static final String OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY = "DDC.outboundConnectionTask.nextExecutionSpecs.longOffsetNotWithinWindow";
-        public static final String VALUE_IS_REQUIRED_KEY = "DDC.X.value.required";
-        public static final String DUPLICATE_DEVICE_MRID = "DDC.deviceDuplicateMrid";
-        public static final String GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY = "DDC.gateway.not.origin";
-        public static final String PHYSICAL_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.physical.gateway";
-        public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.communication.gateway";
-        public static final String INFOTYPE_DOESNT_EXIST = "DDC.device.property.infotype.required";
-        public static final String PROPERTY_NOT_ON_DEVICE_PROTOCOL = "DDC.not.deviceprotocol.property";
-        public static final String CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "DDC.cannotDeleteIfNotFromDevice";
-        public static final String PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY = "DDC.protocolDialectConfigurationProperties.required";
-        public static final String DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED_KEY = "DDC.deviceProtocolDialectProperty.device.required";
-        public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY = "DDC.deviceProtocolDialectPropertyXIsNotInSpec";
-        public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY = "DDC.deviceProtocolDialectProperty.value.invalid";
-        public static final String DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY = "DDC.deviceProtocolDialectProperty.required";
-        public static final String DEVICE_IS_REQUIRED = "DDC.deviceIsRequired";
-        public static final String COMTASK_IS_REQUIRED = "DDC.comTaskIsRequired";
-        public static final String COMSCHEDULE_IS_REQUIRED = "DDC.comScheduleIsRequired";
-        public static final String NEXTEXECUTIONSPEC_IS_REQUIRED = "DDC.nextExecutionSpecIsRequired";
-        public static final String CONNECTIONTASK_IS_REQUIRED = "DDC.connectionTaskIsRequired";
-        public static final String PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED = "DDC.protocolDialectConfigurationPropertiesAreRequired";
-        public static final String COM_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE = "DDC.comTaskExecutionIsObsoleteAndCanNotBeUpdated";
-        public static final String COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE = "DDC.comTaskExecutionAlreadyObsolete";
-        public static final String COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE = "DDC.comTaskExecutionCannotObsoleteCurrentlyExecuting";
-        public static final String COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "DDC.comTaskExecutionCannotDeleteNotFromDevice";
-        public static final String VETO_COM_TASK_ENABLEMENT_DELETION = "DDC.comTaskExecution.comTaskEnablement.inUse";
-        public static final String VETO_PARTIAL_CONNECTION_TASK_DELETION = "DDC.partialConnectionTask.inUse";
-        public static final String VETO_SECURITY_PROPERTY_SET_DELETION = "DDC.securityPropertySet.inUse";
-        public static final String VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES = "DDC.deviceConfiguration.inUse";
-        public static final String CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT = "DDC.connectionTaskRequiredWhenNotUsingDefault";
-        public static final String PRIORITY_NOT_IN_RANGE = "DDC.priorityNotInRange";
-        public static final String UNIQUE_COMTASKS_PER_DEVICE = "DDC.uniqueComTasksPerDevice";
-        public static final String NO_MANUAL_SCHEDULING_FOR_COMTASKS_IN_COMSCHEDULE = "DDC.noManualSchedulingForComtasksInComSchedule";
-        public static final String CONNECTION_TASK_STATUS_INCOMPLETE = "DDC.connectionTaskStatusIncomplete";
-        public static final String CONNECTION_TASK_STATUS_ACTIVE = "DDC.connectionTaskStatusActive";
-        public static final String CONNECTION_TASK_STATUS_INACTIVE = "DDC.connectionTaskStatusInActive";
-        public static final String VETO_COM_SCHEDULE_DELETION = "DDC.comTaskExecution.comSchedule.inUse";
-        public static final String CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE = "DDC.cannotDeleteComScheduleFromDevice";
-        public static final String DEVICE_CONFIGURATION_NOT_ACTIVE = "DDC.device.configuration.not.active";
+        public static final String NAME_REQUIRED_KEY = "X.name.required";
+        public static final String MRID_REQUIRED_KEY = "mRIDRequired";
+        public static final String DEVICE_TYPE_REQUIRED_KEY = "deviceTypeRequired";
+        public static final String DEVICE_CONFIGURATION_REQUIRED_KEY = "deviceConfigurationRequired";
+        public static final String COMPORT_TYPE_NOT_SUPPORTED_KEY = "comPortTypeOfComPortPoolMustBeSupportedByConnectionType";
+        public static final String CONNECTION_TASK_DEVICE_REQUIRED_KEY = "connectionType.device.required";
+        public static final String CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY = "connectionType.partialConnectionTask.required";
+        public static final String DUPLICATE_CONNECTION_TASK_KEY = "connectionType.duplicate";
+        public static final String CONNECTION_TASK_INCOMPATIBLE_PARTIAL_KEY = "connectionType.incompatiblePartialConnectionTask";
+        public static final String CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION_KEY = "connectionType.partialConnectionTaskNotInConfiguration";
+        public static final String CONNECTION_TASK_IS_ALREADY_OBSOLETE_KEY = "connectionTask.isAlreadyObsolete";
+        public static final String CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE_KEY = "connectionTask.isExecutingAndCannotObsolete";
+        public static final String DEFAULT_CONNECTION_TASK_IS_IN_USE_AND_CANNOT_OBSOLETE_KEY = "defaultConnectionTask.isInUseAndCannotObsolete";
+        public static final String CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE_KEY = "connectionTask.isObsoleteAndCannotUpdate";
+        public static final String CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY = "connectionMethod.pluggableClass.required";
+        public static final String CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY = "connectionMethod.comPortPool.required";
+        public static final String CONNECTION_TASK_INVALID_PROPERTY_KEY = "connectionTask.property.invalid";
+        public static final String CONNECTION_TASK_PROPERTY_NOT_IN_SPEC_KEY = "connectionTaskPropertyXIsNotInConnectionTypeSpec";
+        public static final String CONNECTION_TASK_PROPERTY_INVALID_VALUE_KEY = "connectionTaskProperty.value.invalid";
+        public static final String CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY = "connectionTaskProperty.required";
+        public static final String CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE_KEY = "inboundConnectionTask.comPortPool.uniquePerDevice";
+        public static final String OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED_KEY = "outboundConnectionTask.strategy.required";
+        public static final String OUTBOUND_CONNECTION_TASK_MINIMIZE_STRATEGY_NOT_COMPATIBLE_WITH_SIMULTANEOUS_CONNECTIONS_KEY = "outboundConnectionTask.strategy.incompatibleWithSimultaneous";
+        public static final String OUTBOUND_CONNECTION_TASK_NEXT_EXECUTION_SPECS_REQUIRED_KEY = "outboundConnectionTask.nextExecutionSpecs.required";
+        public static final String OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY_KEY = "outboundConnectionTask.nextExecutionSpecs.offsetBiggerThenFrequency";
+        public static final String OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW_KEY = "outboundConnectionTask.nextExecutionSpecs.offsetNotWithinWindow";
+        public static final String OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY = "outboundConnectionTask.nextExecutionSpecs.longOffsetNotWithinWindow";
+        public static final String VALUE_IS_REQUIRED_KEY = "X.value.required";
+        public static final String DUPLICATE_DEVICE_MRID = "deviceDuplicateMrid";
+        public static final String GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY = "gateway.not.origin";
+        public static final String PHYSICAL_GATEWAY_STILL_IN_USE = "device.delete.linked.physical.gateway";
+        public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "device.delete.linked.communication.gateway";
+        public static final String INFOTYPE_DOESNT_EXIST = "device.property.infotype.required";
+        public static final String PROPERTY_NOT_ON_DEVICE_PROTOCOL = "not.deviceprotocol.property";
+        public static final String CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "cannotDeleteIfNotFromDevice";
+        public static final String PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY = "protocolDialectConfigurationProperties.required";
+        public static final String DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED_KEY = "deviceProtocolDialectProperty.device.required";
+        public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY = "deviceProtocolDialectPropertyXIsNotInSpec";
+        public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY = "deviceProtocolDialectProperty.value.invalid";
+        public static final String DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY = "deviceProtocolDialectProperty.required";
+        public static final String DEVICE_IS_REQUIRED = "deviceIsRequired";
+        public static final String COMTASK_IS_REQUIRED = "comTaskIsRequired";
+        public static final String COMSCHEDULE_IS_REQUIRED = "comScheduleIsRequired";
+        public static final String NEXTEXECUTIONSPEC_IS_REQUIRED = "nextExecutionSpecIsRequired";
+        public static final String CONNECTIONTASK_IS_REQUIRED = "connectionTaskIsRequired";
+        public static final String PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED = "protocolDialectConfigurationPropertiesAreRequired";
+        public static final String COM_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE = "comTaskExecutionIsObsoleteAndCanNotBeUpdated";
+        public static final String COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE = "comTaskExecutionAlreadyObsolete";
+        public static final String COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE = "comTaskExecutionCannotObsoleteCurrentlyExecuting";
+        public static final String COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "comTaskExecutionCannotDeleteNotFromDevice";
+        public static final String VETO_COM_TASK_ENABLEMENT_DELETION = "comTaskExecution.comTaskEnablement.inUse";
+        public static final String VETO_PARTIAL_CONNECTION_TASK_DELETION = "partialConnectionTask.inUse";
+        public static final String VETO_SECURITY_PROPERTY_SET_DELETION = "securityPropertySet.inUse";
+        public static final String VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES = "deviceConfiguration.inUse";
+        public static final String CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT = "connectionTaskRequiredWhenNotUsingDefault";
+        public static final String PRIORITY_NOT_IN_RANGE = "priorityNotInRange";
+        public static final String UNIQUE_COMTASKS_PER_DEVICE = "uniqueComTasksPerDevice";
+        public static final String NO_MANUAL_SCHEDULING_FOR_COMTASKS_IN_COMSCHEDULE = "noManualSchedulingForComtasksInComSchedule";
+        public static final String CONNECTION_TASK_STATUS_INCOMPLETE = "connectionTaskStatusIncomplete";
+        public static final String CONNECTION_TASK_STATUS_ACTIVE = "connectionTaskStatusActive";
+        public static final String CONNECTION_TASK_STATUS_INACTIVE = "connectionTaskStatusInActive";
+        public static final String VETO_COM_SCHEDULE_DELETION = "comTaskExecution.comSchedule.inUse";
+        public static final String CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE = "cannotDeleteComScheduleFromDevice";
+        public static final String DEVICE_CONFIGURATION_NOT_ACTIVE = "device.configuration.not.active";
     }
 
 }
