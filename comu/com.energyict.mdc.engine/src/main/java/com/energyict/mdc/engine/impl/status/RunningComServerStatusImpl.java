@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.status.ComServerType;
 import com.elster.jupiter.util.time.Clock;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
+import org.joda.time.Interval;
 
 import java.util.Collections;
 import java.util.Date;
@@ -84,6 +85,30 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     @Override
     public Duration getBlockTime() {
+        for (ScheduledComPortMonitor comPortMonitor : this.comPortMonitors) {
+            if (this.isBlocked(comPortMonitor)) {
+                return this.getBlockTime(comPortMonitor);
+            }
+        }
+        if (this.isBlocked(this.monitor)) {
+            return this.getBlockTime(this.monitor);
+        }
+        return null;
+    }
+
+    private Duration getBlockTime(ScheduledComPortMonitor comPortMonitor) {
+        ScheduledComPortOperationalStatistics operationalStatistics = comPortMonitor.getOperationalStatistics();
+        return this.getBlockTime(operationalStatistics.getLastCheckForWorkTimestamp(), new Duration(operationalStatistics.getSchedulingInterPollDelay().getMilliSeconds()));
+    }
+
+    private Duration getBlockTime(ComServerMonitor comServerMonitor) {
+        ComServerOperationalStatistics operationalStatistics = comServerMonitor.getOperationalStatistics();
+        return this.getBlockTime(operationalStatistics.getLastCheckForChangesTimestamp(), new Duration(operationalStatistics.getChangesInterPollDelay().getMilliSeconds()));
+    }
+
+    private Duration getBlockTime(Date lastActivity, Duration lenientDuration) {
+        Instant now = new Instant(this.clock.now());
+        return new Interval(new Instant(lastActivity.getTime()).plus(lenientDuration), now).toDuration();
     }
 
 }
