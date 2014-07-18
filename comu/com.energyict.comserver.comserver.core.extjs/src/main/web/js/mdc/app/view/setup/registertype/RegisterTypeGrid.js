@@ -11,14 +11,14 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterTypes',
         'Mdc.view.setup.registertype.RegisterTypeActionMenu',
-        'Uni.grid.column.Obis'
+        'Uni.grid.column.Obis',
+        'Uni.grid.column.ReadingType'
     ],
     store: 'RegisterTypes',
     withPaging: true,
     withActions: true,
 
     initComponent: function () {
-        var me = this;
         this.columns = [
             {
                 header: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
@@ -26,26 +26,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 flex: 3
             },
             {
-                xtype: 'actioncolumn',
-                flex: 2,
-                renderer: function (value, metaData, record) {
-                    return '<div class="x-grid-cell-inner" style="float:left; font-size: 13px; line-height: 1em;">'
-                        + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
-                        + '</div>';
-                },
-                header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
-                items: [
-                    {
-                        // TODO Fix quick fix.
-                        icon: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                        iconCls: 'uni-info-icon',
-                        tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
-                        handler: function (grid, rowIndex, colIndex, item, e) {
-                            var record = grid.getStore().getAt(rowIndex);
-                            this.fireEvent('showReadingTypeInfo', record);
-                        }
-                    }
-                ]
+                xtype: 'reading-type-column',
+                dataIndex: 'readingType'
             },
             {
                 xtype: 'obis-column',

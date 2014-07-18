@@ -215,8 +215,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         } else {
             this.getScheduleField().setVisible(false);
             this.getConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(true);
-            this.getScheduleField().clear();
         }
+        this.getScheduleField().clear();
     },
 
     addOutboundConnectionMethod: function () {
@@ -268,7 +268,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 record.set('comWindowEnd', 0);
             }
             propertyForm.updateRecord(record);
-            record.propertiesStore = propertyForm.getRecord().properties();
+            if (typeof propertyForm.getRecord() !== 'undefined') {
+                record.propertiesStore = propertyForm.getRecord().properties();
+            }
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
                 success: function (record) {

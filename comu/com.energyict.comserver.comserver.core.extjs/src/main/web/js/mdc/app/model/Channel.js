@@ -10,7 +10,8 @@ Ext.define('Mdc.model.Channel', {
         {name: 'overflowValue', type: 'integer', useNull: true},
         {name: 'multiplier', type: 'integer', useNull: true},
         {name: 'unitOfMeasure', type: 'auto', useNull: true},
-        'measurementType'
+        'measurementType',
+        {name: 'readingType', mapping: 'measurementType.readingType'}
     ],
     idProperty: 'id',
     associations: [

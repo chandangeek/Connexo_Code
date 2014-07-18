@@ -2,7 +2,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'setup.register.ReadingTypeDetails',
         'setup.loadprofiletype.LoadProfileTypeSetup',
         'setup.loadprofiletype.LoadProfileTypeSideFilter',
         'setup.loadprofiletype.LoadProfileTypeSorting',
@@ -32,7 +31,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         {ref: 'addMeasurementTypesCount', selector: '#measurementTypesCountContainer'},
         {ref: 'uncheckMeasurementButton', selector: '#uncheckAllMeasurementTypes'},
         {ref: 'loadTypeForm', selector: '#LoadProfileTypeFormId'},
-        {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'loadProfileSorting', selector: '#LoadProfileTypeSorting'},
         {ref: 'loadProfileFiltering', selector: '#LoadProfileTypeFiltering'},
         {ref: 'loadProfileDockedItems', selector: '#LoadProfileTypeDockedItems'}
@@ -65,9 +63,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             '#LoadProfileTypeFormId #MeasurementTypesGrid actioncolumn': {
                 click: this.removeMeasurementType
             },
-            '#loadProfileReadingTypeBtn': {
-                showReadingTypeInfo: this.showReadingType
-            },
             'button[action=loadprofiletypenotificationerrorretry]': {
                 click: this.retrySubmit
             }
@@ -88,12 +83,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
     removeMeasurementType: function (grid, index, id, row, event, record) {
         this.selectedMeasurementTypesStore.remove(record);
-    },
-
-    showReadingType: function (record) {
-        var widget = Ext.widget('readingTypeDetails');
-        this.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
-        widget.show();
     },
 
     editRecord: function () {

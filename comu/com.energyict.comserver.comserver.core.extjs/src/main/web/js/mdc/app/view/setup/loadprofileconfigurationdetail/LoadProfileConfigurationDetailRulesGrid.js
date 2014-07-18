@@ -74,6 +74,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 store: me.store,
                 dock: 'bottom',
                 deferLoading: true,
+                pageSizeParam: 'limit2',
+                pageStartParam: 'start2',
                 params: {
                     deviceType: me.deviceTypeId,
                     deviceConfig: me.deviceConfigId,

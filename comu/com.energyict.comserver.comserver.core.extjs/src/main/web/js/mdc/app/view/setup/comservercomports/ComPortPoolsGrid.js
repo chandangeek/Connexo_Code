@@ -4,6 +4,7 @@ Ext.define('Mdc.view.setup.comservercomports.ComPortPoolsGrid', {
     store: 'Mdc.store.AddComPortPools',
     alias: 'widget.outboundportcomportpools',
     itemId: 'outboundportcomportpools',
+    margin: '0 0 -30 0',
     width: 538,
     columns: [
         {
@@ -28,7 +29,8 @@ Ext.define('Mdc.view.setup.comservercomports.ComPortPoolsGrid', {
         {
             xtype: 'button',
             text: 'Add communication port pools',
-            action: 'showAddComPortPoolPage'
+            action: 'showAddComPortPoolPage',
+            margin: '0 0 0 10'
         }
     ]
 });

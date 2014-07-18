@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
     requires: [
         'Mdc.view.setup.registertype.RegisterTypeGrid',
         'Mdc.view.setup.registertype.RegisterTypePreview',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.ObisDisplay',
+        'Uni.form.field.ReadingTypeDisplay'
     ],
 
     layout: {
@@ -59,56 +60,21 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeDetail', {
                                     align: 'stretch'
                                 },
                                 defaults: {
-                                    labelWidth: 250
+                                    xtype: 'displayfield',
+                                    labelWidth: 150
                                 },
                                 items: [
                                     {
-                                        xtype: 'displayfield',
                                         name: 'name',
                                         fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
-                                        labelAlign: 'right',
-                                        labelWidth: 150
                                     },
                                     {
-                                        xtype: 'fieldcontainer',
-                                        columnWidth: 0.5,
-                                        fieldLabel: Uni.I18n.translate('registerType.readingType', 'MDC', 'Reading type'),
-                                        labelAlign: 'right',
-                                        labelWidth: 150,
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
-                                        },
-                                        items: [
-                                            {
-                                                xtype: 'displayfield',
-                                                name: 'mrid',
-                                                itemId: 'detail_mrid'
-                                            },
-                                            {
-                                                xtype: 'component',
-                                                html: '&nbsp;&nbsp;'
-                                            },
-                                            {
-                                                xtype: 'button',
-                                                icon: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                                tooltip: 'Reading type info',
-                                                cls: 'uni-btn-transparent',
-                                                handler: function (item, test) {
-                                                    var record = me.down('#registerTypeDetailForm').form.getRecord();
-                                                    this.fireEvent('showReadingTypeInfo', record);
-                                                },
-                                                itemId: 'raadingTypeBtn',
-                                                action: 'showReadingTypeInfo'
-                                            }
-
-                                        ]
+                                        xtype: 'reading-type-displayfield',
+                                        name: 'readingType'
                                     },
                                     {
                                         xtype: 'obis-displayfield',
-                                        name: 'obisCode',
-                                        labelAlign: 'right',
-                                        labelWidth: 150
+                                        name: 'obisCode'
                                     }
                                 ]
                             },
