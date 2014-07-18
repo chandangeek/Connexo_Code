@@ -14,7 +14,8 @@ import java.util.Date;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EventRegisterInfo.class, name = "EVENT"),
-        @JsonSubTypes.Type(value = NumericalRegisterInfo.class, name = "NUMERICAL")
+        @JsonSubTypes.Type(value = NumericalRegisterInfo.class, name = "NUMERICAL"),
+        @JsonSubTypes.Type(value = TextRegisterInfo.class, name = "TEXT")
 })
 public abstract class RegisterInfo<R extends Register> extends RegisterConfigInfo {
     @JsonProperty("lastReading")

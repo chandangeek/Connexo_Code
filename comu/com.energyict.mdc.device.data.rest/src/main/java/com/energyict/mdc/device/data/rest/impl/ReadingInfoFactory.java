@@ -11,6 +11,8 @@ public class ReadingInfoFactory {
             return new NumericalReadingInfo((NumericalReading)reading, register);
         } else if(EventReading.class.isAssignableFrom(reading.getClass())) {
             return new EventReadingInfo((EventReading)reading, register);
+        } else if(TextReading.class.isAssignableFrom(reading.getClass())) {
+            return new TextReadingInfo((TextReading)reading, register);
         }
 
         throw new IllegalArgumentException("Unsupported reading type: " + reading.getClass().getSimpleName());

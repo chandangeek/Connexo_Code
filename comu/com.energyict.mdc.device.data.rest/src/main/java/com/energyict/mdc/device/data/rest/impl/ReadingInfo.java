@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -14,7 +15,8 @@ import java.math.BigDecimal;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EventReadingInfo.class, name = "EVENT"),
-        @JsonSubTypes.Type(value = NumericalReadingInfo.class, name = "NUMERICAL")
+        @JsonSubTypes.Type(value = NumericalReadingInfo.class, name = "NUMERICAL"),
+        @JsonSubTypes.Type(value = TextReadingInfo.class, name = "TEXT")
 })
 public abstract class ReadingInfo<R extends Reading> {
     @JsonProperty("timeStamp")
@@ -31,7 +33,7 @@ public abstract class ReadingInfo<R extends Reading> {
         this.timeStamp = reading.getTimeStamp().getTime();
         this.validationStatus = ValidationStatus.NOT_VALIDATED;
         if(reading.isValidated()) {
-            if(reading.getReadingQualities().size() == 1 && reading.getReadingQualities().get(0).getType().getCode().equals("3.0.1")) {
+            if(reading.getReadingQualities().size() == 1 && reading.getReadingQualities().get(0).getType().getCode().equals(ReadingQualityType.MDM_VALIDATED_OK_CODE)) {
                 this.validationStatus = ValidationStatus.OK;
             } else {
                 this.validationStatus = ValidationStatus.SUSPECT;
