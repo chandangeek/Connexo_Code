@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
         },
         {
             xtype: 'combobox',
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Communication port pool'),
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Inbound Communication port pool'),
             required: false,
             store: 'Mdc.store.InboundComPortPools',
             editable: false,
@@ -41,6 +41,21 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             displayField: 'name',
             valueField: 'id',
             emptyText: 'Select inbound communication pool'
+        },
+        {
+            xtype: 'fieldcontainer',
+            fieldLabel: '&nbsp;',
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    html: '<span style="color: grey"><i>' + Uni.I18n.translate('comports.preview.noInboundCommPortPool', 'MDC', 'When no inbound communication port pool is selected,<br> the port cannot be activated') + '</i></span>',
+                    xtype: 'component'
+
+                }
+            ]
         },
         {
             xtype: 'fieldcontainer',

@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             required: true,
             allowBlank: false,
             name: 'portNumber',
-            minValue: 1,
+            minValue: 0,
             listeners: {
                 blur: {
                     fn: function(field){
@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
                     }
                 }
             },
-            value: 1,
+            value: 0,
             width: 350
         },
         {
@@ -58,6 +58,21 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             displayField: 'name',
             valueField: 'id',
             emptyText: 'Select inbound communication pool'
+        },
+        {
+            xtype: 'fieldcontainer',
+            fieldLabel: '&nbsp;',
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    html: '<span style="color: grey"><i>' + Uni.I18n.translate('comports.preview.noInboundCommPortPool', 'MDC', 'When no inbound communication port pool is selected,<br> the port cannot be activated') + '</i></span>',
+                    xtype: 'component'
+
+                }
+            ]
         },
         {
             xtype: 'textfield',
@@ -83,7 +98,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
                         },
                         {
                             xtype: 'label',
-                            text: Uni.I18n.translate('comServerComPorts.form.https', 'MDC', 'Https')
+                            text: Uni.I18n.translate('comServerComPorts.form.https', 'MDC', 'Use https')
                         }
                     ]
                 }

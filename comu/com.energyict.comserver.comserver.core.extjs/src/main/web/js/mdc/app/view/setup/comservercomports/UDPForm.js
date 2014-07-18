@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.portNum', 'MDC', 'Port number'),
             required: true,
             hidden: true,
-            minValue: 1,
+            minValue: 0,
             listeners: {
                 blur: {
                     fn: function(field){
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
             },
             allowBlank: false,
             name: 'portNumber',
-            value: 1,
+            value: 0,
             width: 350
         },
         {
@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
         },
         {
             xtype: 'combobox',
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Communication port pool'),
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Inbound communication port pool'),
             required: false,
             store: 'Mdc.store.InboundComPortPools',
             editable: false,
@@ -88,7 +88,22 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
             name: 'comPortPool_id',
             displayField: 'name',
             valueField: 'id',
-            emptyText: 'Select inbound communication pool'
+            emptyText: 'Select inbound communication port pool'
+        },
+        {
+            xtype: 'fieldcontainer',
+            fieldLabel: '&nbsp;',
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    html: '<span style="color: grey"><i>' + Uni.I18n.translate('comports.preview.noInboundCommPortPool', 'MDC', 'When no inbound communication port pool is selected,<br> the port cannot be activated') + '</i></span>',
+                    xtype: 'component'
+
+                }
+            ]
         }
     ],
     showInbound: function(){
