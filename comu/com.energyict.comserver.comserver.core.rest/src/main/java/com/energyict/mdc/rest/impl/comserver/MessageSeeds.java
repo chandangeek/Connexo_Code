@@ -22,10 +22,6 @@ public enum MessageSeeds implements MessageSeed {
     private final String format;
     private final Layer layer;
 
-    private MessageSeeds(int number, String key, String format) {
-        this(number, key, format, Layer.REST);
-    }
-
     private MessageSeeds(int number, String key, String format, Layer layer) {
         this.number = number;
         this.key = key;

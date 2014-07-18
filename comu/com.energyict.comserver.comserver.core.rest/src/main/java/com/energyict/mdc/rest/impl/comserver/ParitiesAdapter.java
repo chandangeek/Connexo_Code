@@ -7,10 +7,10 @@ public class ParitiesAdapter extends MapBasedXmlAdapter<Parities> {
 
     public ParitiesAdapter() {
         register("", null);
-        register("None", Parities.NONE);
-        register("Even", Parities.EVEN);
-        register("Odd", Parities.ODD);
-        register("Mark", Parities.MARK);
-        register("Space", Parities.SPACE);
+        register("No parity", Parities.NONE);
+        register("Even parity", Parities.EVEN);
+        register("Odd parity", Parities.ODD);
+        register("Mark parity", Parities.MARK);
+        register("Space parity", Parities.SPACE);
     }
 }
