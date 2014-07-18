@@ -67,7 +67,22 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
             name: 'comPortPool_id',
             displayField: 'name',
             valueField: 'id',
-            emptyText: 'Select inbound communication pool'
+            emptyText: 'Select inbound communication port pool'
+        },
+        {
+            xtype: 'fieldcontainer',
+            fieldLabel: '&nbsp;',
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    html: '<span style="color: grey"><i>' + Uni.I18n.translate('comports.preview.noInboundCommPortPool', 'MDC', 'When no inbound communication port pool is selected,<br> the port cannot be activated') + '</i></span>',
+                    xtype: 'component'
+
+                }
+            ]
         }
     ],
 
