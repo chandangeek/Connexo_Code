@@ -2,6 +2,7 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.model.*;
 import com.google.common.base.Optional;
 
@@ -10,6 +11,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class ComPortPoolComPortResource {
@@ -25,8 +27,15 @@ public class ComPortPoolComPortResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getComPorts(@PathParam("comPortPoolId") long comPortPoolId, @BeanParam QueryParameters queryParameters) {
         ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
+        List<ComPort> comPorts = new ArrayList<>(comPortPool.getComPorts());
 
-        List<? extends ComPort> comPorts = comPortPool.getComPorts();
+        comPorts = ListPager.of(comPorts, new Comparator<ComPort>() {
+            @Override
+            public int compare(ComPort o1, ComPort o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        }).from(queryParameters).find();
+
         List<ComPortInfo> comPortInfos = new ArrayList<>(comPorts.size());
 
         for (ComPort comPort : comPorts) {
