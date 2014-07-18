@@ -32,6 +32,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -150,10 +151,10 @@ public class MessageHtmlGenerator {
 
 
     /**
-     * Create a full HTML description of the given protocol java class (= args).
+     * Create a full HTML description of the given protocol java class.
      * If the old HTML table is provided, the old message descriptions are reused for the new table result.
      */
-    public Document createMessagesForProtocol(String oldTable, String[] args) throws ParserConfigurationException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public Document createMessagesForProtocol(String oldTable, String javaClassName) throws ParserConfigurationException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         doBefore();
 
         oldTable = oldTable.replace("<p>", "");
@@ -185,7 +186,7 @@ public class MessageHtmlGenerator {
         attributesHeader.setTextContent("Description & attributes");
         tableRow1.appendChild(attributesHeader);
 
-        List<DeviceMessageSpec> allSupportedMessages = getSupportedMessages(args);
+        List<DeviceMessageSpec> allSupportedMessages = getSupportedMessages(javaClassName);
         List<DeviceMessageCategory> categories = getSupportedCategories(allSupportedMessages);
 
         for (DeviceMessageCategory category : categories) {
@@ -365,8 +366,8 @@ public class MessageHtmlGenerator {
         return result;
     }
 
-    private List<DeviceMessageSpec> getSupportedMessages(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Object protocolObject = getProtocolObject(args);
+    private List<DeviceMessageSpec> getSupportedMessages(String javaClassName) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        Object protocolObject = getProtocolObject(javaClassName);
         List<DeviceMessageSpec> supportedMessages;
         MessageAdapterMappingFactoryProvider.INSTANCE.set(new DefaultMessageAdapterMappingFactoryProvider());
 
@@ -386,17 +387,17 @@ public class MessageHtmlGenerator {
         return supportedMessages;
     }
 
-    private Object getProtocolObject(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        if (args.length != 1) {
-            throw new IllegalArgumentException("Excepted one argument (protocol java class name), received " + args.length + " arguments!");
-        }
-        String javaClassName = args[0];
+    public boolean protocolHasMessages(String javaClassName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        return !getSupportedMessages(javaClassName).isEmpty();
+    }
+
+    private Object getProtocolObject(String javaClassName) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Class<?> clazz = Class.forName(javaClassName);
         return clazz.newInstance();
     }
 
-    public String getProtocolDescription(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        Object protocolObject = getProtocolObject(args);
+    public String getProtocolDescription(String javaClassName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        Object protocolObject = getProtocolObject(javaClassName);
         if (protocolObject instanceof MeterProtocol || protocolObject instanceof  SmartMeterProtocol) {
             return getProtocolDescriptionAdapterMappingFactory().getUniqueProtocolDescriptionForDeviceProtocol(protocolObject.getClass().getCanonicalName());
         } else if (protocolObject instanceof DeviceProtocol) {
@@ -410,10 +411,7 @@ public class MessageHtmlGenerator {
         return new DefaultProtocolDescriptionAdapterMappingFactoryProvider().getProtocolDescriptionAdapterMappingFactory();
     }
 
-    private void doBefore() throws IOException {
-        Properties properties = new Properties();
-        properties.load(new FileInputStream("./eiserver.properties"));
-        Environment.setDefault(properties);
+    public void doBefore() throws IOException {
         MeteringWarehouse.createBatchContext(false);
         DataVaultProvider.instance.set(new KeyStoreDataVaultProvider());
         RandomProvider.instance.set(new SecureRandomProvider());
