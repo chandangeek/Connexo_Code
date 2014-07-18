@@ -45,7 +45,7 @@ public class ZMDSecurityProvider extends NTASecurityProvider {
     @Override
     public byte[] getCallingAuthenticationValue() throws UnsupportedException {
 
-        switch (this.securityLevel) {
+        switch (this.getSecurityLevel()) {
             case 0:
                 return new byte[0];
             case 1: {

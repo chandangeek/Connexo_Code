@@ -22,7 +22,7 @@ import java.util.Random;
  */
 public class NTASecurityProvider implements SecurityProvider {
 
-    protected int securityLevel;
+    protected int securityLevel = -1;
     protected byte[] cTOs;
     private byte[] authenticationKey;
     private byte[] encryptionKey;
@@ -70,12 +70,18 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public NTASecurityProvider(Properties properties) {
         this.properties = properties;
-        String sl = properties.getProperty("SecurityLevel", "0");
-        if (sl.indexOf(":") != -1) {
-            this.securityLevel = Integer.parseInt(sl.substring(0, sl.indexOf(":")));
-        } else {
-            this.securityLevel = Integer.parseInt(sl);
+    }
+
+    protected int getSecurityLevel() {
+        if (securityLevel == -1) {
+            String sl = properties.getProperty("SecurityLevel", "0");
+            if (sl.contains(":")) {
+                this.securityLevel = Integer.parseInt(sl.substring(0, sl.indexOf(":")));
+            } else {
+                this.securityLevel = Integer.parseInt(sl);
+            }
         }
+        return securityLevel;
     }
 
     /**
@@ -101,7 +107,7 @@ public class NTASecurityProvider implements SecurityProvider {
 
     public byte[] getCallingAuthenticationValue() throws UnsupportedException {
 
-        switch (this.securityLevel) {
+        switch (this.getSecurityLevel()) {
             case 0:
                 return new byte[0];
             case 1: {
