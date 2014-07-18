@@ -349,3 +349,13 @@
     float: right;
 }
 
+.icon-info-small {
+    float: right;
+    background-image: url('/apps/ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png');
+}
+
+.x-grid-row-selected {
+  .icon-info-small {
+    background-image: url('/apps/ext/packages/uni-theme-skyline/resources/images/shared/icon-info.png');
+  }
+}
