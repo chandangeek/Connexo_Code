@@ -15,7 +15,6 @@ import java.util.Map;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

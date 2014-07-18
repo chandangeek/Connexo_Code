@@ -1,19 +1,5 @@
 package com.elster.jupiter.issue.rest;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.*;
-import java.util.regex.Matcher;
-
-import javax.ws.rs.core.Response;
-
-import org.junit.Test;
-import org.mockito.Matchers;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.i18n.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.RequestHelper;
@@ -23,6 +9,17 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import org.junit.Test;
+import org.mockito.Matchers;
+
+import javax.ws.rs.core.Response;
+import java.util.*;
+
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 public class AssigneeResourceTest extends Mocks {

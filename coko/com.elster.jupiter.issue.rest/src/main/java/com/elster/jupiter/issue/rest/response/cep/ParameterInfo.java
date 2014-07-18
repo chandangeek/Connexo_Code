@@ -16,24 +16,25 @@ public class ParameterInfo {
     private String suffix;
     private String help;
     private Object defaultValue;
+    private boolean dependent;
     private List<Object> values;
 
     public ParameterInfo(ParameterDefinition parameter) {
         if (parameter == null) {
             throw new IllegalArgumentException("ParameterInfo is initialized with the null ParameterDefinition value");
         }
-            this.key = parameter.getKey();
-            this.label = parameter.getLabel();
-            this.suffix = is(parameter.getSuffix()).emptyOrOnlyWhiteSpace() ? null : parameter.getSuffix();
-            this.help = is(parameter.getHelp()).emptyOrOnlyWhiteSpace() ? null : parameter.getHelp();
-            this.defaultValue = parameter.getDefaultValue();
-            this.values = parameter.getDefaultValues();
 
-            this.control = parameter.getControl();
-            if (parameter.getConstraint() != null) {
-                this.constraint = new ParameterConstraintInfo(parameter.getConstraint());
-            }
-
+        this.key = parameter.getKey();
+        this.label = parameter.getLabel();
+        this.suffix = is(parameter.getSuffix()).emptyOrOnlyWhiteSpace() ? null : parameter.getSuffix();
+        this.help = is(parameter.getHelp()).emptyOrOnlyWhiteSpace() ? null : parameter.getHelp();
+        this.defaultValue = parameter.getDefaultValue();
+        this.values = parameter.getDefaultValues();
+        this.dependent = parameter.isDependent();
+        this.control = parameter.getControl();
+        if (parameter.getConstraint() != null) {
+            this.constraint = new ParameterConstraintInfo(parameter.getConstraint());
+        }
     }
 
     public ParameterControl getControl() {
@@ -66,5 +67,9 @@ public class ParameterInfo {
 
     public List<Object> getValues() {
         return values;
+    }
+
+    public boolean isDependent() {
+        return dependent;
     }
 }
