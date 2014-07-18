@@ -8,7 +8,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         'Mdc.view.setup.validation.RuleActionMenu'
     ],
     views: [
-        'setup.register.ReadingTypeDetails',
         'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailSetup',
         'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailInfo',
         'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailDockedItems',
@@ -37,7 +36,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         {ref: 'loadProfileConfigurationChannelDetailsForm', selector: '#loadProfileConfigurationChannelDetailsForm'},
         {ref: 'loadProfileDetailChannelPreview', selector: '#loadProfileConfigurationDetailChannelPreview'},
         {ref: 'channelForm', selector: '#loadProfileConfigurationDetailChannelFormId'},
-        {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'channelsGrid', selector: '#loadProfileConfigurationDetailChannelGrid'}
     ],
 
@@ -51,9 +49,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             },
             'loadProfileConfigurationDetailSetup loadProfileConfigurationDetailChannelGrid': {
                 itemclick: this.loadGridItemDetail
-            },
-            '#channelsReadingTypeBtn': {
-                showReadingTypeInfo: this.showReadingType
             },
             'loadProfileConfigurationDetailForm combobox[name=measurementType]': {
                 change: this.changeDisplayedObisCodeAndCIM
@@ -154,7 +149,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         var record = combobox.getStore().getById(newValue),
             form = this.getChannelForm();
         if (record) {
-            form.down('[name=cimreadingtype]').setValue(record.get('readingType').mrid);
+            form.down('[name=readingType]').setValue(record.get('readingType'));
             form.down('[name=obiscode]').setValue(record.get('obisCode'));
             form.down('[name=unitOfMeasure]').setValue(record.get('phenomenon').id);
         }
@@ -357,13 +352,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigurationId, channelConfig: channelId});
         this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getStore().load();
         preloader.destroy();
-    },
-
-
-    showReadingType: function (record) {
-        var widget = Ext.widget('readingTypeDetails');
-        this.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
-        widget.show();
     },
 
     showDeviceConfigurationLoadProfilesConfigurationDetailsView: function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {

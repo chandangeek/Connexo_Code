@@ -136,7 +136,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                             {
                                                 html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerType.readingTypeInfo', 'MDC', 'Provide the values for the 18 attributes of the reading type, separated by a "."') + '</i></span>',
                                                 xtype: 'component'
-
                                             }
                                         ]
                                     },

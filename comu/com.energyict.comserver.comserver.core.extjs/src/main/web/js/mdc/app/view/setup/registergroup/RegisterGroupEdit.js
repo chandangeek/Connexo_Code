@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
         'Mdc.store.RegisterTypes',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Uni.grid.column.Obis'
+        'Uni.grid.column.Obis',
+        'Uni.grid.column.ReadingType'
     ],
     edit: false,
 
@@ -123,29 +124,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                     flex: 3
                                                 },
                                                 {
-                                                    xtype: 'actioncolumn',
-                                                    renderer: function (value, metaData, record) {
-                                                        return '<div class="x-grid-cell-inner" style="float:left; font-size: 13px; line-height: 1em;">'
-                                                            + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
-                                                            + '</div>';
-                                                    },
-                                                    header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
-                                                    items: [
-                                                        {
-                                                            icon: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                                            iconCls: 'uni-info-icon',
-                                                            tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
-                                                            handler: function (grid, rowIndex, colIndex, item, e) {
-                                                                var record = grid.getStore().getAt(rowIndex);
-                                                                this.fireEvent('showReadingTypeInfo', record);
-                                                            }
-                                                        }
-                                                    ],
-                                                    flex: 2,
-                                                    tdCls: 'view',
-                                                    sortable: false,
-                                                    hideable: false
-
+                                                    xtype: 'reading-type-column',
+                                                    dataIndex: 'readingType'
                                                 },
                                                 {
                                                     xtype: 'obis-column',

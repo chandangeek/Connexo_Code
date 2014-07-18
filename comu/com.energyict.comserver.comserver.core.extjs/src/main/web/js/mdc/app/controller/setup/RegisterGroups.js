@@ -31,7 +31,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         {ref: 'registerGroupPreviewDetails', selector: '#registerGroupPreviewDetails'},
         {ref: 'registerTypePreviewForm', selector: '#registerTypePreviewForm'},
         {ref: 'registerTypePreview', selector: '#registerGroupSetup #registerTypePreview'},
-        {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerGroupGridContainer', selector: '#registerGroupGridContainer'},
         {ref: 'registerGroupEmptyGrid', selector: '#registerGroupEmptyGrid'},
         {ref: 'registerTypeEmptyGrid', selector: '#registerTypeEmptyGrid'},
@@ -251,12 +250,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 }
             }
         });
-    },
-
-    showReadingType: function (record) {
-        var widget = Ext.widget('readingTypeDetails');
-        this.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
-        widget.show();
     },
 
     removeRegisterGroup: function (itemToRemove) {

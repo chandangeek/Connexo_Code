@@ -16,8 +16,15 @@ Ext.define('Mdc.model.RegisterType', {
     ],
     idProperty: 'id',
     associations: [
-        {name: 'readingType', type: 'hasOne', model: 'Mdc.model.ReadingType', associationKey: 'readingType',
-            getterName: 'getReadingType', setterName: 'setReadingType', foreignKey: 'readingType'}
+        {
+            name: 'readingType',
+            associationKey: 'readingType',
+            type: 'hasOne',
+            model: 'Mdc.model.ReadingType',
+            getterName: 'getReadingType',
+            setterName: 'setReadingType',
+            foreignKey: 'readingType'
+        }
     ],
     proxy: {
         type: 'rest',

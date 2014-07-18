@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
     requires: [
         'Mdc.model.RegisterConfiguration',
         'Mdc.view.setup.registerconfig.RegisterConfigActionMenu',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.ObisDisplay',
+        'Uni.form.field.ReadingTypeDisplay'
     ],
 
     title: 'Details',
@@ -45,74 +46,35 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                             type: 'vbox',
                             align: 'stretch'
                         },
+                        defaults: {
+                            xtype: 'displayfield',
+                            labelWidth: 150
+                        },
                         items: [
                             {
-                                xtype: 'displayfield',
                                 name: 'name',
-                                fieldLabel: Uni.I18n.translate('registerConfig.deviceRegister', 'MDC', 'Register type'),
-                                labelAlign: 'right',
-                                labelWidth: 250
+                                fieldLabel: Uni.I18n.translate('registerConfig.deviceRegister', 'MDC', 'Register type')
                             },
                             {
-                                xtype: 'fieldcontainer',
-                                columnWidth: 0.5,
-                                fieldLabel: Uni.I18n.translate('registerConfig.readingType', 'MDC', 'Reading type'),
-                                labelAlign: 'right',
-                                labelWidth: 250,
-                                layout: {
-                                    type: 'hbox',
-                                    align: 'stretch'
-                                },
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'mrid',
-                                        itemId: 'preview_mrid'
-                                    },
-                                    {
-                                        xtype: 'component',
-                                        html: '&nbsp;&nbsp;'
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        icon: '../ext/packages/uni-theme-skyline/resources/images/icon-info-small.png',
-                                        tooltip: 'Reading type info',
-                                        cls: 'uni-btn-transparent',
-                                        handler: function (item, test) {
-                                            var record = me.down('#registerConfigPreviewForm').form.getRecord();
-                                            this.fireEvent('showReadingTypeInfo', record);
-                                        },
-                                        itemId: 'raadingTypeBtn',
-                                        action: 'showReadingTypeInfo'
-                                    }
-                                ]
+                                xtype: 'reading-type-displayfield',
+                                name: 'readingType'
                             },
                             {
                                 xtype: 'obis-displayfield',
-                                name: 'obisCode',
-                                labelAlign: 'right',
-                                labelWidth: 250
+                                name: 'obisCode'
                             },
                             {
                                 xtype: 'obis-displayfield',
                                 name: 'overruledObisCode',
-                                fieldLabel: Uni.I18n.translate('registerConfig.overruledObisCode', 'MDC', 'Overruled OBIS code'),
-                                labelAlign: 'right',
-                                labelWidth: 250
+                                fieldLabel: Uni.I18n.translate('registerConfig.overruledObisCode', 'MDC', 'Overruled OBIS code')
                             },
                             {
-                                xtype: 'displayfield',
                                 name: 'unitOfMeasure',
-                                fieldLabel: Uni.I18n.translate('registerConfig.unit', 'MDC', 'Unit of measure'),
-                                labelAlign: 'right',
-                                labelWidth: 250
+                                fieldLabel: Uni.I18n.translate('registerConfig.unit', 'MDC', 'Unit of measure')
                             },
                             {
-                                xtype: 'displayfield',
                                 name: 'timeOfUse',
-                                fieldLabel: Uni.I18n.translate('registerConfig.timeOfUse', 'MDC', 'Time of use'),
-                                labelAlign: 'right',
-                                labelWidth: 250
+                                fieldLabel: Uni.I18n.translate('registerConfig.timeOfUse', 'MDC', 'Time of use')
                             }
                         ]
                     },
@@ -123,34 +85,26 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                             type: 'vbox',
                             align: 'stretch'
                         },
+                        defaults: {
+                            xtype: 'displayfield',
+                            labelWidth: 150
+                        },
                         items: [
                             {
-                                xtype: 'displayfield',
                                 name: 'overflow',
-                                fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
-                                labelAlign: 'right',
-                                labelWidth: 250
+                                fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value')
                             },
                             {
-                                xtype: 'displayfield',
                                 name: 'numberOfDigits',
-                                fieldLabel: Uni.I18n.translate('registerConfig.numberOfDigits', 'MDC', 'Number of digits'),
-                                labelAlign: 'right',
-                                labelWidth: 250
+                                fieldLabel: Uni.I18n.translate('registerConfig.numberOfDigits', 'MDC', 'Number of digits')
                             },
                             {
-                                xtype: 'displayfield',
                                 name: 'numberOfFractionDigits',
-                                fieldLabel: Uni.I18n.translate('registerConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
-                                labelAlign: 'right',
-                                labelWidth: 250
+                                fieldLabel: Uni.I18n.translate('registerConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits')
                             },
                             {
-                                xtype: 'displayfield',
                                 name: 'multiplier',
-                                fieldLabel: Uni.I18n.translate('registerConfig.multiplier', 'MDC', 'Multiplier'),
-                                labelAlign: 'right',
-                                labelWidth: 250
+                                fieldLabel: Uni.I18n.translate('registerConfig.multiplier', 'MDC', 'Multiplier')
                             }
                         ]
                     }
@@ -170,7 +124,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
 
         me.loadRecord(registerConfig);
         me.setTitle(registerConfig.get('name'));
-        me.down('#preview_mrid').setValue(registerConfig.getReadingType().get('mrid'));
 
         if (me.rendered) {
             Ext.resumeLayouts(true);

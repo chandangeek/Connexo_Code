@@ -8,7 +8,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
 
     requires: [
         'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationActionMenu',
-        'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationMenu'
+        'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationMenu',
+        'Uni.form.field.ReadingTypeDisplay',
+        'Uni.form.field.ObisDisplay'
     ],
 
     initComponent: function () {
@@ -34,11 +36,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
         me.content = [
             {
                 xtype: 'container',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
-
+                layout: 'fit',
                 items: [
                     {
                         xtype: 'form',
@@ -48,6 +46,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                             type: 'vbox',
                             align: 'stretch'
                         },
+                        width: '100%',
                         tbar: [
                             {
                                 xtype: 'component',
@@ -85,63 +84,32 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                                             align: 'stretch'
                                         },
                                         defaults: {
+                                            xtype: 'displayfield',
                                             labelWidth: 250
                                         },
                                         items: [
                                             {
-                                                xtype: 'displayfield',
+
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.name', 'MDC', 'Name'),
                                                 name: 'name'
                                             },
                                             {
-                                                xtype: 'displayfield',
-                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.obiscode', 'MDC', 'OBIS code'),
+                                                xtype: 'obis-displayfield',
                                                 name: 'obisCode'
                                             },
                                             {
-                                                xtype: 'fieldcontainer',
-                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.readingType', 'MDC', 'Reading type'),
-                                                layout: {
-                                                    type: 'hbox',
-                                                    align: 'stretch'
-                                                },
-                                                items: [
-                                                    {
-                                                        xtype: 'displayfield',
-                                                        name: 'mrid',
-                                                        itemId: 'preview_mrid'
-                                                    },
-                                                    {
-                                                        xtype: 'component',
-                                                        html: '&nbsp;&nbsp;'
-                                                    },
-                                                    {
-                                                        xtype: 'button',
-                                                        icon: '../ext/packages/uni-theme-skyline/resources/images/icon-info-small.png',
-                                                        tooltip: Uni.I18n.translate('deviceregisterconfiguration.readingType.tooltip', 'MDC', 'Reading type info'),
-                                                        cls: 'uni-btn-transparent',
-                                                        handler: function () {
-                                                            var record = me.down('#deviceRegisterConfigurationDetailForm').form.getRecord();
-                                                            this.fireEvent('showReadingTypeInfo', record);
-                                                        },
-                                                        itemId: 'readingTypeBtn',
-                                                        action: 'showReadingTypeInfo'
-                                                    }
-
-                                                ]
+                                                xtype: 'reading-type-displayfield',
+                                                name: 'readingType'
                                             },
                                             {
-                                                xtype: 'displayfield',
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfDigits', 'MDC', 'Number of digits'),
                                                 name: 'numberOfDigits'
                                             },
                                             {
-                                                xtype: 'displayfield',
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
                                                 name: 'numberOfFractionDigits'
                                             },
                                             {
-                                                xtype: 'displayfield',
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.overflow', 'MDC', 'Overflow'),
                                                 name: 'overflow',
                                                 renderer: function (value) {
@@ -153,7 +121,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                                                 }
                                             },
                                             {
-                                                xtype: 'displayfield',
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.multiplierMode', 'MDC', 'Multiplier mode'),
                                                 name: 'multiplierMode',
                                                 renderer: function (value) {
@@ -166,7 +133,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                                             }
                                         ]
                                     }
-
                                 ]
                             }
                         ]

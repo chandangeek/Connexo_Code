@@ -3,7 +3,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
     alias: 'widget.registerConfigEdit',
     itemId: 'registerConfigEdit',
     requires: [
-        'Uni.form.field.Obis'
+        'Uni.form.field.Obis',
+        'Uni.form.field.ReadingTypeDisplay'
     ],
     edit: false,
 
@@ -54,22 +55,9 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         msgTarget: 'under'
                     },
                     {
-                        xtype: 'fieldcontainer',
-                        columnWidth: 0.5,
-                        fieldLabel: Uni.I18n.translate('registerConfig.readingType', 'MDC', 'Reading type'),
-                        disabled: true,
-                        itemId: 'readingTypeContainer',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
-                        },
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                name: 'mrid',
-                                itemId: 'create_mrid'
-                            }
-                        ]
+                        xtype: 'reading-type-displayfield',
+                        name: 'readingType',
+                        disabled: true
                     },
                     {
                         xtype: 'obis-field',
