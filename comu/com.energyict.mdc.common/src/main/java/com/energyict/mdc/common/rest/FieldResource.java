@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import javax.validation.MessageInterpolator;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -34,6 +33,8 @@ public class FieldResource {
     public FieldResource(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
+
+
 
     /**
      * This method will return a JSON list of all available field descriptions in this resource
@@ -103,10 +104,14 @@ public class FieldResource {
         for (final T value: values) {
             HashMap<String, Object> subMap = new HashMap<>();
             subMap.put(valueName, value);
-            subMap.put("localizedValue", thesaurus.getString(value.toString(), value.toString()));
+            subMap.put("localizedValue", translate(value.toString()));
             list.add(subMap);
         }
         return map;
+    }
+
+    protected String translate(String value) {
+        return thesaurus.getString(value, value);
     }
 
 
