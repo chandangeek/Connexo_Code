@@ -17,8 +17,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         {ref: 'deviceRegisterConfigurationPreviewForm', selector: '#deviceRegisterConfigurationPreviewForm'},
         {ref: 'deviceRegisterConfigurationDetailForm', selector: '#deviceRegisterConfigurationDetailForm'},
         {ref: 'deviceRegisterConfigurationPreview', selector: '#deviceRegisterConfigurationPreview'},
-        {ref: 'deviceRegisterConfigurationMenu', selector: '#deviceRegisterConfigurationMenu'},
-        {ref: 'previewMrId', selector: '#preview_mrid'}
+        {ref: 'deviceRegisterConfigurationMenu', selector: '#deviceRegisterConfigurationMenu'}
     ],
 
     init: function () {
@@ -39,6 +38,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getDeviceRegisterConfigurationGrid().getSelectionModel().select(0);
+                widget.down('#stepsMenu').setTitle(device.get('mRID'));
             }
         });
     },
@@ -54,7 +54,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
         form.loadRecord(record);
         me.getDeviceRegisterConfigurationPreview().setTitle(record.get('name'));
-        me.getPreviewMrId().setValue(record.getReadingType().get('mrid'));
     },
 
     showDeviceRegisterConfigurationDetailsView: function(mRID, registerId) {
