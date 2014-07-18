@@ -289,7 +289,7 @@ public class LoadProfileConfigurationResource {
         return channelSpec;
     }
 
-    private Phenomenon findPhenomenonByIdOrThrowException(int phenomenonId) {
+    private Phenomenon findPhenomenonByIdOrThrowException(long phenomenonId) {
         Phenomenon phenomenon = masterDataService.findPhenomenon(phenomenonId).orNull();
         if (phenomenon == null){
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_PHENOMENON_FOUND, phenomenonId);

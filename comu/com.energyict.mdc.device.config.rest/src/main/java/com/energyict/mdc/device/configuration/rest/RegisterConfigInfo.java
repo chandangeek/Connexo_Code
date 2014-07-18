@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.configuration.rest;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.common.rest.PhenomenonAdapter;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.rest.PhenomenonInfo;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -31,8 +30,7 @@ public class RegisterConfigInfo {
     @JsonProperty("obisCodeDescription")
     public String obisCodeDescription;
     @JsonProperty("unitOfMeasure")
-    @XmlJavaTypeAdapter(PhenomenonAdapter.class)
-    public Unit unitOfMeasure;
+    public PhenomenonInfo unitOfMeasure;
     @JsonProperty("numberOfDigits")
     public Integer numberOfDigits;
     @JsonProperty("numberOfFractionDigits")
@@ -57,7 +55,7 @@ public class RegisterConfigInfo {
         this.obisCode = registerSpec.getObisCode();
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        this.unitOfMeasure = registerSpec.getUnit();
+        this.unitOfMeasure = PhenomenonInfo.from(registerSpec.getRegisterMapping().getPhenomenon());
         this.numberOfDigits = registerSpec.getNumberOfDigits();
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         this.multiplier = registerSpec.getMultiplier();

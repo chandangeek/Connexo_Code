@@ -1,5 +1,20 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
@@ -12,29 +27,16 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.dtc.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/dtc", "name=" + DeviceConfigurationApplication.COMPONENT_NAME})
 public class DeviceConfigurationApplication extends Application implements InstallService {
@@ -154,7 +156,44 @@ public class DeviceConfigurationApplication extends Application implements Insta
     @Override
     public void install() {
         Installer installer = new Installer();
-        installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
+        Set<MessageSeed> messageSeeds = new HashSet<>();
+        messageSeeds.addAll(Arrays.asList(MessageSeeds.values()));
+        messageSeeds.addAll(camouflagePhenomenaAsMessageSeeds());
+        installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, messageSeeds.toArray(new MessageSeed[messageSeeds.size()]));
+    }
+
+    private Set<MessageSeed> camouflagePhenomenaAsMessageSeeds() {
+        Set<MessageSeed> messageSeedSet = new HashSet<>();
+        for (final Phenomenon phenomenon : masterDataService.findAllPhenomena()) {
+            messageSeedSet.add(
+                new MessageSeed() {
+                    @Override
+                    public String getModule() {
+                        return DeviceConfigurationApplication.COMPONENT_NAME;
+                    }
+
+                    @Override
+                    public int getNumber() {
+                        return (int) phenomenon.getId();
+                    }
+
+                    @Override
+                    public String getKey() {
+                        return phenomenon.getName();
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return phenomenon.getName();
+                    }
+
+                    @Override
+                    public Level getLevel() {
+                        return Level.SEVERE;
+                    }
+                });
+        }
+        return messageSeedSet;
     }
 
     class HK2Binder extends AbstractBinder {

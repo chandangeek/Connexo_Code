@@ -3,7 +3,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.FieldResource;
-import com.energyict.mdc.common.rest.PhenomenonAdapter;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.masterdata.MasterDataService;
 import java.util.ArrayList;
@@ -33,18 +32,22 @@ public class DeviceConfigFieldResource extends FieldResource{
     }
 
     @GET
-    @Path("/unit")
+    @Path("/unitOfMeasure")
     public Object getUnitValues() {
-        List<String> allUnitsWithPhenomena = new ArrayList<>();
-        PhenomenonAdapter phenomenonAdapter = new PhenomenonAdapter();
+        List<Map<String, Object>> allUnitsWithPhenomena = new ArrayList<>();
+        Map<String, Object> map = new HashMap<>();
+        map.put("unitOfMeasure", allUnitsWithPhenomena);
         for (Phenomenon phenomenon : this.masterDataService.findAllPhenomena()) {
             try {
-                allUnitsWithPhenomena.add(phenomenon.getName());
+                HashMap<String, Object> subMap = new HashMap<>();
+                subMap.put("unitOfMeasure", phenomenon.getId());
+                subMap.put("localizedValue", translate(phenomenon.getName()));
+                allUnitsWithPhenomena.add(subMap);
             } catch (Exception e) {
-                throw new WebApplicationException("Failed to convert unit into JSON", Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(phenomenon).build());
+                throw new WebApplicationException("Failed to convert unitOfMeasure into JSON", Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(phenomenon).build());
             }
         }
-        return asJsonArrayObject("units", "unit", allUnitsWithPhenomena);
+        return map;
     }
 
     @GET
@@ -59,7 +62,7 @@ public class DeviceConfigFieldResource extends FieldResource{
             subMap.put("localizedValue", i);
             list.add(subMap);
         }
-        return list;
+        return map;
     }
 
     @GET
