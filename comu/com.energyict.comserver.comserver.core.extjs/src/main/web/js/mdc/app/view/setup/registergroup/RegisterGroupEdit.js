@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                         required: true
                                     },
                                     {
-                                        xtype: 'emptygridcontainer',
+                                        xtype: 'preview-container',
                                         itemId: 'registerEditEmptyGrid',
                                         grid: {
                                             xtype: 'gridpanel',
