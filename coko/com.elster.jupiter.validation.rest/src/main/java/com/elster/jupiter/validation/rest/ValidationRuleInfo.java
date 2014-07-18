@@ -16,10 +16,9 @@ public class ValidationRuleInfo {
     public String displayName; // readable name
     public String name;
     public int position;
-    public long ruleSetId;
-    public String ruleSetName;
     public List<ValidationRulePropertyInfo> properties = new ArrayList<ValidationRulePropertyInfo>();
     public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
+    public ValidationRuleSetInfo ruleSet;
 
     public ValidationRuleInfo(ValidationRule validationRule) {
         id = validationRule.getId();
@@ -27,8 +26,7 @@ public class ValidationRuleInfo {
         implementation = validationRule.getImplementation();
         displayName = validationRule.getDisplayName();
         name = validationRule.getName();
-        ruleSetId = validationRule.getRuleSet().getId();
-        ruleSetName = validationRule.getRuleSet().getName();
+        ruleSet = new ValidationRuleSetInfo(validationRule.getRuleSet());
         for (ValidationRuleProperties property : validationRule.getProperties()) {
             properties.add(new ValidationRulePropertyInfo(property));
         }
