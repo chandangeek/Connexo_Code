@@ -110,7 +110,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
-    public Optional<Phenomenon> findPhenomenon(int phenomenonId) {
+    public Optional<Phenomenon> findPhenomenon(long phenomenonId) {
         return this.getDataModel().mapper(Phenomenon.class).getUnique("id", phenomenonId);
     }
 

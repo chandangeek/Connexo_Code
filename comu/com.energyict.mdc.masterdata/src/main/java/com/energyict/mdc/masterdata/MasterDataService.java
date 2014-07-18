@@ -61,7 +61,7 @@ public interface MasterDataService {
      */
     public LogBookType newLogBookType(String name, ObisCode obisCode);
 
-    public Optional<Phenomenon> findPhenomenon(int phenomenonId);
+    public Optional<Phenomenon> findPhenomenon(long phenomenonId);
 
     public Phenomenon newPhenomenon(String name, Unit unit);
 
