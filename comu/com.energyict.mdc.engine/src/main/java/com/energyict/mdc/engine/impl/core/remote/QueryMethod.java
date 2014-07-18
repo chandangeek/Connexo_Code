@@ -2,6 +2,8 @@ package com.energyict.mdc.engine.impl.core.remote;
 
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.google.common.base.Optional;
+
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
@@ -45,14 +47,14 @@ public enum QueryMethod {
         @Override
         protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
-            ComServer comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
-            Date modificationDate = this.getModificationDate(parameters);
-            if (comServer.getModificationDate().after(modificationDate)) {
-                return comServer;
+            Optional<ComServer> comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
+            if (comServer.isPresent()) {
+                Date modificationDate = this.getModificationDate(parameters);
+                if (comServer.get().getModificationDate().after(modificationDate)) {
+                    return comServer;
+                }
             }
-            else {
-                return null;
-            }
+            return null;
         }
     },
     RefreshComPort {
@@ -86,8 +88,10 @@ public enum QueryMethod {
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
                 Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
                 ConnectionTask connectionTask = ServiceProvider.instance.get().deviceDataService().findConnectionTask(connectionTaskId).get();
-                ComServer comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
-                this.executionStarted(comServerDAO, connectionTask, comServer);
+                Optional<ComServer> comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
+                if (comServer.isPresent()) {
+                    this.executionStarted(comServerDAO, connectionTask, comServer.get());
+                }
             }
             return null;
         }
@@ -107,8 +111,10 @@ public enum QueryMethod {
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
                 Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
                 OutboundConnectionTask connectionTask = ServiceProvider.instance.get().deviceDataService().findOutboundConnectionTask(connectionTaskId).get();
-                ComServer comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
-                this.attemptLock(comServerDAO, connectionTask, comServer);
+                Optional<ComServer> comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
+                if (comServer.isPresent()) {
+                    this.attemptLock(comServerDAO, connectionTask, comServer.get());
+                }
             }
             return null;
         }
@@ -178,8 +184,10 @@ public enum QueryMethod {
         @Override
         protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
-            ComServer comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
-            comServerDAO.releaseInterruptedTasks(comServer);
+            Optional<ComServer> comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
+            if (comServer.isPresent()) {
+                comServerDAO.releaseInterruptedTasks(comServer.get());
+            }
             return null;
         }
     },
@@ -187,8 +195,8 @@ public enum QueryMethod {
         @Override
         protected Object doExecute (Map<String, Object> parameters, ComServerDAOImpl comServerDAO) {
             Long comServerId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
-            ComServer comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
-            return new TimeDurationXmlWrapper(comServerDAO.releaseTimedOutTasks(comServer));
+            Optional<ComServer> comServer = ServiceProvider.instance.get().engineModelService().findComServer(comServerId);
+            return new TimeDurationXmlWrapper(comServerDAO.releaseTimedOutTasks(comServer.get()));
         }
     },
     CreateOutboundComSession,

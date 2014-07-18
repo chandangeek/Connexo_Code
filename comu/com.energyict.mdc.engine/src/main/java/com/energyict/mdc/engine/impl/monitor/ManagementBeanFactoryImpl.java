@@ -78,12 +78,12 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     }
 
     @Override
-    public Optional<ComServerMonitorImplMBean> findFor(OnlineComServer onlineComServer) {
+    public Optional<ComServerMonitorImplMBean> findFor(ComServer comServer) {
         synchronized (this.registeredMBeans) {
-            ObjectName jmxName = this.nameFor(onlineComServer);
+            ObjectName jmxName = this.nameFor(comServer);
             Object registeredMBean = this.registeredMBeans.get(jmxName);
             if (registeredMBean == null) {
-                LOGGER.severe("Unable to find ComServerMonitorMBean for online comserver " + onlineComServer.getName());
+                LOGGER.severe("Unable to find ComServerMonitorMBean for online comserver " + comServer.getName());
                 return Optional.absent();
             }
             else {

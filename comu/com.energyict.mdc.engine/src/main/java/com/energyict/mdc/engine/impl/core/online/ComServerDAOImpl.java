@@ -131,12 +131,12 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public ComServer getThisComServer() {
-        return getEngineModelService().findComServerBySystemName();
+        return getEngineModelService().findComServerBySystemName().orNull();
     }
 
     @Override
     public ComServer getComServer(String systemName) {
-        return getEngineModelService().findComServer(systemName);
+        return this.getEngineModelService().findComServer(systemName).orNull();
     }
 
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
@@ -150,13 +150,20 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public ComServer refreshComServer(ComServer comServer) {
-        ComServer reloaded = getEngineModelService().findComServer(comServer.getId());
-        if (reloaded == null || reloaded.isObsolete()) {
+        Optional<ComServer> reloaded = getEngineModelService().findComServer(comServer.getId());
+        if (reloaded.isPresent()) {
+            if (reloaded.get().isObsolete()) {
+                return null;
+            }
+            else if (reloaded.get().getModificationDate().after(comServer.getModificationDate())) {
+                return reloaded.get();
+            }
+            else {
+                return comServer;
+            }
+        }
+        else {
             return null;
-        } else if (reloaded.getModificationDate().after(comServer.getModificationDate())) {
-            return reloaded;
-        } else {
-            return comServer;
         }
     }
 

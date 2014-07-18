@@ -9,7 +9,7 @@ package com.energyict.mdc.engine.impl.monitor;
  */
 public interface ComServerMonitor {
 
-    public OperationalStatistics getOperationalStatistics ();
+    public ComServerOperationalStatistics getOperationalStatistics ();
 
     public EventAPIStatistics getEventApiStatistics ();
 

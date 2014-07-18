@@ -9,6 +9,6 @@ package com.energyict.mdc.engine.impl.monitor;
  */
 public interface ScheduledComPortMonitor {
 
-    public OperationalStatistics getOperationalStatistics();
+    public ScheduledComPortOperationalStatistics getOperationalStatistics();
 
 }

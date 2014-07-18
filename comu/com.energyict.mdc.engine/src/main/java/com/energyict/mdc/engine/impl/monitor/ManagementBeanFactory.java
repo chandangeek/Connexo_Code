@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.monitor;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
@@ -27,12 +28,12 @@ public interface ManagementBeanFactory {
     public ComServerMonitorImplMBean findOrCreateFor (RunningComServer runningComServer);
 
     /**
-     * Finds the {@link ComServerMonitorImplMBean} for the specified {@link OnlineComServer}.
+     * Finds the {@link ComServerMonitorImplMBean} for the specified {@link ComServer}.
      *
-     * @param onlineComServer The OnlineComServer
-     * @return The ComServerMonitorImplMBean or <code>null</code> if the OnlineComServer has not registered yet
+     * @param comServer The ComServer
+     * @return The ComServerMonitorImplMBean or <code>null</code> if the ComServer has not registered yet
      */
-    public Optional<ComServerMonitorImplMBean> findFor(OnlineComServer onlineComServer);
+    public Optional<ComServerMonitorImplMBean> findFor(ComServer comServer);
 
     /**
      * Removes the {@link ComServerMonitorImplMBean}
