@@ -6,8 +6,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         'setup.register.RegisterMappingsGrid',
         'setup.register.RegisterMappingPreview',
         'setup.register.RegisterMappingAdd',
-        'setup.register.RegisterMappingAddGrid',
-        'setup.register.ReadingTypeDetails'
+        'setup.register.RegisterMappingAddGrid'
     ],
 
     requires: [
@@ -26,7 +25,6 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         {ref: 'registerMappingPreview', selector: '#registerMappingPreview'},
         {ref: 'registerMappingPreviewTitle', selector: '#registerMappingPreviewTitle'},
         {ref: 'addRegisterMappingBtn', selector: '#addRegisterMappingBtn'},
-        {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerMappingAddGrid', selector: '#registermappingaddgrid'},
         {ref: 'previewMrId', selector: '#preview_mrid'}
     ],
@@ -43,29 +41,15 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 click: this.addRegisterMappingHistory
             },
             '#registermappinggrid actioncolumn': {
-                showReadingTypeInfo: this.showReadingType,
                 removeTheRegisterMapping: this.removeRegisterMapping
-            },
-            '#loadProfileTypeAddMeasurementTypesGrid actioncolumn': {
-                showReadingTypeInfo: this.showReadingType
             },
             '#addButton[action=addRegisterMappingAction]': {
                 click: this.addRegisterMappingsToDeviceType
-            },
-            '#registerMappingPreviewForm button[action = showReadingTypeInfo]': {
-                showReadingTypeInfo: this.showReadingType
-            },
-            '#registermappingaddgrid actioncolumn': {
-                showReadingTypeInfo: this.showReadingType
             },
             '#registerMappingPreview menuitem[action=removeTheRegisterMapping]': {
                 click: this.removeRegisterMappingFromPreview
             }
         });
-    },
-
-    showEditView: function (id) {
-
     },
 
     addRegisterMappingHistory: function () {
@@ -79,8 +63,6 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             var registerMappingsName = this.getRegisterMappingPreviewForm().form.findField('name').getSubmitValue();
             this.getRegisterMappingPreview().getLayout().setActiveItem(1);
             this.getRegisterMappingPreview().setTitle(registerMappingsName);
-            this.getPreviewMrId().setValue(registerMappings[0].getReadingType().get('mrid'));
-            this.getRegisterMappingPreviewForm().loadRecord(registerMappings[0]);
         } else {
             this.getRegisterMappingPreview().getLayout().setActiveItem(0);
         }
@@ -117,12 +99,6 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 }
             }
         );
-    },
-
-    showReadingType: function (record) {
-        var widget = Ext.widget('readingTypeDetails');
-        this.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
-        widget.show();
     },
 
     addRegisterMappingsToDeviceType: function () {

@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     deviceTypeId: null,
     requires: [
         'Uni.form.field.Obis',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.ObisDisplay',
+        'Uni.form.field.ReadingTypeDisplay'
     ],
     content: [
         {
@@ -50,11 +51,10 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     queryMode: 'local'
                 },
                 {
-                    xtype: 'displayfield',
-                    labelSeparator: ' ',
+                    xtype: 'reading-type-displayfield',
                     fieldLabel: 'CIM reading type',
-                    name: 'cimreadingtype',
-                    value: 'Select a measurement type first'
+                    emptyText: 'Select a measurement type first',
+                    name: 'readingType'
                 },
                 {
                     xtype: 'obis-displayfield',

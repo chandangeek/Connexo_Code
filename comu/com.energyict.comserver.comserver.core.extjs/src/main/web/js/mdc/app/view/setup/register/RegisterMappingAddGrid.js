@@ -15,7 +15,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.AvailableRegisterTypes',
-        'Uni.grid.column.Obis'
+        'Uni.grid.column.Obis',
+        'Uni.grid.column.ReadingType'
     ],
 
     nbrOfSelectedItems: 0,
@@ -45,28 +46,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
             hideable: false
         },
         {
-            xtype: 'actioncolumn',
-            renderer: function (value, metaData, record) {
-                return '<div style="float:left; font-size: 13px; line-height: 1em;">'
-                    + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
-                    + '</div>'
-            },
-            header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
-            flex: 2,
-            items: [
-                {
-                    icon: '../ext/packages/uni-theme-skyline/resources/images/icon-info-small.png',
-                    iconCls: 'uni-info-icon',
-                    tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
-                    handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                        this.fireEvent('showReadingTypeInfo', record);
-                    }
-                }
-            ],
-            tdCls: 'view',
-            sortable: false,
-            fixed: true,
-            hideable: false
+            xtype: 'reading-type-column',
+            dataIndex: 'readingType'
         },
         {
             xtype: 'obis-column',

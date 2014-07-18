@@ -16,7 +16,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterConfigsOfDeviceConfig',
         'Mdc.view.setup.registerconfig.RegisterConfigActionMenu',
-        'Uni.grid.column.Obis'
+        'Uni.grid.column.Obis',
+        'Uni.grid.column.ReadingType'
     ],
 
     store: 'RegisterConfigsOfDeviceConfig',
@@ -30,25 +31,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                 flex: 3
             },
             {
-                xtype: 'actioncolumn',
-                renderer: function (value, metaData, record) {
-                    return '<div style="float:left; font-size: 13px; line-height: 1em;">'
-                        + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
-                        + '</div>';
-                },
-                header: Uni.I18n.translate('registerConfigs.readingType', 'MDC', 'Reading type'),
-                items: [
-                    {
-                        icon: '../ext/packages/uni-theme-skyline/resources/images/icon-info-small.png',
-                        iconCls: 'uni-info-icon',
-                        tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
-                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            this.fireEvent('showReadingTypeInfo', record);
-                        }
-                    }
-                ],
-                width: 300,
-                tdCls: 'view'
+                xtype: 'reading-type-column',
+                dataIndex: 'readingType'
             },
             {
                 xtype: 'obis-column',

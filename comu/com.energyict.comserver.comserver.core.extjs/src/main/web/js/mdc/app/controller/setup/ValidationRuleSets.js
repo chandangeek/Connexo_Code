@@ -136,7 +136,6 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.getAddValidationRuleSetsGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
@@ -204,6 +203,10 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         });
 
         loadMask.show();
+        if (me.allPressed) {
+            Ext.Ajax.request.extraParams = {selectAll: true};
+            ids = [];
+        }
         Ext.Ajax.request({
             url: url,
             method: 'POST',
@@ -387,8 +390,26 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         var grid = this.getAddValidationRuleSetsGrid();
         switch (newValue.rulesetsRadio) {
             case 'ALL':
-                grid.getSelectionModel().selectAll(true);
-                grid.fireEvent('selectionchange', grid);
+                grid.getView().setDisabled(true);
+                grid.down('#selection-counter').setText('All validation rule sets selected');
+                this.getAddValidationRuleSets().down('validation-ruleset-view').hide();
+                this.allPressed = true;
+                break;
+            case 'SELECTED':
+                if (grid.getView().isDisabled()) {
+                    grid.getView().setDisabled(false);
+                }
+                var selection = grid.view.getSelectionModel().getSelection(),
+                    selectionText = Uni.I18n.translatePlural(
+                        'validation.validationRuleSetSelection',
+                        selection.length,
+                        'MDC',
+                        '{0} validation rule sets selected'
+                    );
+                grid.down('#selection-counter').setText(selectionText);
+                if (selection.length == 1) {
+                    this.getAddValidationRuleSets().down('validation-ruleset-view').show();
+                }
         }
     }
 });
