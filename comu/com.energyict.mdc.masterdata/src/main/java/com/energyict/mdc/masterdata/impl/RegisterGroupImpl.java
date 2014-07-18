@@ -87,7 +87,7 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
     private List<RegisterMappingInGroup> getRegisterMappingInGroup() {
         if (mappingsInGroup == null) {
-            mappingsInGroup = dataModel.mapper(RegisterMappingInGroup.class).find("registerGroupId", getId());
+            mappingsInGroup = dataModel.mapper(RegisterMappingInGroup.class).find("registerGroup", this);
         }
         return mappingsInGroup;
     }
