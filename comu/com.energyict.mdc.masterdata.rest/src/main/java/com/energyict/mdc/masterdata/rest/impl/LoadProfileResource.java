@@ -15,8 +15,11 @@ import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.*;
 
 @Path("/loadprofiles")
@@ -72,9 +75,14 @@ public class LoadProfileResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addNewLoadProfileType(LoadProfileTypeInfo request) {
+    public Response addNewLoadProfileType(LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
         LoadProfileType loadProfileType = masterDataService.newLoadProfileType(request.name, request.obisCode, request.timeDuration);
-        addRegisterMappingsToLoadProfileType(loadProfileType, request);
+        boolean all = getBoolean(uriInfo, "all");
+        if (all) {
+            addAllRegisterMappingsToLoadProfileType(loadProfileType);
+        } else {
+            addRegisterMappingsToLoadProfileType(loadProfileType, request);
+        }
         loadProfileType.save();
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, false)).build();
     }
@@ -83,14 +91,19 @@ public class LoadProfileResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request) {
+    public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
         LoadProfileType loadProfileType = findLoadProfileByIdOrThrowException(loadProfileId);
         loadProfileType.setName(request.name);
         boolean isInUse = isLoadProfileTypeAlreadyInUse(loadProfileType);
         if (!isInUse){
             loadProfileType.setInterval(request.timeDuration);
             loadProfileType.setObisCode(request.obisCode);
-            editRegisterMappingsToLoadProfileType(loadProfileType, request);
+            boolean all = getBoolean(uriInfo, "all");
+            if (all) {
+                addAllRegisterMappingsToLoadProfileType(loadProfileType);
+            } else {
+                editRegisterMappingsToLoadProfileType(loadProfileType, request);
+            }
         }
         loadProfileType.save();
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isInUse)).build();
@@ -127,6 +140,18 @@ public class LoadProfileResource {
         }
     }
 
+    private void addAllRegisterMappingsToLoadProfileType(LoadProfileType loadProfileType) {
+        Set<Long> alreadyAdded = new HashSet<>();
+        for (RegisterMapping registerMapping : loadProfileType.getRegisterMappings()) {
+            alreadyAdded.add(registerMapping.getId());
+        }
+        for (RegisterMapping registerMapping : masterDataService.findAllRegisterMappings().find()) {
+            if (!alreadyAdded.remove(registerMapping.getId())) {
+                loadProfileType.addRegisterMapping(registerMapping);
+            }
+        }
+    }
+
     private void editRegisterMappingsToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
         if (request.registerMappings != null) {
             List<RegisterMapping> mappingsOnLoadProfile = loadProfileType.getRegisterMappings();
@@ -145,4 +170,11 @@ public class LoadProfileResource {
         return !deviceConfigurationService.findDeviceConfigurationsUsingLoadProfileType(loadProfileType).isEmpty()
                 || !deviceConfigurationService.findDeviceTypesUsingLoadProfileType(loadProfileType).isEmpty();
     }
+
+    private boolean getBoolean(UriInfo uriInfo, String key) {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
+    }
+
+
 }
