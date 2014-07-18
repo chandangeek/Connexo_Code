@@ -2,7 +2,7 @@ Ext.define('Uni.property.view.DefaultButton', {
     extend: 'Ext.button.Button',
     alias: 'widget.defaultButton',
     border: 0,
-    icon: '../mdc/resources/images/restore.png',
+    icon: '../ext/packages/uni-theme-skyline/resources/images/form/restore.png',
     style: 'background-color: transparent; padding: 5px 3px 2px 3px;',
     scale: 'small',
     action: 'delete',
