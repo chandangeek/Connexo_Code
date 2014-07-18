@@ -2,7 +2,6 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintValidatorContext;
-
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,8 +21,6 @@ import static org.mockito.Mockito.when;
 public class UniqueValidationRuleNameValidatorTest {
 
     public static final String NAME = "name";
-    @Mock
-    private ValidationService validationService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ConstraintValidatorContext context;
     @Mock
@@ -51,14 +47,14 @@ public class UniqueValidationRuleNameValidatorTest {
 
     @Test
     public void testIsValid() throws Exception {
-        assertThat(new UniqueValidationRuleNameValidator(validationService).isValid(rule, context)).isTrue();
+        assertThat(new UniqueValidationRuleNameValidator().isValid(rule, context)).isTrue();
     }
 
     @Test
     public void testInvalid() throws Exception {
         when(rule2.getName()).thenReturn(NAME);
 
-        assertThat(new UniqueValidationRuleNameValidator(validationService).isValid(rule, context)).isFalse();
+        assertThat(new UniqueValidationRuleNameValidator().isValid(rule, context)).isFalse();
     }
 
 

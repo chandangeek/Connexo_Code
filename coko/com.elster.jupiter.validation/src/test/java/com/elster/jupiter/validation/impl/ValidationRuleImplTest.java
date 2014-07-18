@@ -121,7 +121,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ReadingTypeInValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeInValidationRuleImpl(dataModel, meteringService);
+                return new ReadingTypeInValidationRuleImpl(meteringService);
             }
         });
         when(dataModel.mapper(IValidationRule.class)).thenReturn(ruleFactory);

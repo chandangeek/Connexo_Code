@@ -82,7 +82,9 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties, Pe
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ValidationRulePropertiesImpl that = (ValidationRulePropertiesImpl) o;
 

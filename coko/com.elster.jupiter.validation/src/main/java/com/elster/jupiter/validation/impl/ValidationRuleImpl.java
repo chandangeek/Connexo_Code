@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
@@ -57,12 +58,12 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     private long id;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
     private boolean active;
     private ValidationAction action;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     @ExistingValidator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_VALIDATOR + "}")
     private String implementation; //validator classname
     private UtcInstant obsoleteTime;
@@ -404,11 +405,11 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     private Validator createNewValidator() {
-        Validator validator = validatorCreator.getValidator(this.implementation, getProps());
-        if (validator == null) {
+        Validator createdValidator = validatorCreator.getValidator(this.implementation, getProps());
+        if (createdValidator == null) {
             throw new ValidatorNotFoundException(thesaurus, implementation);
         }
-        return validator;
+        return createdValidator;
     }
 
     private ReadingQualityType defaultReadingQualityType() {
@@ -424,13 +425,9 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     private Validator newValidator(Channel channel, Interval interval, ReadingType channelReadingType) {
-        Validator validator = createNewValidator();
-        validator.init(channel, channelReadingType, interval);
-        return validator;
-    }
-
-    private DataMapper<ReadingTypeInValidationRule> readingTypesInRuleFactory() {
-        return dataModel.mapper(ReadingTypeInValidationRule.class);
+        Validator newValidator = createNewValidator();
+        newValidator.init(channel, channelReadingType, interval);
+        return newValidator;
     }
 
     private DataMapper<IValidationRule> ruleFactory() {
