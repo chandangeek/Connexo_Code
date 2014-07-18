@@ -29,7 +29,7 @@ public final class ReadingTypeGenerator {
     private static final MacroPeriod[] macroPeriods = {MacroPeriod.DAILY, MacroPeriod.MONTHLY};
 
 	private static final String[] timeAttributeNames = {"1m","2m","3m","5m","10m","15m","20m","30m","Hourly","Daily"};
-    private static final String[] macroPeriodsNames = {"Daily", "Monthly"};
+    private static final String[] macroPeriodsNames = {"Daily Period", "Monthly Period"};
 
     private ReadingTypeGenerator(MeteringServiceImpl meteringService) {
         this.meteringService = meteringService;
