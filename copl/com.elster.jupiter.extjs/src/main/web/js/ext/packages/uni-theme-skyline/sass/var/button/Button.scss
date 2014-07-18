@@ -15,6 +15,7 @@ $button-large-border-radius: $button-small-border-radius !default;
 
 // Default border color
 $button-default-border-color: transparent !default;
+//$button-toolbar-border-color: #ffffff !default;
 $button-default-border-color-over: $button-default-border-color !default;
 $button-default-border-color-focus: #11739e !default;
 $button-default-border-color-pressed: $button-default-border-color !default;
@@ -41,11 +42,19 @@ $button-small-font-family: 'Lato', helvetica, arial, verdana, sans-serif !defaul
 $button-medium-font-family: $button-small-font-family !default;
 $button-large-font-family: $button-small-font-family !default;
 
-$button-small-font-weight: 'normal';
-$button-medium-font-weight: $button-small-font-weight;
-$button-large-font-weight: $button-small-font-weight;
+$button-small-font-weight: 'normal' !default;
+$button-medium-font-weight: $button-small-font-weight !default;
+$button-large-font-weight: $button-small-font-weight !default;
 
-$button-small-font-size: 13px;
+$button-small-font-size: 13px !default;
+
+// Default padding
+$button-small-padding: 4px !default;
+$button-small-text-padding: 4px !default;
+$button-medium-padding: $button-small-padding !default;
+$button-medium-text-padding: $button-small-padding !default;
+$button-large-padding: $button-small-padding !default;
+$button-large-text-padding: $button-small-padding !default;
 
 // Action Icon
 $button-small-icon-size: 17px !default;

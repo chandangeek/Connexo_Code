@@ -1,3 +1,7 @@
+.x-ie8m .x-btn-step-active-small .x-btn-glyph {
+  color: #b7dda8;
+}
+
 /* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-active-small-disabled {
   background-image: none;
@@ -433,7 +437,7 @@
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #a0a0a0;
-  padding: 0 5px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-completed-small .x-btn-arrow {
@@ -896,7 +900,7 @@
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 5px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-non-completed-small .x-btn-arrow {
@@ -1357,7 +1361,7 @@
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #70bb51;
-  padding: 0 5px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-active-small .x-btn-arrow {
@@ -1827,7 +1831,7 @@
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #d2d2d2;
-  padding: 0 5px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-completed-small .x-btn-arrow {
@@ -2297,7 +2301,7 @@
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
-  padding: 0 5px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-non-completed-small .x-btn-arrow {
@@ -2767,7 +2771,7 @@
   font-weight: "normal";
   font-family: "Lato", helvetica, arial, verdana, sans-serif;
   color: white;
-  padding: 0 5px;
+  padding: 0 4px;
 }
 /* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-gridnav-toolbar-small .x-btn-arrow {
@@ -3078,52 +3082,58 @@
 
 /*</if slicer>*/
 /* */
-/* line 2, ../../sass/src/toolbar/Toolbar.scss */
+/* line 1, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar {
   background-color: transparent !important;
 }
 
-/* line 7, ../../sass/src/toolbar/Toolbar.scss */
+/* line 6, ../../sass/src/toolbar/Toolbar.scss */
 .filter-form .x-toolbar .x-btn {
   margin-top: 0 !important;
-  margin-right: 10px !important;
+  margin-right: 8px !important;
   margin-bottom: 0 !important;
   margin-left: 0 !important;
 }
 
-/* line 17, ../../sass/src/toolbar/Toolbar.scss */
+/* line 16, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar .x-btn {
-  margin: 0 5px !important;
+  margin: 0;
+  margin-right: 8px !important;
+}
+/* line 21, ../../sass/src/toolbar/Toolbar.scss */
+.x-toolbar .x-btn:last-child {
+  margin-right: 0 !important;
 }
 
-/* line 21, ../../sass/src/toolbar/Toolbar.scss */
+/* line 26, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar-text {
   margin: 0 6px 0 0;
 }
 
-/* line 25, ../../sass/src/toolbar/Toolbar.scss */
+/* line 30, ../../sass/src/toolbar/Toolbar.scss */
 .x-toolbar-separator {
-  margin: 0 5px !important;
+  margin: 0 8px !important;
 }
 
-/* line 29, ../../sass/src/toolbar/Toolbar.scss */
+/* line 34, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-first {
   margin: 4px 0 0 0;
 }
 
-/* line 33, ../../sass/src/toolbar/Toolbar.scss */
+/* line 38, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-prev {
   margin: 4px 0 0 3px;
 }
 
-/* line 37, ../../sass/src/toolbar/Toolbar.scss */
+/* line 42, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-next {
   margin: 4px 0 0 6px;
 }
 
-/* line 41, ../../sass/src/toolbar/Toolbar.scss */
+/* line 46, ../../sass/src/toolbar/Toolbar.scss */
 .x-tbar-page-last {
   margin: 4px 0 0 0;
+  margin-right: 0 !important;
 }
 
 /* line 219, ../../../ext-theme-neutral/sass/src/panel/Panel.scss */
@@ -7939,14 +7949,19 @@ div.x-form-spinner-down {
   opacity: 1 !important;
 }
 
-/* line 5, ../../sass/src/form/field/Base.scss */
+/* line 2, ../../sass/src/form/field/Container.scss */
+.x-form-fieldcontainer .x-form-display-field {
+  margin-top: 3px;
+}
+
+/* line 6, ../../sass/src/form/field/Base.scss */
 .x-form-field {
   border-radius: 3px;
   height: 28px;
   background-color: #ffffff;
 }
 
-/* line 11, ../../sass/src/form/field/Base.scss */
+/* line 12, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-under {
   background: none;
   color: #eb5642;
@@ -15142,8 +15157,8 @@ div.x-form-spinner-down {
 
 /* line 25, ../../sass/src/toolbar/Paging.scss */
 .x-toolbar-pagingtoolbarbottom .pagenav {
-  padding-left: 13px;
-  padding-right: 2px;
+  padding-left: 0;
+  padding-right: 8px;
 }
 /* line 31, ../../sass/src/toolbar/Paging.scss */
 .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text {
@@ -15332,16 +15347,8 @@ a.x-datepicker-date:hover {
 .x-grid-body .x-grid-row a:hover {
   text-decoration: underline;
 }
-/* line 52, ../../sass/src/panel/Table.scss */
-.x-grid-body .x-grid-row .x-form-display-field {
-  margin: 0;
-}
-/* line 57, ../../sass/src/panel/Table.scss */
+/* line 54, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected a, .x-grid-body .x-grid-row-over a {
-  color: white;
-}
-/* line 60, ../../sass/src/panel/Table.scss */
-.x-grid-body .x-grid-row-selected .x-form-display-field, .x-grid-body .x-grid-row-over .x-form-display-field {
   color: white;
 }
 

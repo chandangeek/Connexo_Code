@@ -1,13 +1,17 @@
 @mixin link() {
-  $ui: 'link'
+    $ui: 'link'
 }
 
 @include link();
 
 .#{$prefix}component-link {
-  background-color: $link-default-background-color;
-  color: $link-default-color;
-  a {
+    background-color: $link-default-background-color;
     color: $link-default-color;
-  }
+    a {
+        color: $link-default-color;
+
+        &:hover {
+            color: #f0f0f0;
+        }
+    }
 }

@@ -222,7 +222,6 @@ Ext.onReady(function() {
                 formBind: true,
                 disabled: true,
                 text: 'Submit Registration',
-                width: 140,
                 handler: function() {
                     var form = this.up('form').getForm();
 

@@ -1,3 +1,16 @@
+/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-message-error-ml,
+.x-window-message-error-mr {
+  zoom: 1;
+  background-image: url(images/window/window-message-error-sides.gif);
+  background-repeat: repeat-y;
+}
+
+/* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-message-error-mc {
+  padding: 0px 15px 7px 7px;
+}
+
 /*<if slicer>*/
 /* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
 .x-window-message-error:after {
@@ -1483,8 +1496,8 @@ div.x-form-spinner-down {
 
 /* line 25, ../../sass/src/toolbar/Paging.scss */
 .x-toolbar-pagingtoolbarbottom .pagenav {
-  padding-left: 13px;
-  padding-right: 2px;
+  padding-left: 0;
+  padding-right: 8px;
 }
 /* line 31, ../../sass/src/toolbar/Paging.scss */
 .x-toolbar-pagingtoolbarbottom .pagenav .x-toolbar-text {
@@ -1673,16 +1686,8 @@ a.x-datepicker-date:hover {
 .x-grid-body .x-grid-row a:hover {
   text-decoration: underline;
 }
-/* line 52, ../../sass/src/panel/Table.scss */
-.x-grid-body .x-grid-row .x-form-display-field {
-  margin: 0;
-}
-/* line 57, ../../sass/src/panel/Table.scss */
+/* line 54, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected a, .x-grid-body .x-grid-row-over a {
-  color: white;
-}
-/* line 60, ../../sass/src/panel/Table.scss */
-.x-grid-body .x-grid-row-selected .x-form-display-field, .x-grid-body .x-grid-row-over .x-form-display-field {
   color: white;
 }
 
