@@ -3,9 +3,8 @@
  */
 Ext.define('Uni.grid.column.Obis', {
     extend: 'Ext.grid.column.Column',
-    alias: 'widget.obis-column',
-    itemId: 'obis-column',
+    xtype: 'obis-column',
     header: Uni.I18n.translate('obis.label', 'UNI', 'OBIS code'),
-    width: 140,
+    minWidth: 120,
     align: 'left'
 });
