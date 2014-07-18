@@ -343,9 +343,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     public List<ValidationRule> getValidationRules() {
-        List<ReadingType> readingTypes = new ArrayList<ReadingType>();
+        List<ReadingType> readingTypes = new ArrayList<>();
         readingTypes.add(getRegisterMapping().getReadingType());
-        List<ValidationRule> result = new ArrayList<ValidationRule>();
         return getDeviceConfiguration().getValidationRules(readingTypes);
     }
 
