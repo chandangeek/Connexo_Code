@@ -138,7 +138,7 @@ public class MdcPropertyUtils {
         try {
             for (PropertyInfo propertyInfo : propertyInfos) {
                 if (propertyInfo.key.equals(propertySpec.getName())) {
-                    if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue()!= null) {
+                    if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue()!= null && !propertyInfo.getPropertyValueInfo().getValue().equals("")) {
                         return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
                     } else {
                         return null;
