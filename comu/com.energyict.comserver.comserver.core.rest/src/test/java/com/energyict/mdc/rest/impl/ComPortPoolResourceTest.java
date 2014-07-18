@@ -216,7 +216,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         when(mockTcpPort3.getComPortType()).thenReturn(ComPortType.TCP);
 
         when(mockOutboundComPortPool.getComPorts()).thenReturn(Arrays.<OutboundComPort>asList(mockTcpPort1, mockTcpPort3));
-        when(engineModelService.findOutboundComPortPool(comPortPool_id)).thenReturn(mockOutboundComPortPool);
+        when(engineModelService.findComPortPool(comPortPool_id)).thenReturn(mockOutboundComPortPool);
         when(engineModelService.findComPort(comPort2_id_to_be_added)).thenReturn(mockTcpPort2);
 
         Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);

@@ -135,10 +135,12 @@ public class ComPortPoolResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createComPortPool(ComPortPoolInfo<OutboundComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
-        OutboundComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), protocolPluggableService);
+    public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
+        ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), protocolPluggableService);
         comPortPool.save();
-        handlePools(comPortPoolInfo, comPortPool, engineModelService, getBoolean(uriInfo, ALL));
+        if (comPortPool instanceof OutboundComPortPool) {
+            handlePools(comPortPoolInfo, (OutboundComPortPool) comPortPool, engineModelService, getBoolean(uriInfo, ALL));
+        }
         return Response.status(Response.Status.CREATED).entity(ComPortPoolInfoFactory.asInfo(comPortPool, engineModelService)).build();
     }
 
@@ -146,13 +148,15 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<OutboundComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
-        Optional<OutboundComPortPool> comPortPool = Optional.fromNullable(engineModelService.findOutboundComPortPool(id));
+    public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
+        Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
         if (!comPortPool.isPresent()) {
             throw new WebApplicationException("No ComPortPool with id " + id, Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build());
         }
         comPortPoolInfo.writeTo(comPortPool.get(), protocolPluggableService);
-        handlePools(comPortPoolInfo, comPortPool.get(), engineModelService, getBoolean(uriInfo, ALL));
+        if (comPortPool.get() instanceof OutboundComPortPool) {
+            handlePools(comPortPoolInfo, (OutboundComPortPool) comPortPool.get(), engineModelService, getBoolean(uriInfo, ALL));
+        }
         comPortPool.get().save();
         return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineModelService);
     }
@@ -167,7 +171,7 @@ public class ComPortPoolResource {
         return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
     }
 
-    protected void handlePools(ComPortPoolInfo<OutboundComPortPool> comPortPoolInfo, OutboundComPortPool outboundComPortPool, EngineModelService engineModelService, boolean all) {
+    protected void handlePools(ComPortPoolInfo<? extends ComPortPool> comPortPoolInfo, OutboundComPortPool outboundComPortPool, EngineModelService engineModelService, boolean all) {
         if (!all) {
             updateComPorts(outboundComPortPool, comPortPoolInfo.outboundComPorts, engineModelService);
         } else {
