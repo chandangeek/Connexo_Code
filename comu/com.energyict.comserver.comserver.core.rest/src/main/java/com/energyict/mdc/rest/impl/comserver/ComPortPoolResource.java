@@ -2,6 +2,7 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.engine.model.ComPort;
@@ -84,12 +85,14 @@ public class ComPortPoolResource {
         } else {
             comPortPools.addAll(engineModelService.findAllComPortPools());
         }
-        Collections.sort(comPortPools, new Comparator<ComPortPool>() {
+
+        comPortPools = ListPager.of(comPortPools, new Comparator<ComPortPool>() {
             @Override
             public int compare(ComPortPool cpp1, ComPortPool cpp2) {
                 return cpp1.getName().compareToIgnoreCase(cpp2.getName());
             }
-        });
+        }).from(queryParameters).find();
+
         for (ComPortPool comPortPool : comPortPools) {
             comPortPoolInfos.add(ComPortPoolInfoFactory.asInfo(comPortPool, engineModelService));
         }
