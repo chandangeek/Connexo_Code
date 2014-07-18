@@ -38,7 +38,7 @@ public class ComPortResource {
             Optional<String> comserverIdProperty = Optional.fromNullable(comPortFilter.getFilterProperties().get("comserver_id"));
             Optional<String> directionProperty = Optional.fromNullable(comPortFilter.getFilterProperties().get("direction"));
             if(comserverIdProperty.isPresent()){
-                Optional<ComServer> comServer = Optional.fromNullable(engineModelService.findComServer(Integer.parseInt(comserverIdProperty.get())));
+                Optional<ComServer> comServer = engineModelService.findComServer(Integer.parseInt(comserverIdProperty.get()));
                 List<ComPort> comPorts = comServer.get().getComPorts();
                 for (ComPort comPort : comPorts) {
                     comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineModelService));

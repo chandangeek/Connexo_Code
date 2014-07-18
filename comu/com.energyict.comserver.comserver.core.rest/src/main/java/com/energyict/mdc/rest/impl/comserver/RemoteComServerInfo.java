@@ -48,7 +48,7 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
         }
         Optional<Long> onlineComServerId = Optional.fromNullable(this.onlineComServerId);
         if(onlineComServerId.isPresent()) {
-            Optional<? extends ComServer> onlineComServer = Optional.fromNullable(engineModelService.findComServer(onlineComServerId.get()));
+            Optional<? extends ComServer> onlineComServer = engineModelService.findComServer(onlineComServerId.get());
             if(onlineComServer.isPresent() && OnlineComServer.class.isAssignableFrom(onlineComServer.get().getClass())) {
                 comServerSource.setOnlineComServer((OnlineComServer)onlineComServer.get());
             }
