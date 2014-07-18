@@ -11,12 +11,14 @@ Ext.define('Cfg.model.ValidationRule', {
         'ruleSet',
         {
             name: 'ruleSetId',
+            persist: false,
             convert: function (value, record) {
                 return record.data.ruleSet.id;
             }
         },
         {
             name: 'ruleSetName',
+            persist: false,
             convert: function (value, record) {
                 return record.data.ruleSet.name;
             }

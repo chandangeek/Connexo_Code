@@ -148,7 +148,7 @@ Ext.define('Cfg.controller.Validation', {
                 rule = values.implementation,
                 name = values.name,
                 properties = this.getPropertiesContainer().items;
-
+            debugger;
             if (form.down('#validatorCombo').isDisabled()) {
                 rule = form.down('#validatorCombo').value;
             }
@@ -594,13 +594,14 @@ Ext.define('Cfg.controller.Validation', {
         }
     },
 
-    showEditRuleOverview: function (id) {
+    showEditRuleOverview: function (id, ruleId) {
         var me = this,
             ruleSetsStore = me.getStore('Cfg.store.ValidationRuleSets'),
             widget,
             ruleSet,
             cancelLink,
             editRulePanel;
+
         if (me.fromRuleSet) {
             cancelLink = '#/administration/validation/rulesets';
         } else if (me.fromRulePreview) {
@@ -608,7 +609,10 @@ Ext.define('Cfg.controller.Validation', {
         } else {
             cancelLink = '#/administration/validation/rulesets/' + id + '/rules';
         }
-        me.ruleSetId = id;
+
+        me.ruleSetId = parseInt(id);
+        me.ruleId = parseInt(ruleId);
+
         widget = Ext.widget('addRule', {
             edit: true,
             returnLink: cancelLink
@@ -634,7 +638,6 @@ Ext.define('Cfg.controller.Validation', {
             rule;
 
         editRulePanel.setLoading();
-
         rulesStore.load({
             params: {
                 id: id
@@ -643,6 +646,7 @@ Ext.define('Cfg.controller.Validation', {
                 editRulePanel.setLoading(false);
                 rule = this.getById(me.ruleId);
                 me.ruleModel = rule;
+
                 form.loadRecord(rule);
                 me.getApplication().fireEvent('loadRule', rule);
                 editRulePanel.down('#addRuleTitle').setTitle("Edit '" + rule.get('name') + "'");
@@ -707,11 +711,9 @@ Ext.define('Cfg.controller.Validation', {
                 record.readingTypes().add(readingTypeRecord);
             });
         }
-        if (isActive) {
-            record.set('active', false);
-        } else {
-            record.set('active', true);
-        }
+
+        record.set('active', !isActive);
+
         view.setLoading('Loading...');
         record.save({
             params: {
