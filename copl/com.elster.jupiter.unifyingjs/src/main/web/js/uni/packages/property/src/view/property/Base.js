@@ -40,7 +40,7 @@ Ext.define('Uni.property.view.property.Base', {
      * @param {string|null} key
      * @returns {string}
      */
-    getName: function(key) {
+    getName: function (key) {
         key = key ? key : this.key;
         return 'properties.' + key;
     },
@@ -49,7 +49,7 @@ Ext.define('Uni.property.view.property.Base', {
      * @private
      * @param {string} key
      */
-    setKey: function(key) {
+    setKey: function (key) {
         this.key = key;
 
         var label = Uni.I18n.translate(key, this.translationKey, key);
@@ -115,6 +115,37 @@ Ext.define('Uni.property.view.property.Base', {
         }
         this.fireEvent('enableRestoreAll', this);
     },
+
+    /**
+     *
+     * shows a popup if entered value equals inheritedValue, this lets the user choose between deleting the property or
+     * setting the new (same value) on the property
+     */
+    showPopupEnteredValueEqualsInheritedValue: function (field, property) {
+        var me = this;
+        Ext.create('Uni.view.window.Confirmation', {
+            confirmText: Uni.I18n.translate('general.yes', 'UNI', 'Yes'),
+            cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
+        }).show({
+            msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), property.get('key')),
+            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'MDC', 'Set \'{0}\' to its default value?'), property.get('key')),
+            config: {
+                property: me,
+                field: field
+            },
+            fn: me.setPropertyValue
+        });
+    },
+
+    setPropertyValue: function (btn, text, opt) {
+        // var me = this;
+        if (btn === 'confirm') {
+            var property = opt.config.property;
+            //var field = opt.config.field;
+            property.restoreDefault();
+        }
+    },
+
 
     /**
      * returns bounded property
@@ -206,9 +237,9 @@ Ext.define('Uni.property.view.property.Base', {
         me.initProperty(me.property);
 
         var cmp = me.isEdit
-            ? me.getEditCmp()
-            : me.getDisplayCmp()
-        ;
+                ? me.getEditCmp()
+                : me.getDisplayCmp()
+            ;
 
         // apply config object or array of config objects
         if (Ext.isArray(cmp)) {
@@ -236,6 +267,11 @@ Ext.define('Uni.property.view.property.Base', {
                 me.getProperty().set('isInheritedOrDefaultValue', false);
                 me.updateResetButton();
             });
+            field.on('blur', function () {
+                if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
+                    me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
+                }
+            })
         }
 
         this.getResetButton().setHandler(this.restoreDefault, this);
@@ -256,7 +292,7 @@ Ext.define('Uni.property.view.property.Base', {
     /**
      * Sets inherited value as default
      */
-    useInheritedValue: function() {
+    useInheritedValue: function () {
         this.getProperty().initInheritedValues();
         this.updateResetButton();
     }

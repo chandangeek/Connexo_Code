@@ -30,5 +30,14 @@ Ext.define('Uni.property.view.property.Time', {
         }
 
         this.callParent([value]);
+    },
+
+    getValue: function (value) {
+        if (value != null && value != '') {
+            var newDate = new Date(1970, 0, 1, value.getHours(), value.getMinutes(), value.getSeconds(), 0);
+            return newDate.getTime() / 1000;
+        } else {
+            return value;
+        }
     }
 });

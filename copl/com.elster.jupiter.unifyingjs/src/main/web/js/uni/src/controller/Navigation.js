@@ -152,10 +152,18 @@ Ext.define('Uni.controller.Navigation', {
         this.removeDuplicatesFromStore(store);
 
         if (menu !== undefined) {
+            if (menu.rendered) {
+                Ext.suspendLayouts();
+            }
+
             menu.removeAllMenuItems();
             store.each(function (record) {
                 menu.addMenuItem(record);
             });
+
+            if (menu.rendered) {
+                Ext.resumeLayouts(true);
+            }
         }
     },
 

@@ -5,22 +5,26 @@ Ext.define('Uni.property.view.property.DateTime', {
 
     getEditCmp: function () {
         var me = this;
-        var result = this.callParent(arguments);
-
-        result.splice(0, 0, {
+        var result = new Array()
+        result[0] = this.callParent(arguments);
+        result[1] = {
             xtype: 'timefield',
             name: this.getName() + '.time',
             itemId: me.key + 'timefield',
             format: me.timeFormat,
             width: me.width,
             required: me.required
-        });
+        };
 
         return result;
     },
 
     getTimeField: function () {
         return this.down('timefield');
+    },
+
+    getDateField: function () {
+        return this.down('datefield');
     },
 
     setValue: function (value) {
@@ -41,7 +45,17 @@ Ext.define('Uni.property.view.property.DateTime', {
         }
     },
 
-    getValue: function () {
+    getValue: function (value) {
+        var timeValue = this.getTimeField().getValue();
+        var dateValue = this.getDateField().getValue();
+
+        if (timeValue !== null && timeValue !== '' && dateValue !== null && dateValue !== '') {
+            var newDate = new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(),
+                timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), 0);
+            return newDate.getTime();
+        } else {
+            return null;
+        }
 
     }
 });

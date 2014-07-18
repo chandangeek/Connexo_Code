@@ -12,6 +12,6 @@ Ext.define('Uni.override.FieldBaseOverride', {
     /**
      * Changes the default value 'qtip'.
      */
-    msgTarget: 'side'
+    msgTarget: 'under'
 
 });
