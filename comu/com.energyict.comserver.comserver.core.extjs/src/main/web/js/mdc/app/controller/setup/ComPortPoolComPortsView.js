@@ -202,9 +202,16 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         var grid = this.getAddComPortGrid(),
             comPortsCountSelected = grid.getView().getSelectionModel().getSelection().length,
             comPortsCountContainer = this.getComPortsCountContainer(),
+            addButton = this.getAddComPortView().down('button[name=addcomportstocomportpool]'),
             comPortsMsgWord;
-        comPortsCountSelected > 0 ? comPortsMsgWord = comPortsCountSelected + ' ' + Uni.I18n.translate('comPortPoolComPorts.addPorts.count', 'MDC', 'communication port(s) selected') :
+        if (comPortsCountSelected > 0) {
+            comPortsMsgWord = comPortsCountSelected + ' ' + Uni.I18n.translate('comPortPoolComPorts.addPorts.count', 'MDC', 'communication port(s) selected');
+            addButton.enable();
+        } else {
             comPortsMsgWord = Uni.I18n.translate('comPortPoolComPorts.addPorts.noPortsSelected', 'MDC', 'No communication ports selected');
+            addButton.disable();
+        }
+
         var widget = Ext.widget('container', {
             html: comPortsMsgWord
         });
