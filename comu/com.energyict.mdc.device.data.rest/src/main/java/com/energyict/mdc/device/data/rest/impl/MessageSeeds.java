@@ -11,6 +11,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_PARTIAL_CONNECTION_TASK(16, "DDR.NoSuchPartialConnectionTask", "No such connection method on device config"),
     NO_SUCH_CONNECTION_METHOD(17, "DDR.NoSuchConnectionTask" , "Device {0} has no connection method {1}"),
     NO_SUCH_REGISTER(18, "DDR.NoSuchRegister" , "No register with id {0}"),
+    INVALID_DATE(19, "DDR.InvalidDate", "Date should be less or equal to {0}"),
     ;
 
     private final int number;

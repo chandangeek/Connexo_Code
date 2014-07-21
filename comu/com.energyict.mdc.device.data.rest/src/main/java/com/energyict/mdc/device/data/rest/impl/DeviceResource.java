@@ -42,10 +42,11 @@ public class DeviceResource {
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<RegisterConfigurationResource> registerConfigurationResourceProvider;
+    private final Provider<DeviceValidationResource> deviceValidationResourceProvider;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, IssueService issueService, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, Provider<ProtocolDialectResource> protocolDialectResourceProvider, Provider<RegisterConfigurationResource> registerConfigurationResourceProvider, ExceptionFactory exceptionFactory) {
+    public DeviceResource(ResourceHelper resourceHelper, DeviceImportService deviceImportService, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, IssueService issueService, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineModelService engineModelService, MdcPropertyUtils mdcPropertyUtils, Provider<ProtocolDialectResource> protocolDialectResourceProvider, Provider<RegisterConfigurationResource> registerConfigurationResourceProvider, Provider<DeviceValidationResource> deviceValidationResourceProvider, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
         this.deviceDataService = deviceDataService;
@@ -56,6 +57,7 @@ public class DeviceResource {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.registerConfigurationResourceProvider = registerConfigurationResourceProvider;
+        this.deviceValidationResourceProvider = deviceValidationResourceProvider;
         this.exceptionFactory = exceptionFactory;
     }
 	
@@ -251,5 +253,10 @@ public class DeviceResource {
     @Path("/{mRID}/registers")
     public RegisterConfigurationResource getRegisterConfigurationResource() {
         return registerConfigurationResourceProvider.get();
+    }
+
+    @Path("/{mRID}/validationrulesets")
+    public DeviceValidationResource getDeviceConfigurationResource() {
+        return deviceValidationResourceProvider.get();
     }
 }
