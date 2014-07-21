@@ -63,12 +63,17 @@ public class ComPortPoolComPortResource {
 
     private void removeComPortFromComPortPool(ComPortPool comPortPool, long comPortId) {
         if(OutboundComPortPool.class.isAssignableFrom(comPortPool.getClass())) {
-            OutboundComPortPool outboundComPortPool = (OutboundComPortPool) comPortPool;
-            for (OutboundComPort comPort : outboundComPortPool.getComPorts()) {
-                if(comPort.getId() == comPortId) {
-                    outboundComPortPool.removeOutboundComPort(comPort);
-                }
+            ComPort comPort = findComPortOrThrowException(comPortPool, comPortId);
+            ((OutboundComPortPool)comPortPool).removeOutboundComPort((OutboundComPort)comPort);
+            return;
+        }
+        if(InboundComPortPool.class.isAssignableFrom(comPortPool.getClass())) {
+            ComPort comPort = findComPortOrThrowException(comPortPool, comPortId);
+            if(InboundComPort.class.isAssignableFrom(comPort.getClass())) {
+                ((InboundComPort)comPort).setComPortPool(null);
+                comPort.save();
             }
+            return;
         }
     }
 

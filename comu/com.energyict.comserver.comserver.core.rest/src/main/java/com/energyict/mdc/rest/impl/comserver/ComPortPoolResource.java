@@ -5,11 +5,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.engine.model.*;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -144,6 +140,9 @@ public class ComPortPoolResource {
         if (comPortPool instanceof OutboundComPortPool) {
             handlePools(comPortPoolInfo, (OutboundComPortPool) comPortPool, engineModelService, getBoolean(uriInfo, ALL));
         }
+        if(InboundComPortPool.class.isAssignableFrom(comPortPool.getClass())) {
+            handleInboundPoolPorts((InboundComPortPool)comPortPool, Optional.fromNullable(comPortPoolInfo.inboundComPorts));
+        }
         return Response.status(Response.Status.CREATED).entity(ComPortPoolInfoFactory.asInfo(comPortPool, engineModelService)).build();
     }
 
@@ -160,6 +159,9 @@ public class ComPortPoolResource {
         if (comPortPool.get() instanceof OutboundComPortPool) {
             handlePools(comPortPoolInfo, (OutboundComPortPool) comPortPool.get(), engineModelService, getBoolean(uriInfo, ALL));
         }
+        if(InboundComPortPool.class.isAssignableFrom(comPortPool.get().getClass())) {
+            handleInboundPoolPorts((InboundComPortPool)comPortPool.get(), Optional.fromNullable(comPortPoolInfo.inboundComPorts));
+        }
         comPortPool.get().save();
         return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineModelService);
     }
@@ -172,6 +174,34 @@ public class ComPortPoolResource {
     private boolean getBoolean(UriInfo uriInfo, String key) {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
+    }
+
+    private void handleInboundPoolPorts(InboundComPortPool inboundComPortPool, Optional<List<InboundComPortInfo>> inboundComPortInfos) {
+        if(inboundComPortInfos.isPresent()) {
+            Map<Long, ComPortInfo> newComPortIdMap = asIdz(inboundComPortInfos.get());
+
+            for (InboundComPort comPort : inboundComPortPool.getComPorts()) {
+                if (newComPortIdMap.containsKey(comPort.getId())) {
+                    newComPortIdMap.remove(comPort.getId());
+                } else {
+                    comPort.setComPortPool(null);
+                    comPort.save();
+                }
+            }
+
+            for(ComPortInfo inboundComPortInfo : newComPortIdMap.values()) {
+                ComPort comPort = engineModelService.findComPort(inboundComPortInfo.id);
+                if(InboundComPort.class.isAssignableFrom(comPort.getClass())) {
+                    ((InboundComPort)comPort).setComPortPool(inboundComPortPool);
+                    comPort.save();
+                }
+            }
+        } else {
+            for (InboundComPort comPort : inboundComPortPool.getComPorts()) {
+                comPort.setComPortPool(null);
+                comPort.save();
+            }
+        }
     }
 
     protected void handlePools(ComPortPoolInfo<? extends ComPortPool> comPortPoolInfo, OutboundComPortPool outboundComPortPool, EngineModelService engineModelService, boolean all) {
@@ -196,7 +226,7 @@ public class ComPortPoolResource {
     }
 
     private void updateComPorts(OutboundComPortPool outboundComPortPool, List<OutboundComPortInfo> newComPorts, EngineModelService engineModelService) {
-        Map<Long, OutboundComPortInfo> newComPortIdMap = asIdz(newComPorts);
+        Map<Long, ComPortInfo> newComPortIdMap = asIdz(newComPorts);
         for (OutboundComPort comPort : outboundComPortPool.getComPorts()) {
             if (newComPortIdMap.containsKey(comPort.getId())) {
                 // Updating ComPorts not allowed here
@@ -206,7 +236,7 @@ public class ComPortPoolResource {
             }
         }
 
-        for (OutboundComPortInfo comPortInfo : newComPortIdMap.values()) {
+        for (ComPortInfo comPortInfo : newComPortIdMap.values()) {
             Optional<? extends ComPort> comPort = Optional.fromNullable(engineModelService.findComPort(comPortInfo.id));
             if (!comPort.isPresent()) {
                 throw new WebApplicationException("No ComPort with id "+comPortInfo.id,
@@ -221,9 +251,9 @@ public class ComPortPoolResource {
         }
     }
 
-    private Map<Long, OutboundComPortInfo> asIdz(Collection<? extends OutboundComPortInfo> comPortInfos) {
-        Map<Long, OutboundComPortInfo> comPortIdMap = new HashMap<>();
-        for (OutboundComPortInfo comPort : comPortInfos) {
+    private Map<Long, ComPortInfo> asIdz(Collection<? extends ComPortInfo> comPortInfos) {
+        Map<Long, ComPortInfo> comPortIdMap = new HashMap<>();
+        for (ComPortInfo comPort : comPortInfos) {
             comPortIdMap.put(comPort.id, comPort);
         }
         return comPortIdMap;

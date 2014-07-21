@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -39,6 +40,7 @@ public class MdcApplication extends Application implements InstallService {
         return ImmutableSet.of(AutoCloseDatabaseConnection.class,
                 TransactionWrapper.class,
                 ConstraintViolationExceptionMapper.class,
+                LocalizedExceptionMapper.class,
                 ComServerResource.class,
                 ComServerComPortResource.class,
                 ComPortResource.class,
