@@ -1,5 +1,17 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.common.rest.Installer;
+import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -12,26 +24,16 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.Installer;
-import com.energyict.mdc.common.rest.TransactionWrapper;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdw.UserFileService;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.ws.rs.core.Application;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component(name = "com.energyict.ddr.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/ddr", "name="+DeviceApplication.COMPONENT_NAME})
 public class DeviceApplication extends Application implements InstallService{
@@ -49,8 +51,8 @@ public class DeviceApplication extends Application implements InstallService{
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
-    private volatile UserFileService userFileService;
     private volatile EngineModelService engineModelService;
+    private volatile SchedulingService schedulingService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -63,7 +65,8 @@ public class DeviceApplication extends Application implements InstallService{
                 JsonMappingExceptionMapper.class,
                 LocalizedExceptionMapper.class,
                 ProtocolDialectResource.class,
-                RegisterConfigurationResource.class,
+                RegisterResource.class,
+                RegisterDataResource.class,
                 DeviceValidationResource.class
         );
     }
@@ -123,13 +126,13 @@ public class DeviceApplication extends Application implements InstallService{
     }
 
     @Reference
-    public void setUserFileService(UserFileService userFileService) {
-        this.userFileService = userFileService;
+    public void setEngineModelService(EngineModelService engineModelService) {
+        this.engineModelService = engineModelService;
     }
 
     @Reference
-    public void setEngineModelService(EngineModelService engineModelService) {
-        this.engineModelService = engineModelService;
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
     }
 
     @Override
@@ -156,9 +159,9 @@ public class DeviceApplication extends Application implements InstallService{
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceImportService).to(DeviceImportService.class);
-            bind(userFileService).to(UserFileService.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(schedulingService).to(SchedulingService.class);
         }
     }
 
