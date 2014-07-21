@@ -14660,14 +14660,3 @@ a:hover, a.x-btn:hover {
 .x-btn-step-active-small .x-btn-arrow-right {
   padding-right: 21px;
 }
-/* line 289, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small .x-btn-arrow-bottom {
-  padding-bottom: 18px;
-}
-/* line 293, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small .x-btn-glyph {
-  font-size: 17px;
-  line-height: 17px;
-  color: white;
-  opacity: 0.5;
-}
