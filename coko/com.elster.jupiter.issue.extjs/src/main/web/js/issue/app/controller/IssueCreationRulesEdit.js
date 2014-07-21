@@ -75,6 +75,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 menuclick: this.chooseActionOperation
             }
         });
+
+        this.on('templateloaded', this.checkDependencies, this);
     },
 
     showCreate: function (id) {
@@ -183,7 +185,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     name,
                     value;
 
-                if (data.parameters) {console.info(data.parameters);
+                if (data.parameters) {
                     for (name in data.parameters) {
                         formField = templateDetails.down('[name=' + name + ']');
                         value = data.parameters[name];
@@ -292,7 +294,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                         formItem = me.createControl(obj);
                         formItem && templateDetails.add(formItem);
                     });
-                    me.fireEvent('templateloaded');
+                    me.fireEvent('templateloaded', template);
                 }
             });
         }
@@ -454,5 +456,42 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             actionsGrid.hide();
             noActionsText.show();
         }
+    },
+
+    checkDependencies: function (template) {
+        var me = this,
+            templateDetails = me.getTemplateDetails(),
+            parametersFields = templateDetails.query('[isFormField=true]');
+
+        Ext.Array.each(parametersFields, function (field) {
+            var linkedFields = [];
+
+            if (field.dependOn) {
+                linkedFields.push(field);
+                Ext.Array.each(field.dependOn, function (dependOnName) {
+                    var dependOnField = templateDetails.down('[name=' + dependOnName + ']');
+                    linkedFields.push(dependOnField);
+                    dependOnField && dependOnField.on('blur', function () {
+                        var data = {};
+                        Ext.Array.each(linkedFields, function (linkedField) {
+                            data[linkedField.name] = linkedField.getValue();
+                        });
+                        Ext.Ajax.request({
+                            url: ' /api/isu/rules/templates/' + template.getId() + '/parameters/' + field.name,
+                            method: 'PUT',
+                            jsonData: Ext.encode(data),
+                            success: function(response){
+                                var responseTextObj = Ext.decode(response.responseText, true),
+                                    newControl = me.createControl(responseTextObj.data),
+                                    oldControl = templateDetails.down('[name=' + newControl.name + ']'),
+                                    index = templateDetails.query().indexOf(oldControl);
+                                oldControl.destroy();
+                                templateDetails.insert(index, newControl);
+                            }
+                        });
+                    });
+                });
+            }
+        });
     }
 });
