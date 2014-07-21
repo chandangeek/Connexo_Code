@@ -24,10 +24,12 @@ Ext.define('Uni.grid.column.ReadingType', {
         cmp.setHTML('');
         field.setValue(value);
         field.render(cmp);
+
+        Ext.defer(view.updateLayout, 10, view);
     },
 
     renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
         var me = metaData.column;
-        Ext.defer(me.deferredRenderer, 10, me, [value, record, view]);
+        Ext.defer(me.deferredRenderer, 1, me, [value, record, view]);
     }
 });
