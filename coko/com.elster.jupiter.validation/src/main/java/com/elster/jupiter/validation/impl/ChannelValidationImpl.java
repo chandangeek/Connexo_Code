@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.validation.ChannelValidation;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -14,7 +15,7 @@ final class ChannelValidationImpl implements ChannelValidation {
 
     private long id;
     private Reference<Channel> channel = ValueReference.absent();
-    private Reference<MeterActivationValidation> meterActivationValidation = ValueReference.absent();
+    private Reference<IMeterActivationValidation> meterActivationValidation = ValueReference.absent();
     private UtcInstant lastChecked;
 
     @SuppressWarnings("unused")
@@ -22,7 +23,7 @@ final class ChannelValidationImpl implements ChannelValidation {
     ChannelValidationImpl() {
     }
 
-    ChannelValidationImpl init(MeterActivationValidation meterActivationValidation, Channel channel) {
+    ChannelValidationImpl init(IMeterActivationValidation meterActivationValidation, Channel channel) {
         if (!channel.getMeterActivation().equals(meterActivationValidation.getMeterActivation())) {
             throw new IllegalArgumentException();
         }
@@ -31,7 +32,7 @@ final class ChannelValidationImpl implements ChannelValidation {
         return this;
     }
 
-    static ChannelValidationImpl from(DataModel dataModel, MeterActivationValidation meterActivationValidation, Channel channel) {
+    static ChannelValidationImpl from(DataModel dataModel, IMeterActivationValidation meterActivationValidation, Channel channel) {
         return dataModel.getInstance(ChannelValidationImpl.class).init(meterActivationValidation, channel);
     }
 
@@ -42,7 +43,7 @@ final class ChannelValidationImpl implements ChannelValidation {
     }
 
     @Override
-    public MeterActivationValidation getMeterActivationValidation() {
+    public IMeterActivationValidation getMeterActivationValidation() {
         return meterActivationValidation.get();
     }
 

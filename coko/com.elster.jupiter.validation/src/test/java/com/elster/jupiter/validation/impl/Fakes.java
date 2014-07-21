@@ -8,6 +8,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.validation.ChannelValidation;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -297,12 +298,12 @@ public enum Fakes {
     }
 
 
-    public static class MeterActivationValidationFactory extends FakeFactory<MeterActivationValidation> {
+    public static class MeterActivationValidationFactory extends FakeFactory<IMeterActivationValidation> {
 
         public MeterActivationValidationFactory() {
-            super(new KeyGetter<MeterActivationValidation>() {
+            super(new KeyGetter<IMeterActivationValidation>() {
                 @Override
-                public Key getKey(MeterActivationValidation entity) {
+                public Key getKey(IMeterActivationValidation entity) {
                     return new Key(entity.getId());
                 }
             });

@@ -191,7 +191,7 @@ public class ValidationIT {
                 service.validate(meterActivation, interval(date1, date5));
 
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
-                List<MeterActivationValidation> meterActivationValidations = valDataModel.mapper(MeterActivationValidation.class).find("meterActivation", meterActivation);
+                List<IMeterActivationValidation> meterActivationValidations = valDataModel.mapper(IMeterActivationValidation.class).find("meterActivation", meterActivation);
                 assertThat(meterActivationValidations).hasSize(1);
                 assertThat(meterActivationValidations.get(0).getRuleSet().getName()).isEqualTo(MY_RULE_SET);
                 assertThat(meterActivationValidations.get(0).isObsolete()).isFalse();

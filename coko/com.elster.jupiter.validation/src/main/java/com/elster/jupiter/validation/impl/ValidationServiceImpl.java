@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -19,13 +20,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetResolver;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorFactory;
-import com.elster.jupiter.validation.ValidatorNotFoundException;
+import com.elster.jupiter.validation.*;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -37,9 +32,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -143,6 +136,68 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
+    public MeterValidation createMeterValidation(MeterActivation activation) {
+        MeterValidation meterValidation = MeterValidationImpl.from(dataModel, activation);
+        meterValidation.save();
+        return meterValidation;
+    }
+
+    @Override
+    public Optional<MeterValidation> getMeterValidation(MeterActivation meterActivation) {
+        return dataModel.mapper(MeterValidation.class).getOptional(meterActivation.getId());
+    }
+
+    @Override
+    public void disableMeterValidation(MeterActivation meterActivation) {
+        Optional<MeterValidation> meterValidationRef = getMeterValidation(meterActivation);
+        if(!meterValidationRef.isPresent()) {
+            meterValidationRef = Optional.of(createMeterValidation(meterActivation));
+        }
+        MeterValidation meterValidation = meterValidationRef.get();
+        meterValidation.setActivationStatus(false);
+        meterValidation.save();
+    }
+
+    @Override
+    public void enableMeterValidation(MeterActivation meterActivation, Optional<Date> dateRef) {
+        Optional<MeterValidation> meterValidationRef = getMeterValidation(meterActivation);
+        if(!meterValidationRef.isPresent()) {
+            meterValidationRef = Optional.of(createMeterValidation(meterActivation));
+        }
+        MeterValidation meterValidation = meterValidationRef.get();
+        meterValidation.setActivationStatus(true);
+        meterValidation.save();
+
+        if (dateRef.isPresent()) {
+            Date date = dateRef.get();
+            List<MeterActivationValidation> validations = getMeterActivationValidationsForMeterActivation(meterActivation);
+            for(MeterActivationValidation validation : validations) {
+                for(ChannelValidation channelValidation : validation.getChannelValidations()) {
+                    channelValidation.setLastChecked(date);
+                }
+                validation.save();
+            }
+            validate(meterActivation, Interval.startAt(date));
+        }
+    }
+
+    @Override
+    public Date getLastChecked(MeterActivation meterActivation) {
+        List<MeterActivationValidation> validations = getMeterActivationValidationsForMeterActivation(meterActivation);
+        Set<ChannelValidation> chennelValidations = new LinkedHashSet<>();
+        for(MeterActivationValidation validation : validations) {
+            chennelValidations.addAll(validation.getChannelValidations());
+        }
+        List<Date> lastCheckedDates = new ArrayList();
+
+        for(ChannelValidation channelValidation : chennelValidations) {
+            lastCheckedDates.add(channelValidation.getLastChecked());
+        }
+
+        return lastCheckedDates.isEmpty() ? new Date() : Collections.min(lastCheckedDates);
+    }
+
+    @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
         Optional<ValidationRuleSet> ruleSetRef = dataModel.mapper(IValidationRuleSet.class).getOptional(id).transform(UPCAST);
         if (ruleSetRef.isPresent() && ruleSetRef.get().getObsoleteDate() != null) {
@@ -176,37 +231,37 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     @Override
     public List<ValidationRuleSet> getValidationRuleSets() {
-        return getRuleSetQuery().select(Condition.TRUE, Order.ascending("name"));
+        return getRuleSetQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
     }
 
     @Override
     public void validate(MeterActivation meterActivation, Interval interval) {
-        List<MeterActivationValidation> meterActivationValidations = getMeterActivationValidations(meterActivation, interval);
-        for (MeterActivationValidation meterActivationValidation : meterActivationValidations) {
+        List<IMeterActivationValidation> meterActivationValidations = getMeterActivationValidations(meterActivation, interval);
+        for (IMeterActivationValidation meterActivationValidation : meterActivationValidations) {
             meterActivationValidation.validate(interval);
         }
     }
 
-    public List<MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation, Interval interval) {
+    public List<IMeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation, Interval interval) {
         return manageMeterActivationValidations(meterActivation, interval);
     }
 
-    private List<MeterActivationValidation> manageMeterActivationValidations(MeterActivation meterActivation, Interval interval) {
+    private List<IMeterActivationValidation> manageMeterActivationValidations(MeterActivation meterActivation, Interval interval) {
         List<ValidationRuleSet> ruleSets = new ArrayList<>();
         for (ValidationRuleSetResolver ruleSetResolver : ruleSetResolvers) {
             ruleSets.addAll(ruleSetResolver.resolve(meterActivation, interval));
         }
-        List<MeterActivationValidation> existingMeterActivationValidations = getMeterActivationValidations(meterActivation);
-        List<MeterActivationValidation> returnList = new ArrayList<>();
+        List<IMeterActivationValidation> existingMeterActivationValidations = getMeterActivationValidations(meterActivation);
+        List<IMeterActivationValidation> returnList = new ArrayList<>();
         for (ValidationRuleSet ruleSet : ruleSets) {
-            Optional<MeterActivationValidation> meterActivationValidation = getForRuleSet(existingMeterActivationValidations, ruleSet);
+            Optional<IMeterActivationValidation> meterActivationValidation = getForRuleSet(existingMeterActivationValidations, ruleSet);
             if (!meterActivationValidation.isPresent()) {
                 returnList.add(applyRuleSet(ruleSet, meterActivation));
             } else {
                 returnList.add(meterActivationValidation.get());
             }
         }
-        for (MeterActivationValidation existingMeterActivationValidation : existingMeterActivationValidations) {
+        for (IMeterActivationValidation existingMeterActivationValidation : existingMeterActivationValidations) {
             if (!ruleSets.contains(existingMeterActivationValidation.getRuleSet())) {
                 existingMeterActivationValidation.makeObsolete();
             }
@@ -214,8 +269,8 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         return returnList;
     }
 
-    private Optional<MeterActivationValidation> getForRuleSet(List<MeterActivationValidation> meterActivations, ValidationRuleSet ruleSet) {
-        for (MeterActivationValidation meterActivation : meterActivations) {
+    private Optional<IMeterActivationValidation> getForRuleSet(List<IMeterActivationValidation> meterActivations, ValidationRuleSet ruleSet) {
+        for (IMeterActivationValidation meterActivation : meterActivations) {
             if (ruleSet.equals(meterActivation.getRuleSet())) {
                 return Optional.of(meterActivation);
             }
@@ -223,13 +278,13 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         return Optional.absent();
     }
 
-    private List<MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation) {
+    private List<IMeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation) {
         Condition condition = where("meterActivation").isEqualTo(meterActivation).and(where("obsoleteTime").isNull());
-        return dataModel.query(MeterActivationValidation.class).select(condition);
+        return dataModel.query(IMeterActivationValidation.class).select(condition);
     }
 
-    private MeterActivationValidation applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
-        MeterActivationValidation meterActivationValidation = MeterActivationValidationImpl.from(dataModel, meterActivation);
+    private IMeterActivationValidation applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
+        IMeterActivationValidation meterActivationValidation = MeterActivationValidationImpl.from(dataModel, meterActivation);
         meterActivationValidation.setRuleSet(ruleSet);
 
         for (Channel channel : meterActivation.getChannels()) {
@@ -238,6 +293,16 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
         meterActivationValidation.save();
         return meterActivationValidation;
+    }
+
+    @Override
+    public List<MeterActivationValidation> getMeterActivationValidationsForMeterActivation(MeterActivation meterActivation) {
+        List<IMeterActivationValidation> meterActivationValidationsList = getMeterActivationValidations(meterActivation);
+        List<MeterActivationValidation> result = new ArrayList<>();
+        for(IMeterActivationValidation inner : meterActivationValidationsList) {
+            result.add(inner);
+        }
+        return result;
     }
 
     @Override

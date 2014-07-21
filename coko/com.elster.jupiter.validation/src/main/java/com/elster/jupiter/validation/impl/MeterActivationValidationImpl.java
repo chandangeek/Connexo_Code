@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Ordering;
@@ -21,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-class MeterActivationValidationImpl implements MeterActivationValidation {
+class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     private long id;
     private Reference<MeterActivation> meterActivation = ValueReference.absent();
@@ -34,6 +35,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
 
     private final DataModel dataModel;
     private final Clock clock;
+    private boolean active = true;
 
     @Inject
     MeterActivationValidationImpl(DataModel dataModel, Clock clock) {
@@ -117,8 +119,8 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
         return obsoleteTime != null;
     }
 
-    private DataMapper<MeterActivationValidation> meterActivationValidationFactory() {
-        return dataModel.mapper(MeterActivationValidation.class);
+    private DataMapper<IMeterActivationValidation> meterActivationValidationFactory() {
+        return dataModel.mapper(IMeterActivationValidation.class);
     }
 
     @Override
@@ -173,5 +175,15 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     @Override
     public Date getLastRun() {
         return lastRun.toDate();
+    }
+
+    @Override
+    public boolean isActive() {
+        return this.active;
+    }
+
+    @Override
+    public void setActive(boolean status) {
+        this.active = status;
     }
 }
