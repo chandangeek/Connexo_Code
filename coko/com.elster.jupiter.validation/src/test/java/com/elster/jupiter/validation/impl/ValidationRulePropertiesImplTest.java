@@ -1,48 +1,39 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.util.units.Unit;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationRulePropertiesImplTest extends EqualsContractTest {
 
     public static final String MIN = "min";
-    public static final Quantity VALUE = Unit.UNITLESS.amount(new BigDecimal(100)) ;
+    public static final BigDecimal VALUE = new BigDecimal(100);
     public static final String MAX = "max";
-    public static final Quantity OTHER_VALUE = Unit.UNITLESS.amount(new BigDecimal(1000));
-    private ValidationRulePropertiesImpl property;
+    public static final BigDecimal OTHER_VALUE = new BigDecimal(1000);
 
+    private ValidationRulePropertiesImpl property;
     @Mock
     private ValidationRule rule;
     @Mock
-    private DataModel dataModel;
-    @Mock
-    private Thesaurus thesaurus;
+    private PropertySpec propertySpec;
+    private BigDecimalFactory valueFactory = new BigDecimalFactory();
 
     @Before
     public void setUp() {
-        when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRulePropertiesImpl();
-            }
-        });
+
     }
 
     @After
@@ -52,26 +43,30 @@ public class ValidationRulePropertiesImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceA() {
-        when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRulePropertiesImpl();
-            }
-        });
+        when(propertySpec.getName()).thenReturn(MIN);
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
         if (property == null) {
-            property = ValidationRulePropertiesImpl.from(dataModel, rule, MIN, VALUE);
+            property = new ValidationRulePropertiesImpl();
+            property.init(rule, propertySpec, VALUE);
         }
         return property;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return ValidationRulePropertiesImpl.from(dataModel, rule, MIN, OTHER_VALUE);
+        ValidationRulePropertiesImpl other = new ValidationRulePropertiesImpl();
+        other.init(rule, propertySpec, OTHER_VALUE);
+        return other;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return ImmutableList.of(ValidationRulePropertiesImpl.from(dataModel, rule, MAX, OTHER_VALUE));
+        ValidationRulePropertiesImpl other = new ValidationRulePropertiesImpl();
+        PropertySpec maxProp = mock(PropertySpec.class);
+        when(maxProp.getName()).thenReturn(MAX);
+        when(maxProp.getValueFactory()).thenReturn(valueFactory);
+        other.init(rule, maxProp, OTHER_VALUE);
+        return ImmutableList.of(other);
     }
 
     @Override

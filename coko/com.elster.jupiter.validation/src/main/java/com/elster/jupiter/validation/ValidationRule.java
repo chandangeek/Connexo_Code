@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.units.Quantity;
 
 import java.util.Date;
 import java.util.List;
@@ -35,13 +34,13 @@ public interface ValidationRule {
 
     List<ValidationRuleProperties> getProperties();
 
-    ValidationRuleProperties addProperty(String name, Quantity value);
+    ValidationRuleProperties addProperty(String name, Object value);
 
-    void setProperties(Map<String, Quantity> map);
+    void setProperties(Map<String, Object> map);
 
     void deleteProperty(ValidationRuleProperties property);
 
-    Map<String, Quantity> getProps();
+    Map<String, Object> getProps();
 
     Set<ReadingType> getReadingTypes();
 

@@ -4,9 +4,11 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -19,9 +21,13 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.base.Function;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.*;
 import com.google.common.base.Optional;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.Ordering;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -216,7 +222,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     @Override
     public Optional<ValidationRule> getValidationRule(long id) {
         Optional<ValidationRule> ruleRef = dataModel.mapper(ValidationRule.class).getOptional(id);
-        if(ruleRef.isPresent() && ruleRef.get().getObsoleteDate() != null) {
+        if (ruleRef.isPresent() && ruleRef.get().getObsoleteDate() != null) {
             ruleRef = Optional.absent();
         }
         return ruleRef;
@@ -312,6 +318,75 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
+    public List<List<ReadingQuality>> getValidationStatus(Channel channel, List<BaseReading> readings) {
+        List<List<ReadingQuality>> result = new ArrayList<>(readings.size());
+        if (!readings.isEmpty()) {
+            List<ChannelValidation> channelValidations = getChannelValidations(channel);
+            Date lastChecked = getMinLastChecked(channelValidations);
+
+            ListMultimap<Date, ReadingQuality> readingQualities = getReadingQualities(channel, getInterval(readings));
+            ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
+            for (BaseReading reading : readings) {
+                if (lastChecked == null || lastChecked.before(reading.getTimeStamp())) {
+                    result.add(Collections.<ReadingQuality>emptyList());
+                } else {
+                    List<ReadingQuality> qualities = readingQualities.get(reading.getTimeStamp());
+                    if (qualities == null || qualities.isEmpty()) {
+                        result.add(Arrays.asList(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp())));
+                    } else {
+                        result.add(qualities);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private Interval getInterval(List<BaseReading> readings) {
+        Date min = null;
+        Date max = null;
+        for (BaseReading reading : readings) {
+            if (min == null || reading.getTimeStamp().before(min)) {
+                min = reading.getTimeStamp();
+            }
+            if (max == null || reading.getTimeStamp().after(max)) {
+                max = reading.getTimeStamp();
+            }
+        }
+        return new Interval(min, max);
+    }
+
+    private ListMultimap<Date, ReadingQuality> getReadingQualities(Channel channel, Interval interval) {
+        List<ReadingQuality> readingQualities = channel.findReadingQuality(interval);
+        return Multimaps.index(readingQualities, new Function<ReadingQuality, Date>() {
+            @Override
+            public Date apply(ReadingQuality input) {
+                return input.getReadingTimestamp();
+            }
+        });
+    }
+
+    private List<ChannelValidation> getChannelValidations(Channel channel) {
+        return dataModel.mapper(ChannelValidation.class).find("channel", channel);
+    }
+
+    private Date getMinLastChecked(List<ChannelValidation> channelValidations) {
+        Ordering<ChannelValidation> o = new Ordering<ChannelValidation>() {
+            @Override
+            public int compare(ChannelValidation left, ChannelValidation right) {
+                if (left == null || left.getLastChecked() == null) {
+                    return -1;
+                } else if (right == null || right.getLastChecked() == null) {
+                    return 1;
+                } else {
+                    return left.getLastChecked().compareTo(right.getLastChecked());
+                }
+            }
+        };
+        return channelValidations.isEmpty() ? null : o.min(channelValidations).getLastChecked();
+    }
+
+    @Override
     public List<Validator> getAvailableValidators() {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
         List<Validator> result = new ArrayList<Validator>();
@@ -336,7 +411,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     class DefaultValidatorCreator implements ValidatorCreator {
 
         @Override
-        public Validator getValidator(String implementation, Map<String, Quantity> props) {
+        public Validator getValidator(String implementation, Map<String, Object> props) {
             for (ValidatorFactory factory : validatorFactories) {
                 if (factory.available().contains(implementation)) {
                     return factory.create(implementation, props);

@@ -4,6 +4,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -22,6 +25,7 @@ import com.elster.jupiter.validation.*;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +39,7 @@ import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -240,4 +245,153 @@ public class ValidationServiceImplTest {
         assertThat(meterActivationValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet2);
         assertThat(activationRuleSet1.isObsolete());
     }
+
+    @Test
+    public void testGetValidationStatusOnEmptyList() {
+        assertThat(validationService.getValidationStatus(channel1, Collections.<BaseReading>emptyList())).isEmpty();
+    }
+
+    @Test
+    public void testGetValidationStatusOnNonValidated() {
+        Date readingDate = new Date();
+        BaseReading reading = mock(BaseReading.class);
+        when(reading.getTimeStamp()).thenReturn(readingDate);
+
+        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Collections.<ChannelValidation>emptyList());
+
+        List<List<ReadingQuality>> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading));
+        assertThat(validationStatus).hasSize(1);
+        assertThat(validationStatus.get(0)).isEmpty();
+
+        ChannelValidation channelValidation = mock(ChannelValidation.class);
+        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation));
+        when(channelValidation.getLastChecked()).thenReturn(new Date(0));
+
+        validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading));
+        assertThat(validationStatus).hasSize(1);
+        assertThat(validationStatus.get(0)).isEmpty();
+
+        ReadingQuality readingQuality = mock(ReadingQuality.class);
+        when(readingQuality.getReadingTimestamp()).thenReturn(readingDate);
+        when(channel1.findReadingQuality(any(Interval.class))).thenReturn(Arrays.asList(readingQuality));
+        validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading));
+        assertThat(validationStatus).hasSize(1);
+        assertThat(validationStatus.get(0)).isEmpty();
+    }
+
+    @Test
+    public void testGetValidationStatus() {
+        Date readingDate1 = new DateTime(2012, 1, 2, 3, 0, 0, 0).toDate();
+        Date readingDate2 = new DateTime(2012, 1, 2, 5, 0, 0, 0).toDate();
+        BaseReading reading1 = mock(BaseReading.class);
+        when(reading1.getTimeStamp()).thenReturn(readingDate1);
+        BaseReading reading2 = mock(BaseReading.class);
+        when(reading2.getTimeStamp()).thenReturn(readingDate2);
+
+
+        ChannelValidation channelValidation = mock(ChannelValidation.class);
+        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation));
+        when(channelValidation.getLastChecked()).thenReturn(readingDate1);
+        when(channel1.findReadingQuality(eq(new Interval(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQuality>emptyList());
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(mock(ReadingQuality.class));
+
+// !! remark that the order of the reading is by purpose not chronological !!
+        List<List<ReadingQuality>> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        assertThat(validationStatus).hasSize(2);
+        assertThat(validationStatus.get(0)).isEmpty(); // reading2 has not be validated yet
+        assertThat(validationStatus.get(1)).hasSize(1); // reading1 is ok
+        ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
+        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate1));
+        assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
+    }
+
+    @Test
+    public void testGetValidationStatusMultipleChannelValidations() {
+        Date readingDate1 = new DateTime(2012, 1, 2, 3, 0, 0, 0).toDate();
+        Date readingDate2 = new DateTime(2012, 1, 2, 5, 0, 0, 0).toDate();
+        BaseReading reading1 = mock(BaseReading.class);
+        when(reading1.getTimeStamp()).thenReturn(readingDate1);
+        BaseReading reading2 = mock(BaseReading.class);
+        when(reading2.getTimeStamp()).thenReturn(readingDate2);
+
+
+        ChannelValidation channelValidation1 = mock(ChannelValidation.class);
+        when(channelValidation1.getLastChecked()).thenReturn(readingDate1);
+        ChannelValidation channelValidation2 = mock(ChannelValidation.class);
+        when(channelValidation2.getLastChecked()).thenReturn(readingDate2);
+        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1, channelValidation2));
+        when(channel1.findReadingQuality(eq(new Interval(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQuality>emptyList());
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(mock(ReadingQuality.class));
+
+// !! remark that the order of the reading is by purpose not chronological !!
+        List<List<ReadingQuality>> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        assertThat(validationStatus).hasSize(2);
+        assertThat(validationStatus.get(0)).isEmpty(); // reading2 has not be validated yet
+        assertThat(validationStatus.get(1)).hasSize(1); // reading1 is ok
+        ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
+        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate1));
+        assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
+    }
+
+    @Test
+    public void testGetValidationStatusNewChannelValidations() {
+        Date readingDate1 = new DateTime(2012, 1, 2, 3, 0, 0, 0).toDate();
+        Date readingDate2 = new DateTime(2012, 1, 2, 5, 0, 0, 0).toDate();
+        BaseReading reading1 = mock(BaseReading.class);
+        when(reading1.getTimeStamp()).thenReturn(readingDate1);
+        BaseReading reading2 = mock(BaseReading.class);
+        when(reading2.getTimeStamp()).thenReturn(readingDate2);
+
+
+        ChannelValidation channelValidation1 = mock(ChannelValidation.class);
+        when(channelValidation1.getLastChecked()).thenReturn(readingDate1);
+        ChannelValidation channelValidation2 = mock(ChannelValidation.class);
+        when(channelValidation2.getLastChecked()).thenReturn(null);
+        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1, channelValidation2));
+        ReadingQuality readingQuality = mock(ReadingQuality.class);
+        when(readingQuality.getReadingTimestamp()).thenReturn(readingDate1);
+        when(channel1.findReadingQuality(eq(new Interval(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality));
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(mock(ReadingQuality.class));
+
+// !! remark that the order of the reading is by purpose not chronological !!
+        List<List<ReadingQuality>> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        assertThat(validationStatus).hasSize(2);
+        assertThat(validationStatus.get(0)).isEmpty(); // reading2 has not be validated yet
+        assertThat(validationStatus.get(1)).isEmpty(); // reading1 has not be validated yet for rule set 2
+
+    }
+
+    @Test
+    public void testGetValidationStatusWithSuspects() {
+        Date readingDate1 = new DateTime(2012, 1, 2, 3, 0, 0, 0).toDate();
+        Date readingDate2 = new DateTime(2012, 1, 2, 5, 0, 0, 0).toDate();
+        BaseReading reading1 = mock(BaseReading.class);
+        when(reading1.getTimeStamp()).thenReturn(readingDate1);
+        BaseReading reading2 = mock(BaseReading.class);
+        when(reading2.getTimeStamp()).thenReturn(readingDate2);
+
+
+        ChannelValidation channelValidation1 = mock(ChannelValidation.class);
+        when(channelValidation1.getLastChecked()).thenReturn(readingDate2);
+        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1));
+        ReadingQuality readingQuality1 = mock(ReadingQuality.class);
+        when(readingQuality1.getReadingTimestamp()).thenReturn(readingDate1);
+        ReadingQuality readingQuality2 = mock(ReadingQuality.class);
+        when(readingQuality2.getReadingTimestamp()).thenReturn(readingDate1);
+        when(channel1.findReadingQuality(eq(new Interval(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality1, readingQuality2));
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate2))).thenReturn(mock(ReadingQuality.class));
+
+// !! remark that the order of the reading is by purpose not chronological !!
+        List<List<ReadingQuality>> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        assertThat(validationStatus).hasSize(2);
+        assertThat(validationStatus.get(0)).hasSize(1); // reading2 is OK
+        ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
+        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate2));
+        assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
+        assertThat(validationStatus.get(1)).hasSize(2); // reading1 has suspects
+        assertThat(validationStatus.get(1)).containsExactly(readingQuality1, readingQuality2);
+
+    }
+
+
 }

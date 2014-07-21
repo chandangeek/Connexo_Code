@@ -6,12 +6,12 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.UtcInstant;
-import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -39,11 +39,11 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private String mRID;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
-    @Size(min = 0, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String aliasName;
-    @Size(min = 0, max = 4000, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private UtcInstant obsoleteTime;
 
@@ -255,16 +255,16 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     @Override
-    public IValidationRule updateRule(long id, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Quantity> properties) {
+    public IValidationRule updateRule(long id, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
         IValidationRule rule = getExistingRule(id, implementation);
         return doUpdateRule(rule, name, implementation, activeStatus, mRIDs, properties);
     }
 
-    private IValidationRule doUpdateRule(IValidationRule rule, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Quantity> properties) {
+    private IValidationRule doUpdateRule(IValidationRule rule, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
         rule.rename(name);
         rule.setImplementation(implementation);
 
-        if(activeStatus != rule.isActive()) {
+        if (activeStatus != rule.isActive()) {
             rule.toggleActivation();
         }
         updateReadingTypes(rule, mRIDs);

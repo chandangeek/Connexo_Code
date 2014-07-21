@@ -2,7 +2,6 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -11,11 +10,9 @@ import javax.validation.ConstraintValidatorContext;
 public class UniqueValidationRuleNameValidator implements ConstraintValidator<UniqueName, ValidationRule> {
 
     private String message;
-    private ValidationService validationService;
 
     @Inject
-    public UniqueValidationRuleNameValidator(ValidationService validationService) {
-        this.validationService = validationService;
+    public UniqueValidationRuleNameValidator() {
     }
 
     @Override

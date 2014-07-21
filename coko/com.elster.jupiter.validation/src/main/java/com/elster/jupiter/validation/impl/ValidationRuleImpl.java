@@ -14,11 +14,12 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
-import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationResult;
@@ -58,12 +59,12 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     private long id;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
     private boolean active;
     private ValidationAction action;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     @ExistingValidator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_VALIDATOR + "}")
     private String implementation; //validator classname
     private UtcInstant obsoleteTime;
@@ -120,18 +121,18 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
-    public ValidationRuleProperties addProperty(String name, Quantity value) {
+    public ValidationRuleProperties addProperty(String name, Object value) {
         ValidationRulePropertiesImpl newProperty = ValidationRulePropertiesImpl.from(dataModel, this, name, value);
         properties.add(newProperty);
         return newProperty;
     }
 
     @Override
-    public void setProperties(Map<String, Quantity> propertyMap) {
+    public void setProperties(Map<String, Object> propertyMap) {
         DiffList<ValidationRuleProperties> entryDiff = ArrayDiffList.fromOriginal(getProperties());
         entryDiff.clear();
         List<ValidationRuleProperties> newProperties = new ArrayList<>();
-        for (Map.Entry<String, Quantity> property : propertyMap.entrySet()) {
+        for (Map.Entry<String, Object> property : propertyMap.entrySet()) {
             ValidationRulePropertiesImpl newProperty = ValidationRulePropertiesImpl.from(dataModel, this, property.getKey(), property.getValue());
             newProperties.add(newProperty);
         }
@@ -196,8 +197,14 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
-    public boolean isRequired(String propertyKey) {
-        return getValidator().getRequiredKeys().contains(propertyKey);
+    public boolean isRequired(final String propertyKey) {
+        Optional<PropertySpec> propertySpecOptional = Iterables.tryFind(getValidator().getPropertySpecs(), new Predicate<PropertySpec>() {
+            @Override
+            public boolean apply(PropertySpec input) {
+                return propertyKey.equals(input.getName());
+            }
+        });
+        return propertySpecOptional.isPresent() && propertySpecOptional.get().isRequired();
     }
 
     private Validator getValidator() {
@@ -250,8 +257,8 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
-    public Map<String, Quantity> getProps() {
-        ImmutableMap.Builder<String, Quantity> builder = ImmutableMap.builder();
+    public Map<String, Object> getProps() {
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
         for (ValidationRuleProperties validationRuleProperties : getProperties()) {
             builder.put(validationRuleProperties.getName(), validationRuleProperties.getValue());
         }
@@ -292,6 +299,16 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     @Override
     public boolean isActive() {
         return active;
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(final String name) {
+        return Iterables.find(getValidator().getPropertySpecs(), new Predicate<PropertySpec>() {
+            @Override
+            public boolean apply(PropertySpec input) {
+                return name.equals(input.getName());
+            }
+        });
     }
 
     public void save() {
@@ -389,11 +406,11 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     private Validator createNewValidator() {
-        Validator validator = validatorCreator.getValidator(this.implementation, getProps());
-        if (validator == null) {
+        Validator createdValidator = validatorCreator.getValidator(this.implementation, getProps());
+        if (createdValidator == null) {
             throw new ValidatorNotFoundException(thesaurus, implementation);
         }
-        return validator;
+        return createdValidator;
     }
 
     private ReadingQualityType defaultReadingQualityType() {
@@ -409,13 +426,9 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     private Validator newValidator(Channel channel, Interval interval, ReadingType channelReadingType) {
-        Validator validator = createNewValidator();
-        validator.init(channel, channelReadingType, interval);
-        return validator;
-    }
-
-    private DataMapper<ReadingTypeInValidationRule> readingTypesInRuleFactory() {
-        return dataModel.mapper(ReadingTypeInValidationRule.class);
+        Validator newValidator = createNewValidator();
+        newValidator.init(channel, channelReadingType, interval);
+        return newValidator;
     }
 
     private DataMapper<IValidationRule> ruleFactory() {

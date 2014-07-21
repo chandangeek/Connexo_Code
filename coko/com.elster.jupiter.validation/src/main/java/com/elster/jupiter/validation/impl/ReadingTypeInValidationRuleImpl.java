@@ -21,12 +21,10 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
 
     private ReadingType readingType;
     private Reference<ValidationRule> rule = ValueReference.absent();
-    private final DataModel dataModel;
     private final MeteringService meteringService;
 
     @Inject
-    ReadingTypeInValidationRuleImpl(DataModel dataModel, MeteringService meteringService) {
-        this.dataModel = dataModel;
+    ReadingTypeInValidationRuleImpl(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
