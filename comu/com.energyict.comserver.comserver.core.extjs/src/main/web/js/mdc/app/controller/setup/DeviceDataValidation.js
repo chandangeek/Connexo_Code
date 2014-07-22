@@ -12,6 +12,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         'Mdc.view.setup.devicedatavalidation.RulesSetMainView'
     ],
     refs: [
+        {ref: 'dvStatusPanel', selector: '#dataValidationStatusPanel'},
         {ref: 'dvStatusField', selector: '#deviceDataValidationStatusField'},
         {ref: 'dvStatusChangeBtn', selector: '#deviceDataValidationStateChangeBtn'},
         {ref: 'rulesSetGrid', selector: '#deviceDataValidationRulesSetGrid'},
@@ -73,18 +74,20 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 me.dataValidationLastChecked = res.lastChecked;
-                me.getDvStatusField().setValue(res.isActive ?
-                    Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                    Uni.I18n.translate('general.inactive', 'MDC', 'Inctive')
+                if (me.getDvStatusPanel()) {
+                    me.getDvStatusField().setValue(res.isActive ?
+                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
+                        Uni.I18n.translate('general.inactive', 'MDC', 'Inctive')
 
-                );
-                me.getDvStatusChangeBtn().setText((res.isActive ?
-                    Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
-                    Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
-                    ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
-                );
-                me.getDvStatusChangeBtn().action = res.isActive ? 'deactivate' : 'activate';
-                me.getDvStatusChangeBtn().setDisabled(false);
+                    );
+                    me.getDvStatusChangeBtn().setText((res.isActive ?
+                        Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
+                        Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
+                        ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
+                    );
+                    me.getDvStatusChangeBtn().action = res.isActive ? 'deactivate' : 'activate';
+                    me.getDvStatusChangeBtn().setDisabled(false);
+                }
             }
         });
     },
@@ -228,55 +231,20 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
     activateDataValidation: function () {
         var me = this,
             isValidationRunImmediately = me.getValidationRunRg().getValue().validationRun === 'now';
-        me.activatedMRID = me.mRID;
         me.confirmationWindowButtonsDisable(true);
-        if (!isValidationRunImmediately) {
-            me.destroyConfirmationWindow();
-        } else {
-            me.getValidationProgress().add(Ext.create('Ext.ProgressBar', {
-                    margin: '5 0 15 0'
-                })).wait({
-                    duration: 120000,
-                    text: Uni.I18n.translate('device.dataValidation.isInProgress', 'MDC', 'Data validation is in progress. Please wait...'),
-                    fn: function () {
-                        me.destroyConfirmationWindow();
-                        me.updateDataValidationStatusSection();
-                        Ext.widget('messagebox', {
-                            buttons: [
-                                {
-                                    text: Uni.I18n.translate('general.close', 'MDC', 'Close'),
-                                    ui: 'remove',
-                                    handler: function () {
-                                        this.up('window').close();
-                                    }
-                                }
-                            ],
-                            listeners: {
-                                close: function () {
-                                    this.destroy();
-                                }
-                            }
-                        }).show({
-                                ui: 'notification-error',
-                                title: Uni.I18n.translate('device.dataValidation.timeout.title', 'MDC', 'Data validation takes longer as expected'),
-                                msg: Uni.I18n.translate('device.dataValidation.timeout.msg', 'MDC', 'Data validation takes longer as expected. Data validation will continue in the background'),
-                                icon: Ext.MessageBox.ERROR
-                            });
-                    }
-                });
-        }
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/activate',
+            url: '/api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
             method: 'PUT',
-            timeout: 600000,
-            jsonData: isValidationRunImmediately ? me.getValidationFromDate().getValue() : null,
+            jsonData: 'true',
             success: function () {
-                me.destroyConfirmationWindow();
-                console.log(me.isUserAtTheSameLocation(), document.URL);
-                if (me.isUserAtTheSameLocation()) me.updateDataValidationStatusSection();
-                me.getApplication().fireEvent('acknowledge', isValidationRunImmediately ?
-                    Ext.String.format(Uni.I18n.translate('device.dataValidation.activation.validated', 'MDC', 'Data validation on device {0} was completed successfully'), me.mRID) :
-                    Ext.String.format(Uni.I18n.translate('device.dataValidation.activation.activated', 'MDC', 'Data validation on device {0} was activated successfully'), me.mRID));
+                me.updateDataValidationStatusSection();
+                if (!isValidationRunImmediately) {
+                    me.destroyConfirmationWindow();
+                    me.getApplication().fireEvent('acknowledge',
+                        Ext.String.format(Uni.I18n.translate('device.dataValidation.activation.activated', 'MDC', 'Data validation on device {0} was activated successfully'), me.mRID));
+                } else {
+                    me.validateData();
+                }
             },
             failure: function (response) {
                 if (me.getActivationConfirmationWindow()) {
@@ -285,6 +253,54 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                     me.showValidationActivationErrors(res.message);
                     me.confirmationWindowButtonsDisable(false);
                 }
+            }
+        });
+    },
+    validateData: function () {
+        var me = this;
+        me.getValidationProgress().add(Ext.create('Ext.ProgressBar', {
+                margin: '5 0 15 0'
+            })).wait({
+                duration: 120000,
+                text: Uni.I18n.translate('device.dataValidation.isInProgress', 'MDC', 'Data validation is in progress. Please wait...'),
+                fn: function () {
+                    me.destroyConfirmationWindow();
+                    Ext.widget('messagebox', {
+                        buttons: [
+                            {
+                                text: Uni.I18n.translate('general.close', 'MDC', 'Close'),
+                                ui: 'remove',
+                                handler: function () {
+                                    this.up('window').close();
+                                }
+                            }
+                        ],
+                        listeners: {
+                            close: function () {
+                                this.destroy();
+                            }
+                        }
+                    }).show({
+                            ui: 'notification-error',
+                            title: Uni.I18n.translate('device.dataValidation.timeout.title', 'MDC', 'Data validation takes longer as expected'),
+                            msg: Uni.I18n.translate('device.dataValidation.timeout.msg', 'MDC', 'Data validation takes longer as expected. Data validation will continue in the background'),
+                            icon: Ext.MessageBox.ERROR
+                        });
+                }
+            });
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validate',
+            method: 'PUT',
+            timeout: 600000,
+            jsonData: me.getValidationFromDate().getValue(),
+            success: function () {
+                me.destroyConfirmationWindow();
+                me.getApplication().fireEvent('acknowledge',
+                    Ext.String.format(Uni.I18n.translate('device.dataValidation.activation.validated', 'MDC', 'Data validation on device {0} was completed successfully'), me.mRID));
+            },
+            failure: function () {
+                me.getValidationProgress().removeAll(true);
+                me.confirmationWindowButtonsDisable(false);
             }
         });
     },
@@ -369,8 +385,9 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
     deactivateDataValidation: function () {
         var me = this;
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/deactivate',
+            url: '/api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
             method: 'PUT',
+            jsonData: 'false',
             success: function () {
                 me.updateDataValidationStatusSection();
                 me.getApplication().fireEvent('acknowledge',
@@ -401,11 +418,5 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             this.getValidationDateErrors().update('');
             this.getValidationDateErrors().setVisible(false);
         }
-    },
-    isUserAtTheSameLocation: function () {
-        var splittedUrl = document.URL.split('/'),
-            isDataValidationRoot = splittedUrl[splittedUrl.length - 1] === 'datavalidation',
-            currentMRID = splittedUrl[splittedUrl.length - 2];
-        return isDataValidationRoot && this.activatedMRID === currentMRID;
     }
 });

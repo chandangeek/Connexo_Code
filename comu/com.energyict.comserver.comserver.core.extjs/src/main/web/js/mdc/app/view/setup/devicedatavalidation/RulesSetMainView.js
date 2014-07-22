@@ -32,6 +32,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                 items: [
                     {
                         xtype: 'panel',
+                        itemId: 'dataValidationStatusPanel',
                         ui: 'medium',
                         layout: 'column',
                         padding: '10 0 0 0',
