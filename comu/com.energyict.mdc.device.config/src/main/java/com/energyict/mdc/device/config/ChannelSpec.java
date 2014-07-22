@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
@@ -83,6 +84,8 @@ public interface ChannelSpec extends HasId {
     void setLoadProfileSpec(LoadProfileSpec loadProfileSpec);
 
     void setInterval(TimeDuration interval);
+
+    ReadingType getReadingType();
 
     void validateDelete();
 

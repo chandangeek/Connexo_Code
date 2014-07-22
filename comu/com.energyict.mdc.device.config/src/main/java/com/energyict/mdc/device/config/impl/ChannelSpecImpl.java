@@ -186,9 +186,8 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         return getDeviceConfiguration().getValidationRules(Arrays.asList(getReadingType()));
     }
 
-    private ReadingType getReadingType() {
-        // TODO proper implementation (govanni)
-
+    @Override
+    public ReadingType getReadingType() {
         return getChannelType().getReadingType();
     }
 
