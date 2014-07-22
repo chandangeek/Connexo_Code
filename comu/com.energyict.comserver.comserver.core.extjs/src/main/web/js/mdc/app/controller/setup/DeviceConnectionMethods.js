@@ -459,7 +459,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                     callback: function () {
                                         connectionStrategiesStore.load({
                                             callback: function () {
-                                                var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + connectionMethod.get('name');
+                                                var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + connectionMethod.get('name') + '\'';
                                                 widget.down('#deviceConnectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
                                                 me.getDeviceConnectionMethodEditView().down('#communicationPortPoolComboBox').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);

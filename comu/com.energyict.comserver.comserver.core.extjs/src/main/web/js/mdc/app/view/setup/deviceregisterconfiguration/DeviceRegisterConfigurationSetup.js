@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
         'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationGrid',
         'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationPreview',
         'Uni.view.container.PreviewContainer',
+        'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
@@ -18,6 +19,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
         me.side = [
             {
                 xtype: 'panel',
+                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {
