@@ -43,9 +43,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             '#registerGroupEdit #editRegisterGroupGridField': {
                 selectionchange: this.checkboxChanged
             },
-            '#registerGroupEdit #editRegisterGroupGridField actioncolumn': {
-                showReadingTypeInfo: this.showReadingType
-            },
             '#registerGroupSetup #registertypegrid': {
                 selectionchange: this.previewRegisterType
             },
