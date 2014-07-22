@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -126,10 +127,9 @@ public class EventTypeParameter extends TranslatedParameter {
         eventTypes.add(info);
     }
 
-
     @Override
-    public boolean isDependent() {
-        return true;
+    public List<String> getDependOn() {
+        return Collections.singletonList(getKey());
     }
 
     @Override

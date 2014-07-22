@@ -12,9 +12,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.google.common.base.Optional;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class MaxSlopeParameter extends TranslatedParameter{
+    private static List<String> PRIMARY_LIST = Collections.singletonList(ReadingTypeParameter.READING_TYPE_PARAMETER_KEY);
     private static final ParameterConstraint CONSTRAINT = new NumberParameterConstraint(false, -100, 100);
 
     private final MeteringService meteringService;
@@ -58,8 +61,8 @@ public class MaxSlopeParameter extends TranslatedParameter{
     }
 
     @Override
-    public boolean isDependent() {
-        return true;
+    public List<String> getDependOn() {
+        return PRIMARY_LIST;
     }
 
     @Override
