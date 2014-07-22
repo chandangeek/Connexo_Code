@@ -256,11 +256,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public List<RegisterType> getRegisterTypes() {
-        List<RegisterType> measurementTypes = new ArrayList<>(this.registerTypeUsages.size());
+        List<RegisterType> registerTypes = new ArrayList<>(this.registerTypeUsages.size());
         for (DeviceTypeRegisterTypeUsage registerTypeUsage : this.registerTypeUsages) {
-            measurementTypes.add(registerTypeUsage.getRegisterType());
+            registerTypes.add(registerTypeUsage.getRegisterType());
         }
-        return measurementTypes;
+        return registerTypes;
     }
 
     @Override

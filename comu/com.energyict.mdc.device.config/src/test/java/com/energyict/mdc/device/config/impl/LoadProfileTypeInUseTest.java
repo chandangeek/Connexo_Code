@@ -104,8 +104,7 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         this.setupReadingTypeInExistingTransaction();
 
         // Setup RegisterType
-        registerType = masterDataService.newRegisterType("testCreateWithRegisterType", OBIS_CODE, unit, readingType, readingType.getTou());
-        registerType.save();
+        registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
         // Setup LoadProfileType with RegisterType
         loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
@@ -147,8 +146,7 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         this.setupReadingTypeInExistingTransaction();
 
         // Setup RegisterType
-        RegisterType registerType = masterDataService.newRegisterType("testCreateWithRegisterType", OBIS_CODE, unit, readingType, readingType.getTou());
-        registerType.save();
+        RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
         // Setup LoadProfileType
         loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
@@ -207,8 +205,7 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
                 .flow(FORWARD)
                 .measure(ENERGY)
                 .in(KILO, WATTHOUR)
-                .period(TimeAttribute.MINUTE15)
-                .accumulate(Accumulation.DELTADELTA)
+                .accumulate(Accumulation.BULKQUANTITY)
                 .code();
         this.readingType = PersistenceTest.inMemoryPersistence.getMeteringService().getReadingType(code).get();
     }

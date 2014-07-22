@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenMeasurementTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdatePhenomenonWhenMeasurementTypeIsInUseException;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 
 import com.elster.jupiter.events.LocalEvent;
@@ -14,6 +15,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.masterdata.RegisterType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
@@ -42,14 +44,16 @@ public class MeasurementTypeUpdateEventHandler implements TopicHandler {
 
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile MasterDataService masterDataService;
 
     public MeasurementTypeUpdateEventHandler() {
         super();
     }
 
-    public MeasurementTypeUpdateEventHandler(DeviceConfigurationService deviceConfigurationService) {
+    public MeasurementTypeUpdateEventHandler(DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService) {
         this();
         this.deviceConfigurationService = deviceConfigurationService;
+        this.masterDataService = masterDataService;
     }
 
     @Override
@@ -92,7 +96,11 @@ public class MeasurementTypeUpdateEventHandler implements TopicHandler {
     }
 
     private boolean isUsed(MeasurementType measurementType) {
-        return this.usedByChannelSpecs(measurementType) || this.usedByRegisterSpecs(measurementType);
+        return this.usedByChannelSpecs(measurementType) || this.usedByRegisterSpecs(measurementType) || this.usedByChannelTypeAsTemplate(measurementType);
+    }
+
+    private boolean usedByChannelTypeAsTemplate(MeasurementType measurementType) {
+        return RegisterType.class.isAssignableFrom(measurementType.getClass()) && !this.masterDataService.findChannelTypeByTemplateRegister((RegisterType) measurementType).isEmpty();
     }
 
     private boolean usedByChannelSpecs(MeasurementType measurementType) {
@@ -119,4 +127,8 @@ public class MeasurementTypeUpdateEventHandler implements TopicHandler {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
+    @Reference
+    public void setMasterDataService(MasterDataService masterDataService) {
+        this.masterDataService = masterDataService;
+    }
 }

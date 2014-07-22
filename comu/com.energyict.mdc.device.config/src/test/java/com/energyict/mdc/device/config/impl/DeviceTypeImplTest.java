@@ -95,7 +95,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     private LoadProfileType loadProfileType2;
     private RegisterType registerType1;
     private RegisterType registerType2;
-    private ChannelType channelType;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -682,43 +681,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         }
     }
 
-    @Test(expected = CannotDeleteBecauseStillInUseException.class)
-    @Transactional
-    public void testRemoveRegisterTypeThatIsStillInUseByChannelSpec() {
-        DeviceConfigurationServiceImpl deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
-        String deviceTypeName = "testRemoveRegisterTypeThatIsStillInUseByChannelSpec";
-        DeviceType deviceType;
-        this.setupLoadProfileTypesInExistingTransaction(deviceTypeName);
-        this.setupRegisterTypesInExistingTransaction();
-//        this.setupChannelTypeInExistingTransaction();
-
-        // Setup the device type
-        deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
-        deviceType.setDescription("For testing purposes only");
-        deviceType.addRegisterType(this.registerType1);
-        this.loadProfileType.createChannelTypeForRegisterType(this.registerType1);
-        this.loadProfileType.save();
-        deviceType.addLoadProfileType(this.loadProfileType);
-        deviceType.save();
-
-        // Add DeviceConfiguration with a ChannelSpec that uses the RegisterType
-        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(this.loadProfileType);
-        deviceConfigurationBuilder.newChannelSpec(this.channelType, this.phenomenon, loadProfileSpecBuilder);
-        deviceConfigurationBuilder.add();
-        deviceType.save();
-
-        try {
-            // Business method
-            deviceType.removeRegisterType(this.registerType1);
-        }
-        catch (CannotDeleteBecauseStillInUseException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC);
-            throw e;
-        }
-    }
-
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS + "}")
@@ -1007,33 +969,16 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         this.loadProfileType2.save();
     }
 
-    private void setupChannelTypeInExistingTransaction() {
-        this.channelType = inMemoryPersistence.getMasterDataService().newChannelType(registerType1, TimeDuration.days(1), readingType1);
-        this.channelType.save();
-    }
-
     private void setupRegisterTypesInExistingTransaction() {
         this.setupProductSpecsInExistingTransaction();
         String registerTypeBaseName = DeviceTypeImplTest.class.getSimpleName();
         Unit unit = Unit.get("kWh");
         this.phenomenon = this.createPhenomenonIfMissing(unit);
         this.registerType1 =
-                inMemoryPersistence.getMasterDataService().
-                        newRegisterType(
-                                registerTypeBaseName + "-1",
-                                ObisCode.fromString("1.0.99.1.0.255"),
-                                unit,
-                                readingType1,
-                                readingType1.getTou());
+                inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1).get();
         this.registerType1.save();
         this.registerType2 =
-                inMemoryPersistence.getMasterDataService().
-                        newRegisterType(
-                                registerTypeBaseName + "-2",
-                                ObisCode.fromString("1.0.99.2.0.255"),
-                                unit,
-                                readingType2,
-                                readingType2.getTou());
+                inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType2).get();
         this.registerType2.save();
     }
 
@@ -1058,16 +1003,14 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
                 .flow(FORWARD)
                 .measure(ENERGY)
                 .in(KILO, WATTHOUR)
-                .period(TimeAttribute.MINUTE15)
-                .accumulate(Accumulation.DELTADELTA)
+                .accumulate(Accumulation.BULKQUANTITY)
                 .code();
         this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED)
                 .flow(REVERSE)
                 .measure(ENERGY)
                 .in(KILO, WATTHOUR)
-                .period(TimeAttribute.MINUTE15)
-                .accumulate(Accumulation.DELTADELTA)
+                .accumulate(Accumulation.BULKQUANTITY)
                 .code();
         this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
     }

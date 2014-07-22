@@ -330,7 +330,7 @@ public class InMemoryPersistence {
         this.loadProfileTypeDeletionEventHandler = this.registerTopicHandler(new LoadProfileTypeDeletionEventHandler(this.deviceConfigurationService));
         this.loadProfileTypeUpdateEventHandler = this.registerTopicHandler(new LoadProfileTypeUpdateEventHandler(this.deviceConfigurationService));
         this.measurementTypeDeletionEventHandler = this.registerTopicHandler(new MeasurementTypeDeletionEventHandler(this.deviceConfigurationService));
-        this.measurementTypeUpdateEventHandler = this.registerTopicHandler(new MeasurementTypeUpdateEventHandler(this.deviceConfigurationService));
+        this.measurementTypeUpdateEventHandler = this.registerTopicHandler(new MeasurementTypeUpdateEventHandler(this.deviceConfigurationService, masterDataService));
         this.channelTypeDeleteFromLoadProfileTypeEventHandler = this.registerTopicHandler(new ChannelTypeDeleteFromLoadProfileTypeEventHandler(this.deviceConfigurationService));
     }
 

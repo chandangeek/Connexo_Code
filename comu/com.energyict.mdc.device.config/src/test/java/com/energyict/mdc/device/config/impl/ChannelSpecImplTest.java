@@ -79,7 +79,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private void initializeDeviceTypeWithRegisterTypeAndLoadProfileTypeAndDeviceConfiguration() {
         this.phenomenon = this.createPhenomenonIfMissing(phenomenonUnit);
 
-        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         Optional<RegisterType> xRegisterType =
                 inMemoryPersistence.getMasterDataService()
@@ -94,7 +94,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval);
         channelType = loadProfileType.createChannelTypeForRegisterType(registerType);
         loadProfileType.save();
-
 
         // Business method
         deviceType.setDescription("For ChannelSpec Test purposes only");
@@ -131,7 +130,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(channelSpec.getDeviceObisCode()).isEqualTo(channelTypeObisCode);
         assertThat(channelSpec.getInterval()).isEqualTo(interval);
         assertThat(channelSpec.getLoadProfileSpec()).isEqualTo(loadProfileSpec);
-        assertThat(channelSpec.getChannelType()).isEqualTo(this.registerType);
+        assertThat(channelSpec.getChannelType().getTemplateRegister().getId()).isEqualTo(this.registerType.getId());
         assertThat(channelSpec.getPhenomenon()).isEqualTo(this.phenomenon);
     }
 
@@ -425,31 +424,18 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test(expected = RegisterTypeIsNotConfiguredException.class)
     @Transactional
-    public void createWithChannelTypeFromOtherDeviceTypeTest() {
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
-        ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-
-        RegisterType registerType1 = inMemoryPersistence.getMasterDataService().newRegisterType(CHANNEL_TYPE_NAME + "Other", overruledChannelSpecObisCode, phenomenonUnit, readingType, readingType
-                .getTou());
-        registerType1.save();
-        inMemoryPersistence.getMasterDataService().newChannelType(registerType1, TimeDuration.days(1), readingType);
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, phenomenon, loadProfileSpec);
-        channelSpecBuilder.add();
-    }
-
-    @Test(expected = RegisterTypeIsNotConfiguredException.class)
-    @Transactional
     public void createWithChannelTypeNotInLoadProfileTypeTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
 
-        RegisterType registerType1 = inMemoryPersistence.getMasterDataService().newRegisterType(CHANNEL_TYPE_NAME + "Other", overruledChannelSpecObisCode, phenomenonUnit, readingType, readingType.getTou());
-        registerType1.save();
+        LoadProfileType otherLPT = inMemoryPersistence.getMasterDataService().newLoadProfileType("SecondLoadProfileType", ObisCode.fromString("1.1.2.2.3.3"), TimeDuration.days(1));
+        otherLPT.save();
+        RegisterType registerType1 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType).get();
+        ChannelType otherChannelType = otherLPT.createChannelTypeForRegisterType(registerType1);
         this.deviceType.addRegisterType(registerType1);
         this.deviceType.save();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, phenomenon, loadProfileSpec);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(otherChannelType, phenomenon, loadProfileSpec);
         channelSpecBuilder.add();
     }
 
