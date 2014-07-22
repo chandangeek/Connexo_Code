@@ -134,6 +134,7 @@ public enum MessageSeeds implements MessageSeed {
     UNSUPPORTED_SECUIRY_LEVEL(13030, Keys.UNSUPPORTED_SECURITY_LEVEL, "Security level {0} is not supported", SEVERE),
     SECURITY_PROPERTY_SET_IN_USE(13031, Keys.SECURITY_PROPERTY_SET_IN_USE, "Security property set ''{0}'' of device configuration ''{1}'' is still in use", SEVERE),
     INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD(13032, Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD, "The connection type has an incorrect direction.", SEVERE),
+    NEXT_EXECUTION_SPEC_FORBIDDEN_FOR_ASAP(13033, Keys.NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP, "Next execution spec is not allowed for connection strategy ''as soon as possible''.", SEVERE),
     COM_TASK_ENABLEMENT_COM_TASK_REQUIRED(14000, Keys.COM_TASK_ENABLEMENT_COM_TASK_REQUIRED, "You need to specify the communication task that you want to enable on a device configuration", SEVERE),
     COM_TASK_CAN_ONLY_BE_ENABLED_ONCE(14001, Keys.COM_TASK_CAN_ONLY_BE_ENABLED_ONCE, "A communication task can only be enabled once per device configuration", SEVERE),
     COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED(14002, Keys.COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED, "You need to specify the device configuration on which you want to enable the communication task", SEVERE),
@@ -218,6 +219,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE = "partialConnectionTaskProperty.wrongValueType";
         public static final String CONNECTION_STRATEGY_REQUIRED = "partialOutboundConnectionTask.connectionStrategyRequired";
         public static final String NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS = "partialOutboundConnectionTask.executionSpecRequiredForMinimizeConnections";
+        public static final String NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP = "partialOutboundConnectionTask.executionSpecForbiddenForAsap";
         public static final String NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW = "partialOutboundConnectionTask.executionSpecInvalidForComWindow";
         public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY = "nextExecutionSpecs.offsetGreaterThanFrequency";
         public static final String UNDER_MINIMUM_RESCHEDULE_DELAY = "partialScheduledConnectionTask.underMinimumRescheduleDelay";
