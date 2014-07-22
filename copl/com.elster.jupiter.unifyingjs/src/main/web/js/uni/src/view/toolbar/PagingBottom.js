@@ -14,7 +14,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     ],
 
     /**
-     * @cfg {Object} Query paramaters
+     * @cfg {Object} Query parameters
      *
      * Query parameters to use when loading the store, e.g. for filtering or sorting.
      */
