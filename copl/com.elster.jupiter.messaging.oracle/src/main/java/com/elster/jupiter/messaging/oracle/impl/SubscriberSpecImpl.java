@@ -18,6 +18,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -120,9 +121,10 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     @Override
     public void cancel() {
         synchronized (cancellableConnections) {
-            for (OracleConnection cancellableConnection : cancellableConnections) {
+            for (OracleConnection cancellableConnection : new ArrayList<>(cancellableConnections)) {
                 try {
                     cancellableConnection.cancel();
+                    cancellableConnections.remove(cancellableConnection);
                 } catch (SQLException e) {
                     throw new UnderlyingSQLFailedException(e);
                 }

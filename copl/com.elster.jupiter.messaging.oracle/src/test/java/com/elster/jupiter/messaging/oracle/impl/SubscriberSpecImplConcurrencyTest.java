@@ -98,6 +98,36 @@ public class SubscriberSpecImplConcurrencyTest {
         verify(connection4, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
     }
 
+    @Test
+    public void testMultipleCancels() throws SQLException, InterruptedException {
+        allThreadsBlocking = new CountDownLatch(4);
+        mockConnectionBlockingOnEmptyQueue(connection1);
+        mockConnectionBlockingOnEmptyQueue(connection2);
+        mockConnectionBlockingOnEmptyQueue(connection3);
+        mockConnectionBlockingOnEmptyQueue(connection4);
+
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+
+        for (int i = 0; i < 4; i++) {
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    subscriberSpec.receive();
+                }
+            });
+        }
+        executorService.shutdown();
+        allThreadsBlocking.await(2, TimeUnit.SECONDS);
+        subscriberSpec.cancel();
+        subscriberSpec.cancel();
+        executorService.awaitTermination(2, TimeUnit.SECONDS);
+        assertThat(cancelCounter.get()).isEqualTo(4);
+        verify(connection1, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
+        verify(connection2, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
+        verify(connection3, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
+        verify(connection4, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
+    }
+
 
     private void mockConnectionBlockingOnEmptyQueue(OracleConnection connection) throws SQLException {
         final CountDownLatch canceled = new CountDownLatch(1);
