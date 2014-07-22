@@ -27,7 +27,7 @@ Ext.define('Uni.form.field.Password', {
         },
         {
             xtype: 'checkbox',
-            boxLabel: Uni.I18n.translate('comServerComPorts.form.showChar', 'MDC', 'Show characters'),
+            boxLabel: Uni.I18n.translate('comServerComPorts.form.showChar', 'MDC', 'Show characters')
         }
     ],
 
