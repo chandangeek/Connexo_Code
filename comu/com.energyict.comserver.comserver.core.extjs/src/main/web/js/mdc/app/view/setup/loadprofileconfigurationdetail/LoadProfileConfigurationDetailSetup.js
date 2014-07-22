@@ -74,10 +74,6 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
             itemId: 'loadProfileConfigurationDetailChannelGridContainer'
         },
         {
-            xtype: 'menuseparator',
-            itemId: 'separator'
-        },
-        {
             xtype: 'container',
             itemId: 'loadProfileConfigurationDetailChannelPreviewContainer'
         },
