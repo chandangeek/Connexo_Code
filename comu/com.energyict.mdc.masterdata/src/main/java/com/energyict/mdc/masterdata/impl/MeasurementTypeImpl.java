@@ -38,7 +38,7 @@ import static com.elster.jupiter.util.Checks.is;
 public abstract class MeasurementTypeImpl extends PersistentNamedObject<MeasurementType> implements MeasurementType, PersistenceAware {
 
     protected static final String REGISTER_DISCRIMINATOR = "0";
-    protected static final String CHANNEL_DISCRIMINATOR = "1";
+    public static final String CHANNEL_DISCRIMINATOR = "1";
 
     static final Map<String, Class<? extends MeasurementType>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends MeasurementType>>of(

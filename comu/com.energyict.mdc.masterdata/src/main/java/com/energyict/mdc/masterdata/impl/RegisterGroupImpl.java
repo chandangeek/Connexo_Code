@@ -93,12 +93,12 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
 
     @Override
     public List<RegisterType> getRegisterTypes() {
-        List<RegisterType> measurementTypes = new ArrayList<>();
+        List<RegisterType> registerTypes = new ArrayList<>();
         for(RegisterTypeInGroup registerTypeInGroup : getRegisterTypesInGroup()){
-            measurementTypes.add(registerTypeInGroup.getRegisterType());
+            registerTypes.add(registerTypeInGroup.getRegisterType());
         }
 
-        return measurementTypes;
+        return registerTypes;
     }
 
     @Override

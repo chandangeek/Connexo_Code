@@ -318,4 +318,9 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         return getDataModel().mapper(ChannelType.class).getUnique(MeasurementTypeImpl.Fields.TEMPLATE_REGISTER_ID.fieldName(), templateRegisterType.getId(),
                 MeasurementTypeImpl.Fields.INTERVAl.fieldName(), interval);
     }
+
+    @Override
+    public List<ChannelType> findChannelTypeByTemplateRegister(RegisterType templateRegisterType) {
+        return getDataModel().mapper(ChannelType.class).find("templateRegisterId", templateRegisterType.getId());
+    }
 }

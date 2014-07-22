@@ -172,4 +172,6 @@ public interface MasterDataService {
     void validateRegisterGroup(RegisterGroup group);
 
     public Optional<ChannelType> findChannelTypeByTemplateRegisterAndInterval(RegisterType templateRegisterType, TimeDuration interval);
+
+    public List<ChannelType> findChannelTypeByTemplateRegister(RegisterType templateRegisterType);
 }

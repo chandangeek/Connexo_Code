@@ -209,11 +209,11 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     public List<ChannelType> getChannelTypes() {
-        List<ChannelType> measurementTypes = new ArrayList<>(this.channelTypeUsages.size());
+        List<ChannelType> channelTypes = new ArrayList<>(this.channelTypeUsages.size());
         for (LoadProfileTypeChannelTypeUsage channelTypeUsage : this.channelTypeUsages) {
-            measurementTypes.add(channelTypeUsage.getChannelType());
+            channelTypes.add(channelTypeUsage.getChannelType());
         }
-        return measurementTypes;
+        return channelTypes;
     }
 
     @Override
