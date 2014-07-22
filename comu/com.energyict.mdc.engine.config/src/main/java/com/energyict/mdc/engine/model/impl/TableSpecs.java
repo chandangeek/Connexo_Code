@@ -10,7 +10,6 @@ import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
 
@@ -21,9 +20,9 @@ public enum TableSpecs {
             table.map(ComPortPoolImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            table.column("NAME").varChar(NAME_LENGTH).map(ComPortPoolImpl.Fields.NAME.fieldName()).add();
+            table.column("NAME").varChar().map(ComPortPoolImpl.Fields.NAME.fieldName()).add();
             table.column("ACTIVE").type("varchar2(1)").notNull().map(ComPortPoolImpl.Fields.ACTIVE.fieldName()).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
-            table.column("DESCRIPTION").varChar(NAME_LENGTH).map(ComPortPoolImpl.Fields.DESCRIPTION.fieldName()).add();
+            table.column("DESCRIPTION").varChar().map(ComPortPoolImpl.Fields.DESCRIPTION.fieldName()).add();
             table.column("OBSOLETE_DATE").type("DATE").map(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).add();
             table.column("COMPORTTYPE").number().notNull().map(ComPortPoolImpl.Fields.COMPORTTYPE.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
             table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".count").add();
@@ -38,7 +37,7 @@ public enum TableSpecs {
             Table<ComServer> table = dataModel.addTable(name(), ComServer.class);
             table.map(ComServerImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map(ComServerImpl.FieldNames.NAME.getName()).add();
+            table.column("NAME").varChar().notNull().map(ComServerImpl.FieldNames.NAME.getName()).add();
             table.primaryKey("PK_MDC_COMSERVER").on(idColumn).add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
@@ -52,8 +51,8 @@ public enum TableSpecs {
             table.column("SCHEDULINGDELAYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.timeUnitCode").add();
 
             table.column("QUERYAPIPOSTURI").type("varchar2(512)").map("queryAPIPostUri").add();
-            table.column("QUERYAPIUSERNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("queryAPIUsername").add();
-            table.column("QUERYAPIPASSWORD").varChar(SHORT_DESCRIPTION_LENGTH).map("queryAPIPassword").add();
+            table.column("QUERYAPIUSERNAME").varChar().map("queryAPIUsername").add();
+            table.column("QUERYAPIPASSWORD").varChar().map("queryAPIPassword").add();
             table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("obsoleteDate").add();
             Column onlineComServer = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
@@ -74,11 +73,11 @@ public enum TableSpecs {
             // ComPortImpl
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            table.column("NAME").varChar(NAME_LENGTH).map(ComPortImpl.FieldNames.NAME.getName()).add();
+            table.column("NAME").varChar().map(ComPortImpl.FieldNames.NAME.getName()).add();
             table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             Column comServerColumn = table.column("COMSERVERID").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
             table.column("ACTIVE").type("varchar2(1)").notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
-            table.column("DESCRIPTION").varChar(NAME_LENGTH).map("description").add();
+            table.column("DESCRIPTION").varChar().map("description").add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("obsoleteDate").add();
             table.column("COMPORTTYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map("type").add();
             // no mapping required for comPortPoolMembers
@@ -98,23 +97,23 @@ public enum TableSpecs {
             table.column("COMMANDTIMEOUT").number().conversion(ColumnConversion.NUMBER2INT).map("atCommandTimeout.count").add();
             table.column("COMMANDTIMEOUTCODE").number().conversion(ColumnConversion.NUMBER2INT).map("atCommandTimeout.timeUnitCode").add();
             table.column("COMMANDTRY").number().conversion(ColumnConversion.NOCONVERSION).map("atCommandTry").add();
-            table.column("ADDRESSSELECTOR").varChar(SHORT_DESCRIPTION_LENGTH).map("addressSelector").map("addressSelector").add();
-            table.column("POSTDIALCOMMANDS").varChar(SHORT_DESCRIPTION_LENGTH).map("postDialCommands").map("postDialCommands").add();
+            table.column("ADDRESSSELECTOR").varChar().map("addressSelector").map("addressSelector").add();
+            table.column("POSTDIALCOMMANDS").varChar().map("postDialCommands").map("postDialCommands").add();
             table.column("BAUDRATE").number().map("serialPortConfiguration.baudrate").add();
             table.column("NROFDATABITS").number().map("serialPortConfiguration.nrOfDataBits").add();
             table.column("NROFSTOPBITS").number().map("serialPortConfiguration.nrOfStopBits").add();
-            table.column("PARITY").varChar(SHORT_DESCRIPTION_LENGTH).map("serialPortConfiguration.parity").add();
-            table.column("FLOWCONTROL").varChar(SHORT_DESCRIPTION_LENGTH).map("serialPortConfiguration.flowControl").add();
+            table.column("PARITY").varChar().map("serialPortConfiguration.parity").add();
+            table.column("FLOWCONTROL").varChar().map("serialPortConfiguration.flowControl").add();
             // ServletBasedInboundComPortImpl
             table.column("HTTPS").type("varchar2(1)").conversion(ColumnConversion.NUMBER2BOOLEAN).map("https").add();
-            table.column("KEYSTOREPATH").varChar(SHORT_DESCRIPTION_LENGTH).map("keyStoreSpecsFilePath").add();
-            table.column("KEYSTOREPASSWORD").varChar(SHORT_DESCRIPTION_LENGTH).map("keyStoreSpecsPassword").add();
-            table.column("TRUSTSTOREPATH").varChar(SHORT_DESCRIPTION_LENGTH).map("trustStoreSpecsFilePath").add();
-            table.column("TRUSTSTOREPASSWORD").varChar(SHORT_DESCRIPTION_LENGTH).map("trustStoreSpecsPassword").add();
-            table.column("CONTEXTPATH").varChar(SHORT_DESCRIPTION_LENGTH).map("contextPath").add();
+            table.column("KEYSTOREPATH").varChar().map("keyStoreSpecsFilePath").add();
+            table.column("KEYSTOREPASSWORD").varChar().map("keyStoreSpecsPassword").add();
+            table.column("TRUSTSTOREPATH").varChar().map("trustStoreSpecsFilePath").add();
+            table.column("TRUSTSTOREPASSWORD").varChar().map("trustStoreSpecsPassword").add();
+            table.column("CONTEXTPATH").varChar().map("contextPath").add();
 
             table.column("BUFFERSIZE").number().conversion(ColumnConversion.NUMBER2INT).map("bufferSize").add();
-            table.column("MODEMINITS").varChar(SHORT_DESCRIPTION_LENGTH).map("modemInitStrings").add();
+            table.column("MODEMINITS").varChar().map("modemInitStrings").add();
             Column inboundComPortPoolId = table.column("COMPORTPOOL").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
 
             table.primaryKey("PK_MDC_COMPORT").on(idColumn).add();

@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -16,8 +17,8 @@ import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.google.inject.Provider;
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
-
 import org.hibernate.validator.constraints.URL;
 
 /**
@@ -30,7 +31,9 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private final Reference<OnlineComServer> onlineComServer = ValueReference.absent();
+    @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Update.class, Save.Create.class}, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     private String queryAPIUsername;
+    @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Update.class, Save.Create.class}, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     private String queryAPIPassword;
     private boolean usesDefaultEventRegistrationUri=true;
     @URL(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}")
