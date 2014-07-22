@@ -12,6 +12,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -186,12 +187,17 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
 
     public List<ValidationRule> getValidationRules() {
-        List<ReadingType> readingTypes = new ArrayList<ReadingType>();
+        List<ReadingType> readingTypes = new ArrayList<>();
         List<ChannelType> channelTypes = this.getLoadProfileType().getChannelTypes();
         for (ChannelType mapping : channelTypes) {
             readingTypes.add(mapping.getReadingType());
         }
         return getDeviceConfiguration().getValidationRules(readingTypes);
+    }
+
+    @Override
+    public List<ChannelSpec> getChannelSpecs() {
+        return this.deviceConfigurationService.findChannelSpecsForLoadProfileSpec(this);
     }
 
     abstract static class LoadProfileSpecUpdater implements LoadProfileSpec.LoadProfileSpecUpdater {

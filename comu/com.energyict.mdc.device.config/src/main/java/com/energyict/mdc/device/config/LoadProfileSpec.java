@@ -39,6 +39,8 @@ public interface LoadProfileSpec extends HasId {
 
     public List<ValidationRule> getValidationRules();
 
+    public List<ChannelSpec> getChannelSpecs();
+
     /**
      * Defines the behavior for a component that is interested
      * to know about the completion of the building
