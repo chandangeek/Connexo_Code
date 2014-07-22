@@ -91,6 +91,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             ruleSetsStore = me.getStore('Cfg.store.ValidationRuleSets'),
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('rule-device-configuration-add', {ruleSetId: router.routeparams.ruleSetId});
+        me.ruleSetId = router.routeparams.ruleSetId;
         if (widget.down('#addDeviceConfigGrid')) {
             widget.down('#addDeviceConfigGrid').getStore().removeAll();
         }
@@ -174,17 +175,23 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             grid = me.getRuleDeviceConfigurationAddPanel().down('#addDeviceConfigGrid'),
             selection = grid.view.getSelectionModel().getSelection(),
             url = '/api/dtc/validationruleset/' + me.ruleSetId + '/deviceconfigurations',
-            ids = [];
-        Ext.Array.each(selection, function (item) {
-            ids.push(item.data.config.id);
-        });
+            ids = [],
+            allPressed = false;
+        if (me.getRuleDeviceConfigurationAddPanel().down('#radiogroupAddDeviceConfig').getValue().configsRadio === 'ALL') {
+            allPressed = true;
+        }
+        if (!allPressed) {
+            Ext.Array.each(selection, function (item) {
+                ids.push(item.data.config.id);
+            });
+        }
         me.getRuleDeviceConfigurationAddPanel().setLoading();
         Ext.Ajax.request({
             url: url,
             method: 'POST',
             timeout: 120000,
             params: {
-                all: me.allPressed
+                all: allPressed
             },
             jsonData: Ext.encode(ids),
             success: function () {
