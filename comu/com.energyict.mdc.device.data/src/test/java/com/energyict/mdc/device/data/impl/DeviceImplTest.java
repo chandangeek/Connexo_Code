@@ -932,7 +932,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         List<ChannelSpec> channelSpecs = deviceConfigurationWithTwoChannelSpecs.getChannelSpecs();
         String channelSpecName = "ChannelType1";
         for (ChannelSpec channelSpec : channelSpecs) {
-            if (channelSpec.getChannelType().getReadingType().getName().equals(readingType1.getName())) {
+            if (channelSpec.getChannelType().getTemplateRegister().getReadingType().getName().equals(readingType1.getName())) {
                 channelSpecName = channelSpec.getName();
             }
         }

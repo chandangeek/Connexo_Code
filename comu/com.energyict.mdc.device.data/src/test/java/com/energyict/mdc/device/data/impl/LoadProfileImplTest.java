@@ -278,8 +278,8 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
 
         DeviceType slaveDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("SlaveDeviceType", slaveDeviceProtocolPluggableClass);
         slaveDeviceType.addLoadProfileType(loadProfileType);
-        ChannelType channelTypeForRegisterType1 = loadProfileType.createChannelTypeForRegisterType(registerType1);
-        ChannelType channelTypeForRegisterType2 = loadProfileType.createChannelTypeForRegisterType(registerType2);
+        ChannelType channelTypeForRegisterType1 = loadProfileType.getChannelTypes().get(0);
+        ChannelType channelTypeForRegisterType2 = loadProfileType.getChannelTypes().get(1);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = slaveDeviceType.newConfiguration("SlaveConfig");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
         configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, phenomenon1, loadProfileSpecBuilder);
