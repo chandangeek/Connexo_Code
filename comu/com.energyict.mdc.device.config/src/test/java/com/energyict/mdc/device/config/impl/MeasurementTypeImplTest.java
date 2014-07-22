@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
@@ -299,6 +300,97 @@ public class MeasurementTypeImplTest extends PersistenceTest {
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_TYPE_STILL_USED_BY_DEVICE_TYPE);
             throw e;
         }
+    }
+
+    @Test
+    @Transactional
+    public void deleteChannelTypesWhenRegisterTypesAreDeletedTest() {
+        String registerTypeName = "deleteChannelTypesWhenRegisterTypesAreDeletedTest";
+        RegisterType registerType;
+        this.setupProductSpecsInExistingTransaction();
+
+        // Create the RegisterType
+        Optional<RegisterType> xRegisterType =
+                inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1);
+        if (xRegisterType.isPresent()) {
+            registerType = xRegisterType.get();
+        }
+        else {
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(registerTypeName, obisCode1, unit1, readingType1, 1);
+            registerType.setDescription("For testing purposes only");
+            registerType.save();
+        }
+
+        this.setupLoadProfileTypesInExistingTransaction();
+
+        ChannelType channelTypeForRegisterType = this.loadProfileType.createChannelTypeForRegisterType(registerType);
+        this.loadProfileType.save();
+
+        this.loadProfileType.delete();
+        registerType.delete();
+
+        assertThat(inMemoryPersistence.getMasterDataService().findAllChannelTypes().find()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{duplicate.channelType.interval.registerType}")
+    public void duplicateChannelTypeTest() {
+        RegisterType registerType;
+        this.setupProductSpecsInExistingTransaction();
+
+        // Create the RegisterType
+        Optional<RegisterType> xRegisterType =
+                inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1);
+        if (xRegisterType.isPresent()) {
+            registerType = xRegisterType.get();
+        }
+        else {
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType("duplicateChannelTypeTest", obisCode1, unit1, readingType1, 1);
+            registerType.setDescription("For testing purposes only");
+            registerType.save();
+        }
+
+        TimeDuration fifteenMinutes = TimeDuration.minutes(15);
+        ReadingType intervalAppliedReadingType1 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(readingType1, fifteenMinutes, obisCode1);
+        ReadingType intervalAppliedReadingType2 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(readingType2, fifteenMinutes, obisCode2);
+        ChannelType firstChannelType = inMemoryPersistence.getMasterDataService().newChannelType(registerType, fifteenMinutes, intervalAppliedReadingType1);
+        firstChannelType.save();
+        ChannelType secondChannelType = inMemoryPersistence.getMasterDataService().newChannelType(registerType, fifteenMinutes, intervalAppliedReadingType2);
+        secondChannelType.save();
+    }
+
+    @Test
+    @Transactional
+    public void loadProfileTypesReuseChannelTypesTest() {
+        String registerTypeName = "loadProfileTypesReuseChannelTypesTest";
+        RegisterType registerType;
+        this.setupProductSpecsInExistingTransaction();
+
+        // Create the RegisterType
+        Optional<RegisterType> xRegisterType =
+                inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1);
+        if (xRegisterType.isPresent()) {
+            registerType = xRegisterType.get();
+        }
+        else {
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType(registerTypeName, obisCode1, unit1, readingType1, 1);
+            registerType.setDescription("For testing purposes only");
+            registerType.save();
+        }
+
+        this.setupLoadProfileTypesInExistingTransaction();
+
+        ChannelType channelTypeForRegisterType = this.loadProfileType.createChannelTypeForRegisterType(registerType);
+        this.loadProfileType.save();
+
+        LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileTest2", ObisCode.fromString("1.0.99.2.0.255"), INTERVAL_15_MINUTES);
+        loadProfileType2.save();
+
+        ChannelType shouldBeSameChannelType = loadProfileType2.createChannelTypeForRegisterType(registerType);
+
+        assertThat(channelTypeForRegisterType.getId()).isEqualTo(shouldBeSameChannelType.getId());
+        assertThat(inMemoryPersistence.getMasterDataService().findAllChannelTypes().find()).hasSize(1);
     }
 
     private void setupProductSpecsInExistingTransaction() {
