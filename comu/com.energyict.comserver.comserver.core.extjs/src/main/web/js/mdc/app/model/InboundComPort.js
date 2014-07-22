@@ -23,7 +23,12 @@ Ext.define('Mdc.model.InboundComPort', {
         {name:'trustStoreFilePath',type: 'string',useNull: true},
         {name:'keyStorePassword',type: 'string',useNull: true},
         {name:'trustStorePassword',type: 'string',useNull: true},
-        {name: 'modemInitStrings', type: 'auto'}
+        {name: 'modemInitStrings', type: 'auto',
+            mapping: function (data) {
+                if (!data.modemInitStrings){
+                    return [];
+                }
+            }}
     ],
     associations: [
         {name: 'connectTimeout',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'connectTimeout'},
