@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     alias: 'widget.loadProfileConfigurationDetailChannelGrid',
     itemId: 'loadProfileConfigurationDetailChannelGrid',
     store: 'LoadProfileConfigurationDetailChannels',
-    height: 395,
+    maxHeight: 395,
     scroll: false,
     editActionName: null,
     deleteActionName: null,

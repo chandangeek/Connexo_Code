@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
         },
         {
             xtype: 'component',
-            margins: '10 10 10 10',
+            margins: '10 10 10 0',
             itemId: 'loadProfileConfigurationDetailChannelConfigurationTitle'
         },
         {
