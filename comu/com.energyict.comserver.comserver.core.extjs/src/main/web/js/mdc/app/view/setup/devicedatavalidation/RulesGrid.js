@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
     alias: 'widget.deviceDataValidationRulesGrid',
     itemId: 'deviceDataValidationRulesGrid',
     rulesSetId: null,
+    title: '',
     requires: [
         'Uni.view.toolbar.PagingBottom',
         'Uni.view.toolbar.PagingTop'
@@ -55,11 +56,5 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
             }
         ];
         me.callParent(arguments);
-        me.store.load({
-            id: me.rulesSetId,
-            callback: function () {
-                me.getSelectionModel().doSelect(0);
-            }
-        });
     }
 });

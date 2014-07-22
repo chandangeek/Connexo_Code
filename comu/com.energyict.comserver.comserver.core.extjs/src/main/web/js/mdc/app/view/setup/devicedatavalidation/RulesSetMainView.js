@@ -100,5 +100,3 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
         me.callParent(arguments);
     }
 });
-
-

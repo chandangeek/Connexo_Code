@@ -1,27 +1,26 @@
-Ext.define('Mdc.model.DeviceConfigurationValidationRuleSet', {
+Ext.define('Mdc.model.DeviceDataValidationRulesSet', {
     extend: 'Ext.data.Model',
     fields: [
-        'id',
-        'name',
-        'description',
-        'numberOfInactiveRules',
-        'numberOfRules',
+        {name: 'id', type: 'int', useNull: true},
+        {name: 'name', type: 'string'},
+        {name: 'isActive', type: 'boolean'},
+        {name: 'numberOfInactiveRules', type: 'int'},
+        {name: 'numberOfRules', type: 'int'},
         {
-            name: 'active_rules',
+            name: 'numberOfActiveRules',
             persist: false,
             mapping: function (data) {
                 return data.numberOfRules - data.numberOfInactiveRules;
             }
         }
     ],
-
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devices/{mRID}/validationrulesets',
-        headers: {'Accept': 'application/json'},
+        url: '../../api/ddr/devices/{mRID}/validationrulesets',
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'rulesets',
+            totalProperty: 'total'
         }
     }
 });
-

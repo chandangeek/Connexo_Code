@@ -72,12 +72,5 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
             }
         ];
         me.callParent(arguments);
-        me.store.getProxy().setExtraParam('mRID', me.mRID);
-        me.store.load({
-            callback: function () {
-                me.getSelectionModel().doSelect(0);
-            }
-        });
     }
 });
-

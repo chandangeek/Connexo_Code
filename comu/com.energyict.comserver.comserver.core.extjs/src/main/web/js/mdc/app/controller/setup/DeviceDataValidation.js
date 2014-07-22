@@ -16,7 +16,6 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         {ref: 'dvStatusChangeBtn', selector: '#deviceDataValidationStateChangeBtn'},
         {ref: 'rulesSetGrid', selector: '#deviceDataValidationRulesSetGrid'},
         {ref: 'rulesSetPreviewCt', selector: '#deviceDataValidationRulesSetPreviewCt'},
-        {ref: 'rulesGrid', selector: '#deviceDataValidationRulesGrid'},
         {ref: 'rulePreview', selector: '#deviceDataValidationRulePreview'},
         {ref: 'changeRuleSetStateActionMenuItem', selector: '#changeRuleSetStateActionMenuItem'},
         {ref: 'activationConfirmationWindow', selector: '#activationConfirmationWindow'},
@@ -31,10 +30,12 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
     init: function () {
         this.control({
             '#deviceDataValidationRulesSetGrid': {
+                afterrender: this.onRulesSetGridAfterRender,
                 itemclick: this.onRulesSetGridItemClick,
                 selectionchange: this.onRulesSetGridSelectionChange
             },
             '#deviceDataValidationRulesGrid': {
+                afterrender: this.onRulesGridAfterRender,
                 selectionchange: this.onRulesGridSelectionChange
             },
             '#changeRuleSetStateActionMenuItem': {
@@ -90,16 +91,23 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
     changeDataValidationStatus: function (btn) {
         btn.action === 'activate' ? this.showActivationConfirmation() : this.showDeactivationConfirmation();
     },
+    onRulesSetGridAfterRender: function (grid) {
+        var me = this;
+        grid.store.getProxy().setExtraParam('mRID', me.mRID);
+        grid.store.load({
+            callback: function () {
+                grid.getSelectionModel().doSelect(0);
+            }
+        });
+    },
     onRulesSetGridSelectionChange: function (grid) {
         this.getRulesSetPreviewCt().removeAll(true);
-        var rulesSetPreview = Ext.widget('deviceDataValidationRulesSetPreview', {
-            rulesSetId: grid.lastSelected.get('id'),
-            title: grid.lastSelected.get('name')
-        });
+        var validationRuleSet = grid.lastSelected,
+            rulesSetPreview = Ext.widget('deviceDataValidationRulesSetPreview', {
+                rulesSetId: validationRuleSet.get('id'),
+                title: validationRuleSet.get('name')
+            });
         this.getRulesSetPreviewCt().add(rulesSetPreview);
-    },
-    onRulesGridSelectionChange: function (grid) {
-        this.getRulePreview().updateValidationRule(grid.lastSelected);
     },
     onRulesSetGridItemClick: function (gridView, record, el, idx, e) {
         var target = e.getTarget(null, null, true);
@@ -108,6 +116,75 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             menuItem.setText(record.get('isActive') ?
                 Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
                 Uni.I18n.translate('general.activate', 'MDC', 'Activate'))
+        }
+    },
+    onRulesGridAfterRender: function (grid) {
+        var ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id');
+        grid.store.load({
+            id: ruleSetId,
+            callback: function () {
+                grid.getSelectionModel().doSelect(0);
+            }
+        });
+    },
+    onRulesGridSelectionChange: function (grid) {
+        var rulePreview = this.getRulePreview(),
+            validationRule = grid.lastSelected,
+            properties = validationRule.data.properties,
+            readingTypes = validationRule.data.readingTypes;
+        rulePreview.loadRecord(validationRule);
+        rulePreview.setTitle(validationRule.get('name'));
+        rulePreview.down('#propertiesArea').removeAll();
+        for (var i = 0; i < properties.length; i++) {
+            var property = properties[i];
+            var propertyName = property.name;
+            var propertyValue = property.value;
+            var required = property.required;
+            var label = propertyName;
+            if (!required) {
+                label = label + ' (optional)';
+            }
+            rulePreview.down('#propertiesArea').add(
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: label,
+                    value: propertyValue,
+                    labelWidth: 260
+                }
+            );
+        }
+        rulePreview.down('#readingTypesArea').removeAll();
+        for (var i = 0; i < readingTypes.length; i++) {
+            var readingType = readingTypes[i];
+            var aliasName = readingType.aliasName;
+            var mRID = readingType.mRID;
+            var fieldlabel = Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)');
+            if (i > 0) {
+                fieldlabel = '&nbsp';
+            }
+            rulePreview.down('#readingTypesArea').add(
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            fieldLabel: fieldlabel,
+                            labelWidth: 260,
+                            width: 500,
+                            value: mRID
+                        },
+                        {
+                            xtype: 'component',
+                            width: 500,
+                            html: '<span style="color:grey"><i>' + aliasName + '</i></span>',
+                            margin: '5 0 0 10'
+                        }
+                    ]
+                }
+            );
         }
     },
     changeRuleSetState: function () {
