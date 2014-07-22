@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
@@ -16,16 +17,14 @@ import com.energyict.mdc.masterdata.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterMappingAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
-import com.google.common.base.Optional;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Copyrights EnergyICT
@@ -36,7 +35,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(max= StringColumnLengthConstraints.LOAD_PROFILE_TYPE_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
     public String getName() {
@@ -70,7 +69,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     private ObisCode obisCodeCached;
     private TimeDuration interval;
     private long oldIntervalSeconds;
-    @Size(max= StringColumnLengthConstraints.LOAD_PROFILE_TYPE_DESCRIPTION, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
     private Date modificationDate;
     private List<LoadProfileTypeRegisterMappingUsageImpl> registerMappingUsages = new ArrayList<>();

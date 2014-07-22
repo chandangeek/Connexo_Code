@@ -9,13 +9,16 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.google.common.base.Optional;
-import org.hibernate.validator.constraints.NotEmpty;
-
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.*;
+import org.hibernate.validator.constraints.NotEmpty;
 
 public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> implements RegisterGroup {
 
@@ -25,7 +28,7 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     private final Clock clock;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(max= StringColumnLengthConstraints.REGISTER_GROUP_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= 256, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
     @Inject

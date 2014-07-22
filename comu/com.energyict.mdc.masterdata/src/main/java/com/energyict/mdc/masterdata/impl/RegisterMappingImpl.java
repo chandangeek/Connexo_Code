@@ -65,7 +65,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(max= StringColumnLengthConstraints.REGISTER_MAPPING_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= 126, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
     private ObisCode obisCodeCached;

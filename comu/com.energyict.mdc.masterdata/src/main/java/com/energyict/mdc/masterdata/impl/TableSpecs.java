@@ -6,10 +6,13 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.masterdata.*;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LoadProfileTypeRegisterMappingUsage;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterMapping;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 /**
@@ -27,9 +30,9 @@ public enum TableSpecs {
             Table<Phenomenon> table = dataModel.addTable(name(), Phenomenon.class);
             table.map(PhenomenonImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(StringColumnLengthConstraints.PHENOMENON_NAME).notNull().map(PhenomenonImpl.Fields.NAME.fieldName()).add();
+            table.column("NAME").varChar().notNull().map(PhenomenonImpl.Fields.NAME.fieldName()).add();
             Column unit = table.column("UNIT").varChar(StringColumnLengthConstraints.PHENOMENON_UNIT).notNull().map(PhenomenonImpl.Fields.UNIT.fieldName()).add();
-            table.column("MEASUREMENTCODE").varChar(StringColumnLengthConstraints.PHENOMENON_MEASUREMENT_CODE).map(PhenomenonImpl.Fields.MEASUREMENT_CODE.fieldName()).add();
+            table.column("MEASUREMENTCODE").varChar().map(PhenomenonImpl.Fields.MEASUREMENT_CODE.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map(PhenomenonImpl.Fields.MODIFICATION_DATE.fieldName()).insert("sysdate").update("sysdate").add();
             table.primaryKey("PK_MDS_PHENOMENON").on(id).add();
             table.unique("UK_MDS_PHENOMENON").on(unit).add(); // Done so phenomenon can be identified solely by unit, cfr gna
@@ -42,9 +45,9 @@ public enum TableSpecs {
             Table<LoadProfileType> table = dataModel.addTable(this.name(), LoadProfileType.class);
             table.map(LoadProfileTypeImpl.class);
             Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(StringColumnLengthConstraints.LOAD_PROFILE_TYPE_NAME).notNull().map("name").add();
-            table.column("DESCRIPTION").varChar(StringColumnLengthConstraints.LOAD_PROFILE_TYPE_DESCRIPTION).map("description").add();
-            table.column("OBISCODE").varChar(StringColumnLengthConstraints.LOAD_PROFILE_TYPE_OBIS_CODE).notNull().map(LoadProfileTypeImpl.Fields.OBIS_CODE.fieldName()).add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
+            table.column("DESCRIPTION").varChar().map("description").add();
+            table.column("OBISCODE").varChar(StringColumnLengthConstraints.DEFAULT_OBISCODE_LENGTH).notNull().map(LoadProfileTypeImpl.Fields.OBIS_CODE.fieldName()).add();
             table.column("INTERVALCOUNT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
             table.column("INTERVALUNIT").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
@@ -59,7 +62,7 @@ public enum TableSpecs {
             Table<RegisterGroup> table = dataModel.addTable(this.name(), RegisterGroup.class);
             table.map(RegisterGroupImpl.class);
             Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(StringColumnLengthConstraints.REGISTER_GROUP_NAME).notNull().map("name").add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.unique("UK_MDS_REGISTERGROUP").on(name).add();
             table.primaryKey("PK_MDS_REGISTERGROUP").on(id).add();
@@ -72,13 +75,13 @@ public enum TableSpecs {
             Table<RegisterMapping> table = dataModel.addTable(this.name(), RegisterMapping.class);
             table.map(RegisterMappingImpl.class);
             Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_NAME).notNull().map("name").add();
-            table.column("OBISCODE").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_OBIS_CODE).notNull().map(RegisterMappingImpl.Fields.OBIS_CODE.fieldName()).add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
+            table.column("OBISCODE").varChar(StringColumnLengthConstraints.DEFAULT_OBISCODE_LENGTH).notNull().map(RegisterMappingImpl.Fields.OBIS_CODE.fieldName()).add();
             Column phenomenon = table.column("PHENOMENONID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
-            Column readingType = table.column("READINGTYPE").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_READING_TYPE).add();
+            Column readingType = table.column("READINGTYPE").varChar(Table.NAME_LENGTH).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CUMULATIVE").number().conversion(NUMBER2BOOLEAN).notNull().map("cumulative").add();
-            table.column("DESCRIPTION").varChar(StringColumnLengthConstraints.REGISTER_MAPPING_DESCRIPTION).map("description").add();
+            table.column("DESCRIPTION").varChar().map("description").add();
             table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
             table.foreignKey("FK_MDS_REGMAP_PHENOMENON").on(phenomenon).references(MDS_PHENOMENON.name()).map("phenomenon").add();
             table.foreignKey("FK_MDS_REGMAP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
@@ -131,9 +134,9 @@ public enum TableSpecs {
             Table<LogBookType> table = dataModel.addTable(this.name(), LogBookType.class);
             table.map(LogBookTypeImpl.class);
             Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(StringColumnLengthConstraints.LOG_BOOK_TYPE_NAME).notNull().map("name").add();
-            table.column("DESCRIPTION").varChar(StringColumnLengthConstraints.LOG_BOOK_TYPE_DESCRIPTION).map("description").add();
-            table.column("OBISCODE").varChar(StringColumnLengthConstraints.LOG_BOOK_TYPE_OBIS_CODE).notNull().map(LogBookTypeImpl.Fields.OBIS_CODE.fieldName()).add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
+            table.column("DESCRIPTION").varChar().map("description").add();
+            table.column("OBISCODE").varChar(StringColumnLengthConstraints.DEFAULT_OBISCODE_LENGTH).notNull().map(LogBookTypeImpl.Fields.OBIS_CODE.fieldName()).add();
             table.unique("UK_MDS_LOGBOOKTYPE").on(name).add();
             table.primaryKey("PK_MDS_LOGBOOKTYPE").on(id).add();
         }
