@@ -74,7 +74,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
                 return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService);
             }
         });
-        when(dataModel.query(IValidationRule.class)).thenReturn(queryExecutor);
+        when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(queryExecutor);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
 
