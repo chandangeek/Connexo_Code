@@ -45,7 +45,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private final DataModel dataModel;
 
     private DeviceProtocolDialect protocolDialect;
-    @Size(max= StringColumnLengthConstraints.LONG_NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= StringColumnLengthConstraints.LONG_NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INCORRECT_FIELD_SIZE + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOLDIALECT_REQUIRED + "}")

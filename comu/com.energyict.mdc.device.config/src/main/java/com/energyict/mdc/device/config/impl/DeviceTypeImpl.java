@@ -39,10 +39,10 @@ import javax.validation.constraints.Size;
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
 
-    @Size(max= StringColumnLengthConstraints.SHORT_NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= StringColumnLengthConstraints.SHORT_NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INCORRECT_FIELD_SIZE + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
-    @Size(min=0, max= 4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+MessageSeeds.Keys.FIELD_TOO_LONG +"}")
+    @Size(min=0, max= 4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+MessageSeeds.Keys.INCORRECT_FIELD_SIZE +"}")
     private String description;
     private boolean useChannelJournal;
     private int deviceUsageTypeId;

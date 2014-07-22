@@ -62,7 +62,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         }
     }
 
-    @Size(max= StringColumnLengthConstraints.LONG_NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= StringColumnLengthConstraints.LONG_NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INCORRECT_FIELD_SIZE + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
     private Reference<DeviceCommunicationConfiguration> configuration = ValueReference.absent();
