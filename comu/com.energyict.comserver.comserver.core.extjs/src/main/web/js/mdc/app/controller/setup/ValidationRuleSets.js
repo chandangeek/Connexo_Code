@@ -121,7 +121,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         deviceConfigRuleSetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         var widget = Ext.widget('validation-add-rulesets', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
-
+        if (me.getAddValidationRuleSetsGrid()) {
+            me.getAddValidationRuleSetsGrid().getStore().removeAll();
+        }
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);

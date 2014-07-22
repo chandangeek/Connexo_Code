@@ -47,9 +47,6 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             'rule-device-configuration-action-menu': {
                 click: this.chooseAction
             }
-//            'ruleDeviceConfigurationBrowse button[action=addDeviceConfiguration]': {
-//                click: this.onAddClick
-//            }
         });
         this.listen({
             store: {
@@ -94,6 +91,9 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             ruleSetsStore = me.getStore('Cfg.store.ValidationRuleSets'),
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('rule-device-configuration-add', {ruleSetId: router.routeparams.ruleSetId});
+        if (widget.down('#addDeviceConfigGrid')) {
+            widget.down('#addDeviceConfigGrid').getStore().removeAll();
+        }
         me.getApplication().fireEvent('changecontentevent', widget);
         ruleDeviceConfigNotLinkedStore.getProxy().setExtraParam('ruleSetId', router.routeparams.ruleSetId);
         ruleDeviceConfigNotLinkedStore.load(function () {
