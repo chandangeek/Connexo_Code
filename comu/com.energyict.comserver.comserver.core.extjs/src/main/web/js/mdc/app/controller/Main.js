@@ -32,7 +32,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.CommunicationTasks',
         'Mdc.controller.setup.ValidationRuleSets',
         'Mdc.controller.setup.Comtasks',
-//        'Mdc.controller.setup.RuleDeviceConfigurations'
+        'Mdc.controller.setup.RuleDeviceConfigurations'
     ],
 
     controllers: [
@@ -71,7 +71,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.ValidationRuleSets',
         'Mdc.controller.setup.SearchItemsBulkAction',
         'Mdc.controller.setup.ValidationRuleSets',
-//        'Mdc.controller.setup.RuleDeviceConfigurations'
+        'Mdc.controller.setup.RuleDeviceConfigurations'
     ],
 
     config: {

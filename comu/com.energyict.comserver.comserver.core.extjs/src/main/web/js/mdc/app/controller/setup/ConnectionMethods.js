@@ -268,7 +268,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 record.set('comWindowEnd', 0);
             }
             propertyForm.updateRecord(record);
-            record.propertiesStore = propertyForm.getRecord().properties();
+            if (typeof propertyForm.getRecord() !== 'undefined') {
+                record.propertiesStore = propertyForm.getRecord().properties();
+            }
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
                 success: function (record) {
@@ -396,6 +398,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + connectionMethod.get('name') + "'";
                                                         widget.down('#connectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
                                                         widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionType'));
+                                                        me.getConnectionTypeComboBox().disable();
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));
                                                         if(connectionMethod.get('comWindowStart')===0 && connectionMethod.get('comWindowEnd')===0){

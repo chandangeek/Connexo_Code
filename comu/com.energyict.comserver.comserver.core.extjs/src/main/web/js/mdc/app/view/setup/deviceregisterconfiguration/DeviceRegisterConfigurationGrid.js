@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                 dataIndex: 'readingType'
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'End of last interval'),
+                header: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading date'),
                 xtype: 'datecolumn',
                 format: 'M j, Y \\a\\t G:i',
                 dataIndex: 'lastReading',
@@ -45,8 +45,12 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
             },
             {
                 header: Uni.I18n.translate('deviceregisterconfiguration.validationStatus', 'MDC', 'Validation status'),
+                dataIndex: 'validationStatus',
                 renderer: function (value, metaData, record) {
-                    return 'TBD';
+                    if(value == true) {
+                        return 'OK';
+                    }
+                    return 'NOK';
                 },
                 flex: 1
             },

@@ -3,7 +3,7 @@ Ext.define('Mdc.store.ValidationRuleSetsForDeviceConfig', {
     autoLoad: false,
     model: 'Cfg.model.ValidationRuleSet',
     buffered: true,
-    pageSize: 20,
+    pageSize: 10,
     proxy: {
         type: 'rest',
         url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/linkablevalidationrulesets',

@@ -88,22 +88,29 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                     },
                     {
                         defaults: {
-                            labelAlign: 'right',
-                            labelWidth: 200
+                            xtype: 'displayfield',
+                            labelWidth: 150
                         },
                         items: [
                             {
-                                xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastInterval', 'MDC', 'Last interval'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading date'),
+                                name: 'lastReading',
+                                format: 'M j, Y \\a\\t G:i',
                                 renderer: function (value) {
-                                    return 'TBD';
+                                    if(!Ext.isEmpty(value)) {
+                                        return Ext.util.Format.date(value, this.format);
+                                    }
+                                    return Uni.I18n.translate('deviceregisterconfiguration.lastReading.notspecified', 'MDC', 'N/A');
                                 }
                             },
                             {
-                                xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.validationStatus', 'MDC', 'Validation status'),
+                                name: 'validationStatus',
                                 renderer: function (value) {
-                                    return 'TBD';
+                                    if(value == true) {
+                                        return 'OK';
+                                    }
+                                    return 'NOK';
                                 }
                             }
                         ]
