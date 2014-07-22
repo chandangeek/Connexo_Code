@@ -11,7 +11,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
-        'Mdc.view.setup.connectionmethod.ConnectionMethodActionMenu'
+        'Mdc.view.setup.connectionmethod.ConnectionMethodActionMenu',
+        'Uni.grid.column.DefaultColumn'
     ],
 
     store: 'ConnectionMethodsOfDeviceConfiguration',
@@ -20,17 +21,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
         var me = this;
         this.columns = [
             {
-                header: Uni.I18n.translate('connectionmethod.default', 'MDC', 'Default'),
+                xtype: 'default-column',
                 dataIndex: 'isDefault',
-                renderer: function (value, metadata) {
-                    if (value === true) {
-                        metadata.style = "padding: 6px 16px 6px 16px;";
-                        return '<img src="../ext/packages/uni-theme-skyline/resources/images/grid/defaultItem.png">';
-                    } else {
-                        return '';
-                    }
-                },
-                align: 'center',
                 flex: 0.1
             },
             {
