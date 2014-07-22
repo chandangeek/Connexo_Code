@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
                 }
             },
             name: 'portNumber',
-            value: 1,
+            value: 0,
             width: 350
         },
         {
