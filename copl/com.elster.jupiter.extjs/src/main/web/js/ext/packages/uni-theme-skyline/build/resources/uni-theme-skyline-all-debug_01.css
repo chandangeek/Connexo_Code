@@ -23749,6 +23749,11 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 }
 
 /* line 32, ../../sass/src/button/Button.scss */
+*[class*='x-btn-link-toolbar-'] {
+  border-color: transparent !important;
+}
+
+/* line 36, ../../sass/src/button/Button.scss */
 .x-btn {
   margin-right: 8px !important;
 }

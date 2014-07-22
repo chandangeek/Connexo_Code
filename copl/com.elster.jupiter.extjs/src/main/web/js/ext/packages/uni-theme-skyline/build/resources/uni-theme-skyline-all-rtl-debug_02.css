@@ -1257,6 +1257,11 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 }
 
 /* line 32, ../../sass/src/button/Button.scss */
+*[class*='x-btn-link-toolbar-'] {
+  border-color: transparent !important;
+}
+
+/* line 36, ../../sass/src/button/Button.scss */
 .x-btn {
   margin-right: 8px !important;
 }
@@ -14999,9 +15004,4 @@ a:hover, a.x-btn:hover {
 .x-btn-sort-medium-icon .x-btn-inner {
   width: 24px;
   padding: 0;
-}
-/* line 381, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium-icon .x-btn-icon-el {
-  width: 24px;
-  height: 24px;
 }

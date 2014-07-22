@@ -1,3 +1,8 @@
+.x-btn-sort-medium-icon .x-btn-icon-el {
+  width: 24px;
+  height: 24px;
+}
+
 /* line 388, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-medium-icon-text-left .x-btn-button {
   height: 24px;

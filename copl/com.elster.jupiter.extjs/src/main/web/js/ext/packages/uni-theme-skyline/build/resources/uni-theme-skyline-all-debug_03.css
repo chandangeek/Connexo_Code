@@ -1,3 +1,14 @@
+.x-btn-step-active-small .x-btn-arrow-bottom {
+  padding-bottom: 18px;
+}
+/* line 293, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-active-small .x-btn-glyph {
+  font-size: 17px;
+  line-height: 17px;
+  color: white;
+  opacity: 0.5;
+}
+/* line 313, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie8m .x-btn-step-active-small .x-btn-glyph {
   color: #b7dda8;
 }
@@ -15347,8 +15358,20 @@ a.x-datepicker-date:hover {
 .x-grid-body .x-grid-row a:hover {
   text-decoration: underline;
 }
-/* line 54, ../../sass/src/panel/Table.scss */
+/* line 53, ../../sass/src/panel/Table.scss */
+.x-grid-body .x-grid-row .x-form-display-field-body {
+  height: auto;
+}
+/* line 55, ../../sass/src/panel/Table.scss */
+.x-grid-body .x-grid-row .x-form-display-field-body .x-form-display-field {
+  margin: 0;
+}
+/* line 61, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected a, .x-grid-body .x-grid-row-over a {
+  color: white;
+}
+/* line 64, ../../sass/src/panel/Table.scss */
+.x-grid-body .x-grid-row-selected .x-form-display-field, .x-grid-body .x-grid-row-over .x-form-display-field {
   color: white;
 }
 
