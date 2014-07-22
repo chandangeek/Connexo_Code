@@ -28,6 +28,8 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
                 me.handler(value);
             }
         });
+
+        field.updateLayout();
     },
 
     handler: function (value) {
