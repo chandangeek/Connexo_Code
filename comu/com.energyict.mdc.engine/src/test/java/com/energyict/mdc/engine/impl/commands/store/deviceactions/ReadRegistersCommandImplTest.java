@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -113,8 +114,8 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         Register register = mock(Register.class);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
         when(register.getDevice()).thenReturn(mockedDevice);
-        MeasurementType measurementType = mock(MeasurementType.class);
-        when(registerSpec.getRegisterType()).thenReturn(measurementType);
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerSpec.getRegisterType()).thenReturn(registerType);
         return register;
     }
 

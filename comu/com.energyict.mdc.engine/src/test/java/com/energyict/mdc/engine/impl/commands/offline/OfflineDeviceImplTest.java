@@ -18,7 +18,7 @@ import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -299,9 +299,9 @@ public class OfflineDeviceImplTest {
         RegisterGroup rtuRegisterGroup = mock(RegisterGroup.class);
         when(rtuRegisterGroup.getId()).thenReturn(rtuRegisterGroupId);
         Device device = createMockDevice();
-        MeasurementType measurementType = mock(MeasurementType.class);
-        when(measurementType.getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
-        RegisterSpec registerSpec = createMockedRegisterSpec(measurementType);
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerType.getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
+        RegisterSpec registerSpec = createMockedRegisterSpec(registerType);
         Register register1 = createMockedRegister(registerSpec, device);
         when(register1.getRegisterSpec().getRegisterType().getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
         OfflineRegister offlineRegister1 = mock(OfflineRegister.class);
@@ -322,9 +322,9 @@ public class OfflineDeviceImplTest {
         return mock(RegisterSpec.class, RETURNS_DEEP_STUBS);
     }
 
-    private RegisterSpec createMockedRegisterSpec(MeasurementType measurementType) {
+    private RegisterSpec createMockedRegisterSpec(RegisterType registerType) {
         RegisterSpec registerSpec = mock(RegisterSpec.class);
-        when(registerSpec.getRegisterType()).thenReturn(measurementType);
+        when(registerSpec.getRegisterType()).thenReturn(registerType);
         return registerSpec;
     }
 
