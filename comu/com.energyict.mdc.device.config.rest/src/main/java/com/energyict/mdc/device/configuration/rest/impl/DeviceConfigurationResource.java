@@ -41,6 +41,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -303,12 +304,18 @@ public class DeviceConfigurationResource {
             @BeanParam QueryParameters queryParameters) {
 
         List<ValidationRule> rules = resourceHelper.findRegisterSpec(registerId).getValidationRules();
-        List<ValidationRuleInfo> result = new ArrayList<>();
-        for (ValidationRule rule : rules) {
-            result.add(new ValidationRuleInfo(rule));
-        }
-        result = ListPager.of(result).from(queryParameters).find();
+        List<ValidationRuleInfo> result = page(rules, queryParameters);
         return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
+    }
+
+    private List<ValidationRuleInfo> page(List<ValidationRule> rules, QueryParameters queryParameters) {
+        ValidationRuleInfo[] infos = new ValidationRuleInfo[rules.size()];
+        for (int i = queryParameters.getStart(); i < queryParameters.getStart() + queryParameters.getLimit() + 1; i++) {
+            if (i < rules.size()) {
+                infos[i] = new ValidationRuleInfo(rules.get(i));
+            }
+        }
+        return ListPager.of(Arrays.asList(infos)).from(queryParameters).find();
     }
 
     @GET
@@ -321,11 +328,7 @@ public class DeviceConfigurationResource {
             @BeanParam QueryParameters queryParameters) {
 
         List<ValidationRule> rules = resourceHelper.findChannelSpec(channelId).getValidationRules();
-        List<ValidationRuleInfo> result = new ArrayList<>();
-        for (ValidationRule rule : rules) {
-            result.add(new ValidationRuleInfo(rule));
-        }
-        result = ListPager.of(result).from(queryParameters).find();
+        List<ValidationRuleInfo> result = page(rules, queryParameters);
         return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
     }
 
@@ -339,11 +342,7 @@ public class DeviceConfigurationResource {
             @BeanParam QueryParameters queryParameters) {
 
         List<ValidationRule> rules = resourceHelper.findLoadProfileSpec(loadProfileId).getValidationRules();
-        List<ValidationRuleInfo> result = new ArrayList<>();
-        for (ValidationRule rule : rules) {
-            result.add(new ValidationRuleInfo(rule));
-        }
-        result = ListPager.of(result).from(queryParameters).find();
+        List<ValidationRuleInfo> result = page(rules, queryParameters);
         return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
     }
 
