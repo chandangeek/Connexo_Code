@@ -45,6 +45,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 itemId: 'communicationLink',
                 href: '#/devices/' + this.mRID + '/communication',
                 hrefTarget: '_self'
+            },
+            {
+                text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Data validation'),
+                itemId: 'dataValidationLink',
+                href: '#/devices/' + this.mRID + '/datavalidation',
+                hrefTarget: '_self'
             }
         );
         this.toggleMenuItem(this.toggle);

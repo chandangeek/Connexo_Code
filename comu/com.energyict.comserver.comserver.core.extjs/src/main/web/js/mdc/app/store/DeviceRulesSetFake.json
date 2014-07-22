@@ -1,0 +1,33 @@
+{
+    "total": 4,
+    "validationRulesSet": [
+        {
+            "id": 1,
+            "name": "Fake1",
+            "status": "Inactive",
+            "numberOfInactiveRules": 1,
+            "numberOfRules": 1
+        },
+        {
+            "id": 2,
+            "name": "Fake2",
+            "status": "Active",
+            "numberOfInactiveRules": 7,
+            "numberOfRules": 15
+        },
+        {
+            "id": 23,
+            "name": "Fake3",
+            "status": "Active",
+            "numberOfInactiveRules": 2,
+            "numberOfRules": 5
+        },
+        {
+            "id": 1554,
+            "name": "Fake4",
+            "status": "Inactive",
+            "numberOfInactiveRules": 9,
+            "numberOfRules": 27
+        }
+    ]
+}
