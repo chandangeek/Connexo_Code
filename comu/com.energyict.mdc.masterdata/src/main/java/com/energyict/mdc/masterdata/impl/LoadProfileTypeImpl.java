@@ -81,6 +81,8 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     private Clock clock;
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
+    private boolean intervalChanged = false;
+
     @Inject
     public LoadProfileTypeImpl(DataModel dataModel, EventService eventService, MasterDataService masterDataService, Thesaurus thesaurus, Clock clock, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         super(LoadProfileType.class, dataModel, eventService, thesaurus);
@@ -108,6 +110,10 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     @Override
     public void save () {
         this.modificationDate = this.clock.now();
+        if(intervalChanged){
+            updateChannelTypeUsagesAccordingToNewInterval();
+            this.intervalChanged = false;
+        }
         super.save();
         this.synchronizeOldValues();
     }
@@ -186,7 +192,19 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         if ((interval.getCount() <= 0)) {
             throw UnsupportedIntervalException.strictlyPositive(this.getThesaurus(), interval);
         }
+        this.intervalChanged = this.interval != null && !this.interval.equals(interval) && this.channelTypeUsages.size() != 0;
         this.interval = interval;
+    }
+
+    private void updateChannelTypeUsagesAccordingToNewInterval() {
+        List<RegisterType> templateRegisters = new ArrayList<>(channelTypeUsages.size());
+        for (LoadProfileTypeChannelTypeUsageImpl channelTypeUsage : channelTypeUsages) {
+            templateRegisters.add(channelTypeUsage.getChannelType().getTemplateRegister());
+        }
+        channelTypeUsages.clear();
+        for (RegisterType templateRegister : templateRegisters) {
+            createChannelTypeForRegisterType(templateRegister);
+        }
     }
 
     private boolean countMustBeOneFor(TimeDuration interval) {

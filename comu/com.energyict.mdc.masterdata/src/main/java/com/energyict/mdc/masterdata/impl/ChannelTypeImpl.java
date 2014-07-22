@@ -27,6 +27,7 @@ import java.util.Set;
  * Date: 7/15/14
  * Time: 10:01 AM
  */
+@ChannelTypeHasUniqueIntervalAndRegister(groups = { Save.Create.class, Save.Update.class })
 public class ChannelTypeImpl extends MeasurementTypeImpl implements ChannelType {
 
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CHANNEL_TYPE_INTERVAL_IS_REQUIRED + "}")

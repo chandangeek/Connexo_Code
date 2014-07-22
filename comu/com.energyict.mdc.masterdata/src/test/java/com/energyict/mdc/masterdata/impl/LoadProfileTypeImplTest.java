@@ -434,6 +434,40 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         this.assertRegisterTypessDoNotExist(loadProfileType);
     }
 
+    @Test
+    @Transactional
+    public void updateChannelTypesWhenIntervalChangesTest() {
+        MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
+        String loadProfileTypeName = "updateChannelTypesWhenIntervalChangesTest";
+        TimeDuration interval = INTERVAL_15_MINUTES;
+
+        RegisterType registerType;
+        LoadProfileType loadProfileType;
+        this.setupReadingTypeInExistingTransaction();
+        this.setupPhenomenaInExistingTransaction();
+
+        // Setup RegisterType
+        registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
+
+        // Setup LoadProfileType with RegisterType
+        loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
+        loadProfileType.setDescription("For testing purposes only");
+        loadProfileType.createChannelTypeForRegisterType(registerType);
+        loadProfileType.save();
+
+        LoadProfileType reloadedLoadProfile = masterDataService.findLoadProfileType(loadProfileType.getId()).get();
+        TimeDuration newInterval = TimeDuration.days(1);
+        reloadedLoadProfile.setInterval(newInterval);
+        reloadedLoadProfile.save();
+
+        LoadProfileType finalLoadProfile = masterDataService.findLoadProfileType(reloadedLoadProfile.getId()).get();
+
+        assertThat(finalLoadProfile.getChannelTypes()).hasSize(1);
+        assertThat(finalLoadProfile.getInterval()).isEqualTo(newInterval);
+        assertThat(finalLoadProfile.getChannelTypes().get(0).getInterval()).isEqualTo(newInterval);
+        assertThat(inMemoryPersistence.getMasterDataService().findAllChannelTypes().find()).hasSize(2); // the old one should still exist
+    }
+
     private void assertLoadProfileTypeDoesNotExist(LoadProfileType loadProfileType) {
         List<LoadProfileType> loadProfileTypes = PersistenceTest.inMemoryPersistence.getMasterDataService().getDataModel().mapper(LoadProfileType.class).find("id", loadProfileType.getId());
         assertThat(loadProfileTypes).as("Was not expecting to find any LoadProfileTypes after deletinon.").isEmpty();
