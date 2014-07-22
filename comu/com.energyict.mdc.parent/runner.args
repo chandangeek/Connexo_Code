@@ -134,3 +134,6 @@ mvn:com.energyict/mdc.device.data.imp.rest/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.device.data.imp.extjs/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.scheduling/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.scheduling.rest/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.dashboard/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.dashboard.rest/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.dashboard.extjs/1.0.0-SNAPSHOT
