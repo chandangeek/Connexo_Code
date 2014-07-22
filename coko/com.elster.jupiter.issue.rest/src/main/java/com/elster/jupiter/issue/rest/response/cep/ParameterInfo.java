@@ -16,7 +16,7 @@ public class ParameterInfo {
     private String suffix;
     private String help;
     private Object defaultValue;
-    private boolean dependent;
+    private List<String> dependOn;
     private List<Object> values;
 
     public ParameterInfo(ParameterDefinition parameter) {
@@ -30,7 +30,7 @@ public class ParameterInfo {
         this.help = is(parameter.getHelp()).emptyOrOnlyWhiteSpace() ? null : parameter.getHelp();
         this.defaultValue = parameter.getDefaultValue();
         this.values = parameter.getDefaultValues();
-        this.dependent = parameter.isDependent();
+        this.dependOn = parameter.getDependOn();
         this.control = parameter.getControl();
         if (parameter.getConstraint() != null) {
             this.constraint = new ParameterConstraintInfo(parameter.getConstraint());
@@ -69,7 +69,7 @@ public class ParameterInfo {
         return values;
     }
 
-    public boolean isDependent() {
-        return dependent;
+    public List<String> getDependOn() {
+        return dependOn;
     }
 }

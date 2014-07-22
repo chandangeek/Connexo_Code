@@ -97,9 +97,7 @@ public class RuleResource extends BaseResource{
         List<ParameterDefinition> parameters = new ArrayList<>();
         if (template.get().getParameterDefinitions() != null) {
             for (ParameterDefinition parameter : template.get().getParameterDefinitions().values()) {
-                if (parameter.isDependent()) {
-                    parameters.add(parameter.getValue(paramValues));
-                }
+                parameters.add(parameter.getValue(paramValues));
             }
         }
         return ok(parameters, ParameterInfo.class).build();
