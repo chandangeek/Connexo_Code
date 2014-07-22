@@ -148,13 +148,16 @@ Ext.define('Cfg.controller.Validation', {
                 rule = values.implementation,
                 name = values.name,
                 properties = this.getPropertiesContainer().items;
-            debugger;
+
             if (form.down('#validatorCombo').isDisabled()) {
                 rule = form.down('#validatorCombo').value;
             }
 
             record.set('implementation', rule);
             record.set('name', name);
+            record.set('ruleSet', {
+                id: me.ruleSetId
+            });
 
             if (button.action === 'editRuleAction') {
                 record.readingTypes().removeAll();

@@ -8,7 +8,10 @@ Ext.define('Cfg.model.ValidationRule', {
         'readingTypes',
         'properties',
         'name',
-        'ruleSet',
+        {
+            name: 'ruleSet',
+            default: {}
+        },
         {
             name: 'ruleSetId',
             persist: false,

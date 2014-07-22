@@ -13,28 +13,6 @@ Ext.define('Cfg.view.validation.RuleSetList', {
         'Cfg.view.validation.RuleSetActionMenu'
     ],
 
-    listeners: {
-        'render': function (component) {
-            // Get sure that the store is not loading and that it
-            // has at least a record on it
-            if (this.store.isLoading() || this.store.getCount() == 0) {
-                // If it is still pending attach a listener to load
-                // event for a single time to handle the selection
-                // after the store has been loaded
-                this.store.on('load', function () {
-                    this.getView().getSelectionModel().select(0);
-                    this.getView().focusRow(0);
-                }, this, {
-                    single: true
-                });
-            } else {
-                this.getView().getSelectionModel().select(0);
-                this.getView().focusRow(0);
-            }
-
-        }
-    },
-
     columns: {
         items: [
             { header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,

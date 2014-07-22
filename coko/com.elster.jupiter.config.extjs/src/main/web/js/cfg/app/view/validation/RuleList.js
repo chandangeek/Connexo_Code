@@ -26,13 +26,11 @@ Ext.define('Cfg.view.validation.RuleList', {
                 // after the store has been loaded
                 this.store.on('load', function () {
                     this.getView().getSelectionModel().select(0);
-                    this.getView().focusRow(0);
                 }, this, {
                     single: true
                 });
             } else {
                 this.getView().getSelectionModel().select(0);
-                this.getView().focusRow(0);
             }
 
         }
