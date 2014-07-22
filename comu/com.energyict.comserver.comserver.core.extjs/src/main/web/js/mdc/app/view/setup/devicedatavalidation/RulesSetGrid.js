@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
     ],
     store: 'DeviceDataValidationRulesSet',
     overflowY: 'auto',
+    mRID: null,
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -25,7 +26,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
             },
             {
                 header: Uni.I18n.translate('device.dataValidation.rulesSetGrid.columnHeader.status', 'MDC', 'Status'),
-                dataIndex: 'status',
+                dataIndex: 'isActive',
                 align: 'center',
                 flex: 1,
                 renderer: function (value) {
@@ -62,13 +63,16 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                dock: 'bottom',
                 store: me.store,
+                itemsPerPageMsg: Uni.I18n.translate('device.dataValidation.rulesSetGrid.pgtbar.bottom.itemsPerPageRuleSet', 'MDC', 'Validation rule sets per page'),
+                dock: 'bottom',
                 deferLoading: true,
-                itemsPerPageMsg: Uni.I18n.translate('device.dataValidation.rulesSetGrid.pgtbar.bottom.itemsPerPageRuleSet', 'MDC', 'Validation rule sets per page')
+                pageSizeParam: 'limit',
+                pageStartParam: 'start'
             }
         ];
         me.callParent(arguments);
+        me.store.getProxy().setExtraParam('mRID', me.mRID);
         me.store.load({
             callback: function () {
                 me.getSelectionModel().doSelect(0);

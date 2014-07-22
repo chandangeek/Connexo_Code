@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
     alias: 'widget.deviceDataValidationRulesSetMainView',
     itemId: 'deviceDataValidationRulesSetMainView',
     mRID: null,
-    dataValidationIsActive: null,
     requires: [
         'Mdc.view.setup.devicedatavalidation.RulesSetGrid',
         'Mdc.view.setup.devicedatavalidation.RulesSetPreview',
@@ -40,14 +39,17 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                itemId: 'deviceDataValidationStatusState',
+                                itemId: 'deviceDataValidationStatusField',
                                 columnWidth: 1,
                                 labelAlign: 'left',
-                                fieldLabel: Uni.I18n.translate('device.dataValidation.statusSection.title', 'MDC', 'Status')
+                                fieldLabel: Uni.I18n.translate('device.dataValidation.statusSection.title', 'MDC', 'Status'),
+                                value: Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...')
                             },
                             {
                                 xtype: 'button',
-                                itemId: 'deviceDataValidationStateChangeButton'
+                                itemId: 'deviceDataValidationStateChangeBtn',
+                                text: Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'),
+                                action: ''
 
                             }
                         ]
@@ -55,7 +57,8 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                     {
                         xtype: 'preview-container',
                         grid: {
-                            xtype: 'deviceDataValidationRulesSetGrid'
+                            xtype: 'deviceDataValidationRulesSetGrid',
+                            mRID: me.mRID
                         },
                         emptyComponent: {
                             xtype: 'container',
@@ -95,23 +98,6 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
             }
         ];
         me.callParent(arguments);
-        me.updateStatusSection();
-    },
-    updateStatusSection: function () {
-        var me = this,
-            statusField = me.down('displayfield[itemId=deviceDataValidationStatusState]'),
-            statusChangeBtn = me.down('button[itemId=deviceDataValidationStateChangeButton]');
-
-        statusField.setValue(me.dataValidationIsActive ?
-            Uni.I18n.translate('general.active', 'MDC', 'Active') :
-            Uni.I18n.translate('general.inactive', 'MDC', 'Inctive')
-
-        );
-        statusChangeBtn.setText((me.dataValidationIsActive ?
-            Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
-            Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
-            ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
-        );
     }
 });
 

@@ -3,6 +3,5 @@ Ext.define('Mdc.store.DeviceDataValidationRulesSet', {
     storeId: 'DeviceDataValidationRulesSet',
     requires: ['Mdc.model.DeviceDataValidationRulesSet'],
     model: 'Mdc.model.DeviceDataValidationRulesSet',
-    pageSize: 10,
-    autoSync: true
+    pageSize: 10
 });
