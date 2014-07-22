@@ -163,7 +163,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
         me.getLayout().setActiveItem(isEmpty ? 0 : 1);
 
         if (!isEmpty) {
-            me.grid.getSelectionModel().doSelect(0);
+            me.grid.getView().getSelectionModel().select(0);
         }
     },
 
