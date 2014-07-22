@@ -22,7 +22,7 @@ public enum MessageSeeds implements MessageSeed {
     SIZE_TOO_LONG(9, Keys.SIZE_TOO_LONG, "Field exceeds max size of {max} characters", Level.SEVERE),
     DUPLICATE_COMTASK_NAME(10, Keys.DUPLICATE_COMTASK_NAME, "A ComTask by this name already exists", Level.SEVERE),
     PROTOCOL_TASK_REQUIRED(11, Keys.COMTASK_WITHOUT_PROTOCOLTASK, "At least one protocol task is required for a communication task.", Level.SEVERE),
-    FIELD_SIZE_INCORRECT(12, Keys.FIELD_LENGTH_NOT_IN_RANGE, "Size should be between {min} en {max} characters", Level.SEVERE),
+    FIELD_SIZE_INCORRECT(12, Keys.FIELD_TOO_LONG, "Field size should be exceed {max} characters", Level.SEVERE),
     DUPLICATE_PROTOCOL_TASK_TYPE_IN_COMTASK(13, Keys.DUPLICATE_PROTOCOL_TASK_TYPE_IN_COM_TASK, "ComTask contains multiple ProtocolTasks of the same type", Level.SEVERE),
     VALUE_NOT_IN_RANGE(999, Keys.VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}", Level.SEVERE);
 
@@ -77,7 +77,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CLOCK_TASK_TYPE_SET_CLOCK = TaskService.COMPONENT_NAME + ".clockTaskType.setClock";
         public static final String CLOCK_TASK_TYPE_FORCE_CLOCK = TaskService.COMPONENT_NAME + ".clockTaskType.forceClock";
         public static final String CLOCK_TASK_TYPE_SYNCHRONIZE_CLOCK = TaskService.COMPONENT_NAME + ".clockTaskType.synchronizeClock";
-        public static final String FIELD_LENGTH_NOT_IN_RANGE = TaskService.COMPONENT_NAME + ".fieldSizeIncorrect";
+        public static final String FIELD_TOO_LONG = TaskService.COMPONENT_NAME + ".fieldSizeIncorrect";
     }
 
 }

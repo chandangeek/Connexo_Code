@@ -25,7 +25,7 @@ public enum TableSpecs {
             Table<ComTask> table = dataModel.addTable(name(), ComTask.class);
             table.map(ComTaskImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(SHORT_DESCRIPTION_LENGTH).map(ComTaskImpl.Fields.NAME.fieldName()).add();
+            table.column("NAME").varChar().map(ComTaskImpl.Fields.NAME.fieldName()).add();
             table.column("STOREDATA").number().conversion(NUMBER2BOOLEAN).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
             table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
             table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map(ComTaskImpl.Fields.MOD_DATE.fieldName()).insert("sysdate").update("sysdate").add();
