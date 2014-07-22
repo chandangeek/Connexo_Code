@@ -26,7 +26,7 @@ public enum MessageSeeds implements MessageSeed {
     MRID_IS_REQUIRED(1008, Constants.MRID_REQUIRED_KEY, "The MRID is required", Level.SEVERE),
     DEVICE_TYPE_IS_REQUIRED(1009, Constants.DEVICE_TYPE_REQUIRED_KEY, "The device type is required", Level.SEVERE),
     DEVICE_CONFIGURATION_IS_REQUIRED(1010, Constants.DEVICE_CONFIGURATION_REQUIRED_KEY, "The device configuration is required", Level.SEVERE),
-    INVALID_FIELD_LENGTH(1011, Constants.INVALID_FIELD_LENGTH, "Field length must be between {min} and {max} characters", Level.SEVERE),
+    FIELD_TOO_LONG(1011, Constants.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
     CONNECTION_TASK_DEVICE_REQUIRED(2000, Constants.CONNECTION_TASK_DEVICE_REQUIRED_KEY, "A connection type should be linked to a device", Level.SEVERE),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED(2001, Constants.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY, "A connection type should be linked to a partial connection task from the device configuration", Level.SEVERE),
     DUPLICATE_CONNECTION_TASK(2002, Constants.DUPLICATE_CONNECTION_TASK_KEY, "The partial connection task {0} is already used by connection task {1} on device {2} and therefore no other connection task with the same partial connection task can be created", Level.SEVERE),
@@ -111,7 +111,7 @@ public enum MessageSeeds implements MessageSeed {
 
     public static class Constants {
         public static final String NAME_REQUIRED_KEY = "X.name.required";
-        public static final String INVALID_FIELD_LENGTH = "invalidFieldLength";
+        public static final String FIELD_TOO_LONG = "invalidFieldLength";
         public static final String MRID_REQUIRED_KEY = "mRIDRequired";
         public static final String DEVICE_TYPE_REQUIRED_KEY = "deviceTypeRequired";
         public static final String DEVICE_CONFIGURATION_REQUIRED_KEY = "deviceConfigurationRequired";
