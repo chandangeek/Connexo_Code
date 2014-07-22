@@ -5,6 +5,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -30,15 +31,14 @@ import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-import org.hibernate.validator.constraints.NotEmpty;
-
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -51,7 +51,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     private final DeviceConfigurationService deviceConfigurationService;
 
-    @Size(max= StringColumnLengthConstraints.SHORT_NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INCORRECT_FIELD_SIZE + "}")
+    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
 

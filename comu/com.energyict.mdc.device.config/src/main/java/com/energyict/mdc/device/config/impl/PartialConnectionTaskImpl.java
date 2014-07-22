@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.InvalidValueException;
@@ -62,7 +63,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         }
     }
 
-    @Size(max= StringColumnLengthConstraints.LONG_NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INCORRECT_FIELD_SIZE + "}")
+    @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
     private Reference<DeviceCommunicationConfiguration> configuration = ValueReference.absent();

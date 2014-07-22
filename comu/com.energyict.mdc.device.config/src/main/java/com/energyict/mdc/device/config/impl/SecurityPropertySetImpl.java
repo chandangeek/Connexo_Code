@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
@@ -30,8 +31,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.google.common.base.Optional;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,11 +43,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 
@@ -61,7 +60,7 @@ import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED
 @LevelMustBeProvidedIfSupportedByDevice(groups = {Save.Create.class, Save.Update.class})
 public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements SecurityPropertySet, PersistenceAware {
 
-    @Size(max= StringColumnLengthConstraints.LONG_NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INCORRECT_FIELD_SIZE + "}")
+    @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
     private Reference<DeviceCommunicationConfiguration> deviceCommunicationConfiguration = ValueReference.absent();
