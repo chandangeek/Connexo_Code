@@ -47,6 +47,9 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             'rule-device-configuration-action-menu': {
                 click: this.chooseAction
             }
+//            'ruleDeviceConfigurationBrowse button[action=addDeviceConfiguration]': {
+//                click: this.onAddClick
+//            }
         });
         this.listen({
             store: {
@@ -56,6 +59,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             }
         });
     },
+
 
     banDefaultSelection: function () {
         var gridview = Ext.ComponentQuery.query('rule-device-configuration-add grid')[0];
@@ -88,16 +92,17 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
         var me = this,
             ruleDeviceConfigNotLinkedStore = me.getStore('Mdc.store.RuleDeviceConfigurationsNotLinked'),
             ruleSetsStore = me.getStore('Cfg.store.ValidationRuleSets'),
-            widget = Ext.widget('rule-device-configuration-add', {ruleSetId: me.ruleSetId});
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('rule-device-configuration-add', {ruleSetId: router.routeparams.ruleSetId});
         me.getApplication().fireEvent('changecontentevent', widget);
-        ruleDeviceConfigNotLinkedStore.getProxy().setExtraParam('ruleSetId', me.ruleSetId);
+        ruleDeviceConfigNotLinkedStore.getProxy().setExtraParam('ruleSetId', router.routeparams.ruleSetId);
         ruleDeviceConfigNotLinkedStore.load(function () {
             ruleSetsStore.load({
                 params: {
-                    id: me.ruleSetId
+                    id: router.routeparams.ruleSetId
                 },
                 callback: function () {
-                    var ruleSet = ruleSetsStore.getById(parseInt(me.ruleSetId));
+                    var ruleSet = ruleSetsStore.getById(parseInt(router.routeparams.ruleSetId));
                     me.getApplication().fireEvent('loadRuleSet', ruleSet);
                 }
             });
