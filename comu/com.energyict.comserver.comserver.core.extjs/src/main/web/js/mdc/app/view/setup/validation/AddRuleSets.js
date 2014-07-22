@@ -1,6 +1,6 @@
 Ext.define('Mdc.view.setup.validation.AddRuleSets', {
     extend: 'Uni.view.container.ContentContainer',
-    xtype: 'validation-add-rulesets',
+    alias: 'widget.validation-add-rulesets',
 
     requires: [
         'Uni.view.container.PreviewContainer',
