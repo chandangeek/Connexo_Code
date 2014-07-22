@@ -32,7 +32,6 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -209,9 +208,9 @@ public class BaseLoadProfileTest extends JerseyTest {
         when(deviceConfiguration.getName()).thenReturn(name);
         when(deviceConfiguration.getId()).thenReturn(id);
         RegisterSpec registerSpec = mock(RegisterSpec.class);
-        MeasurementType measurementType = mock(MeasurementType.class);
-        when(registerSpec.getRegisterType()).thenReturn(measurementType);
-        when(measurementType.getId()).thenReturn(101L);
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerSpec.getRegisterType()).thenReturn(registerType);
+        when(registerType.getId()).thenReturn(101L);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
         return deviceConfiguration;
     }

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.google.common.base.Optional;
@@ -54,7 +55,8 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
     public void testDeleteLoadProfileTypeFromDeviceType(){
         mockNlsMessageFormat();
         DeviceType deviceType = mockDeviceType("device", 2);
-        LoadProfileType loadProfileType = mockLoadProfileType(2, "name", getRandomTimeDuration(), new ObisCode(0, 1, 2, 3, 4, 5), getRegisterTypes(1));
+        TimeDuration interval = getRandomTimeDuration();
+        LoadProfileType loadProfileType = mockLoadProfileType(2, "name", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(null);
         when(deviceConfigurationService.findDeviceType(2)).thenReturn(deviceType);
         when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.<LoadProfileType>absent());
@@ -74,7 +76,8 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         mockNlsMessageFormat();
         List<Integer> ids = new ArrayList<>();
         Entity<List<Integer>> json = Entity.json(ids);
-        LoadProfileType loadProfileType = mockLoadProfileType(1, "name", getRandomTimeDuration(), new ObisCode(0, 1, 2, 3, 4, 5), getRegisterTypes(1));
+        TimeDuration interval = getRandomTimeDuration();
+        LoadProfileType loadProfileType = mockLoadProfileType(1, "name", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
 
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(deviceType);
         when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.of(loadProfileType));

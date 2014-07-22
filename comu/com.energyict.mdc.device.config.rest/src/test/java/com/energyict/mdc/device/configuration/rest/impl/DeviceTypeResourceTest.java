@@ -339,9 +339,9 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceConfiguration.getName()).thenReturn(name);
         when(deviceConfiguration.getId()).thenReturn(id);
         RegisterSpec registerSpec = mock(RegisterSpec.class);
-        MeasurementType measurementType = mock(MeasurementType.class);
-        when(registerSpec.getRegisterType()).thenReturn(measurementType);
-        when(measurementType.getId()).thenReturn(101L);
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerSpec.getRegisterType()).thenReturn(registerType);
+        when(registerType.getId()).thenReturn(101L);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
         return deviceConfiguration;
     }
@@ -451,12 +451,12 @@ public class DeviceTypeResourceTest extends JerseyTest {
         DeviceType deviceType = mock(DeviceType.class);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(113L);
-        MeasurementType measurementType = mock(MeasurementType.class);
+        RegisterType registerType = mock(RegisterType.class);
         ReadingType readingType = mockReadingType();
-        when(measurementType.getReadingType()).thenReturn(readingType);
+        when(registerType.getReadingType()).thenReturn(readingType);
         RegisterSpec registerSpec = mock(RegisterSpec.class);
         when(registerSpec.getId()).thenReturn(1L);
-        when(registerSpec.getRegisterType()).thenReturn(measurementType);
+        when(registerSpec.getRegisterType()).thenReturn(registerType);
         ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
@@ -968,9 +968,9 @@ public class DeviceTypeResourceTest extends JerseyTest {
         RegisterSpec registerSpec = mock(RegisterSpec.class);
         when(registerSpec.getId()).thenReturn(registerConfig_id);
         ReadingType readingType = mockReadingType();
-        MeasurementType measurementType = mock(MeasurementType.class);
-        when(measurementType.getReadingType()).thenReturn(readingType);
-        when(registerSpec.getRegisterType()).thenReturn(measurementType);
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerType.getReadingType()).thenReturn(readingType);
+        when(registerSpec.getRegisterType()).thenReturn(registerType);
         ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
 
