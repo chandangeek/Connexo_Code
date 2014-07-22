@@ -48,6 +48,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOLDIALECT_REQUIRED + "}")
+    @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String protocolDialectName;
     private List<ProtocolDialectConfigurationProperty> propertyList = new ArrayList<>();
 
