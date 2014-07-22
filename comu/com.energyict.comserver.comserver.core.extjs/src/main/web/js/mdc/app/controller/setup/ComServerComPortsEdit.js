@@ -255,6 +255,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             if (values.modemInitStrings) {
                 modemInit = me.parseModemStringToArray(values.modemInitStrings);
             }
+            if (!values.useHttps) {
+                record.set('useHttps', false);
+            }
             record.set('modemInitStrings', modemInit);
             ids && (record.set('outboundComPortPoolIds', ids));
             record.save({
@@ -433,8 +436,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                                             addComPortPoolsStore.add(value);
                                         }
                                         comPortPoolsGrid.fireEvent('afterrender', comPortPoolsGrid);
-                                        preloader.destroy();
+
                                     });
+                                    preloader.destroy();
                                 }
                             });
                         }
