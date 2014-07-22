@@ -4,8 +4,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
     defaults: {
         labelWidth: 250,
         width: 600,
-        validateOnChange : false,
-        validateOnBlur : false
+        validateOnChange: false,
+        validateOnBlur: false
     },
     items: [
         {
@@ -40,10 +40,11 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             name: 'comPortPool_id',
             displayField: 'name',
             valueField: 'id',
-            emptyText: 'Select inbound communication pool'
+            emptyText: 'Select inbound communication port pool...'
         },
         {
             xtype: 'fieldcontainer',
+            itemId: 'helpLabel',
             fieldLabel: '&nbsp;',
             layout: {
                 type: 'hbox',
@@ -180,7 +181,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             xtype: 'numberfield',
             required: true,
             allowBlank: false,
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.errorNum', 'MDC', 'Number of errors'),
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.errorNum', 'MDC', 'Max. number of dial errors'),
             name: 'maximumNumberOfDialErrors',
             minValue: 0
         },
@@ -276,7 +277,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.atTimeout', 'MDC', 'AT command timeout'),
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.atTimeout', 'MDC', 'At command timeout'),
             required: true,
             itemId: 'atCommandTimeout',
             layout: 'hbox',
@@ -308,7 +309,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             xtype: 'numberfield',
             required: true,
             allowBlank: false,
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.atTry', 'MDC', 'AT command try'),
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.atTry', 'MDC', 'At command try'),
             name: 'atCommandTry',
             minValue: 0
         }
@@ -327,6 +328,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
         this.down('#delayAfterConnect').show();
         this.down('#delayBeforeSend').show();
         this.down('#atCommandTimeout').show();
+        this.down('#helpLabel').show();
         this.down('numberfield[name=atCommandTry]').show();
     },
 
@@ -364,6 +366,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
 
         this.down('numberfield[name=atCommandTry]').hide();
         this.down('numberfield[name=atCommandTry]').disable();
+
+        this.down('#helpLabel').hide();
     }
 });
 

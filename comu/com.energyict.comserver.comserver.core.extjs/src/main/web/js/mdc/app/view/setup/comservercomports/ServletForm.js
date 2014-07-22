@@ -57,7 +57,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             name: 'comPortPool_id',
             displayField: 'name',
             valueField: 'id',
-            emptyText: 'Select inbound communication pool'
+            emptyText: 'Select inbound communication port pool...'
         },
         {
             xtype: 'fieldcontainer',
@@ -83,7 +83,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: 'Https',
+            fieldLabel: 'Use https',
             name: 'https',
             items: [
                 {
