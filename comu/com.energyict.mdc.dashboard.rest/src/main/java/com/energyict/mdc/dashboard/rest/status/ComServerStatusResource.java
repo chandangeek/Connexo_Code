@@ -1,7 +1,5 @@
-package com.energyict.mdc.dashboard.status;
+package com.energyict.mdc.dashboard.rest.status;
 
-import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
 
 import javax.inject.Inject;
@@ -30,9 +28,8 @@ public class ComServerStatusResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getComServerStatus() {
-        ComServerStatus status = this.statusService.getStatus();
-        return new ComServerStatusInfo(status);
+    public ComServerStatusInfo getComServerStatus() {
+        return new ComServerStatusInfo(this.statusService.getStatus());
     }
 
 }
