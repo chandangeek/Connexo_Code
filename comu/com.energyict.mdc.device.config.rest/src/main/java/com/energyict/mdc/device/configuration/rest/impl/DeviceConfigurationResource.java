@@ -421,10 +421,12 @@ public class DeviceConfigurationResource {
         }
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        List<ValidationRuleSetInfo> addedValidationRuleSets = new ArrayList<>(ids.size());
+        List<ValidationRuleSetInfo> addedValidationRuleSets = new ArrayList<>();
         for (ValidationRuleSet validationRuleSet : all ? allRuleSets() : ruleSetsFor(ids)) {
+            if (!deviceConfiguration.getValidationRuleSets().contains(validationRuleSet)) {
                 deviceConfiguration.addValidationRuleSet(validationRuleSet);
                 addedValidationRuleSets.add(new ValidationRuleSetInfo(validationRuleSet));
+            }
         }
         return Response.ok(addedValidationRuleSets).build();
     }
