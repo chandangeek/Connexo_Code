@@ -220,7 +220,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             values = Ext.Object.fromQueryString(queryString, true),
             formErrorsPanel = form.down('[name=form-errors]'),
             comPortPool = this.getStore('Mdc.store.AddComPortPools'),
-            modemInit,
+            modemInit = [],
             typeModel,
             record,
             actionType,
@@ -254,9 +254,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             }
             if (values.modemInitStrings) {
                 modemInit = me.parseModemStringToArray(values.modemInitStrings);
-                record.set('modemInitStrings', modemInit);
             }
-
+            record.set('modemInitStrings', modemInit);
             ids && (record.set('outboundComPortPoolIds', ids));
             record.save({
                 callback: function (records, operation, success) {
