@@ -33,7 +33,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         {ref: 'toggleDefaultMenuItem', selector: '#toggleDefaultMenuItem'},
         {ref: 'comWindowStart', selector: '#connectionMethodEdit #comWindowStart'},
         {ref: 'comWindowEnd', selector: '#connectionMethodEdit #comWindowEnd'},
-        {ref: 'activateComWindowCheckBox', selector: '#connectionMethodEdit #activateComWindowCheckBox'}
+        {ref: 'activateComWindowCheckBox', selector: '#connectionMethodEdit #activateComWindowCheckBox'},
+        {ref: 'communicationPortPoolComboBox', selector: '#communicationPortPoolComboBox'}
     ],
 
     init: function () {
@@ -171,6 +172,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             connectionStrategies: connectionStrategiesStore,
             direction: direction
         });
+        me.getCommunicationPortPoolComboBox().disable();
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -338,6 +340,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         } else {
             form.hide();
         }
+        this.getCommunicationPortPoolComboBox().enable();
     },
 
     showConnectionMethodEditView: function (deviceTypeId, deviceConfigId, connectionMethodId) {
