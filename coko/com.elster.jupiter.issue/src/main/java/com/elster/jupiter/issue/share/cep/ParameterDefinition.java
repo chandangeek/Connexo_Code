@@ -7,7 +7,7 @@ public interface ParameterDefinition {
     String getKey();
     ParameterControl getControl();
     ParameterConstraint getConstraint();
-    boolean isDependent();
+    List<String> getDependOn();
 
     String getLabel();
     String getSuffix();

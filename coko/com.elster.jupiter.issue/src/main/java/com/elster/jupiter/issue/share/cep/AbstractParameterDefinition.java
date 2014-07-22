@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractParameterDefinition implements ParameterDefinition {
-    public boolean isDependent() {
-        return false;
+    public List<String> getDependOn() {
+        return Collections.emptyList();
     }
 
     @Override
