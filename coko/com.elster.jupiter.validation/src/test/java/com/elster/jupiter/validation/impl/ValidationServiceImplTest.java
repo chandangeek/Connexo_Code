@@ -21,6 +21,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.ProgrammableClock;
+import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import com.elster.jupiter.validation.Validator;
@@ -110,7 +111,7 @@ public class ValidationServiceImplTest {
         when(dataModel.mapper(MeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
-        when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
+        when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(validationRuleQueryExecutor);
 
         validationService = new ValidationServiceImpl();
         validationService.setOrmService(ormService);
