@@ -92,6 +92,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
         },
         {
             xtype: 'fieldcontainer',
+            itemId: 'helpLabel',
             fieldLabel: '&nbsp;',
             layout: {
                 type: 'hbox',
@@ -112,6 +113,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
         this.down('#inboundPool').show();
         this.down('#comportpoolid').hide();
         this.down('#comportpoolid').disable();
+        this.down('#helpLabel').show();
     },
 
     showOutbound: function(){
@@ -123,5 +125,6 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
         this.down('#inboundPool').hide();
         this.down('#inboundPool').disable();
         this.down('#comportpoolid').show();
+        this.down('#helpLabel').hide();
     }
 });

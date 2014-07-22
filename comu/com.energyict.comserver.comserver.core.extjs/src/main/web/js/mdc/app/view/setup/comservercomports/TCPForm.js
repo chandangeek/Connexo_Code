@@ -72,6 +72,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
         {
             xtype: 'fieldcontainer',
             fieldLabel: '&nbsp;',
+            name: 'helpLabelInboundComPorts',
             layout: {
                 type: 'hbox',
                 align: 'stretch'
@@ -90,6 +91,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
     showInbound: function(){
         this.down('numberfield[name=portNumber]').show();
         this.down('combobox[name=comPortPool_id]').show();
+        this.down('fieldcontainer[name=helpLabelInboundComPorts]').show();
 
         this.down('#comportpoolid').hide();
         this.down('#comportpoolid').disable();
@@ -99,7 +101,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
     showOutbound: function(){
         this.down('numberfield[name=portNumber]').hide();
         this.down('numberfield[name=portNumber]').disable();
-
+        this.down('fieldcontainer[name=helpLabelInboundComPorts]').hide();
         this.down('combobox[name=comPortPool_id]').hide();
         this.down('combobox[name=comPortPool_id]').disable();
 
