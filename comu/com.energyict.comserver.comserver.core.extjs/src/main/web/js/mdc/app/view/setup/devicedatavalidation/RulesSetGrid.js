@@ -11,10 +11,10 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
         'Uni.view.toolbar.PagingTop'
     ],
     store: 'DeviceDataValidationRulesSet',
-    mRID: null,
     overflowY: 'auto',
     initComponent: function () {
-        this.columns = [
+        var me = this;
+        me.columns = [
             {
                 header: Uni.I18n.translate('device.dataValidation.rulesSetGrid.columnHeader.name', 'MDC', 'Validation rule set'),
                 dataIndex: 'name',
@@ -27,7 +27,12 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                 header: Uni.I18n.translate('device.dataValidation.rulesSetGrid.columnHeader.status', 'MDC', 'Status'),
                 dataIndex: 'status',
                 align: 'center',
-                flex: 1
+                flex: 1,
+                renderer: function (value) {
+                    return value ?
+                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
+                        Uni.I18n.translate('general.inactive', 'MDC', 'Inctive');
+                }
             },
             {
                 header: Uni.I18n.translate('device.dataValidation.rulesSetGrid.columnHeader.activeRules', 'MDC', 'Active rules'),
@@ -46,11 +51,11 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                 items: 'Mdc.view.setup.devicedatavalidation.RulesSetActionMenu'
             }
         ];
-        this.dockedItems = [
+        me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
-                store: this.store,
+                store: me.store,
                 displayMsg: Uni.I18n.translate('device.dataValidation.rulesSetGrid.pgtbar.top.displayMsgRuleSet', 'MDC', '{0} - {1} of {2} Validation rule sets'),
                 displayMoreMsg: Uni.I18n.translate('device.dataValidation.rulesSetGrid.pgtbar.top.displayMoreMsgRuleSet', 'MDC', '{0} - {1} of more than {2} Validation rule sets'),
                 emptyMsg: Uni.I18n.translate('device.dataValidation.rulesSetGrid.pgtbar.top.emptyMsgRuleSet', 'MDC', 'There are no validation rule sets to display')
@@ -58,11 +63,17 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 dock: 'bottom',
-                store: this.store,
+                store: me.store,
+                deferLoading: true,
                 itemsPerPageMsg: Uni.I18n.translate('device.dataValidation.rulesSetGrid.pgtbar.bottom.itemsPerPageRuleSet', 'MDC', 'Validation rule sets per page')
             }
         ];
-        this.callParent();
+        me.callParent(arguments);
+        me.store.load({
+            callback: function () {
+                me.getSelectionModel().doSelect(0);
+            }
+        });
     }
 });
 

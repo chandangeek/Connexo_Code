@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
     alias: 'widget.deviceDataValidationRulesSetMainView',
     itemId: 'deviceDataValidationRulesSetMainView',
     mRID: null,
-    status: null,
+    dataValidationIsActive: null,
     requires: [
         'Mdc.view.setup.devicedatavalidation.RulesSetGrid',
         'Mdc.view.setup.devicedatavalidation.RulesSetPreview',
@@ -43,21 +43,19 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                                 itemId: 'deviceDataValidationStatusState',
                                 columnWidth: 1,
                                 labelAlign: 'left',
-                                fieldLabel: Uni.I18n.translate('device.dataValidation.statusSection.title', 'MDC', 'Status'),
-                                value: me.status
+                                fieldLabel: Uni.I18n.translate('device.dataValidation.statusSection.title', 'MDC', 'Status')
                             },
                             {
                                 xtype: 'button',
-                                itemId: 'deviceDataValidationStateChangeButton',
-                                text: (me.status === 'Active' ? 'Deactivate' : 'Activate') + ' data validation'
+                                itemId: 'deviceDataValidationStateChangeButton'
+
                             }
                         ]
                     },
                     {
                         xtype: 'preview-container',
                         grid: {
-                            xtype: 'deviceDataValidationRulesSetGrid',
-                            mRID: me.mRID
+                            xtype: 'deviceDataValidationRulesSetGrid'
                         },
                         emptyComponent: {
                             xtype: 'container',
@@ -97,6 +95,23 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
             }
         ];
         me.callParent(arguments);
+        me.updateStatusSection();
+    },
+    updateStatusSection: function () {
+        var me = this,
+            statusField = me.down('displayfield[itemId=deviceDataValidationStatusState]'),
+            statusChangeBtn = me.down('button[itemId=deviceDataValidationStateChangeButton]');
+
+        statusField.setValue(me.dataValidationIsActive ?
+            Uni.I18n.translate('general.active', 'MDC', 'Active') :
+            Uni.I18n.translate('general.inactive', 'MDC', 'Inctive')
+
+        );
+        statusChangeBtn.setText((me.dataValidationIsActive ?
+            Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
+            Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
+            ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
+        );
     }
 });
 

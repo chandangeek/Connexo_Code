@@ -4,28 +4,28 @@
         {
             "id": 1,
             "name": "Fake1",
-            "status": "Inactive",
+            "isActive": false,
             "numberOfInactiveRules": 1,
             "numberOfRules": 1
         },
         {
-            "id": 2,
+            "id": 6,
             "name": "Fake2",
-            "status": "Active",
+            "isActive": true,
             "numberOfInactiveRules": 7,
             "numberOfRules": 15
         },
         {
-            "id": 23,
+            "id": 7,
             "name": "Fake3",
-            "status": "Active",
+            "isActive": true,
             "numberOfInactiveRules": 2,
             "numberOfRules": 5
         },
         {
-            "id": 1554,
+            "id": 1089,
             "name": "Fake4",
-            "status": "Inactive",
+            "isActive": false,
             "numberOfInactiveRules": 9,
             "numberOfRules": 27
         }
