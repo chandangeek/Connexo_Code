@@ -94,8 +94,7 @@ public class LoadProfileResourceTest extends JerseyTest {
     @Test
     public void testIntervalsList() throws Exception {
         when(thesaurus.getString(Matchers.<String>anyObject(), Matchers.<String>anyObject())).thenReturn("%s minute");
-        Map<String, Object> map = target("/loadprofiles/intervals").request().get(Map.class);
-        List<?> intervals = (List) map.get("data");
+        List<Object> intervals = target("/loadprofiles/intervals").request().get(List.class);
         assertThat(intervals).hasSize(11);
         assertThat(((Map)intervals.get(0)).get("name")).isEqualTo("1 minute");
     }
