@@ -282,6 +282,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                         });
                 }
             });
+        Ext.Ajax.suspendEvent('requestexception');
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validate',
             method: 'PUT',
@@ -299,6 +300,9 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                     me.showValidationActivationErrors(res.message);
                     me.confirmationWindowButtonsDisable(false);
                 }
+            },
+            callback: function () {
+                Ext.Ajax.resumeEvent('requestexception');
             }
         });
     },
