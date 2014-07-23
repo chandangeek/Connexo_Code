@@ -73,7 +73,6 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                             xtype: 'button',
                             ui: 'action',
-                            margin: '0 0 0 -6',
                             action: 'createEditNewRuleSet',
                             itemId: 'createEditNewRuleSet'
                         },

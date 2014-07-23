@@ -3,6 +3,7 @@ Ext.define('Cfg.view.validation.AddRule', {
     alias: 'widget.addRule',
     itemId: 'addRule',
     overflowY: true,
+
     requires: [
         'Cfg.store.Validators',
         'Cfg.model.Validator',
@@ -26,7 +27,6 @@ Ext.define('Cfg.view.validation.AddRule', {
 
     readingTypeIndex: 1,
 
-
     content: [
         {
             xtype: 'panel',
@@ -39,8 +39,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                     padding: '10 10 0 10',
                     width: 700,
                     layout: {
-                        type: 'vbox'//,
-                        //align: 'stretch'
+                        type: 'vbox'
                     },
                     defaults: {
                         validateOnChange: false,
