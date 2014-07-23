@@ -62,12 +62,6 @@ Ext.define('Usr.controller.Group', {
             panel.setTitle(title);
             form.loadRecord(record[0]);
 
-            var privileges = '';
-            var currentPrivileges = record[0].privileges().data.items;
-            for (var i = 0; i < currentPrivileges.length; i++) {
-                privileges += currentPrivileges[i].data.name + '<br/>';
-            }
-            form.down('[name=privileges]').setValue(privileges);
             panel.show();
         }
     }

@@ -4,7 +4,11 @@ Ext.define('Usr.model.Privilege', {
         'componentName',
         'name',
         'description',
-        'selected'
+        {
+            name: 'selected',
+            type: 'boolean',
+            defaultValue: false
+        }
     ],
     /*associations: [
         {
@@ -17,6 +21,9 @@ Ext.define('Usr.model.Privilege', {
     proxy: {
         type: 'rest',
         url: '/api/usr/privileges',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'privileges'
