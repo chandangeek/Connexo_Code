@@ -1,5 +1,13 @@
 Ext.define('Usr.store.Privileges', {
     extend: 'Ext.data.Store',
+    requires: [
+        'Usr.model.Privilege'
+    ],
     model: 'Usr.model.Privilege',
-    pageSize: 500
+    groupField: 'componentName',
+    remoteSort: true,
+    sorters: {
+        property: 'name',
+        direction: 'ASC'
+    }
 });

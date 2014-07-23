@@ -4,7 +4,9 @@ Ext.define('Usr.view.group.Edit', {
     requires: [
         'Usr.store.Privileges',
         'Uni.view.form.CheckboxGroup',
-        'Ext.button.Button'
+        'Ext.button.Button',
+        'Usr.view.group.privilege.ApplicationList',
+        'Usr.view.group.privilege.FeatureList'
     ],
 
     edit: false,
@@ -18,13 +20,16 @@ Ext.define('Usr.view.group.Edit', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                layout: 'vbox',
+                //layout: 'vbox',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
                 title: 'Edit Group',
 
                 items: [
                     {
                         xtype: 'form',
-                        width: 650,
                         itemId: 'editForm',
                         hydrator: 'Uni.util.Hydrator',
                         buttonAlign: 'left',
@@ -40,6 +45,7 @@ Ext.define('Usr.view.group.Edit', {
                             {
                                 name: 'name',
                                 fieldLabel: Uni.I18n.translate('group.name', 'USM', 'Name'),
+                                maxWidth: 650,
                                 required: true,
                                 msgTarget: 'under',
                                 maxLength: 80,
@@ -47,19 +53,20 @@ Ext.define('Usr.view.group.Edit', {
                             },
                             {
                                 name: 'description',
-                                fieldLabel: Uni.I18n.translate('group.description', 'USM', 'Description')
+                                fieldLabel: Uni.I18n.translate('group.description', 'USM', 'Description'),
+                                maxWidth: 650
                             },
                             {
-                                xtype: 'checkboxstore',
-                                itemId: 'selectPrivileges',
-                                fieldLabel: Uni.I18n.translate('group.privileges', 'USM', 'Privileges'),
-                                store: 'Usr.store.Privileges',
-                                autoScroll: true,
-                                maxHeight: 500,
-                                columns: 1,
-                                vertical: true,
-                                name: 'privileges',
-                                valueField: 'name'
+                                xtype: 'applicationList',
+                                itemId: 'applicationList',
+                                height: 300,
+                                margin: '10 0 0 265'
+                            },
+                            {
+                                xtype: 'featureList',
+                                itemId: 'featureList',
+                                height: 300,
+                                margin: '10 0 0 265'
                             },
                             {
                                 xtype: 'fieldcontainer',
