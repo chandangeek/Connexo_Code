@@ -115,9 +115,28 @@ Ext.define('Uni.view.container.PreviewContainer', {
         me.previewComponent = me.getWrapperCt().items.items[1];
 
         me.bindStore(me.grid.store || 'ext-empty-store', true);
+        me.initChildPagingBottom();
         me.initGridListeners();
 
-        me.on('beforedestroy', this.onBeforeDestroy, this);
+        me.on('beforedestroy', me.onBeforeDestroy, me);
+    },
+
+    initChildPagingBottom: function () {
+        var me = this,
+            pagingBottomXType = 'pagingtoolbarbottom',
+            childPagingBottom;
+
+        if (Ext.isDefined(me.previewComponent)) {
+            childPagingBottom = me.previewComponent.down(pagingBottomXType);
+        } else {
+            return;
+        }
+
+        if (childPagingBottom !== null
+            && Ext.isDefined(childPagingBottom)
+            && childPagingBottom.getXType() === pagingBottomXType) {
+            childPagingBottom.updatePagingParams = false;
+        }
     },
 
     initGridListeners: function () {

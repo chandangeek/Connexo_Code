@@ -10,7 +10,27 @@ Ext.define('Uni.util.QueryString', {
             queryObject = Ext.Object.fromQueryString(queryString);
 
         Ext.apply(queryObject, config || {});
+
+        queryObject = me.cleanQueryObject(queryObject);
         return Ext.Object.toQueryString(queryObject);
+    },
+
+    /**
+     * Cleans up a query object by removing undefined parameters.
+     *
+     * @param queryObject
+     * @returns {Object} Cleaned up query object
+     */
+    cleanQueryObject: function (queryObject) {
+        var queryObjectCopy = Ext.clone(queryObject || {});
+
+        for (var key in queryObject) {
+            if (queryObject.hasOwnProperty(key) && !Ext.isDefined(queryObject[key])) {
+                delete queryObjectCopy[key];
+            }
+        }
+
+        return queryObjectCopy;
     },
 
     buildHrefWithQueryString: function (config) {

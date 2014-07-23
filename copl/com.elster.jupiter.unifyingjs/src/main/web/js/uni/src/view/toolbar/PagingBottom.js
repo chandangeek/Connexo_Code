@@ -52,6 +52,13 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
      */
     deferLoading: false,
 
+    /**
+     * @cfg {Boolean}
+     *
+     * Whether to update the paging parameters in the URL or not, default 'true'.
+     */
+    updatePagingParams: true,
+
     itemsPerPageMsg: Uni.I18n.translate('general.itemsPerPage', 'UNI', 'Items per page'),
 
     firstText: Uni.I18n.translate('general.firstPage', 'UNI', 'First page'),
@@ -141,7 +148,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             pageSize = parseInt(value, 10);
 
         me.resetPageSize(pageSize);
-        me.resetQueryString();
+        me.updateQueryString();
     },
 
     resetPageSize: function (pageSize) {
@@ -164,15 +171,37 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         });
     },
 
-    resetQueryString: function (start) {
-        var me = this,
-            currentHref = location.href,
-            result = me.buildQueryString(start);
+    updateQueryString: function (start) {
+        var me = this;
 
-        if (currentHref !== result) {
+        me.updateHrefIfNecessary(me.buildQueryString(start));
+    },
+
+    resetQueryString: function () {
+        var me = this;
+
+        var obj = {};
+        obj[me.pageSizeParam] = undefined;
+        obj[me.pageStartParam] = undefined;
+
+        me.updateHrefIfNecessary(Uni.util.QueryString.buildHrefWithQueryString(obj));
+    },
+
+    updateHrefIfNecessary: function (href) {
+        if (this.updatePagingParams && location.href !== href) {
             Uni.util.History.suspendEventsForNextCall();
-            location.href = result;
+            location.href = href;
         }
+    },
+
+    resetPaging: function () {
+        var me = this;
+
+        me.totalCount = 0;
+        me.totalPages = 0;
+        me.isFullTotalCount = false;
+
+        me.resetQueryString();
     },
 
     buildQueryString: function (start) {
@@ -336,7 +365,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                 params: me.params
             });
 
-            me.resetQueryString();
+            me.updateQueryString();
             return true;
         }
         return false;
@@ -352,7 +381,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                 params: me.params
             });
 
-            me.resetQueryString();
+            me.updateQueryString();
             return true;
         }
         return false;
@@ -371,7 +400,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                     params: me.params
                 });
 
-                me.resetQueryString();
+                me.updateQueryString();
                 return true;
             }
         }
@@ -392,7 +421,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                     params: me.params
                 });
 
-                me.resetQueryString();
+                me.updateQueryString();
                 return true;
             }
         }
