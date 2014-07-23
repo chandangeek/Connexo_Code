@@ -45,11 +45,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             'loadProfileTypeAddMeasurementTypesView': {
                 afterrender: this.measurementTypesLoad
             },
-            'loadProfileTypeAddMeasurementTypesView radiogroup[name=AllOrSelectedMeasurementTypes]': {
-                change: this.selectRadioButton
-            },
             'loadProfileTypeAddMeasurementTypesView loadProfileTypeAddMeasurementTypesGrid': {
-                selectionchange: this.getCountOfCheckedMeasurementTypes
+                selectionchange: this.onSelectionChange
             },
             'loadProfileTypeAddMeasurementTypesView loadProfileTypeAddMeasurementTypesDockedItems button[action=uncheckallmeasurementtypes]': {
                 click: this.unCheckAllMeasurementTypes
@@ -182,9 +179,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         success: function () {
                             me.handleSuccessRequest('Load profile type saved');
                         },
-//                        failure: function (response) {
-//                            me.handleFailureRequest(response, 'Error during update', 'loadprofiletypenotificationerrorretry');
-//                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -203,9 +197,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         success: function () {
                             me.handleSuccessRequest('Load profile type saved');
                         },
-//                        failure: function (response) {
-//                            me.handleFailureRequest(response, 'Error during update', 'loadprofiletypenotificationerrorretry');
-//                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -260,93 +251,69 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         })
     },
 
-
     addMeasurementTypes: function () {
         var me = this,
-            grid = this.getAddMeasurementTypesGrid(),
+            radioAll = me.getAddMeasurementTypesView().down('#radioAll'),
+            grid = me.getAddMeasurementTypesGrid(),
             selectedArray = grid.getView().getSelectionModel().getSelection();
+
+        if (radioAll.getValue()) {
+            selectedArray = grid.getStore().data.items;
+        }
+
         me.selectedMeasurementTypesStore.removeAll();
-        Ext.each(selectedArray, function (measurementType) {
-            me.selectedMeasurementTypesStore.add(measurementType);
-        });
+        me.selectedMeasurementTypesStore.add(selectedArray);
         Ext.History.back();
     },
 
     unCheckAllMeasurementTypes: function () {
         var grid = this.getAddMeasurementTypesGrid();
-        grid.getView().getSelectionModel().deselectAll();
+        grid.getView().getSelectionModel().deselectAll(true);
+        this.onSelectionChange();
     },
 
-    selectRadioButton: function (radiogroup) {
-        var radioValue = radiogroup.getValue().measurementTypeRange;
-        switch (radioValue) {
-            case 'ALL':
-                this.checkAllMeasurementTypes();
-                break;
-            case 'SELECTED':
-                this.checkSelectedMeasurementTypes();
-                break;
-        }
+    onSelectionChange: function () {
+        var radiogroup = Ext.ComponentQuery.query('loadProfileTypeAddMeasurementTypesView radiogroup[name=AllOrSelectedMeasurementTypes]')[0];
+        this.updateCountOfCheckedMeasurementTypes();
+        radiogroup.items.items[1].setValue(true);
     },
 
-    checkSelectedMeasurementTypes: function () {
-        var grid = this.getAddMeasurementTypesGrid(),
-            view = this.getAddMeasurementTypesView(),
-            uncheckMeasurement = this.getUncheckMeasurementButton();
-        if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
-            grid.enable();
-            uncheckMeasurement.enable();
-        }
-    },
-
-    getCountOfCheckedMeasurementTypes: function () {
+    updateCountOfCheckedMeasurementTypes: function () {
         var grid = this.getAddMeasurementTypesGrid(),
             measurementTypesCountSelected = grid.getView().getSelectionModel().getSelection().length,
-            measurementTypesCountContainer = this.getAddMeasurementTypesCount(),
-            measurementTypeWord;
-        if (measurementTypesCountSelected == 1) {
-            measurementTypeWord = ' measurement type selected'
-        } else {
-            measurementTypeWord = ' measurement types selected'
-        }
-        var widget = Ext.widget('container', {
-            html: measurementTypesCountSelected + measurementTypeWord
+            measurementTypesCountContainer = this.getAddMeasurementTypesCount();
+
+        var widget = Ext.widget('component', {
+            html: Uni.I18n.translatePlural(
+                'setup.measurementTypesCountContainer.count',
+                measurementTypesCountSelected,
+                'MDC',
+                '{0} measurement types selected'
+            )
         });
 
         measurementTypesCountContainer.removeAll(true);
         measurementTypesCountContainer.add(widget);
     },
 
-    checkAllMeasurementTypes: function (store, records) {
-        var grid = this.getAddMeasurementTypesGrid(),
-            uncheckMeasurement = this.getUncheckMeasurementButton(),
-            selectionModel = grid.getView().getSelectionModel();
-        selectionModel.selectAll();
-        grid.disable();
-        uncheckMeasurement.disable();
-    },
-
     checkAndMarkMeasurementTypes: function () {
         var grid = this.getAddMeasurementTypesGrid(),
             view = this.getAddMeasurementTypesView(),
-            uncheckMeasurement = this.getUncheckMeasurementButton(),
             selectionModel = grid.getView().getSelectionModel(),
             radiogroup = Ext.ComponentQuery.query('loadProfileTypeAddMeasurementTypesView radiogroup[name=AllOrSelectedMeasurementTypes]')[0],
             recordsArray = [];
+
         if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
-            if (this.selectedMeasurementTypesStore.getCount() == 0) {
-                selectionModel.selectAll();
-                grid.disable();
-                uncheckMeasurement.disable();
-            } else {
+            if (this.selectedMeasurementTypesStore.getCount() > 0) {
                 radiogroup.items.items[1].setValue(true);
                 this.selectedMeasurementTypesStore.each(function (value) {
                     recordsArray.push(value);
                 });
                 selectionModel.select(recordsArray);
             }
-
         }
+
+        this.updateCountOfCheckedMeasurementTypes();
     },
 
     checkLoadProfileTypesCount: function () {

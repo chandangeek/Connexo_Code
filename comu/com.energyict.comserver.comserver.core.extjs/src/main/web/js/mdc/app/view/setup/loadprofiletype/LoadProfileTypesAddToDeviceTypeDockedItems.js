@@ -13,9 +13,10 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeDocked
             },
             {
                 xtype: 'button',
-                text: Uni.I18n.translate('general.uncheckall', 'MDC', 'Uncheck All'),
+                text: Uni.I18n.translate('general.uncheckall', 'MDC', 'Uncheck all'),
                 action: 'uncheckallloadprofiletypes',
-                itemId: 'uncheckAllLoadProfileTypes'
+                itemId: 'uncheckAllLoadProfileTypes',
+                margin: '0 0 0 8'
             },
             {
                 xtype: 'container',

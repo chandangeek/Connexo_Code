@@ -387,7 +387,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         me.getPage().down('#loadProfileConfigurationDetailDockedItems').hide();
                                         me.getPage().down('#loadProfileConfigurationDetailChannelGridContainer').hide();
                                         me.getPage().down('#loadProfileConfigurationDetailChannelPreviewContainer').hide();
-                                        me.getPage().down('#separator').hide();
                                     }
                                 }, me);
                                 var detailedForm = me.getLoadConfigurationDetailForm();

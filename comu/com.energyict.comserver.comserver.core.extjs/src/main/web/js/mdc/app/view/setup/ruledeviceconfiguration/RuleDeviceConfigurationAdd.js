@@ -27,6 +27,13 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAdd', 
                                 Uni.I18n.translate('deviceconfiguration.empty.list.item1', 'MDC', 'No device configurations have been added yet.'),
                                 Uni.I18n.translate('deviceconfiguration.empty.list.item2', 'MDC', 'Device configurations exists, but you do not have permission to view them.')
                             ]
+                        },
+                        onLoad: function () {
+                            var me = this,
+                                count = me.grid.store.getCount(),
+                                isEmpty = count === 0;
+
+                            me.getLayout().setActiveItem(isEmpty ? 0 : 1);
                         }
                     }
                 ]

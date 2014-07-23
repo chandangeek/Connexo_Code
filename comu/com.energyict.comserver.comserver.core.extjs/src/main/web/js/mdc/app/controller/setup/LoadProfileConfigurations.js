@@ -12,9 +12,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     ],
 
     requires: [
-        'Mdc.store.LoadProfileValidationRules',
         'Mdc.store.AvailableRegisterTypesForDeviceConfiguration',
-        'Mdc.store.RegisterTypesOfDevicetype',
+        'Mdc.store.RegisterTypesOfDevicetype'
     ],
 
 
