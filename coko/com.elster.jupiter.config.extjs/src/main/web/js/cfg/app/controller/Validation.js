@@ -935,7 +935,7 @@ Ext.define('Cfg.controller.Validation', {
                 rulesContainerWidget.down('#stepsRuleMenu').setTitle(rule.get('name'));
                 me.getValidationRuleSetsStore().load({
                     callback: function () {
-                        var ruleSet = this.getById(parseInt(id));
+                        var ruleSet = this.getById(parseInt(params.ruleSetId));
                         me.getApplication().fireEvent('loadRuleSet', ruleSet);
                         rulesContainerWidget.setLoading(false);
                     }
