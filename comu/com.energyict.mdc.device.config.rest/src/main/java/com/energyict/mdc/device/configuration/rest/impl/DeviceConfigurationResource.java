@@ -20,6 +20,7 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 import javax.inject.Inject;
@@ -422,7 +423,7 @@ public class DeviceConfigurationResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ValidationRuleSetInfo> addedValidationRuleSets = new ArrayList<>();
-        for (ValidationRuleSet validationRuleSet : all ? allRuleSets() : ruleSetsFor(ids)) {
+        for (ValidationRuleSet validationRuleSet : all ? allRuleSets(deviceConfiguration) : ruleSetsFor(ids)) {
             if (!deviceConfiguration.getValidationRuleSets().contains(validationRuleSet)) {
                 deviceConfiguration.addValidationRuleSet(validationRuleSet);
                 addedValidationRuleSets.add(new ValidationRuleSetInfo(validationRuleSet));
@@ -445,8 +446,15 @@ public class DeviceConfigurationResource {
         });
     }
 
-    private Iterable<ValidationRuleSet> allRuleSets() {
-        return validationService.getValidationRuleSets();
+    private Iterable<ValidationRuleSet> allRuleSets(DeviceConfiguration deviceConfiguration) {
+        final List<ReadingType> relatedToConfiguration = deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration);
+        List<ValidationRuleSet> validationRuleSets = validationService.getValidationRuleSets();
+        return Iterables.filter(validationRuleSets, new Predicate<ValidationRuleSet>() {
+            @Override
+            public boolean apply(ValidationRuleSet validationRuleSet) {
+                return !validationRuleSet.getRules(relatedToConfiguration).isEmpty();
+            }
+        });
     }
 
 
