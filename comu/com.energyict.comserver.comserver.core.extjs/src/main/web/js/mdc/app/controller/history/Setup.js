@@ -851,6 +851,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 }
                             }
+                        },
+                        datavalidation: {
+                            title: 'Data validation',
+                            route: 'datavalidation',
+                            controller: 'Mdc.controller.setup.DeviceDataValidation',
+                            action: 'showDeviceDataValidationMainView'
                         }
                     }
                 }

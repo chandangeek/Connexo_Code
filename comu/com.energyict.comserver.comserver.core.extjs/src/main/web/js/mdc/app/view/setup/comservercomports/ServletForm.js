@@ -7,6 +7,9 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
         validateOnChange: false,
         validateOnBlur: false
     },
+    requires: [
+        'Uni.form.field.Password'
+    ],
     items: [
         {
             xtype: 'numberfield',
@@ -112,46 +115,10 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             name: 'keyStoreFilePath'
         },
         {
-            xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.keyStorePass', 'MDC', 'Key store access password'),
+            xtype: 'password-field',
             required: true,
-            name: 'keyStorePassword',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            items: [
-                {
-                    xtype: 'textfield',
-                    required: true,
-                    allowBlank: false,
-                    inputType: 'password',
-                    name: 'keyStorePassword'
-                },
-                {
-                    xtype: 'container',
-                    margin: '0 0 8 0',
-                    layout: 'hbox',
-                    items: [
-                        {
-                            xtype: 'checkbox',
-                            name: 'showChar',
-                            margin: '0 16 0 0',
-                            listeners: {
-                                change: function (chkbx, newValue) {
-                                    var passField = chkbx.up('fieldcontainer[name=keyStorePassword]').down('textfield[name=keyStorePassword]');
-                                    newValue ? passField.getEl().select('input').elements[0].type = 'text' :
-                                        passField.getEl().select('input').elements[0].type = 'password';
-                                }
-                            }
-                        },
-                        {
-                            xtype: 'label',
-                            text: Uni.I18n.translate('comServerComPorts.form.showChar', 'MDC', 'Show characters')
-                        }
-                    ]
-                }
-            ]
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.keyStorePass', 'MDC', 'Key store access password'),
+            name: 'keyStorePassword'
         },
         {
             xtype: 'textfield',
@@ -161,47 +128,10 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             name: 'trustStoreFilePath'
         },
         {
-            xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.trustStorePass', 'MDC', 'Trust store access password'),
-            name: 'trustStorePassword',
+            xtype: 'password-field',
             required: true,
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            items: [
-                {
-                    xtype: 'textfield',
-                    required: true,
-                    allowBlank: false,
-                    name: 'trustStorePassword',
-                    inputType: 'password'
-                },
-                {
-                    xtype: 'container',
-                    margin: '0 0 8 0',
-                    allowBlank: false,
-                    layout: 'hbox',
-                    items: [
-                        {
-                            xtype: 'checkbox',
-                            name: 'showChar',
-                            margin: '0 16 0 0',
-                            listeners: {
-                                change: function (chkbx, newValue) {
-                                    var passField = chkbx.up('fieldcontainer[name=trustStorePassword]').down('textfield[name=trustStorePassword]');
-                                    newValue ? passField.getEl().select('input').elements[0].type = 'text' :
-                                        passField.getEl().select('input').elements[0].type = 'password';
-                                }
-                            }
-                        },
-                        {
-                            xtype: 'label',
-                            text: Uni.I18n.translate('comServerComPorts.form.showChar', 'MDC', 'Show characters')
-                        }
-                    ]
-                }
-            ]
+            fieldLabel: Uni.I18n.translate('comServerComPorts.form.trustStorePass', 'MDC', 'Trust store access password'),
+            name: 'trustStorePassword'
         }
     ],
 

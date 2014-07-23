@@ -17,12 +17,12 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMe
             action: 'deleteDeviceConnectionMethod'
         },
         {
-            text: 'default',
+            text: Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'),
             itemId: 'toggleDefaultMenuItem',
             action: 'toggleDefault'
         },
         {
-            text: 'activate',
+            text: Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate'),
             itemId: 'toggleActiveMenuItem',
             action: 'toggleActive'
         }
