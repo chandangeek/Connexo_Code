@@ -62,33 +62,13 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                             mRID: me.mRID
                         },
                         emptyComponent: {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'left'
-                            },
-                            minHeight: 20,
-                            items: [
-                                {
-                                    xtype: 'image',
-                                    margin: '0 10 0 0',
-                                    src: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                    height: 20,
-                                    width: 20
-                                },
-                                {
-                                    xtype: 'container',
-                                    items: [
-                                        {
-                                            xtype: 'component',
-                                            html: '<h4>' + Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.title', 'MDC', 'No validation rule sets found') + '</h4><br>' +
-                                                Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.subtitle', 'MDC', 'There are no validation rule sets. This could be because:') + '<ul>' +
-                                                '<li>' + Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item1', 'MDC', 'No validation rule sets have been assigned to this device.') + '</li>' +
-                                                '<li>' + Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item2', 'MDC', 'Validation rule sets have been assigned, but you do not have permission to view them.') + '</li></ul>'
-                                        }
-                                    ]
-                                }
-                            ]
+                            xtype: 'no-items-found-panel',
+                            title: Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.title', 'MDC', 'No validation rule sets found'),
+                            reasons: [
+                                Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item1', 'MDC', 'No validation rule sets have been assigned to this device.'),
+                                Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item2', 'MDC', 'Validation rule sets have been assigned, but you do not have permission to view them.')
+                            ],
+                            stepItems: []
                         },
                         previewComponent: {
                             xtype: 'container',
