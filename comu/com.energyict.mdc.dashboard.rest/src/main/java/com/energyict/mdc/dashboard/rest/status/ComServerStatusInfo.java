@@ -12,11 +12,15 @@ import com.energyict.mdc.engine.status.ComServerType;
  */
 public class ComServerStatusInfo {
 
-    public final String comServerName;
-    public final ComServerType comServerType;
-    public final boolean running;
-    public final boolean blocked;
-    public final TimeDurationInfo blockTime;
+    public String comServerName;
+    public ComServerType comServerType;
+    public boolean running;
+    public boolean blocked;
+    public TimeDurationInfo blockTime;
+
+    public ComServerStatusInfo() {
+        super();
+    }
 
     public ComServerStatusInfo(ComServerStatus status) {
         super();

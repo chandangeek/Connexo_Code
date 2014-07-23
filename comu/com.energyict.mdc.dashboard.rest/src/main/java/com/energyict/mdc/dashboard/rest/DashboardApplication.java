@@ -2,6 +2,8 @@ package com.energyict.mdc.dashboard.rest;
 
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
+import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
 
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
@@ -30,10 +32,16 @@ public class DashboardApplication extends Application {
     public static final String COMPONENT_NAME = "DSB";
 
     private volatile StatusService statusService;
+    private volatile EngineModelService engineModelService;
 
     @Reference
     public void setStatusService(StatusService statusService) {
         this.statusService = statusService;
+    }
+
+    @Reference
+    public void setEngineModelService(EngineModelService engineModelService) {
+        this.engineModelService = engineModelService;
     }
 
     @Override
@@ -44,7 +52,8 @@ public class DashboardApplication extends Application {
                 LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
                 LocalizedExceptionMapper.class,
-                ComServerStatusResource.class
+                ComServerStatusResource.class,
+                ComServerStatusSummaryResource.class
         );
     }
 
@@ -60,6 +69,7 @@ public class DashboardApplication extends Application {
         @Override
         protected void configure() {
             bind(statusService).to(StatusService.class);
+            bind(engineModelService).to(EngineModelService.class);
         }
     }
 
