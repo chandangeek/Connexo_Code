@@ -14,9 +14,9 @@ import java.math.BigDecimal;
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = EventReadingInfo.class, name = "EVENT"),
-        @JsonSubTypes.Type(value = NumericalReadingInfo.class, name = "NUMERICAL"),
-        @JsonSubTypes.Type(value = TextReadingInfo.class, name = "TEXT")
+        @JsonSubTypes.Type(value = EventReadingInfo.class, name = "event"),
+        @JsonSubTypes.Type(value = NumericalReadingInfo.class, name = "numerical"),
+        @JsonSubTypes.Type(value = TextReadingInfo.class, name = "text")
 })
 public abstract class ReadingInfo<R extends Reading> {
     @JsonProperty("timeStamp")

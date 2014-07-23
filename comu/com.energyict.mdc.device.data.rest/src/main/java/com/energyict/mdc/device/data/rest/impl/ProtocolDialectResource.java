@@ -89,9 +89,9 @@ public class ProtocolDialectResource {
             for (PropertySpec<?> propertySpec : protocolDialectProperties.getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, protocolDialectInfo.properties);
                 if (propertyValue != null) {
-                    device.setProtocolDialectProperty(protocolDialectInfo.name, propertySpec.getName(), propertyValue);
+                    device.setProtocolDialectProperty(protocolDialectProperties.getDeviceProtocolDialectName(), propertySpec.getName(), propertyValue);
                 } else {
-                    device.removeProtocolDialectProperty(protocolDialectInfo.name, propertySpec.getName());
+                    device.removeProtocolDialectProperty(protocolDialectProperties.getDeviceProtocolDialectName(), propertySpec.getName());
                 }
             }
         }
