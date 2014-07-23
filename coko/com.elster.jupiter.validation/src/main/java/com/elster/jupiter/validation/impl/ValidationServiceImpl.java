@@ -153,11 +153,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
-        Optional<ValidationRuleSet> ruleSetRef = dataModel.mapper(IValidationRuleSet.class).getOptional(id).transform(UPCAST);
-        if (ruleSetRef.isPresent() && ruleSetRef.get().getObsoleteDate() != null) {
-            ruleSetRef = Optional.absent();
-        }
-        return ruleSetRef;
+        return dataModel.mapper(IValidationRuleSet.class).getOptional(id).transform(UPCAST);
     }
 
     @Override
@@ -169,11 +165,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     @Override
     public Optional<ValidationRule> getValidationRule(long id) {
-        Optional<ValidationRule> ruleRef = dataModel.mapper(ValidationRule.class).getOptional(id);
-        if (ruleRef.isPresent() && ruleRef.get().getObsoleteDate() != null) {
-            ruleRef = Optional.absent();
-        }
-        return ruleRef;
+        return dataModel.mapper(ValidationRule.class).getOptional(id);
     }
 
     @Override
