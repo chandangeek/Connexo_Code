@@ -23,11 +23,11 @@ public interface ValidationService {
 
     Optional<MeterValidation> getMeterValidation(MeterActivation meterActivation);
 
-    void disableMeterValidation(MeterActivation meterActivation);
-
-    void enableMeterValidation(MeterActivation meterActivation, Optional<Date> date);
+    void setMeterValidationStatus(MeterActivation meterActivation, boolean status);
 
     Date getLastChecked(MeterActivation meterActivation);
+
+    void setLastChecked(MeterActivation meterActivation, Date date);
 
     Optional<ValidationRuleSet> getValidationRuleSet(long id);
 
@@ -48,4 +48,6 @@ public interface ValidationService {
     List<List<ReadingQuality>> getValidationStatus(Channel channel, List<BaseReading> readings);
 
     List<MeterActivationValidation> getMeterActivationValidationsForMeterActivation(MeterActivation meterActivation);
+
+    List<MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation, Interval interval);
 }

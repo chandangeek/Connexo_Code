@@ -92,8 +92,8 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(MeterValidationImpl.class);
-            table.column("ACTIVE").bool().notNull().add();
             Column meterActivationId = table.column("METERACTIVATIONID").number().notNull().conversion(NUMBER2LONG).add();
+            table.column("ACTIVE").bool().map("isActive").add();
             table.primaryKey("VAL_PK_MA_METER_VALIDATION").on(meterActivationId).add();
             table.foreignKey("VAL_FK_MA_METER_VALIDATION").references("MTR", "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
         }
