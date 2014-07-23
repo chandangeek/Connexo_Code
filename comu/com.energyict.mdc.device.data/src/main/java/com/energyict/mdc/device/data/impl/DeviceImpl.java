@@ -167,7 +167,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     private List<ConnectionTaskImpl<?, ?>> connectionTasks;
     @Valid
     private List<ComTaskExecutionImpl> comTaskExecutions;
-    @Valid
+
     private List<ProtocolDialectProperties> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectProperties> newDialectProperties = new ArrayList<>();
     private List<ProtocolDialectProperties> dirtyDialectProperties = new ArrayList<>();
@@ -874,18 +874,23 @@ public class DeviceImpl implements Device, PersistenceAware {
     public void setProtocolDialectProperty(String dialectName, String propertyName, Object value) {
         ProtocolDialectProperties dialectProperties = this.getProtocolDialectProperties(dialectName);
         if (dialectProperties == null) {
-            ProtocolDialectConfigurationProperties configurationProperties = this.getProtocolDialectConfigurationProperties(dialectName);
-            if (configurationProperties != null) {
-                dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
-                dialectProperties.setProperty(propertyName, value);
-                this.newDialectProperties.add(dialectProperties);
-            } else {
-                throw new ProtocolDialectConfigurationPropertiesIsRequiredException();
-            }
+            dialectProperties = createNewLocalDialectProperties(dialectName);
         } else {
-            dialectProperties.setProperty(propertyName, value);
             this.dirtyDialectProperties.add(dialectProperties);
         }
+        dialectProperties.setProperty(propertyName, value);
+    }
+
+    private ProtocolDialectProperties createNewLocalDialectProperties(String dialectName) {
+        ProtocolDialectProperties dialectProperties;
+        ProtocolDialectConfigurationProperties configurationProperties = this.getProtocolDialectConfigurationProperties(dialectName);
+        if (configurationProperties != null) {
+            dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
+            this.newDialectProperties.add(dialectProperties);
+        } else {
+            throw new ProtocolDialectConfigurationPropertiesIsRequiredException();
+        }
+        return dialectProperties;
     }
 
     private ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties(String dialectName) {
@@ -904,27 +909,11 @@ public class DeviceImpl implements Device, PersistenceAware {
         ProtocolDialectProperties dialectProperties = this.getProtocolDialectProperties(dialectName);
         if (dialectProperties != null) {
             dialectProperties.removeProperty(propertyName);
-            if (dialectProperties.getTypedProperties().localSize() == 0) {
-                // No properties left
-                this.removeProtocolDialectProperty(dialectProperties);
-            }
-        }
-    }
-
-    private void removeProtocolDialectProperty(ProtocolDialectProperties dialectProperties) {
-        if (dialectProperties.getId() == 0) {
-            // Not persistent, must be in the list of new properties
-            this.newDialectProperties.remove(dialectProperties);
         } else {
-            // Persistent, remove if from the managed list of properties, which will delete it from the database
-            Iterator<ProtocolDialectProperties> iterator = this.dialectPropertiesList.iterator();
-            while (iterator.hasNext()){
-                ProtocolDialectProperties protocolDialectProperties = iterator.next();
-                if(protocolDialectProperties.getDeviceProtocolDialectName().equals(dialectProperties.getDeviceProtocolDialectName())){
-                    iterator.remove();
-                }
-            }
-            ((ProtocolDialectPropertiesImpl) dialectProperties).delete();
+            createNewLocalDialectProperties(dialectName);
+        }
+        if((dialectProperties != null) && !this.dirtyDialectProperties.contains(dialectProperties)){
+            this.dirtyDialectProperties.add(dialectProperties);
         }
     }
 
@@ -1106,14 +1095,6 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public String getmRID() {
         return mRID;
-    }
-
-    public String getExternalName() {
-        return mRID;
-    }
-
-    public void setExternalName(String externalName) {
-        this.mRID = externalName;
     }
 
     @Override
