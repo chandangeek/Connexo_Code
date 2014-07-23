@@ -40,7 +40,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 selectionchange: this.onRulesGridSelectionChange
             },
             '#changeRuleSetStateActionMenuItem': {
-                click: this.changeRuleSetState
+                click: this.changeRuleSetStatus
             },
             '#deviceDataValidationStateChangeBtn': {
                 click: this.changeDataValidationStatus
@@ -190,14 +190,16 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             );
         }
     },
-    changeRuleSetState: function () {
+    changeRuleSetStatus: function () {
         var me = this,
             ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id'),
-            record = this.getRulesSetGrid().getStore().getById(ruleSetId), ruleSetName = record.get('name'),
-            ruleSetIsActive = record.get('isActive'), action = ruleSetIsActive ? 'deactivate' : 'activate';
+            record = this.getRulesSetGrid().getStore().getById(ruleSetId),
+            ruleSetName = record.get('name'),
+            ruleSetIsActive = record.get('isActive');
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/' + ruleSetId + '/' + action,
+            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/' + ruleSetId + '/status',
             method: 'PUT',
+            jsonData: (!ruleSetIsActive).toString(),
             success: function () {
                 me.getRulesSetGrid().getStore().reload({
                     callback: function () {
@@ -238,20 +240,12 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             jsonData: 'true',
             success: function () {
                 me.updateDataValidationStatusSection();
-                if (!isValidationRunImmediately) {
+                if (isValidationRunImmediately) {
+                    me.validateData();
+                } else {
                     me.destroyConfirmationWindow();
                     me.getApplication().fireEvent('acknowledge',
                         Ext.String.format(Uni.I18n.translate('device.dataValidation.activation.activated', 'MDC', 'Data validation on device {0} was activated successfully'), me.mRID));
-                } else {
-                    me.validateData();
-                }
-            },
-            failure: function (response) {
-                if (me.getActivationConfirmationWindow()) {
-                    var res = Ext.JSON.decode(response.responseText);
-                    me.getValidationProgress().removeAll(true);
-                    me.showValidationActivationErrors(res.message);
-                    me.confirmationWindowButtonsDisable(false);
                 }
             }
         });
@@ -298,9 +292,13 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 me.getApplication().fireEvent('acknowledge',
                     Ext.String.format(Uni.I18n.translate('device.dataValidation.activation.validated', 'MDC', 'Data validation on device {0} was completed successfully'), me.mRID));
             },
-            failure: function () {
-                me.getValidationProgress().removeAll(true);
-                me.confirmationWindowButtonsDisable(false);
+            failure: function (response) {
+                if (me.getActivationConfirmationWindow()) {
+                    var res = Ext.JSON.decode(response.responseText);
+                    me.getValidationProgress().removeAll(true);
+                    me.showValidationActivationErrors(res.message);
+                    me.confirmationWindowButtonsDisable(false);
+                }
             }
         });
     },
