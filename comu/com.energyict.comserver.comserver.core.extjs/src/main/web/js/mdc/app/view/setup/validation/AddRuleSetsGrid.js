@@ -29,6 +29,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
     }],
     store: 'Mdc.store.ValidationRuleSetsForDeviceConfig',
     maxHeight: 400,
+    
     selType: 'checkboxmodel',
     selModel: {
         mode: 'MULTI',
@@ -113,7 +114,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                             },
                             {
                                 xtype: 'button',
-                                margin: '0 0 0 5',
+                                margin: '0 0 0 8',
                                 text: Uni.I18n.translate('general.uncheckAll', 'MDC', 'Uncheck all'),
                                 action: 'uncheckAll'
                             }

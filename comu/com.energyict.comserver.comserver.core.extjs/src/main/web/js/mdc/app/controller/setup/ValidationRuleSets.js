@@ -64,11 +64,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             },
             'validation-rules-overview validation-rules-grid': {
                 selectionchange: this.onValidationRuleSelectionChange
-            },
-            'validation-add-rulesets #radiogroupAddRuleSet': {
-                change: this.onChangeRadio
             }
         });
+
         this.listen({
             store: {
                 '#Mdc.store.ValidationRuleSetsForDeviceConfig': {
@@ -183,6 +181,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         if (selection.length > 0) {
             view.updateValidationRuleSet(selection[0]);
         }
+
+        this.changeRadioFromAllToSelected();
     },
 
     changeRadioFromAllToSelected: function () {
@@ -204,15 +204,14 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 target: view
             }),
             ids = [],
-            allPressed = false;
-        if (view.down('#radiogroupAddRuleSet').getValue().rulesetsRadio === 'ALL') {
-            allPressed = true;
-        }
+            allPressed = view.down('#radiogroupAddRuleSet').getValue().rulesetsRadio === 'ALL';
+
         if (!allPressed) {
             Ext.Array.each(selection, function (item) {
                 ids.push(item.internalId);
             });
         }
+
         loadMask.show();
         Ext.Ajax.request({
             url: url,
@@ -262,8 +261,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
     onUncheckAll: function () {
         var grid = this.getAddValidationRuleSetsGrid();
-        grid.getView().getSelectionModel().deselectAll();
-        this.changeRadioFromAllToSelected();
+        grid.getView().getSelectionModel().deselectAll(true);
     },
 
     onAddValidationActionMenuClick: function (menu, item) {
@@ -393,33 +391,6 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         if (selection.length > 0) {
             view.updateValidationRule(selection[0]);
-        }
-    },
-
-    onChangeRadio: function (radiogroup, newValue, oldValue) {
-        var grid = this.getAddValidationRuleSetsGrid();
-        switch (newValue.rulesetsRadio) {
-            case 'ALL':
-                grid.getView().setDisabled(true);
-                grid.down('#selection-counter').setText(Uni.I18n.translate('ruleset.allRuleSets.selectedAll', 'MDC', 'All validation rule sets selected'));
-                this.getAddValidationRuleSets().down('validation-ruleset-view').hide();
-                break;
-            case 'SELECTED':
-                if (grid.getView().isDisabled()) {
-                    grid.getView().setDisabled(false);
-                }
-                var selection = grid.view.getSelectionModel().getSelection(),
-                    selectionText = Uni.I18n.translatePlural(
-                        'validation.validationRuleSetSelection',
-                        selection.length,
-                        'MDC',
-                        '{0} validation rule sets selected'
-                    );
-                grid.down('#selection-counter').setText(selectionText);
-                if (selection.length == 1) {
-                    this.getAddValidationRuleSets().down('validation-ruleset-view').show();
-                }
-                break;
         }
     }
 });

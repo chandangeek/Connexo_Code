@@ -114,8 +114,12 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         var store = grid.getStore(),
             countMsg = grid.down('#comPortPoolsCount'),
             count = store.getCount();
-        count > 0 ? countMsg.update(count + ' ' +  Uni.I18n.translate('comServerComPorts.addPools.count', 'MDC', ' communication port pools')) :
-            countMsg.update(Uni.I18n.translate('comServerComPorts.addPools.noPools', 'MDC', 'No communication port pools'));
+        if (count == 1){
+            countMsg.update(count + ' ' +  Uni.I18n.translate('comServerComPorts.addPool.count', 'MDC', ' communication port pool'));
+        } else {
+            count ? countMsg.update(count + ' ' + Uni.I18n.translate('comServerComPorts.addPools.count', 'MDC', ' communication port pools')) :
+                countMsg.update(Uni.I18n.translate('comServerComPorts.addPools.noPools', 'MDC', 'No communication port pools'));
+        }
     },
 
     removePool: function (grid, el, index) {

@@ -50,11 +50,10 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
                         },
                         {
                             xtype: 'button',
-                            text: Uni.I18n.translate('general.uncheckall', 'MDC', 'Uncheck All'),
+                            text: Uni.I18n.translate('general.uncheckall', 'MDC', 'Uncheck all'),
                             action: 'uncheckallcomportPools',
                             itemId: 'uncheckAllComPortPools',
-                            ui: 'action',
-                            margin: '0 0 0 10'
+                            margin: '0 0 0 8'
                         },
                         {
                             xtype: 'container',
