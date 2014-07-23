@@ -127,7 +127,7 @@ public class ComPortPoolResource {
         if (!comPortPool.isPresent()) {
             return Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build();
         }
-        comPortPool.get().delete();
+        comPortPool.get().makeObsolete();
         return Response.noContent().build();
     }
 
