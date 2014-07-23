@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -8,22 +7,33 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @Path("/validationruleset")
 public class DeviceConfigsValidationRuleSetResource {
+
+    public static final String ALL = "all";
     private final DeviceConfigurationService deviceConfigurationService;
     private final ValidationService validationService;
     private final Thesaurus thesaurus;
@@ -42,7 +52,7 @@ public class DeviceConfigsValidationRuleSetResource {
     public Response getLinkedDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam QueryParameters queryParameters) {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();
         List<DeviceConfiguration> configs = deviceConfigurationService.findDeviceConfigurationsForValidationRuleSet(validationRuleSetId);
-        for(DeviceConfiguration config : configs) {
+        for (DeviceConfiguration config : configs) {
             result.add(config);
         }
         return Response.ok(PagedInfoList.asJson("deviceConfigurations",
@@ -53,20 +63,23 @@ public class DeviceConfigsValidationRuleSetResource {
     @Path("/{validationRuleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceConfigurationInfos addDeviceConfigurationsToRuleSet(@PathParam("validationRuleSetId") long validationRuleSetId,
-                                                                     List<Long> ids) {
-        if (ids == null || ids.size() == 0) {
+                                                                     List<Long> ids, @Context UriInfo uriInfo) {
+        boolean addAll = getBoolean(uriInfo, ALL);
+        if (!addAll && (ids == null || ids.size() == 0)) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_DEVICECONFIG_ID_FOR_ADDING);
         }
-        Optional<ValidationRuleSet> optional = validationService.getValidationRuleSet(validationRuleSetId);
-        if (!optional.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        ValidationRuleSet ruleset = getValidationRuleSet(validationRuleSetId);
+        if (addAll) {
+            return addAllDeviceConfigurations(ruleset);
         }
-        DeviceConfigurationInfos result = new DeviceConfigurationInfos();
-        ValidationRuleSet ruleset = optional.get();
+        return AddSelectedDeviceConfigurations(ruleset, ids);
+    }
 
+    private DeviceConfigurationInfos AddSelectedDeviceConfigurations(ValidationRuleSet ruleset, List<Long> ids) {
+        DeviceConfigurationInfos result = new DeviceConfigurationInfos();
         for (Long id : ids) {
             DeviceConfiguration deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(id);
-            if(deviceConfiguration != null) {
+            if (deviceConfiguration != null) {
                 deviceConfiguration.addValidationRuleSet(ruleset);
                 result.add(deviceConfiguration);
             }
@@ -74,39 +87,53 @@ public class DeviceConfigsValidationRuleSetResource {
         return result;
     }
 
+    private DeviceConfigurationInfos addAllDeviceConfigurations(ValidationRuleSet ruleset) {
+        DeviceConfigurationInfos result = new DeviceConfigurationInfos();
+        List<DeviceConfiguration> deviceConfigurations = deviceConfigurationService.findDeviceConfigurationsForValidationRuleSet(ruleset.getId());
+        for (DeviceConfiguration deviceConfiguration : deviceConfigurations) {
+            deviceConfiguration.addValidationRuleSet(ruleset);
+            result.add(deviceConfiguration);
+        }
+        return result;
+    }
 
     @GET
     @Path("/{validationRuleSetId}/linkabledeviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLinkableDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId,
-                                                                             @BeanParam QueryParameters queryParameters) {
+                                                    @BeanParam QueryParameters queryParameters) {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();
-        Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
-        List<DeviceType> allDeviceTypes = deviceTypeFinder.find();
-        for(DeviceType deviceType : allDeviceTypes) {
-            Finder<DeviceConfiguration> deviceConfigurationFinder = deviceConfigurationService.findDeviceConfigurationsUsingDeviceType(deviceType);
-            List<DeviceConfiguration>  allDeviceConfigurationPerDeviceTypes = deviceConfigurationFinder.find();
-            addLinkableConfigurations(allDeviceConfigurationPerDeviceTypes, result, validationRuleSetId);
+        for (DeviceConfiguration configuration : allLinkableDeviceConfigurations(validationRuleSetId)) {
+            addConfiguration(configuration, result, validationRuleSetId);
         }
         Collections.sort(result.deviceConfigurations, DeviceConfigurationInfos.DEVICE_CONFIG_NAME_COMPARATOR);
         result.deviceConfigurations = ListPager.of(result.deviceConfigurations).from(queryParameters).find();
         return Response.ok(PagedInfoList.asJson("deviceConfigurations", result.deviceConfigurations, queryParameters)).build();
     }
 
-    private void addLinkableConfigurations(List<DeviceConfiguration>  allDeviceConfigurationPerDeviceTypes,
-                                          DeviceConfigurationInfos result, long validationRuleSetId) {
-        for(DeviceConfiguration configuration : allDeviceConfigurationPerDeviceTypes) {
-            List<ValidationRuleSet> ruleSetList = configuration.getValidationRuleSets();
-            if(ruleSetList.isEmpty() || !isLinkedToCurrentRuleSet(ruleSetList, validationRuleSetId)) {
-                addConfiguration(configuration, result, validationRuleSetId);
+
+    private List<DeviceConfiguration> allLinkableDeviceConfigurations(long validationRuleSetId) {
+        List<DeviceConfiguration> allLinkable = new ArrayList<>();
+        for (DeviceType deviceType : deviceConfigurationService.findAllDeviceTypes().find()) {
+            allLinkable.addAll(allLinkableDeviceConfigurations(validationRuleSetId, deviceType));
+        }
+        return allLinkable;
+    }
+
+    private List<DeviceConfiguration> allLinkableDeviceConfigurations(long validationRuleSetId, DeviceType deviceType) {
+        List<DeviceConfiguration> allLinkableForDeviceType = new ArrayList<>();
+        for (DeviceConfiguration configuration : deviceType.getConfigurations()) {
+            if (!isLinkedToCurrentRuleSet(configuration.getValidationRuleSets(), validationRuleSetId)) {
+                allLinkableForDeviceType.add(configuration);
             }
         }
+        return allLinkableForDeviceType;
     }
 
     private void addConfiguration(DeviceConfiguration configuration, DeviceConfigurationInfos result, long validationRuleSetId) {
         ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
         List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(configuration);
-        if(!ruleSet.getRules(readingTypes).isEmpty()) {
+        if (!ruleSet.getRules(readingTypes).isEmpty()) {
             result.add(configuration);
         }
     }
@@ -127,4 +154,11 @@ public class DeviceConfigsValidationRuleSetResource {
         }
         return false;
     }
+
+    private boolean getBoolean(UriInfo uriInfo, String key) {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
+    }
+
+
 }
