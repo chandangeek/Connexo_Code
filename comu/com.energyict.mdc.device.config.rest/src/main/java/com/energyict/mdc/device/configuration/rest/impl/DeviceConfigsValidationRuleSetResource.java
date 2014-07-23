@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -28,7 +29,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Path("/validationruleset")
 public class DeviceConfigsValidationRuleSetResource {
@@ -103,8 +106,9 @@ public class DeviceConfigsValidationRuleSetResource {
     public Response getLinkableDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId,
                                                     @BeanParam QueryParameters queryParameters) {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();
-        for (DeviceConfiguration configuration : allLinkableDeviceConfigurations(validationRuleSetId)) {
-            addConfiguration(configuration, result, validationRuleSetId);
+        ValidationRuleSet validationRuleSet = getValidationRuleSet(validationRuleSetId);
+        for (DeviceConfiguration configuration : allLinkableDeviceConfigurations(validationRuleSet)) {
+            addConfiguration(configuration, result, validationRuleSet);
         }
         Collections.sort(result.deviceConfigurations, DeviceConfigurationInfos.DEVICE_CONFIG_NAME_COMPARATOR);
         result.deviceConfigurations = ListPager.of(result.deviceConfigurations).from(queryParameters).find();
@@ -112,28 +116,45 @@ public class DeviceConfigsValidationRuleSetResource {
     }
 
 
-    private List<DeviceConfiguration> allLinkableDeviceConfigurations(long validationRuleSetId) {
+    private List<DeviceConfiguration> allLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet) {
+        Set<ReadingType> readingTypesInRuleSet = readingTypesFor(validationRuleSet);
         List<DeviceConfiguration> allLinkable = new ArrayList<>();
         for (DeviceType deviceType : deviceConfigurationService.findAllDeviceTypes().find()) {
-            allLinkable.addAll(allLinkableDeviceConfigurations(validationRuleSetId, deviceType));
+            allLinkable.addAll(allLinkableDeviceConfigurations(validationRuleSet, deviceType, readingTypesInRuleSet));
         }
         return allLinkable;
     }
 
-    private List<DeviceConfiguration> allLinkableDeviceConfigurations(long validationRuleSetId, DeviceType deviceType) {
+    private List<DeviceConfiguration> allLinkableDeviceConfigurations(ValidationRuleSet ruleSet, DeviceType deviceType, Set<ReadingType> readingTypesInRuleSet) {
         List<DeviceConfiguration> allLinkableForDeviceType = new ArrayList<>();
         for (DeviceConfiguration configuration : deviceType.getConfigurations()) {
-            if (!isLinkedToCurrentRuleSet(configuration.getValidationRuleSets(), validationRuleSetId)) {
+            if (!areLinked(configuration, ruleSet) && haveCommonReadingTypes(readingTypesInRuleSet, readingTypesFor(configuration))) {
                 allLinkableForDeviceType.add(configuration);
             }
         }
         return allLinkableForDeviceType;
     }
 
-    private void addConfiguration(DeviceConfiguration configuration, DeviceConfigurationInfos result, long validationRuleSetId) {
-        ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
-        List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(configuration);
-        if (!ruleSet.getRules(readingTypes).isEmpty()) {
+    private List<ReadingType> readingTypesFor(DeviceConfiguration configuration) {
+        return deviceConfigurationService.getReadingTypesRelatedToConfiguration(configuration);
+    }
+
+    private Set<ReadingType> readingTypesFor(ValidationRuleSet ruleSet) {
+        Set<ReadingType> readingTypesInRuleSet = new HashSet<>();
+        for (ValidationRule validationRule : ruleSet.getRules()) {
+            for (ReadingType readingType : validationRule.getReadingTypes()) {
+                readingTypesInRuleSet.add(readingType);
+            }
+        }
+        return readingTypesInRuleSet;
+    }
+
+    private boolean haveCommonReadingTypes(Set<ReadingType> readingTypesInRuleSet, List<ReadingType> readingTypes) {
+        return !Collections.disjoint(readingTypesInRuleSet, readingTypes);
+    }
+
+    private void addConfiguration(DeviceConfiguration configuration, DeviceConfigurationInfos result, ValidationRuleSet ruleSet) {
+        if (!ruleSet.getRules(readingTypesFor(configuration)).isEmpty()) {
             result.add(configuration);
         }
     }
@@ -146,9 +167,9 @@ public class DeviceConfigsValidationRuleSetResource {
         return ruleSetRef.get();
     }
 
-    private boolean isLinkedToCurrentRuleSet(List<ValidationRuleSet> ruleSetList, long validationRuleSetId) {
-        for (ValidationRuleSet ruleSet : ruleSetList) {
-            if (ruleSet.getId() == validationRuleSetId) {
+    private boolean areLinked(DeviceConfiguration deviceConfiguration, ValidationRuleSet validationRuleSet) {
+        for (ValidationRuleSet ruleSet : deviceConfiguration.getValidationRuleSets()) {
+            if (ruleSet.getId() == validationRuleSet.getId()) {
                 return true;
             }
         }
