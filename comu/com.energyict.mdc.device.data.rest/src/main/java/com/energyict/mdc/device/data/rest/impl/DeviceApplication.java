@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
@@ -53,6 +55,8 @@ public class DeviceApplication extends Application implements InstallService{
     private volatile Thesaurus thesaurus;
     private volatile EngineModelService engineModelService;
     private volatile SchedulingService schedulingService;
+    private volatile ValidationService validationService;
+    private volatile MeteringService meteringService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -135,6 +139,16 @@ public class DeviceApplication extends Application implements InstallService{
         this.schedulingService = schedulingService;
     }
 
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     @Override
     public void install() {
         Installer installer = new Installer();
@@ -162,6 +176,8 @@ public class DeviceApplication extends Application implements InstallService{
             bind(engineModelService).to(EngineModelService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(schedulingService).to(SchedulingService.class);
+            bind(validationService).to(ValidationService.class);
+            bind(meteringService).to(MeteringService.class);
         }
     }
 

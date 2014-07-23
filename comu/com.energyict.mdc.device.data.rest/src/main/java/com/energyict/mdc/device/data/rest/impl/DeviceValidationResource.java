@@ -27,9 +27,9 @@ public class DeviceValidationResource {
     private final DeviceDataService deviceDataService;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
-
+/*
     private static boolean ACTIVE = true;
-    private static boolean INACTIVE = false;
+    private static boolean INACTIVE = false;*/
 
     @Inject
     public DeviceValidationResource (ResourceHelper resourceHelper, ValidationService validationService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, MeteringService meteringService, ExceptionFactory exceptionFactory) {
@@ -46,7 +46,7 @@ public class DeviceValidationResource {
     public Response getValidationRulsetsForDevice(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         List<DeviceValidationRuleSetInfo> result = new ArrayList<>();
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        MeterActivation activation = getCurrentMeterActivation(device.getId());
+        MeterActivation activation = getCurrentMeterActivation(device);
 
         DeviceConfiguration deviceConfig = deviceConfigurationService.findDeviceConfiguration(device.getDeviceConfiguration().getId());
         if (deviceConfig != null) {
@@ -69,25 +69,14 @@ public class DeviceValidationResource {
         }
     }
 
-    @Path("/{validationRuleSetId}/deactivate")
+    @Path("/{validationRuleSetId}/status")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deactivateValidationRuleSetOnDevice(@PathParam("mRID") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId) {
+    public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId, boolean status) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ValidationRuleSet ruleset = getValidationRuleSet(validationRuleSetId);
-        MeterActivation activation = getCurrentMeterActivation(device.getId());
-        setValidationRuleSetActivationStatus(activation, ruleset, INACTIVE);
-        return Response.status(Response.Status.OK).build();
-    }
-
-    @Path("/{validationRuleSetId}/activate")
-    @PUT
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response activateValidationRuleSetOnDevice(@PathParam("mRID") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ValidationRuleSet ruleset = getValidationRuleSet(validationRuleSetId);
-        MeterActivation activation = getCurrentMeterActivation(device.getId());
-        setValidationRuleSetActivationStatus(activation, ruleset, ACTIVE);
+        MeterActivation activation = getCurrentMeterActivation(device);
+        setValidationRuleSetActivationStatus(activation, ruleset, status);
         return Response.status(Response.Status.OK).build();
     }
 
@@ -106,7 +95,7 @@ public class DeviceValidationResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        MeterActivation activation = getCurrentMeterActivation(device.getId());
+        MeterActivation activation = getCurrentMeterActivation(device);
         Optional<MeterValidation> meterValidationRef = validationService.getMeterValidation(activation);
         if(!meterValidationRef.isPresent()) {
             meterValidationRef = Optional.of(validationService.createMeterValidation(activation));
@@ -116,38 +105,28 @@ public class DeviceValidationResource {
                 .entity(new DeviceValidationStatusInfo(meterValidationRef.get().getActivationStatus(), minDate)).build();
     }
 
-/*    @Path("/lastcheckeddate")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getLastCheckedDate(@PathParam("mRID") String mrid) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        MeterActivation activation = getCurrentMeterActivation(device.getId());
-        Date minDate = validationService.getLastChecked(activation);
-        return Response.status(Response.Status.OK).entity(minDate).build();
-    }*/
-
-    @Path("/deactivate")
+    @Path("/validationstatus")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deactivateValidationFeatureOnDevice(@PathParam("mRID") String mrid) {
+    public Response deactivateValidationFeatureOnDevice(@PathParam("mRID") String mrid, boolean status) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        MeterActivation activation = getCurrentMeterActivation(device.getId());
-        validationService.disableMeterValidation(activation);
+        MeterActivation activation = getCurrentMeterActivation(device);
+        validationService.setMeterValidationStatus(activation, status);
         return Response.status(Response.Status.OK).build();
     }
 
-    @Path("/activate")
+    @Path("/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     public Response activateValidationFeatureOnDevice(@PathParam("mRID") String mrid, Date date) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        MeterActivation activation = getCurrentMeterActivation(device.getId());
+        MeterActivation activation = getCurrentMeterActivation(device);
         Date maxDate = validationService.getLastChecked(activation);
-        if(date.after(maxDate)) {
+        if(date == null || (date != null && date.after(maxDate))) {
             throw exceptionFactory.newException(MessageSeeds.INVALID_DATE, maxDate);
         }
-
-        validationService.enableMeterValidation(activation, Optional.of(date));
+        validationService.setLastChecked(activation, date);
+        validationService.validate(activation, Interval.startAt(date));
         return Response.status(Response.Status.OK).build();
     }
 
@@ -159,19 +138,22 @@ public class DeviceValidationResource {
         return rulesetRef.get();
     }
 
-    private MeterActivation getCurrentMeterActivation(long deviceId) {
+    private MeterActivation getCurrentMeterActivation(Device device) {
         Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(1);
-        if (!amrSystemRef.isPresent()) {
-            // Do Something
-        }
-        Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(deviceId));
+        Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
         if(!meterRef.isPresent()) {
-            // Do Something
+            Meter meter = amrSystemRef.get().newMeter(String.valueOf(device.getId()), device.getmRID());
+            meter.save();
+            meterRef = Optional.of(meter);
         }
 
         Optional<MeterActivation> activationRef = meterRef.get().getCurrentMeterActivation();
         if(!activationRef.isPresent()) {
-            // Do Something
+            Date date = new Date();
+            MeterActivation meterActivation = meterRef.get().activate(date);
+            activationRef = Optional.of(meterActivation);
+            validationService.createMeterValidation(meterActivation);
+            validationService.getMeterActivationValidations(meterActivation, Interval.startAt(date));
         }
         return activationRef.get();
     }
