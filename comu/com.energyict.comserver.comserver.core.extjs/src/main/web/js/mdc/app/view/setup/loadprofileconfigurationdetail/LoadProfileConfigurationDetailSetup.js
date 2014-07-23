@@ -13,11 +13,13 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationDeta
         type: 'vbox',
         align: 'stretch'
     },
-
+    defaults: {
+        margin: '0 0 0 16'
+    },
     items: [
         {
             xtype: 'component',
-            margins: '10 10 10 10',
+            margins: '10 10 10 0',
             itemId: 'loadProfileConfigurationDetailTitle'
         },
         {
