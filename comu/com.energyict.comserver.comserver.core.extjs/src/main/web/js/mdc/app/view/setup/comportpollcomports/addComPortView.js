@@ -64,11 +64,10 @@ Ext.define('Mdc.view.setup.comportpollcomports.addComPortView', {
                         },
                         {
                             xtype: 'button',
-                            text: Uni.I18n.translate('general.uncheckall', 'MDC', 'Uncheck All'),
+                            text: Uni.I18n.translate('general.uncheckall', 'MDC', 'Uncheck all'),
                             action: 'uncheckallcomports',
                             itemId: 'uncheckAllComPorts',
-                            ui: 'action',
-                            margin: '0 0 0 10'
+                            margin: '0 0 0 8'
                         }]
                 },
                 {
