@@ -106,7 +106,7 @@ public class ValidationServiceImplTest {
         when(dataModel.mapper(IMeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
-        when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
+        when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(validationRuleQueryExecutor);
 
         validationService = new ValidationServiceImpl();
         validationService.setOrmService(ormService);

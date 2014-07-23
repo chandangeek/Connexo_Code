@@ -14,6 +14,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import javax.inject.Inject;
@@ -238,11 +239,11 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     private List<IValidationRule> loadRules() {
-        return getRuleQuery().select(Operator.EQUAL.compare("ruleSetId", this.id), Order.ascending("upper(name)"));
+        return getRuleQuery().select(Operator.EQUAL.compare("ruleSetId", this.id), Order.ascending("upper(IVR.name)"));
     }
 
     private QueryExecutor<IValidationRule> getRuleQuery() {
-        QueryExecutor<IValidationRule> ruleQuery = dataModel.query(IValidationRule.class);
+        QueryExecutor<IValidationRule> ruleQuery = dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class);
         ruleQuery.setRestriction(where("obsoleteTime").isNull());
         return ruleQuery;
     }
@@ -321,8 +322,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         return dataModel.mapper(IValidationRuleSet.class);
     }
 
-    public List<ValidationRule> getRules(List<ReadingType> readingTypes) {
-        List<ValidationRule> result = new ArrayList<ValidationRule>();
+    public List<ValidationRule> getRules(Iterable<? extends ReadingType> readingTypes) {
+        List<ValidationRule> result = new ArrayList<>();
         List<IValidationRule> rules = getRules();
         for (ValidationRule rule : rules) {
             Set<ReadingType> readingTypesForRule = rule.getReadingTypes();

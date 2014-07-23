@@ -35,7 +35,7 @@ public interface ValidationRuleSet extends IdentifiedObject {
 
     void deleteRule(ValidationRule rule);
 
-    List<ValidationRule> getRules(List<ReadingType> readingTypes);
+    List<ValidationRule> getRules(Iterable<? extends ReadingType> readingTypes);
 
     public Date getObsoleteDate();
 }
