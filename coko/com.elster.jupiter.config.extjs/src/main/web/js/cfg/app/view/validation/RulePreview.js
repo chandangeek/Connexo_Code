@@ -68,6 +68,10 @@ Ext.define('Cfg.view.validation.RulePreview', {
     updateValidationRule: function (validationRule) {
         var me = this;
 
+        if (!Ext.isDefined(validationRule)) {
+            return;
+        }
+
         if (me.rendered) {
             Ext.suspendLayouts();
         }
