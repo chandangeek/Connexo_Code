@@ -401,7 +401,7 @@ public class ComServerResourceTest extends JerseyTest {
         final Response response = target("/comservers/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
-        verify(serverSideComServer).delete();
+        verify(serverSideComServer).makeObsolete();
     }
 
     @Test

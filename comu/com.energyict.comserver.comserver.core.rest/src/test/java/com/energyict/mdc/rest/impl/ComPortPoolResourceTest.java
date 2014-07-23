@@ -259,7 +259,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         final Response response = target("/comportpools/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
-        verify(mock).delete();
+        verify(mock).makeObsolete();
     }
 
     @Test
