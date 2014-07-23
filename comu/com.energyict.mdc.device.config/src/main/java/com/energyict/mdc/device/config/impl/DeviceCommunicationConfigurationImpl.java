@@ -469,6 +469,7 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
 
     @Override
     public void remove(PartialConnectionTask partialConnectionTask) {
+        ((PersistentIdObject<?>) partialConnectionTask).validateDelete();
         if (partialConnectionTasks.remove(partialConnectionTask) && getId() > 0) {
             eventService.postEvent(((PersistentIdObject) partialConnectionTask).deleteEventType().topic(), partialConnectionTask);
         }
