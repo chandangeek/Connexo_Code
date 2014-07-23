@@ -56,6 +56,7 @@ Ext.define('Mdc.widget.TimeInfoField', {
                 displayField: 'timeUnit',
                 valueField: 'timeUnit',
                 submitValue: false,
+                forceSelection: true,
                 width: 185
             }, me.unitCfg)]
     },
