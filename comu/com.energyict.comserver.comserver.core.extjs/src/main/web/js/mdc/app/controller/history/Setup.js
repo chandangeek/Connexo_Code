@@ -847,6 +847,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                             route: 'overview',
                                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
                                             action: 'showDeviceRegisterConfigurationDetailsView'
+                                        },
+                                        data: {
+                                            title: 'Register data',
+                                            route: 'data',
+                                            controller: 'Mdc.controller.setup.DeviceRegisterData',
+                                            action: 'showDeviceRegisterDataView'
+
                                         }
                                     }
                                 }
