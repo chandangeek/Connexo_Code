@@ -61,7 +61,7 @@ public class QueryParameters {
         }
     }
 
-    private Integer getIntegerOrNull(String name) {
+    public Integer getIntegerOrNull(String name) {
         String start = queryParameters.getFirst(name);
         if (start!=null) {
             return Integer.parseInt(start);
@@ -69,5 +69,8 @@ public class QueryParameters {
         return null;
     }
 
-
+    public Boolean getBoolean(String name) {
+        String value = queryParameters.getFirst(name);
+        return Boolean.parseBoolean(value);
+    }
 }
