@@ -54,6 +54,7 @@ public class DeviceResource {
     private final ExceptionFactory exceptionFactory;
     private final SchedulingService schedulingService;
     private final Thesaurus thesaurus;
+    private final String ALL = "all";
 
     @Inject
     public DeviceResource(
@@ -279,33 +280,33 @@ public class DeviceResource {
 
     @PUT
     @Path("/schedules")
-    public Response addComScheduleToDeviceSet(BulkRequestInfo request){
+    public Response addComScheduleToDeviceSet(BulkRequestInfo request, @BeanParam QueryParameters queryParameters){
         BulkAction action = new BulkAction() {
             @Override
             public void doAction(Device device, ComSchedule schedule) {
                 device.newScheduledComTaskExecution(schedule).add();
             }
         };
-        ComSchedulesBulkInfo response = processBulkActionsForComSchedule(request, action);
+        ComSchedulesBulkInfo response = processBulkActionsForComSchedule(request, action, queryParameters.getBoolean(ALL));
         return Response.ok(response.build()).build();
     }
 
     @DELETE
     @Path("/schedules")
-    public Response deleteComScheduleFromDeviceSet(BulkRequestInfo request){
+    public Response deleteComScheduleFromDeviceSet(BulkRequestInfo request, @BeanParam QueryParameters queryParameters){
         BulkAction action = new BulkAction() {
             @Override
             public void doAction(Device device, ComSchedule schedule) {
                 device.removeComSchedule(schedule);
             }
         };
-        ComSchedulesBulkInfo response = processBulkActionsForComSchedule(request, action);
+        ComSchedulesBulkInfo response = processBulkActionsForComSchedule(request, action, queryParameters.getBoolean(ALL));
         return Response.ok(response.build()).build();
     }
 
-    private ComSchedulesBulkInfo processBulkActionsForComSchedule(BulkRequestInfo request, BulkAction action) {
+    private ComSchedulesBulkInfo processBulkActionsForComSchedule(BulkRequestInfo request, BulkAction action, boolean allDevices) {
         ComSchedulesBulkInfo response = new ComSchedulesBulkInfo();
-        Map<String, Device> deviceMap = getDeviceMapForBulkAction(request, response);
+        Map<String, Device> deviceMap = getDeviceMapForBulkAction(request, response, allDevices);
         for (Long scheduleId : request.scheduleIds) {
             Optional<ComSchedule> scheduleRef = schedulingService.findSchedule(scheduleId);
             if (!scheduleRef.isPresent()){
@@ -334,15 +335,23 @@ public class DeviceResource {
         }
     }
 
-    private Map<String, Device> getDeviceMapForBulkAction(BulkRequestInfo request, ComSchedulesBulkInfo response) {
-        Map<String, Device> deviceMap = new HashMap<>(request.deviceMRIDs.size());
-        for (String mrid : request.deviceMRIDs) {
-            try {
-                deviceMap.put(mrid, resourceHelper.findDeviceByMrIdOrThrowException(mrid));
-            } catch (LocalizedException ex){
-                response.generalFail(mrid, ex.getLocalizedMessage(), ex.getClass().getSimpleName());
+    private Map<String, Device> getDeviceMapForBulkAction(BulkRequestInfo request, ComSchedulesBulkInfo response, boolean allDevices) {
+        Map<String, Device> deviceMap = new HashMap<>();
+        if(allDevices) {
+            List<Device> devices = deviceDataService.findAllDevices();
+            for(Device device : devices) {
+                deviceMap.put(device.getmRID(), device);
+            }
+        } else {
+            for (String mrid : request.deviceMRIDs) {
+                try {
+                    deviceMap.put(mrid, resourceHelper.findDeviceByMrIdOrThrowException(mrid));
+                } catch (LocalizedException ex){
+                    response.generalFail(mrid, ex.getLocalizedMessage(), ex.getClass().getSimpleName());
+                }
             }
         }
+
         return deviceMap;
     }
 
