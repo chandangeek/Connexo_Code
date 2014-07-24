@@ -11,6 +11,7 @@ Ext.define('Mdc.store.ValidationRuleSetsForDeviceConfig', {
     proxy: {
         type: 'rest',
         url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/linkablevalidationrulesets',
+        timeout: 240000,
         reader: {
             type: 'json',
             root: 'validationRuleSets',

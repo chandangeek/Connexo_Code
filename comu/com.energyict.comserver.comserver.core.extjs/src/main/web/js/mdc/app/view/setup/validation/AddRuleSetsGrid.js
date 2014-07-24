@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
         }
     }],
     store: 'Mdc.store.ValidationRuleSetsForDeviceConfig',
-    maxHeight: 400,
+    height: 400,
     
     selType: 'checkboxmodel',
     selModel: {
