@@ -195,12 +195,15 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     },
 
     resetPaging: function () {
-        var me = this;
+        var me = this,
+            item = me.child('#pageNavItem');
 
         me.totalCount = 0;
         me.totalPages = 0;
         me.isFullTotalCount = false;
+        me.store.currentPage = 1;
 
+        me.initPageNavItems(item, 1, me.totalPages);
         me.resetQueryString();
     },
 
@@ -328,7 +331,6 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
             me.totalCount = me.totalCount < me.store.getTotalCount() ? me.store.getTotalCount() : me.totalCount;
             me.totalPages = Math.ceil(me.totalCount / me.store.pageSize);
-
         } else {
             currPage = 0;
             pageCount = 0;

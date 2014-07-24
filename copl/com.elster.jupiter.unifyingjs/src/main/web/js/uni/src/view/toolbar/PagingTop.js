@@ -108,6 +108,14 @@ Ext.define('Uni.view.toolbar.PagingTop', {
         }
     },
 
+    resetPaging: function () {
+        var me = this;
+
+        me.isFullTotalCount = false;
+        me.totalCount = -1;
+        me.onLoad();
+    },
+
     onLoad: function () {
         Ext.suspendLayouts();
         this.updateInfo();

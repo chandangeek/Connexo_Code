@@ -121,22 +121,49 @@ Ext.define('Uni.view.container.PreviewContainer', {
         me.on('beforedestroy', me.onBeforeDestroy, me);
     },
 
-    initChildPagingBottom: function () {
+    doChildPagingOperation: function (xtype, operation) {
         var me = this,
-            pagingBottomXType = 'pagingtoolbarbottom',
-            childPagingBottom;
+            pagingComponent;
 
         if (Ext.isDefined(me.previewComponent)) {
-            childPagingBottom = me.previewComponent.down(pagingBottomXType);
+            pagingComponent = me.previewComponent.down(xtype);
         } else {
             return;
         }
 
-        if (childPagingBottom !== null
-            && Ext.isDefined(childPagingBottom)
-            && childPagingBottom.getXType() === pagingBottomXType) {
-            childPagingBottom.updatePagingParams = false;
+        if (pagingComponent !== null
+            && Ext.isDefined(pagingComponent)
+            && pagingComponent.getXType() === xtype) {
+            pagingComponent.updatePagingParams = false;
+            operation(pagingComponent);
         }
+    },
+
+    resetChildPagingTop: function () {
+        var me = this,
+            pagingTopXType = 'pagingtoolbartop';
+
+        me.doChildPagingOperation(pagingTopXType, function (pagingComponent) {
+            pagingComponent.resetPaging();
+        });
+    },
+
+    initChildPagingBottom: function () {
+        var me = this,
+            pagingBottomXType = 'pagingtoolbarbottom';
+
+        me.doChildPagingOperation(pagingBottomXType, function (pagingComponent) {
+            pagingComponent.updatePagingParams = false;
+        });
+    },
+
+    resetChildPagingBottom: function () {
+        var me = this,
+            pagingBottomXType = 'pagingtoolbarbottom';
+
+        me.doChildPagingOperation(pagingBottomXType, function (pagingComponent) {
+            pagingComponent.resetPaging();
+        });
     },
 
     initGridListeners: function () {
@@ -152,6 +179,9 @@ Ext.define('Uni.view.container.PreviewContainer', {
         if (me.previewComponent) {
             me.previewComponent.setVisible(selection.length === 1);
         }
+
+        me.resetChildPagingTop();
+        me.resetChildPagingBottom();
     },
 
     getStoreListeners: function () {
