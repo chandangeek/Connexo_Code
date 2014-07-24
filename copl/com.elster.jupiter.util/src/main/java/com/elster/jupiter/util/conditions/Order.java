@@ -8,6 +8,7 @@ public final class Order {
 	
 	private final String name;
 	private final boolean ascending;
+	private String function;
 	
 	private Order(String name, boolean ascending) {
 		this.name = name;
@@ -24,6 +25,27 @@ public final class Order {
 	
 	public String ordering() {
 		return ascending ? "ASC" : "DESC";
+	}
+	
+	public Order apply(String name) {
+		this.function = name;
+		return this;
+	}
+	
+	public Order toUpperCase() {
+		return apply("upper");
+	}
+	
+	public Order toLowerCase() {
+		return apply("lower");
+	}
+	
+	public String getClause(String resolvedField) {
+		if (function == null) {
+			return resolvedField + " " + ordering();
+		} else {
+			return function + "(" + resolvedField + ")" + " " + ordering();
+ 		}
 	}
 	
 	public  static Order ascending(String name) {
