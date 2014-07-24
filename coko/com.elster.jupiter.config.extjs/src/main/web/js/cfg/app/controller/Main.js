@@ -49,6 +49,9 @@ Ext.define('Cfg.controller.Main', {
 
         this.initNavigation();
         this.initDefaultHistoryToken();
+        this.getApplication().on('cfginitialized', function() {
+            this.getController('Cfg.controller.Validation').mdcIsActive = true;
+        });
     },
 
     initNavigation: function () {
