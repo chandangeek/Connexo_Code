@@ -96,9 +96,8 @@ final class JoinExecutor<T> {
 		String separator = "";
 		for (Order each : orderBy) {
 			builder.append(separator);
-			builder.append(getOrderBy(each.getName()));
+			builder.append(each.getClause(getOrderBy(each.getName())));
 			builder.space();
-			builder.append(each.ordering());
 			separator = ", ";
 		}				
 	}

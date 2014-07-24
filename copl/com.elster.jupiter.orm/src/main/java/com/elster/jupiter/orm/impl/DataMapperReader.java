@@ -194,9 +194,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
             for (Order each : orders) {
                 builder.append(separator);
                 Column column = getColumnForField(each.getName());
-                builder.append(column == null ? each.getName() : column.getName(getAlias()));
-                builder.space();
-                builder.append(each.ordering());
+                builder.append(each.getClause(column == null ? each.getName() : column.getName(getAlias())));
                 separator = ", ";
             }
         }
