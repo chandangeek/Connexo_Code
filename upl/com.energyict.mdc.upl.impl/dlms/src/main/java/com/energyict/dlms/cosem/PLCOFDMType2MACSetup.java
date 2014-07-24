@@ -1,7 +1,10 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.PLCOFDMType2MACSetupAttribute;
 import com.energyict.obis.ObisCode;
 
@@ -137,7 +140,7 @@ public class PLCOFDMType2MACSetup extends AbstractCosemObject {
     }
 
     public void writePANID(int panID) throws IOException {
-        write(PLCOFDMType2MACSetupAttribute.MAC_PAN_ID, new Unsigned32(panID).getBEREncodedByteArray());
+        write(PLCOFDMType2MACSetupAttribute.MAC_PAN_ID, new Unsigned16(panID).getBEREncodedByteArray());
     }
 
     public void writeToneMask(boolean[] toneMask) throws IOException {
