@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAddGri
     alias: 'widget.rule-device-configuration-add-grid',
     itemId: 'addDeviceConfigGrid',
     store: 'Mdc.store.RuleDeviceConfigurationsNotLinked',
-    maxHeight: 400,
+    height: 400,
 
     requires: [
         'Mdc.view.setup.ruledeviceconfiguration.RuleAddDeviceConfigurationActionMenu',
