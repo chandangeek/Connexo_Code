@@ -28,6 +28,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -53,13 +54,14 @@ public class DeviceConfigsValidationRuleSetResource {
     @Path("/{validationRuleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLinkedDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam QueryParameters queryParameters) {
-        DeviceConfigurationInfos result = new DeviceConfigurationInfos();
         List<DeviceConfiguration> configs = deviceConfigurationService.findDeviceConfigurationsForValidationRuleSet(validationRuleSetId);
-        for (DeviceConfiguration config : configs) {
-            result.add(config);
+        DeviceConfigurationInfos.DeviceConfigAndTypeInfo[] infos = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo[configs.size()];
+        for (int i = queryParameters.getStart(); i < queryParameters.getStart() + queryParameters.getLimit() + 1; i++) {
+            infos[i] = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo(configs.get(i));
         }
+        List<DeviceConfigurationInfos.DeviceConfigAndTypeInfo> result = ListPager.of(Arrays.asList(infos)).from(queryParameters).find();
         return Response.ok(PagedInfoList.asJson("deviceConfigurations",
-                ListPager.of(result.deviceConfigurations).from(queryParameters).find(), queryParameters)).build();
+                result, queryParameters)).build();
     }
 
     @POST
