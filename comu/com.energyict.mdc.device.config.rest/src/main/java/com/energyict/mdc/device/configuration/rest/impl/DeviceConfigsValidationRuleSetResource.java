@@ -57,7 +57,9 @@ public class DeviceConfigsValidationRuleSetResource {
         List<DeviceConfiguration> configs = deviceConfigurationService.findDeviceConfigurationsForValidationRuleSet(validationRuleSetId);
         DeviceConfigurationInfos.DeviceConfigAndTypeInfo[] infos = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo[configs.size()];
         for (int i = queryParameters.getStart(); i < queryParameters.getStart() + queryParameters.getLimit() + 1; i++) {
-            infos[i] = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo(configs.get(i));
+            if (i < infos.length) {
+                infos[i] = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo(configs.get(i));
+            }
         }
         List<DeviceConfigurationInfos.DeviceConfigAndTypeInfo> result = ListPager.of(Arrays.asList(infos)).from(queryParameters).find();
         return Response.ok(PagedInfoList.asJson("deviceConfigurations",
