@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.deviceregisterdata.eventregisterreport.Grid', {
-    extend: 'Ext.grid.Panel',
+    extend: 'Mdc.view.setup.deviceregisterdata.MainGrid',
     alias: 'widget.deviceeventregisterreportgrid',
     itemId: 'event-deviceRegisterReportGrid',
     store: 'EventRegisterData',
