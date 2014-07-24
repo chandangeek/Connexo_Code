@@ -1,14 +1,17 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.google.common.base.Optional;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -42,6 +45,14 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     public MultiThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor, new ComPortThreadFactory(comPort, threadFactory), serviceProvider);
         this.jobQueue = new ArrayBlockingQueue<>(comPort.getNumberOfSimultaneousConnections());
+    }
+
+    @Override
+    protected void setThreadPrinciple() {
+        Optional<User> user = getServiceProvider().userService().findUser("batch executor");
+        if (user.isPresent()) {
+            getServiceProvider().threadPrincipalService().set(user.get(), "MultiThreadedComPortRunner", "Executing", Locale.ENGLISH);
+        }
     }
 
     @Override
@@ -134,7 +145,9 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
             this.executorService = Executors.newFixedThreadPool(threadPoolSize, threadFactory);
             ComServer.LogLevel communicationLogLevel = MultiThreadedScheduledComPort.this.getComPort().getComServer().getCommunicationLogLevel();
             for (int i = 0; i < threadPoolSize; i++) {
-                executorService.submit(new MultiThreadedScheduledJobExecutor(getServiceProvider().transactionService(), communicationLogLevel, jobQueue, getDeviceCommandExecutor()));
+                executorService.submit(new MultiThreadedScheduledJobExecutor(getServiceProvider().transactionService(),
+                        communicationLogLevel, jobQueue, getDeviceCommandExecutor(),
+                        getServiceProvider().threadPrincipalService(), getServiceProvider().userService()));
             }
         }
 

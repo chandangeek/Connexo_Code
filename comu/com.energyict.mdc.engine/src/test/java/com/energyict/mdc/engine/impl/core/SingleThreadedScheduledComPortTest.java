@@ -235,6 +235,7 @@ public class SingleThreadedScheduledComPortTest {
         this.serviceProvider.setTaskHistoryService(this.taskHistoryService);
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
         this.serviceProvider.setEngineService(engineService);
+        this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
             thenReturn(comSessionBuilder);
