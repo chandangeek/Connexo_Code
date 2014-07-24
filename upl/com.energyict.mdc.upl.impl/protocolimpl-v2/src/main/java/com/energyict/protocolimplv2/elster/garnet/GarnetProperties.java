@@ -9,6 +9,8 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
@@ -104,7 +106,18 @@ public class GarnetProperties implements ConfigurationSupport {
     public byte[] getManufacturerKey() {
         if (this.manufacturerKey == null) {
             String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString());
-            this.manufacturerKey = DLMSUtils.hexStringToByteArray(hex);
+            if (hex != null) {
+                this.manufacturerKey = DLMSUtils.hexStringToByteArray(hex);
+                if (this.manufacturerKey.length != 16) {
+                    MdcManager.getComServerExceptionFactory().createCipheringException(
+                            new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER + " has an invalid length!")
+                    );
+                }
+            } else {
+                MdcManager.getComServerExceptionFactory().createCipheringException(
+                        new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER + " is missing!")
+                );
+            }
         }
         return this.manufacturerKey;
     }
@@ -112,10 +125,19 @@ public class GarnetProperties implements ConfigurationSupport {
     public byte[] getCustomerKey() {
         if (this.customerKey == null) {
             String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString());
-            this.customerKey = DLMSUtils.hexStringToByteArray(hex);
+            if (hex != null) {
+                this.customerKey = DLMSUtils.hexStringToByteArray(hex);
+                if (this.customerKey.length != 16) {
+                    MdcManager.getComServerExceptionFactory().createCipheringException(
+                            new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " has an invalid length!")
+                    );
+                }
+            } else {
+                GarnetException exception = new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " is missing!");
+                MdcManager.getComServerExceptionFactory().createCipheringException(exception);
+            }
         }
         return this.customerKey;
-
     }
 
     private int parseBigDecimalProperty(String key, BigDecimal defaultValue) {
