@@ -24,7 +24,7 @@ public enum DeviceSecurityProperty {
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
                     newPropertySpecBuilder(new EncryptedStringFactory()).
-                    name(SecurityPropertySpecName.PASSWORD.name()).
+                    name(SecurityPropertySpecName.PASSWORD.toString()).
                     finish();
         }
     },
@@ -36,7 +36,7 @@ public enum DeviceSecurityProperty {
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
                     newPropertySpecBuilder(new EncryptedStringFactory()).
-                    name(SecurityPropertySpecName.ENCRYPTION_KEY.name()).
+                    name(SecurityPropertySpecName.ENCRYPTION_KEY.toString()).
                     finish();
         }
     },
@@ -48,7 +48,7 @@ public enum DeviceSecurityProperty {
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
                     newPropertySpecBuilder(new EncryptedStringFactory()).
-                    name(SecurityPropertySpecName.AUTHENTICATION_KEY.name()).
+                    name(SecurityPropertySpecName.AUTHENTICATION_KEY.toString()).
                     finish();
         }
     },
@@ -60,7 +60,7 @@ public enum DeviceSecurityProperty {
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
                     newPropertySpecBuilder(new BigDecimalFactory()).
-                    name(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.name()).
+                    name(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()).
                     finish();
         }
     },
@@ -72,7 +72,7 @@ public enum DeviceSecurityProperty {
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
                     newPropertySpecBuilder(new StringFactory()).
-                    name(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.name()).
+                    name(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString()).
                     finish();
         }
     },
@@ -84,7 +84,7 @@ public enum DeviceSecurityProperty {
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
                     newPropertySpecBuilder(new StringFactory()).
-                    name(SecurityPropertySpecName.ANSI_C12_USER.name()).
+                    name(SecurityPropertySpecName.ANSI_C12_USER.toString()).
                     finish();
         }
     },
@@ -96,7 +96,7 @@ public enum DeviceSecurityProperty {
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
                     newPropertySpecBuilder(new StringFactory()).
-                    name(SecurityPropertySpecName.ANSI_C12_USER_ID.name()).
+                    name(SecurityPropertySpecName.ANSI_C12_USER_ID.toString()).
                     finish();
         }
     },
@@ -108,7 +108,7 @@ public enum DeviceSecurityProperty {
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
                     newPropertySpecBuilder(new BooleanFactory()).
-                    name(SecurityPropertySpecName.BINARY_PASSWORD.name()).
+                    name(SecurityPropertySpecName.BINARY_PASSWORD.toString()).
                     finish();
         }
     },
@@ -120,7 +120,7 @@ public enum DeviceSecurityProperty {
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
                     newPropertySpecBuilder(new StringFactory()).
-                    name(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.name()).
+                    name(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString()).
                     finish();
         }
     };
