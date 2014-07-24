@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.api.services;
 
-import java.io.Serializable;
-
 /**
  * Copyrights EnergyICT
  * Date: 6/3/14
