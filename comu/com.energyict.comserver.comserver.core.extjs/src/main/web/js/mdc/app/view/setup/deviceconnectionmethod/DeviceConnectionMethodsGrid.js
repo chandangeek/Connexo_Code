@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.ConnectionMethodsOfDevice',
         'Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMenu',
-        'Uni.grid.column.DefaultColumn'
+        'Uni.grid.column.Default'
     ],
 
     store: 'ConnectionMethodsOfDevice',
@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.connectionmethod.DeviceConnectionMethodsGrid', {
 
         me.columns = [
             {
-                xtype: 'default-column',
+                xtype: 'uni-default-column',
                 dataIndex: 'isDefault',
                 flex: 0.1
             },
