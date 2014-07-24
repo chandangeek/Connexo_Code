@@ -358,7 +358,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showRegisterMappings',
                                     items: {
                                         add: {
-                                            title: 'Add register mapping',
+                                            title: 'Add register type',
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.RegisterMappings',
                                             action: 'addRegisterMappings'
