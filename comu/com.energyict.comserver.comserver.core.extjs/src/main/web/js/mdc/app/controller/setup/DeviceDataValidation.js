@@ -205,8 +205,8 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                     callback: function () {
                         me.getRulesSetGrid().getSelectionModel().doSelect(me.getRulesSetGrid().getStore().indexOf(record));
                         me.getApplication().fireEvent('acknowledge', ruleSetIsActive ?
-                            Ext.String.format(Uni.I18n.translate('device.dataValidation.ruleSet.deactivated', 'MDC', 'Rule set {0} was deactivated successfully'), ruleSetName) :
-                            Ext.String.format(Uni.I18n.translate('device.dataValidation.ruleSet.activated', 'MDC', 'Rule set {0} was activated successfully'), ruleSetName));
+                            Uni.I18n.translatePlural('device.dataValidation.ruleSet.deactivated', ruleSetName, 'MDC', 'Rule set {0} was deactivated successfully') :
+                            Uni.I18n.translatePlural('device.dataValidation.ruleSet.activated', ruleSetName, 'MDC', 'Rule set {0} was activated successfully'));
                     }
                 });
             }
@@ -223,7 +223,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             });
         confirmationWindow.add(this.getActivationConfirmationContent());
         confirmationWindow.show({
-            title: Ext.String.format(Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?'), me.mRID),
+            title: Uni.I18n.translatePlural('device.dataValidation.activateConfirmation.title', me.mRID, 'MDC', 'Activate data validation on device {0}?'),
             msg: ''
         });
         confirmationWindow.on('close', function () {
@@ -245,7 +245,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 } else {
                     me.destroyConfirmationWindow();
                     me.getApplication().fireEvent('acknowledge',
-                        Ext.String.format(Uni.I18n.translate('device.dataValidation.activation.activated', 'MDC', 'Data validation on device {0} was activated successfully'), me.mRID));
+                        Uni.I18n.translatePlural('device.dataValidation.activation.activated', me.mRID, 'MDC', 'Data validation on device {0} was activated successfully'));
                 }
             }
         });
@@ -282,6 +282,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                         });
                 }
             });
+        Ext.Ajax.suspendEvent('requestexception');
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validate',
             method: 'PUT',
@@ -290,7 +291,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             success: function () {
                 me.destroyConfirmationWindow();
                 me.getApplication().fireEvent('acknowledge',
-                    Ext.String.format(Uni.I18n.translate('device.dataValidation.activation.validated', 'MDC', 'Data validation on device {0} was completed successfully'), me.mRID));
+                    Uni.I18n.translatePlural('device.dataValidation.activation.validated', me.mRID, 'MDC', 'Data validation on device {0} was completed successfully'));
             },
             failure: function (response) {
                 if (me.getActivationConfirmationWindow()) {
@@ -299,6 +300,9 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                     me.showValidationActivationErrors(res.message);
                     me.confirmationWindowButtonsDisable(false);
                 }
+            },
+            callback: function () {
+                Ext.Ajax.resumeEvent('requestexception');
             }
         });
     },
@@ -371,7 +375,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate')
         }).show({
-                title: Ext.String.format(Uni.I18n.translate('device.dataValidation.deactivateConfirmation.title', 'MDC', 'Deactivate data validation on device {0}?'), me.mRID),
+                title: Uni.I18n.translatePlural('device.dataValidation.deactivateConfirmation.title', me.mRID, 'MDC', 'Deactivate data validation on device {0}?'),
                 msg: Uni.I18n.translate('device.dataValidation.deactivateConfirmation.msg', 'MDC', 'The data of this device will no longer be validated'),
                 fn: function (state) {
                     if (state === 'confirm') {
@@ -389,7 +393,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             success: function () {
                 me.updateDataValidationStatusSection();
                 me.getApplication().fireEvent('acknowledge',
-                    Ext.String.format(Uni.I18n.translate('device.dataValidation.deactivation.successMsg', 'MDC', 'Data validation on device {0} was deactivated successfully'), me.mRID));
+                    Uni.I18n.translatePlural('device.dataValidation.deactivation.successMsg', me.mRID, 'MDC', 'Data validation on device {0} was deactivated successfully'));
             }
         });
     },

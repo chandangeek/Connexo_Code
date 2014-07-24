@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Navigation', {
     alias: 'widget.searchitems-bulk-navigation',
     width: 200,
     jumpForward: false,
+    jumpBack: true,
     items: [
         {
             itemId: 'SelectDevices',
