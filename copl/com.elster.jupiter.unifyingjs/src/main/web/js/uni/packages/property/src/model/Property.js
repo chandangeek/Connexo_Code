@@ -8,6 +8,7 @@ Ext.define('Uni.property.model.Property', {
         {name: 'required', type: 'boolean'},
         {name: 'value', persist: false},
         {name: 'default', persist: false},
+        {name: 'hasDefault', persist: false},
         {name: 'isInheritedOrDefaultValue', type: 'boolean', defaultValue: true, persist: false}
     ],
     requires: [
@@ -43,6 +44,7 @@ Ext.define('Uni.property.model.Property', {
         var value = null;
         var restoreValue = '';
         var isInheritedValue = true;
+        var hasDefaultValue = false;
 
         // was on try-catch
         if (me.raw['propertyValueInfo']) {
@@ -56,6 +58,9 @@ Ext.define('Uni.property.model.Property', {
                     restoreValue = propertyValue.get('inheritedValue');
                 } else {
                     restoreValue = propertyValue.get('defaultValue');
+                    if (typeof propertyValue.get('defaultValue') !== 'undefined' && typeof propertyValue.get('defaultValue') !== '') {
+                        hasDefaultValue = true;
+                    }
                 }
 
                 if (value === '') {
@@ -68,11 +73,13 @@ Ext.define('Uni.property.model.Property', {
         me.set('isInheritedOrDefaultValue', isInheritedValue);
         me.set('value', value);
         me.set('default', restoreValue);
+        me.set('hasDefaultValue', hasDefaultValue);
     },
 
     initInheritedValues: function() {
         var me = this;
         var value = null;
+        var hasDefaultValue = false;
 
         // was on try-catch
         if (me.raw['propertyValueInfo']) {
@@ -82,6 +89,7 @@ Ext.define('Uni.property.model.Property', {
                 value = propertyValue.get('value');
                 if (!value) {
                     value = propertyValue.get('defaultValue');
+                    hasDefaultValue = true;
                 }
 
                 propertyValue.set('inheritedValue', value);
@@ -92,6 +100,7 @@ Ext.define('Uni.property.model.Property', {
         me.set('isInheritedOrDefaultValue', true);
         me.set('value', value);
         me.set('default', value);
+        me.set('hasDefaultValue', hasDefaultValue);
     },
 
     getType: function () {
