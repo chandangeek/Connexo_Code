@@ -15047,7 +15047,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px Lato;
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
 }
 
 /* line 21, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
@@ -15127,7 +15127,7 @@ textarea.x-form-empty-field {
 
 /* line 11, ../../../ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px Lato;
+  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
   margin-top: 6px;
 }
@@ -16081,7 +16081,7 @@ a.x-color-picker-item:hover {
 
 /* line 100, ../../../ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px Lato;
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
   background-color: white;
   resize: none;
 }
@@ -23384,14 +23384,32 @@ h6 {
   background-image: url("images/grid/masterActionsHighlight.png");
 }
 
-/* line 9, ../../sass/src/Component.scss */
+/* line 4, ../../sass/src/grid/DefaultColumn.scss */
+.x-grid-row-selected .uni-default-column-icon.default,
+.x-grid-row-focused .uni-default-column-icon.default,
+.x-grid-row-over .uni-default-column-icon.default {
+  background-image: url("images/grid/defaultItemHighlight.png");
+}
+
+/* line 9, ../../sass/src/grid/DefaultColumn.scss */
+.uni-default-column-icon.default {
+  width: 0;
+  height: 0;
+  padding-top: 16px;
+  padding-right: 16px;
+  background-repeat: no-repeat;
+  background-image: url("images/grid/defaultItem.png");
+  margin-left: 12px;
+}
+
+/* line 10, ../../sass/src/Component.scss */
 .icon-delete {
   background-image: url("images/button/ico_delete.png") !important;
   width: 16px !important;
   height: 16px !important;
 }
 
-/* line 15, ../../sass/src/Component.scss */
+/* line 16, ../../sass/src/Component.scss */
 .icon-delete:hover {
   background-image: url("images/button/ico_deleteA.png") !important;
   width: 16px !important;
@@ -23441,11 +23459,7 @@ h6 {
   /* Standard syntax */
 }
 /* line 45, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher,
-.x-container-navigationheader .nav-toggler,
-.x-container-navigationheader .notifications-anchor,
-.x-container-navigationheader .nav-help,
-.x-container-navigationheader .user-menu {
+.x-container-navigationheader .nav-appswitcher, .x-container-navigationheader .nav-toggler, .x-container-navigationheader .notifications-anchor, .x-container-navigationheader .nav-help, .x-container-navigationheader .user-menu {
   background: none;
   border: none;
   border-radius: 0;
@@ -23455,28 +23469,16 @@ h6 {
   padding: 0 4px;
 }
 /* line 9, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button,
-.x-container-navigationheader .nav-toggler .x-btn-button,
-.x-container-navigationheader .notifications-anchor .x-btn-button,
-.x-container-navigationheader .nav-help .x-btn-button,
-.x-container-navigationheader .user-menu .x-btn-button {
+.x-container-navigationheader .nav-appswitcher .x-btn-button, .x-container-navigationheader .nav-toggler .x-btn-button, .x-container-navigationheader .notifications-anchor .x-btn-button, .x-container-navigationheader .nav-help .x-btn-button, .x-container-navigationheader .user-menu .x-btn-button {
   padding-right: 10px;
   padding-left: 10px;
 }
 /* line 15, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-inner,
-.x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner,
-.x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner,
-.x-container-navigationheader .nav-help .x-btn-button .x-btn-inner,
-.x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
+.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-inner, .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner, .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner, .x-container-navigationheader .nav-help .x-btn-button .x-btn-inner, .x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
   color: white;
 }
 /* line 19, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
+.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-glyph, .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph, .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph, .x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph, .x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
   opacity: 1;
   height: auto;
   line-height: 36px;
@@ -23484,21 +23486,13 @@ h6 {
   margin-left: 10px;
 }
 /* line 48, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher .icon-logout,
-.x-container-navigationheader .nav-toggler .icon-logout,
-.x-container-navigationheader .notifications-anchor .icon-logout,
-.x-container-navigationheader .nav-help .icon-logout,
-.x-container-navigationheader .user-menu .icon-logout {
+.x-container-navigationheader .nav-appswitcher .icon-logout, .x-container-navigationheader .nav-toggler .icon-logout, .x-container-navigationheader .notifications-anchor .icon-logout, .x-container-navigationheader .nav-help .icon-logout, .x-container-navigationheader .user-menu .icon-logout {
   margin: 14px 8px;
   width: 20px !important;
   height: 20px !important;
 }
 /* line 54, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher:hover,
-.x-container-navigationheader .nav-toggler:hover,
-.x-container-navigationheader .notifications-anchor:hover,
-.x-container-navigationheader .nav-help:hover,
-.x-container-navigationheader .user-menu:hover {
+.x-container-navigationheader .nav-appswitcher:hover, .x-container-navigationheader .nav-toggler:hover, .x-container-navigationheader .notifications-anchor:hover, .x-container-navigationheader .nav-help:hover, .x-container-navigationheader .user-menu:hover {
   background-color: #71adc7;
 }
 /* line 60, ../../sass/src/container/NavigationHeader.scss */
@@ -23752,17 +23746,20 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
   background-image: url("images/button/ico_actions.png");
 }
 
-/* line 14, ../../sass/src/button/Button.scss */
-.x-grid-row-selected .x-uni-action-icon, .active .x-uni-action-icon {
+/* line 17, ../../sass/src/button/Button.scss */
+.x-grid-row-selected .x-uni-action-icon,
+.x-grid-row-focused .x-uni-action-icon,
+.x-grid-row-over .x-uni-action-icon,
+.active .x-uni-action-icon {
   background-image: url("images/button/ico_actionsA.png");
 }
 
-/* line 19, ../../sass/src/button/Button.scss */
+/* line 22, ../../sass/src/button/Button.scss */
 .x-btn-default-toolbar-small .x-btn-arrow {
   background-image: url("images/button/default-small-arrow.png");
 }
 
-/* line 28, ../../sass/src/button/Button.scss */
+/* line 31, ../../sass/src/button/Button.scss */
 .x-btn-default-small-pressed,
 .x-btn-default-medium-pressed,
 .x-btn-default-large-pressed,
@@ -23772,12 +23769,12 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
   background: linear-gradient(#2591bf, #47b4e4 61%);
 }
 
-/* line 32, ../../sass/src/button/Button.scss */
+/* line 35, ../../sass/src/button/Button.scss */
 *[class*='x-btn-link-toolbar-'] {
   border-color: transparent !important;
 }
 
-/* line 36, ../../sass/src/button/Button.scss */
+/* line 39, ../../sass/src/button/Button.scss */
 .x-btn {
   margin-right: 8px !important;
 }
@@ -24109,9 +24106,4 @@ body.login .x-panel-login .x-field-error .x-form-display-field {
 .x-btn-remove-small-over .x-frame-tc,
 .x-btn-remove-small-over .x-frame-bc {
   background-image: url(images/btn/btn-remove-small-over-corners.gif);
-}
-/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-remove-small-over .x-frame-ml,
-.x-btn-remove-small-over .x-frame-mr {
-  background-image: url(images/btn/btn-remove-small-over-sides.gif);
 }

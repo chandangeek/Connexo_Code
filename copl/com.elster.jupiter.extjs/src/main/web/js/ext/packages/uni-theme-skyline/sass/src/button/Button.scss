@@ -10,7 +10,10 @@
     background-image: $button-action-icon;
 }
 
-.#{$prefix}grid-row-selected, .active {
+.#{$prefix}grid-row-selected,
+.#{$prefix}grid-row-focused,
+.#{$prefix}grid-row-over,
+.active {
     .#{$prefix}uni-action-icon {
         background-image: $button-action-iconA;
     }

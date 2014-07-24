@@ -1,3 +1,21 @@
+/* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-message-error-bc {
+  height: 10px;
+}
+
+/* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-message-error-tl,
+.x-window-message-error-bl,
+.x-window-message-error-tr,
+.x-window-message-error-br,
+.x-window-message-error-tc,
+.x-window-message-error-bc,
+.x-window-message-error-ml,
+.x-window-message-error-mr {
+  zoom: 1;
+  background-image: url(images/window/window-message-error-corners.gif);
+}
+
 /* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-message-error-ml,
 .x-window-message-error-mr {
@@ -1659,8 +1677,12 @@ a.x-datepicker-date:hover {
   border-radius: 10px;
   border-top-width: 1px !important;
 }
+/* line 17, ../../sass/src/panel/Table.scss */
+.x-grid.x-grid-header-hidden .x-grid-header-ct {
+  border-width: 0px !important;
+}
 
-/* line 20, ../../sass/src/panel/Table.scss */
+/* line 23, ../../sass/src/panel/Table.scss */
 .x-grid-body {
   border-color: #d2d2d2 !important;
   border-width: 1px !important;
@@ -1672,33 +1694,33 @@ a.x-datepicker-date:hover {
   -o-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
 }
-/* line 27, ../../sass/src/panel/Table.scss */
+/* line 30, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-view {
   margin: -1px !important;
   margin-top: 0 !important;
 }
-/* line 41, ../../sass/src/panel/Table.scss */
+/* line 44, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a {
   color: #686868;
   text-decoration: none;
 }
-/* line 48, ../../sass/src/panel/Table.scss */
+/* line 51, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row a:hover {
   text-decoration: underline;
 }
-/* line 53, ../../sass/src/panel/Table.scss */
+/* line 56, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row .x-form-display-field-body {
   height: auto;
 }
-/* line 55, ../../sass/src/panel/Table.scss */
+/* line 58, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row .x-form-display-field-body .x-form-display-field {
   margin: 0;
 }
-/* line 61, ../../sass/src/panel/Table.scss */
+/* line 64, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected a, .x-grid-body .x-grid-row-over a {
   color: white;
 }
-/* line 64, ../../sass/src/panel/Table.scss */
+/* line 67, ../../sass/src/panel/Table.scss */
 .x-grid-body .x-grid-row-selected .x-form-display-field, .x-grid-body .x-grid-row-over .x-form-display-field {
   color: white;
 }

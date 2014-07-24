@@ -1,3 +1,16 @@
+.x-btn-sort-medium-icon .x-btn-arrow-right .x-rtl.x-btn-inner,
+.x-btn-sort-medium-noicon .x-btn-arrow-right .x-rtl.x-btn-inner,
+.x-btn-sort-medium-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
+  padding-right: 4px;
+  padding-left: 0;
+}
+
+/* line 375, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon .x-btn-inner {
+  width: 24px;
+  padding: 0;
+}
+/* line 381, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-medium-icon .x-btn-icon-el {
   width: 24px;
   height: 24px;
@@ -17243,22 +17256,4 @@ div.x-form-spinner-down {
 /* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-message-error-tc {
   height: 10px;
-}
-
-/* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-message-error-bc {
-  height: 10px;
-}
-
-/* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-message-error-tl,
-.x-window-message-error-bl,
-.x-window-message-error-tr,
-.x-window-message-error-br,
-.x-window-message-error-tc,
-.x-window-message-error-bc,
-.x-window-message-error-ml,
-.x-window-message-error-mr {
-  zoom: 1;
-  background-image: url(images/window/window-message-error-corners.gif);
 }

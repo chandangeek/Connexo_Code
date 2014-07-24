@@ -1,3 +1,8 @@
+.x-btn-remove-small-over .x-frame-ml,
+.x-btn-remove-small-over .x-frame-mr {
+  background-image: url(images/btn/btn-remove-small-over-sides.gif);
+}
+/* line 617, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-over .x-frame-mc {
   background-color: #ff5740;
   background-image: url(images/btn/btn-remove-small-over-fbg.gif);
@@ -14626,37 +14631,4 @@ a:hover, a.x-btn:hover {
 /* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-step-active-small-mc {
   padding: 0px 0px 0px 0px;
-}
-
-/* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-strict .x-ie7 .x-btn-step-active-small-tl,
-.x-strict .x-ie7 .x-btn-step-active-small-bl {
-  position: relative;
-  right: 0;
-}
-
-/*<if slicer>*/
-/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-btn-step-active-small:after {
-  display: none;
-  content: "x-slicer:corners:url(images/btn/btn-step-active-small-corners.gif), sides:url(images/btn/btn-step-active-small-sides.gif)";
-}
-
-/*</if slicer>*/
-/* */
-/* line 262, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small .x-btn-inner {
-  font-size: 13px;
-  font-weight: "normal";
-  font-family: "Lato", helvetica, arial, verdana, sans-serif;
-  color: white;
-  padding: 0 4px;
-}
-/* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small .x-btn-arrow {
-  background-image: url(images/button/step-active-small-arrow.png);
-}
-/* line 278, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-step-active-small .x-btn-arrow-right {
-  padding-right: 21px;
 }
