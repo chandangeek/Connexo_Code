@@ -152,11 +152,11 @@ Ext.define('Isu.controller.Main', {
             items: [
                 {
                     text: 'Issue assignment rules',
-                    href: router.getRoute('administration/issue/assignmentrules').buildUrl()
+                    href: router.getRoute('administration/assignmentrules').buildUrl()
                 },
                 {
                     text: 'Issue creation rules',
-                    href: router.getRoute('administration/issue/creationrules').buildUrl()
+                    href: router.getRoute('administration/creationrules').buildUrl()
                 }
             ]
         });

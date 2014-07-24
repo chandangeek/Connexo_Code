@@ -71,8 +71,8 @@ Ext.define('Isu.controller.IssueCreationRulesActionsEdit', {
 
     checkRoute: function (token) {
         var clipboard = this.getStore('Isu.store.Clipboard'),
-            createRegexp = /administration\/issue\/creationrules\/create/,
-            editRegexp = /administration\/issue\/creationrules\/\d+\/edit/;
+            createRegexp = /administration\/creationrules\/add/,
+            editRegexp = /administration\/creationrules\/\d+\/edit/;
 
         Ext.util.History.un('change', this.checkRoute, this);
 
@@ -189,12 +189,12 @@ Ext.define('Isu.controller.IssueCreationRulesActionsEdit', {
 
         if (rule) {
             if (rule.getId()) {
-                router.getRoute('administration/issue/creationrules/edit').forward({id: rule.getId()});
+                router.getRoute('administration/creationrules/edit').forward({id: rule.getId()});
             } else {
-                router.getRoute('administration/issue/creationrules/create').forward();
+                router.getRoute('administration/creationrules/add').forward();
             }
         } else {
-            router.getRoute('administration/issue/creationrules').forward();
+            router.getRoute('administration/creationrules').forward();
         }
     }
 });

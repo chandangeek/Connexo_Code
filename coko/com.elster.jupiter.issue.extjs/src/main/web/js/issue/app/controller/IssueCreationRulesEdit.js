@@ -381,7 +381,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                                 break;
                         }
                         me.getApplication().fireEvent('acknowledge', messageText);
-                        router.getRoute('administration/issue/creationrules').forward();
+                        router.getRoute('administration/creationrules').forward();
                     } else {
                         json = Ext.decode(operation.response.responseText);
                         if (json && json.errors) {
@@ -404,7 +404,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
         this.getStore('Isu.store.Clipboard').set('issuesCreationRuleState', rule);
 
-        router.getRoute('administration/issue/creationrules/create/addaction').forward();
+        router.getRoute('administration/creationrules/add/addaction').forward();
     },
 
     loadActionsToForm: function (actions) {

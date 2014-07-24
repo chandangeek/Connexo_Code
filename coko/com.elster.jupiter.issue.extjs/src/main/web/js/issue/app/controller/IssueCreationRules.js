@@ -70,14 +70,14 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 this.showDeleteConfirmation(menu.record);
                 break;
             case 'edit':
-                router.getRoute('administration/issue/creationrules/edit').forward({id: id});
+                router.getRoute('administration/creationrules/edit').forward({id: id});
                 break;
         }
     },
 
     createRule: function () {
         var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('administration/issue/creationrules/create').forward();
+        router.getRoute('administration/creationrules/add').forward();
     },
 
     showDeleteConfirmation: function (rule) {

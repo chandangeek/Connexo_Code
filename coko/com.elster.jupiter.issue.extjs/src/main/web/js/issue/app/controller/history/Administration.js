@@ -5,45 +5,39 @@ Ext.define('Isu.controller.history.Administration', {
 
     routeConfig: {
         administration : {
-            title: 'Administration',
+            title: Uni.I18n.translate('route.administration', 'ISE', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
-                issue: {
-                    title: 'Issue',
-                    route: 'issue',
+                assignmentrules: {
+                    title: Uni.I18n.translate('route.assignmentRules', 'ISE', 'Assignment Rules'),
+                    route: 'assignmentrules',
+                    controller: 'Isu.controller.IssueAssignmentRules'
+                },
+                creationrules: {
+                    title: Uni.I18n.translate('route.issueCreationRules', 'ISE', 'Issue creation rules'),
+                    route: 'creationrules',
+                    controller: 'Isu.controller.IssueCreationRules',
                     items: {
-                        assignmentrules: {
-                            title: 'Assignment Rules',
-                            route: 'assignmentrules',
-                            controller: 'Isu.controller.IssueAssignmentRules'
-                        },
-                        creationrules: {
-                            title: 'Creation Rules',
-                            route: 'creationrules',
-                            controller: 'Isu.controller.IssueCreationRules',
+                        add: {
+                            title: Uni.I18n.translate('route.addIssueCreationRule', 'ISE', 'Add issue creation rule'),
+                            route: 'add',
+                            controller: 'Isu.controller.IssueCreationRulesEdit',
+                            action: 'showCreate',
                             items: {
-                                create: {
-                                    title: 'Create',
-                                    route: 'create',
-                                    controller: 'Isu.controller.IssueCreationRulesEdit',
-                                    action: 'showCreate',
-                                    items: {
-                                        addaction: {
-                                            title: 'Add action',
-                                            route: 'addaction',
-                                            controller: 'Isu.controller.IssueCreationRulesActionsEdit',
-                                            action: 'showCreate'
-                                        }
-                                    }
-                                },
-                                edit: {
-                                    title: 'Edit',
-                                    route: '{id}/edit',
-                                    controller: 'Isu.controller.IssueCreationRulesEdit',
-                                    action: 'showEdit'
+                                addaction: {
+                                    title: Uni.I18n.translate('route.addAction', 'ISE', 'Add action'),
+                                    route: 'addaction',
+                                    controller: 'Isu.controller.IssueCreationRulesActionsEdit',
+                                    action: 'showCreate'
                                 }
                             }
+                        },
+                        edit: {
+                            title: 'Edit',
+                            route: '{id}/edit',
+                            controller: 'Isu.controller.IssueCreationRulesEdit',
+                            action: 'showEdit'
                         }
                     }
                 }
