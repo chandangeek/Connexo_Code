@@ -105,6 +105,8 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAddGri
                             },
                             {
                                 xtype: 'button',
+                                itemId: 'uncheckAll',
+                                disabled: true,
                                 margin: '0 0 0 8',
                                 text: Uni.I18n.translate('general.uncheckAll', 'CFG', 'Uncheck all'),
                                 action: 'uncheck'

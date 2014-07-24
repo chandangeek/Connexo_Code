@@ -43,8 +43,17 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             },
             'rule-device-configuration-action-menu': {
                 click: this.chooseAction
+            },
+            'rule-device-configuration-add radiogroup': {
+                change: this. onChangeRadio
             }
         });
+    },
+
+    onChangeRadio: function () {
+        var grid = Ext.ComponentQuery.query('rule-device-configuration-add grid')[0];
+        grid.getSelectionModel().getSelection().length === 0 ? grid.down('#uncheckAll').setDisabled(true) : grid.down('#uncheckAll').setDisabled(false);
+        this.getRuleDeviceConfigurationAddPanel().down('#radioAll').getValue() && grid.down('#uncheckAll').setDisabled(true);
     },
 
     showDeviceConfigView: function (ruleSetId) {
@@ -115,6 +124,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
 
         textLabel.setText(selectionText);
         me.changeRadioFromAllToSelected();
+        selection.length === 0 ? gridview.down('#uncheckAll').setDisabled(true) : gridview.down('#uncheckAll').setDisabled(false);
     },
 
     changeRadioFromAllToSelected: function () {
