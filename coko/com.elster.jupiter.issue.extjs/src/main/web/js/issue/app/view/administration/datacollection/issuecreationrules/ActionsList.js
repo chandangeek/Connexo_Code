@@ -11,10 +11,6 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionsLis
     }),
     enableColumnHide: false,
     columns: {
-        defaults: {
-            sortable: false,
-            menuDisabled: true
-        },
         items: [
             {
                 itemId: 'description',
@@ -42,7 +38,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionsLis
                 xtype: 'uni-actioncolumn',
                 items: [
                     {
-                        text: 'Delete',
+                        text: Uni.I18n.translate('general.remove', 'ISE', 'Remove'),
                         action: 'delete'
                     }
                 ]

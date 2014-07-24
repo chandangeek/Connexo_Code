@@ -105,15 +105,15 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
             ruleActionBtn = me.getRuleActionBtn(),
             clipboard = this.getStore('Isu.store.Clipboard'),
             savedData = clipboard.get('issuesCreationRuleState'),
-            prefix,
+            title,
             btnTxt;
 
         this.clearActionsStore(widget);
 
         switch (action) {
             case 'edit':
-                prefix = 'Edit ';
-                btnTxt = 'Save';
+                title = Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISE', 'Edit issue creation rule');
+                btnTxt = Uni.I18n.translate('general.save', 'ISE', 'Save');
                 if (savedData) {
                     me.ruleModel = savedData;
                     clipboard.clear('issuesCreationRuleState');
@@ -138,7 +138,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 }
                 break;
             case 'create':
-                prefix = btnTxt = 'Create ';
+                title = Uni.I18n.translate('administration.issueCreationRules.title.addIssueCreationRule', 'ISE', 'Add issue creation rule');
+                btnTxt = Uni.I18n.translate('general.add', 'ISE', 'Add');
                 if (savedData) {
                     me.ruleModel = savedData;
                     clipboard.clear('issuesCreationRuleState');
@@ -153,7 +154,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 break;
         }
 
-        me.getPageTitle().title = prefix + 'issue creation rule';
+        me.getPageTitle().title = title;
         ruleActionBtn.setText(btnTxt);
     },
 
@@ -373,7 +374,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     if (success) {
                         switch (operation.action) {
                             case 'create':
-                                messageText = Uni.I18n.translate('administration.issueCreationRules.createSuccess.msg', 'ISE', 'Issue creation rule created');
+                                messageText = Uni.I18n.translate('administration.issueCreationRules.createSuccess.msg', 'ISE', 'Issue creation rule added');
                                 break;
                             case 'update':
                                 messageText = Uni.I18n.translate('administration.issueCreationRules.updateSuccess.msg', 'ISE', 'Issue creation rule updated');
