@@ -136,7 +136,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             waitMsg: 'Removing...',
             success: function () {
                 me.handleSuccessRequest('Channel was removed successfully');
-                me.store.load();
+                me.store.load(function () {
+                    if (this.getCount() === 0) {
+                        me.getPage().down('#rulesForChannelPreviewContainer').destroy();
+                        me.getPage().down('#rulesForChannelConfig').destroy();
+                    }
+                });
             }
 //            failure: function (result, request) {
 //                me.handleFailureRequest(result, "Error during removing of channel", 'removeloadprofileconfigurationdetailchannelconfirm');
@@ -307,51 +312,51 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         if (this.displayedItemId != recordData.id) {
             grid.clearHighlight();
             preloader.show();
-        }
-        this.displayedItemId = recordData.id;
-        this.getLoadProfileDetailChannelPreview().setTitle(recordData.name);
-        form.loadRecord(channelConfig);
-        this.getPage().down('#rulesForChannelConfig').setTitle(channelConfig.get('name') + ' validation rules');
-        if (me.getPage().down('#rulesForChannelPreviewContainer')) {
-            me.getPage().down('#rulesForChannelPreviewContainer').destroy();
-        }
-        me.getPage().down('#validationrulesContainer').add(
-            {
-                xtype: 'preview-container',
-                itemId: 'rulesForChannelPreviewContainer',
-                grid: {
-                    xtype: 'load-profile-configuration-detail-rules-grid',
-                    deviceTypeId: me.deviceTypeId,
-                    deviceConfigId: me.deviceConfigurationId,
-                    channelConfigId: channelId
-                },
-                emptyComponent: {
-                    xtype: 'no-items-found-panel',
-                    title: Uni.I18n.translate('registerConfig.validationRules.empty.title', 'MDC', 'No validation rules found'),
-                    reasons: [
-                        Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.'),
-                        Uni.I18n.translate('registerConfig.validationRules.empty.list.item2', 'MDC', 'Validation rules exists, but you do not have permission to view them.')
-                    ]
-                },
-                previewComponent: {
-                    xtype: 'validation-rule-preview',
-                    tools: [
-                        {
-                            xtype: 'button',
-                            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                            iconCls: 'x-uni-action-iconD',
-                            menu: {
-                                xtype: 'validation-rule-actionmenu'
-                            }
-                        }
-                    ]
-                }
+            this.displayedItemId = recordData.id;
+            this.getLoadProfileDetailChannelPreview().setTitle(recordData.name);
+            form.loadRecord(channelConfig);
+            this.getPage().down('#rulesForChannelConfig').setTitle(channelConfig.get('name') + ' validation rules');
+            if (me.getPage().down('#rulesForChannelPreviewContainer')) {
+                me.getPage().down('#rulesForChannelPreviewContainer').destroy();
             }
-        );
-        this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getStore().getProxy().extraParams =
-            ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigurationId, channelConfig: channelId});
-        this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getStore().load();
-        preloader.destroy();
+            me.getPage().down('#validationrulesContainer').add(
+                {
+                    xtype: 'preview-container',
+                    itemId: 'rulesForChannelPreviewContainer',
+                    grid: {
+                        xtype: 'load-profile-configuration-detail-rules-grid',
+                        deviceTypeId: me.deviceTypeId,
+                        deviceConfigId: me.deviceConfigurationId,
+                        channelConfigId: channelId
+                    },
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('registerConfig.validationRules.empty.title', 'MDC', 'No validation rules found'),
+                        reasons: [
+                            Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.'),
+                            Uni.I18n.translate('registerConfig.validationRules.empty.list.item2', 'MDC', 'Validation rules exists, but you do not have permission to view them.')
+                        ]
+                    },
+                    previewComponent: {
+                        xtype: 'validation-rule-preview',
+                        tools: [
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                                iconCls: 'x-uni-action-iconD',
+                                menu: {
+                                    xtype: 'validation-rule-actionmenu'
+                                }
+                            }
+                        ]
+                    }
+                }
+            );
+            this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getStore().getProxy().extraParams =
+                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigurationId, channelConfig: channelId});
+            this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getStore().load();
+            preloader.destroy();
+        }
     },
 
     showDeviceConfigurationLoadProfilesConfigurationDetailsView: function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
@@ -436,7 +441,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 measurementTypeCombobox.store = me.availableMeasurementTypesStore;
                                 unitOfMeasureCombobox.store = me.phenomenasStore;
                                 me.phenomenasStore.load();
-                                me.availableMeasurementTypesStore.load({callback: function() {
+                                me.availableMeasurementTypesStore.load({callback: function () {
                                     preloader.destroy();
                                 }});
                                 me.deviceTypeName = deviceType.get('name');
