@@ -143,7 +143,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.allDevices = false;
             me.schedules = null;
             me.operation = null;
-            me.scheduleSelectedEvent = false;
+            me.shedulesUnchecked = false;
             me.getApplication().fireEvent('changecontentevent', widget);
             me.getDeviceGrid().disable();
             me.getStore('Mdc.store.DevicesBuffered').load();
@@ -157,14 +157,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         this.getSchedulesGrid().getSelectionModel().deselectAll();
         this.getShceduleSelectionRange().down('#selectedSchedules').setValue(true);
         this.getCommunicationSchedulePreview().hide();
+        this.shedulesUnchecked = false;
     },
 
     updateScheduleSelection: function (selModel, selected) {
         var label = this.getSelectedScheduleQty(),
-            count = selected.length,
-            schedulesGrid = this.getSchedulesGrid().down('gridview');
-
-        this.scheduleSelectedEvent = true;
+            count = selected.length;
 
         if (count) {
             label.update('<span style="color: grey;">'
@@ -174,6 +172,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             label.update('<span style="color: grey;">' +
                 Uni.I18n.translate('searchItems.bulk.noScheduleSelected', 'MDC', 'No schedule selected') +
                 '</span>');
+            this.getCommunicationSchedulePreview().hide();
+            this.shedulesUnchecked = true;
         }
     },
 
@@ -197,12 +197,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     previewCommunicationSchedule: function (grid, record) {
         var preview = this.getCommunicationSchedulePreview();
 
-        if (this.scheduleSelectedEvent) {
-            this.scheduleSelectedEvent = false;
-        } else {
+        if (!this.shedulesUnchecked) {
             preview.down('form').loadRecord(record);
             preview.setTitle(record.get('name'));
             preview.show();
+        } else {
+            this.shedulesUnchecked = false;
         }
     },
 
