@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
@@ -471,6 +472,15 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         comPort.save();
 
         // was expecting a BusinessException because the name is set to null
+    }
+
+    @Test
+    @Transactional
+    public void reloadTest() {
+        ModemBasedInboundComPortImpl comPort = (ModemBasedInboundComPortImpl) this.createSimpleComPort();
+
+        ComPort inboundcomPort = this.getEngineModelService().findComPort(comPort.getId());
+        assertThat(((ModemBasedInboundComPortImpl) inboundcomPort).getSerialPortConfiguration().getComPortName()).isEqualTo(comPort.getName());
     }
 
     private SerialPortConfiguration getDefaultSerialPortConfiguration(String comPortName) {

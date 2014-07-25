@@ -187,7 +187,7 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
     @Override
     public SerialPortConfiguration getSerialPortConfiguration() {
-        return serialPortConfiguration!=null?serialPortConfiguration.asEnum():null;
+        return serialPortConfiguration!=null?serialPortConfiguration.asEnumWithName(getName()):null;
     }
 
     @Override
@@ -268,8 +268,6 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     }
 
     public static class LegacySerialPortConfiguration {
-        @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
-        private String comPortName;
         @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
         private BigDecimal baudrate;
         @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
@@ -287,20 +285,11 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
         }
 
         public LegacySerialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
-            comPortName=serialPortConfiguration.getComPortName();
             baudrate= serialPortConfiguration.getBaudrate().getBaudrate();
             nrOfDataBits=serialPortConfiguration.getNrOfDataBits().getNrOfDataBits();
             nrOfStopBits=serialPortConfiguration.getNrOfStopBits().getNrOfStopBits();
             parity=serialPortConfiguration.getParity().getParity();
             flowControl=serialPortConfiguration.getFlowControl().getFlowControl();
-        }
-
-        private String getComPortName() {
-            return comPortName;
-        }
-
-        private void setComPortName(String comPortName) {
-            this.comPortName = comPortName;
         }
 
         private BigDecimal getBaudrate() {
@@ -343,8 +332,8 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
             this.parity = parity;
         }
 
-        public SerialPortConfiguration asEnum() {
-            return new SerialPortConfiguration(comPortName,
+        public SerialPortConfiguration asEnumWithName(String name) {
+            return new SerialPortConfiguration(name,
                     BaudrateValue.valueFor(baudrate),
                     NrOfDataBits.valueFor(nrOfDataBits),
                     NrOfStopBits.valueFor(nrOfStopBits),
