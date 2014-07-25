@@ -239,7 +239,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     private List<IValidationRule> loadRules() {
-        return getRuleQuery().select(Operator.EQUAL.compare("ruleSetId", this.id), Order.ascending("upper(IVR.name)"));
+        return getRuleQuery().select(Operator.EQUAL.compare("ruleSetId", this.id), Order.ascending("name").toUpperCase());
     }
 
     private QueryExecutor<IValidationRule> getRuleQuery() {
