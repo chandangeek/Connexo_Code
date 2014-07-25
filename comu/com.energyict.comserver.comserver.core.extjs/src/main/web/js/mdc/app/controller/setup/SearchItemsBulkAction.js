@@ -163,9 +163,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             count = selected.length;
 
         if (count) {
-            label.update('<span style="color: grey;">' +
-                count + Uni.I18n.translate('searchItems.bulk.scheduleSelected', 'MDC', ' schedule selected') +
-                '</span>');
+            label.update('<span style="color: grey;">'
+                + Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.scheduleSelected', count, 'MDC', '{0} schedules selected'), count)
+                + '</span>');
         } else {
             label.update('<span style="color: grey;">' +
                 Uni.I18n.translate('searchItems.bulk.noScheduleSelected', 'MDC', 'No schedule selected') +
