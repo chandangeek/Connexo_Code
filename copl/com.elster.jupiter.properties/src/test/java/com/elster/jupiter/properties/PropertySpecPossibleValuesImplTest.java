@@ -50,7 +50,7 @@ public class PropertySpecPossibleValuesImplTest {
 
         // Asserts
         assertThat(possibleValues.isExhaustive()).isFalse();
-        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2, defaultValue);
+        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
     }
 
@@ -67,7 +67,7 @@ public class PropertySpecPossibleValuesImplTest {
 
         // Asserts
         assertThat(possibleValues.isExhaustive()).isFalse();
-        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2, initialDefaultValue, newDefaultValue);
+        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.getDefault()).isEqualTo(newDefaultValue);
     }
 
@@ -81,7 +81,7 @@ public class PropertySpecPossibleValuesImplTest {
 
         // Asserts
         assertThat(possibleValues.isExhaustive()).isFalse();
-        assertThat(possibleValues.getAllValues()).containsOnly(defaultValue);
+        assertThat(possibleValues.getAllValues()).isEmpty();
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
     }
 
@@ -98,7 +98,7 @@ public class PropertySpecPossibleValuesImplTest {
 
         // Asserts
         assertThat(possibleValues.isExhaustive()).isFalse();
-        assertThat(possibleValues.getAllValues()).containsOnly(defaultValue, otherValue1, otherValue2);
+        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
     }
 
@@ -115,7 +115,7 @@ public class PropertySpecPossibleValuesImplTest {
 
         // Asserts
         assertThat(possibleValues.isExhaustive()).isTrue();
-        assertThat(possibleValues.getAllValues()).containsOnly(defaultValue, otherValue1, otherValue2);
+        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
     }
 
@@ -130,7 +130,7 @@ public class PropertySpecPossibleValuesImplTest {
 
         // Asserts
         assertThat(possibleValues.isExhaustive()).isFalse();
-        assertThat(possibleValues.getAllValues()).containsOnly(defaultValue, otherValue1, otherValue2);
+        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
     }
 
@@ -145,7 +145,7 @@ public class PropertySpecPossibleValuesImplTest {
 
         // Asserts
         assertThat(possibleValues.isExhaustive()).isTrue();
-        assertThat(possibleValues.getAllValues()).containsOnly(defaultValue, otherValue1, otherValue2);
+        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
     }
 

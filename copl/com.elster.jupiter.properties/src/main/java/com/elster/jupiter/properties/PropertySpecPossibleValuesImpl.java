@@ -51,7 +51,6 @@ public class PropertySpecPossibleValuesImpl<T> implements PropertySpecPossibleVa
         this();
         this.defaultValue = defaultValue;
         this.exhaustive = exhaustive;
-        this.allValues.add(defaultValue);
         this.allValues.addAll(this.copyUniqueWithRespectForOrder(otherValues, otherValues.size()));
     }
 
@@ -78,7 +77,6 @@ public class PropertySpecPossibleValuesImpl<T> implements PropertySpecPossibleVa
     // Allow friendly builder components to overrule the default
     public void setDefault (T defaultValue) {
         this.defaultValue = defaultValue;
-        this.allValues.add(defaultValue);
     }
 
     public void add (T... values) {
