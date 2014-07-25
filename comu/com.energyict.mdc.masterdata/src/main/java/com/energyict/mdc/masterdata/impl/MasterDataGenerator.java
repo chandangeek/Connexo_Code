@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -45,9 +46,14 @@ public class MasterDataGenerator {
                 Unit unit = readingTypeInformation.getUnit();
                 if (!unitsToKeepTrack.contains(unit)) {
                     unitsToKeepTrack.add(unit);
-                    Phenomenon phenomenon = masterDataService.newPhenomenon(readingType.getUnit().name(), unit);
-                    phenomenon.save();
-                    phenomena.add(phenomenon);
+                    Optional<Phenomenon> existingPhenomenon = masterDataService.findPhenomenonByNameAndUnit(readingType.getUnit().name(), unit);
+                    if(existingPhenomenon.isPresent()){
+                        phenomena.add(existingPhenomenon.get());
+                    } else {
+                        Phenomenon phenomenon = masterDataService.newPhenomenon(readingType.getUnit().name(), unit);
+                        phenomenon.save();
+                        phenomena.add(phenomenon);
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -60,7 +66,7 @@ public class MasterDataGenerator {
         List<RegisterMapping> registerMappings = new ArrayList<>();
         for (ReadingType readingType : meteringService.getAvailableReadingTypes()) {
             try {
-                if (TimeAttribute.NOTAPPLICABLE.equals(readingType.getMeasuringPeriod())) {
+                if (TimeAttribute.NOTAPPLICABLE.equals(readingType.getMeasuringPeriod()) && MacroPeriod.NOTAPPLICABLE.equals(readingType.getMacroPeriod())) {
                     ReadingTypeInformation readingTypeInformation = readingTypeUtilService.getReadingTypeInformationFor(readingType);
                     ObisCode obisCode = readingTypeInformation.getObisCode();
                     Unit unit = readingTypeInformation.getUnit();

@@ -13,7 +13,7 @@
   <artifactId>mdc.masterdata</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
-  <name>[MDC] mdc.masterdata</name>
+  <name>[MDC] mdc.masterdata [init MDS]</name>
   <description>
     Contains masterdata components.
   </description>
