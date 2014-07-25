@@ -110,7 +110,7 @@ Ext.define('Uni.property.form.Property', {
     updateRecord: function() {
         var me = this;
         var raw = me.getFieldValues();
-        var values = [];
+        var values = {};
         _.each(raw.properties || [], function(rawValue, key){
             var field = me.getPropertyField(key);
             values[key] = field.getValue(rawValue);
