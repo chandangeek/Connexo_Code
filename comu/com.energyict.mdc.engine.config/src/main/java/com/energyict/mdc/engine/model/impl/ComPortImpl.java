@@ -2,16 +2,19 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
@@ -199,7 +202,16 @@ public abstract class ComPortImpl implements ComPort {
     public void makeObsolete(){
         this.validateMakeObsolete();
         this.obsoleteDate = new Date();
+        this.removeFromComPortPools();
         dataModel.update(this);
+    }
+
+    private void removeFromComPortPools() {
+        DataMapper<ComPortPoolMember> comPortPoolMemberDataMapper = this.dataModel.mapper(ComPortPoolMember.class);
+        List<ComPortPoolMember> comPortPoolMembers = comPortPoolMemberDataMapper.find("comPort", this);
+        for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
+            comPortPoolMemberDataMapper.remove(comPortPoolMember);
+        }
     }
 
     protected final void validateMakeObsolete() {

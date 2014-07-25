@@ -113,6 +113,7 @@ public abstract class ComServerImpl implements ComServer {
     protected void validate(){
     }
 
+    @Override
     public void makeObsolete () {
         this.validateMakeObsolete();
         this.makeComPortsObsolete();

@@ -112,5 +112,4 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
         this.comPortPoolMembers.clear();
     }
 
-
 }
