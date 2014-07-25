@@ -36,7 +36,7 @@ public class RegisterDataResource {
         List<Reading> readings = ListPager.of(register.getReadings(Interval.sinceEpoch()), new Comparator<Reading>() {
             @Override
             public int compare(Reading o1, Reading o2) {
-                return o1.getTimeStamp().compareTo(o2.getTimeStamp());
+                return o2.getTimeStamp().compareTo(o1.getTimeStamp());
             }
         }).from(queryParameters).find();
         List<ReadingInfo> readingInfos = ReadingInfoFactory.asInfoList(readings, register);

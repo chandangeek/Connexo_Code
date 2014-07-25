@@ -23,29 +23,25 @@ public class ComSchedulesBulkInfo {
         return this;
     }
 
-    public ComSchedulesBulkInfo fail(Object id, String message){
-        return fail(id, null, message);
+    public ComSchedulesBulkInfo fail(DeviceInfo device, String message){
+        return fail(device, message, null);
     }
 
-    public ComSchedulesBulkInfo fail(Object id, String title, String message){
-        return fail(id, title, message, null);
-    }
-
-    public ComSchedulesBulkInfo fail(Object id, String title, String message, String messageGroup){
+    public ComSchedulesBulkInfo fail(DeviceInfo device, String message, String messageGroup){
         currentAction.failCount++;
-        currentAction.fails.add(new ActionResultInfo(id, title, message, messageGroup));
+        currentAction.fails.add(new ActionResultInfo(device, message, messageGroup));
         return this;
     }
 
-    public ComSchedulesBulkInfo generalFail(Object id, String message){
-        return this.generalFail(id, message, null);
+    public ComSchedulesBulkInfo generalFail(DeviceInfo device, String message){
+        return this.generalFail(device, message, null);
     }
 
-    public ComSchedulesBulkInfo generalFail(Object id, String message, Object messageGroup){
+    public ComSchedulesBulkInfo generalFail(DeviceInfo device, String message, Object messageGroup){
         if (generalFails == null){
             generalFails = new ArrayList<>();
         }
-        generalFails.add(new ActionResultInfo(id, null, message, messageGroup));
+        generalFails.add(new ActionResultInfo(device, message, messageGroup));
         return this;
     }
 
@@ -77,21 +73,19 @@ public class ComSchedulesBulkInfo {
     }
 
     public static class ActionResultInfo {
-        public Object id;
-        public String title;
+        public DeviceInfo device;
         public String message;
         public Object messageGroup;
 
         //Need for test
         private ActionResultInfo() {}
 
-        private ActionResultInfo(Object id, String title, String message) {
-            this(id, title, message, null);
+        private ActionResultInfo(DeviceInfo device, String message) {
+            this(device, message, null);
         }
 
-        public ActionResultInfo(Object id, String title, String message, Object messageGroup) {
-            this.id = id;
-            this.title = title;
+        public ActionResultInfo(DeviceInfo device, String message, Object messageGroup) {
+            this.device = device;
             this.message = message;
             this.messageGroup = messageGroup;
         }

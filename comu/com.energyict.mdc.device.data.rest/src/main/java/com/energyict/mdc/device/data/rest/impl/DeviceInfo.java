@@ -64,7 +64,7 @@ public class DeviceInfo {
         return deviceInfo;
     }
 
-    private static DeviceInfo from(Device device) {
+    public static DeviceInfo from(Device device) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
