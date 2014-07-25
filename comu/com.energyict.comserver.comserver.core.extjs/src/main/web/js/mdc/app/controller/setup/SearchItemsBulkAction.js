@@ -330,7 +330,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         messageHeader && (messageHeader = Ext.String.format(messageHeader, count, successful.actionTitle));
 
-        message.title = messageHeader;
+        message.html = '<h3>' + messageHeader + '</h3>';
 
         return message;
     },
@@ -372,6 +372,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             }
         });
 
+        messageBody.push({
+            html: '<h3>' + messageHeader + '</h3><br>'
+        });
+
         Ext.Array.each(grouping, function (group) {
             messageBody.push({
                 html: group.message,
@@ -386,7 +390,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             });
         });
 
-        message.title = messageHeader;
         message.items = messageBody;
 
         return message;
