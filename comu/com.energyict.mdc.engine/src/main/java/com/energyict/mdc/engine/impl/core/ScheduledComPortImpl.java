@@ -49,7 +49,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         this.threadFactory = threadFactory;
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.schedulingInterpollDelay = comPort.getComServer().getSchedulingInterPollDelay();
-        setThreadPrinciple();
     }
 
     protected abstract void setThreadPrinciple();
@@ -139,6 +138,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     @Override
     public void run () {
+        setThreadPrinciple();
         while (this.continueRunning.get() && !Thread.currentThread().isInterrupted()) {
             try {
                 this.doRun();
