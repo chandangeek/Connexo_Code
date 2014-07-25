@@ -126,6 +126,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             },
             '#searchitemsBulkNavigation': {
                 movetostep: this.navigateToStep
+            },
+            'searchitems-bulk-step5 #viewDevicesButton': {
+                click: this.showViewDevices
             }
         });
     },
@@ -242,10 +245,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     backClick: function () {
-        var layout = this.getSearchItemsWizard().getLayout();
+        var layout = this.getSearchItemsWizard().getLayout(),
+            currentCmp = layout.getActiveItem();
 
-        this.changeContent(layout.getPrev(), layout.getActiveItem());
-        this.getNavigationMenu().movePrevStep();
+        this.changeContent(layout.getPrev(), currentCmp);
+        (currentCmp.name != 'statusPageViewDevices') && this.getNavigationMenu().movePrevStep();
     },
 
     nextClick: function () {
@@ -263,6 +267,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             request = {},
             jsonData,
             method;
+
+        finishBtn.disable();
 
         switch (me.operation) {
             case 'add':
@@ -370,12 +376,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             });
 
             if (sameMessageGroup) {
-                sameMessageGroup.devices.push(item.id);
+                sameMessageGroup.devices.push(item.device);
             } else {
                 grouping.push({
                     messageGroup: item.messageGroup,
                     message: item.message,
-                    devices: [item.id]
+                    devices: [item.device]
                 });
             }
         });
@@ -392,7 +398,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         text: Uni.I18n.translate('searchItems.bulk.viewDevices', 'MDC', 'View devices'),
                         ui: 'link',
                         action: 'viewDevices',
-                        itemId: 'viewDevicesButton'
+                        itemId: 'viewDevicesButton',
+                        viewDevicesData: group
                     }
                 ]
             });
@@ -443,16 +450,18 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     nextCmp.showMessage(me.buildConfirmMessage());
                     break;
                 case 'statusPage':
-                    progressBar = Ext.create('Ext.ProgressBar', {width: '50%'});
-                    nextCmp.removeAll(true);
-                    nextCmp.add(
-                        progressBar.wait({
-                            interval: 50,
-                            increment: 20,
-                            text: (me.operation === 'add' ? 'Adding... ' : 'Removing...')
-                        })
-                    );
-                    this.getNavigationMenu().jumpBack = false;
+                    if (currentCmp.name != 'statusPageViewDevices') {
+                        progressBar = Ext.create('Ext.ProgressBar', {width: '50%'});
+                        nextCmp.removeAll(true);
+                        nextCmp.add(
+                            progressBar.wait({
+                                interval: 50,
+                                increment: 20,
+                                text: (me.operation === 'add' ? Uni.I18n.translate('general.adding', 'MDC', 'Adding...') : Uni.I18n.translate('general.removing', 'MDC', 'Removing...'))
+                            })
+                        );
+                        this.getNavigationMenu().jumpBack = false;
+                    }
                     break;
             }
             errorPanel && errorPanel.hide();
@@ -564,8 +573,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 nextBtn.hide();
                 confirmBtn.hide();
                 finishBtn.show();
-                finishBtn.disable();
                 cancelBtn.hide();
+                break;
+            case 'statusPageViewDevices' :
+                backBtn.show();
+                nextBtn.hide();
+                confirmBtn.hide();
+                finishBtn.hide();
+                cancelBtn.show();
                 break;
         }
     },
@@ -581,7 +596,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         newTab && newTab.blur();
         window.focus();
         this.getApplication().getController('Uni.controller.Error').showError(title, message, config);
-    }
+    },
 
-})
-;
+    showViewDevices: function (button) {
+        var layout = this.getSearchItemsWizard().getLayout(),
+            viewFailureDevices = this.getSearchItemsWizard().down('#searchitems-bulk-step5-viewdevices'),
+            viewDevicesData = button.viewDevicesData;
+
+        viewFailureDevices.down('#failuremessage').update(viewDevicesData.message);
+        viewFailureDevices.down('#failuredevicesgrid').getStore().loadData(viewDevicesData.devices);
+
+        this.changeContent(layout.getNext(), layout.getActiveItem());
+    }
+});

@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Wizard', {
         'Mdc.view.setup.searchitems.bulk.Step2',
         'Mdc.view.setup.searchitems.bulk.Step3',
         'Mdc.view.setup.searchitems.bulk.Step4',
-        'Mdc.view.setup.searchitems.bulk.Step5'
+        'Mdc.view.setup.searchitems.bulk.Step5',
+        'Mdc.view.setup.searchitems.bulk.Step5ViewDevices'
     ],
     alias: 'widget.searchitems-wizard',
     autoHeight: true,
@@ -34,6 +35,10 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Wizard', {
         {
             xtype: 'searchitems-bulk-step5',
             itemId: 'searchitems-bulk-step5'
+        },
+        {
+            xtype: 'searchitems-bulk-step5-viewdevices',
+            itemId: 'searchitems-bulk-step5-viewdevices'
         }
     ],
     bbar: {
