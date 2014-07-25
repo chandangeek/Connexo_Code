@@ -56,9 +56,15 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         me.mRID = mRID;
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
+                me.getApplication().fireEvent('loadDevice', device);
+            }
+        });
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/devicevalidation',
+            method: 'GET',
+            success: function () {
                 var widget = Ext.widget('deviceDataValidationRulesSetMainView', { mRID: mRID });
                 me.updateDataValidationStatusSection();
-                me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
             }
         });
@@ -69,7 +75,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         me.getDvStatusChangeBtn().setText(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
         me.getDvStatusChangeBtn().setDisabled(true);
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -235,7 +241,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             isValidationRunImmediately = me.getValidationRunRg().getValue().validationRun === 'now';
         me.confirmationWindowButtonsDisable(true);
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
             method: 'PUT',
             jsonData: 'true',
             success: function () {
@@ -387,7 +393,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
     deactivateDataValidation: function () {
         var me = this;
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
             method: 'PUT',
             jsonData: 'false',
             success: function () {
