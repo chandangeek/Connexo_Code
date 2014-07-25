@@ -271,7 +271,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
     onUncheckAll: function () {
         var grid = this.getAddValidationRuleSetsGrid();
-        grid.getView().getSelectionModel().deselectAll();
+        grid.getView().getSelectionModel().deselectAll(true);
+        grid.fireEvent('selectionchange', grid);
     },
 
     onAddValidationActionMenuClick: function (menu, item) {

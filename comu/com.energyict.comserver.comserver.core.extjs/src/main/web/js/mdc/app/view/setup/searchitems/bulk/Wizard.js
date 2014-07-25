@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Wizard', {
         'Mdc.view.setup.searchitems.bulk.Step2',
         'Mdc.view.setup.searchitems.bulk.Step3',
         'Mdc.view.setup.searchitems.bulk.Step4',
-        'Mdc.view.setup.searchitems.bulk.Step5'
+        'Mdc.view.setup.searchitems.bulk.Step5',
+        'Mdc.view.setup.searchitems.bulk.Step5ViewDevices'
     ],
     alias: 'widget.searchitems-wizard',
     autoHeight: true,
@@ -17,23 +18,33 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Wizard', {
     items: [
         {
             xtype: 'searchitems-bulk-step1',
-            itemId: 'searchitems-bulk-step1'
+            itemId: 'searchitems-bulk-step1',
+            navigationIndex: 0
         },
         {
             xtype: 'searchitems-bulk-step2',
-            itemId: 'searchitems-bulk-step2'
+            itemId: 'searchitems-bulk-step2',
+            navigationIndex: 1
         },
         {
             xtype: 'searchitems-bulk-step3',
-            itemId: 'searchitems-bulk-step3'
+            itemId: 'searchitems-bulk-step3',
+            navigationIndex: 2
         },
         {
             xtype: 'searchitems-bulk-step4',
-            itemId: 'searchitems-bulk-step4'
+            itemId: 'searchitems-bulk-step4',
+            navigationIndex: 3
         },
         {
             xtype: 'searchitems-bulk-step5',
-            itemId: 'searchitems-bulk-step5'
+            itemId: 'searchitems-bulk-step5',
+            navigationIndex: 4
+        },
+        {
+            xtype: 'searchitems-bulk-step5-viewdevices',
+            itemId: 'searchitems-bulk-step5-viewdevices',
+            navigationIndex: 5
         }
     ],
     bbar: {
