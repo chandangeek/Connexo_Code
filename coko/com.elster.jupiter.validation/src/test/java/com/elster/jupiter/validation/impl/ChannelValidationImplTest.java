@@ -25,7 +25,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     @Mock
     private Channel channel, channel1;
     @Mock
-    private MeterActivationValidation meterActivationValidation, meterActivationValidation1;
+    private IMeterActivationValidation meterActivationValidation, meterActivationValidation1;
     @Mock
     private DataModel dataModel;
     @Mock

@@ -187,14 +187,6 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         }
         Date date = getMinLastChecked(new ArrayList<ChannelValidation>(chennelValidations));
         return date == null ? clock.now() : date;
-        /*List<Date> lastCheckedDates = new ArrayList();
-
-        for(ChannelValidation channelValidation : chennelValidations) {
-            if(channelValidation.getLastChecked() != null) {
-                lastCheckedDates.add(channelValidation.getLastChecked());
-            }
-        }
-        return lastCheckedDates.isEmpty() ? clock.now() : getMinLastChecked(chennelValidations)//Collections.min(lastCheckedDates, null);*/
     }
 
     @Override
@@ -294,13 +286,8 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public List<MeterActivationValidation> getMeterActivationValidationsForMeterActivation(MeterActivation meterActivation) {
-        List<IMeterActivationValidation> meterActivationValidationsList = getMeterActivationValidations(meterActivation);
-        List<MeterActivationValidation> result = new ArrayList<>();
-        for(IMeterActivationValidation inner : meterActivationValidationsList) {
-            result.add(inner);
-        }
-        return result;
+    public List<? extends MeterActivationValidation> getMeterActivationValidationsForMeterActivation(MeterActivation meterActivation) {
+        return getMeterActivationValidations(meterActivation);
     }
 
     @Override
@@ -319,19 +306,24 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
             ListMultimap<Date, ReadingQuality> readingQualities = getReadingQualities(channel, getInterval(readings));
             ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
             for (BaseReading reading : readings) {
-                if (lastChecked == null || lastChecked.before(reading.getTimeStamp())) {
-                    result.add(Collections.<ReadingQuality>emptyList());
-                } else {
-                    List<ReadingQuality> qualities = readingQualities.get(reading.getTimeStamp());
-                    if (qualities == null || qualities.isEmpty()) {
-                        result.add(Arrays.asList(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp())));
-                    } else {
-                        result.add(qualities);
-                    }
-                }
+                addReadingQualities(lastChecked, reading, readingQualities, validatedAndOk, channel, result);
             }
         }
         return result;
+    }
+
+    private void addReadingQualities (Date lastChecked, BaseReading reading, ListMultimap<Date, ReadingQuality> readingQualities,
+                      ReadingQualityType validatedAndOk, Channel channel, List<List<ReadingQuality>> result) {
+        if (lastChecked == null || lastChecked.before(reading.getTimeStamp())) {
+            result.add(Collections.<ReadingQuality>emptyList());
+        } else {
+            List<ReadingQuality> qualities = readingQualities.get(reading.getTimeStamp());
+            if (qualities == null || qualities.isEmpty()) {
+                result.add(Arrays.asList(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp())));
+            } else {
+                result.add(qualities);
+            }
+        }
     }
 
     private Interval getInterval(List<BaseReading> readings) {
@@ -366,7 +358,9 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         Ordering<ChannelValidation> o = new Ordering<ChannelValidation>() {
             @Override
             public int compare(ChannelValidation left, ChannelValidation right) {
-                if (left == null || left.getLastChecked() == null) {
+                if (left == null && right == null) {
+                    return 0;
+                } else if (left == null || left.getLastChecked() == null) {
                     return -1;
                 } else if (right == null || right.getLastChecked() == null) {
                     return 1;

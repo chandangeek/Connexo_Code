@@ -141,4 +141,11 @@ public class MeterActivationValidationImplTest {
         assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);
     }
 
+    @Test
+    public void testSetMeterActivationValidationStatus() throws Exception {
+        assertThat(meterActivationValidation.isActive()).isEqualTo(true);
+        meterActivationValidation.setActive(false);
+        assertThat(meterActivationValidation.isActive()).isEqualTo(false);
+    }
+
 }

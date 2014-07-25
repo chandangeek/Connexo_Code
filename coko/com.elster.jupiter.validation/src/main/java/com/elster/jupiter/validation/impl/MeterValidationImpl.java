@@ -11,6 +11,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.MeterValidation;
 import com.google.inject.Inject;
 
+import java.util.Objects;
+
 public class MeterValidationImpl implements MeterValidation {
 
     private boolean isActive = true;
