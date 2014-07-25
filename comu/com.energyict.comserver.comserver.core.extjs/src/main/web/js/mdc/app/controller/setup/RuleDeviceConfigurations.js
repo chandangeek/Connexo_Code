@@ -138,7 +138,8 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
 
     onUncheckAll: function () {
         var grid = this.getRuleDeviceConfigurationAddPanel().down('#addDeviceConfigGrid');
-        grid.getView().getSelectionModel().deselectAll();
+        grid.getView().getSelectionModel().deselectAll(true);
+        grid.fireEvent('selectionchange', grid);
     },
 
     addDeviceConfigurations: function () {
