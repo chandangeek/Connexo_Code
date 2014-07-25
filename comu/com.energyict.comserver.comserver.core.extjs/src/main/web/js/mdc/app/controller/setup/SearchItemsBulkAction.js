@@ -143,6 +143,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.allDevices = false;
             me.schedules = null;
             me.operation = null;
+            me.scheduleSelectedEvent = false;
             me.getApplication().fireEvent('changecontentevent', widget);
             me.getDeviceGrid().disable();
             me.getStore('Mdc.store.DevicesBuffered').load();
@@ -155,11 +156,15 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     uncheckAllSchedules: function () {
         this.getSchedulesGrid().getSelectionModel().deselectAll();
         this.getShceduleSelectionRange().down('#selectedSchedules').setValue(true);
+        this.getCommunicationSchedulePreview().hide();
     },
 
     updateScheduleSelection: function (selModel, selected) {
         var label = this.getSelectedScheduleQty(),
-            count = selected.length;
+            count = selected.length,
+            schedulesGrid = this.getSchedulesGrid().down('gridview');
+
+        this.scheduleSelectedEvent = true;
 
         if (count) {
             label.update('<span style="color: grey;">'
@@ -170,8 +175,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 Uni.I18n.translate('searchItems.bulk.noScheduleSelected', 'MDC', 'No schedule selected') +
                 '</span>');
         }
-
-        count == 1 && this.previewCommunicationSchedule(null, selected[0]);
     },
 
     schedulesSelectionRangeChange: function (obj, newValue) {
@@ -183,6 +186,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 schedulesGrid.getSelectionModel().selectAll();
                 schedulesGrid.disable();
                 schedulesGrid.show();
+                this.getCommunicationSchedulePreview().hide();
                 break;
             case 'SELECTED':
                 schedulesGrid.enable();
@@ -193,9 +197,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     previewCommunicationSchedule: function (grid, record) {
         var preview = this.getCommunicationSchedulePreview();
 
-        preview.down('form').loadRecord(record);
-        preview.setTitle(record.get('name'));
-        preview.show();
+        if (this.scheduleSelectedEvent) {
+            this.scheduleSelectedEvent = false;
+        } else {
+            preview.down('form').loadRecord(record);
+            preview.setTitle(record.get('name'));
+            preview.show();
+        }
     },
 
     uncheckAllDevices: function () {
@@ -575,4 +583,5 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         this.getApplication().getController('Uni.controller.Error').showError(title, message, config);
     }
 
-});
+})
+;
