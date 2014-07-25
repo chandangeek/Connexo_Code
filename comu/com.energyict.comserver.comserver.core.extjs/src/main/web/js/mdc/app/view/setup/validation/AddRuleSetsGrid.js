@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
         }
     }],
     store: 'Mdc.store.ValidationRuleSetsForDeviceConfig',
-    height: 400,
+    height: 600,
     
     selType: 'checkboxmodel',
     selModel: {

@@ -117,7 +117,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                     },
                                                     {
                                                         xtype: 'actioncolumn',
-                                                        iconCls: 'uni-actioncolumn-gear',
                                                         columnWidth: 32,
                                                         fixed: true,
                                                         sortable: false,

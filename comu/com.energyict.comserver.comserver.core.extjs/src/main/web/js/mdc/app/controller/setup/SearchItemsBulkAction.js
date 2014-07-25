@@ -147,8 +147,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.getDeviceGrid().disable();
             me.getStore('Mdc.store.DevicesBuffered').load();
             me.getStore('Mdc.store.CommunicationSchedulesWithoutPaging').load(function () {
-                me.getSchedulesGrid().getSelectionModel().selectAll();
-                me.getSchedulesGrid().disable();
+                me.getShceduleSelectionRange().down('#allSchedules').setValue(true);
             });
         }
     },
@@ -163,9 +162,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             count = selected.length;
 
         if (count) {
-            label.update('<span style="color: grey;">' +
-                count + Uni.I18n.translate('searchItems.bulk.scheduleSelected', 'MDC', ' schedule selected') +
-                '</span>');
+            label.update('<span style="color: grey;">'
+                + Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.scheduleSelected', count, 'MDC', '{0} schedules selected'), count)
+                + '</span>');
         } else {
             label.update('<span style="color: grey;">' +
                 Uni.I18n.translate('searchItems.bulk.noScheduleSelected', 'MDC', 'No schedule selected') +
@@ -180,8 +179,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         switch (newValue.scheduleRange) {
             case 'ALL':
+                schedulesGrid.hide();
                 schedulesGrid.getSelectionModel().selectAll();
                 schedulesGrid.disable();
+                schedulesGrid.show();
                 break;
             case 'SELECTED':
                 schedulesGrid.enable();
@@ -208,9 +209,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             count = selected.length;
 
         if (count > 0) {
-            label.update('<span style="color: grey;">' +
-                count + Uni.I18n.translate('searchItems.bulk.devicesSelected', 'MDC', ' devices selected') +
-                '</span>')
+            label.update('<span style="color: grey;">'
+                + Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devicesSelected', count, 'MDC', '{0} devices selected'), count)
+                + '</span>')
         } else {
             label.update('<span style="color: grey;">' +
                 Uni.I18n.translate('searchItems.bulk.noDeviceSelected', 'MDC', 'No devices selected') +
@@ -329,7 +330,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         messageHeader && (messageHeader = Ext.String.format(messageHeader, count, successful.actionTitle));
 
-        message.title = messageHeader;
+        message.html = '<h3>' + messageHeader + '</h3>';
 
         return message;
     },
@@ -371,6 +372,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             }
         });
 
+        messageBody.push({
+            html: '<h3>' + messageHeader + '</h3><br>'
+        });
+
         Ext.Array.each(grouping, function (group) {
             messageBody.push({
                 html: group.message,
@@ -385,7 +390,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             });
         });
 
-        message.title = messageHeader;
         message.items = messageBody;
 
         return message;
@@ -422,6 +426,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 validation = me.schedules.length ? true : false;
                 break;
         }
+
+        (layout.getPrev().name === nextCmp.name) && (validation = true);
 
         if (validation) {
             switch (nextCmp.name) {

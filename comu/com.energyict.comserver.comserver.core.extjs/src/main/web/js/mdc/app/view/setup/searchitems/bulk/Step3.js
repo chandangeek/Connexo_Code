@@ -46,8 +46,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                             itemId: 'allSchedules',
                             boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.allSchedules', 'MDC', 'All communication schedules') + '</b>',
                             name: 'scheduleRange',
-                            inputValue: 'ALL',
-                            checked: true
+                            inputValue: 'ALL'
                         },
                         {
                             itemId: 'selectedSchedules',
@@ -55,7 +54,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                                 '</b><span style="color: grey;">' + Uni.I18n.translate('searchItems.bulk.selectedScheduleInTable', 'MDC', 'Select communication schedules in table') +
                                 '</span>',
                             name: 'scheduleRange',
-                            inputValue: 'SELECTED'
+                            inputValue: 'SELECTED',
+                            checked: true
                         }
                     ]
                 },
@@ -107,12 +107,12 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                         {
                             header: Uni.I18n.translate('communicationschedule.status', 'MDC', 'Status'),
                             dataIndex: 'schedulingStatus',
-                            flex: 0.1
+                            width: 100
                         },
                         {
                             header: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
                             dataIndex: 'name',
-                            flex: 0.4
+                            flex: 1
                         },
                         {
                             header: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
@@ -120,7 +120,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                             renderer: function (value) {
                                 return Mdc.util.ScheduleToStringConverter.convert(value);
                             },
-                            flex: 0.4
+                            flex: 1
                         },
                         {
                             header: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
@@ -128,7 +128,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                             renderer: function (value) {
                                 return Uni.I18n.formatDate('general.dateFormat.long', value, 'MDC', 'M d Y H:i A');
                             },
-                            flex: 0.4
+                            flex: 1
                         }
                     ]
                 }

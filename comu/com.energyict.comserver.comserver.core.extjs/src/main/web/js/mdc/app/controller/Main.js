@@ -175,6 +175,7 @@ Ext.define('Mdc.controller.Main', {
 
         this.initNavigation();
         this.initDefaultHistoryToken();
+        this.getApplication().fireEvent('cfginitialized');
     },
 
     initNavigation: function () {

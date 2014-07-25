@@ -87,27 +87,9 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step1', {
             itemId: 'devicesgrid',
             store: 'Mdc.store.DevicesBuffered',
             height: 355,
-            plugins : [{
-                ptype: 'bufferedrenderer',
-                trailingBufferZone: 5,
-                leadingBufferZone: 5,
-                scrollToLoadBuffer: 10,
-                onViewResize: function(view, width, height, oldWidth, oldHeight) {
-                    if (!oldHeight || height !== oldHeight) {
-                        var me = this,
-                            newViewSize,
-                            scrollRange;
-
-                        if (view.all.getCount()) {
-                            delete me.rowHeight;
-                        }
-                        scrollRange = me.getScrollHeight();
-                        newViewSize = 18;
-                        me.viewSize = me.setViewSize(newViewSize);
-                        me.stretchView(view, scrollRange);
-                    }
-                }
-            }],
+            plugins: {
+                ptype: 'bufferedrenderer'
+            },
             selType: 'checkboxmodel',
             selModel: {
                 checkOnly: true,
