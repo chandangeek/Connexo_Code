@@ -319,9 +319,9 @@ public class DeviceResource {
             if (!scheduleRef.isPresent()){
                 String failMessage = MessageSeeds.NO_SUCH_COM_SCHEDULE.formate(thesaurus, scheduleId);
                 response.nextAction(failMessage).failCount = deviceMap.size();
-                continue;
+            } else {
+                processScheduleForBulkAction(deviceMap, scheduleRef.get(), action, response);
             }
-            processScheduleForBulkAction(deviceMap, scheduleRef.get(), action, response);
         }
         return response;
     }
@@ -329,16 +329,20 @@ public class DeviceResource {
     private void processScheduleForBulkAction(Map<String, Device> deviceMap, ComSchedule schedule, BulkAction action, ComSchedulesBulkInfo response) {
         response.nextAction(schedule.getName());
         for (Device device : deviceMap.values()) {
-            try{
-                action.doAction(device, schedule);
-                device.save();
-                response.success();
-            } catch (LocalizedException localizedEx){
-                response.fail(device.getmRID(), device.getName(), localizedEx.getLocalizedMessage(), localizedEx.getClass().getSimpleName());
-            } catch (ConstraintViolationException validationException){
-                response.fail(device.getmRID(), device.getName(),getMessageForConstraintViolation(validationException, device, schedule),
-                        validationException.getClass().getSimpleName());
-            }
+            processSchedule(device, schedule, action, response);
+        }
+    }
+
+    private void processSchedule (Device device, ComSchedule schedule, BulkAction action, ComSchedulesBulkInfo response) {
+        try{
+            action.doAction(device, schedule);
+            device.save();
+            response.success();
+        } catch (LocalizedException localizedEx){
+            response.fail(device.getmRID(), device.getName(), localizedEx.getLocalizedMessage(), localizedEx.getClass().getSimpleName());
+        } catch (ConstraintViolationException validationException){
+            response.fail(device.getmRID(), device.getName(),getMessageForConstraintViolation(validationException, device, schedule),
+                    validationException.getClass().getSimpleName());
         }
     }
 
