@@ -45,7 +45,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
                 click: this.chooseAction
             },
             'rule-device-configuration-add radiogroup': {
-                change: this. onChangeRadio
+                change: this.onChangeRadio
             }
         });
     },
@@ -138,7 +138,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
 
     onUncheckAll: function () {
         var grid = this.getRuleDeviceConfigurationAddPanel().down('#addDeviceConfigGrid');
-        grid.getView().getSelectionModel().deselectAll(true);
+        grid.getView().getSelectionModel().deselectAll();
     },
 
     addDeviceConfigurations: function () {
