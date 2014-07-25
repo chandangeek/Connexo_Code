@@ -327,9 +327,9 @@ public class DeviceResource {
                 device.save();
                 response.success();
             } catch (LocalizedException localizedEx){
-                response.fail(device.getmRID(), device.getName(), localizedEx.getLocalizedMessage(), localizedEx.getClass().getSimpleName());
+                response.fail(DeviceInfo.from(device), localizedEx.getLocalizedMessage(), localizedEx.getClass().getSimpleName());
             } catch (ConstraintViolationException validationException){
-                response.fail(device.getmRID(), device.getName(),getMessageForConstraintViolation(validationException, device, schedule),
+                response.fail(DeviceInfo.from(device),getMessageForConstraintViolation(validationException, device, schedule),
                         validationException.getClass().getSimpleName());
             }
         }
@@ -347,7 +347,9 @@ public class DeviceResource {
                 try {
                     deviceMap.put(mrid, resourceHelper.findDeviceByMrIdOrThrowException(mrid));
                 } catch (LocalizedException ex){
-                    response.generalFail(mrid, ex.getLocalizedMessage(), ex.getClass().getSimpleName());
+                    DeviceInfo deviceInfo = new DeviceInfo();
+                    deviceInfo.mRID = mrid;
+                    response.generalFail(deviceInfo, ex.getLocalizedMessage(), ex.getClass().getSimpleName());
                 }
             }
         }
