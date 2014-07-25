@@ -46,8 +46,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                             itemId: 'allSchedules',
                             boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.allSchedules', 'MDC', 'All communication schedules') + '</b>',
                             name: 'scheduleRange',
-                            inputValue: 'ALL',
-                            checked: true
+                            inputValue: 'ALL'
                         },
                         {
                             itemId: 'selectedSchedules',
@@ -55,7 +54,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                                 '</b><span style="color: grey;">' + Uni.I18n.translate('searchItems.bulk.selectedScheduleInTable', 'MDC', 'Select communication schedules in table') +
                                 '</span>',
                             name: 'scheduleRange',
-                            inputValue: 'SELECTED'
+                            inputValue: 'SELECTED',
+                            checked: true
                         }
                     ]
                 },

@@ -147,8 +147,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.getDeviceGrid().disable();
             me.getStore('Mdc.store.DevicesBuffered').load();
             me.getStore('Mdc.store.CommunicationSchedulesWithoutPaging').load(function () {
-                me.getSchedulesGrid().getSelectionModel().selectAll();
-                me.getSchedulesGrid().disable();
+                me.getShceduleSelectionRange().down('#allSchedules').setValue(true);
             });
         }
     },
@@ -180,8 +179,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         switch (newValue.scheduleRange) {
             case 'ALL':
+                schedulesGrid.hide();
                 schedulesGrid.getSelectionModel().selectAll();
                 schedulesGrid.disable();
+                schedulesGrid.show();
                 break;
             case 'SELECTED':
                 schedulesGrid.enable();
