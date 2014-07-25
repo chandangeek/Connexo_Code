@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.HasId;
@@ -127,7 +128,7 @@ public interface DeviceConfiguration extends HasId, DeviceCommunicationConfigura
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages();
 
-    public List<ValidationRule> getValidationRules(List readingTypes);
+    public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes);
 
     //TODO we remove 'CreateDeviceTransaction' and 'DeviceConfigurationChanges' from the API, must be included when time comes ...
 
