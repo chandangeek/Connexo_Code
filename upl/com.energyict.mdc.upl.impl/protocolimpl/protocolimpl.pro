@@ -554,3 +554,5 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.iskra.mt880.IskraMT880
 
 -keepnames class com.energyict.protocolimpl.modbus.generic.Generic
+
+-keepnames class com.energyict.protocolimpl.dlms.a1800.A1800
