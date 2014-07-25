@@ -423,6 +423,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 break;
         }
 
+        (layout.getPrev().name === nextCmp.name) && (validation = true);
+
         if (validation) {
             switch (nextCmp.name) {
                 case 'confirmPage':
