@@ -208,9 +208,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             count = selected.length;
 
         if (count > 0) {
-            label.update('<span style="color: grey;">' +
-                count + Uni.I18n.translate('searchItems.bulk.devicesSelected', 'MDC', ' devices selected') +
-                '</span>')
+            label.update('<span style="color: grey;">'
+                + Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devicesSelected', count, 'MDC', '{0} devices selected'), count)
+                + '</span>')
         } else {
             label.update('<span style="color: grey;">' +
                 Uni.I18n.translate('searchItems.bulk.noDeviceSelected', 'MDC', 'No devices selected') +
