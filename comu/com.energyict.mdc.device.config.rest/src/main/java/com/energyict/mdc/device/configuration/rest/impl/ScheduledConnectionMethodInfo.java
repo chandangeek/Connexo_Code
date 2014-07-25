@@ -38,8 +38,8 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
     }
 
     @Override
-    protected void writeTo(PartialScheduledConnectionTask partialConnectionTask, EngineModelService engineModelService) {
-        super.writeTo(partialConnectionTask, engineModelService);
+    protected void writeTo(PartialScheduledConnectionTask partialConnectionTask, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
+        super.writeTo(partialConnectionTask, engineModelService, protocolPluggableService);
         partialConnectionTask.setDefault(this.isDefault);
         partialConnectionTask.setAllowSimultaneousConnections(this.allowSimultaneousConnections);
         if (this.comWindowEnd!=null && this.comWindowStart!=null) {
@@ -60,7 +60,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
     @Override
     public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils) {
         this.mdcPropertyUtils = mdcPropertyUtils;
-        ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionType, protocolPluggableService);
+        ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionTypePluggableClass, protocolPluggableService);
         TimeDuration rescheduleDelay = this.rescheduleRetryDelay == null ? null : this.rescheduleRetryDelay.asTimeDuration();
         PartialScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = deviceConfiguration.newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, this.connectionStrategy)
             .comPortPool((OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool))

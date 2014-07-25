@@ -1164,7 +1164,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         connectionMethodInfo.comWindowEnd=7200;
         connectionMethodInfo.isDefault=true;
         connectionMethodInfo.allowSimultaneousConnections=true;
-        connectionMethodInfo.connectionType="ConnType";
+        connectionMethodInfo.connectionTypePluggableClass ="ConnType";
         Entity<ScheduledConnectionMethodInfo> json = Entity.json(connectionMethodInfo);
         Response response = target("/devicetypes/41/deviceconfigurations/51/connectionmethods/71").request().put(json);
     }
