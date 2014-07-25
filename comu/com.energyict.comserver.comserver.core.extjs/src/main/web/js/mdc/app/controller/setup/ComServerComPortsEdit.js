@@ -249,7 +249,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                     record.set('comServer_id', me.comServerId);
                     record.set('direction', me.portDirection);
                     record.set('type', me.portDirection + '_' + record.getData().comPortType);
-                    record.getProxy().url = record.getProxy().url.replace('{comServerId}', me.comServerId);
+                    record.getProxy().url = '/api/mdc/comservers/' + me.comServerId + '/comports';
                     break;
                 case 'editModel':
                     actionType = Uni.I18n.translate('general.saved', 'MDC', 'saved');
