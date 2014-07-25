@@ -54,7 +54,7 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED(2022, Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY, "The protocol dialect configuration properties are required to create device protocol dialect properties", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC(2023, Constants.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY, "The protocol dialect ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE(2024, Constants.DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of device dialect protocol ''{2}''", Level.SEVERE),
-    DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING(2025, Constants.DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of device dialect protocol''{1}''", Level.SEVERE),
+    DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING(2025, Constants.DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY, "This is a required property", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED(2026, Constants.DEVICE_PROTOCOL_DIALECT_DEVICE_REQUIRED_KEY, "Device protocol dialect properties need to be created against a device", Level.SEVERE),
     CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2027, Constants.CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not delete connection task {0} because it is not owned by device {1}", Level.SEVERE),
     COM_TASK_IS_OBSOLETE_AND_CAN_NOT_BE_UPDATED(2028, Constants.COM_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not update comtaskexecution {0} for device {1} because it is obsolete", Level.SEVERE),

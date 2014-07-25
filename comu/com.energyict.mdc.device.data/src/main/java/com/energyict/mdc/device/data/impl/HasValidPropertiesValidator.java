@@ -54,10 +54,10 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     private void validatePropertiesAreLinkedToAttributeSpecs(TypedProperties properties, DeviceProtocolDialect deviceProtocolDialect, ConstraintValidatorContext context) {
         for (String propertyName : properties.propertyNames()) {
             if (deviceProtocolDialect.getPropertySpec(propertyName) == null) {
-                context.disableDefaultConstraintViolation();
                 context
                     .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY + "}")
-                    .addPropertyNode("properties").addConstraintViolation();
+                    .addPropertyNode("properties").addConstraintViolation()
+                    .disableDefaultConstraintViolation();
                 this.valid = false;
             }
         }
@@ -77,10 +77,10 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             propertySpec.validateValue(propertyValue);
         }
         catch (InvalidValueException e) {
-            context.disableDefaultConstraintViolation();
             context
                 .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY + "}")
-                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
+                .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation()
+                .disableDefaultConstraintViolation();
             this.valid = false;
         }
     }
@@ -89,10 +89,10 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         Set<String> propertyNames = new HashSet<>(properties.propertyNames());
         for (PropertySpec propertySpec : this.getRequiredProperties(deviceProtocolDialect)) {
             if (!propertyNames.contains(propertySpec.getName())) {
-                context.disableDefaultConstraintViolation();
                 context
                     .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY + "}")
-                    .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
+                    .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation()
+                    .disableDefaultConstraintViolation();
                 this.valid = false;
             }
         }
