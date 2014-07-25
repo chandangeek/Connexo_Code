@@ -13,7 +13,7 @@ Ext.define('Skyline.grid.plugin.BufferedRenderer', {
 
     bindStore: function(store) {
         var me = this;
-        me.trailingBufferZone = Math.ceil(store.pageSize / 2);
+        me.trailingBufferZone = 0;
         me.leadingBufferZone = store.pageSize;
         this.callParent(arguments);
     }
