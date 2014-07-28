@@ -34,7 +34,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
 
     items: [
         {
-            name: 'displayName',
+            name: 'name',
             fieldLabel: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule')
         },
         {
