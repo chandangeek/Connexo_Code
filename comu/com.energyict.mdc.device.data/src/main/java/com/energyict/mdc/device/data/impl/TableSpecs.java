@@ -45,10 +45,10 @@ public enum TableSpecs {
             Table<Device> table = dataModel.addTable(name(), Device.class);
             table.map(DeviceImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map(DeviceFields.NAME.fieldName()).add();
-            table.column("SERIALNUMBER").varChar(NAME_LENGTH).map(DeviceFields.SERIALNUMBER.fieldName()).add();
+            table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
+            table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar(32).map(DeviceFields.TIMEZONE.fieldName()).add();
-            Column externid = table.column("MRID").varChar(SHORT_DESCRIPTION_LENGTH).map(DeviceFields.MRID.fieldName()).add();
+            Column externid = table.column("MRID").varChar().map(DeviceFields.MRID.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CERTIF_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("yearOfCertification").add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
@@ -82,7 +82,7 @@ public enum TableSpecs {
             table.map(DeviceProtocolPropertyImpl.class);
             Column deviceId = table.column("DEVICEID").number().notNull().conversion(NUMBER2LONG).add();
             Column infoTypeId = table.column("INFOTYPEID").map("infoTypeId").number().conversion(NUMBER2LONG).notNull().add();
-            table.column("INFOVALUE").varChar(SHORT_DESCRIPTION_LENGTH).map("propertyValue").add();
+            table.column("INFOVALUE").varChar().map("propertyValue").add();
             table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId,infoTypeId).add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_INFOTYPE").on(infoTypeId).references(DDC_INFOTYPE.name()).map("infoTypeId").add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE").on(deviceId).references(DDC_DEVICE.name()).map("device").reverseMap("deviceProperties").composition().add();
@@ -258,7 +258,7 @@ public enum TableSpecs {
             Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class);
             table.map(ProtocolDialectPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(SHORT_DESCRIPTION_LENGTH).map("name").add();
+            table.column("NAME").varChar().map("name").add();
             Column deviceProtocolId = table.column("DEVICEPROTOCOLID").number().conversion(NUMBER2LONG).notNull().map("pluggableClassId").add();
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modificationDate").add();

@@ -4,10 +4,11 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -20,8 +21,8 @@ import static com.elster.jupiter.util.Checks.is;
  */
 public abstract class PersistentNamedObject<D> extends PersistentIdObject<D> {
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(min = 1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
     protected PersistentNamedObject(Class<D> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

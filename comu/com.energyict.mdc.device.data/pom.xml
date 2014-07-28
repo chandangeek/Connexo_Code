@@ -13,7 +13,7 @@
   <artifactId>mdc.device.data</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
-  <name>[MDC] mdc.device.data</name>
+  <name>[MDC] mdc.device.data [init DDC]</name>
   <description>
     Contains device related components.
   </description>

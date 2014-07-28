@@ -210,7 +210,7 @@ public class InMemoryIntegrationPersistence {
     }
 
     private void initializeFactoryProviders() {
-        ((PropertySpecServiceImpl) getPropertySpecService()).addFactoryProvider(new ReferencePropertySpecFinderProvider() {
+        getPropertySpecService().addFactoryProvider(new ReferencePropertySpecFinderProvider() {
             @Override
             public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
                 List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
@@ -219,15 +219,6 @@ public class InMemoryIntegrationPersistence {
                 return finders;
             }
         });
-    }
-
-    public void run(DataModelInitializer... dataModelInitializers) {
-        try (TransactionContext ctx = this.transactionService.getContext()) {
-            for (DataModelInitializer initializer : dataModelInitializers) {
-                initializer.initializeDataModel(this.dataModel);
-            }
-            ctx.commit();
-        }
     }
 
     private static void createOracleAliases() throws SQLException {

@@ -1,5 +1,34 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -71,45 +100,15 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
-
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -117,6 +116,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -128,6 +131,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final MeteringService meteringService;
+    private final ValidationService validationService;
     private final DeviceDataService deviceDataService;
     private final SecurityPropertyService securityPropertyService;
 
@@ -140,12 +144,13 @@ public class DeviceImpl implements Device, PersistenceAware {
     @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_CONFIGURATION_REQUIRED_KEY + "}")
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
     private String mRID;
+    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serialNumber;
     private String timeZoneId;
     private TimeZone timeZone;
@@ -162,7 +167,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     private List<ConnectionTaskImpl<?, ?>> connectionTasks;
     @Valid
     private List<ComTaskExecutionImpl> comTaskExecutions;
-    @Valid
+
     private List<ProtocolDialectProperties> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectProperties> newDialectProperties = new ArrayList<>();
     private List<ProtocolDialectProperties> dirtyDialectProperties = new ArrayList<>();
@@ -175,24 +180,27 @@ public class DeviceImpl implements Device, PersistenceAware {
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
 
     @Inject
-    public DeviceImpl(DataModel dataModel,
-                      EventService eventService,
-                      Thesaurus thesaurus,
-                      Clock clock,
-                      MeteringService meteringService,
-                      DeviceDataService deviceDataService,
-                      SecurityPropertyService securityPropertyService,
-                      Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
-                      Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
-                      Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
-                      Provider<AdHocComTaskExecutionImpl> adHocComTaskExecutionProvider,
-                      Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
-                      Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
+    public DeviceImpl(
+                DataModel dataModel,
+                EventService eventService,
+                Thesaurus thesaurus,
+                Clock clock,
+                MeteringService meteringService,
+                ValidationService validationService,
+                DeviceDataService deviceDataService,
+                SecurityPropertyService securityPropertyService,
+                Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
+                Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
+                Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
+                Provider<AdHocComTaskExecutionImpl> adHocComTaskExecutionProvider,
+                Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
+                Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.meteringService = meteringService;
+        this.validationService = validationService;
         this.deviceDataService = deviceDataService;
         this.securityPropertyService = securityPropertyService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
@@ -211,6 +219,10 @@ public class DeviceImpl implements Device, PersistenceAware {
         createLoadProfiles();
         createLogBooks();
         return this;
+    }
+
+    ValidationService getValidationService() {
+        return validationService;
     }
 
     private void setDeviceTypeFromDeviceConfiguration() {
@@ -478,7 +490,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     public List<Register> getRegisters() {
         List<Register> registers = new ArrayList<>();
         for (RegisterSpec registerSpec : getDeviceConfiguration().getRegisterSpecs()) {
-            registers.add(new RegisterImpl(registerSpec, this));
+            registers.add(this.newRegisterFor(registerSpec));
         }
         return registers;
     }
@@ -487,10 +499,19 @@ public class DeviceImpl implements Device, PersistenceAware {
     public Register getRegisterWithDeviceObisCode(ObisCode code) {
         for (RegisterSpec registerSpec : getDeviceConfiguration().getRegisterSpecs()) {
             if (registerSpec.getDeviceObisCode().equals(code)) {
-                return new RegisterImpl(registerSpec, this);
+                return this.newRegisterFor(registerSpec);
             }
         }
         return null;
+    }
+
+    private RegisterImpl newRegisterFor(RegisterSpec registerSpec) {
+        for (RegisterFactory factory : RegisterFactory.values()) {
+            if (factory.appliesTo(registerSpec)) {
+                return factory.newRegister(this, registerSpec);
+            }
+        }
+        return RegisterFactory.Numerical.newRegister(this, registerSpec);
     }
 
     @Override
@@ -853,18 +874,23 @@ public class DeviceImpl implements Device, PersistenceAware {
     public void setProtocolDialectProperty(String dialectName, String propertyName, Object value) {
         ProtocolDialectProperties dialectProperties = this.getProtocolDialectProperties(dialectName);
         if (dialectProperties == null) {
-            ProtocolDialectConfigurationProperties configurationProperties = this.getProtocolDialectConfigurationProperties(dialectName);
-            if (configurationProperties != null) {
-                dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
-                dialectProperties.setProperty(propertyName, value);
-                this.newDialectProperties.add(dialectProperties);
-            } else {
-                throw new ProtocolDialectConfigurationPropertiesIsRequiredException();
-            }
+            dialectProperties = createNewLocalDialectProperties(dialectName);
         } else {
-            dialectProperties.setProperty(propertyName, value);
             this.dirtyDialectProperties.add(dialectProperties);
         }
+        dialectProperties.setProperty(propertyName, value);
+    }
+
+    private ProtocolDialectProperties createNewLocalDialectProperties(String dialectName) {
+        ProtocolDialectProperties dialectProperties;
+        ProtocolDialectConfigurationProperties configurationProperties = this.getProtocolDialectConfigurationProperties(dialectName);
+        if (configurationProperties != null) {
+            dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
+            this.newDialectProperties.add(dialectProperties);
+        } else {
+            throw new ProtocolDialectConfigurationPropertiesIsRequiredException();
+        }
+        return dialectProperties;
     }
 
     private ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties(String dialectName) {
@@ -883,27 +909,11 @@ public class DeviceImpl implements Device, PersistenceAware {
         ProtocolDialectProperties dialectProperties = this.getProtocolDialectProperties(dialectName);
         if (dialectProperties != null) {
             dialectProperties.removeProperty(propertyName);
-            if (dialectProperties.getTypedProperties().localSize() == 0) {
-                // No properties left
-                this.removeProtocolDialectProperty(dialectProperties);
-            }
-        }
-    }
-
-    private void removeProtocolDialectProperty(ProtocolDialectProperties dialectProperties) {
-        if (dialectProperties.getId() == 0) {
-            // Not persistent, must be in the list of new properties
-            this.newDialectProperties.remove(dialectProperties);
         } else {
-            // Persistent, remove if from the managed list of properties, which will delete it from the database
-            Iterator<ProtocolDialectProperties> iterator = this.dialectPropertiesList.iterator();
-            while (iterator.hasNext()){
-                ProtocolDialectProperties protocolDialectProperties = iterator.next();
-                if(protocolDialectProperties.getDeviceProtocolDialectName().equals(dialectProperties.getDeviceProtocolDialectName())){
-                    iterator.remove();
-                }
-            }
-            ((ProtocolDialectPropertiesImpl) dialectProperties).delete();
+            createNewLocalDialectProperties(dialectName);
+        }
+        if((dialectProperties != null) && !this.dirtyDialectProperties.contains(dialectProperties)){
+            this.dirtyDialectProperties.add(dialectProperties);
         }
     }
 
@@ -1010,7 +1020,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         return Collections.emptyList();
     }
 
-    Optional<ReadingRecord> getLastReadingsFor(Register register) {
+    Optional<ReadingRecord> getLastReadingFor(Register register) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateMeterInKore(amrSystem);
@@ -1085,14 +1095,6 @@ public class DeviceImpl implements Device, PersistenceAware {
     @Override
     public String getmRID() {
         return mRID;
-    }
-
-    public String getExternalName() {
-        return mRID;
-    }
-
-    public void setExternalName(String externalName) {
-        this.mRID = externalName;
     }
 
     @Override
@@ -1547,4 +1549,64 @@ public class DeviceImpl implements Device, PersistenceAware {
         this.setDeviceTypeFromDeviceConfiguration();
     }
 
+    private enum RegisterFactory {
+        Text {
+            @Override
+            boolean appliesTo(RegisterSpec registerSpec) {
+                Set<ReadingTypeUnit> textUnits = EnumSet.of(ReadingTypeUnit.NOTAPPLICABLE, ReadingTypeUnit.CHARACTERS);
+                return textUnits.contains(this.getReadingType(registerSpec).getUnit());
+            }
+
+            @Override
+            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+                return new TextRegisterImpl(device, registerSpec);
+            }
+        },
+
+        Event {
+            @Override
+            boolean appliesTo(RegisterSpec registerSpec) {
+                Set<Aggregate> eventAggregates = EnumSet.of(Aggregate.AVERAGE, Aggregate.SUM, Aggregate.MAXIMUM, Aggregate.SECONDMAXIMUM, Aggregate.THIRDMAXIMUM, Aggregate.FOURTHMAXIMUM, Aggregate.FIFTHMAXIMIMUM, Aggregate.MINIMUM, Aggregate.SECONDMINIMUM);
+                return eventAggregates.contains(this.getReadingType(registerSpec).getAggregate());
+            }
+
+            @Override
+            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+                return new EventRegisterImpl(device, registerSpec);
+            }
+        },
+
+        Flags {
+            @Override
+            boolean appliesTo(RegisterSpec registerSpec) {
+                return this.getReadingType(registerSpec).getUnit().equals(ReadingTypeUnit.BOOLEANARRAY);
+            }
+
+            @Override
+            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+                return new FlagsRegisterImpl(device, registerSpec);
+            }
+        },
+
+        Numerical {
+            @Override
+            boolean appliesTo(RegisterSpec registerSpec) {
+                // When all others fail, use numerical
+                return true;
+            }
+
+            @Override
+            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+                return new NumericalRegisterImpl(device, registerSpec);
+            }
+        };
+
+        ReadingType getReadingType (RegisterSpec registerSpec) {
+            return registerSpec.getRegisterMapping().getReadingType();
+        }
+
+        abstract boolean appliesTo(RegisterSpec registerSpec);
+
+        abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
+    }
 }
