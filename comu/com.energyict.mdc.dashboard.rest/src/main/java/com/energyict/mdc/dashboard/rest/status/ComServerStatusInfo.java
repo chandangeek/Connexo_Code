@@ -4,6 +4,10 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Represents the status of a ComServer in the REST layer.
  *

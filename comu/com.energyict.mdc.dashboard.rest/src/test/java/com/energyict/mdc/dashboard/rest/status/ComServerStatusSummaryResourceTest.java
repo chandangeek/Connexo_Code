@@ -24,6 +24,7 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.TestProperties;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Duration;
 
@@ -73,6 +74,8 @@ public class ComServerStatusSummaryResourceTest extends JerseyTest {
 
     @Override
     protected Application configure() {
+        enable(TestProperties.LOG_TRAFFIC);
+        enable(TestProperties.DUMP_ENTITY);
         MockitoAnnotations.initMocks(this);
         ResourceConfig resourceConfig = new ResourceConfig(
                 ComServerStatusResource.class,

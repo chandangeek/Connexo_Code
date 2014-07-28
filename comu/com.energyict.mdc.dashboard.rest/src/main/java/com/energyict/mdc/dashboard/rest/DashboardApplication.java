@@ -26,7 +26,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (10:32)
  */
-@Component(name = "com.energyict.dsb.rest", service = Application.class, immediate = true, property = {"alias=/dsb"})
+@Component(name = "com.energyict.mdc.dashboard.rest", service = Application.class, immediate = true, property = {"alias=/dsb"})
 public class DashboardApplication extends Application {
 
     public static final String COMPONENT_NAME = "DSB";
