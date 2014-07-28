@@ -55,7 +55,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                         },
                         {
                             xtype: 'textfield',
-                            fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
+                            fieldLabel: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
                             itemId: 'addRuleName',
                             required: true,
                             labelAlign: 'right',
@@ -77,7 +77,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             valueField: 'implementation',
                             displayField: 'displayName',
                             queryMode: 'local',
-                            fieldLabel: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
+                            fieldLabel: Uni.I18n.translate('validation.validator', 'CFG', 'Validator'),
                             required: true,
                             allowBlank: false,
                             labelAlign: 'right',

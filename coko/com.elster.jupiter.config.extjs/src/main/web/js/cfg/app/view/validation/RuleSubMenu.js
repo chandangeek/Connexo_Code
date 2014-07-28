@@ -14,21 +14,6 @@ Ext.define('Cfg.view.validation.RuleSubMenu', {
                 itemId: 'ruleSetOverviewLink',
                 href: '#/administration/validation/rulesets/' + this.ruleSetId + '/rules/' + this.ruleId,
                 hrefTarget: '_self'
-            },
-            {
-                text: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
-                pressed: false,
-                itemId: 'rulesLink',
-                href: '#/administration/validation/rulesets/' + this.ruleSetId + '/rules',
-                hrefTarget: '_self'
-            },
-            {
-                text: Uni.I18n.translate('validation.deviceConfigurations', 'CFG', 'Device configurations'),
-                pressed: false,
-                itemId: 'deviceConfigRuleLink',
-                href: '#/administration/validation/rulesets/' + this.ruleSetId + '/deviceconfigurations',
-                hrefTarget: '_self',
-                hidden: true
             }
         );
         this.toggleMenuItem(this.toggle);

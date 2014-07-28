@@ -939,9 +939,6 @@ Ext.define('Cfg.controller.Validation', {
                 rulesContainerWidget.down('validation-rule-action-menu').record = rule;
                 rulesContainerWidget.down('validation-rule-action-menu').down('#view').hide();
                 rulesContainerWidget.down('#stepsRuleMenu').setTitle(rule.get('name'));
-                if (me.mdcIsActive) {
-                    rulesContainerWidget.down('#deviceConfigRuleLink').show();
-                }
                 me.getValidationRuleSetsStore().load({
                     callback: function () {
                         var ruleSet = this.getById(parseInt(params.ruleSetId));

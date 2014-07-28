@@ -38,6 +38,10 @@ Ext.define('Cfg.view.validation.RulePreview', {
             fieldLabel: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule')
         },
         {
+            name: 'displayName',
+            fieldLabel: Uni.I18n.translate('validation.validator', 'CFG', 'Validator')
+        },
+        {
             name: 'active',
             fieldLabel: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
             renderer: function (value) {
