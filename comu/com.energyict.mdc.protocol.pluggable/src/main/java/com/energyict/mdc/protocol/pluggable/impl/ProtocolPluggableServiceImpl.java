@@ -991,7 +991,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
         @Override
         public byte[] decrypt(String encrypted) {
-            return encrypted.getBytes();
+            if (encrypted != null) {
+                return encrypted.getBytes();
+            } else {
+                return new byte[0];
+            }
         }
 
         @Override
