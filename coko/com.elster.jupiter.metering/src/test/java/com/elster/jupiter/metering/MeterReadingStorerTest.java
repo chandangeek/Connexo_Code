@@ -230,5 +230,21 @@ public class MeterReadingStorerTest {
         }
     }
 
+    @Test
+    public void testAddRegularReading() {
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        	AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        	Meter meter = amrSystem.newMeter("myMeter");
+        	meter.save();
+        	String intervalReadingTypeCode = "32.12.2.4.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
+        	MeterReadingImpl meterReading = new MeterReadingImpl();
+        	DateTime dateTime = new DateTime(2014,1,1,0,0,0);
+        	Reading reading = new ReadingImpl(intervalReadingTypeCode, BigDecimal.valueOf(1200), dateTime.toDate());
+        	meterReading.addReading(reading);
+        	meter.store(meterReading);     	
+            ctx.commit();
+        }
+    }
 
 }

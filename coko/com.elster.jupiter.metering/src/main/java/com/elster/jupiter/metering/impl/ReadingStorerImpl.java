@@ -40,7 +40,11 @@ public class ReadingStorerImpl implements ReadingStorer {
 
 	@Override
 	public void addReading(Channel channel , Reading reading) {
-        this.storer.add(channel.getTimeSeries(),reading.getTimeStamp(),DEFAULTPROCESSSTATUS.getBits(), reading.getValue());
+		if (channel.isRegular()) {
+			addIntervalReading(channel, reading.getTimeStamp(), ProfileStatus.of(),reading.getValue());
+		} else {
+			this.storer.add(channel.getTimeSeries(),reading.getTimeStamp(),DEFAULTPROCESSSTATUS.getBits(), reading.getValue());
+		}
         addScope(channel, reading.getTimeStamp());
     }
 
