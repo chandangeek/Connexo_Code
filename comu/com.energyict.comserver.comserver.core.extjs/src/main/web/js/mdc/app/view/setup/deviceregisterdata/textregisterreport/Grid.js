@@ -24,6 +24,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.textregisterreport.Grid', {
             {
                 header: Uni.I18n.translate('device.registerData.validationStatus', 'MDC', 'Validation status'),
                 dataIndex: 'validationStatus',
+                renderer: function (value) {
+                    return Uni.I18n.translate(value, 'MDC', value)
+                },
                 flex: 1
             },
             {
