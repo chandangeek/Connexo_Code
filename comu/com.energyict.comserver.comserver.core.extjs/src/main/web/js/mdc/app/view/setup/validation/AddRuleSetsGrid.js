@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
         }
     }],
     store: 'Mdc.store.ValidationRuleSetsForDeviceConfig',
-    maxHeight: 400,
+    height: 600,
     
     selType: 'checkboxmodel',
     selModel: {
@@ -92,13 +92,13 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                                 boxLabel: '<b>' + Uni.I18n.translate('ruleset.allRuleSets', 'MDC', 'All validation rule sets') + '</b><br/>' +
                                     '<span style="color: grey;">' + Uni.I18n.translate('ruleset.selectAllRuleSets', 'MDC', 'Select all validation rule sets related to device configuration') + '</span>',
                                 name: 'rulesetsRadio',
-                                inputValue: 'ALL'
+                                inputValue: 'ALL',
+                                checked: true
                             },
                             {
                                 itemId: 'radioSelected',
                                 boxLabel: '<b>' + Uni.I18n.translate('ruleset.selectedRuleSets', 'MDC', 'Selected validation rule sets') + '</b><br/><span style="color: grey;">' + Uni.I18n.translate('ruleset.selectRuleSets', 'MDC', 'Select validation rule sets in table') + '</span>',
                                 name: 'rulesetsRadio',
-                                checked: true,
                                 inputValue: 'SELECTED'
                             }
                         ]
@@ -116,7 +116,9 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                                 xtype: 'button',
                                 margin: '0 0 0 8',
                                 text: Uni.I18n.translate('general.uncheckAll', 'MDC', 'Uncheck all'),
-                                action: 'uncheckAll'
+                                disabled: true,
+                                action: 'uncheckAll',
+                                itemId: 'uncheckAll'
                             }
                         ]
                     }

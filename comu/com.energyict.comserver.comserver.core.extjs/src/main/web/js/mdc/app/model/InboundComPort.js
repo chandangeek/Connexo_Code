@@ -27,6 +27,8 @@ Ext.define('Mdc.model.InboundComPort', {
             mapping: function (data) {
                 if (!data.modemInitStrings){
                     return [];
+                } else {
+                    return data.modemInitStrings;
                 }
             }}
     ],

@@ -317,7 +317,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             var me = opt.config.me;
             connectionMethodToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             connectionMethodToDelete.destroy({
-                callback: function () {
+                success: function () {
                     location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/connectionmethods';
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.remove', 'MDC', 'Connection method removed'));
                 }

@@ -2,6 +2,7 @@ Ext.define('Mdc.store.ComPortPoolComports',{
     extend: 'Ext.data.Store',
     model: 'Mdc.model.ComPort',
     autoLoad: false,
+    pageSize: 1000,
     proxy: {
         type: 'rest',
         url: '/api/mdc/comports',

@@ -13,8 +13,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
     },
     showMessage: function (message) {
         var widget = {
-            title: message.title,
-            html: message.body
+            html: '<h3>' + message.title + '</h3><br>' + message.body
         };
 
         this.removeAll();
