@@ -94,7 +94,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     },
 
     clearActionsStore: function (widget) {
-        var actionsGrid = widget ?  widget.down('issues-creation-rules-actions-list') : this.getActionsGrid(),
+        var actionsGrid = widget ? widget.down('issues-creation-rules-actions-list') : this.getActionsGrid(),
             actionsStore = actionsGrid.getStore();
 
         actionsStore.removeAll();
@@ -302,41 +302,42 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
     },
 
     addTemplateDescription: function (combo, descriptionText) {
+        var form = this.getRuleForm();
+
+        this.removeTemplateDescription();
+
         if (descriptionText) {
-            if (!combo.templateDescriptionIcon) {
-                combo.templateDescriptionIcon = Ext.DomHelper.append(this.getRuleForm().getEl(), {
-                    tag: 'div',
-                    cls: 'isu-icon-help-circled isu-creation-rule-template-description'
-                }, true);
-            }
-
-            this.comboTemplateResize(combo);
-            combo.templateDescriptionIcon.clearListeners();
-
-            combo.templateDescriptionIcon.on('click', function () {
-                combo.templateDescriptionWindow = Ext.Msg.show({
-                    title: 'Template description',
-                    msg: descriptionText,
-                    buttons: Ext.MessageBox.CANCEL,
-                    buttonText: {cancel: 'Close'},
-                    modal: true,
-                    animateTarget: combo.templateDescriptionIcon
-                });
+            combo.templateDescriptionIcon = Ext.widget('button', {
+                tooltip: Uni.I18n.translate('administration.issueCreationRules.templateInfo', 'ISE', 'Template info'),
+                iconCls: 'icon-info-small',
+                ui: 'blank',
+                floating: true,
+                renderTo: form.getEl(),
+                shadow: false,
+                width: 16,
+                handler: function () {
+                    combo.templateDescriptionWindow = Ext.Msg.show({
+                        title: Uni.I18n.translate('administration.issueCreationRules.templateDescription', 'ISE', 'Template description'),
+                        msg: descriptionText,
+                        buttons: Ext.MessageBox.CANCEL,
+                        buttonText: {cancel: Uni.I18n.translate('general.close', 'ISE', 'Close')},
+                        modal: true,
+                        animateTarget: combo.templateDescriptionIcon
+                    })
+                }
             });
-        } else {
-            this.removeTemplateDescription();
+            this.comboTemplateResize(combo);
         }
     },
 
     comboTemplateResize: function (combo) {
         var comboEl = combo.getEl(),
-            form = this.getRuleForm(),
-            formEl = form.getEl();
+            icon = combo.templateDescriptionIcon;
 
-        combo.templateDescriptionIcon && combo.templateDescriptionIcon.setStyle({
-            top: comboEl.getY() - formEl.getY() + 'px',
-            left: comboEl.getX() + comboEl.getWidth(false) - 65 + 'px'
-        });
+        icon && icon.setXY([
+            comboEl.getX() + comboEl.getWidth(false) + 5,
+            comboEl.getY() + (comboEl.getHeight(false) - icon.getEl().getHeight(false)) / 2
+        ]);
     },
 
     removeTemplateDescription: function () {
@@ -482,7 +483,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                             url: ' /api/isu/rules/templates/' + templateId + '/parameters/' + field.name,
                             method: 'PUT',
                             jsonData: Ext.encode(data),
-                            success: function(response){
+                            success: function (response) {
                                 var responseTextObj = Ext.decode(response.responseText, true),
                                     newControl = me.createControl(responseTextObj.data),
                                     oldControl = templateDetails.down('[name=' + newControl.name + ']'),
