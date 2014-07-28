@@ -183,7 +183,7 @@ public class UsagePointQueryTest {
         party = partyService.getParty("Electrabel").get();
         usagePoint.addAccountability(role, party, new Date());
         assertThat(query.select(meteringService.hasAccountability())).isNotEmpty();
-        assertThat(query.select(Condition.TRUE, Order.descending("mRID"),Order.ascending("id")).get(0).getMRID()).isEqualTo("mrID9");
+        assertThat(query.select(Condition.TRUE, Order.descending("mRID").toUpperCase(),Order.ascending("id")).get(0).getMRID()).isEqualTo("mrID9");
         assertThat(usagePoint.getCustomer(new Date()).get().getMRID()).isEqualTo("Electrabel");
      }
 
