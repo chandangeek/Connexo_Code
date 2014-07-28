@@ -154,12 +154,14 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
         @Override
         public boolean isValid(PartialScheduledConnectionTaskImpl value, ConstraintValidatorContext context) {
             if (value.getConnectionStrategy()!=null) {
-                if ((ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(value.connectionStrategy) && value.getNextExecutionSpecs()!=null)
-                    || (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.connectionStrategy) && value.getNextExecutionSpecs()==null)) {
-                    context.disableDefaultConstraintViolation();
-                    context.
-                        buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + "}").
-                        addPropertyNode(Fields.NEXT_EXECUTION_SPECS.fieldName()).addConstraintViolation();
+                if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(value.connectionStrategy) && value.getNextExecutionSpecs()!=null) {
+                    context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP + "}").
+                        addPropertyNode(Fields.NEXT_EXECUTION_SPECS.fieldName()).addConstraintViolation().disableDefaultConstraintViolation();
+                    return false;
+                }
+                if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(value.connectionStrategy) && value.getNextExecutionSpecs()==null) {
+                    context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + "}").
+                        addPropertyNode(Fields.NEXT_EXECUTION_SPECS.fieldName()).addConstraintViolation().disableDefaultConstraintViolation();
                     return false;
                 }
             }

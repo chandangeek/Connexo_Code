@@ -35,8 +35,8 @@ public enum TableSpecs {
             Table<DeviceType> table = dataModel.addTable(this.name(), DeviceType.class);
             table.map(DeviceTypeImpl.class);
             Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(StringColumnLengthConstraints.DEVICE_TYPE_NAME).notNull().map("name").add();
-            table.column("DESCRIPTION").varChar(StringColumnLengthConstraints.DEVICE_TYPE_DESCRIPTION).map("description").add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
+            table.column("DESCRIPTION").varChar().map("description").add();
             table.column("USECHANNELJOURNAL").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map(DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName()).add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
@@ -123,8 +123,8 @@ public enum TableSpecs {
             Table<DeviceConfiguration> table = dataModel.addTable(name(), DeviceConfiguration.class);
             table.map(DeviceConfigurationImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(StringColumnLengthConstraints.DEVICE_CONFIGURATION_NAME).notNull().map("name").add();
-            table.column("DESCRIPTION").varChar(StringColumnLengthConstraints.DEVICE_CONFIGURATION_DESCRIPTION).map("description").add();
+            table.column("NAME").varChar().notNull().map("name").add();
+            table.column("DESCRIPTION").varChar().map("description").add();
             Column deviceTypeId = table.column("DEVICETYPEID").number().notNull().add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
@@ -149,7 +149,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column loadprofiletypeid = table.column("LOADPROFILETYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
+            table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add(); // obiscode is not a free field: derived from real obiscode, so user can not exceed max length
             table.primaryKey("PK_DTC_LOADPROFILESPECID").on(id).add();
             table.foreignKey("FK_DTC_LPRFSPEC_LOADPROFTYPE").
                     on(loadprofiletypeid).
@@ -173,7 +173,7 @@ public enum TableSpecs {
             Table<ChannelSpec> table = dataModel.addTable(name(), ChannelSpec.class);
             table.map(ChannelSpecImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(StringColumnLengthConstraints.CHANNEL_SPEC_NAME).notNull().map("name").add();
+            table.column("NAME").varChar().notNull().map("name").add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column channelTypeId = table.column("CHANNELTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
@@ -297,9 +297,9 @@ public enum TableSpecs {
             table.map(ProtocolDialectConfigurationPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add(); // TODO remove map when enabling foreign key constraint
-            table.column("DEVICEPROTOCOLDIALECT").varChar(255).notNull().map("protocolDialectName").add();
+            table.column("DEVICEPROTOCOLDIALECT").varChar().notNull().map("protocolDialectName").add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map("modDate").add();
-            table.column("NAME").varChar(StringColumnLengthConstraints.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_NAME).notNull().map("name").add();
+            table.column("NAME").varChar().notNull().map("name").add();
             table.foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG").
                     on(deviceConfiguration).
                     references(DTC_DEVICECOMMCONFIG.name()).
@@ -337,7 +337,7 @@ public enum TableSpecs {
             Table<PartialConnectionTask> table = dataModel.addTable(name(), PartialConnectionTask.class);
             table.map(PartialConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(StringColumnLengthConstraints.PARTIAL_CONNECTION_TASK_NAME).notNull().map("name").add();
+            table.column("NAME").varChar().notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column deviceComConfig = table.column("DEVICECOMCONFIG").number().add();
             Column connectionType = table.column("CONNECTIONTYPE").number().conversion(NUMBER2LONG).map("pluggableClassId").add();
@@ -409,7 +409,7 @@ public enum TableSpecs {
             Table<SecurityPropertySet> table = dataModel.addTable(name(), SecurityPropertySet.class);
             table.map(SecurityPropertySetImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar(StringColumnLengthConstraints.SECURITY_ROPERTY_SET_NAME).notNull().map("name").add();
+            table.column("NAME").varChar().notNull().map("name").add();
             Column devicecomconfig = table.column("DEVICECOMCONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
             table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();

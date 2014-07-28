@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -28,8 +29,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableList;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,14 +36,15 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
 
-    @Size(max=StringColumnLengthConstraints.DEVICE_TYPE_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
-    @Size(min=0, max=StringColumnLengthConstraints.DEFAULT_DESCRIPTION_LENGTH, groups = {Save.Update.class, Save.Create.class}, message = "{"+MessageSeeds.Keys.FIELD_TOO_LONG +"}")
+    @Size(max= 4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+MessageSeeds.Keys.FIELD_TOO_LONG +"}")
     private String description;
     private boolean useChannelJournal;
     private int deviceUsageTypeId;

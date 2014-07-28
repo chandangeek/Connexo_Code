@@ -18,7 +18,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_TYPE(1, "deviceType.with.article", "a device type", SEVERE),
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "The name must be unique", SEVERE),
-    FIELD_TOO_LONG(1002, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", SEVERE),
+    FIELD_TOO_LONG(1003, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", SEVERE),
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required", SEVERE),
     READING_TYPE_ALREADY_EXISTS(2002, Keys.READING_TYPE_ALREADY_EXISTS, "Reading type {0} already exists", SEVERE),
     DEFAULT_PRODUCT_SPEC_CANNOT_BE_DELETED(2003, "productSpec.cannotDeleteDefault", "The default product spec cannot be deleted", SEVERE),
@@ -134,6 +134,7 @@ public enum MessageSeeds implements MessageSeed {
     UNSUPPORTED_SECUIRY_LEVEL(13030, Keys.UNSUPPORTED_SECURITY_LEVEL, "Security level {0} is not supported", SEVERE),
     SECURITY_PROPERTY_SET_IN_USE(13031, Keys.SECURITY_PROPERTY_SET_IN_USE, "Security property set ''{0}'' of device configuration ''{1}'' is still in use", SEVERE),
     INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD(13032, Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD, "The connection type has an incorrect direction.", SEVERE),
+    NEXT_EXECUTION_SPEC_FORBIDDEN_FOR_ASAP(13033, Keys.NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP, "Next execution spec is not allowed for connection strategy ''as soon as possible''.", SEVERE),
     COM_TASK_ENABLEMENT_COM_TASK_REQUIRED(14000, Keys.COM_TASK_ENABLEMENT_COM_TASK_REQUIRED, "You need to specify the communication task that you want to enable on a device configuration", SEVERE),
     COM_TASK_CAN_ONLY_BE_ENABLED_ONCE(14001, Keys.COM_TASK_CAN_ONLY_BE_ENABLED_ONCE, "A communication task can only be enabled once per device configuration", SEVERE),
     COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED(14002, Keys.COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED, "You need to specify the device configuration on which you want to enable the communication task", SEVERE),
@@ -185,7 +186,7 @@ public enum MessageSeeds implements MessageSeed {
     public static class Keys {
         public static final String NAME_REQUIRED = "X.name.required";
         public static final String NAME_UNIQUE = "X.name.unique";
-        public static final String FIELD_TOO_LONG = "incorrect.field.size";
+        public static final String FIELD_TOO_LONG = "fieldTooLong";
         public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS = "deviceType.XstillHasActiveConfigurations";
         public static final String DEVICE_PROTOCOL_IS_REQUIRED = "deviceType.protocol.required";
         public static final String DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS = "deviceType.protocol.noupdate";
@@ -218,6 +219,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE = "partialConnectionTaskProperty.wrongValueType";
         public static final String CONNECTION_STRATEGY_REQUIRED = "partialOutboundConnectionTask.connectionStrategyRequired";
         public static final String NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS = "partialOutboundConnectionTask.executionSpecRequiredForMinimizeConnections";
+        public static final String NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP = "partialOutboundConnectionTask.executionSpecForbiddenForAsap";
         public static final String NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW = "partialOutboundConnectionTask.executionSpecInvalidForComWindow";
         public static final String NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY = "nextExecutionSpecs.offsetGreaterThanFrequency";
         public static final String UNDER_MINIMUM_RESCHEDULE_DELAY = "partialScheduledConnectionTask.underMinimumRescheduleDelay";

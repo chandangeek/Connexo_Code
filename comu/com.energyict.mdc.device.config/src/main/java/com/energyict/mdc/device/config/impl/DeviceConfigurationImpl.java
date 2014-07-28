@@ -2,8 +2,10 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
@@ -16,7 +18,29 @@ import org.hibernate.validator.constraints.NotEmpty;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.DeviceCommunicationFunction;
+import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
@@ -31,6 +55,12 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,10 +71,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
 
 /**
  *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -72,10 +98,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    @Size(max=StringColumnLengthConstraints.DEVICE_CONFIGURATION_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
-    @Size(max=StringColumnLengthConstraints.DEVICE_CONFIGURATION_DESCRIPTION, groups = {Save.Update.class, Save.Create.class}, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG +"}")
+    @Size(max= 4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG +"}")
     private String description;
 
     private boolean active;
@@ -853,7 +879,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         deviceConfValidationRuleSetUsages.remove(usage);
     }
 
-    public List<ValidationRule> getValidationRules(List readingTypes) {
+    public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes) {
         List<ValidationRule> result = new ArrayList<ValidationRule>();
         List<ValidationRuleSet> ruleSets = getValidationRuleSets();
         for (ValidationRuleSet ruleSet : ruleSets) {
