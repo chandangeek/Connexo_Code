@@ -319,7 +319,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     msg: descriptionText,
                     buttons: Ext.MessageBox.CANCEL,
                     buttonText: {cancel: 'Close'},
-                    modal: false,
+                    modal: true,
                     animateTarget: combo.templateDescriptionIcon
                 });
             });
