@@ -35,8 +35,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
     private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;
     private static final TimeDuration CHANGES_INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.HOURS);
     private static final TimeDuration SCHEDULING_INTER_POLL_DELAY = new TimeDuration(2, TimeDuration.MINUTES);
-    private static final String QUERY_API_USER_NAME = "johndoe";
-    private static final String QUERY_API_PASSWORD = "doe";
     private static final String EVENT_REGISTRATION_URI = "http://comserver.energyict.com/custom/events/registration";
     private static final String INVALID_URI = "Anything but a valid URI";
 
@@ -70,8 +68,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
 
         // Business method
         remoteComServer.save();
@@ -84,8 +80,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         assertEquals(COMMUNICATION_LOG_LEVEL, comServer.getCommunicationLogLevel());
         assertEquals(CHANGES_INTER_POLL_DELAY, comServer.getChangesInterPollDelay());
         assertEquals(SCHEDULING_INTER_POLL_DELAY, comServer.getSchedulingInterPollDelay());
-        assertEquals(QUERY_API_USER_NAME, comServer.getQueryAPIUsername());
-        assertEquals(QUERY_API_PASSWORD, comServer.getQueryAPIPassword());
         assertEquals(onlineComServer.getId(), comServer.getOnlineComServer().getId());
     }
 
@@ -103,8 +97,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
 
         // Business method
         remoteComServer.save();
@@ -129,8 +121,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
 
         remoteComServer.save();
     }
@@ -149,8 +139,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setChangesInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
         remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
 
         remoteComServer.save();
     }
@@ -169,8 +157,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
         remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
 
         remoteComServer.save();
     }
@@ -189,8 +175,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
         remoteComServer.setEventRegistrationUri(EVENT_REGISTRATION_URI);
         remoteComServer.setOnlineComServer(createOnlineComServer());
         // Business method
@@ -216,8 +200,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
         remoteComServer.setEventRegistrationUri(INVALID_URI);
         remoteComServer.setOnlineComServer(createOnlineComServer());
         // Business method
@@ -238,8 +220,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
 
         // Business method
         remoteComServer.save();
@@ -253,8 +233,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         assertEquals(COMMUNICATION_LOG_LEVEL, loadedRemoteComServer.getCommunicationLogLevel());
         assertEquals(CHANGES_INTER_POLL_DELAY, loadedRemoteComServer.getChangesInterPollDelay());
         assertEquals(SCHEDULING_INTER_POLL_DELAY, loadedRemoteComServer.getSchedulingInterPollDelay());
-        assertEquals(QUERY_API_USER_NAME, loadedRemoteComServer.getQueryAPIUsername());
-        assertEquals(QUERY_API_PASSWORD, loadedRemoteComServer.getQueryAPIPassword());
         assertNotNull("The OnlineComServer should not be null", loadedRemoteComServer.getOnlineComServer());
         assertEquals(onlineComServer.getId(), loadedRemoteComServer.getOnlineComServer().getId());
     }
@@ -271,8 +249,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
         remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
 
         remoteComServer.save();
     }
@@ -414,8 +390,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         comServer.setCommunicationLogLevel(changedComLogLevel);
         comServer.setChangesInterPollDelay(changedChangesInterPollDelay);
         comServer.setSchedulingInterPollDelay(changedSchedulingInterPollDelay);
-        comServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        comServer.setQueryAPIPassword(QUERY_API_PASSWORD);
         comServer.save();
 
         // Asserts
@@ -425,8 +399,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         assertEquals(changedComLogLevel, comServer.getCommunicationLogLevel());
         assertEquals(changedChangesInterPollDelay, comServer.getChangesInterPollDelay());
         assertEquals(changedSchedulingInterPollDelay, comServer.getSchedulingInterPollDelay());
-        assertEquals(QUERY_API_USER_NAME, comServer.getQueryAPIUsername());
-        assertEquals(QUERY_API_PASSWORD, comServer.getQueryAPIPassword());
     }
 
     @Test

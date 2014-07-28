@@ -51,9 +51,8 @@ public enum TableSpecs {
             table.column("SCHEDULINGDELAYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.count").add();
             table.column("SCHEDULINGDELAYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.timeUnitCode").add();
 
+            table.column("DEFAULTQUERYAPIPOSTURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultQueryAPIPostUri").add();
             table.column("QUERYAPIPOSTURI").type("varchar2(512)").map("queryAPIPostUri").add();
-            table.column("QUERYAPIUSERNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("queryAPIUsername").add();
-            table.column("QUERYAPIPASSWORD").varChar(SHORT_DESCRIPTION_LENGTH).map("queryAPIPassword").add();
             table.column("MOD_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("obsoleteDate").add();
             Column onlineComServer = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
@@ -61,8 +60,9 @@ public enum TableSpecs {
             table.column("THREADPRIORITY").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskThreadPriority").add();
             table.column("NROFTHREADS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfStoreTaskThreads").add();
             table.column("EVENTREGISTRATIONURI").type("varchar2(512)").map("eventRegistrationUri").add();
-            table.column("DEFAULTQUERYAPIPOSTURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultQueryAPIPostUri").add();
             table.column("DEFAULTEVENTREGISTRATIONURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultEventRegistrationUri").add();
+            table.column("STATUSURI").varChar().map("statusUri").add();
+            table.column("DEFAULTSTATUSURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultStatusUri").add();
             table.foreignKey("FK_MDC_REMOTE_ONLINE").on(onlineComServer).references(MDC_COMSERVER.name()).map("onlineComServer").add();
         }
     },

@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.model;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.google.common.base.Optional;
+
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.ComPortType;
 import org.junit.Test;
@@ -58,17 +60,18 @@ public class ComServerCrudTest extends PersistenceTest {
         remoteComServer.setChangesInterPollDelay(new TimeDuration(60));
         remoteComServer.setSchedulingInterPollDelay(new TimeDuration(90));
         remoteComServer.setActive(false);
-        remoteComServer.setOnlineComServer((OnlineComServer) getEngineModelService().findComServer("Online4Remote"));
+        Optional<ComServer> comServer = getEngineModelService().findComServer("Online4Remote");
+        remoteComServer.setOnlineComServer((OnlineComServer) comServer.get());
         remoteComServer.save();
 
-        ComServer offlineComServer = getEngineModelService().findComServer("Remoter").get();
-        assertTrue(offlineComServer instanceof RemoteComServer);
-        assertThat(offlineComServer.getChangesInterPollDelay()).isEqualTo(new TimeDuration(60));
-        assertThat(offlineComServer.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(90));
-        assertThat(offlineComServer.getServerLogLevel()).isEqualTo(ComServer.LogLevel.WARN);
-        assertThat(offlineComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.TRACE);
-        assertThat(offlineComServer.isActive()).isEqualTo(false);
-        assertThat(((RemoteComServer) offlineComServer).getOnlineComServer().getName()).isEqualTo("Online4Remote");
+        ComServer reloadedRemoteComServer = getEngineModelService().findComServer("Remoter").get();
+        assertTrue(reloadedRemoteComServer instanceof RemoteComServer);
+        assertThat(reloadedRemoteComServer.getChangesInterPollDelay()).isEqualTo(new TimeDuration(60));
+        assertThat(reloadedRemoteComServer.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(90));
+        assertThat(reloadedRemoteComServer.getServerLogLevel()).isEqualTo(ComServer.LogLevel.WARN);
+        assertThat(reloadedRemoteComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.TRACE);
+        assertThat(reloadedRemoteComServer.isActive()).isEqualTo(false);
+        assertThat(((RemoteComServer) reloadedRemoteComServer).getOnlineComServer().getName()).isEqualTo("Online4Remote");
     }
 
     @Test
@@ -89,14 +92,15 @@ public class ComServerCrudTest extends PersistenceTest {
 
         onlineComServer.save();
 
-        onlineComServer = (OnlineComServer) getEngineModelService().findComServer("Onliner");
-        assertTrue(onlineComServer instanceof OnlineComServer);
+        ComServer comServer = getEngineModelService().findComServer("Onliner").get();
+        assertTrue(comServer instanceof OnlineComServer);
+        onlineComServer = (OnlineComServer) comServer;
         assertThat(onlineComServer.getChangesInterPollDelay()).isEqualTo(new TimeDuration(120));
         assertThat(onlineComServer.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(300));
         assertThat(onlineComServer.getServerLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
         assertThat(onlineComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.INFO);
         assertThat(onlineComServer.usesDefaultQueryApiPostUri()).isEqualTo(true);
-        assertThat(onlineComServer.getQueryApiPostUri()).isEqualTo("http://Onliner:8889/remote/queries");
+        assertThat(onlineComServer.getQueryApiPostUri()).isEqualTo("ws://Onliner:8889/remote/queries");
         assertThat(onlineComServer.usesDefaultEventRegistrationUri()).isEqualTo(true);
         assertThat(onlineComServer.getEventRegistrationUri()).isEqualTo("ws://Onliner:8888/events/registration");
         assertThat(onlineComServer.getNumberOfStoreTaskThreads()).isEqualTo(6);

@@ -15,6 +15,8 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
      */
     public String getEventRegistrationUri ();
 
+    public void setEventRegistrationUri(String eventRegistrationUri);
+
     /**
      * Tests if the URI for the event registration mechanism
      * is the default one or not.
@@ -23,7 +25,29 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
      */
     public boolean usesDefaultEventRegistrationUri ();
 
+    public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri);
+
+    /**
+     * Gets the URI that returns the status information of this ComServer.
+     *
+     * @return The URI
+     */
+    public String getStatusUri ();
+
+    public void setStatusUri(String statusUri);
+
+    /**
+     * Tests if the URI to obtain status information is the default one or not.
+     *
+     * @return <code>true</code> iff the URI to obtain the status information is the default
+     */
+    public boolean usesDefaultStatusUri ();
+
+    public void setUsesDefaultStatusUri(boolean usesDefaultStatusUri);
+
     public String getQueryApiPostUri ();
+
+    public void setQueryAPIPostUri(String queryAPIPostUri);
 
     /**
      * Tests if the URI for the query API post mechanism
@@ -32,6 +56,8 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
      * @return <code>true</code> iff the URI for the query API post mechanism is the default one
      */
     public boolean usesDefaultQueryApiPostUri ();
+
+    public void setUsesDefaultQueryAPIPostUri(boolean usesDefaultQueryAPIPostUri);
 
     /**
      * Gets the maximum number of store tasks that can be exeucted
@@ -52,6 +78,8 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
      */
     public int getStoreTaskQueueSize ();
 
+    public void setStoreTaskQueueSize(int storeTaskQueueSize);
+
     /**
      * Gets the number of threads that will effectively execute store tasks.
      * <p>
@@ -64,6 +92,8 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
      */
     public int getNumberOfStoreTaskThreads ();
 
+    public void setNumberOfStoreTaskThreads(int numberOfStoreTaskThreads);
+
     /**
      * Gets the priority of the thread(s) that will execute store tasks.
      *
@@ -71,17 +101,6 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
      */
     public int getStoreTaskThreadPriority ();
 
-    public void setUsesDefaultQueryAPIPostUri(boolean usesDefaultQueryAPIPostUri);
-
-    public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri);
-
-    public void setQueryAPIPostUri(String queryAPIPostUri);
-
-    public void setEventRegistrationUri(String eventRegistrationUri);
-
-    public void setStoreTaskQueueSize(int storeTaskQueueSize);
-
-    public void setNumberOfStoreTaskThreads(int numberOfStoreTaskThreads);
-
     public void setStoreTaskThreadPriority(int storeTaskThreadPriority);
+
 }

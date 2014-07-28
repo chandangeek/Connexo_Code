@@ -18,6 +18,7 @@ import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.hibernate.validator.constraints.Range;
@@ -33,17 +34,23 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
 
     private final EngineModelService engineModelService;
     @URL(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
+    @Size(max = 512)
     private String queryAPIPostUri;
+    private boolean usesDefaultQueryAPIPostUri = true;
     @URL(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
+    @Size(max = 512)
     private String eventRegistrationUri;
+    private boolean usesDefaultEventRegistrationUri = true;
+    @URL(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
+    @Size(max = 512)
+    private String statusUri;
+    private boolean usesDefaultStatusUri = true;
     @Range(min=MINIMUM_STORE_TASK_QUEUE_SIZE, max=MAXIMUM_STORE_TASK_QUEUE_SIZE, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
     private int storeTaskQueueSize;
     @Range(min=MINIMUM_NUMBER_OF_STORE_TASK_THREADS, max=MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
     private int numberOfStoreTaskThreads;
     @Range(min=MINIMUM_STORE_TASK_THREAD_PRIORITY, max=MAXIMUM_STORE_TASK_THREAD_PRIORITY, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
     private int storeTaskThreadPriority;
-    private boolean usesDefaultQueryAPIPostUri=true;
-    private boolean usesDefaultEventRegistrationUri=true;
 
     @Inject
     public OnlineComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
@@ -118,6 +125,16 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     }
 
     @Override
+    public String getQueryApiPostUriIfSupported () throws BusinessException {
+        if (Checks.is(this.getQueryApiPostUri()).emptyOrOnlyWhiteSpace()) {
+            return super.getQueryApiPostUriIfSupported();
+        }
+        else {
+            return this.getQueryApiPostUri();
+        }
+    }
+
+    @Override
     @XmlElement
     public String getEventRegistrationUri () {
         if (this.usesDefaultEventRegistrationUri) {
@@ -147,13 +164,28 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     }
 
     @Override
-    public String getQueryApiPostUriIfSupported () throws BusinessException {
-        if (Checks.is(this.getQueryApiPostUri()).emptyOrOnlyWhiteSpace()) {
-            return super.getQueryApiPostUriIfSupported();
+    public void setStatusUri(String statusUri) {
+        this.usesDefaultStatusUri=Checks.is(statusUri).emptyOrOnlyWhiteSpace();
+        this.statusUri = statusUri;
+    }
+
+    @Override
+    @XmlElement
+    public String getStatusUri () {
+        if (this.usesDefaultStatusUri) {
+            return this.defaultStatusUri();
         }
-        else {
-            return this.getQueryApiPostUri();
-        }
+        return statusUri;
+    }
+
+    @Override
+    public boolean usesDefaultStatusUri () {
+        return this.usesDefaultStatusUri;
+    }
+
+    @Override
+    public void setUsesDefaultStatusUri(boolean usesDefaultStatusUri) {
+        this.usesDefaultStatusUri = usesDefaultStatusUri;
     }
 
     @Override

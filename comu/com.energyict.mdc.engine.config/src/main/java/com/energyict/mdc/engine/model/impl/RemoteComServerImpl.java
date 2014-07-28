@@ -16,6 +16,7 @@ import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.google.inject.Provider;
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.hibernate.validator.constraints.URL;
@@ -30,11 +31,14 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private final Reference<OnlineComServer> onlineComServer = ValueReference.absent();
-    private String queryAPIUsername;
-    private String queryAPIPassword;
-    private boolean usesDefaultEventRegistrationUri=true;
+    private boolean usesDefaultEventRegistrationUri = true;
     @URL(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}")
+    @Size(max = 512)
     private String eventRegistrationUri;
+    @URL(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}")
+    @Size(max = 512)
+    private String statusUri;
+    private boolean usesDefaultStatusUri = true;
 
     public static RemoteComServer from(DataModel dataModel) {
         return dataModel.getInstance(RemoteComServerImpl.class);
@@ -61,31 +65,9 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
     }
 
     @Override
-    public void setQueryAPIUsername(String queryAPIUsername) {
-        this.queryAPIUsername = queryAPIUsername;
-    }
-
-    @Override
-    public void setQueryAPIPassword(String queryAPIPassword) {
-        this.queryAPIPassword = queryAPIPassword;
-    }
-
-    @Override
     public void setEventRegistrationUri(String eventRegistrationUri) {
         this.usesDefaultEventRegistrationUri=Checks.is(eventRegistrationUri).emptyOrOnlyWhiteSpace();
         this.eventRegistrationUri = eventRegistrationUri;
-    }
-
-    @Override
-    @XmlElement
-    public String getQueryAPIUsername () {
-        return queryAPIUsername;
-    }
-
-    @Override
-    @XmlElement
-    public String getQueryAPIPassword () {
-        return queryAPIPassword;
     }
 
     @Override
@@ -108,11 +90,6 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
     }
 
     @Override
-    public String getType () {
-        return RemoteComServer.class.getName();
-    }
-
-    @Override
     public String getEventRegistrationUriIfSupported() throws BusinessException {
         if (Checks.is(this.getEventRegistrationUri()).emptyOrOnlyWhiteSpace()) {
             return super.getEventRegistrationUriIfSupported();
@@ -120,6 +97,36 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
         else {
             return this.getEventRegistrationUri();
         }
+    }
+
+    @Override
+    public void setStatusUri(String statusUri) {
+        this.usesDefaultStatusUri=Checks.is(statusUri).emptyOrOnlyWhiteSpace();
+        this.statusUri = statusUri;
+    }
+
+    @Override
+    @XmlElement
+    public String getStatusUri () {
+        if (this.usesDefaultStatusUri) {
+            return this.defaultStatusUri();
+        }
+        return statusUri;
+    }
+
+    @Override
+    public boolean usesDefaultStatusUri () {
+        return this.usesDefaultStatusUri;
+    }
+
+    @Override
+    public void setUsesDefaultStatusUri(boolean usesDefaultStatusUri) {
+        this.usesDefaultStatusUri = usesDefaultStatusUri;
+    }
+
+    @Override
+    public String getType () {
+        return RemoteComServer.class.getName();
     }
 
 }

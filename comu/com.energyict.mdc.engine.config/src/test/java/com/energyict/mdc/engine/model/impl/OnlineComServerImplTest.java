@@ -41,8 +41,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
     private static final TimeDuration CHANGES_INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.HOURS);
     private static final TimeDuration SCHEDULING_INTER_POLL_DELAY = new TimeDuration(2, TimeDuration.MINUTES);
     private static final String NO_VIOLATIONS_NAME = "Online-No-Violations";
-    private static final String QUERY_API_PASSWORD = "API_password";
-    private static final String QUERY_API_USER_NAME = "API_user";
 
     @Mock
     DataModel dataModel;
@@ -707,8 +705,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
 
         remoteComServer.save();
 
@@ -744,8 +740,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
 
         remoteComServer.save();
 

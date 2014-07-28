@@ -322,7 +322,16 @@ public abstract class ComServerImpl implements ComServer {
      * @return The default query api URI
      */
     protected String defaultQueryApiPostUri () {
-        return "http://" + this.getName() + ":" + DEFAULT_QUERY_API_PORT_NUMBER + "/remote/queries";
+        return "ws://" + this.getName() + ":" + DEFAULT_QUERY_API_PORT_NUMBER + "/remote/queries";
+    }
+
+    /**
+     * Returns the default event registration URI for this ComServer.
+     *
+     * @return The default event registration URI
+     */
+    protected String defaultStatusUri () {
+        return "http://" + this.getName() + "/api/dsb/comserverstatus";
     }
 
     @Override
