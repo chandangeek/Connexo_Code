@@ -1602,7 +1602,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         };
 
         ReadingType getReadingType (RegisterSpec registerSpec) {
-            return registerSpec.getRegisterMapping().getReadingType();
+            return registerSpec.getRegisterType().getReadingType();
         }
 
         abstract boolean appliesTo(RegisterSpec registerSpec);
