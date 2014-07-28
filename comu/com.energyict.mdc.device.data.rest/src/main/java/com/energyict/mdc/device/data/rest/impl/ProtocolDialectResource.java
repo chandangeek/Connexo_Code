@@ -6,12 +6,9 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-
 import java.util.List;
-
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -28,13 +25,11 @@ import javax.ws.rs.core.UriInfo;
 
 public class ProtocolDialectResource {
 
-    private final DeviceDataService deviceDataService;
     private final ResourceHelper resourceHelper;
     private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public ProtocolDialectResource(DeviceDataService deviceDataService, ResourceHelper resourceHelper, MdcPropertyUtils mdcPropertyUtils) {
-        this.deviceDataService = deviceDataService;
+    public ProtocolDialectResource(ResourceHelper resourceHelper, MdcPropertyUtils mdcPropertyUtils) {
         this.resourceHelper = resourceHelper;
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
@@ -70,7 +65,7 @@ public class ProtocolDialectResource {
         ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(mRID, protocolDialectId);
         updateProperties(protocolDialectInfo, protocolDialect, device);
         device.save();
-        return protocolDialectInfo.from(protocolDialect, device.getProtocolDialectProperties(protocolDialect.getDeviceProtocolDialectName()), uriInfo, mdcPropertyUtils);
+        return ProtocolDialectInfo.from(protocolDialect, device.getProtocolDialectProperties(protocolDialect.getDeviceProtocolDialectName()), uriInfo, mdcPropertyUtils);
     }
 
 
@@ -94,9 +89,9 @@ public class ProtocolDialectResource {
             for (PropertySpec<?> propertySpec : protocolDialectProperties.getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, protocolDialectInfo.properties);
                 if (propertyValue != null) {
-                    device.setProtocolDialectProperty(protocolDialectInfo.name, propertySpec.getName(), propertyValue);
+                    device.setProtocolDialectProperty(protocolDialectProperties.getDeviceProtocolDialectName(), propertySpec.getName(), propertyValue);
                 } else {
-                    device.removeProtocolDialectProperty(protocolDialectInfo.name, propertySpec.getName());
+                    device.removeProtocolDialectProperty(protocolDialectProperties.getDeviceProtocolDialectName(), propertySpec.getName());
                 }
             }
         }

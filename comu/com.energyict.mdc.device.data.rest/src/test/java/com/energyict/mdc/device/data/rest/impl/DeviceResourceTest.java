@@ -11,10 +11,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
@@ -398,10 +395,19 @@ public class DeviceResourceTest extends JerseyTest {
         Entity<BulkRequestInfo> json = Entity.json(request);
 
         ScheduledComTaskExecutionBuilder builder = mock(ScheduledComTaskExecutionBuilder.class);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(10L);
+        when(deviceType.getName()).thenReturn("Router");
+
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(10L);
+        when(deviceConfiguration.getName()).thenReturn("BaseConfig");
 
         Device device1 = mock(Device.class);
         when(device1.getmRID()).thenReturn("mrid1");
         when(device1.getName()).thenReturn("Device with mrid1");
+        when(device1.getDeviceType()).thenReturn(deviceType);
+        when(device1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device1.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
         when(deviceDataService.findByUniqueMrid("mrid1")).thenReturn(device1);
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
@@ -409,6 +415,8 @@ public class DeviceResourceTest extends JerseyTest {
         Device device2 = mock(Device.class);
         when(device2.getmRID()).thenReturn("mrid2");
         when(device2.getName()).thenReturn("Device with mrid2");
+        when(device2.getDeviceType()).thenReturn(deviceType);
+        when(device2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device2.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
         doThrow(new ConstraintViolationException("already exists", null)).when(device2).save();
         when(deviceDataService.findByUniqueMrid("mrid2")).thenReturn(device2);

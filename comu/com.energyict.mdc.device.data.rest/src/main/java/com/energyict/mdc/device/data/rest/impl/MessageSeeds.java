@@ -16,6 +16,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_REGISTER(18, "NoSuchRegister" , "No register with id {0}"),
     NO_SUCH_COM_SCHEDULE(19, "NoSuchComSchedule" , "No communication schedule with id {0}"),
     DEVICE_VALIDATION_BULK_MSG(20, "DeviceValidationBulkMessage" , "This bulk operation for {0} schedule on {1} device is invalid"),
+    NO_SUCH_READING(21, "DDR.NoSuchReading" , "Register {0} has no reading with id {1}"),
+    INVALID_DATE(22, "DDR.InvalidDate", "Date should be less or equal to {0}"),
     ;
 
     private final int number;
