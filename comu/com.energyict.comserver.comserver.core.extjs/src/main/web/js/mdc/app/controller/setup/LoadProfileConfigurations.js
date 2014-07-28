@@ -12,10 +12,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     ],
 
     requires: [
-        'Mdc.store.LoadProfileValidationRules',
         'Mdc.store.AvailableRegisterTypesForDeviceConfiguration',
-        'Mdc.store.RegisterTypesOfDevicetype',
-        'Mdc.store.LoadProfileValidationRules'
+        'Mdc.store.RegisterTypesOfDevicetype'
     ],
 
 
@@ -23,8 +21,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         'Mdc.store.Intervals',
         'Mdc.store.LoadProfileTypes',
         'Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration',
-        'Mdc.store.LoadProfileConfigurationsOnDeviceConfigurationAvailable',
-        'LoadProfileValidationRules'
+        'Mdc.store.LoadProfileConfigurationsOnDeviceConfigurationAvailable'
     ],
 
     refs: [
@@ -35,20 +32,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         {ref: 'loadConfigurationEmptyListContainer', selector: '#loadProfileConfigurationEmptyListContainer'},
         {ref: 'loadProfileConfigurationPreview', selector: '#loadProfileConfigurationPreview'},
         {ref: 'loadConfigurationForm', selector: '#LoadProfileConfigurationFormId'},
-        {ref: 'loadProfileConfigPreviewForm', selector: '#loadProfileConfigPreviewForm'},
-        {ref: 'rulesForLoadProfileConfigGrid', selector: '#rulesForLoadProfileConfigGrid'},
-
-        {ref: 'rulesForLoadProfileConfigPreview', selector: 'loadProfileConfigAndRulesPreviewContainer > #rulesForLoadProfileConfigPreview'},
-
-        {ref: 'validationRulesForLoadProfileConfigPreview', selector: 'loadprofile-config-and-rules-preview-container validation-rule-preview'}
-
-
-
-
-
-
-
-
+        {ref: 'loadProfileConfigPreviewForm', selector: '#loadProfileConfigPreviewForm'}
     ],
 
     deviceTypeId: null,
@@ -79,9 +63,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             },
             'menu menuitem[action=deleteloadprofileconfigurationondeviceonfiguration]': {
                 click: this.showConfirmationPanel
-            },
-            '#rulesForLoadProfileConfigGrid': {
-                selectionchange: this.previewValidationRule
             }
         });
 
@@ -290,21 +271,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             this.getLoadProfileConfigPreviewForm().loadRecord(loadProfileConfigs[0]);
             var loadProfileConfigsName = this.getLoadProfileConfigPreviewForm().form.findField('name').getSubmitValue();
             this.getLoadProfileConfigurationPreview().setTitle(loadProfileConfigsName);
-
-            this.getRulesForLoadProfileConfigPreview().setTitle(loadProfileConfigsName + ' validation rules');
-
-            this.getLoadProfileValidationRulesStore().getProxy().extraParams =
-                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigurationId, loadProfileConfig: loadProfileConfigs[0].getId()});
-
-            var me = this;
-            this.getLoadProfileValidationRulesStore().load({
-                callback: function () {
-                    if (me.getLoadProfileValidationRulesStore().count() > 0) {
-                        me.getRulesForLoadProfileConfigGrid().getSelectionModel().doSelect(0);
-                    }
-
-                }
-            });
         }
     },
 

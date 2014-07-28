@@ -16,7 +16,8 @@ Ext.define('Mdc.model.RegisterConfiguration', {
         {name: 'overflow', type: 'number', useNull: true},
         {name: 'timeOfUse', type:'number', useNull: true},
         {name: 'registerType', type:'number', useNull: true},
-        {name: 'multiplierMode', type:'string', useNull: true}
+        {name: 'multiplierMode', type:'string', useNull: true},
+        {name: 'readingType', persist:false}
     ],
     associations: [
         {name: 'readingType', type: 'hasOne', model: 'Mdc.model.ReadingType', associationKey: 'readingType',

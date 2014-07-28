@@ -2,49 +2,36 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.registerMappingsGrid',
     overflowY: 'auto',
-    deviceTypeId: null,
     itemId: 'registermappinggrid',
+
+    deviceTypeId: null,
+
     selModel: {
         mode: 'SINGLE'
     },
+
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterTypesOfDevicetype',
         'Mdc.view.setup.register.RegisterMappingActionMenu',
-        'Uni.grid.column.Obis'
+        'Uni.grid.column.Obis',
+        'Uni.grid.column.ReadingType'
     ],
+
     store: 'RegisterTypesOfDevicetype',
+
     initComponent: function () {
         var me = this;
         this.columns = [
             {
                 header: Uni.I18n.translate('registerMappings.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                flex: 3
+                flex: 1
             },
             {
-                xtype: 'actioncolumn',
-                renderer: function (value, metaData, record) {
-                    return '<div style="float:left; font-size: 13px; line-height: 1em;">'
-                        + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
-                        + '</div>'
-                },
-                header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
-                items: [
-                    {
-                        icon: '../mdc/resources/images/info.png',
-                        iconCls: 'uni-info-icon',
-                        tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
-                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                            //var record = grid.getStore().getAt(rowIndex);
-                            this.fireEvent('showReadingTypeInfo', record);
-                        }
-                    }
-                ],
-                flex: 2,
-                tdCls: 'view',
-                width: 300
+                xtype: 'reading-type-column',
+                dataIndex: 'readingType'
             },
             {
                 xtype: 'obis-column',
@@ -56,6 +43,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 items: 'Mdc.view.setup.register.RegisterMappingActionMenu'
             }
         ];
+
         this.dockedItems = [
             {
 

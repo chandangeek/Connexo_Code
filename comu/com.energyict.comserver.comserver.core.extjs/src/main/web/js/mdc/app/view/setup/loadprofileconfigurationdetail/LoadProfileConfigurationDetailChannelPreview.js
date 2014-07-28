@@ -2,12 +2,13 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     extend: 'Ext.panel.Panel',
     alias: 'widget.loadProfileConfigurationDetailChannelPreview',
     itemId: 'loadProfileConfigurationDetailChannelPreview',
-    height: 310,
+    maxHeight: 300,
     frame: true,
     editActionName: null,
     deleteActionName: null,
     requires: [
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.ObisDisplay',
+        'Uni.grid.column.ReadingType'
     ],
     items: [
         {
@@ -22,54 +23,26 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             },
             items: [
                 {
+                    defaults: {
+                        xtype: 'displayfield',
+                        labelWidth: 200
+                    },
                     columnWidth: 0.6,
                     items: [
                         {
-                            xtype: 'displayfield',
-                            labelWidth: 200,
                             fieldLabel: 'Measurement type',
                             name: 'name'
                         },
                         {
-                            xtype: 'fieldcontainer',
-                            labelWidth: 200,
+                            xtype: 'reading-type-displayfield',
                             fieldLabel: 'CIM reading type',
-                            layout: 'column',
-                            defaults: {
-                                columnWidth: 0.5
-                            },
-                            items: [
-                                {
-                                    xtype: 'displayfield',
-                                    labelWidth: 200,
-                                    name: 'measurementType',
-                                    renderer: function (value) {
-                                        var readingType = value.readingType;
-                                        if (!Ext.isEmpty(readingType)) {
-                                            return value.readingType.mrid;
-                                        }
-                                    }
-                                },
-                                {
-                                    xtype: 'button',
-                                    icon: '../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png',
-                                    cls: 'uni-btn-transparent',
-                                    handler: function (item, test) {
-                                        var record = this.up('#loadProfileConfigurationChannelDetailsForm').form.getRecord();
-                                        this.fireEvent('showReadingTypeInfo', record.getMeasurementType());
-                                    },
-                                    itemId: 'channelsReadingTypeBtn'
-                                }
-                            ]
+                            name: 'readingType'
                         },
                         {
                             xtype: 'obis-displayfield',
-                            labelWidth: 200,
                             name: 'overruledObisCode'
                         },
                         {
-                            xtype: 'displayfield',
-                            labelWidth: 200,
                             fieldLabel: 'Multiplier',
                             name: 'multiplier'
                         }
@@ -77,17 +50,18 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 },
                 {
                     columnWidth: 0.4,
+                    defaults: {
+                        xtype: 'displayfield',
+                        labelWidth: 200
+                    },
                     items: [
                         {
-                            xtype: 'displayfield',
-                            labelWidth: 200,
+
                             fieldLabel: 'Overflow value',
                             name: 'overflowValue'
 
                         },
                         {
-                            xtype: 'displayfield',
-                            labelWidth: 200,
                             fieldLabel: 'Unit of measure',
                             name: 'unitOfMeasure',
                             renderer: function (value) {

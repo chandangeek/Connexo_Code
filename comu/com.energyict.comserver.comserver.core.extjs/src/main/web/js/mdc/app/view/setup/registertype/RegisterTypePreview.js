@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
         'Ext.layout.container.Column',
         'Ext.form.FieldSet',
         'Mdc.view.setup.registertype.RegisterTypeActionMenu',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.ObisDisplay',
+        'Uni.form.field.ReadingTypeDisplay'
     ],
     layout: {
         type: 'vbox',
@@ -43,54 +44,22 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                     type: 'vbox',
                                     align: 'stretch'
                                 },
+                                defaults: {
+                                    xtype: 'displayfield',
+                                    labelWidth: 150
+                                },
                                 items: [
                                     {
-                                        xtype: 'displayfield',
                                         name: 'name',
-                                        fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name'),
-                                        labelWidth: 150
+                                        fieldLabel: Uni.I18n.translate('registerType.name', 'MDC', 'Name')
                                     },
                                     {
-                                        xtype: 'fieldcontainer',
-                                        columnWidth: 0.5,
-                                        fieldLabel: Uni.I18n.translate('registerType.readingType', 'MDC', 'Reading type'),
-                                        labelWidth: 150,
-                                        labelAlign: 'right',
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
-                                        },
-                                        items: [
-                                            {
-                                                xtype: 'displayfield',
-                                                name: 'mrid',
-                                                itemId: 'preview_mrid',
-                                                // TODO In a perfect world, with indefinite deadlines, this should be moved into a separate style or component.
-                                                margin: '0 0 0 12'
-                                            },
-                                            {
-                                                xtype: 'component',
-                                                html: '&nbsp;&nbsp;'
-                                            },
-                                            {
-                                                xtype: 'button',
-                                                icon: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                                                tooltip: Uni.I18n.translate('readingType.tooltip', 'MDC', 'Reading type info'),
-                                                cls: 'uni-btn-transparent',
-                                                handler: function (item, test) {
-                                                    var record = me.down('#registerTypePreviewForm').form.getRecord();
-                                                    this.fireEvent('showReadingTypeInfo', record);
-                                                },
-                                                itemId: 'raadingTypeBtn',
-                                                action: 'showReadingTypeInfo'
-                                            }
-
-                                        ]
+                                        xtype: 'reading-type-displayfield',
+                                        name: 'readingType'
                                     },
                                     {
                                         xtype: 'obis-displayfield',
-                                        name: 'obisCode',
-                                        labelWidth: 150
+                                        name: 'obisCode'
                                     }
                                 ]
                             },
@@ -101,18 +70,18 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                     type: 'vbox',
                                     align: 'stretch'
                                 },
+                                defaults: {
+                                    xtype: 'displayfield',
+                                    labelWidth: 150
+                                },
                                 items: [
                                     {
-                                        xtype: 'displayfield',
                                         name: 'unit',
-                                        fieldLabel: Uni.I18n.translate('registerType.measurementUnit', 'MDC', 'Unit of measure'),
-                                        labelWidth: 150
+                                        fieldLabel: Uni.I18n.translate('registerType.measurementUnit', 'MDC', 'Unit of measure')
                                     },
                                     {
-                                        xtype: 'displayfield',
                                         name: 'timeOfUse',
-                                        fieldLabel: Uni.I18n.translate('registerType.timeOfUse', 'MDC', 'Time of use'),
-                                        labelWidth: 150
+                                        fieldLabel: Uni.I18n.translate('registerType.timeOfUse', 'MDC', 'Time of use')
                                     }
                                 ]
                             }

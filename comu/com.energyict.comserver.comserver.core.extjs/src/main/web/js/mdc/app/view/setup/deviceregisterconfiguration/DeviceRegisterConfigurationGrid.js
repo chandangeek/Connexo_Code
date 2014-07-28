@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterConfigsOfDevice',
-        'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationActionMenu'
+        'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationActionMenu',
+        'Uni.grid.column.ReadingType'
     ],
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' }
@@ -26,28 +27,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                 flex: 3
             },
             {
-                xtype: 'actioncolumn',
-                renderer: function (value, metaData, record) {
-                    return '<div class="x-grid-cell-inner" style="float:left; font-size: 13px; line-height: 1em;">'
-                        + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
-                        + '</div>';
-                },
-                header: Uni.I18n.translate('deviceregisterconfiguration.readingType', 'MDC', 'Reading type'),
-                items: [
-                    {
-                        icon: '../ext/packages/uni-theme-skyline/build/resources/images/shared/icon-info-small.png',
-                        iconCls: 'uni-info-icon',
-                        tooltip: Uni.I18n.translate('deviceregisterconfiguration.readingType.tooltip', 'MDC', 'Reading type info'),
-                        handler: function (grid, rowIndex, colIndex, item, e) {
-                            var record = grid.getStore().getAt(rowIndex);
-                            this.fireEvent('showReadingTypeInfo', record);
-                        }
-                    }
-                ],
-                flex: 2
+                xtype: 'reading-type-column',
+                dataIndex: 'readingType'
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'End of last interval'),
+                header: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading date'),
                 xtype: 'datecolumn',
                 format: 'M j, Y \\a\\t G:i',
                 dataIndex: 'lastReading',
@@ -61,8 +45,12 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
             },
             {
                 header: Uni.I18n.translate('deviceregisterconfiguration.validationStatus', 'MDC', 'Validation status'),
+                dataIndex: 'validationStatus',
                 renderer: function (value, metaData, record) {
-                    return 'TBD';
+                    if(value == true) {
+                        return 'OK';
+                    }
+                    return 'NOK';
                 },
                 flex: 1
             },

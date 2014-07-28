@@ -31,11 +31,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'ruleForRegisterConfigPreview', selector: '#ruleForRegisterConfigPreview'},
 
         {ref: 'registerConfigPreview', selector: '#registerConfigPreview'},
-        {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerConfigEditForm', selector: '#registerConfigEditForm'},
         {ref: 'createRegisterConfigBtn', selector: '#createRegisterConfigBtn'},
         {ref: 'previewMrId', selector: '#preview_mrid'},
-        {ref: 'readingTypeContainer', selector: '#readingTypeContainer'},
         {ref: 'overflowValueInfo', selector: '#overflowValueInfo'},
         {ref: 'numberOfDigits', selector: '#numberOfDigits'},
         {ref: 'rulesForRegisterConfigGrid', selector: 'validation-rules-for-registerconfig-grid'},
@@ -56,15 +54,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 click: this.createRegisterConfigurationHistory
             },
             '#registerconfiggrid actioncolumn': {
-                showReadingTypeInfo: this.showReadingType,
                 editRegisterConfig: this.editRegisterConfigurationHistory,
                 deleteRegisterConfig: this.deleteRegisterConfiguration
-            },
-            '#registerConfigPreviewForm button[action = showReadingTypeInfo]': {
-                showReadingTypeInfo: this.showReadingType
-            },
-            '#registerConfigEditForm button[action = showReadingTypeInfo]': {
-                showReadingTypeInfo: this.showReadingType
             },
             '#registerConfigEditForm combobox': {
                 change: this.changeRegisterType
@@ -213,22 +204,15 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         });
     },
 
-    showReadingType: function (record) {
-        var widget = Ext.widget('readingTypeDetails');
-        this.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
-        widget.show();
-    },
-
     changeRegisterType: function (field, value, options) {
         var me = this;
         var view = this.getRegisterConfigEditForm();
         if (field.name === 'registerType') {
             var registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', value);
             if (registerType != null) {
-                view.down('#create_mrid').setValue(registerType.getReadingType().get('mrid'));
+                view.down('[name="readingType"]').setValue(registerType.get('readingType')).enable();
                 view.down('#editObisCodeField').setValue(registerType.get('obisCode'));
                 view.down('#editOverruledObisCodeField').setValue(registerType.get('obisCode'));
-                view.down('#readingTypeContainer').enable();
             }
         }
     },
@@ -338,7 +322,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         widget.down('form').loadRecord(registerConfiguration);
                                         me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.editRegisterConfig', 'MDC', 'Edit register configuration'));
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerType'));
-                                        widget.down('#create_mrid').setValue(registerConfiguration.getReadingType().get('mrid'));
                                         if (deviceConfiguration.get('active') === true) {
                                             widget.down('#registerTypeComboBox').disable();
                                             widget.down('#editMultiplierField').disable();

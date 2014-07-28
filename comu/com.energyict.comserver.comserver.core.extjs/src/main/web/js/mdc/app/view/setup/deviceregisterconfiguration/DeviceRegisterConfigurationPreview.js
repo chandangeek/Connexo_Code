@@ -2,10 +2,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
     extend: 'Ext.panel.Panel',
     alias: 'widget.deviceRegisterConfigurationPreview',
     itemId: 'deviceRegisterConfigurationPreview',
+
     requires: [
         'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationActionMenu',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.ObisDisplay',
+        'Uni.form.field.ReadingTypeDisplay'
     ],
+
     frame: true,
 
     tools: [
@@ -35,12 +38,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                 items: [
                     {
                         defaults: {
-                            labelAlign: 'right',
-                            labelWidth: 200
+                            xtype: 'displayfield',
+                            labelWidth: 150
                         },
                         items: [
                             {
-                                xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.name', 'MDC', 'Name'),
                                 name: 'name'
                             },
@@ -49,53 +51,22 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                                 name: 'obisCode'
                             },
                             {
-                                xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.readingType', 'MDC', 'Reading type'),
-                                layout: {
-                                    type: 'hbox',
-                                    align: 'stretch'
-                                },
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'mrid',
-                                        itemId: 'preview_mrid'
-                                    },
-                                    {
-                                        xtype: 'component',
-                                        html: '&nbsp;&nbsp;'
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        icon: '../mdc/resources/images/info.png',
-                                        tooltip: Uni.I18n.translate('deviceregisterconfiguration.readingType.tooltip', 'MDC', 'Reading type info'),
-                                        cls: 'uni-btn-transparent',
-                                        handler: function () {
-                                            var record = me.down('#deviceRegisterConfigurationPreviewForm').form.getRecord();
-                                            this.fireEvent('showReadingTypeInfo', record);
-                                        },
-                                        itemId: 'readingTypeBtn',
-                                        action: 'showReadingTypeInfo'
-                                    }
-
-                                ]
+                                xtype: 'reading-type-displayfield',
+                                name: 'readingType'
                             },
                             {
-                                xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfDigits', 'MDC', 'Number of digits'),
                                 name: 'numberOfDigits'
                             },
                             {
-                                xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
                                 name: 'numberOfFractionDigits'
                             },
                             {
-                                xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.overflow', 'MDC', 'Overflow'),
                                 name: 'overflow',
-                                renderer: function(value) {
-                                    if(!Ext.isEmpty(value)) {
+                                renderer: function (value) {
+                                    if (!Ext.isEmpty(value)) {
                                         return value;
                                     }
 
@@ -103,11 +74,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                                 }
                             },
                             {
-                                xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.multiplierMode', 'MDC', 'Multiplier mode'),
                                 name: 'multiplierMode',
-                                renderer: function(value) {
-                                    if(!Ext.isEmpty(value)) {
+                                renderer: function (value) {
+                                    if (!Ext.isEmpty(value)) {
                                         return Uni.I18n.translate(value, 'MDC', value);
                                     }
 
@@ -118,22 +88,29 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                     },
                     {
                         defaults: {
-                            labelAlign: 'right',
-                            labelWidth: 200
+                            xtype: 'displayfield',
+                            labelWidth: 150
                         },
                         items: [
                             {
-                                xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastInterval', 'MDC', 'Last interval'),
-                                renderer: function(value) {
-                                    return 'TBD';
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading date'),
+                                name: 'lastReading',
+                                format: 'M j, Y \\a\\t G:i',
+                                renderer: function (value) {
+                                    if(!Ext.isEmpty(value)) {
+                                        return Ext.util.Format.date(value, this.format);
+                                    }
+                                    return Uni.I18n.translate('deviceregisterconfiguration.lastReading.notspecified', 'MDC', 'N/A');
                                 }
                             },
                             {
-                                xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.validationStatus', 'MDC', 'Validation status'),
-                                renderer: function(value) {
-                                    return 'TBD';
+                                name: 'validationStatus',
+                                renderer: function (value) {
+                                    if(value == true) {
+                                        return 'OK';
+                                    }
+                                    return 'NOK';
                                 }
                             }
                         ]

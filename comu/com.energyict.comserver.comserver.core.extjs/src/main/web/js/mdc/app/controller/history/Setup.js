@@ -358,7 +358,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showRegisterMappings',
                                     items: {
                                         add: {
-                                            title: 'Add register mapping',
+                                            title: 'Add register type',
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.RegisterMappings',
                                             action: 'addRegisterMappings'
@@ -847,10 +847,23 @@ Ext.define('Mdc.controller.history.Setup', {
                                             route: 'overview',
                                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
                                             action: 'showDeviceRegisterConfigurationDetailsView'
+                                        },
+                                        data: {
+                                            title: 'Register data',
+                                            route: 'data',
+                                            controller: 'Mdc.controller.setup.DeviceRegisterData',
+                                            action: 'showDeviceRegisterDataView'
+
                                         }
                                     }
                                 }
                             }
+                        },
+                        datavalidation: {
+                            title: 'Data validation',
+                            route: 'datavalidation',
+                            controller: 'Mdc.controller.setup.DeviceDataValidation',
+                            action: 'showDeviceDataValidationMainView'
                         }
                     }
                 }

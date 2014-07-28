@@ -15,41 +15,25 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
         showHeaderCheckbox: false
     },
     requires: [
-        'Uni.grid.column.Obis'
+        'Uni.grid.column.Obis',
+        'Uni.grid.column.ReadingType'
     ],
-    initComponent: function () {
-        this.columns = [
-            {
-                header: 'Name',
-                dataIndex: 'name',
-                flex: 3
-            },
-            {
-                xtype: 'obis-column',
-                dataIndex: 'obisCode'
-            },
-            {
-                header: Uni.I18n.translate('registerMappings.CIMreadingType', 'MDC', 'CIM Reading type'),
-                dataIndex: 'name',
-                flex: 3,
-                align: 'right',
-                renderer: function (value, metaData, record) {
-                    var id = Ext.id();
-                    Ext.defer(function () {
-                        Ext.widget('button', {
-                            icon: '../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png',
-                            cls: 'uni-btn-transparent',
-                            margin: '0 0 0 32',
-                            handler: function (item, test) {
-                                this.fireEvent('showReadingTypeInfo', record);
-                            },
-                            itemId: 'loadProfileReadingTypeBtn'
-                        });
-                    }, 50);
-                    return Ext.String.format('<div id="{0}">{1}</div>', id, record.getReadingType().get('mrid'));
-                }
-            }
-        ];
-        this.callParent();
-    }
+
+    columns: [
+        {
+            header: 'Name',
+            dataIndex: 'name',
+            flex: 3
+        },
+        {
+            xtype: 'obis-column',
+            dataIndex: 'obisCode'
+        },
+        {
+            xtype: 'reading-type-column',
+            header: Uni.I18n.translate('registerMappings.CIMreadingType', 'MDC', 'CIM Reading type'),
+            dataIndex: 'readingType',
+            align: 'right'
+        }
+    ]
 });

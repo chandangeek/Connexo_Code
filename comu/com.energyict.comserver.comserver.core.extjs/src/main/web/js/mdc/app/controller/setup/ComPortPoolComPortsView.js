@@ -79,7 +79,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         this.comPortsStoreToAdd = this.getStore('ComPortPoolComports');
     },
 
-    showPreviewWithServerName: function(selectionModel, record) {
+    showPreviewWithServerName: function (selectionModel, record) {
         this.showPreview(selectionModel, record, true);
     },
 
@@ -129,7 +129,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             recordData,
             existedRecordsArray,
             jsonValues;
-        comServerStore.load();
+        comServerStore.load({
+            params: {limit:1000}
+        });
         me.getApplication().fireEvent('changecontentevent', widget);
         comPortPoolModel.load(id, {
             success: function (record) {
@@ -202,9 +204,16 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         var grid = this.getAddComPortGrid(),
             comPortsCountSelected = grid.getView().getSelectionModel().getSelection().length,
             comPortsCountContainer = this.getComPortsCountContainer(),
+            addButton = this.getAddComPortView().down('button[name=addcomportstocomportpool]'),
             comPortsMsgWord;
-        comPortsCountSelected > 0 ? comPortsMsgWord = comPortsCountSelected + ' ' + Uni.I18n.translate('comPortPoolComPorts.addPorts.count', 'MDC', 'communication port(s) selected') :
+        if (comPortsCountSelected > 0) {
+            comPortsMsgWord = comPortsCountSelected + ' ' + Uni.I18n.translate('comPortPoolComPorts.addPorts.count', 'MDC', 'communication port(s) selected');
+            addButton.enable();
+        } else {
             comPortsMsgWord = Uni.I18n.translate('comPortPoolComPorts.addPorts.noPortsSelected', 'MDC', 'No communication ports selected');
+            addButton.disable();
+        }
+
         var widget = Ext.widget('container', {
             html: comPortsMsgWord
         });
@@ -213,7 +222,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         comPortsCountContainer.add(widget);
     },
 
-    addComPorts: function() {
+    addComPorts: function () {
         var me = this,
             grid = me.getAddComPortGrid(),
             view = me.getAddComPortView(),
@@ -244,7 +253,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                 record.save({
                     callback: function (records, operation, success) {
                         if (success) {
-                            messageText =  Uni.I18n.translate('comPortPoolComPorts.addPorts.successMessage', 'MDC', 'Communication port(s) added');
+                            messageText = Uni.I18n.translate('comPortPoolComPorts.addPorts.successMessage', 'MDC', 'Communication port(s) added');
                             me.getApplication().fireEvent('acknowledge', messageText);
                             router.getRoute('administration/comportpools/detail/comports').forward();
                         }
@@ -267,14 +276,26 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
 
         page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
         record.destroy({
-            callback: function (model, operation) {
-                page.setLoading(false);
-                if (operation.wasSuccessful()) {
+            success: function (model, operation) {
                     gridToolbarTop.totalCount = 0;
                     grid.getStore().loadPage(1);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServerComPorts.deleteSuccess.msg', 'MDC', 'Communication port removed'));
-                }
+            },
+            failure: function (model, operation) {
+                var title = Uni.I18n.translate('comPortPoolComPorts.remove.failure', 'MDC', 'Failed to remove') + " " + record.get('name'),
+                    errorsArray = Ext.JSON.decode(operation.response.responseText).errors,
+                    message = '';
+
+                Ext.Array.each(errorsArray, function (obj) {
+                    message += obj.msg + '.</br>'
+                });
+
+                me.getApplication().getController('Uni.controller.Error').showError(title, message);
+            },
+            callback: function(){
+                page.setLoading(false);
             }
+
         });
     }
 });

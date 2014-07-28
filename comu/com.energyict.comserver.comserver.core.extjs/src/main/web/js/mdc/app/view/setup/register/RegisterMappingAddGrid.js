@@ -3,18 +3,24 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
     alias: 'widget.registerMappingAddGrid',
     overflowY: 'auto',
     itemId: 'registermappingaddgrid',
+
     selModel: {
         mode: 'MULTI',
         checkOnly: true
     },
+
     selType: 'checkboxmodel',
+
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.AvailableRegisterTypes',
-        'Uni.grid.column.Obis'
+        'Uni.grid.column.Obis',
+        'Uni.grid.column.ReadingType'
     ],
+
     nbrOfSelectedItems: 0,
+
     listeners: {
         selectionchange: function (view, selections, options) {
             this.nbrOfSelectedItems = selections.length;
@@ -22,9 +28,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
             this.down('#pagingt').onLoad();
         }
     },
+
     plugins: {
         ptype: 'bufferedrenderer'
     },
+
     height: 400,
     store: 'AvailableRegisterTypes',
 
@@ -38,29 +46,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
             hideable: false
         },
         {
-            xtype: 'actioncolumn',
-            renderer: function (value, metaData, record) {
-                return '<div style="float:left; font-size: 13px; line-height: 1em;">'
-                    + record.getReadingType().get('mrid') + '&nbsp' + '&nbsp'
-                    + '</div>'
-            },
-            header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
-            flex: 2,
-            items: [
-                {
-                    icon: '../mdc/resources/images/info.png',
-                    iconCls: 'uni-info-icon',
-                    tooltip: Uni.I18n.translate('readingType.tooltip','MDC','Reading type info'),
-                    handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                        //var record = grid.getStore().getAt(rowIndex);
-                        this.fireEvent('showReadingTypeInfo', record);
-                    }
-                }
-            ],
-            tdCls: 'view',
-            sortable: false,
-            fixed: true,
-            hideable: false
+            xtype: 'reading-type-column',
+            dataIndex: 'readingType'
         },
         {
             xtype: 'obis-column',
@@ -106,12 +93,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
     },
 
     initComponent: function () {
-        var me = this;
         var store = Ext.data.StoreManager.lookup('AvailableRegisterTypes');
-        store.getProxy().setExtraParam('filter',Ext.encode([{
-            property:'available',
-            value:true
-        }]));
+        store.getProxy().setExtraParam('filter', Ext.encode([
+            {
+                property: 'available',
+                value: true
+            }
+        ]));
 
         this.callParent();
     }

@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodActionMenu', {
             action: 'deleteConnectionMethod'
         },
         {
-            text: 'default',
+            text: Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'),
             itemId: 'toggleDefaultMenuItem',
             action: 'toggleDefault'
         }

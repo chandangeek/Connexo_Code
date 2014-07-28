@@ -9,14 +9,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesDoc
         this.add(
             {
                 xtype: 'container',
-                itemId: 'measurementTypesCountContainer'
+                itemId: 'measurementTypesCountContainer',
+                margin: '0 8 0 0'
             },
             {
                 xtype: 'button',
-                text: 'Uncheck All',
+                text: Uni.I18n.translate('general.uncheckall', 'MDC', 'Uncheck all'),
                 action: 'uncheckallmeasurementtypes',
-                itemId: 'uncheckAllMeasurementTypes',
-                ui: 'action'
+                itemId: 'uncheckAllMeasurementTypes'
             }
         )
     }

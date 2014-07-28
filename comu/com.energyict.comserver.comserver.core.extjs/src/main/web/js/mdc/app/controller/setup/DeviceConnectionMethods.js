@@ -408,7 +408,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             var me = opt.config.me;
             connectionMethodToDelete.getProxy().extraParams = ({mrid: me.mrid});
             connectionMethodToDelete.destroy({
-                callback: function () {
+                success: function () {
                     location.href = '#/devices/' + me.mrid + '/connectionmethods';
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.remove', 'MDC', 'Connection method removed'));
                 }
@@ -459,7 +459,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                     callback: function () {
                                         connectionStrategiesStore.load({
                                             callback: function () {
-                                                var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + connectionMethod.get('name');
+                                                var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + connectionMethod.get('name') + '\'';
                                                 widget.down('#deviceConnectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
                                                 me.getDeviceConnectionMethodEditView().down('#communicationPortPoolComboBox').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);

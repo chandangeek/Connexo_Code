@@ -12,10 +12,9 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         itemId: 'searchitemsbulkactiontitle'
     },
     showMessage: function (message) {
-        var widget = Ext.widget('Ext.panel.Panel', {
-            title: message.title,
-            html: message.body
-        });
+        var widget = {
+            html: '<h3>' + message.title + '</h3><br>' + message.body
+        };
 
         this.removeAll();
         this.add(widget)

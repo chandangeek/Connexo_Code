@@ -27,6 +27,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesVie
                             boxLabel: '<b>All measurement types</b><br/>' +
                                 '<span style="color: grey;">Select all items (related to filters on previous screen)</span>',
                             name: 'measurementTypeRange',
+                            itemId: 'radioAll',
                             checked: true,
                             inputValue: 'ALL'
                         },

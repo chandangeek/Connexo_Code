@@ -12,6 +12,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.RegisterTypes',
         'Mdc.controller.setup.RegisterMappings',
         'Mdc.controller.setup.DeviceConfigurations',
+        'Mdc.controller.setup.DeviceDataValidation',
         'Mdc.controller.setup.DeviceCommunicationProtocols',
         'Mdc.controller.setup.RegisterGroups',
         'Mdc.controller.setup.ProtocolDialects',
@@ -31,7 +32,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.LoadProfileConfigurationDetails',
         'Mdc.controller.setup.CommunicationTasks',
         'Mdc.controller.setup.ValidationRuleSets',
-        'Mdc.controller.setup.Comtasks'
+        'Mdc.controller.setup.Comtasks',
+        'Mdc.controller.setup.RuleDeviceConfigurations'
     ],
 
     controllers: [
@@ -46,6 +48,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.RegisterTypes',
         'Mdc.controller.setup.RegisterMappings',
         'Mdc.controller.setup.DeviceConfigurations',
+        'Mdc.controller.setup.DeviceDataValidation',
         'Mdc.controller.setup.DeviceRegisterConfiguration',
         'Mdc.controller.setup.RegisterGroups',
         'Mdc.controller.setup.ProtocolDialects',
@@ -69,7 +72,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.ComServerComPortsView',
         'Mdc.controller.setup.ValidationRuleSets',
         'Mdc.controller.setup.SearchItemsBulkAction',
-        'Mdc.controller.setup.ValidationRuleSets'
+        'Mdc.controller.setup.ValidationRuleSets',
+        'Mdc.controller.setup.RuleDeviceConfigurations'
     ],
 
     config: {
@@ -171,6 +175,7 @@ Ext.define('Mdc.controller.Main', {
 
         this.initNavigation();
         this.initDefaultHistoryToken();
+        this.getApplication().fireEvent('cfginitialized');
     },
 
     initNavigation: function () {

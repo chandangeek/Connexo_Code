@@ -65,10 +65,30 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             'validation-rules-overview validation-rules-grid': {
                 selectionchange: this.onValidationRuleSelectionChange
             },
-            'validation-add-rulesets #radiogroupAddRuleSet': {
+            'validation-add-rulesets radiogroup': {
                 change: this.onChangeRadio
             }
         });
+
+        this.listen({
+            store: {
+                '#Mdc.store.ValidationRuleSetsForDeviceConfig': {
+                    load: this.banDefaultSelection
+                }
+            }
+        });
+    },
+
+    onChangeRadio: function () {
+        var grid = Ext.ComponentQuery.query('validation-add-rulesets validation-add-rulesets-grid')[0];
+        grid.getSelectionModel().getSelection().length === 0 ? grid.down('#uncheckAll').setDisabled(true) : grid.down('#uncheckAll').setDisabled(false);
+        this.getAddValidationRuleSets().down('#radioAll').getValue() && grid.down('#uncheckAll').setDisabled(true);
+    },
+
+    banDefaultSelection: function () {
+        if (this.getAddValidationRuleSetsGrid().getStore().getCount() > 0) {
+            this.getAddValidationRuleSetsGrid().getSelectionModel().deselectAll();
+        }
     },
 
     showValidationRuleSetsOverview: function (deviceTypeId, deviceConfigId) {
@@ -108,7 +128,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         deviceConfigRuleSetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         var widget = Ext.widget('validation-add-rulesets', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
-
+        if (me.getAddValidationRuleSetsGrid()) {
+            me.getAddValidationRuleSetsGrid().getStore().removeAll();
+        }
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -136,7 +158,6 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.getAddValidationRuleSetsGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
@@ -154,7 +175,6 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
     onAddValidationRuleSetsSelectionChange: function (grid) {
         var view = this.getAddValidationRuleSets(),
-            radioAll = this.getAddValidationRuleSets().down('#radioAll'),
             radioSelected = this.getAddValidationRuleSets().down('#radioSelected'),
             selection = grid.view.getSelectionModel().getSelection(),
             counter = Ext.ComponentQuery.query('validation-add-rulesets #selection-counter')[0],
@@ -170,13 +190,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         if (selection.length > 0) {
             view.updateValidationRuleSet(selection[0]);
         }
-        if (grid.view.getSelectionModel().getCount() < grid.getStore().getCount()) {
-            this.changeRadioFromAllToSelected();
-        }
-        if (grid.view.getSelectionModel().getCount() === grid.getStore().getCount()) {
-            radioAll.setValue(true);
-            radioSelected.setValue(false);
-        }
+
+        this.changeRadioFromAllToSelected();
+        selection.length === 0 ? view.down('#uncheckAll').setDisabled(true) : view.down('#uncheckAll').setDisabled(false);
     },
 
     changeRadioFromAllToSelected: function () {
@@ -197,17 +213,23 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             loadMask = Ext.create('Ext.LoadMask', {
                 target: view
             }),
-            ids = [];
+            ids = [],
+            allPressed = view.down('#radiogroupAddRuleSet').getValue().rulesetsRadio === 'ALL';
 
-        Ext.Array.each(selection, function (item) {
-            ids.push(item.internalId);
-        });
+        if (!allPressed) {
+            Ext.Array.each(selection, function (item) {
+                ids.push(item.internalId);
+            });
+        }
 
         loadMask.show();
         Ext.Ajax.request({
             url: url,
             method: 'POST',
             jsonData: Ext.encode(ids),
+            params: {
+                all: allPressed
+            },
             success: function () {
                 location.href = '#/administration/devicetypes/'
                     + me.deviceTypeId + '/deviceconfigurations/'
@@ -249,8 +271,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
     onUncheckAll: function () {
         var grid = this.getAddValidationRuleSetsGrid();
-        grid.getView().getSelectionModel().deselectAll();
-        this.changeRadioFromAllToSelected();
+        grid.getView().getSelectionModel().deselectAll(true);
+        grid.fireEvent('selectionchange', grid);
     },
 
     onAddValidationActionMenuClick: function (menu, item) {
@@ -380,15 +402,6 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
         if (selection.length > 0) {
             view.updateValidationRule(selection[0]);
-        }
-    },
-
-    onChangeRadio: function (radiogroup, newValue, oldValue) {
-        var grid = this.getAddValidationRuleSetsGrid();
-        switch (newValue.rulesetsRadio) {
-            case 'ALL':
-                grid.getSelectionModel().selectAll(true);
-                grid.fireEvent('selectionchange', grid);
         }
     }
 });

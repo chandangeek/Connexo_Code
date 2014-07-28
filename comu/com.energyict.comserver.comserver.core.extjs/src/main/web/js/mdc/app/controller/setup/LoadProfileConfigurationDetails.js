@@ -8,7 +8,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         'Mdc.view.setup.validation.RuleActionMenu'
     ],
     views: [
-        'setup.register.ReadingTypeDetails',
         'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailSetup',
         'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailInfo',
         'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailDockedItems',
@@ -37,7 +36,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         {ref: 'loadProfileConfigurationChannelDetailsForm', selector: '#loadProfileConfigurationChannelDetailsForm'},
         {ref: 'loadProfileDetailChannelPreview', selector: '#loadProfileConfigurationDetailChannelPreview'},
         {ref: 'channelForm', selector: '#loadProfileConfigurationDetailChannelFormId'},
-        {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'channelsGrid', selector: '#loadProfileConfigurationDetailChannelGrid'}
     ],
 
@@ -51,9 +49,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             },
             'loadProfileConfigurationDetailSetup loadProfileConfigurationDetailChannelGrid': {
                 itemclick: this.loadGridItemDetail
-            },
-            '#channelsReadingTypeBtn': {
-                showReadingTypeInfo: this.showReadingType
             },
             'loadProfileConfigurationDetailForm combobox[name=measurementType]': {
                 change: this.changeDisplayedObisCodeAndCIM
@@ -141,7 +136,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             waitMsg: 'Removing...',
             success: function () {
                 me.handleSuccessRequest('Channel was removed successfully');
-                me.store.load();
+                me.store.load(function () {
+                    if (this.getCount() === 0) {
+                        me.getPage().down('#rulesForChannelPreviewContainer').destroy();
+                        me.getPage().down('#rulesForChannelConfig').destroy();
+                    }
+                });
             }
 //            failure: function (result, request) {
 //                me.handleFailureRequest(result, "Error during removing of channel", 'removeloadprofileconfigurationdetailchannelconfirm');
@@ -154,7 +154,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         var record = combobox.getStore().getById(newValue),
             form = this.getChannelForm();
         if (record) {
-            form.down('[name=cimreadingtype]').setValue(record.get('readingType').mrid);
+            form.down('[name=readingType]').setValue(record.get('readingType'));
             form.down('[name=obiscode]').setValue(record.get('obisCode'));
             form.down('[name=unitOfMeasure]').setValue(record.get('phenomenon').id);
         }
@@ -312,58 +312,51 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         if (this.displayedItemId != recordData.id) {
             grid.clearHighlight();
             preloader.show();
-        }
-        this.displayedItemId = recordData.id;
-        this.getLoadProfileDetailChannelPreview().setTitle(recordData.name);
-        form.loadRecord(channelConfig);
-        this.getPage().down('#rulesForChannelConfig').setTitle(channelConfig.get('name') + ' validation rules');
-        if (me.getPage().down('#rulesForChannelPreviewContainer')) {
-            me.getPage().down('#rulesForChannelPreviewContainer').destroy();
-        }
-        me.getPage().down('#validationrulesContainer').add(
-            {
-                xtype: 'preview-container',
-                itemId: 'rulesForChannelPreviewContainer',
-                grid: {
-                    xtype: 'load-profile-configuration-detail-rules-grid',
-                    deviceTypeId: me.deviceTypeId,
-                    deviceConfigId: me.deviceConfigurationId,
-                    channelConfigId: channelId
-                },
-                emptyComponent: {
-                    xtype: 'no-items-found-panel',
-                    title: Uni.I18n.translate('registerConfig.validationRules.empty.title', 'MDC', 'No validation rules found'),
-                    reasons: [
-                        Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.'),
-                        Uni.I18n.translate('registerConfig.validationRules.empty.list.item2', 'MDC', 'Validation rules exists, but you do not have permission to view them.')
-                    ]
-                },
-                previewComponent: {
-                    xtype: 'validation-rule-preview',
-                    tools: [
-                        {
-                            xtype: 'button',
-                            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                            iconCls: 'x-uni-action-iconD',
-                            menu: {
-                                xtype: 'validation-rule-actionmenu'
-                            }
-                        }
-                    ]
-                }
+            this.displayedItemId = recordData.id;
+            this.getLoadProfileDetailChannelPreview().setTitle(recordData.name);
+            form.loadRecord(channelConfig);
+            this.getPage().down('#rulesForChannelConfig').setTitle(channelConfig.get('name') + ' validation rules');
+            if (me.getPage().down('#rulesForChannelPreviewContainer')) {
+                me.getPage().down('#rulesForChannelPreviewContainer').destroy();
             }
-        );
-        this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getStore().getProxy().extraParams =
-            ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigurationId, channelConfig: channelId});
-        this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getStore().load();
-        preloader.destroy();
-    },
-
-
-    showReadingType: function (record) {
-        var widget = Ext.widget('readingTypeDetails');
-        this.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
-        widget.show();
+            me.getPage().down('#validationrulesContainer').add(
+                {
+                    xtype: 'preview-container',
+                    itemId: 'rulesForChannelPreviewContainer',
+                    grid: {
+                        xtype: 'load-profile-configuration-detail-rules-grid',
+                        deviceTypeId: me.deviceTypeId,
+                        deviceConfigId: me.deviceConfigurationId,
+                        channelConfigId: channelId
+                    },
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('registerConfig.validationRules.empty.title', 'MDC', 'No validation rules found'),
+                        reasons: [
+                            Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.'),
+                            Uni.I18n.translate('registerConfig.validationRules.empty.list.item2', 'MDC', 'Validation rules exists, but you do not have permission to view them.')
+                        ]
+                    },
+                    previewComponent: {
+                        xtype: 'validation-rule-preview',
+                        tools: [
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                                iconCls: 'x-uni-action-iconD',
+                                menu: {
+                                    xtype: 'validation-rule-actionmenu'
+                                }
+                            }
+                        ]
+                    }
+                }
+            );
+            this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getStore().getProxy().extraParams =
+                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigurationId, channelConfig: channelId});
+            this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getStore().load();
+            preloader.destroy();
+        }
     },
 
     showDeviceConfigurationLoadProfilesConfigurationDetailsView: function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
@@ -399,7 +392,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         me.getPage().down('#loadProfileConfigurationDetailDockedItems').hide();
                                         me.getPage().down('#loadProfileConfigurationDetailChannelGridContainer').hide();
                                         me.getPage().down('#loadProfileConfigurationDetailChannelPreviewContainer').hide();
-                                        me.getPage().down('#separator').hide();
                                     }
                                 }, me);
                                 var detailedForm = me.getLoadConfigurationDetailForm();
@@ -449,7 +441,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 measurementTypeCombobox.store = me.availableMeasurementTypesStore;
                                 unitOfMeasureCombobox.store = me.phenomenasStore;
                                 me.phenomenasStore.load();
-                                me.availableMeasurementTypesStore.load({callback: function() {
+                                me.availableMeasurementTypesStore.load({callback: function () {
                                     preloader.destroy();
                                 }});
                                 me.deviceTypeName = deviceType.get('name');

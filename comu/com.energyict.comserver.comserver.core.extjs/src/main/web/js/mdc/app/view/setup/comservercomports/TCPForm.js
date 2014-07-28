@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
                 }
             },
             name: 'portNumber',
-            value: 1,
+            value: 0,
             width: 350
         },
         {
@@ -67,7 +67,23 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
             name: 'comPortPool_id',
             displayField: 'name',
             valueField: 'id',
-            emptyText: 'Select inbound communication pool'
+            emptyText: 'Select inbound communication port pool'
+        },
+        {
+            xtype: 'fieldcontainer',
+            fieldLabel: '&nbsp;',
+            name: 'helpLabelInboundComPorts',
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    html: '<span style="color: grey"><i>' + Uni.I18n.translate('comports.preview.noInboundCommPortPool', 'MDC', 'When no inbound communication port pool is selected,<br> the port cannot be activated') + '</i></span>',
+                    xtype: 'component'
+
+                }
+            ]
         }
     ],
 
@@ -75,6 +91,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
     showInbound: function(){
         this.down('numberfield[name=portNumber]').show();
         this.down('combobox[name=comPortPool_id]').show();
+        this.down('fieldcontainer[name=helpLabelInboundComPorts]').show();
 
         this.down('#comportpoolid').hide();
         this.down('#comportpoolid').disable();
@@ -84,7 +101,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
     showOutbound: function(){
         this.down('numberfield[name=portNumber]').hide();
         this.down('numberfield[name=portNumber]').disable();
-
+        this.down('fieldcontainer[name=helpLabelInboundComPorts]').hide();
         this.down('combobox[name=comPortPool_id]').hide();
         this.down('combobox[name=comPortPool_id]').disable();
 

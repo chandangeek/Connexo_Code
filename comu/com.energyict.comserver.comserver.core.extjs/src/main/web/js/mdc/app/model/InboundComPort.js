@@ -1,5 +1,4 @@
 Ext.define('Mdc.model.InboundComPort', {
-    requires: ['Mdc.model.ModemInitString'],
     extend: 'Mdc.model.ComPort',
     fields: [
         {name:'portNumber',type: 'int',useNull: true},
@@ -24,14 +23,16 @@ Ext.define('Mdc.model.InboundComPort', {
         {name:'trustStoreFilePath',type: 'string',useNull: true},
         {name:'keyStorePassword',type: 'string',useNull: true},
         {name:'trustStorePassword',type: 'string',useNull: true},
-        'modemInitStrings'
+        {name: 'modemInitStrings', type: 'auto',
+            mapping: function (data) {
+                if (!data.modemInitStrings){
+                    return [];
+                } else {
+                    return data.modemInitStrings;
+                }
+            }}
     ],
     associations: [
-        {name: 'modemInitStrings',type: 'hasMany',model: 'Mdc.model.ModemInitString',associationKey: 'modemInitStrings',
-            getTypeDiscriminator:function(node){
-                return 'Mdc.model.ModemInitString';
-            }
-        },
         {name: 'connectTimeout',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'connectTimeout'},
         {name: 'delayAfterConnect',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'delayAfterConnect'},
         {name: 'delayBeforeSend',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'delayBeforeSend'},

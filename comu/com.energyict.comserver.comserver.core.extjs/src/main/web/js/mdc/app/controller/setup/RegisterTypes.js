@@ -11,8 +11,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         'setup.registertype.RegisterTypeGrid',
         'setup.registertype.RegisterTypePreview',
         'setup.registertype.RegisterTypeDetail',
-        'setup.registertype.RegisterTypeEdit',
-        'setup.register.ReadingTypeDetails'
+        'setup.registertype.RegisterTypeEdit'
     ],
 
     stores: [
@@ -31,9 +30,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         {ref: 'registerTypeEditView', selector: '#registerTypeEdit'},
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
         {ref: 'registerTypeDetailForm', selector: '#registerTypeDetailForm'},
-        {ref: 'readingTypeDetailsForm', selector: '#readingTypeDetailsForm'},
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
-        {ref: 'previewMrId', selector: '#preview_mrid'},
         {ref: 'detailMrId', selector: '#detail_mrid'}
     ],
 
@@ -47,8 +44,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             },
             '#registertypegrid actioncolumn': {
                 editRegisterType: this.editRegisterTypeHistory,
-                deleteRegisterType: this.deleteRegisterType,
-                showReadingTypeInfo: this.showReadingType
+                deleteRegisterType: this.deleteRegisterType
             },
             '#registerTypeSetup button[action = createRegisterType]': {
                 click: this.createRegisterTypeHistory
@@ -70,12 +66,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             },
             '#registerTypeDetail menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeFromDetails
-            },
-            '#registerTypePreviewForm button[action = showReadingTypeInfo]': {
-                showReadingTypeInfo: this.showReadingType
-            },
-            '#registerTypeDetailForm button[action = showReadingTypeInfo]': {
-                showReadingTypeInfo: this.showReadingType
             },
             '#registerTypeEditForm textfield[cls=obisCode]': {
                 blur: this.getReadingType
@@ -137,10 +127,13 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         if (registerTypes.length == 1) {
             this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
             this.getRegisterTypePreview().setTitle(registerTypes[0].get('name'));
-            this.getPreviewMrId().setValue(registerTypes[0].getReadingType().get('mrid'));
         }
     },
 
+    /**
+     * todo: is it @deprecated? no usages have been found
+     * @param registerType
+     */
     showRegisterTypeDetailsView: function (registerType) {
         var me = this;
         var widget = Ext.widget('registerTypeDetail');
@@ -332,12 +325,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     editRegisterTypeFromDetails: function () {
         var record = this.getRegisterTypeDetailForm().getRecord();
         location.href = '#/administration/registertypes/' + record.get('id') + '/edit';
-    },
-
-    showReadingType: function (record) {
-        var widget = Ext.widget('readingTypeDetails');
-        this.getReadingTypeDetailsForm().loadRecord(record.getReadingType());
-        widget.show();
     },
 
     getReadingType: function (field, newValue, oldValue) {

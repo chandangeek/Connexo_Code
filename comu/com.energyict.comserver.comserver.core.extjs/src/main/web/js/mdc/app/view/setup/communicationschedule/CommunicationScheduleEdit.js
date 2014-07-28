@@ -117,7 +117,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                     },
                                                     {
                                                         xtype: 'actioncolumn',
-                                                        iconCls: 'uni-actioncolumn-gear',
                                                         columnWidth: 32,
                                                         fixed: true,
                                                         sortable: false,
@@ -215,7 +214,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             type: 'vbox',
                             align: 'stretch'
                         },
-//                        width: '100%',
                         defaults: {
                             labelWidth: 250
                         },
@@ -223,7 +221,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             {
                                 xtype: 'fieldcontainer',
                                 fieldLabel: '&nbsp',
-                                //width: 430,
                                 layout: {
                                     type: 'hbox',
                                     align: 'stretch'
@@ -251,8 +248,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                         xtype: 'component',
                         height: 100
                     }
-
-
                 ]
             }
         ];
