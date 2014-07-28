@@ -8,10 +8,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import javax.validation.MessageInterpolator;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -81,12 +81,15 @@ public class FieldResource {
      *       },
      *       {
      *           "nrOfDataBits": "SIX"
+     *           "localizedValue": ...
      *       },
      *       {
      *           "nrOfDataBits": "SEVEN"
+     *           "localizedValue": ...
      *       },
      *       {
      *           "nrOfDataBits": "EIGHT"
+     *           "localizedValue": ...
      *       }
      *   ]
      * }
@@ -96,14 +99,73 @@ public class FieldResource {
      * @param <T> The type of values being listed
      * @return ExtJS JSON format for listed values
      */
-    protected <T> HashMap<String, Object> asJsonArrayObject(String fieldName, String valueName, Collection<T> values) {
-        HashMap<String, Object> map = new HashMap<>();
+    protected <T> Map<String, Object> asJsonArrayObjectWithTranslation(String fieldName, String valueName, Collection<T> values) {
+        Map<String, Object> map = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         map.put(fieldName, list);
         for (final T value: values) {
             HashMap<String, Object> subMap = new HashMap<>();
             subMap.put(valueName, value);
             subMap.put("localizedValue", thesaurus.getString(value.toString(), value.toString()));
+            list.add(subMap);
+        }
+        return map;
+    }
+
+    /**
+     * For JavaScript, values have to be wrapped, for example
+     *
+     * Don't serialize as
+     * {
+     *   [
+     *      "FIVE",
+     *      "SIX",
+     *      "SEVEN",
+     *      "EIGHT"
+     *   ]
+     * }
+     *
+     * But as
+     * {
+     *   "nrOfDataBits": [
+     *       {
+     *           "nrOfDataBits": "FIVE",
+     *           "localizedValue": "vijf"
+     *       },
+     *       {
+     *           "nrOfDataBits": "SIX"
+     *           "localizedValue": ...
+     *       },
+     *       {
+     *           "nrOfDataBits": "SEVEN"
+     *           "localizedValue": ...
+     *       },
+     *       {
+     *           "nrOfDataBits": "EIGHT"
+     *           "localizedValue": ...
+     *       }
+     *   ]
+     * }
+     * @param fieldName the top level list name, collection name for the values, eg: values
+     * @param valueName value level field name, eg: value
+     * @param values The actual values to enumerate
+     * @param translationKeys The list of keys to use for translations. The order of the keys must be the same as the order of the values, that means, n-th value in values will be translated using n-th translation key
+     * @param <T> The type of values being listed
+     * @return ExtJS JSON format for listed values
+     */
+    protected <T> Map<String, Object> asJsonArrayObjectWithTranslation(String fieldName, String valueName, List<T> values, List<String> translationKeys) {
+        if (values.size()!=translationKeys.size()) {
+            throw new IllegalStateException(String.format("Not enough translation keys for field resource '%s'", fieldName));
+        }
+        Map<String, Object> map = new HashMap<>();
+        List<Map<String, Object>> list = new ArrayList<>();
+        map.put(fieldName, list);
+        Iterator<String> translationKeyIterator = translationKeys.iterator();
+        for (final T value: values) {
+            HashMap<String, Object> subMap = new HashMap<>();
+            subMap.put(valueName, value);
+            String translationKey = translationKeyIterator.next();
+            subMap.put("localizedValue", thesaurus.getString(translationKey, translationKey));
             list.add(subMap);
         }
         return map;
