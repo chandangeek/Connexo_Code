@@ -461,6 +461,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
     checkDependencies: function (template) {
         var me = this,
+            templateId = template ? template.getId() : me.getRuleForm().down('#ruleTemplate').getValue(),
             templateDetails = me.getTemplateDetails(),
             parametersFields = templateDetails.query('[isFormField=true]');
 
@@ -478,7 +479,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                             data[linkedField.name] = linkedField.getValue();
                         });
                         Ext.Ajax.request({
-                            url: ' /api/isu/rules/templates/' + template.getId() + '/parameters/' + field.name,
+                            url: ' /api/isu/rules/templates/' + templateId + '/parameters/' + field.name,
                             method: 'PUT',
                             jsonData: Ext.encode(data),
                             success: function(response){
@@ -488,6 +489,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                                     index = templateDetails.query().indexOf(oldControl);
                                 oldControl.destroy();
                                 templateDetails.insert(index, newControl);
+                                me.checkDependencies();
                             }
                         });
                     });
