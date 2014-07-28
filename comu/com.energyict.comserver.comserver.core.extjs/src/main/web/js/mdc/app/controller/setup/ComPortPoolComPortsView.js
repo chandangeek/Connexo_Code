@@ -129,7 +129,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             recordData,
             existedRecordsArray,
             jsonValues;
-        comServerStore.load();
+        comServerStore.load({
+            params: {limit:1000}
+        });
         me.getApplication().fireEvent('changecontentevent', widget);
         comPortPoolModel.load(id, {
             success: function (record) {
