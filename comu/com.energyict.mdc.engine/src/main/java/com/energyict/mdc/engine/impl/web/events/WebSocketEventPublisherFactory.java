@@ -23,8 +23,8 @@ public class WebSocketEventPublisherFactory {
         soleInstance = factory;
     }
 
-    public WebSocketEventPublisher newWebSocketEventPublisher () {
-        return new WebSocketEventPublisher(ServiceProvider.instance.get());
+    public WebSocketEventPublisher newWebSocketEventPublisher (WebSocketCloseEventListener closeEventListener) {
+        return new WebSocketEventPublisher(ServiceProvider.instance.get(), closeEventListener);
     }
 
     // Hide utility class constructor

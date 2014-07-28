@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.*;
 import org.junit.runner.*;
-
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -373,8 +372,8 @@ public class TextBasedEventFilterIntegrationTest {
     private class LatchDrivenWebSocketEventPublisher extends WebSocketEventPublisher {
         private CountDownLatch latch;
 
-        private LatchDrivenWebSocketEventPublisher (CountDownLatch latch) {
-            super(serviceProvider);
+        private LatchDrivenWebSocketEventPublisher (CountDownLatch latch, WebSocketCloseEventListener closeEventListener) {
+            super(serviceProvider, closeEventListener);
             this.latch = latch;
         }
 
@@ -394,8 +393,8 @@ public class TextBasedEventFilterIntegrationTest {
         }
 
         @Override
-        public WebSocketEventPublisher newWebSocketEventPublisher () {
-            return new LatchDrivenWebSocketEventPublisher(this.latch);
+        public WebSocketEventPublisher newWebSocketEventPublisher (WebSocketCloseEventListener closeEventListener) {
+            return new LatchDrivenWebSocketEventPublisher(this.latch, closeEventListener);
         }
     }
 

@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.web.events;
 
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -21,6 +20,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.google.common.base.Optional;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
@@ -381,8 +381,8 @@ public class BinaryBasedEventFilterIntegrationTest {
     private class LatchDrivenWebSocketEventPublisher extends WebSocketEventPublisher {
         private CountDownLatch latch;
 
-        private LatchDrivenWebSocketEventPublisher (CountDownLatch latch) {
-            super(serviceProvider);
+        private LatchDrivenWebSocketEventPublisher (CountDownLatch latch, WebSocketCloseEventListener closeEventListener) {
+            super(serviceProvider, closeEventListener);
             this.latch = latch;
         }
 
@@ -402,8 +402,8 @@ public class BinaryBasedEventFilterIntegrationTest {
         }
 
         @Override
-        public WebSocketEventPublisher newWebSocketEventPublisher () {
-            return new LatchDrivenWebSocketEventPublisher(this.latch);
+        public WebSocketEventPublisher newWebSocketEventPublisher (WebSocketCloseEventListener closeEventListener) {
+            return new LatchDrivenWebSocketEventPublisher(this.latch, closeEventListener);
         }
     }
 

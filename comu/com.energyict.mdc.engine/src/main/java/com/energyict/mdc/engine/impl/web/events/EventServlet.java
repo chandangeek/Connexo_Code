@@ -4,9 +4,8 @@ import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides a servlet implementation for the ComServer event mechanism.
@@ -18,24 +17,20 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-02 (16:30)
  */
-public class EventServlet extends WebSocketServlet {
+public class EventServlet extends WebSocketServlet implements WebSocketCloseEventListener {
 
-    private Map<String, WebSocketEventPublisher> eventPublishers = new HashMap<>();
+    private List<WebSocketEventPublisher> eventPublishers = new ArrayList<>();
 
     @Override
     public WebSocket doWebSocketConnect (HttpServletRequest request, String protocol) {
-        return this.findOrCreateEventPublisher(request);
+        WebSocketEventPublisher newEventPublisher = WebSocketEventPublisherFactory.getInstance().newWebSocketEventPublisher(this);
+        this.eventPublishers.add(newEventPublisher);
+        return newEventPublisher;
     }
 
-    private WebSocketEventPublisher findOrCreateEventPublisher (HttpServletRequest request) {
-        HttpSession httpSession = request.getSession(true);
-        String httpSessionId = httpSession.getId();
-        WebSocketEventPublisher eventPublisher = this.eventPublishers.get(httpSessionId);
-        if (eventPublisher == null) {
-            eventPublisher = WebSocketEventPublisherFactory.getInstance().newWebSocketEventPublisher();
-            this.eventPublishers.put(httpSessionId, eventPublisher);
-        }
-        return eventPublisher;
+    @Override
+    public void closedFrom(WebSocketEventPublisher webSocketEventPublisher) {
+        this.eventPublishers.remove(webSocketEventPublisher);
     }
 
 }

@@ -1,12 +1,15 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.google.common.base.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -24,6 +27,14 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
 
     public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor, threadFactory, serviceProvider);
+    }
+
+    @Override
+    protected void setThreadPrinciple() {
+        Optional<User> user = getServiceProvider().userService().findUser("batch executor");
+        if (user.isPresent()) {
+            getServiceProvider().threadPrincipalService().set(user.get(), "SingleThreadedComPort", "Executing", Locale.ENGLISH);
+        }
     }
 
     @Override
