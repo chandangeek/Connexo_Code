@@ -64,6 +64,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             },
             'validation-rules-overview validation-rules-grid': {
                 selectionchange: this.onValidationRuleSelectionChange
+            },
+            'validation-add-rulesets radiogroup': {
+                change: this.onChangeRadio
             }
         });
 
@@ -74,6 +77,12 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 }
             }
         });
+    },
+
+    onChangeRadio: function () {
+        var grid = Ext.ComponentQuery.query('validation-add-rulesets validation-add-rulesets-grid')[0];
+        grid.getSelectionModel().getSelection().length === 0 ? grid.down('#uncheckAll').setDisabled(true) : grid.down('#uncheckAll').setDisabled(false);
+        this.getAddValidationRuleSets().down('#radioAll').getValue() && grid.down('#uncheckAll').setDisabled(true);
     },
 
     banDefaultSelection: function () {
@@ -183,6 +192,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         }
 
         this.changeRadioFromAllToSelected();
+        selection.length === 0 ? view.down('#uncheckAll').setDisabled(true) : view.down('#uncheckAll').setDisabled(false);
     },
 
     changeRadioFromAllToSelected: function () {
@@ -262,6 +272,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
     onUncheckAll: function () {
         var grid = this.getAddValidationRuleSetsGrid();
         grid.getView().getSelectionModel().deselectAll(true);
+        grid.fireEvent('selectionchange', grid);
     },
 
     onAddValidationActionMenuClick: function (menu, item) {
