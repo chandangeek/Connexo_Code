@@ -36,7 +36,6 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         var me = this;
         this.control({
             'comServersGrid': {
-                itemdblclick: this.editComServer,
                 select: this.showComServerPreview
             },
             '#comserverViewMenu': {
@@ -120,6 +119,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
     editComServer: function (record) {
         var router = this.getController('Uni.controller.history.Router'),
             id = record.getId();
+
 
         router.getRoute('administration/comservers/edit').forward({id: id});
     },

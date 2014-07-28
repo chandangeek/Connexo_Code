@@ -5,6 +5,7 @@ Ext.define('Mdc.model.ComPort', {
         'name',
         'direction',
         'comServer_id',
+        'comServerName',
         'comPortType',
         'description',
         'active',

@@ -31,6 +31,10 @@ Ext.define('Mdc.model.ComServerComPort', {
             type: 'string'
         },
         {
+            name: 'comServerName',
+            type: 'string'
+        },
+        {
             name: 'active',
             type: 'boolean'
         },
@@ -311,22 +315,6 @@ Ext.define('Mdc.model.ComServerComPort', {
                             result += item.modemInitString + '<br>';
                         })
                     }
-                }
-                return result;
-            }
-        },
-        {
-            name: 'server',
-            type: 'string',
-            mapping: function (data) {
-                var id = data.comServer_id,
-                    result = '',
-                    comServerStore,
-                    comServer;
-                if (id) {
-                    comServerStore = Ext.getStore('Mdc.store.ComServers');
-                    comServer = comServerStore.getById(id);
-                    result = comServer ? comServer.get('name') : '';
                 }
                 return result;
             }

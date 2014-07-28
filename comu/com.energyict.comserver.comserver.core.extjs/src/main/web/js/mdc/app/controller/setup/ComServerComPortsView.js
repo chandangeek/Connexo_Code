@@ -139,6 +139,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             model = this.getModel('Mdc.model.ComServerComPort'),
             id = record.getId(),
             currentForm = previewPanel.down('form[hidden=false]'),
+            comServerNameField,
             form;
 
         previewPanel.setLoading(true);
@@ -152,10 +153,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                     currentForm && currentForm.hide();
                     if (form) {
                         form.show();
+                        comServerNameField = form.down('displayfield[name=comServerName]');
                         if (showComServer === true) {
-                            form.down('displayfield[name=server]').show();
+                            comServerNameField.show();
                         } else {
-                            form.down('displayfield[name=server]').hide();
+                            comServerNameField.hide();
                         }
                         if (record.get('comPortType') != 'SERVLET') {
                             switch (record.get('direction')) {

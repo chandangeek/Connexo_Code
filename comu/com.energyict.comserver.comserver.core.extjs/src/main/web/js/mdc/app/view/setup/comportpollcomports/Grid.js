@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.comportpollcomports.Grid', {
             },
             {
                 header: Uni.I18n.translate('comPortPoolComPorts.communicationServer', 'MDC', 'Communication server'),
-                dataIndex: 'server',
+                dataIndex: 'comServerName',
                 flex: 1
             },
             {

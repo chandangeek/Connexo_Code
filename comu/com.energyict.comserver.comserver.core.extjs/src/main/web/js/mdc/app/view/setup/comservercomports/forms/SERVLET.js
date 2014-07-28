@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.comServer', 'MDC', 'Communication server'),
-                    name: 'server'
+                    name: 'comServerName'
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.direction', 'MDC', 'Direction'),
