@@ -12,6 +12,9 @@ import com.energyict.mdc.engine.impl.core.mocks.MockOutboundComPort;
 import com.energyict.mdc.engine.impl.core.mocks.MockTCPInboundComPort;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
@@ -19,9 +22,6 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
-import com.energyict.mdc.engine.impl.monitor.EventAPIStatistics;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
@@ -92,12 +92,12 @@ public class RunningComServerChangesTest {
 
     @Before
     public void initializeEmbeddedWebServerFactory() {
-        EmbeddedWebServerFactory.DEFAULT.set(this.embeddedWebServerFactory);
+        this.serviceProvider.setEmbeddedWebServerFactory(this.embeddedWebServerFactory);
     }
 
     @After
     public void resetEmbeddedWebServerFactory() {
-        EmbeddedWebServerFactory.DEFAULT.set(new DefaultEmbeddedWebServerFactory());
+        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory());
     }
 
     public void initializeEventPublisher(RunningComServer comServer) {

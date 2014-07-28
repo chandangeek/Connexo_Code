@@ -12,6 +12,7 @@ import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
+import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.ComServer;
@@ -130,7 +131,9 @@ public class BinaryBasedEventFilterIntegrationTest {
         EventPublisherImpl.setInstance(eventGenerator);
 
         CountDownLatch registrationLatch = new CountDownLatch(1);
-        WebSocketEventPublisherFactory.setInstance(new LatchDrivenWebSocketEventPublisherFactory(registrationLatch));
+        LatchDrivenWebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch);
+        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        this.serviceProvider.setWebSocketEventPublisherFactory(webSocketEventPublisherFactory);
 
         // Start the EventServlet in a jetty context
         ComServer comServer = mock(ComServer.class);
@@ -138,7 +141,7 @@ public class BinaryBasedEventFilterIntegrationTest {
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
         CountDownLatch messagesReceivedLatch = new CountDownLatch(3);
         RegisterAndReceiveAllEventCategories webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
-        EmbeddedWebServer webServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer webServer = this.serviceProvider.embeddedWebServerFactory().findOrCreateEventWebServer(comServer);
         webServer.start();
         WebSocketClientFactory factory = new WebSocketClientFactory();
         factory.start();
@@ -175,7 +178,9 @@ public class BinaryBasedEventFilterIntegrationTest {
         EventPublisherImpl.setInstance(eventGenerator);
 
         CountDownLatch registrationLatch = new CountDownLatch(2);
-        WebSocketEventPublisherFactory.setInstance(new LatchDrivenWebSocketEventPublisherFactory(registrationLatch));
+        LatchDrivenWebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch);
+        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        this.serviceProvider.setWebSocketEventPublisherFactory(webSocketEventPublisherFactory);
 
         // Start the EventServlet in a jetty context
         ComServer comServer = mock(ComServer.class);
@@ -185,7 +190,7 @@ public class BinaryBasedEventFilterIntegrationTest {
         CountDownLatch messagesReceivedLatch2 = new CountDownLatch(3);
         RegisterAndReceiveAllEventCategories webSocket1 = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch1);
         RegisterAndReceiveAllEventCategories webSocket2 = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch2);
-        EmbeddedWebServer webServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer webServer = this.serviceProvider.embeddedWebServerFactory().findOrCreateEventWebServer(comServer);
         webServer.start();
         WebSocketClientFactory factory = new WebSocketClientFactory();
         factory.start();
@@ -233,7 +238,9 @@ public class BinaryBasedEventFilterIntegrationTest {
         EventPublisherImpl.setInstance(eventGenerator);
 
         CountDownLatch registrationLatch = new CountDownLatch(1);
-        WebSocketEventPublisherFactory.setInstance(new LatchDrivenWebSocketEventPublisherFactory(registrationLatch));
+        LatchDrivenWebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch);
+        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        this.serviceProvider.setWebSocketEventPublisherFactory(webSocketEventPublisherFactory);
 
         // Start the EventServlet in a jetty context
         ComServer comServer = mock(ComServer.class);
@@ -241,7 +248,7 @@ public class BinaryBasedEventFilterIntegrationTest {
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
         CountDownLatch messagesReceivedLatch = new CountDownLatch(1);
         RegisterAndReceiveAllEventCategories webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
-        EmbeddedWebServer webServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer webServer = this.serviceProvider.embeddedWebServerFactory().findOrCreateEventWebServer(comServer);
         webServer.start();
         WebSocketClientFactory factory = new WebSocketClientFactory();
         factory.start();
@@ -400,7 +407,7 @@ public class BinaryBasedEventFilterIntegrationTest {
         }
     }
 
-    private class LatchDrivenWebSocketEventPublisherFactory extends WebSocketEventPublisherFactory {
+    private class LatchDrivenWebSocketEventPublisherFactory extends WebSocketEventPublisherFactoryImpl {
         private CountDownLatch latch;
 
         private LatchDrivenWebSocketEventPublisherFactory (CountDownLatch latch) {

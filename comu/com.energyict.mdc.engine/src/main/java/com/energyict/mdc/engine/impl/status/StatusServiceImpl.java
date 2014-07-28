@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.status;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -84,9 +84,9 @@ public class StatusServiceImpl implements StatusService {
         List<OutboundComPort> comPorts = comServer.getOutboundComPorts();
         List<ScheduledComPortMonitor> monitors = new ArrayList<>(comPorts.size()); // Normally all comports have a monitor
         for (OutboundComPort comPort : comPorts) {
-            Optional<ScheduledComPortImplMBean> monitor = this.managementBeanFactory.findFor(comPort);
+            Optional<ScheduledComPortMonitorImplMBean> monitor = this.managementBeanFactory.findFor(comPort);
             if (monitor.isPresent()) {
-                monitors.add((ScheduledComPortMonitor) monitor);
+                monitors.add((ScheduledComPortMonitor) monitor.get());
             }
         }
         return monitors;

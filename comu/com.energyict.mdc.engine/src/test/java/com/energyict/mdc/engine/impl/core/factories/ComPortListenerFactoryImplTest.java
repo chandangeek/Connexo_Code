@@ -9,6 +9,7 @@ import com.energyict.mdc.engine.impl.core.ComServerThreadFactory;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComPortListener;
 import com.energyict.mdc.engine.impl.core.ServletInboundComPortListener;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener;
+import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
@@ -55,6 +56,7 @@ public class ComPortListenerFactoryImplTest {
         this.serviceProvider.setIssueService(mock(IssueService.class));
         when(this.socketService.newTCPSocket(anyInt())).thenReturn(this.serverSocket);
         this.serviceProvider.setSocketService(this.socketService);
+        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory());
     }
 
     @Before

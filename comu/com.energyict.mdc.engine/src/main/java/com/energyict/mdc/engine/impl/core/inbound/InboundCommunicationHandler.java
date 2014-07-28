@@ -18,6 +18,7 @@ import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
+import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
@@ -60,6 +61,8 @@ import java.util.List;
 public class InboundCommunicationHandler {
 
     public interface ServiceProvider extends JobExecution.ServiceProvider {
+
+        public EmbeddedWebServerFactory embeddedWebServerFactory();
 
         public ProtocolPluggableService protocolPluggableService();
 

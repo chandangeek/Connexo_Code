@@ -6,7 +6,6 @@ import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
 import com.elster.jupiter.util.time.Clock;
@@ -118,11 +117,11 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     }
 
     @Override
-    public ScheduledComPortImplMBean findOrCreateFor(ScheduledComPort comPort) {
+    public ScheduledComPortMonitorImplMBean findOrCreateFor(ScheduledComPort comPort) {
         synchronized (this.registeredMBeans) {
             ObjectName jmxName = this.nameFor(comPort);
             Object registeredMBean = this.registeredMBeans.get(jmxName);
-            ScheduledComPortImplMBean comPortMBean;
+            ScheduledComPortMonitorImplMBean comPortMBean;
             if (registeredMBean == null) {
                 comPortMBean = new ScheduledComPortMonitorImpl(comPort, this.clock);
                 this.registerMBean(comPortMBean, jmxName);
@@ -135,7 +134,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     }
 
     @Override
-    public Optional<ScheduledComPortImplMBean> findFor(OutboundComPort comPort) {
+    public Optional<ScheduledComPortMonitorImplMBean> findFor(OutboundComPort comPort) {
         synchronized (this.registeredMBeans) {
             ObjectName jmxName = this.nameFor(comPort);
             Object registeredMBean = this.registeredMBeans.get(jmxName);
@@ -144,7 +143,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
                 return Optional.absent();
             }
             else {
-                return Optional.of((ScheduledComPortImplMBean) registeredMBean);
+                return Optional.of((ScheduledComPortMonitorImplMBean) registeredMBean);
             }
         }
     }
@@ -194,7 +193,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
 
     private ObjectName nameFor(ComPort comPort) {
         try {
-            return new ObjectName(this.comServerBaseName(comPort.getComServer()) + ",process=Ports,name=" + comPort.getName());
+            return new ObjectName(this.comServerBaseName(comPort.getComServer()) + ",process=Ports,comPortName=" + comPort.getName());
         }
         catch (MalformedObjectNameException e) {
             throw CodingException.malformedObjectName(comPort, e);

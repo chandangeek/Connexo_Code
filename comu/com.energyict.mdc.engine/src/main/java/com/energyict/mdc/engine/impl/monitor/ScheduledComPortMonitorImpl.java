@@ -7,12 +7,12 @@ import com.elster.jupiter.util.time.Clock;
 import javax.management.openmbean.CompositeData;
 
 /**
- * Provides an implementation for the {@link ScheduledComPortImplMBean} interface.
+ * Provides an implementation for the {@link ScheduledComPortMonitorImplMBean} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-17 (10:11)
  */
-public class ScheduledComPortMonitorImpl implements ScheduledComPortImplMBean, ScheduledComPortMonitor {
+public class ScheduledComPortMonitorImpl implements ScheduledComPortMonitorImplMBean, ScheduledComPortMonitor {
 
     private final Clock clock;
     private ScheduledComPort comPort;

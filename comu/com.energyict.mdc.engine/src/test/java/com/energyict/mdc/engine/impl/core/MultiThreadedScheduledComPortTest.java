@@ -31,9 +31,9 @@ import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifierFactory;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.monitor.OperationalStatistics;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -212,9 +212,9 @@ public class MultiThreadedScheduledComPortTest {
     @Mock
     private ManagementBeanFactory managementBeanFactory;
     @Mock(extraInterfaces = ScheduledComPortMonitor.class)
-    private ScheduledComPortImplMBean scheduledComPortMonitor;
+    private ScheduledComPortMonitorImplMBean scheduledComPortMonitor;
     @Mock
-    private OperationalStatistics operationalStatistics;
+    private ScheduledComPortOperationalStatistics operationalStatistics;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class));

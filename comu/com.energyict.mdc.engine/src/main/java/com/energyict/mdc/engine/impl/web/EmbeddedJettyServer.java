@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.EventServlet;
+import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
@@ -35,6 +36,12 @@ import static com.elster.jupiter.util.Checks.is;
  * @since 2012-10-11 (15:43)
  */
 public class EmbeddedJettyServer implements EmbeddedWebServer {
+
+    public interface ServiceProvider {
+
+        public WebSocketEventPublisherFactory webSocketEventPublisherFactory();
+
+    }
 
     /**
      * The number of seconds that accepted requests are allowed to complete
@@ -119,21 +126,22 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
     }
 
     /**
-     * Creates a new EmbeddedJettyServer that will host
-     * the servlet for the event mechanism.
+     * Creates a new EmbeddedJettyServer that will host the servlet for the event mechanism.
      *
      * @param eventRegistrationUri The URI on which the servlet should be listening
+     * @param serviceProvider The ServiceProvider
      */
-    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri) {
+    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, ServiceProvider serviceProvider) {
         EmbeddedJettyServer server = new EmbeddedJettyServer();
-        server.addEventMechanism(eventRegistrationUri);
+        server.addEventMechanism(eventRegistrationUri, serviceProvider);
         return server;
     }
 
-    public void addEventMechanism (URI eventRegistrationUri) {
+    public void addEventMechanism (URI eventRegistrationUri, ServiceProvider serviceProvider) {
         this.jetty = new Server(getPortNumber(eventRegistrationUri, ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER));
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        handler.addServlet(EventServlet.class, eventRegistrationUri.getPath());
+        ServletHolder servletHolder = new ServletHolder(new EventServlet(serviceProvider.webSocketEventPublisherFactory()));
+        handler.addServlet(servletHolder, eventRegistrationUri.getPath());
         this.jetty.setHandler(handler);
     }
 

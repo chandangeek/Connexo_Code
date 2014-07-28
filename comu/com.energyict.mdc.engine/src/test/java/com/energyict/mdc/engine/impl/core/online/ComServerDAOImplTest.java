@@ -149,7 +149,7 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testRefreshComServerThatWasDeleted () {
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(null);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>absent());
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isNull();

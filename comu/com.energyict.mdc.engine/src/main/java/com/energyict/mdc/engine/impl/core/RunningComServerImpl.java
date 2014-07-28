@@ -10,8 +10,10 @@ import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
+import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapable;
@@ -21,7 +23,6 @@ import com.energyict.mdc.engine.model.OutboundCapable;
 import com.energyict.mdc.engine.model.OutboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -52,6 +53,10 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         public ManagementBeanFactory managementBeanFactory();
 
         public WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory();
+
+        public WebSocketEventPublisherFactory webSocketEventPublisherFactory();
+
+        public EmbeddedWebServerFactory embeddedWebServerFactory();
 
         public ThreadPrincipalService threadPrincipalService();
 
@@ -309,6 +314,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     private void startEventMechanism () {
         this.eventMechanism = new EventMechanism();
+        this.eventMechanism.start();
     }
 
     private void startDeviceCommandExecutor () {
@@ -815,9 +821,12 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
         private EventMechanism() {
             super();
-            this.eventMechanism = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateEventWebServer(comServer);
-            this.eventMechanism.start();
+            this.eventMechanism = serviceProvider.embeddedWebServerFactory().findOrCreateEventWebServer(comServer);
             this.eventPublisher = new EventPublisherImpl(RunningComServerImpl.this, serviceProvider.clock(), serviceProvider.engineModelService(), serviceProvider.deviceDataService());
+        }
+
+        private void start() {
+            this.eventMechanism.start();
         }
 
         private void shutdown (boolean immediate) {

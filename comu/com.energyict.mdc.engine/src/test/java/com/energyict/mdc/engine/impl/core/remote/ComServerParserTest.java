@@ -8,7 +8,6 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
-import com.energyict.mdc.engine.model.impl.EngineModelServiceImpl;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -18,7 +17,6 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -51,9 +49,6 @@ public class ComServerParserTest {
 
     private static final String ONLINE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"online.comserver.energyict.com\",\"type\":\"OnlineComServerImpl\",\"active\":true,\"serverLogLevel\":\"ERROR\",\"communicationLogLevel\":\"DEBUG\",\"changesInterPollDelay\":{\"seconds\":18000},\"schedulingInterPollDelay\":{\"seconds\":60},\"eventRegistrationUri\":\"ws://online.comserver.energyict.com/events/registration\",\"storeTaskQueueSize\":50,\"numberOfStoreTaskThreads\":1,\"storeTaskThreadPriority\":5}}";
     private static final String REMOTE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"remote.comserver.energyict.com\",\"active\":true,\"serverLogLevel\":\"DEBUG\",\"communicationLogLevel\":\"ERROR\",\"changesInterPollDelay\":{\"seconds\":1800},\"schedulingInterPollDelay\":{\"seconds\":600},\"eventRegistrationUri\":\"ws://remote.comserver.energyict.com/events/registration\",\"type\":\"RemoteComServerImpl\"}}";
-
-    private static final String QUERY_API_USER_NAME = "johndoe";
-    private static final String QUERY_API_PASSWORD = "doe";
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -130,7 +125,7 @@ public class ComServerParserTest {
         assertThat(onlineComServer.getChangesInterPollDelay()).isEqualTo(TimeDuration.seconds(18000));
         assertThat(onlineComServer.getSchedulingInterPollDelay()).isEqualTo(TimeDuration.seconds(60));
         assertThat(onlineComServer.getEventRegistrationUri()).isEqualTo("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
-        assertThat(onlineComServer.getQueryApiPostUri()).isEqualTo("http://online.comserver.energyict.com:" + ComServer.DEFAULT_QUERY_API_PORT_NUMBER + "/remote/queries");
+        assertThat(onlineComServer.getQueryApiPostUri()).isEqualTo("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_QUERY_API_PORT_NUMBER + "/remote/queries");
         assertThat(onlineComServer.getStoreTaskQueueSize()).isEqualTo(50);
         assertThat(onlineComServer.getNumberOfStoreTaskThreads()).isEqualTo(1);
         assertThat(onlineComServer.getStoreTaskThreadPriority()).isEqualTo(5);
@@ -185,8 +180,6 @@ public class ComServerParserTest {
         remoteComServer.setChangesInterPollDelay(TimeDuration.seconds(1800));
         remoteComServer.setSchedulingInterPollDelay(TimeDuration.seconds(600));
         remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setQueryAPIUsername(QUERY_API_USER_NAME);
-        remoteComServer.setQueryAPIPassword(QUERY_API_PASSWORD);
         remoteComServer.save();
         return remoteComServer;
     }

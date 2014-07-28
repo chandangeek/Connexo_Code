@@ -68,19 +68,48 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     private boolean isBlocked(ScheduledComPortMonitor comPortMonitor) {
         ScheduledComPortOperationalStatistics operationalStatistics = comPortMonitor.getOperationalStatistics();
-        return this.isBlocked(operationalStatistics.getLastCheckForWorkTimestamp(), new Duration(operationalStatistics.getSchedulingInterPollDelay().getMilliSeconds()));
+        return this.isBlocked(this.lastActivity(operationalStatistics), new Duration(operationalStatistics.getSchedulingInterPollDelay().getMilliSeconds()));
+    }
+
+    private Date lastActivity(ScheduledComPortOperationalStatistics operationalStatistics) {
+        Date lastCheckForWorkTimestamp = operationalStatistics.getLastCheckForWorkTimestamp();
+        Date lastActivity;
+        if (lastCheckForWorkTimestamp != null) {
+            lastActivity = lastCheckForWorkTimestamp;
+        }
+        else if (operationalStatistics.getLastCheckForChangesTimestamp() != null) {
+            lastActivity = operationalStatistics.getLastCheckForChangesTimestamp();
+        }
+        else {
+            // Never checked for work or changes: consider comport start time to be last activity
+            lastActivity = operationalStatistics.getStartTimestamp();
+        }
+        return lastActivity;
     }
 
     private boolean isBlocked(ComServerMonitor comServerMonitor) {
         ComServerOperationalStatistics operationalStatistics = comServerMonitor.getOperationalStatistics();
-        return this.isBlocked(operationalStatistics.getLastCheckForChangesTimestamp(), new Duration(operationalStatistics.getChangesInterPollDelay().getMilliSeconds()));
+        return this.isBlocked(this.lastActivity(operationalStatistics), new Duration(operationalStatistics.getChangesInterPollDelay().getMilliSeconds()));
+    }
+
+    private Date lastActivity(ComServerOperationalStatistics operationalStatistics) {
+        Date lastCheckForChangesTimestamp = operationalStatistics.getLastCheckForChangesTimestamp();
+        Date lastActivity;
+        if (lastCheckForChangesTimestamp != null) {
+            lastActivity = lastCheckForChangesTimestamp;
+        }
+        else {
+            // Never checked for changes: consider server start time to be last activity
+            lastActivity = operationalStatistics.getStartTimestamp();
+        }
+        return lastActivity;
     }
 
     private boolean isBlocked(Date lastActivity, Duration lenientDuration) {
         Instant now = new Instant(this.clock.now());
         Instant latestExpectedActivity = now.minus(lenientDuration.getMillis());
-        Instant lastCheckForChangesTimestamp = new Instant(lastActivity.getTime());
-        return lastCheckForChangesTimestamp.isBefore(latestExpectedActivity);
+        Instant lastActualActivity = new Instant(lastActivity.getTime());
+        return lastActualActivity.isBefore(latestExpectedActivity);
     }
 
     @Override
@@ -98,12 +127,12 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     private Duration getBlockTime(ScheduledComPortMonitor comPortMonitor) {
         ScheduledComPortOperationalStatistics operationalStatistics = comPortMonitor.getOperationalStatistics();
-        return this.getBlockTime(operationalStatistics.getLastCheckForWorkTimestamp(), new Duration(operationalStatistics.getSchedulingInterPollDelay().getMilliSeconds()));
+        return this.getBlockTime(this.lastActivity(operationalStatistics), new Duration(operationalStatistics.getSchedulingInterPollDelay().getMilliSeconds()));
     }
 
     private Duration getBlockTime(ComServerMonitor comServerMonitor) {
         ComServerOperationalStatistics operationalStatistics = comServerMonitor.getOperationalStatistics();
-        return this.getBlockTime(operationalStatistics.getLastCheckForChangesTimestamp(), new Duration(operationalStatistics.getChangesInterPollDelay().getMilliSeconds()));
+        return this.getBlockTime(this.lastActivity(operationalStatistics), new Duration(operationalStatistics.getChangesInterPollDelay().getMilliSeconds()));
     }
 
     private Duration getBlockTime(Date lastActivity, Duration lenientDuration) {

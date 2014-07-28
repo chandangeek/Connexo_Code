@@ -9,7 +9,7 @@ import javax.management.openmbean.CompositeData;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-17 (09:42)
  */
-public interface ScheduledComPortImplMBean {
+public interface ScheduledComPortMonitorImplMBean {
 
     public CompositeData getOperationalStatisticsCompositeData();
 

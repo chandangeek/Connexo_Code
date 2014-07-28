@@ -4,7 +4,6 @@ import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
 import com.google.common.base.Optional;
@@ -52,7 +51,7 @@ public interface ManagementBeanFactory {
      * @param comPort The ScheduledComPort
      * @return The OutboundComPortMBean
      */
-    public ScheduledComPortImplMBean findOrCreateFor (ScheduledComPort comPort);
+    public ScheduledComPortMonitorImplMBean findOrCreateFor (ScheduledComPort comPort);
 
     /**
      * Finds or creates the {@link ScheduledComPortMBean}
@@ -61,7 +60,7 @@ public interface ManagementBeanFactory {
      * @param comPort The ScheduledComPort
      * @return The OutboundComPortMBean
      */
-    public Optional<ScheduledComPortImplMBean> findFor (OutboundComPort comPort);
+    public Optional<ScheduledComPortMonitorImplMBean> findFor (OutboundComPort comPort);
 
     /**
      * Removes the {@link ScheduledComPortMBean}

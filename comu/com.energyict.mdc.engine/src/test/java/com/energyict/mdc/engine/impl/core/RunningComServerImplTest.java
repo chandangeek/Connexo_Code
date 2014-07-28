@@ -93,12 +93,12 @@ public class RunningComServerImplTest {
 
     @Before
     public void initializeEmbeddedWebServerFactory() {
-        EmbeddedWebServerFactory.DEFAULT.set(this.embeddedWebServerFactory);
+        this.serviceProvider.setEmbeddedWebServerFactory(this.embeddedWebServerFactory);
     }
 
     @After
     public void resetEmbeddedWebServerFactory() {
-        EmbeddedWebServerFactory.DEFAULT.set(new DefaultEmbeddedWebServerFactory());
+        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory());
     }
 
     private void initializeEventPublisher(RunningComServer comServer) {

@@ -33,13 +33,20 @@ public class EmbeddedWebServerFactoryTest {
     private static final String EVENT_REGISTRATION_URL = "ws://comserver.energyict.com/events/registration";
     private static final String INVALID_URI = "Anything but a valid URL";
 
+    private EmbeddedWebServerFactory factory;
+
+    @Before
+    public void setupFactoryUnderTest () {
+        this.factory = new DefaultEmbeddedWebServerFactory();
+    }
+
     @Test
     public void testEventsWithOfflineComServer () throws BusinessException {
         OfflineComServer comServer = mock(OfflineComServerImpl.class);
         doCallRealMethod().when(comServer).getEventRegistrationUriIfSupported();
 
         // Business method
-        EmbeddedWebServer eventWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
 
         // Asserts
         assertThat(eventWebServer).isNotNull();
@@ -56,7 +63,7 @@ public class EmbeddedWebServerFactoryTest {
         when(comServer.getEventRegistrationUri()).thenReturn(null);
 
         // Business method
-        EmbeddedWebServer eventWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
 
         // Asserts
         assertThat(eventWebServer).isNotNull();
@@ -74,7 +81,7 @@ public class EmbeddedWebServerFactoryTest {
 
         // Business method
         try {
-            EmbeddedWebServerFactory.DEFAULT.get().findOrCreateEventWebServer(comServer);
+            this.factory.findOrCreateEventWebServer(comServer);
         }
         catch (CodingException e) {
             Assertions.assertThat(e.getCause()).isInstanceOf(URISyntaxException.class);
@@ -92,7 +99,7 @@ public class EmbeddedWebServerFactoryTest {
         when(comServer.getEventRegistrationUri()).thenReturn(EVENT_REGISTRATION_URL);
 
         // Business method
-        EmbeddedWebServer eventWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
 
         // Asserts
         assertThat(eventWebServer).isNotNull();
@@ -108,7 +115,7 @@ public class EmbeddedWebServerFactoryTest {
         when(comServer.getEventRegistrationUri()).thenReturn(null);
 
         // Business method
-        EmbeddedWebServer eventWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
 
         // Asserts
         assertThat(eventWebServer).isNotNull();
@@ -126,7 +133,7 @@ public class EmbeddedWebServerFactoryTest {
 
         // Business method
         try {
-            EmbeddedWebServerFactory.DEFAULT.get().findOrCreateEventWebServer(comServer);
+            this.factory.findOrCreateEventWebServer(comServer);
         }
         catch (CodingException e) {
             Assertions.assertThat(e.getCause()).isInstanceOf(URISyntaxException.class);
@@ -144,7 +151,7 @@ public class EmbeddedWebServerFactoryTest {
         when(comServer.getEventRegistrationUri()).thenReturn(EVENT_REGISTRATION_URL);
 
         // Business method
-        EmbeddedWebServer eventWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
 
         // Asserts
         assertThat(eventWebServer).isNotNull();
@@ -159,7 +166,7 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        EmbeddedWebServer eventWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+        EmbeddedWebServer eventWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
 
         // Asserts
         assertThat(eventWebServer).isNotNull();
@@ -176,7 +183,7 @@ public class EmbeddedWebServerFactoryTest {
 
         // Business method
         try {
-            EmbeddedWebServerFactory.DEFAULT.get().findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+            this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
         }
         catch (CodingException e) {
             Assertions.assertThat(e.getCause()).isInstanceOf(URISyntaxException.class);
@@ -192,7 +199,7 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        EmbeddedWebServer eventWebServer = EmbeddedWebServerFactory.DEFAULT.get().findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+        EmbeddedWebServer eventWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
 
         // Asserts
         assertThat(eventWebServer).isNotNull();

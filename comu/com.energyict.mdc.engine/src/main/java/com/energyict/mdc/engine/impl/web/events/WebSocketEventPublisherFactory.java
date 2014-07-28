@@ -1,33 +1,13 @@
 package com.energyict.mdc.engine.impl.web.events;
 
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-
 /**
  * Provides factory services for {@link WebSocketEventPublisher}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2012-11-09 (13:03)
+ * @since 2014-07-25 (17:25)
  */
-public class WebSocketEventPublisherFactory {
+public interface WebSocketEventPublisherFactory {
 
-    private static WebSocketEventPublisherFactory soleInstance;
-
-    public static WebSocketEventPublisherFactory getInstance () {
-        if (soleInstance == null) {
-            soleInstance = new WebSocketEventPublisherFactory();
-        }
-        return soleInstance;
-    }
-
-    public static void setInstance (WebSocketEventPublisherFactory factory) {
-        soleInstance = factory;
-    }
-
-    public WebSocketEventPublisher newWebSocketEventPublisher (WebSocketCloseEventListener closeEventListener) {
-        return new WebSocketEventPublisher(ServiceProvider.instance.get(), closeEventListener);
-    }
-
-    // Hide utility class constructor
-    protected WebSocketEventPublisherFactory () {}
+    public WebSocketEventPublisher newWebSocketEventPublisher(WebSocketCloseEventListener closeEventListener);
 
 }

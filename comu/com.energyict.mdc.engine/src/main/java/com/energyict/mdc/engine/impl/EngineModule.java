@@ -4,10 +4,16 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactoryImpl;
+import com.energyict.mdc.engine.impl.status.StatusServiceImpl;
+import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
+import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
+import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
+import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactoryImpl;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
@@ -52,10 +58,13 @@ public class EngineModule extends AbstractModule {
         requireBinding(ProtocolPluggableService.class);
         requireBinding(SocketService.class);
         requireBinding(SerialComponentService.class);
-        requireBinding(WebSocketQueryApiServiceFactory.class);
 
         bind(WebSocketQueryApiServiceFactory.class).to(WebSocketQueryApiServiceFactoryImpl.class).in(Scopes.SINGLETON);
+        bind(WebSocketEventPublisherFactory.class).to(WebSocketEventPublisherFactoryImpl.class).in(Scopes.SINGLETON);
+        bind(EmbeddedWebServerFactory.class).to(DefaultEmbeddedWebServerFactory.class).in(Scopes.SINGLETON);
         bind(ManagementBeanFactory.class).to(ManagementBeanFactoryImpl.class).in(Scopes.SINGLETON);
+        bind(StatusService.class).to(StatusServiceImpl.class).in(Scopes.SINGLETON);
         bind(EngineService.class).to(EngineServiceImpl.class).in(Scopes.SINGLETON);
     }
+
 }

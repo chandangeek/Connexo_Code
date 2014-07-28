@@ -5,10 +5,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Provides factory services for {@link EmbeddedWebServer}s.
@@ -17,8 +14,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @since 2012-12-04 (12:03)
  */
 public interface EmbeddedWebServerFactory {
-
-    public AtomicReference<EmbeddedWebServerFactory> DEFAULT = new AtomicReference<EmbeddedWebServerFactory>(new DefaultEmbeddedWebServerFactory());
 
     /**
      * Finds or creates the {@link EmbeddedWebServer} that hosts
