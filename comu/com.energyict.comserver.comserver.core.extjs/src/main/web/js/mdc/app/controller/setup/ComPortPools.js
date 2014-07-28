@@ -28,7 +28,6 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
     init: function () {
         this.control({
             'comPortPoolsGrid': {
-                itemdblclick: this.editComPortPool,
                 select: this.showComPortPoolPreview
             },
             '#comportpoolViewMenu': {
