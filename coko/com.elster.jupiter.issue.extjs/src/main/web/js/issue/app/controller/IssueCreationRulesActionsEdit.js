@@ -114,7 +114,7 @@ Ext.define('Isu.controller.IssueCreationRulesActionsEdit', {
                     boxLabel: record.get('title'),
                     name: 'phase',
                     inputValue: record.get('uuid'),
-                    afterSubTpl: record.get('description'),
+                    afterSubTpl: '<span style="color: #686868; font-style: italic">' + record.get('description') + '</span>',
                     checked: !index
                 });
             });
