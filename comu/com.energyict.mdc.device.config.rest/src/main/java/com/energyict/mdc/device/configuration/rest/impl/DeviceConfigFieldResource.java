@@ -44,7 +44,7 @@ public class DeviceConfigFieldResource extends FieldResource{
                 throw new WebApplicationException("Failed to convert unit into JSON", Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(phenomenon).build());
             }
         }
-        return asJsonArrayObject("units", "unit", allUnitsWithPhenomena);
+        return asJsonArrayObjectWithTranslation("units", "unit", allUnitsWithPhenomena);
     }
 
     @GET
@@ -65,7 +65,7 @@ public class DeviceConfigFieldResource extends FieldResource{
     @GET
     @Path("/connectionStrategy")
     public Object getConnectionStrategies() {
-        return asJsonArrayObject("connectionStrategies", "connectionStrategy", new ConnectionStrategyAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("connectionStrategies", "connectionStrategy", new ConnectionStrategyAdapter().getClientSideValues());
     }
 
 }

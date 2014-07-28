@@ -110,14 +110,19 @@ public class DeviceConfigsValidationRuleSetResource {
                                                     @BeanParam QueryParameters queryParameters) {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();
         ValidationRuleSet validationRuleSet = getValidationRuleSet(validationRuleSetId);
-        for (DeviceConfiguration configuration : allLinkableDeviceConfigurations(validationRuleSet)) {
-            addConfiguration(configuration, result, validationRuleSet);
+        List<DeviceConfiguration> allLinkableDeviceConfigurations = deviceConfigurationService.getLinkableDeviceConfigurations(validationRuleSet);
+
+        DeviceConfigurationInfos.DeviceConfigAndTypeInfo[] infos = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo[allLinkableDeviceConfigurations.size()];
+
+        for (int i = queryParameters.getStart(); i < queryParameters.getStart() + queryParameters.getLimit() + 1; i++) {
+            if (i < infos.length) {
+                infos[i] = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo(allLinkableDeviceConfigurations.get(i));
+
+            }
         }
-        Collections.sort(result.deviceConfigurations, DeviceConfigurationInfos.DEVICE_CONFIG_NAME_COMPARATOR);
-        result.deviceConfigurations = ListPager.of(result.deviceConfigurations).from(queryParameters).find();
+        result.deviceConfigurations = ListPager.of(Arrays.asList(infos)).from(queryParameters).find();
         return Response.ok(PagedInfoList.asJson("deviceConfigurations", result.deviceConfigurations, queryParameters)).build();
     }
-
 
     private List<DeviceConfiguration> allLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet) {
         Set<ReadingType> readingTypesInRuleSet = readingTypesFor(validationRuleSet);
