@@ -391,7 +391,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateLoadProfileSpecForUpdate(LoadProfileSpec loadProfileSpec) {
-        if (deviceConfiguration.isPresent() && getDeviceConfiguration().isActive() && this.getLoadProfileSpec().getId() != loadProfileSpec.getId()) {
+        if (deviceConfiguration.isPresent() && getDeviceConfiguration().isActive() && this.loadProfileSpec.isPresent() && this.getLoadProfileSpec().getId() != loadProfileSpec.getId()) {
             throw new CannotChangeLoadProfileSpecOfChannelSpec(this.thesaurus);
         }
     }
