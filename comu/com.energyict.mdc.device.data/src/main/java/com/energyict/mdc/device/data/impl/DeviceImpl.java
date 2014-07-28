@@ -6,6 +6,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -1006,7 +1007,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         return this.meteringService.findAmrSystem(1);
     }
 
-    List<ReadingRecord> getReadingsFor(Register register, Interval interval) {
+    List<ReadingRecord> getReadingsFor(Register<?> register, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateMeterInKore(amrSystem);
@@ -1020,7 +1021,19 @@ public class DeviceImpl implements Device, PersistenceAware {
         return Collections.emptyList();
     }
 
-    Optional<ReadingRecord> getLastReadingFor(Register register) {
+    List<IntervalReadingRecord> getChannelDataFor(LoadProfile loadProfile, Interval interval) {
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        List<IntervalReadingRecord> readings = new ArrayList<>();
+        if (amrSystem.isPresent()) {
+            Meter meter = findOrCreateMeterInKore(amrSystem);
+            for (Channel channel : loadProfile.getChannels()) {
+                readings.addAll((Collection<IntervalReadingRecord>) meter.getReadings(interval, channel.getChannelSpec().getRegisterMapping().getReadingType()));
+            }
+        }
+        return readings;
+    }
+
+    Optional<ReadingRecord> getLastReadingFor(Register<?> register) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateMeterInKore(amrSystem);
