@@ -44,6 +44,7 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
     public ComPortType comPortType;
     public Long comServer_id;
+    public String comServerName;
     public Integer numberOfSimultaneousConnections = Integer.valueOf(0);
     public Date modificationDate;
     public Integer ringCount;
@@ -85,6 +86,7 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
         this.active = comPort.isActive();
         this.bound = comPort.isInbound();
         this.comServer_id = comPort.getComServer()!=null?comPort.getComServer().getId():0L;
+        this.comServerName = comPort.getComServer() != null ? comPort.getComServer().getName():null;
         this.comPortType = comPort.getComPortType();
         this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
         this.modificationDate = comPort.getModificationDate();
