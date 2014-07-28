@@ -4,6 +4,7 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 
 import javax.inject.Inject;
@@ -108,12 +109,6 @@ public class RegisterGroupResource {
 
     private RegisterGroupInfo updateRegisterTypeInGroup(RegisterGroup group, RegisterGroupInfo registerGroupInfo, boolean modified, boolean all) {
 
-//        private RegisterGroupInfo updateRegisterTypeInGroup(RegisterGroup group, RegisterGroupInfo registerGroupInfo, boolean modified){
-        HashMap<Long, RegisterMapping> registerMappings = new HashMap<>();
-        for(RegisterMappingInfo mapping : registerGroupInfo.registerTypes){
-            registerMappings.put(mapping.id, resourceHelper.findRegisterMappingByIdOrThrowException(mapping.id));
-        }
-
         boolean didUpdateMappings = group.updateRegisterTypes(extractMappings(registerGroupInfo, all));
 
         if (didUpdateMappings || modified) {
@@ -126,13 +121,13 @@ public class RegisterGroupResource {
     private HashMap<Long, RegisterType> extractMappings(RegisterGroupInfo registerGroupInfo, boolean all) {
         HashMap<Long, RegisterType> registerMappings = new HashMap<>();
         if (all) {
-            List<RegisterMapping> mappings = masterDataService.findAllRegisterMappings().find();
-            for (RegisterMapping mapping : mappings) {
+            List<RegisterType> mappings = masterDataService.findAllRegisterTypes().find();
+            for (RegisterType mapping : mappings) {
                 registerMappings.put(mapping.getId(), mapping);
             }
         } else {
-            for (RegisterMappingInfo mapping : registerGroupInfo.registerTypes) {
-                registerMappings.put(mapping.id, resourceHelper.findRegisterMappingByIdOrThrowException(mapping.id));
+            for (RegisterTypeInfo mapping : registerGroupInfo.registerTypes) {
+                registerMappings.put(mapping.id, resourceHelper.findRegisterTypeByIdOrThrowException(mapping.id));
             }
         }
         return registerMappings;
