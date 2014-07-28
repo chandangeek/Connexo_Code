@@ -122,6 +122,7 @@ public class ComServerResourceTest extends JerseyTest {
 
     @Test
     public void testGetNonExistingComServer() throws Exception {
+        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.<ComServer>absent());
         final Response response = target("/comservers/8").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
@@ -213,7 +214,6 @@ public class ComServerResourceTest extends JerseyTest {
         onlineComServerInfo.storeTaskQueueSize= 7;
         onlineComServerInfo.storeTaskThreadPriority= 8;
         onlineComServerInfo.numberOfStoreTaskThreads= 9;
-        onlineComServerInfo.queryAPIUsername= "user name"; // UNUSED
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
 
         final Response response = target("/comservers/3").request().put(json);
@@ -377,11 +377,8 @@ public class ComServerResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testCanNotUpdateNonExistingComServer() throws Exception {
-        int comServer_id = 5;
-
-        ComServer serverSideComServer = mock(OnlineComServer.class);
-        when(engineModelService.findComServer(comServer_id)).thenReturn(Optional.of(serverSideComServer));
+    public void testCannotUpdateNonExistingComServer() throws Exception {
+        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.<ComServer>absent());
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
@@ -408,6 +405,7 @@ public class ComServerResourceTest extends JerseyTest {
 
     @Test
     public void testDeleteNonExistingComServerThrows404() throws Exception {
+        when(engineModelService.findComServer(anyInt())).thenReturn(Optional.<ComServer>absent());
         final Response response = target("/comservers/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
