@@ -9,8 +9,6 @@ package com.energyict.mdc.masterdata.impl;
  */
 public final class StringColumnLengthConstraints {
 
-    public static final int DEFAULT_NAME_LENGTH = 80;
-    public static final int DEFAULT_DESCRIPTION_LENGTH = 255;
     public static final int DEFAULT_OBISCODE_LENGTH = 25;
 
     public static final int LOAD_PROFILE_TYPE_NAME = DEFAULT_NAME_LENGTH;
