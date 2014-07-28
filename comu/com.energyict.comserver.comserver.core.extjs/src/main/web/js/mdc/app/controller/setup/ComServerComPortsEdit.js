@@ -143,9 +143,13 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             comPortsCountSelected = grid.getView().getSelectionModel().getSelection().length,
             comPortsCountContainer = this.getComPortPoolsCountContainer(),
             comPortsMsgWord;
-        comPortsCountSelected > 0 ?
-            comPortsMsgWord = comPortsCountSelected + ' ' + Uni.I18n.translate('comServerComPorts.addPools.selectedCount', 'MDC', ' communication port pools selected') :
-            comPortsMsgWord = Uni.I18n.translate('comServerComPorts.addPools.noSelectedCount', 'MDC', 'No communication port pools selected');
+        if (comPortsCountSelected == 1) {
+            comPortsMsgWord = comPortsCountSelected + ' ' + Uni.I18n.translate('comServerComPorts.addPool.selectedCount', 'MDC', ' communication port pool selected')
+        } else {
+            comPortsCountSelected > 0 ?
+                comPortsMsgWord = comPortsCountSelected + ' ' + Uni.I18n.translate('comServerComPorts.addPools.selectedCount', 'MDC', ' communication port pools selected') :
+                comPortsMsgWord = Uni.I18n.translate('comServerComPorts.addPools.noSelectedCount', 'MDC', 'No communication port pools selected');
+        }
         var widget = Ext.widget('container', {
             html: comPortsMsgWord
         });
@@ -157,8 +161,35 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         this.portType = newValue;
         this.saveState();
         this.comportEdit.showForm(this.portDirection, newValue);
+
+        //SERIAL form requires some fields to have preset defaults
+        if (newValue == 'SERIAL'){
+            var editView = this.getComPortEdit();
+            this.setDefaultValuesForSerial(editView);
+        }
         this.restoreState();
         this.filterStore();
+    },
+
+    setDefaultValuesForSerial : function (view) {
+        var connectTimeoutUnit = view.down('#addFormNest').down('#connectTimeoutUnit'),
+            connectDelayUnit = view.down('#addFormNest').down('#connectDelayUnit'),
+            sendDelayUnit = view.down('#addFormNest').down('#sendDelayUnit'),
+            atCommandTimeoutUnit = view.down('#addFormNest').down('#atCommandTimeoutUnit'),
+            baudRate = view.down('#addFormNest').down('#bitsPerSecond'),
+            nrOfDatabits = view.down('#addFormNest').down('#bits'),
+            parity = view.down('#addFormNest').down('#parity'),
+            flowControl = view.down('#addFormNest').down('#flowControl'),
+            nrOfStopBits = view.down('#addFormNest').down('#stopBits');
+        connectTimeoutUnit.setValue('seconds', true);
+        connectDelayUnit.setValue('milliseconds', true);
+        sendDelayUnit.setValue('milliseconds', true);
+        atCommandTimeoutUnit.setValue('seconds', true);
+        baudRate.setValue('9600', true);
+        nrOfDatabits.setValue('8', true);
+        nrOfStopBits.setValue('1', true);
+        parity.setValue('None', true);
+        flowControl.setValue('None', true);
     },
 
     formToModel: function (form, model) {
@@ -487,7 +518,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             widget = Ext.widget('comportEdit'),
             comServerModel = me.getModel('Mdc.model.ComServer');
 
-        me.currentUrl = 'administration/comservers/detail/comports/addInbound'
+        me.currentUrl = 'administration/comservers/detail/comports/addInbound';
         me.portType = me.defaultType;
         me.comServerId = id;
         me.comportEdit = widget;
