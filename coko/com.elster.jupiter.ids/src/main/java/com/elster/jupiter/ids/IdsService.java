@@ -9,6 +9,6 @@ public interface IdsService {
 	Optional<RecordSpec> getRecordSpec(String component, long id);
 	Optional<TimeSeries> getTimeSeries(long id);
 	TimeSeriesDataStorer createStorer(boolean overrules);
-	Vault newVault(String component, long id, String name, int slotCount,boolean regular);	
+	Vault newVault(String component, long id, String name, int slotCount, int textSlotCount, boolean regular);	
 	RecordSpec newRecordSpec(String component , long id,String name);	
 }

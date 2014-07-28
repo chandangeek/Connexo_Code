@@ -1,7 +1,6 @@
 package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.FieldSpec;
-import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 
 import java.math.BigDecimal;
@@ -63,7 +62,7 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
     }
 
     @Override
-    public TimeSeries getTimeSeries() {
+    public TimeSeriesImpl getTimeSeries() {
         return timeSeries;
     }
 
@@ -95,6 +94,11 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
     @Override
     public long getLong(int offset) {
         return (Long) values[offset];
+    }
+
+    @Override
+    public String getString(int offset) {
+        return (String) values[offset];
     }
 
     @Override

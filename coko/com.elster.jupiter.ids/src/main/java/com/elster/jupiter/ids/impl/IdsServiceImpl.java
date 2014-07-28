@@ -65,8 +65,8 @@ public class IdsServiceImpl implements IdsService, InstallService {
     }
 
     @Override
-    public Vault newVault(String component, long id, String name, int slotCount, boolean regular) {
-        return dataModel.getInstance(VaultImpl.class).init(component, id, name, slotCount, regular);
+    public Vault newVault(String component, long id, String name, int slotCount, int textSlotCount, boolean regular) {
+        return dataModel.getInstance(VaultImpl.class).init(component, id, name, slotCount, textSlotCount, regular);
     }
 
     @Override

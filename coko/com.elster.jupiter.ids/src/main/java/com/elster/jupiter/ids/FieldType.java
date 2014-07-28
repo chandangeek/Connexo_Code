@@ -43,6 +43,18 @@ public enum FieldType {
 			assert(object == null || object instanceof Long);
 			statement.setObject(offset, object);
 		}
+	},
+	TEXT {
+		@Override
+		public Object getValue(ResultSet resultSet, int i) throws SQLException {
+			return resultSet.getString(i);
+		}
+
+		@Override
+		public void bind(PreparedStatement statement, int offset, Object object) throws SQLException {
+			assert(object == null || object instanceof String);
+			statement.setObject(offset, object);
+		}
 	};		
 	
 	public abstract Object getValue(ResultSet resultSet, int i) throws SQLException;

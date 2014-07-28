@@ -101,6 +101,32 @@ public class IdsCrudTest {
         assertThat(ts.getEntries(Interval.sinceEpoch())).hasSize(2);
     }
    
+    @Test
+    public void testText() {
+    	  IdsService idsService = injector.getInstance(IdsService.class);
+    	  TimeSeries ts;
+          try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        	Vault vault = idsService.newVault("IDS", 2, "TEXT", 1, 1, false);
+        	vault.persist();
+        	vault.activate(new DateTime(2020,1,1,0,0,0).toDate());
+        	RecordSpec spec = idsService.newRecordSpec("IDS", 2, "text");
+        	spec.addFieldSpec("Value1",FieldType.NUMBER);
+        	spec.addFieldSpec("Value2",FieldType.TEXT);
+        	spec.persist();
+  	        ts = vault.createIrregularTimeSeries(spec, TimeZone.getDefault());
+  	        TimeSeriesDataStorer storer = idsService.createStorer(true);
+  	        DateTime dateTime = new DateTime(2014, 1, 1, 0, 0,0);
+  	        storer.add(ts, dateTime.toDate(),BigDecimal.valueOf(10),"Text1");
+  	        dateTime = dateTime.plus(15*60000L);
+  	        storer.add(ts, dateTime.toDate(),BigDecimal.valueOf(20),"Text2");
+  	        storer.execute();
+  	        ctx.commit();
+          }
+          DateTime dateTime = new DateTime(2014,1,1,0,0);
+          List<TimeSeriesEntry> entries = ts.getEntries(new Interval(dateTime.minus(15*60000L).toDate(),dateTime.plus(15*60000L).toDate()));
+          assertThat(entries).hasSize(2);
+          assertThat(entries.get(0).getString(1)).isEqualTo("Text1");
+          assertThat(entries.get(1).getString(1)).isEqualTo("Text2");	
+    }
     
-   
 }

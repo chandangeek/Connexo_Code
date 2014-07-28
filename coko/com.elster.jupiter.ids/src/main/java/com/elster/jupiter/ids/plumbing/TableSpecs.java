@@ -30,6 +30,7 @@ public enum TableSpecs {
 			table.column("MINTIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("minTime").add();
 			table.column("MAXTIME").type("number").conversion(NUMBER2UTCINSTANT).map("maxTime").add();
 			table.column("SLOTCOUNT").type("number").conversion(NUMBER2INT).map("slotCount").add();
+			table.column("TEXTSLOTCOUNT").type("number").conversion(NUMBER2INT).map("textSlotCount").add();
 			table.column("LOCALTIME").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("localTime").add();
 			table.column("REGULAR").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("regular").add();
 			table.column("JOURNAL").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("journal").add();
