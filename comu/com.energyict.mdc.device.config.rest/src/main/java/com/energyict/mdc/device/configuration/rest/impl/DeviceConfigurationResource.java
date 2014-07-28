@@ -20,6 +20,7 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 import javax.inject.Inject;
@@ -41,6 +42,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -303,12 +305,18 @@ public class DeviceConfigurationResource {
             @BeanParam QueryParameters queryParameters) {
 
         List<ValidationRule> rules = resourceHelper.findRegisterSpec(registerId).getValidationRules();
-        List<ValidationRuleInfo> result = new ArrayList<>();
-        for (ValidationRule rule : rules) {
-            result.add(new ValidationRuleInfo(rule));
-        }
-        result = ListPager.of(result).from(queryParameters).find();
+        List<ValidationRuleInfo> result = page(rules, queryParameters);
         return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
+    }
+
+    private List<ValidationRuleInfo> page(List<ValidationRule> rules, QueryParameters queryParameters) {
+        ValidationRuleInfo[] infos = new ValidationRuleInfo[rules.size()];
+        for (int i = queryParameters.getStart(); i < queryParameters.getStart() + queryParameters.getLimit() + 1; i++) {
+            if (i < rules.size()) {
+                infos[i] = new ValidationRuleInfo(rules.get(i));
+            }
+        }
+        return ListPager.of(Arrays.asList(infos)).from(queryParameters).find();
     }
 
     @GET
@@ -321,10 +329,7 @@ public class DeviceConfigurationResource {
             @BeanParam QueryParameters queryParameters) {
 
         List<ValidationRule> rules = resourceHelper.findChannelSpec(channelId).getValidationRules();
-        List<ValidationRuleInfo> result = new ArrayList<>();
-        for (ValidationRule rule : rules) {
-            result.add(new ValidationRuleInfo(rule));
-        }
+        List<ValidationRuleInfo> result = page(rules, queryParameters);
         return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
     }
 
@@ -338,10 +343,7 @@ public class DeviceConfigurationResource {
             @BeanParam QueryParameters queryParameters) {
 
         List<ValidationRule> rules = resourceHelper.findLoadProfileSpec(loadProfileId).getValidationRules();
-        List<ValidationRuleInfo> result = new ArrayList<>();
-        for (ValidationRule rule : rules) {
-            result.add(new ValidationRuleInfo(rule));
-        }
+        List<ValidationRuleInfo> result = page(rules, queryParameters);
         return Response.ok(PagedInfoList.asJson("validationRules", result, queryParameters)).build();
     }
 
@@ -361,14 +363,14 @@ public class DeviceConfigurationResource {
         for (ValidationRuleSet ruleSet : ruleSets) {
             result.add(new ValidationRuleSetInfo(ruleSet));
         }
-        return Response.ok(PagedInfoList.asJson("validationRuleSets",
-                ListPager.of(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR).from(queryParameters).find(), queryParameters)).build();
+        result = ListPager.of(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR).from(queryParameters).find();
+        return Response.ok(PagedInfoList.asJson("validationRuleSets", result, queryParameters)).build();
     }
 
     @GET
     @Path("/{deviceConfigurationId}/linkablevalidationrulesets")
     @Produces(MediaType.APPLICATION_JSON)
-    public ValidationRuleSetInfos getLinkableValidationsRuleSets(
+    public Response getLinkableValidationsRuleSets(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam QueryParameters queryParameters) {
@@ -383,7 +385,9 @@ public class DeviceConfigurationResource {
                 validationRuleSetInfos.add(validationRuleSet);
             }
         }
-        return validationRuleSetInfos;
+        List<ValidationRuleSetInfo> infolist = validationRuleSetInfos.ruleSets;
+        infolist = ListPager.of(infolist).from(queryParameters).find();
+        return Response.ok(PagedInfoList.asJson("validationRuleSets", infolist, queryParameters)).build();
     }
 
     @DELETE
@@ -418,10 +422,12 @@ public class DeviceConfigurationResource {
         }
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        List<ValidationRuleSetInfo> addedValidationRuleSets = new ArrayList<>(ids.size());
-        for (ValidationRuleSet validationRuleSet : all ? allRuleSets() : ruleSetsFor(ids)) {
+        List<ValidationRuleSetInfo> addedValidationRuleSets = new ArrayList<>();
+        for (ValidationRuleSet validationRuleSet : all ? allRuleSets(deviceConfiguration) : ruleSetsFor(ids)) {
+            if (!deviceConfiguration.getValidationRuleSets().contains(validationRuleSet)) {
                 deviceConfiguration.addValidationRuleSet(validationRuleSet);
                 addedValidationRuleSets.add(new ValidationRuleSetInfo(validationRuleSet));
+            }
         }
         return Response.ok(addedValidationRuleSets).build();
     }
@@ -440,8 +446,15 @@ public class DeviceConfigurationResource {
         });
     }
 
-    private Iterable<ValidationRuleSet> allRuleSets() {
-        return validationService.getValidationRuleSets();
+    private Iterable<ValidationRuleSet> allRuleSets(DeviceConfiguration deviceConfiguration) {
+        final List<ReadingType> relatedToConfiguration = deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration);
+        List<ValidationRuleSet> validationRuleSets = validationService.getValidationRuleSets();
+        return Iterables.filter(validationRuleSets, new Predicate<ValidationRuleSet>() {
+            @Override
+            public boolean apply(ValidationRuleSet validationRuleSet) {
+                return !validationRuleSet.getRules(relatedToConfiguration).isEmpty();
+            }
+        });
     }
 
 
