@@ -176,7 +176,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         for (BaseChannel channel : this.loadProfile.getAllChannels()) {
             boolean contains = false;
             for (BaseRegister register : allRegisters) {
-                contains |= register.getRegisterMappingObisCode().equals(channel.getRegisterTypeObisCode());
+                contains |= register.getRegisterTypeObisCode().equals(channel.getRegisterTypeObisCode());
             }
             if (!contains) {
                 throw new BusinessException("notAllRegisterMappingsDefined", "Not all RegisterMappings from {0} are defined on {1}", this.loadProfile, device);

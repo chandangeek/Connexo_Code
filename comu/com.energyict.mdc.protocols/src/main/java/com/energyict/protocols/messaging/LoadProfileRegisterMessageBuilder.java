@@ -184,7 +184,7 @@ public class LoadProfileRegisterMessageBuilder extends AbstractMessageBuilder {
         for (BaseChannel channel : channels) {
             boolean contains = false;
             for (BaseRegister allRegister : allRegisters) {
-                contains |= allRegister.getRegisterMappingObisCode().equals(channel.getRegisterTypeObisCode());
+                contains |= allRegister.getRegisterTypeObisCode().equals(channel.getRegisterTypeObisCode());
             }
             if (!contains) {
                 throw new BusinessException("notAllRegisterMappingsDefined", "Not all RegisterMappings from {0} are defined on {1}", this.loadProfile, device);
