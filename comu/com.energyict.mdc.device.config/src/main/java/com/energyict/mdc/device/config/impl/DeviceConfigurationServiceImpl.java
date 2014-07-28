@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -14,6 +15,7 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
@@ -95,6 +97,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile TaskService taskService;
     private volatile PluggableService pluggableService;
     private volatile ValidationService validationService;
+    private volatile QueryService queryService;
 
     private final Map<DeviceSecurityUserAction, Privilege> privileges = new EnumMap<>(DeviceSecurityUserAction.class);
 
@@ -482,6 +485,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.pluggableService = pluggableService;
     }
 
+    @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
     @Override
     public Optional<SecurityPropertySet> findSecurityPropertySet(long id) {
         return dataModel.mapper(SecurityPropertySet.class).getOptional(id);
@@ -574,5 +582,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
             readingTypes.add(spec.getRegisterMapping().getReadingType());
         }
         return readingTypes;
+    }
+
+    @Override
+    public List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet) {
+        return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class))).getLinkableDeviceConfigurations(validationRuleSet);
     }
 }

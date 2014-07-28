@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -208,4 +209,6 @@ public interface DeviceConfigurationService {
     public List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
 
     public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration);
+
+    List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
 }
