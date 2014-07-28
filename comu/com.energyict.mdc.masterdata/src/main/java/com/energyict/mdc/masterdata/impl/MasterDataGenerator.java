@@ -46,11 +46,11 @@ public class MasterDataGenerator {
                 Unit unit = readingTypeInformation.getUnit();
                 if (!unitsToKeepTrack.contains(unit)) {
                     unitsToKeepTrack.add(unit);
-                    Optional<Phenomenon> existingPhenomenon = masterDataService.findPhenomenonByNameAndUnit(readingType.getUnit().name(), unit);
+                    Optional<Phenomenon> existingPhenomenon = masterDataService.findPhenomenonByNameAndUnit(unit.toString(), unit);
                     if(existingPhenomenon.isPresent()){
                         phenomena.add(existingPhenomenon.get());
                     } else {
-                        Phenomenon phenomenon = masterDataService.newPhenomenon(readingType.getUnit().name(), unit);
+                        Phenomenon phenomenon = masterDataService.newPhenomenon(unit.toString(), unit);
                         phenomenon.save();
                         phenomena.add(phenomenon);
                     }
