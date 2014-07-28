@@ -43,7 +43,7 @@ Ext.define('Isu.util.CreatingControl', {
         obj.constraint.min && (textField.minLength = obj.constraint.min);
         obj.constraint.regexp && (textField.regex = new RegExp(obj.constraint.regexp));
         obj.defaultValue && (textField.value = obj.defaultValue);
-        obj.help && (textField.afterSubTpl = obj.help);
+        obj.help && (textField.afterSubTpl = '<span style="color: #686868; font-style: italic">' + obj.help + '</span>');
         obj.dependOn && (textField.dependOn = obj.dependOn);
 
         return textField;
@@ -62,6 +62,7 @@ Ext.define('Isu.util.CreatingControl', {
         obj.constraint.max && (numberField.maxValue = obj.constraint.max);
         obj.constraint.min && (numberField.minValue = obj.constraint.min);
         obj.defaultValue && (numberField.value = obj.defaultValue);
+        obj.help && (numberField.afterSubTpl = '<span style="color: #686868; font-style: italic">' + obj.help + '</span>');
         obj.dependOn && (numberField.dependOn = obj.dependOn);
 
         return numberField;
@@ -87,6 +88,7 @@ Ext.define('Isu.util.CreatingControl', {
             };
 
         obj.defaultValue && (combobox.value = obj.defaultValue.id);
+        obj.help && (combobox.afterSubTpl = '<span style="color: #686868; font-style: italic">' + obj.help + '</span>');
         obj.dependOn && (combobox.dependOn = obj.dependOn);
 
         return combobox;
@@ -108,7 +110,7 @@ Ext.define('Isu.util.CreatingControl', {
         obj.constraint.min && (textareafield.minLength = obj.constraint.min);
         obj.constraint.regexp && (textareafield.regex = new RegExp(obj.constraint.regexp));
         obj.defaultValue && (textareafield.value = obj.defaultValue);
-        obj.help && (textareafield.afterSubTpl = obj.help);
+        obj.help && (textareafield.afterSubTpl = '<span style="color: #686868; font-style: italic">' + obj.help + '</span>');
         obj.dependOn && (textareafield.dependOn = obj.dependOn);
 
         return textareafield;
@@ -131,6 +133,7 @@ Ext.define('Isu.util.CreatingControl', {
 
         obj.constraint.max && (emailList.maxLength = obj.constraint.max);
         obj.constraint.min && (emailList.minLength = obj.constraint.min);
+        obj.help && (emailList.afterSubTpl = '<span style="color: #686868; font-style: italic">' + obj.help + '</span>');
         obj.dependOn && (emailList.dependOn = obj.dependOn);
 
         return emailList;
@@ -146,6 +149,7 @@ Ext.define('Isu.util.CreatingControl', {
             required: obj.constraint.required
         };
 
+        obj.help && (userCombobox.afterSubTpl = '<span style="color: #686868; font-style: italic">' + obj.help + '</span>');
         obj.dependOn && (userCombobox.dependOn = obj.dependOn);
 
         return userCombobox;
