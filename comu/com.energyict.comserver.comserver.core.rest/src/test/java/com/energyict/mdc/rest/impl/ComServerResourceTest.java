@@ -19,7 +19,15 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
-import com.energyict.mdc.rest.impl.comserver.*;
+import com.energyict.mdc.rest.impl.comserver.ComServerResource;
+import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.OfflineComServerInfo;
+import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
+import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
+import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +52,6 @@ import org.glassfish.jersey.test.TestProperties;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -174,11 +181,11 @@ public class ComServerResourceTest extends JerseyTest {
         Map<String, Object> changesInterPollDelay = (Map<String, Object>) comServer1.get("changesInterPollDelay");
         assertThat(changesInterPollDelay).hasSize(2)
                 .contains(MapEntry.entry("count", 6))
-                .contains(MapEntry.entry("timeUnit", "seconds"));
+                .contains(MapEntry.entry("timeUnit", 13));
         Map<String, Object> schedulingInterPollDelay = (Map<String, Object>) comServer1.get("schedulingInterPollDelay");
         assertThat(schedulingInterPollDelay).hasSize(2)
                 .contains(MapEntry.entry("count", 7))
-                .contains(MapEntry.entry("timeUnit", "minutes"));
+                .contains(MapEntry.entry("timeUnit", 12));
     }
 
     @Test
@@ -202,7 +209,7 @@ public class ComServerResourceTest extends JerseyTest {
         onlineComServerInfo.name="new name";
         onlineComServerInfo.eventRegistrationUri="/new/uri";
         onlineComServerInfo.schedulingInterPollDelay=new TimeDurationInfo();
-        onlineComServerInfo.schedulingInterPollDelay.timeUnit="seconds";
+        onlineComServerInfo.schedulingInterPollDelay.timeUnit=13;
         onlineComServerInfo.schedulingInterPollDelay.count=6;
         onlineComServerInfo.communicationLogLevel= ComServer.LogLevel.ERROR;
         onlineComServerInfo.serverLogLevel= ComServer.LogLevel.DEBUG;
@@ -265,7 +272,7 @@ public class ComServerResourceTest extends JerseyTest {
         onlineComServerInfo.name="new name";
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.count=2;
-        timeDurationInfo.timeUnit="seconds";
+        timeDurationInfo.timeUnit=13;
         List<InboundComPortInfo> inboundPorts = new ArrayList<>();
         onlineComServerInfo.inboundComPorts =inboundPorts;
         onlineComServerInfo.outboundComPorts =new ArrayList<>();
@@ -290,7 +297,7 @@ public class ComServerResourceTest extends JerseyTest {
         offlineComServerInfo.name="new name";
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.count=2;
-        timeDurationInfo.timeUnit="seconds";
+        timeDurationInfo.timeUnit=13;
         offlineComServerInfo.inboundComPorts = new ArrayList<>();
         offlineComServerInfo.outboundComPorts =new ArrayList<>();
 
@@ -319,7 +326,7 @@ public class ComServerResourceTest extends JerseyTest {
         remoteComServerInfo.onlineComServerId = 5L;
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.count=2;
-        timeDurationInfo.timeUnit="seconds";
+        timeDurationInfo.timeUnit=13;
         remoteComServerInfo.inboundComPorts = new ArrayList<>();
         remoteComServerInfo.outboundComPorts =new ArrayList<>();
 
@@ -353,7 +360,7 @@ public class ComServerResourceTest extends JerseyTest {
         modemInboundComPortInfo.maximumNumberOfDialErrors = 101;
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.count=2;
-        timeDurationInfo.timeUnit="seconds";
+        timeDurationInfo.timeUnit=13;
         modemInboundComPortInfo.atCommandTimeout = timeDurationInfo;
         modemInboundComPortInfo.comServer_id = comServer_id;
         modemInboundComPortInfo.comPortPool_id = comPortPool_id;
@@ -554,7 +561,7 @@ public class ComServerResourceTest extends JerseyTest {
         onlineComServerInfo.name="new name";
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.count=2;
-        timeDurationInfo.timeUnit="seconds";
+        timeDurationInfo.timeUnit=13;
         onlineComServerInfo.inboundComPorts = new ArrayList<>();
         onlineComServerInfo.outboundComPorts =new ArrayList<>();
 
