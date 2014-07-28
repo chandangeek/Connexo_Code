@@ -86,7 +86,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: 'Use https',
+            fieldLabel: 'Https',
             name: 'https',
             items: [
                 {

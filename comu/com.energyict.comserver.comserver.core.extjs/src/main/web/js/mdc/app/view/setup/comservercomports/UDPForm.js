@@ -88,7 +88,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
             name: 'comPortPool_id',
             displayField: 'name',
             valueField: 'id',
-            emptyText: 'Select inbound communication port pool'
+            emptyText: 'Select inbound communication port pool...'
         },
         {
             xtype: 'fieldcontainer',
