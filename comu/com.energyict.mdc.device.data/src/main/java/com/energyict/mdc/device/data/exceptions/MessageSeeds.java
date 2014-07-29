@@ -71,6 +71,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_NOT_ACTIVE(2041, Constants.DEVICE_CONFIGURATION_NOT_ACTIVE, "The device configuration must be active", SEVERE),
     VETO_PARTIAL_CONNECTION_TASK_DELETION(2042, Constants.VETO_PARTIAL_CONNECTION_TASK_DELETION, "The partial connection task {0} of device configuration {1} is still used by at least one connection task on a device of that configuration", SEVERE),
     VETO_SECURITY_PROPERTY_SET_DELETION(2043, Constants.VETO_SECURITY_PROPERTY_SET_DELETION, "The security property set {0} of device configuration {1} cannot be deleted because at least one device of that configuration still has security property values for it", SEVERE),
+    UNIQUE_COMTASKS_PER_DEVICE(2044, Constants.UNIQUE_COMTASKS_PER_DEVICE, "The communication task is not unique for device", SEVERE),
     ;
     private final int number;
     private final String key;
