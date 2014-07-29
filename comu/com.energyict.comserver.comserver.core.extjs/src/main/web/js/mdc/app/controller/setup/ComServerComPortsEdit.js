@@ -188,8 +188,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         baudRate.setValue('9600', true);
         nrOfDatabits.setValue('8', true);
         nrOfStopBits.setValue('1', true);
-        parity.setValue('None', true);
-        flowControl.setValue('None', true);
+        parity.setValue('No parity', true);
+        flowControl.setValue('No flow control', true);
     },
 
     formToModel: function (form, model) {
