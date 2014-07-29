@@ -1027,7 +1027,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateMeterInKore(amrSystem);
             for (Channel channel : loadProfile.getChannels()) {
-                readings.addAll((Collection<IntervalReadingRecord>) meter.getReadings(interval, channel.getChannelSpec().getRegisterMapping().getReadingType()));
+                readings.addAll((Collection<IntervalReadingRecord>) meter.getReadings(interval, channel.getChannelSpec().getReadingType()));
             }
         }
         return readings;
