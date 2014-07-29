@@ -493,7 +493,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                                 me.checkDependencies();
                             }
                         });
-                    });
+                    }, me, {single: true});
                 });
             }
         });
