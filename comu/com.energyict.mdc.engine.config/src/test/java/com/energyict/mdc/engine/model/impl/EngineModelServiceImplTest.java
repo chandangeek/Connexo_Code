@@ -7,7 +7,9 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.HostName;
 import com.energyict.mdc.engine.model.OfflineComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.PersistenceTest;
+import com.energyict.mdc.protocol.api.ComPortType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -42,6 +44,16 @@ public class EngineModelServiceImplTest extends PersistenceTest {
         createOfflineComServer("lapbvn");
         ComServer comServerBySystemName = getEngineModelService().findComServerBySystemName().get();
         assertThat(comServerBySystemName.getName()).isEqualTo("lapbvn");
+    }
+
+    @Test
+    @Transactional
+    public void testDeletedComPortsAreNotVisible() throws Exception {
+        HostName.setCurrent("lapbvn");
+        OnlineComServer serverOne = createOnlineComServer("serverOne");
+        OutboundComPort test = serverOne.newOutboundComPort("test", 1).comPortType(ComPortType.TCP).add();
+        serverOne.removeComPort(test.getId());
+        assertThat(getEngineModelService().findAllOutboundComPorts()).isEmpty();
     }
 
     private OnlineComServer createOnlineComServer(String name) {

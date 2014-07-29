@@ -7,7 +7,7 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
     SHOULD_BE_AT_LEAST(1, Keys.MDC_VALUE_TOO_SMALL, "Minimal acceptable value is {value} seconds.", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Keys.MDC_CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
-    VALUE_NOT_IN_RANGE(3, Keys.MDC_VALUE_NOT_IN_RANGE, "{0} not in range {min} to {max}", Level.SEVERE),
+    VALUE_NOT_IN_RANGE(3, Keys.MDC_VALUE_NOT_IN_RANGE, "Field not in range {min} to {max}", Level.SEVERE),
     INVALID_URL(4, Keys.MDC_INVALID_URL, "This is not a valid URL", Level.SEVERE),
     COMSERVER_NAME_INVALID_CHARS(5, Keys.COMSERVER_NAME_INVALID_CHARS, "The name of a communication server should comply with the domain name system (rfc 1035) and can therefore only contain a-z, A-Z, 0-9, . and - characters", Level.SEVERE),
     REQUIRED_FOR_HTTPS(6, Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS, "This field is mandatory in case https is chosen", Level.SEVERE),
@@ -15,6 +15,7 @@ public enum MessageSeeds implements MessageSeed {
     NOT_UNIQUE(8, Keys.MDC_NOT_UNIQUE , "Expected to find at most one object that matches the SQL condition(s) but found multiple", Level.SEVERE),
     MUST_HAVE_DISCOVERY_PROTOCOL(9, Keys.DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL, "Discovery protocol pluggable class is mandatory for comportpool", Level.SEVERE),
     ACTIVE_INBOUND_PORT_MUST_HAVE_POOL(10, Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL, "An active inbound comport must have an inbound comportpool", Level.SEVERE),
+    FIELD_TOO_LONG(11, Keys.MDC_FIELD_TOO_LONG, "Field must not exceed {max} characters", Level.SEVERE),
 
     DUPLICATE_COMSERVER(101, Keys.MDC_DUPLICATE_COM_SERVER, "Name should be unique", Level.SEVERE),
     OBSOLETE_COMSERVER_CANT_BE_UPDATED(103, Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED, "Obsolete ComServers can no longer be updated", Level.SEVERE),
@@ -71,6 +72,7 @@ public enum MessageSeeds implements MessageSeed {
 
         public static final String MDC_VALUE_TOO_SMALL = "ValueTooSmall";
         public static final String MDC_CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
+        public static final String MDC_FIELD_TOO_LONG = "FieldTooLong";
         public static final String MDC_VALUE_NOT_IN_RANGE = "ValueNotInRange";
         public static final String MDC_INVALID_URL = "InvalidURL";
         public static final String COMSERVER_NAME_INVALID_CHARS = "InvalidChars";

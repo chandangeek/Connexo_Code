@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -28,9 +29,11 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.ComServer} interface.
@@ -75,7 +78,8 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     private long id;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.COMSERVER_NAME_INVALID_CHARS +"}")
     private String name;
     private boolean active;
@@ -109,6 +113,7 @@ public abstract class ComServerImpl implements ComServer {
     protected void validate(){
     }
 
+    @Override
     public void makeObsolete () {
         this.validateMakeObsolete();
         this.makeComPortsObsolete();

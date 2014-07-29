@@ -266,12 +266,13 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<OutboundComPort> findAllOutboundComPorts() {
-        return convertComportListToOutBoundComPorts(getComPortDataMapper().find("class", ComPortImpl.OUTBOUND_DISCRIMINATOR));
+        Condition condition = Where.where("class").isEqualTo(ComPortImpl.OUTBOUND_DISCRIMINATOR).and(Where.where("obsoleteDate").isNull());
+        return convertComportListToOutBoundComPorts(getComPortDataMapper().select(condition));
     }
 
     @Override
     public List<InboundComPort> findAllInboundComPorts() {
-        Condition condition = Where.where("class").isNotEqual(ComPortImpl.OUTBOUND_DISCRIMINATOR);
+        Condition condition = Where.where("class").isNotEqual(ComPortImpl.OUTBOUND_DISCRIMINATOR).and(Where.where("obsoleteDate").isNull());
         return convertComportListToInBoundComPorts(getComPortDataMapper().select(condition));
     }
 
