@@ -58,7 +58,6 @@ public class EventTypeParameter extends TranslatedParameter {
             return false;
         }
 
-
         private boolean validateValueInEndDeviceEventTypes(MeteringService meteringService, String value) {
             // TODO search in DB and set return value to FALSE by default
             return true;
@@ -67,23 +66,30 @@ public class EventTypeParameter extends TranslatedParameter {
 
     private static final EventTypeParameterConstraint CONSTRAINT = new EventTypeParameterConstraint();
 
-    private List<Object> eventTypes = new ArrayList<>();
+    private List<Object> eventTypes;
     private final MeteringService meteringService;
-    private String defaultValue = "";
+    private Object defaultValue;
 
     public EventTypeParameter(Thesaurus thesaurus, MeteringService meteringService) {
         super(thesaurus);
         this.meteringService = meteringService;
-        setEventTypes(" "); // TODO remove when live seacrh wull be supported
+        setEventTypes(null);
     }
 
     private void setEventTypes(String userValue){
+        eventTypes = new ArrayList<>();
         searchEventTypesInEventDescriptions(userValue);
         searchEventTypesInEndDeviceEventTypes(userValue);
     }
 
     private void setDefaultValue(String userValue){
-        defaultValue = userValue;
+        if (userValue != null) {
+            for (Object eventType : eventTypes) {
+                if (((ComboBoxControl.Values)eventType).id.equals(userValue)){
+                    defaultValue = eventType;
+                }
+            }
+        }
     }
 
     private void searchEventTypesInEventDescriptions(String userValue) {
@@ -92,7 +98,8 @@ public class EventTypeParameter extends TranslatedParameter {
                 continue;
             }
             String title = getString(eventDescription.getTitle());
-            if (title.contains(userValue)) {
+            // TODO remove 'true' when search will be implemented
+            if (userValue != null && title.contains(userValue) || true) {
                 ComboBoxControl.Values info = new ComboBoxControl.Values();
                 info.id = eventDescription.getTopic();
                 info.title = getString(eventDescription.getTitle());
@@ -102,20 +109,28 @@ public class EventTypeParameter extends TranslatedParameter {
     }
 
     private void searchEventTypesInEndDeviceEventTypes(String userValue){
-        String dbSearchString = "%" + userValue + "%";
-        /*
-        TODO search in DB
-        getAvailableEndDeviceEventTypes() retruns more than 10000 records! So we need to have an ability to search
-        EndDeviceEventTypes by name / id
-        for(EndDeviceEventType endDeviceEventType : meteringService.getAvailableEndDeviceEventTypes()) {
-            ComboBoxControl.Values info = new ComboBoxControl.Values();
-            info.id = endDeviceEventType.getMRID();
-            info.title = endDeviceEventType.getName();
-            eventTypes.add(info);
+        if (userValue != null) {
+            String dbSearchString = "%" + userValue + "%";
+            /*
+            TODO search in DB
+            getAvailableEndDeviceEventTypes() retruns more than 10000 records! So we need to have an ability to search
+            EndDeviceEventTypes by name / id
+            for(EndDeviceEventType endDeviceEventType : meteringService.getAvailableEndDeviceEventTypes()) {
+                ComboBoxControl.Values info = new ComboBoxControl.Values();
+                info.id = endDeviceEventType.getMRID();
+                info.title = endDeviceEventType.getName();
+                eventTypes.add(info);
+            }
+            For now we use only this two, see the
+            http://confluence.eict.vpdc/display/JUP/Create+an+issue+for+the+event%2C+mapping+of+event+to+issue?focusedCommentId=26674337#comment-26674337
+            */
+            addDefaultEventTypes();
+        } else {
+            addDefaultEventTypes();
         }
-        For now we use only this two, see the
-        http://confluence.eict.vpdc/display/JUP/Create+an+issue+for+the+event%2C+mapping+of+event+to+issue?focusedCommentId=26674337#comment-26674337
-        */
+    }
+
+    private void addDefaultEventTypes() {
         ComboBoxControl.Values info = new ComboBoxControl.Values();
         info.id = "0.36.116.85";
         info.title = "Time sync failed";
@@ -139,7 +154,7 @@ public class EventTypeParameter extends TranslatedParameter {
             String stringIncomingValue = (String) incomingValue;
             EventTypeParameter definition = new EventTypeParameter(getThesaurus(), meteringService);
             definition.setEventTypes(stringIncomingValue);
-            definition.setDefaultValue(defaultValue);
+            definition.setDefaultValue(stringIncomingValue);
             return definition;
         }
         return super.getValue(parameters);
