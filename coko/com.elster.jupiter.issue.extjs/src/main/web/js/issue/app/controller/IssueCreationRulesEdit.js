@@ -311,6 +311,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 tooltip: Uni.I18n.translate('administration.issueCreationRules.templateInfo', 'ISE', 'Template info'),
                 iconCls: 'icon-info-small',
                 ui: 'blank',
+                itenId: 'creationRuleTplHelp',
                 floating: true,
                 renderTo: form.getEl(),
                 shadow: false,
