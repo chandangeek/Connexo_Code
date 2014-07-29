@@ -1,10 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -13,7 +8,9 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
@@ -28,15 +25,22 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
@@ -545,11 +549,26 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
     }
 
-    private class RegisterSpecBuilder implements NestedBuilder {
+    private class NumericalRegisterSpecBuilder implements NestedBuilder {
 
-        private final RegisterSpec.RegisterSpecBuilder builder;
+        private final NumericalRegisterSpec.Builder builder;
 
-        private RegisterSpecBuilder(RegisterSpec.RegisterSpecBuilder builder) {
+        private NumericalRegisterSpecBuilder(NumericalRegisterSpec.Builder builder) {
+            super();
+            this.builder = builder;
+        }
+
+        @Override
+        public void add() {
+            this.builder.add();
+        }
+    }
+
+    private class TextualRegisterSpecBuilder implements NestedBuilder {
+
+        private final TextualRegisterSpec.Builder builder;
+
+        private TextualRegisterSpecBuilder(TextualRegisterSpec.Builder builder) {
             super();
             this.builder = builder;
         }
@@ -635,9 +654,16 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         @Override
-        public RegisterSpec.RegisterSpecBuilder newRegisterSpec(RegisterType registerType) {
-            RegisterSpec.RegisterSpecBuilder builder = this.underConstruction.createRegisterSpec(registerType);
-            this.nestedBuilders.add(new RegisterSpecBuilder(builder));
+        public NumericalRegisterSpec.Builder newNumericalRegisterSpec(RegisterType registerType) {
+            NumericalRegisterSpec.Builder builder = this.underConstruction.createNumericalRegisterSpec(registerType);
+            this.nestedBuilders.add(new NumericalRegisterSpecBuilder(builder));
+            return builder;
+        }
+
+        @Override
+        public TextualRegisterSpec.Builder newTextualRegisterSpec(RegisterType registerType) {
+            TextualRegisterSpec.Builder builder = this.underConstruction.createTextualRegisterSpec(registerType);
+            this.nestedBuilders.add(new TextualRegisterSpecBuilder(builder));
             return builder;
         }
 

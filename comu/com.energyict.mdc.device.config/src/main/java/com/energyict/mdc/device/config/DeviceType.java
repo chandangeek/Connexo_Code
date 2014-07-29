@@ -165,10 +165,23 @@ public interface DeviceType {
          *
          * @param registerType The RegisterType
          * @return The builder
-         * @see DeviceConfiguration#createRegisterSpec(RegisterType)
+         * @see DeviceConfiguration#createNumericalRegisterSpec(RegisterType)
          * @see #add()
          */
-        public RegisterSpec.RegisterSpecBuilder newRegisterSpec(RegisterType registerType);
+        public NumericalRegisterSpec.Builder newNumericalRegisterSpec(RegisterType registerType);
+
+        /**
+         * Returns a builder for a new {@link RegisterSpec} in the
+         * {@link DeviceConfiguration} that is being built by this DeviceConfigurationBuilder.
+         * Note that there is no need to call the add method as that
+         * will be done by the {@link DeviceConfigurationBuilder#add()} method.
+         *
+         * @param registerType The RegisterType
+         * @return The builder
+         * @see DeviceConfiguration#createTextualRegisterSpec(RegisterType)
+         * @see #add()
+         */
+        public TextualRegisterSpec.Builder newTextualRegisterSpec(RegisterType registerType);
 
         /**
          * Returns a builder for a new {@link LoadProfileSpec} in the

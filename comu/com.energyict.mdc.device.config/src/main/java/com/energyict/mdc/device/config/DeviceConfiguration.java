@@ -9,7 +9,6 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 
 import java.util.List;
@@ -55,9 +54,13 @@ public interface DeviceConfiguration extends HasId, DeviceCommunicationConfigura
 
     List<RegisterSpec> getRegisterSpecs();
 
-    RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterType registerType);
+    NumericalRegisterSpec.Builder createNumericalRegisterSpec(RegisterType registerType);
 
-    RegisterSpec.RegisterSpecUpdater getRegisterSpecUpdaterFor(RegisterSpec registerSpec);
+    NumericalRegisterSpec.Updater getRegisterSpecUpdaterFor(NumericalRegisterSpec registerSpec);
+
+    TextualRegisterSpec.Builder createTextualRegisterSpec(RegisterType registerType);
+
+    TextualRegisterSpec.Updater getRegisterSpecUpdaterFor(TextualRegisterSpec registerSpec);
 
     void deleteRegisterSpec(RegisterSpec registerSpec);
 

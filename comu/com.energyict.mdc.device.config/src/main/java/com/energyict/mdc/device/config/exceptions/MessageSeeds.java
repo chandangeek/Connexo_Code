@@ -50,6 +50,7 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_ONE(6015, Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be above 0", Level.SEVERE),
     REGISTER_SPEC_MULTIPLIER_LARGER_THAN_ONE(6016, Keys.REGISTER_SPEC_INVALID_MULTIPLIER_VALUE, "Invalid multiplier value, must be above 0", Level.SEVERE),
     REGISTER_SPEC_OVERFLOW_REQUIRED(6017, Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED, "Overflow value is required", Level.SEVERE),
+    REGISTER_SPEC_MULTIPLIER_MODE_IS_REQUIRED(6018, Keys.REGISTER_SPEC_MULTIPLIER_MODE_IS_REQUIRED, "Multiplier mode is required", Level.SEVERE),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required", SEVERE),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Keys.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS, "The device type {0} cannot be deleted because it still has active configurations", SEVERE),
     DEVICE_PROTOCOL_IS_REQUIRED(7004, Keys.DEVICE_PROTOCOL_IS_REQUIRED, "The protocol of a device type is required", SEVERE),
@@ -227,6 +228,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REGISTER_SPEC_INVALID_OVERFLOW_VALUE = "registerSpec.invalidOverflow";
         public static final String REGISTER_SPEC_OVERFLOW_IS_REQUIRED = "registerSpec.required";
         public static final String REGISTER_SPEC_INVALID_MULTIPLIER_VALUE = "registerSpec.invalidMultiplier";
+        public static final String REGISTER_SPEC_MULTIPLIER_MODE_IS_REQUIRED = "registerSpec.multiplierMode.required";
         public static final String UNSUPPORTED_SECURITY_LEVEL = "securityPropertySet.unsupportedSecurityLevel";
         public static final String SECURITY_PROPERTY_SET_IN_USE = "securityPropertySet.inUse";
         public static final String COM_TASK_ENABLEMENT_COM_TASK_REQUIRED = "comTaskEnablement.comTask.required";
