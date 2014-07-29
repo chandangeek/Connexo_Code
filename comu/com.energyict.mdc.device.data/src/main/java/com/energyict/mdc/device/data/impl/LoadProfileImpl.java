@@ -211,7 +211,7 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public ObisCode getRegisterTypeObisCode() {
-            return this.channelSpec.getRegisterMapping().getObisCode();
+            return this.channelSpec.getChannelType().getObisCode();
         }
     }
 }

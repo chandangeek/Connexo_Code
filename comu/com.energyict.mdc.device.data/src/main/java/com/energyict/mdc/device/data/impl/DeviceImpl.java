@@ -1010,7 +1010,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateMeterInKore(amrSystem);
-            List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterMapping().getReadingType());
+            List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
             List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
             for (BaseReadingRecord reading : readings) {
                 readingRecords.add((ReadingRecord) reading);
@@ -1032,7 +1032,7 @@ public class DeviceImpl implements Device, PersistenceAware {
     }
 
     private Optional<ReadingRecord> getLastReadingsFor(Register register, Meter meter) {
-        ReadingType readingType = register.getRegisterSpec().getRegisterMapping().getReadingType();
+        ReadingType readingType = register.getRegisterSpec().getRegisterType().getReadingType();
         for (MeterActivation meterActivation : this.getSortedMeterActivations(meter)) {
             Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation, readingType);
             if (channel.isPresent()) {
@@ -1602,7 +1602,7 @@ public class DeviceImpl implements Device, PersistenceAware {
         };
 
         ReadingType getReadingType (RegisterSpec registerSpec) {
-            return registerSpec.getRegisterMapping().getReadingType();
+            return registerSpec.getRegisterType().getReadingType();
         }
 
         abstract boolean appliesTo(RegisterSpec registerSpec);
