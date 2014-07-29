@@ -491,6 +491,20 @@ public class DeviceResourceTest extends JerseyTest {
         assertThat(channels).hasSize(2).containsExactly("A-channel2", "Z-channel1");
     }
 
+    @Test
+    public void testGetNonExistingLoadProfile() throws Exception {
+        Device device1 = mock(Device.class);
+        LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(15, TimeDuration.MINUTES));
+        LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.MINUTES));
+        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES));
+        when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
+        when(deviceDataService.findByUniqueMrid("mrid1")).thenReturn(device1);
+        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+
+        Response response = target("/devices/mrid1/loadprofiles/7").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
     private Channel mockChannel(String name) {
         Channel mock = mock(Channel.class);
         ChannelSpec channelSpec = mock(ChannelSpec.class);
