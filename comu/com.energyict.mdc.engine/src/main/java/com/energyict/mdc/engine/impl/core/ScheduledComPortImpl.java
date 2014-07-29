@@ -9,6 +9,8 @@ import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
 import org.joda.time.DateTimeConstants;
 
 import java.util.List;
@@ -29,6 +31,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable {
 
     public interface ServiceProvider extends JobExecution.ServiceProvider {
+
+        public UserService userService();
+
+        public ThreadPrincipalService threadPrincipalService();
 
         public ManagementBeanFactory managementBeanFactory();
 
