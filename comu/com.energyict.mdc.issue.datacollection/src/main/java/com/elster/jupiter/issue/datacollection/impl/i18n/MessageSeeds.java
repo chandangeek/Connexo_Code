@@ -19,7 +19,7 @@ public enum MessageSeeds implements MessageSeed {
     ISSUE_CREATION_RULE_PARAMETER_ABSENT(7, "IssueCreationRuleParameterAbsent", "Required parameter is absent", Level.SEVERE),
 
     PARAMETER_NAME_MAX_SLOPE(12, "ParameterNameMaxSlope", "Threshold", Level.INFO),
-    PARAMETER_NAME_READING_TYPE(13, "ParameterNameReadingType", "CIM Reading type", Level.INFO),
+    PARAMETER_NAME_READING_TYPE(13, "ParameterNameReadingType", "CIM reading type", Level.INFO),
     PARAMETER_NAME_TREND_PERIOD(14, "ParameterNameTrendPeriod", "Trend period", Level.INFO),
     PARAMETER_NAME_TREND_PERIOD_UNIT(15, "ParameterNameTrendPeriodUnit", "Trend period units", Level.INFO),
     PARAMETER_NAME_MAX_SLOPE_SUFFIX(16, "ParameterNameTrendPeriodUnitSuffix", "&deg;C/hour", Level.INFO),
