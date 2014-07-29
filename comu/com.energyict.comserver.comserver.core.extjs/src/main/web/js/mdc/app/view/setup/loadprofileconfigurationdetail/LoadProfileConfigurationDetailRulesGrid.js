@@ -34,7 +34,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             {
                 header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
                 dataIndex: 'ruleSetName',
-                renderer: function (value, b, record) {
+                renderer: function (value, metaData, record) {
+                    metaData.tdAttr = 'data-qtip="' + record.data.ruleSet.description + '"';
                     return '<a href="#/administration/validation/rulesets/' + record.data.ruleSet.id + '">' + record.data.ruleSet.name + '</a>';
                 },
                 flex: 0.3
