@@ -36,16 +36,25 @@ public final class ReadingTypeGenerator {
     }
 
     private enum Root {
-		FORWARDENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO,WATTHOUR),"Forward Energy"),
-		REVERSEENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO,WATTHOUR),"Reverse Energy"),
-		NETENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(NET).measure(ENERGY).in(KILO,WATTHOUR),"Net Energy"),
-		TOTALREACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(TOTAL).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Total Reactive Energy"),
-		TOTALBYPHASEREACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(TOTALBYPHASE).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Total by Phase Reactive Energy"),
-		Q1REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q1).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q1 Reactive Energy"),
-		Q2REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q2).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q2 Reactive Energy"),
-		Q3REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q3).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q3 Reactive Energy"),
-		Q4REACTIVE(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q4).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q4 Reactive Energy");
-	
+		FORWARDENERGYKWH (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO,WATTHOUR),"Forward Energy (kWh)"),
+		FORWARDENERGYWH (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(WATTHOUR),"Forward Energy (Wh)"),
+		REVERSEENERGYKWH (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO,WATTHOUR),"Reverse Energy (kWh)"),
+		REVERSEENERGYWH (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(WATTHOUR),"Reverse Energy (Wh)"),
+		NETENERGYKWH (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(NET).measure(ENERGY).in(KILO,WATTHOUR),"Net Energy (kWh)"),
+		NETENERGYWH (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(NET).measure(ENERGY).in(WATTHOUR),"Net Energy (Wh)"),
+		TOTALREACTIVEKVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(TOTAL).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Total Reactive Energy (kvarh)"),
+		TOTALREACTIVEVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(TOTAL).measure(ENERGY).in(VOLTAMPEREREACTIVEHOUR),"Total Reactive Energy (varh)"),
+		TOTALBYPHASEREACTIVEKVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(TOTALBYPHASE).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Total by Phase Reactive Energy (kvarh)"),
+		TOTALBYPHASEREACTIVEVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(TOTALBYPHASE).measure(ENERGY).in(VOLTAMPEREREACTIVEHOUR),"Total by Phase Reactive Energy (varh)"),
+		Q1REACTIVEKVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q1).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q1 Reactive Energy (kvarh)"),
+		Q1REACTIVEVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q1).measure(ENERGY).in(VOLTAMPEREREACTIVEHOUR),"Q1 Reactive Energy (varh)"),
+		Q2REACTIVEKVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q2).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q2 Reactive Energy (kvarh)"),
+		Q2REACTIVEVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q2).measure(ENERGY).in(VOLTAMPEREREACTIVEHOUR),"Q2 Reactive Energy (varh)"),
+		Q3REACTIVEKVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q3).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q3 Reactive Energy (kvarh)"),
+		Q3REACTIVEVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q3).measure(ENERGY).in(VOLTAMPEREREACTIVEHOUR),"Q3 Reactive Energy (varh)"),
+		Q4REACTIVEKVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q4).measure(ENERGY).in(KILO,VOLTAMPEREREACTIVEHOUR),"Q4 Reactive Energy (kvarh)"),
+		Q4REACTIVEVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q4).measure(ENERGY).in(VOLTAMPEREREACTIVEHOUR),"Q4 Reactive Energy (varh)");
+
 		private final ReadingTypeCodeBuilder builder;
 		private final String name;
 
