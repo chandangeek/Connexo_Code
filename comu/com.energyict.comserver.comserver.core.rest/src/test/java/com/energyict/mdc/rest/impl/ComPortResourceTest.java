@@ -37,6 +37,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import org.assertj.core.data.MapEntry;
+
+import com.google.common.base.Optional;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -391,7 +393,7 @@ public class ComPortResourceTest extends JerseyTest {
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServerId);
-        when(engineModelService.findComServer(comServerId)).thenReturn(serverSideComServer);
+        when(engineModelService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
 
         Long poolId = 1543621L;
         OutboundComPortPool myTestOutboundPool = mock(OutboundComPortPool.class);
@@ -421,7 +423,7 @@ public class ComPortResourceTest extends JerseyTest {
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServerId);
-        when(engineModelService.findComServer(comServerId)).thenReturn(serverSideComServer);
+        when(engineModelService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
 
         Long poolId1 = 1543621L;
         Long poolId2 = 14654111L;
@@ -456,7 +458,7 @@ public class ComPortResourceTest extends JerseyTest {
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServerId);
-        when(engineModelService.findComServer(comServerId)).thenReturn(serverSideComServer);
+        when(engineModelService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
         when(outboundComPort.getId()).thenReturn(comPortId);
         when(serverSideComServer.getComPorts()).thenReturn(Arrays.<ComPort>asList(outboundComPort));
@@ -502,8 +504,8 @@ public class ComPortResourceTest extends JerseyTest {
         when(comServerA.getId()).thenReturn(61L);
         ComServer comServerB = mock(ComServer.class);
         when(comServerB.getId()).thenReturn(16L);
-        when(engineModelService.findComServer(61)).thenReturn(comServerA);
-        when(engineModelService.findComServer(16)).thenReturn(comServerB);
+        when(engineModelService.findComServer(61)).thenReturn(Optional.of(comServerA));
+        when(engineModelService.findComServer(16)).thenReturn(Optional.of(comServerB));
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         when(tcpBasedInboundComPort.getId()).thenReturn(10L);
         when(tcpBasedInboundComPort.getComServer()).thenReturn(comServerA);

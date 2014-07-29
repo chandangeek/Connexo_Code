@@ -32,8 +32,6 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
         this.eventRegistrationUri = remoteComServer.getEventRegistrationUri();
         this.usesDefaultEventRegistrationUri = remoteComServer.usesDefaultEventRegistrationUri();
         this.onlineComServerId = remoteComServer.getOnlineComServer()!=null?remoteComServer.getOnlineComServer().getId():null;
-        this.queryAPIUsername = remoteComServer.getQueryAPIUsername();
-        this.queryAPIPassword = remoteComServer.getQueryAPIPassword();
     }
 
     public RemoteComServer writeTo(RemoteComServer comServerSource,EngineModelService engineModelService) {
@@ -48,18 +46,10 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
         }
         Optional<Long> onlineComServerId = Optional.fromNullable(this.onlineComServerId);
         if(onlineComServerId.isPresent()) {
-            Optional<? extends ComServer> onlineComServer = Optional.fromNullable(engineModelService.findComServer(onlineComServerId.get()));
+            Optional<? extends ComServer> onlineComServer = engineModelService.findComServer(onlineComServerId.get());
             if(onlineComServer.isPresent() && OnlineComServer.class.isAssignableFrom(onlineComServer.get().getClass())) {
                 comServerSource.setOnlineComServer((OnlineComServer)onlineComServer.get());
             }
-        }
-        Optional<String> queryAPIPassword = Optional.fromNullable(this.queryAPIPassword);
-        if(queryAPIPassword.isPresent()) {
-            comServerSource.setQueryAPIPassword(queryAPIPassword.get());
-        }
-        Optional<String> queryAPIUsername = Optional.fromNullable(this.queryAPIUsername);
-        if(queryAPIUsername.isPresent()) {
-            comServerSource.setQueryAPIUsername(queryAPIUsername.get());
         }
 
         return comServerSource;

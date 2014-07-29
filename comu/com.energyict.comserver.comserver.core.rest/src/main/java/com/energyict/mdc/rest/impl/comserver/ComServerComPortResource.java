@@ -83,7 +83,7 @@ public class ComServerComPortResource {
     }
 
     private ComServer findComServerOrThrowException(long id) {
-        Optional<ComServer> comServer = Optional.fromNullable(engineModelService.findComServer(id));
+        Optional<ComServer> comServer = engineModelService.findComServer(id);
         if (!comServer.isPresent()) {
             throw new WebApplicationException("No ComServer with id " + id,
                     Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id " + id).build());

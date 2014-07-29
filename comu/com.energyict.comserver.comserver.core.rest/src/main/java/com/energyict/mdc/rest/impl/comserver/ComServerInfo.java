@@ -34,12 +34,12 @@ public abstract class ComServerInfo<S extends ComServer> {
     public List<InboundComPortInfo> inboundComPorts;
     public List<OutboundComPortInfo> outboundComPorts;
     public Long onlineComServerId;
-    public String queryAPIUsername;
-    public String queryAPIPassword;
     public String queryAPIPostUri;
     public Boolean usesDefaultQueryAPIPostUri;
     public String eventRegistrationUri;
     public Boolean usesDefaultEventRegistrationUri;
+    public String statusUri;
+    public Boolean usesDefaultStatusUri;
     public Integer storeTaskQueueSize;
     public Integer numberOfStoreTaskThreads;
     public Integer storeTaskThreadPriority;
@@ -106,4 +106,5 @@ public abstract class ComServerInfo<S extends ComServer> {
     }
 
     protected abstract S createNew(EngineModelService engineModelService);
+
 }
