@@ -2,10 +2,13 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import java.math.BigDecimal;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.LoadProfile;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -16,12 +19,22 @@ public class LoadProfileInfo {
     public String name;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
-    public String interval; // the interval definition of the load profile
+    public TimeDurationInfo interval; // the interval definition of the load profile
     public Date lastReading;
-    public List<IntervalDataInfo> intervalData;
-}
+    public List<String> channels;
 
-class IntervalDataInfo {
-    public Date interval;
-    public Map<String, BigDecimal> channelData;
+    public static LoadProfileInfo from(LoadProfile loadProfile) {
+        LoadProfileInfo info = new LoadProfileInfo();
+        info.id=loadProfile.getId();
+        info.name=loadProfile.getLoadProfileSpec().getLoadProfileType().getName();
+        info.obisCode=loadProfile.getDeviceObisCode();
+        info.interval=new TimeDurationInfo(loadProfile.getInterval());
+        info.lastReading=loadProfile.getLastReading();
+        info.channels=new ArrayList<>();
+        for (Channel channel : loadProfile.getChannels()) {
+            info.channels.add(channel.getChannelSpec().getName());
+        }
+        Collections.sort(info.channels);
+        return info;
+    }
 }

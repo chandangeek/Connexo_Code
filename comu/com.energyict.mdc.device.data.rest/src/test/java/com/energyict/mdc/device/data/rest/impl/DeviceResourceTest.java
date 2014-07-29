@@ -10,35 +10,43 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
-import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
-
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import org.assertj.core.data.MapEntry;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -47,15 +55,19 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 6/19/14.
@@ -104,6 +116,7 @@ public class DeviceResourceTest extends JerseyTest {
         ResourceConfig resourceConfig = new ResourceConfig(
                 ResourceHelper.class,
                 DeviceResource.class,
+                LoadProfileResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 LocalizedExceptionMapper.class);
@@ -430,5 +443,74 @@ public class DeviceResourceTest extends JerseyTest {
         assertThat(response.actions.get(0).failCount).isEqualTo(1);
         assertThat(response.actions.get(0).fails.size()).isEqualTo(1);
         assertThat(response.actions.get(0).fails.get(0).message).isNotEmpty();
+    }
+
+    @Test
+    public void testGetAllLoadProfiles() throws Exception {
+        Device device1 = mock(Device.class);
+        Channel channel1 = mockChannel("channel1");
+        LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.MINUTES), channel1);
+        LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(10, TimeDuration.MINUTES));
+        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(10, TimeDuration.MINUTES));
+        when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
+        when(deviceDataService.findByUniqueMrid("mrid1")).thenReturn(device1);
+        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+
+        Map response = target("/devices/mrid1/loadprofiles").request().get(Map.class);
+        assertThat(response).containsKey("total").containsKey("loadProfiles");
+
+    }
+
+    @Test
+    public void testGetOneLoadProfile() throws Exception {
+        Device device1 = mock(Device.class);
+        Channel channel1 = mockChannel("Z-channel1");
+        Channel channel2 = mockChannel("A-channel2");
+        LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(15, TimeDuration.MINUTES), channel1, channel2);
+        LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.MINUTES));
+        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES));
+        when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
+        when(deviceDataService.findByUniqueMrid("mrid1")).thenReturn(device1);
+        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+
+        Map<String, Object> response = target("/devices/mrid1/loadprofiles/1").request().get(Map.class);
+        assertThat(response)
+                .hasSize(6)
+                .contains(MapEntry.entry("id", 1))
+                .contains(MapEntry.entry("name", "lp1"))
+                .contains(MapEntry.entry("lastReading", 1406617200000L))
+                .contains(MapEntry.entry("obisCode", "1.2.3.4.5.1"))
+                .containsKey("channels")
+                .containsKey("interval");
+        Map<String, Object> interval = (Map<String, Object>) response.get("interval");
+        assertThat(interval)
+                .contains(MapEntry.entry("count", 15))
+                .contains(MapEntry.entry("timeUnit", TimeDuration.MINUTES));
+
+        List<String> channels = (List<String>) response.get("channels");
+        assertThat(channels).hasSize(2).containsExactly("A-channel2", "Z-channel1");
+    }
+
+    private Channel mockChannel(String name) {
+        Channel mock = mock(Channel.class);
+        ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getName()).thenReturn(name);
+        when(mock.getChannelSpec()).thenReturn(channelSpec);
+        return mock;
+    }
+
+    private LoadProfile mockLoadProfile(String name, long id, TimeDuration interval, Channel... channels) {
+        LoadProfile loadProfile1 = mock(LoadProfile.class);
+        LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
+        LoadProfileType loadProfileType = mock(LoadProfileType.class);
+        when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
+        when(loadProfileType.getName()).thenReturn(name);
+        when(loadProfile1.getInterval()).thenReturn(interval);
+        when(loadProfile1.getId()).thenReturn(id);
+        when(loadProfile1.getDeviceObisCode()).thenReturn(new ObisCode(1,2,3,4,5, (int) id));
+        when(loadProfile1.getChannels()).thenReturn(channels==null? Collections.<Channel>emptyList() :Arrays.asList(channels));
+        when(loadProfile1.getLastReading()).thenReturn(new Date(1406617200000L)); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
+        when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
+        return loadProfile1;
     }
 }

@@ -22,20 +22,26 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -50,6 +56,7 @@ public class DeviceResource {
     private final EngineModelService engineModelService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
+    private final Provider<LoadProfileResource> loadProfileResourceProvider;
     private final Provider<DeviceValidationResource> deviceValidationResourceProvider;
     private final Provider<RegisterResource> registerResourceProvider;
     private final ExceptionFactory exceptionFactory;
@@ -68,7 +75,7 @@ public class DeviceResource {
             EngineModelService engineModelService,
             MdcPropertyUtils mdcPropertyUtils,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
-            Provider<RegisterResource> registerResourceProvider,
+            Provider<LoadProfileResource> loadProfileResourceProvider, Provider<RegisterResource> registerResourceProvider,
             ExceptionFactory exceptionFactory,
             SchedulingService schedulingService,
             Provider<DeviceValidationResource> deviceValidationResourceProvider,
@@ -83,6 +90,7 @@ public class DeviceResource {
         this.engineModelService = engineModelService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
+        this.loadProfileResourceProvider = loadProfileResourceProvider;
         this.registerResourceProvider = registerResourceProvider;
         this.deviceValidationResourceProvider = deviceValidationResourceProvider;
         this.exceptionFactory = exceptionFactory;
@@ -284,6 +292,11 @@ public class DeviceResource {
     @Path("/{mRID}/validationrulesets")
     public DeviceValidationResource getDeviceConfigurationResource() {
         return deviceValidationResourceProvider.get();
+    }
+
+    @Path("/{mRID}/loadprofiles")
+    public LoadProfileResource getLoadProfileResource() {
+        return loadProfileResourceProvider.get();
     }
 
     @PUT
