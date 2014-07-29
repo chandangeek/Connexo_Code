@@ -13,4 +13,6 @@ public interface DashboardService {
 
     public ConnectionStatusOverview getConnectionStatusOverview();
 
+    public ComTaskCompletionOverview getComTaskCompletionOverview();
+
 }
