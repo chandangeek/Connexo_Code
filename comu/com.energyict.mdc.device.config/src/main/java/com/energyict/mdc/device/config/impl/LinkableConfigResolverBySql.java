@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * LinkableConfigResolver implementation that determines the DeviceConfigurations entirely by delegating to a literal SQL query.
  * This implementation was made as a performance improvement over puzzling the result together in code.
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 25/07/2014
  * Time: 14:14
@@ -45,20 +45,20 @@ public class LinkableConfigResolverBySql implements LinkableConfigResolver {
     private SqlBuilder getBuilderFor(ValidationRuleSet ruleSet) {
         SqlBuilder builder = new SqlBuilder();
 
-        builder.append("select distinct(id) from ((select rs.deviceconfigid as id from dtc_registerspec rs where rs.registermappingid in" +
-                "  (select id from mds_registermapping rm " +
-                "  where rm.readingtype in (select rt.MRID from MTR_READINGTYPE rt where rt.MRID in (select tivr.readingtypemrid from val_readingtypeinvalrule tivr " +
+        builder.append("select count(distinct(id)) from ((select rs.deviceconfigid as id from dtc_registerspec rs where rs.registertypeid in" +
+                "  (select id from mds_measurementtype rm " +
+                "  where rm.readingtype in (select tivr.readingtypemrid from val_readingtypeinvalrule tivr " +
                 "    where tivr.ruleid in (select vr.id from val_validationrule vr where vr.rulesetid = ");
         builder.addLong(ruleSet.getId());
-        builder.append(") ))))" +
+        builder.append(") )))" +
                 " union" +
                 " (select lps.deviceconfigid as id from dtc_loadprofilespec lps where lps.id in " +
-                "  (select cs.loadprofilespecid from dtc_channelspec cs where cs.registermappingid in" +
-                "  (select id from mds_registermapping rm " +
-                "  where rm.readingtype in (select rt.MRID from MTR_READINGTYPE rt where rt.MRID in (select tivr.readingtypemrid from val_readingtypeinvalrule tivr " +
+                "  (select cs.loadprofilespecid from dtc_channelspec cs where cs.channeltypeid in" +
+                "  (select id from mds_measurementtype rm " +
+                "  where rm.readingtype in (select tivr.readingtypemrid from val_readingtypeinvalrule tivr " +
                 "    where tivr.ruleid in (select vr.id from val_validationrule vr where vr.rulesetid = ");
         builder.addLong(ruleSet.getId());
-        builder.append(") ))))))" +
+        builder.append(") )))))" +
                 "  where id not in (select rsu.deviceconfigid from DTC_DEVICECONFRULESETUSAGE rsu where rsu.validationrulesetid = ");
         builder.addLong(ruleSet.getId());
         builder.append(")");
