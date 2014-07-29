@@ -18,9 +18,7 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,7 +47,7 @@ public class ComServerStatusSummaryResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerStatusSummaryInfo getComServerStatusSummary(@Context UriInfo uriInfo) {
+    public ComServerStatusSummaryInfo getComServerStatusSummary() {
         Client jerseyClient = this.newJerseyClient();
         ComServerStatusSummaryInfo statusSummaryInfo = new ComServerStatusSummaryInfo();
         for (OnlineComServer comServer : this.findAllOnlineComServers()) {
@@ -82,7 +80,6 @@ public class ComServerStatusSummaryResource {
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, String comServerName, String statusUri, ComServerType comServerType) {
         try {
             LOGGER.log(Level.FINE, "Executing " + statusUri);
-
             ComServerStatusInfo comServerStatusInfo =
                 jerseyClient.
                     target(statusUri).

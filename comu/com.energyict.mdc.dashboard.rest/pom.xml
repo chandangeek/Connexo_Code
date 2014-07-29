@@ -92,6 +92,5 @@
       <artifactId>jersey-test-framework-core</artifactId>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 </project>
