@@ -16,8 +16,12 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulePreview', {
     },
     items: [
         {
-            name: 'displayName',
+            name: 'name',
             fieldLabel: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule')
+        },
+        {
+            name: 'displayName',
+            fieldLabel: Uni.I18n.translate('validation.validator', 'CFG', 'Validator')
         },
         {
             name: 'active',
