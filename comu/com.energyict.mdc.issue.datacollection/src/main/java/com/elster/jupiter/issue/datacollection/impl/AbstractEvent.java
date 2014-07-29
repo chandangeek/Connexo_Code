@@ -118,7 +118,7 @@ public abstract class AbstractEvent implements IssueEvent {
 
         for (ConnectionTask<?, ?> task : concentrator.getConnectionTasks()) {
             Date taskEnd = task.getLastSuccessfulCommunicationEnd();
-            if (lastSuccessfulCommTask.before(taskEnd)) {
+            if (taskEnd != null && lastSuccessfulCommTask.before(taskEnd)) {
                 lastSuccessfulCommTask = taskEnd;
             }
         }
