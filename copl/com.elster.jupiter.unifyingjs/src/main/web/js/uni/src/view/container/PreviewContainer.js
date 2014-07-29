@@ -212,6 +212,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
         me.getLayout().setActiveItem(isEmpty ? 0 : 1);
 
         if (!isEmpty) {
+            me.grid.getView().getSelectionModel().preventFocus = true;
             me.grid.getView().getSelectionModel().select(0);
         }
     },
