@@ -126,8 +126,8 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     }
 
     @Override
-    public ObisCode getRegisterMappingObisCode() {
-        return getRegisterSpec().getRegisterMapping().getObisCode();
+    public ObisCode getRegisterTypeObisCode() {
+        return getRegisterSpec().getRegisterType().getObisCode();
     }
 
     @Override

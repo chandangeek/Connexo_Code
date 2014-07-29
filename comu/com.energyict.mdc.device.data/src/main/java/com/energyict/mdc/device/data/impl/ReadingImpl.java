@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.ReadingType;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -85,6 +86,7 @@ public abstract class ReadingImpl implements Reading {
 
     @Override
     public List<ReadingQuality> getReadingQualities() {
-        return null;
+        return Collections.unmodifiableList(this.readingQualities);
     }
+
 }
