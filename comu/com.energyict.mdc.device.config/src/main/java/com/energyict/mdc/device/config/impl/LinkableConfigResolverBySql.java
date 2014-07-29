@@ -45,7 +45,7 @@ public class LinkableConfigResolverBySql implements LinkableConfigResolver {
     private SqlBuilder getBuilderFor(ValidationRuleSet ruleSet) {
         SqlBuilder builder = new SqlBuilder();
 
-        builder.append("select count(distinct(id)) from ((select rs.deviceconfigid as id from dtc_registerspec rs where rs.registertypeid in" +
+        builder.append("select distinct(id) from ((select rs.deviceconfigid as id from dtc_registerspec rs where rs.registertypeid in" +
                 "  (select id from mds_measurementtype rm " +
                 "  where rm.readingtype in (select tivr.readingtypemrid from val_readingtypeinvalrule tivr " +
                 "    where tivr.ruleid in (select vr.id from val_validationrule vr where vr.rulesetid = ");
