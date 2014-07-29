@@ -25,8 +25,7 @@ public class TextReadingImpl extends ReadingImpl implements TextReading {
 
     @Override
     public String getValue() {
-        // Todo (JP-4174)
-        return "Waiting for completion of issue JP-4174";
+        return this.getActualReading().getText();
     }
 
 }
