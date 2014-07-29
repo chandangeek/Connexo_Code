@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.meterdata.identifiers;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
@@ -11,7 +10,7 @@ import java.util.List;
 
 /**
  * Implementation of a {@link RegisterIdentifier} that uniquely identifies an {@link com.energyict.mdc.protocol.api.device.BaseRegister} based on the ObisCode
- * of the RegisterMapping or the
+ * of the RegisterType or the
  * {@link com.energyict.mdc.device.config.RegisterSpec#getDeviceObisCode() RegisterSpec.getDeviceObisCode}
  * <p/>
  * Copyrights EnergyICT
@@ -42,7 +41,7 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
                     this.register = register;
                     break;
                 }
-                else if (register.getRegisterMappingObisCode().equals(registerObisCode)) {
+                else if (register.getRegisterTypeObisCode().equals(registerObisCode)) {
                     this.register = register;
                     break;
                 }

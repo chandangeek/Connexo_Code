@@ -4,14 +4,14 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -36,20 +36,20 @@ public class OfflineRtuRegisterImplTest {
     private static final String METER_SERIAL_NUMBER = "MeterSerialNumber";
     private static final long REGISTER_SPEC_ID = 48654;
 
-    public static RegisterSpec getMockedRtuRegisterSpec(RegisterGroup registerGroup) {
-        RegisterMapping mockedRegisterMapping = getMockedRegisterMapping(registerGroup);
+    public static RegisterSpec getMockedRegisterSpec(RegisterGroup registerGroup) {
+        RegisterType mockedMeasurementType = getMockedRegisterType(registerGroup);
         RegisterSpec registerSpec = mock(RegisterSpec.class);
         when(registerSpec.getDeviceObisCode()).thenReturn(RTU_REGISTER_MAPPING_OBISCODE);
         when(registerSpec.getId()).thenReturn(REGISTER_SPEC_ID);
-        when(registerSpec.getRegisterMapping()).thenReturn(mockedRegisterMapping);
+        when(registerSpec.getRegisterType()).thenReturn(mockedMeasurementType);
         when(registerSpec.getUnit()).thenReturn(REGISTER_UNIT);
         return registerSpec;
     }
 
-    public static RegisterMapping getMockedRegisterMapping(RegisterGroup registerGroup){
-        RegisterMapping registerMapping = mock(RegisterMapping.class);
-        when(registerMapping.getRegisterGroups()).thenReturn(registerGroup == null ? Collections.<RegisterGroup>emptyList(): Arrays.asList(registerGroup));
-        return registerMapping;
+    public static RegisterType getMockedRegisterType(RegisterGroup registerGroup){
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerType.getRegisterGroups()).thenReturn(registerGroup == null ? Collections.<RegisterGroup>emptyList() : Arrays.asList(registerGroup));
+        return registerType;
     }
 
     public static RegisterGroup getMockedRtuRegisterGroup() {
@@ -64,7 +64,7 @@ public class OfflineRtuRegisterImplTest {
         when(rtu.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         Register rtuRegister = mock(Register.class);
         RegisterGroup mockedRegisterGroup = getMockedRtuRegisterGroup();
-        RegisterSpec mockedRegisterSpec = getMockedRtuRegisterSpec(mockedRegisterGroup);
+        RegisterSpec mockedRegisterSpec = getMockedRegisterSpec(mockedRegisterGroup);
         when(rtuRegister.getRegisterSpec()).thenReturn(mockedRegisterSpec);
         when(rtuRegister.getDevice()).thenReturn(rtu);
 
@@ -85,7 +85,7 @@ public class OfflineRtuRegisterImplTest {
         Device device = mock(Device.class);
         when(device.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         Register rtuRegister = mock(Register.class);
-        RegisterSpec mockedRtuRegisterSpec = getMockedRtuRegisterSpec(null);
+        RegisterSpec mockedRtuRegisterSpec = getMockedRegisterSpec(null);
         when(rtuRegister.getRegisterSpec()).thenReturn(mockedRtuRegisterSpec);
         when(rtuRegister.getDevice()).thenReturn(device);
 

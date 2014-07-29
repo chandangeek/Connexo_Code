@@ -4,7 +4,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 import java.util.ArrayList;
@@ -74,7 +73,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
         this.registerUnit = this.register.getRegisterSpec().getUnit();
 
         // We don't use the rtuRegister.getOverruledRegisterGroup as this can be overruled!
-        List<RegisterGroup> registerGroups = this.register.getRegisterSpec().getRegisterMapping().getRegisterGroups();
+        List<RegisterGroup> registerGroups = this.register.getRegisterSpec().getRegisterType().getRegisterGroups();
         this.registerGroupIds = new ArrayList<>(registerGroups.size());
         for (RegisterGroup registerGroup : registerGroups) {
             this.registerGroupIds.add(registerGroup.getId());
@@ -92,7 +91,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
 
     /**
      * Returns the ObisCode for this Register.<br/>
-     * (actually the ObisCode from the {@link RegisterMapping})
+     * (actually the ObisCode from the {@link com.energyict.mdc.masterdata.MeasurementType})
      *
      * @return the ObisCode
      */

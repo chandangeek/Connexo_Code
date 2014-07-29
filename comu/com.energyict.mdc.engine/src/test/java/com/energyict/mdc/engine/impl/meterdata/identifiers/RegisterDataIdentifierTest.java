@@ -4,7 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
@@ -92,12 +92,12 @@ public class RegisterDataIdentifierTest {
     }
 
     @Test
-    public void singleRegisterBasedOnRegisterMappingTest() {
-        RegisterMapping mapping = mock(RegisterMapping.class);
+    public void singleRegisterBasedOnRegisterTypeTest() {
+        MeasurementType mapping = mock(MeasurementType.class);
         when(mapping.getObisCode()).thenReturn(registerObisCode);
         RegisterSpec spec = mock(RegisterSpec.class);
         Register register = mock(Register.class);
-        when(register.getRegisterMappingObisCode()).thenReturn(registerObisCode);
+        when(register.getRegisterTypeObisCode()).thenReturn(registerObisCode);
         when(register.getRegisterSpec()).thenReturn(spec);
         when(device.getRegisters()).thenReturn(Arrays.asList(register));
 
@@ -112,12 +112,12 @@ public class RegisterDataIdentifierTest {
     @Test
     public void singleRegisterBasedOnOverruledObisCodeTest() {
         final ObisCode overruledObisCode = ObisCode.fromString("1.0.2.8.0.255");
-        RegisterMapping mapping = mock(RegisterMapping.class);
+        MeasurementType mapping = mock(MeasurementType.class);
         when(mapping.getObisCode()).thenReturn(registerObisCode);
         RegisterSpec spec = mock(RegisterSpec.class);
         when(spec.getDeviceObisCode()).thenReturn(overruledObisCode);
         Register register = mock(Register.class);
-        when(register.getRegisterMappingObisCode()).thenReturn(registerObisCode);
+        when(register.getRegisterTypeObisCode()).thenReturn(registerObisCode);
         when(register.getDeviceObisCode()).thenReturn(overruledObisCode);
         when(register.getRegisterSpec()).thenReturn(spec);
         when(device.getRegisters()).thenReturn(Arrays.asList(register));
@@ -133,7 +133,7 @@ public class RegisterDataIdentifierTest {
     @Test
     public void multipleRegistersTest() {
         final ObisCode overruledObisCode = ObisCode.fromString("1.0.2.8.0.255");
-        RegisterMapping mapping = mock(RegisterMapping.class);
+        MeasurementType mapping = mock(MeasurementType.class);
         when(mapping.getObisCode()).thenReturn(registerObisCode);
         RegisterSpec spec = mock(RegisterSpec.class);
         when(spec.getDeviceObisCode()).thenReturn(overruledObisCode);
@@ -141,7 +141,7 @@ public class RegisterDataIdentifierTest {
         when(register.getDeviceObisCode()).thenReturn(registerObisCode);
         when(register.getRegisterSpec()).thenReturn(spec);
 
-        RegisterMapping mapping2 = mock(RegisterMapping.class);
+        MeasurementType mapping2 = mock(MeasurementType.class);
         when(mapping2.getObisCode()).thenReturn(registerObisCode);
         RegisterSpec spec2 = mock(RegisterSpec.class);
         Register register2 = mock(Register.class);
