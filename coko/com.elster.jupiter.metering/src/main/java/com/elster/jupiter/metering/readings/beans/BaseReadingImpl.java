@@ -19,7 +19,7 @@ public abstract class BaseReadingImpl implements BaseReading {
     private String source;
     private BigDecimal sensorAccuracy;
 
-    public BaseReadingImpl(Date timeStamp, BigDecimal value) {
+    BaseReadingImpl(Date timeStamp, BigDecimal value) {
         this.timeStamp = timeStamp;
         this.value = value;
     }

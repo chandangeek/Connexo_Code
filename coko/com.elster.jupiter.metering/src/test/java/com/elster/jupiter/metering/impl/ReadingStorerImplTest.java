@@ -68,7 +68,7 @@ public class ReadingStorerImplTest {
         Date dateTime = new Date(215215641L);
         readingStorer.addReading(channel, dateTime, BigDecimal.valueOf(1));
 
-        verify(storer).add(timeSeries, dateTime, 0L , 0L, BigDecimal.valueOf(1));
+        verify(storer).add(timeSeries, dateTime, 0L , 0L, BigDecimal.valueOf(1),null);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class ReadingStorerImplTest {
         Date from = new Date(215215151L);
         readingStorer.addReading(channel, dateTime, BigDecimal.valueOf(1), from);
 
-        verify(storer).add(timeSeries, dateTime, 0L , 0L, BigDecimal.valueOf(1), from);
+        verify(storer).add(timeSeries, dateTime, 0L , 0L, BigDecimal.valueOf(1), null, from);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class ReadingStorerImplTest {
         Date when = new Date(215215199L);
         readingStorer.addReading(channel, dateTime, BigDecimal.valueOf(1), from, when);
 
-        verify(storer).add(timeSeries, dateTime, 0L , 0L, BigDecimal.valueOf(1), from, when);
+        verify(storer).add(timeSeries, dateTime, 0L , 0L, BigDecimal.valueOf(1), null, from, when);
     }
 
     @Test

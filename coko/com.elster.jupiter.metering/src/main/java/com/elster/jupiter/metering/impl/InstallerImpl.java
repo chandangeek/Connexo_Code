@@ -148,10 +148,10 @@ public class InstallerImpl {
 
     private void createVaults() {
         try {
-            Vault intervalVault = idsService.newVault(MeteringService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, true);
+            Vault intervalVault = idsService.newVault(MeteringService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, 0, true);
             intervalVault.persist();
             createPartitions(intervalVault);
-            Vault registerVault = idsService.newVault(MeteringService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, false);
+            Vault registerVault = idsService.newVault(MeteringService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, 1, false);
             registerVault.persist();
             createPartitions(registerVault);
         } catch (Exception e) {

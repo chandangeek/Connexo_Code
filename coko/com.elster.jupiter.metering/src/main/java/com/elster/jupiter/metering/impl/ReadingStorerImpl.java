@@ -43,24 +43,24 @@ public class ReadingStorerImpl implements ReadingStorer {
 		if (channel.isRegular()) {
 			addIntervalReading(channel, reading.getTimeStamp(), ProfileStatus.of(),reading.getValue());
 		} else {
-			this.storer.add(channel.getTimeSeries(),reading.getTimeStamp(),DEFAULTPROCESSSTATUS.getBits(), reading.getValue());
+			this.storer.add(channel.getTimeSeries(),reading.getTimeStamp(),DEFAULTPROCESSSTATUS.getBits(), reading.getValue(),reading.getText());
 		}
         addScope(channel, reading.getTimeStamp());
     }
 
     @Override
 	public void addReading(Channel channel, Date dateTime, BigDecimal value) {
-		this.storer.add(channel.getTimeSeries(), dateTime, DEFAULTPROCESSSTATUS.getBits(),0L, value);
+		this.storer.add(channel.getTimeSeries(), dateTime, DEFAULTPROCESSSTATUS.getBits(),0L, value,null);
         addScope(channel, dateTime);
 	}
 
 	public void addReading(Channel channel, Date dateTime, BigDecimal value, Date from) {
-		this.storer.add(channel.getTimeSeries(), dateTime, DEFAULTPROCESSSTATUS.getBits(), 0L, value, from);
+		this.storer.add(channel.getTimeSeries(), dateTime, DEFAULTPROCESSSTATUS.getBits(), 0L, value, null,from);
         addScope(channel, dateTime);
 	}
 	
 	public void addReading(Channel channel, Date dateTime, BigDecimal value, Date from, Date when) {
-		this.storer.add(channel.getTimeSeries(),dateTime, DEFAULTPROCESSSTATUS.getBits(), 0L, value, from, when);
+		this.storer.add(channel.getTimeSeries(),dateTime, DEFAULTPROCESSSTATUS.getBits(), 0L, value, null, from, when);
         addScope(channel, dateTime);
 	}
 

@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import static com.elster.jupiter.ids.FieldType.DATE;
 import static com.elster.jupiter.ids.FieldType.LONGINTEGER;
 import static com.elster.jupiter.ids.FieldType.NUMBER;
+import static com.elster.jupiter.ids.FieldType.TEXT;
 
 import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.IdsService;
@@ -37,18 +38,21 @@ public enum RecordSpecs {
 		@Override
 		void addFieldSpecs(RecordSpec recordSpec) {
 			recordSpec.addFieldSpec("Value", NUMBER);
+			recordSpec.addFieldSpec("Text", TEXT);
 		}
 	},
 	BILLINGPERIOD("Billing Period Register",false) {
 		@Override
 		void addFieldSpecs(RecordSpec recordSpec) {
 			 recordSpec.addFieldSpec("Value", NUMBER);
+			 recordSpec.addFieldSpec("Text", TEXT);
 			 recordSpec.addFieldSpec("From Time", DATE);
 		}
 	},
 	DEMANDREGISTER("Demand Register",false) {
 		void addFieldSpecs(RecordSpec recordSpec) {
 			recordSpec.addFieldSpec("Value", NUMBER);
+			recordSpec.addFieldSpec("Text", TEXT);
 			recordSpec.addFieldSpec("From Time", DATE);
 			recordSpec.addFieldSpec("Event Time", DATE);
 		}

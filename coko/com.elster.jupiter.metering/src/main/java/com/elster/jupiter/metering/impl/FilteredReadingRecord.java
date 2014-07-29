@@ -7,8 +7,11 @@ import com.elster.jupiter.metering.*;
  */
 public class FilteredReadingRecord extends FilteredBaseReadingRecord implements ReadingRecord {
 	
+	private final ReadingRecordImpl filtered;
+	
     FilteredReadingRecord(ReadingRecordImpl filtered, int... indices) {
         super(filtered,indices);
+        this.filtered = filtered;
     }
     
     @Override
@@ -19,6 +22,11 @@ public class FilteredReadingRecord extends FilteredBaseReadingRecord implements 
 	@Override
 	public String getReason() {
 		return null;
+	}
+	
+	@Override
+	public String getText() {
+		return filtered.getText();
 	}
 
 }
