@@ -83,7 +83,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             criteriaContainer = searchItems.down('container[name=filter]').getContainer(),
             store = this.getStore('Mdc.store.Devices');
 
-        if (searchItems.down('#mrid').getValue() != "") {
+        if (searchItems.down('#mrid').getValue() != '') {
             var button = searchItems.down('button[name=mRIDBtn]');
             button = this.createCriteriaButton(button, criteriaContainer, 'mRIDBtn', Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID') + ': ' + searchItems.down('#mrid').getValue());
             store.getProxy().setExtraParam('mRID', searchItems.down('#mrid').getValue());
@@ -91,7 +91,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             delete store.getProxy().extraParams.mRID;
         }
 
-        if (searchItems.down('#sn').getValue() != "") {
+        if (searchItems.down('#sn').getValue() != '') {
             var button = searchItems.down('button[name=serialNumberBtn]');
             button = this.createCriteriaButton(button, criteriaContainer, 'serialNumberBtn', Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number') + ': ' + searchItems.down('#sn').getValue());
             store.getProxy().setExtraParam('serialNumber', searchItems.down('#sn').getValue());
@@ -99,7 +99,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             delete store.getProxy().extraParams.serialNumber;
         }
 
-        if (searchItems.down('#type').getValue() != "") {
+        if (searchItems.down('#type').getValue() != '') {
             var button = searchItems.down('button[name=typeBtn]');
             button = this.createCriteriaButton(button, criteriaContainer, 'typeBtn', Uni.I18n.translate('searchItems.type', 'MDC', 'Type') + ': ' + searchItems.down('#type').getRawValue());
             store.getProxy().setExtraParam('deviceTypeName', searchItems.down('#type').getRawValue());
@@ -212,10 +212,10 @@ Ext.define('Mdc.controller.setup.SearchItems', {
 
     clearAllCriteria: function () {
         var searchItems = this.getSearchItems();
-        searchItems.down('#mrid').setValue("");
-        searchItems.down('#sn').setValue("");
-        searchItems.down('#type').setValue("");
-        searchItems.down('#configuration').setValue("");
+        searchItems.down('#mrid').setValue('');
+        searchItems.down('#sn').setValue('');
+        searchItems.down('#type').setValue('');
+        searchItems.down('#configuration').setValue('');
         this.clearFilterContent(searchItems.down('container[name=filter]').getContainer());
     },
 

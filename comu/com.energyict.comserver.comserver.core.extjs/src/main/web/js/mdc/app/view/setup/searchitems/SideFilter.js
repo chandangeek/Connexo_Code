@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                         change: function (comp, newValue) {
                             var me = comp.up('#sideFilter'),
                                 comboConfig = me.down('#configuration');
-                            if (newValue === '') {
+                            if (newValue[0] === '') {
                                 me.clearComboConfiguration(comboConfig);
                             }
                         }
@@ -130,7 +130,7 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
     ],
 
     clearComboConfiguration: function (cmbConfig) {
-        cmbConfig.setValue(11);
+        cmbConfig.setValue('');
         cmbConfig.setVisible(false);
     }
 });
