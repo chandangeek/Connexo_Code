@@ -43,7 +43,9 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
                 dataIndex: 'ruleSet',
                 renderer: function (value, metaData, record) {
-                    metaData.tdAttr = 'data-qtip="' + record.data.ruleSet.description + '"';
+                    if (record.data.ruleSet.description) {
+                        metaData.tdAttr = 'data-qtip="' + record.data.ruleSet.description + '"';
+                    }
                     return '<a href="#/administration/validation/rulesets/' + value.id + '">' + value.name + '</a>';
                 },
                 flex: 1
