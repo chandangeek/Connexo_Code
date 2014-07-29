@@ -2,7 +2,6 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -12,15 +11,11 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.comserver.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
+import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
+import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
+import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
+import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -34,11 +29,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * When accessing a resource, I choose not to use UriBuilder, as you should be aware that changing the URI means changing the API!
@@ -259,7 +259,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         final Response response = target("/comportpools/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
-        verify(mock).delete();
+        verify(mock).makeObsolete();
     }
 
     @Test

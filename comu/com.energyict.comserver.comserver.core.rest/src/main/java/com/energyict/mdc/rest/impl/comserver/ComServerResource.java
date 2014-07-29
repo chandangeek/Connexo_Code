@@ -89,7 +89,7 @@ public class ComServerResource {
             if (!comServer.isPresent()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build();
             }
-            comServer.get().delete();
+            comServer.get().makeObsolete();
             return Response.noContent().build();
         } catch (Exception e) {
             throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
