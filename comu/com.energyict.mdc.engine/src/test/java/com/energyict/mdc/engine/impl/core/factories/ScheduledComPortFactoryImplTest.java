@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -7,11 +10,16 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.google.common.base.Optional;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,11 +29,26 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-10 (11:14)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ScheduledComPortFactoryImplTest {
 
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;
-    private ServiceProvider serviceProvider = new FakeServiceProvider();
+    @Mock
+    private User user;
+    @Mock
+    private UserService userService;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
+
+    private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+
+    @Before
+    public void initBefore() {
+        when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
+        serviceProvider.setUserService(userService);
+        serviceProvider.setThreadPrincipalService(threadPrincipalService);
+    }
 
     @Test
     public void testWithActivePort () {

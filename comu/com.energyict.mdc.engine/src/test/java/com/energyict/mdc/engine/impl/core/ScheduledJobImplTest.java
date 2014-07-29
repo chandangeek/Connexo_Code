@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -70,7 +70,6 @@ import java.util.concurrent.CountDownLatch;
 import com.google.common.base.Optional;
 import org.junit.*;
 import org.junit.runner.*;
-import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -134,11 +133,15 @@ public class ScheduledJobImplTest {
     @Mock
     private UserService userService;
     @Mock
+    private ThreadPrincipalService threadPrincipalService;
+    @Mock
     private User user;
     @Mock
     private IssueService issueService;
     @Mock
     private Clock clock;
+    @Mock
+    private ThreadPrincipalService threadprincipalService;
 
     private TransactionService transactionService = new FakeTransactionService();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
@@ -153,6 +156,7 @@ public class ScheduledJobImplTest {
         this.serviceProvider.setTaskHistoryService(this.taskHistoryService);
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
         this.serviceProvider.setEngineService(engineService);
+        this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
                 thenReturn(comSessionBuilder);
@@ -311,7 +315,7 @@ public class ScheduledJobImplTest {
         when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
         final ScheduledComTaskExecutionJob job = new ScheduledComTaskExecutionJob(comPort, comServerDAO, deviceCommandExecutor, scheduledComTask, this.serviceProvider);
         BlockingQueue<ScheduledJob> blockingQueue = mock(BlockingQueue.class);
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(this.transactionService, ComServer.LogLevel.TRACE, blockingQueue, this.deviceCommandExecutor);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(this.transactionService, ComServer.LogLevel.TRACE, blockingQueue, this.deviceCommandExecutor, this.threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);

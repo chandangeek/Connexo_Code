@@ -59,7 +59,10 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         this.threadFactory = threadFactory;
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.schedulingInterpollDelay = comPort.getComServer().getSchedulingInterPollDelay();
+        setThreadPrinciple();
     }
+
+    protected abstract void setThreadPrinciple();
 
     public OutboundComPort getComPort () {
         return comPort;

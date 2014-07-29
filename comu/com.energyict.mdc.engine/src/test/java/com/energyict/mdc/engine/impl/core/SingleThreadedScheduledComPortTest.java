@@ -245,6 +245,7 @@ public class SingleThreadedScheduledComPortTest {
         this.serviceProvider.setTaskHistoryService(this.taskHistoryService);
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
         this.serviceProvider.setEngineService(engineService);
+        this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
         this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
         when(this.managementBeanFactory.findOrCreateFor(any(ScheduledComPort.class))).thenReturn(this.scheduledComPortMonitor);
         ScheduledComPortMonitor comPortMonitor = (ScheduledComPortMonitor) this.scheduledComPortMonitor;
