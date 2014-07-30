@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.IntervalLengthUnit;
+import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.Vault;
@@ -14,8 +14,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
-import javax.inject.Provider;
-
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -23,10 +21,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
+import javax.inject.Provider;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
@@ -139,7 +136,7 @@ public class MeterActivationImplTest {
 
     @Test
     public void testCreateChannel() {
-        when(vault.createRegularTimeSeries(eq(recordSpec), eq(timeZone), anyInt(), any(IntervalLengthUnit.class), anyInt())).thenReturn(timeSeries);
+        when(vault.createRegularTimeSeries(eq(recordSpec), eq(timeZone), any(IntervalLength.class), anyInt())).thenReturn(timeSeries);
 
         Channel channel = meterActivation.createChannel(readingType1, readingType3);
 

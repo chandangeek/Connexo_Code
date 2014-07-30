@@ -126,7 +126,7 @@ public final class ChannelImpl implements Channel {
         RecordSpec recordSpec = getRecordSpec(regular);
         TimeZone timeZone = clock.getTimeZone();
 		return regular ? 
-			vault.createRegularTimeSeries(recordSpec, clock.getTimeZone(), intervalLength.get().getLength() , intervalLength.get().getUnitCode(),0) :
+			vault.createRegularTimeSeries(recordSpec, clock.getTimeZone(), intervalLength.get(), 0) :
 			vault.createIrregularTimeSeries(recordSpec, timeZone);
 	
 	}
