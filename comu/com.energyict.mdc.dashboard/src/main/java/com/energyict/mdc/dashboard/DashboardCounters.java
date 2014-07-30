@@ -6,7 +6,7 @@ package com.energyict.mdc.dashboard;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-29 (17:33)
  */
-public interface DashboardCounters<C> extends Iterable<Counter<C>>  {
+public interface DashboardCounters<T> extends Iterable<Counter<T>>  {
 
     public long getTotalCount();
 

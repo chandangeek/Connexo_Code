@@ -6,7 +6,13 @@ package com.energyict.mdc.dashboard;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (09:28)
  */
-public interface TaskStatusBreakDownCounters<C> extends Iterable<TaskStatusBreakdownCounter<C>> {
+public interface TaskStatusBreakdownCounters<C> extends Iterable<TaskStatusBreakdownCounter<C>> {
+
+    public long getTotalSuccessCount();
+
+    public long getTotalFailedCount();
+
+    public long getTotalPendingCount();
 
     public long getTotalCount();
 

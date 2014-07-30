@@ -15,7 +15,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (09:05)
  */
-public interface TaskStatusBreakdownCounter<T> {
+public interface TaskStatusBreakdownCounter<T> extends Counter<T> {
 
     /**
      * The number of times the target of this TaskStatusBreakdownCounter
@@ -42,12 +42,5 @@ public interface TaskStatusBreakdownCounter<T> {
      * @see {@link TaskStatus#Pending}
      */
     public long getPendingCount ();
-
-    /**
-     * Returns the target of the counter, i.e. the object whose occurrence was counted.
-     *
-     * @return The target of the counter
-     */
-    public T getCountTarget();
 
 }
