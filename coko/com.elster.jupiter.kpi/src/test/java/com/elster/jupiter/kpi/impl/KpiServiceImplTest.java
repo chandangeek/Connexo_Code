@@ -52,7 +52,7 @@ public class KpiServiceImplTest {
     @Before
     public void setUp() {
         when(idsService.getVault(anyString(), anyLong())).thenReturn(Optional.of(vault));
-        when(idsService.newVault(anyString(), anyLong(), anyString(), anyInt(), anyBoolean())).thenReturn(vault);
+        when(idsService.newVault(anyString(), anyLong(), anyString(), anyInt(), anyInt(), anyBoolean())).thenReturn(vault);
         when(idsService.getRecordSpec(anyString(), anyLong())).thenReturn(Optional.of(recordSpec));
         when(dataModel.getInstance(KpiImpl.class)).thenAnswer(new Answer<KpiImpl>() {
             @Override

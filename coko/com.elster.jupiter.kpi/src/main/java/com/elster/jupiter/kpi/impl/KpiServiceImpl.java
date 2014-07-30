@@ -95,7 +95,7 @@ public class KpiServiceImpl implements IKpiService, InstallService {
             e.printStackTrace();
         }
         try {
-            Vault newVault = idsService.newVault(COMPONENT_NAME, VAULT_ID, COMPONENT_NAME, 2, true);
+            Vault newVault = idsService.newVault(COMPONENT_NAME, VAULT_ID, COMPONENT_NAME, 2, 0, true);
             newVault.persist();
         } catch (Exception e) {
             e.printStackTrace();
