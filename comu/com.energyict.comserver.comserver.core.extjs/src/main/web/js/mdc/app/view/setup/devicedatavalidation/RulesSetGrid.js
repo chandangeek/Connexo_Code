@@ -20,7 +20,9 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                 header: Uni.I18n.translate('device.dataValidation.rulesSetGrid.columnHeader.name', 'MDC', 'Validation rule set'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    metaData.tdAttr = 'data-qtip="' + record.get('description') + '"';
+                    if (record.get('description')) {
+                        metaData.tdAttr = 'data-qtip="' + record.get('description') + '"';
+                    }
                     return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
                 },
                 flex: 1
