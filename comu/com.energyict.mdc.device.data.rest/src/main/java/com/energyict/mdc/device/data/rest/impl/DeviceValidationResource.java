@@ -152,13 +152,17 @@ public class DeviceValidationResource {
         } else {
             meterActivation = meter.activate(date);
         }
+        DeviceValidationStatusInfo status = null;
         if(!validationService.getMeterValidation(meterActivation).isPresent()) {
             validationService.createMeterValidation(meterActivation);
+            status = new DeviceValidationStatusInfo(false, null);
+        } else{
+            status = new DeviceValidationStatusInfo(true, null);
         }
         if(validationService.getMeterActivationValidationsForMeterActivation(meterActivation).isEmpty()) {
             List<MeterActivationValidation> meterActivationValidations = validationService.getMeterActivationValidations(meterActivation, Interval.startAt(date));
         }
-        return Response.status(Response.Status.OK).build();
+        return Response.ok(status).build();
     }
 
     private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
