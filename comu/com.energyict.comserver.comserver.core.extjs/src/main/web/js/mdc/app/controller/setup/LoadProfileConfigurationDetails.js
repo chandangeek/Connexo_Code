@@ -364,6 +364,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.loadProfileConfigurationId = loadProfileConfigurationId;
+        me.displayedItemId = null;
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId, loadProfileConfiguration: loadProfileConfigurationId });
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
