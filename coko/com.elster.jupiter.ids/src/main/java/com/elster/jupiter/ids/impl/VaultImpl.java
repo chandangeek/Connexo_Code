@@ -1,7 +1,7 @@
 package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.FieldSpec;
-import com.elster.jupiter.ids.IntervalLengthUnit;
+import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
@@ -17,7 +17,6 @@ import com.google.common.base.Optional;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -283,8 +282,8 @@ public class VaultImpl implements Vault {
 	}
 
 	@Override
-	public TimeSeriesImpl createRegularTimeSeries(RecordSpec spec, TimeZone timeZone, int intervalLength, IntervalLengthUnit unit, int hourOffset) {
-		TimeSeriesImpl timeSeries = timeSeriesProvider.get().init(this, spec,timeZone, intervalLength , unit, hourOffset);
+	public TimeSeriesImpl createRegularTimeSeries(RecordSpec spec, TimeZone timeZone, IntervalLength intervalLength, int hourOffset) {
+		TimeSeriesImpl timeSeries = timeSeriesProvider.get().init(this, spec,timeZone, intervalLength , hourOffset);
 		timeSeries.persist();		
 		return timeSeries;
 	}

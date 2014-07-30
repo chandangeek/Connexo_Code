@@ -1,23 +1,5 @@
 package com.elster.jupiter.ids;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-
-import org.joda.time.DateTime;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -31,6 +13,23 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.joda.time.DateTime;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DerivedFieldTest {
@@ -79,7 +78,7 @@ public class DerivedFieldTest {
         	recordSpec.addDerivedFieldSpec("Delta", "Total" , FieldType.NUMBER , FieldDerivationRule.DELTAFROMPREVIOUS);
         	recordSpec.persist();
         	Vault vault = idsService.getVault("IDS", 1).get();
-	        ts = vault.createRegularTimeSeries(recordSpec, TimeZone.getDefault(), 15, IntervalLengthUnit.MINUTE,0);
+	        ts = vault.createRegularTimeSeries(recordSpec, TimeZone.getDefault(), IntervalLengthUnit.MINUTE.withLength(15), 0);
 	        TimeSeriesDataStorer storer = idsService.createStorer(true);
 	        DateTime dateTime = new DateTime(2014, 1, 1, 0, 0,0);
 	        storer.add(ts, dateTime.toDate(),BigDecimal.valueOf(10));

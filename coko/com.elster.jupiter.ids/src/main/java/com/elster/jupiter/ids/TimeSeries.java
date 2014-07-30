@@ -13,8 +13,7 @@ public interface TimeSeries {
 	Date getLastDateTime();
 	Date getLockDateTime();
 	boolean isRegular();
-	int getIntervalLength();
-	IntervalLengthUnit getIntervalLengthUnit();
+	IntervalLength getIntervalLength();
 	// offset in calendar hours (excluding DST transition hour).
 	int getOffset();	
 	Vault getVault();

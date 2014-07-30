@@ -16,4 +16,8 @@ public enum IntervalLengthUnit {
 	public int getCalendarCode() {
 		return calendarCode;
 	}
+
+    public IntervalLength withLength(int length) {
+        return new IntervalLength(length, this);
+    }
 }

@@ -1,5 +1,6 @@
 package com.elster.jupiter.ids.impl;
 
+import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.IntervalLengthUnit;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
@@ -39,6 +40,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	private boolean regular;
 	private int intervalLength;
 	private IntervalLengthUnit intervalLengthUnit;
+    private transient IntervalLength interval;
 	private int offset;
 	private long version;
 	private UtcInstant createTime;
@@ -69,22 +71,23 @@ public final class TimeSeriesImpl implements TimeSeries {
 		return this;
 	}
 
-    TimeSeriesImpl init(VaultImpl vault , RecordSpec recordSpec, TimeZone timeZone, int intervalLength, IntervalLengthUnit intervalLengthUnit, int offsetInHours) {
+    TimeSeriesImpl init(VaultImpl vault , RecordSpec recordSpec, TimeZone timeZone, IntervalLength intervalLength, int offsetInHours) {
 		init(vault,recordSpec,timeZone);
         this.regular = true;
-        validate(intervalLength, intervalLengthUnit);
-		this.intervalLength = intervalLength;
-		this.intervalLengthUnit = intervalLengthUnit;
+        validate(intervalLength);
+        this.interval = intervalLength;
+		this.intervalLength = intervalLength.getLength();
+		this.intervalLengthUnit = intervalLength.getUnitCode();
 		this.offset = offsetInHours;
 		return this;
 	}
     
-    private void validate(int intervalLength, IntervalLengthUnit intervalLengthUnit) {
+    private void validate(IntervalLength intervalLength) {
         if (IntervalLengthUnit.MINUTE.equals(intervalLengthUnit)) {
-            if (MINUTES_PER_HOUR % intervalLength != 0) {
+            if (MINUTES_PER_HOUR % intervalLength.getLength() != 0) {
                 throw new IllegalArgumentException("Only minute interval lengths that are divisors of one hour are supported.");
             }
-        } else if (intervalLength != 1) {
+        } else if (intervalLength.getLength() != 1) {
             throw new IllegalArgumentException("For Day and Month only 1 as length is supported.");
         }
     }
@@ -124,13 +127,11 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 
 	@Override
-	public int getIntervalLength() {
-		return intervalLength;
-	}
-
-	@Override
-	public IntervalLengthUnit getIntervalLengthUnit() {
-		return intervalLengthUnit;
+	public IntervalLength getIntervalLength() {
+        if (interval == null) {
+            interval = intervalLengthUnit.withLength(intervalLength);
+        }
+		return interval;
 	}
 
 	@Override
@@ -197,7 +198,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	Calendar getStartCalendar(Date date) {
 		Calendar result = Calendar.getInstance(getTimeZone());
 		result.setTime(date);
-		result.add(getIntervalLengthUnit().getCalendarCode(), -getIntervalLength());
+		result.add(getIntervalLength().getUnitCode().getCalendarCode(), -getIntervalLength().getLength());
 		if (getOffset() != 0) {
 			// use set instead of add, because calendar behavior is unexpected for adding hours to midnight on a DST transition day.
 			result.set(Calendar.HOUR_OF_DAY,offset);
@@ -219,8 +220,8 @@ public final class TimeSeriesImpl implements TimeSeries {
 			return true;
 		}
         DateTime dateTime = new DateTime(date, DateTimeZone.forTimeZone(getTimeZone()));
-        if (getIntervalLengthUnit() == MINUTE) {
-            return dateTime.getMinuteOfHour() % getIntervalLength() == 0
+        if (getIntervalLength().getUnitCode() == MINUTE) {
+            return dateTime.getMinuteOfHour() % getIntervalLength().getLength() == 0
                     && dateTime.getSecondOfMinute() == 0
                     && dateTime.getMillisOfSecond() == 0;
 		}
@@ -282,12 +283,12 @@ public final class TimeSeriesImpl implements TimeSeries {
 		if (!isValid(date)) {
 			throw new IllegalArgumentException();
 		}
-		if (getIntervalLengthUnit() == IntervalLengthUnit.MINUTE) {
-			return new Date(date.getTime() + numberOfEntries * getIntervalLength() * MILLIS_PER_MINUTE);
+		if (getIntervalLength().getUnitCode() == IntervalLengthUnit.MINUTE) {
+			return new Date(date.getTime() + numberOfEntries * getIntervalLength().getLength() * MILLIS_PER_MINUTE);
 		}
         Calendar cal = Calendar.getInstance(getTimeZone());
 		cal.setTime(date);
-		cal.add(getIntervalLengthUnit().getCalendarCode(), numberOfEntries * getIntervalLength());
+		cal.add(getIntervalLength().getUnitCode().getCalendarCode(), numberOfEntries * getIntervalLength().getLength());
 		return cal.getTime();
 	}
 
