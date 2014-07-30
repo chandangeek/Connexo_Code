@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.IntervalLengthUnit;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
