@@ -17,12 +17,21 @@ public class ReadingImpl extends BaseReadingImpl implements Reading {
 
     private final String mrid;
     private String reason;
+    private String text;
 
     public ReadingImpl(String mrid, BigDecimal value, Date timeStamp) {
-        super(timeStamp, value);
-        this.mrid = mrid;
+        this(mrid,value,null,timeStamp);
     }
 
+    public ReadingImpl(String mrid, String text, Date timeStamp) {
+    	this(mrid,null,text,timeStamp);
+    }
+    
+    private ReadingImpl(String mrid, BigDecimal value, String text, Date timeStamp) {
+    	super(timeStamp,value);
+    	this.mrid = mrid;
+    	this.text = text;
+    }
     @Override
     public String getReason() {
         return reason;
@@ -36,4 +45,10 @@ public class ReadingImpl extends BaseReadingImpl implements Reading {
     public void setReason(String reason) {
         this.reason = reason;
     }
+    
+    @Override
+    public String getText() {
+    	return text;
+    }
+    
 }

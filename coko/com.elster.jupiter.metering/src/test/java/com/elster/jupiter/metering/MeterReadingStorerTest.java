@@ -36,6 +36,8 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
+import org.hamcrest.core.IsNull;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -226,6 +228,7 @@ public class MeterReadingStorerTest {
                     meteringService.getReadingType(registerReadingTypeCode).get());
             assertThat(readings).hasSize(1);
             assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1200));
+            assertThat(((Reading) readings.get(0)).getText()).isNull();
             ctx.commit();
         }
     }
@@ -243,6 +246,28 @@ public class MeterReadingStorerTest {
         	Reading reading = new ReadingImpl(intervalReadingTypeCode, BigDecimal.valueOf(1200), dateTime.toDate());
         	meterReading.addReading(reading);
         	meter.store(meterReading);     	
+            ctx.commit();
+        }
+    }
+    
+    @Test
+    public void testAddTextRegister() {
+    	MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        	AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        	Meter meter = amrSystem.newMeter("myMeter");
+        	meter.save();
+        	String readingTypeCode = "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
+        	MeterReadingImpl meterReading = new MeterReadingImpl();
+        	DateTime dateTime = new DateTime(2014,1,1,0,0,0);
+        	Reading reading = new ReadingImpl(readingTypeCode, "Sample text", dateTime.toDate());
+        	meterReading.addReading(reading);
+        	meter.store(meterReading);     	
+        	List<? extends BaseReadingRecord >readings = meter.getMeterActivations().get(0).getReadings(
+                      new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()),
+                      meteringService.getReadingType(readingTypeCode).get());
+        	assertThat(((ReadingRecord) readings.get(0)).getText()).isEqualTo("Sample text");
+          	assertThat(readings.get(0).getValue()).isNull();
             ctx.commit();
         }
     }

@@ -10,7 +10,7 @@ public class ReadingRecordImpl extends BaseReadingRecordImpl implements ReadingR
 	}
 
 	@Override
-	int getReadingTypeOffset() {
+	final int getReadingTypeOffset() {
 		return 1;
 	}
 	
@@ -22,4 +22,8 @@ public class ReadingRecordImpl extends BaseReadingRecordImpl implements ReadingR
 		return null;
 	}
 
+	@Override
+	public String getText() {
+		return getEntry().getString(getReadingTypeOffset()+1);
+	}
 }
