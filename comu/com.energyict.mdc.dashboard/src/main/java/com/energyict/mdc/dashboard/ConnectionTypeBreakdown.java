@@ -8,5 +8,5 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (09:30)
  */
-public interface ConnectionTypeBreakdown extends TaskStatusBreakdownCounters<ConnectionTypePluggableClass> {
+public interface ConnectionTypeBreakdown extends TaskStatusBreakdownCountersWithLowercaseD<ConnectionTypePluggableClass> {
 }

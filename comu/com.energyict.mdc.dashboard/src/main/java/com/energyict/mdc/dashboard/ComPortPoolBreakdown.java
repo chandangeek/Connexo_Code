@@ -8,5 +8,5 @@ import com.energyict.mdc.engine.model.ComPortPool;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (09:30)
  */
-public interface ComPortPoolBreakdown extends TaskStatusBreakdownCounters<ComPortPool> {
+public interface ComPortPoolBreakdown extends TaskStatusBreakdownCountersWithLowercaseD<ComPortPool> {
 }
