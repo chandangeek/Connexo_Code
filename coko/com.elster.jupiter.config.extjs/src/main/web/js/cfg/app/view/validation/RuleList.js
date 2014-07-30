@@ -89,6 +89,8 @@ Ext.define('Cfg.view.validation.RuleList', {
                 xtype: 'pagingtoolbarbottom',
                 margins: '10 10 10 10',
                 store: me.store,
+                pageSizeParam: 'limit2',
+                pageStartParam: 'start2',
                 dock: 'bottom',
                 itemsPerPageMsg: 'Validation rules per page',
                 itemId: 'rulesListBottomPagingToolbar',
