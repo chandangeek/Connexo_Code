@@ -199,17 +199,27 @@ Ext.define('Uni.view.container.PreviewContainer', {
     },
 
     onBeforeLoad: function () {
-        var me = this;
+        var me = this,
+            activeIndex = me.items.indexOf(me.getLayout().getActiveItem());
 
-        me.getLayout().setActiveItem(1);
+        me.grid.getView().getSelectionModel().deselectAll(true);
+
+        if (activeIndex !== 1) {
+            me.getLayout().setActiveItem(1);
+        }
     },
 
     onLoad: function () {
         var me = this,
             count = me.grid.store.getCount(),
-            isEmpty = count === 0;
+            isEmpty = count === 0,
+            activeIndex = me.items.indexOf(me.getLayout().getActiveItem());
 
-        me.getLayout().setActiveItem(isEmpty ? 0 : 1);
+        if (isEmpty && activeIndex !== 0) {
+            me.getLayout().setActiveItem(0);
+        } else if (!isEmpty && activeIndex !== 1) {
+            me.getLayout().setActiveItem(1);
+        }
 
         if (!isEmpty) {
             me.grid.getView().getSelectionModel().preventFocus = true;

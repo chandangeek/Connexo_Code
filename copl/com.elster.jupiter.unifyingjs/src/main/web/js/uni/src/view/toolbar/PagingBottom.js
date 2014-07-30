@@ -445,11 +445,19 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         startPage = startPage < 1 ? 1 : startPage;
         endPage = endPage > pageCount ? pageCount : endPage;
 
+        if (container.rendered) {
+            Ext.suspendLayouts();
+        }
+
         container.removeAll();
         for (var i = startPage; i <= endPage; i++) {
             pageOffset = i - currPage;
             start = me.getPageStartValue(pageOffset);
             container.add(me.createPageNavItem(i, start, pageOffset === 0));
+        }
+
+        if (container.rendered) {
+            Ext.resumeLayouts(true);
         }
     },
 
