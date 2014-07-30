@@ -15,4 +15,10 @@ public interface DashboardService {
 
     public ComTaskCompletionOverview getComTaskCompletionOverview();
 
+    public ComPortPoolBreakdown getComPortPoolBreakdown();
+
+    public ConnectionTypeBreakdown getConnectionTypeBreakdown();
+
+    public DeviceTypeBreakdown getDeviceTypeBreakdown();
+
 }
