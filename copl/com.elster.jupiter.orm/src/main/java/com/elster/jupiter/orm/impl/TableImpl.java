@@ -634,11 +634,11 @@ public class TableImpl<T> implements Table<T> {
 	void prepare() {
 		checkActiveBuilder();
 		checkMapperTypeIsSet();
-		PrimaryKeyConstraintImpl primaryKey = Objects.requireNonNull(getPrimaryKeyConstraint(),"No primary key defined");
+		PrimaryKeyConstraintImpl primaryKey = Objects.requireNonNull(getPrimaryKeyConstraint(),"Table '" + getName() + "' : No primary key defined");
 		List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
 		for (int i = 0 ; i < primaryKeyColumns.size() ; i++) {
 			if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
-				throw new IllegalStateException(MessageFormat.format("Primary key columns must be defined first and in order in table {0}", getName()));
+				throw new IllegalStateException(MessageFormat.format("Table '" + getName() + "' : Primary key columns must be defined first and in order in table {0}", getName()));
 			}
 		}
 		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {

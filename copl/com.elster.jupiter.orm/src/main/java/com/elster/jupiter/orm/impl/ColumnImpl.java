@@ -431,11 +431,11 @@ public class ColumnImpl implements Column {
         private void setType() {
             Field field = column.getTable().getField(column.getFieldName());
             if (field == null) {
-                throw new IllegalStateException("No field found for column with field name " + column.getFieldName());
+                throw new IllegalStateException("No field found for column with field name '" + column.getFieldName() + "' in table '" + column.getTable().getName() + "'.");
             }
             Size size = field.getAnnotation(Size.class);
             if (size == null) {
-                throw new IllegalStateException("No Size annotation for field " + column.getFieldName());
+                throw new IllegalStateException("No Size annotation for field '" + column.getFieldName() + "' in table '" + column.getTable().getName() + "'.");
             }
             this.varChar(size.max());
         }
