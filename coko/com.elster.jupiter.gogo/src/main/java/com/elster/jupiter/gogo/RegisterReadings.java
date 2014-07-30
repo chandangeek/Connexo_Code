@@ -80,7 +80,7 @@ public class RegisterReadings {
     public void addReading (String deviceMRID, String readingTypeMRID, String... formattedDates) {
         Device device = this.deviceDataService.findByUniqueMrid(deviceMRID);
         if (device != null) {
-            Optional<Register> register = this.findRegister(device, readingTypeMRID);
+            Optional<Register<Reading>> register = this.findRegister(device, readingTypeMRID);
             if (register.isPresent()) {
                 List<Date> readingTimestamps = this.toTimestamps(formattedDates);
                 this.addReadings(device, readingTypeMRID, readingTimestamps);
@@ -94,9 +94,9 @@ public class RegisterReadings {
         }
     }
 
-    private Optional<Register> findRegister(Device device, String readingTypeMRID) {
-        for (Register register : device.getRegisters()) {
-            if (register.getRegisterSpec().getRegisterMapping().getReadingType().getMRID().equals(readingTypeMRID)) {
+    private Optional<Register<Reading>> findRegister(Device device, String readingTypeMRID) {
+        for (Register<Reading> register : device.getRegisters()) {
+            if (register.getRegisterSpec().getRegisterType().getReadingType().getMRID().equals(readingTypeMRID)) {
                 return Optional.of(register);
             }
         }
@@ -179,10 +179,10 @@ public class RegisterReadings {
     private <R extends Reading> void printReadings(Register<R> register, Interval sinceEpoch) {
         List<R> readings = register.getReadings(sinceEpoch);
         if (readings.isEmpty()) {
-            System.out.println("No readings for register " + register.getRegisterSpec().getRegisterMapping().getReadingType().getMRID());
+            System.out.println("No readings for register " + register.getRegisterSpec().getRegisterType().getReadingType().getMRID());
         }
         else {
-            System.out.println("Readings for register " + register.getRegisterSpec().getRegisterMapping().getReadingType().getMRID());
+            System.out.println("Readings for register " + register.getRegisterSpec().getRegisterType().getReadingType().getMRID());
             for (R reading : readings) {
                 System.out.print(this.printDateFormat.format(reading.getTimeStamp()) + " - ");
                 if (reading instanceof NumericalReading) {
