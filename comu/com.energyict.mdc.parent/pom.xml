@@ -142,11 +142,6 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>cbo</artifactId>
-                <version>${jupiter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
                 <artifactId>util</artifactId>
                 <version>${jupiter.version}</version>
             </dependency>
@@ -237,11 +232,6 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>rest.util</artifactId>
-                <version>${jupiter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
                 <artifactId>rest.whiteboard</artifactId>
                 <version>${jupiter.version}</version>
             </dependency>
@@ -262,11 +252,6 @@
             <!--</dependency>-->
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>transaction</artifactId>
-                <version>${jupiter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
                 <artifactId>units</artifactId>
                 <version>${jupiter.version}</version>
             </dependency>
@@ -278,11 +263,6 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users.rest</artifactId>
-                <version>${jupiter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>util</artifactId>
                 <version>${jupiter.version}</version>
             </dependency>
             <dependency>
@@ -334,6 +314,12 @@
                 <groupId>org.rxtx</groupId>
                 <artifactId>rxtx</artifactId>
                 <version>${org.rxtx.version}</version>
+            </dependency>
+
+            <dependency>
+              <groupId>org.jvnet.mimepull</groupId>
+              <artifactId>mimepull</artifactId>
+              <version>1.9.4</version>
             </dependency>
 
             <dependency>
@@ -389,6 +375,16 @@
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
                 <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>javax.ws.rs</groupId>
+              <artifactId>javax.ws.rs-api</artifactId>
+              <version>2.0</version>
+            </dependency>
+            <dependency>
+              <groupId>org.glassfish.jersey.media</groupId>
+              <artifactId>jersey-media-multipart</artifactId>
+              <version>${jersey.version}</version>
             </dependency>
 
             <!-- Test dependencies -->
