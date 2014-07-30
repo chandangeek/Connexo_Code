@@ -111,9 +111,9 @@ Ext.define('Uni.view.toolbar.PagingTop', {
     resetPaging: function () {
         var me = this;
 
-        me.isFullTotalCount = false;
-        me.totalCount = -1;
         me.onLoad();
+        me.totalCount = -1;
+        me.isFullTotalCount = false;
     },
 
     onLoad: function () {
