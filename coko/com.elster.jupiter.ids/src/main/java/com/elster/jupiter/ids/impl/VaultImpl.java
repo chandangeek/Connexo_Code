@@ -1,5 +1,22 @@
 package com.elster.jupiter.ids.impl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.TimeZone;
+
+import javax.inject.Inject;
+
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
@@ -16,22 +33,6 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.inject.Provider;
 
-import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.TimeZone;
-
 @LiteralSql
 public class VaultImpl implements Vault {
 
@@ -47,6 +48,7 @@ public class VaultImpl implements Vault {
 	private UtcInstant minTime;
 	private UtcInstant maxTime;
 	private int slotCount;
+	private int textSlotCount;
 	private boolean localTime;
 	private boolean regular;
 	private boolean journal;
@@ -69,11 +71,12 @@ public class VaultImpl implements Vault {
     	this.timeSeriesProvider = timeSeriesProvider;
 	}
 	
-	VaultImpl init(String componentName , long id , String description , int slotCount , boolean regular) {
+	VaultImpl init(String componentName , long id , String description , int slotCount, int textSlotCount, boolean regular) {
 		this.componentName = componentName;
 		this.id = id;
 		this.description = description;
 		this.slotCount = slotCount;
+		this.textSlotCount = textSlotCount;
 		this.regular = regular;
 		this.localTime = regular;
 		this.journal = true;
@@ -116,6 +119,7 @@ public class VaultImpl implements Vault {
 		this.description = description;
 		dataModel.update(this , "description" );
 	}
+
 	
 	@Override
 	public Date getMinDate() {
@@ -132,6 +136,10 @@ public class VaultImpl implements Vault {
 		return slotCount;
 	}
 	
+	@Override
+	public int getTextSlotCount() {
+		return textSlotCount;
+	}
 	
 	@Override
 	public boolean hasJournal() {
@@ -196,6 +204,11 @@ public class VaultImpl implements Vault {
 			builder.append(i);
 			builder.append(" NUMBER");
 		}
+		for (int i = 0 ; i < getTextSlotCount() ; i++) {
+			builder.append(",TEXTSLOT");
+			builder.append(i);
+			builder.append(" VARCHAR2(4000)");
+		}
 		builder.append(",CONSTRAINT ");
 		builder.append(getTablePrimaryKeyConstraintName(journal));
 		builder.append(" PRIMARY KEY(TIMESERIESID,UTCSTAMP");
@@ -205,6 +218,9 @@ public class VaultImpl implements Vault {
 		builder.append("))");
         if (isOracle()) {
             builder.append(" ORGANIZATION INDEX COMPRESS 1 ");
+            if (textSlotCount > 0) {
+            	builder.append(" OVERFLOW");
+            }
         }
         if (isPartitioned()) {
 			builder.append("PARTITION BY RANGE(utcstamp) (PARTITION ");
@@ -331,13 +347,13 @@ public class VaultImpl implements Vault {
 		}
 	}
 	
-	private StringBuilder selectSql(TimeSeries timeSeries) {
+	private StringBuilder selectSql(TimeSeriesImpl timeSeries) {
 		StringBuilder builder = selectSql(timeSeries.getRecordSpec());
 		builder.append(" TIMESERIESID = ?");	
 		return builder;
 	}
 	
-	private String findSql(TimeSeries timeSeries) {
+	private String findSql(TimeSeriesImpl timeSeries) {
 		StringBuilder builder = selectSql(timeSeries);
 		builder.append(" AND UTCSTAMP = ?");
 		return builder.toString();
@@ -356,7 +372,7 @@ public class VaultImpl implements Vault {
 	}
 	
 	
-	private String insertSql(TimeSeries timeSeries) {
+	private String insertSql(TimeSeriesImpl timeSeries) {
 		return insertSql(timeSeries.getRecordSpec());
 	}
 	
@@ -380,7 +396,7 @@ public class VaultImpl implements Vault {
 		}		
 	}
 	
-	private String updateSql(TimeSeries timeSeries) {		
+	private String updateSql(TimeSeriesImpl timeSeries) {		
 		return updateSql(timeSeries.getRecordSpec());
 	}
 	
@@ -453,7 +469,7 @@ public class VaultImpl implements Vault {
 		}
 	}
 	
-	private String rangeSql(TimeSeries timeSeries) {
+	private String rangeSql(TimeSeriesImpl timeSeries) {
 		StringBuilder builder = selectSql(timeSeries);
         if (isRegular()) {
             builder.append(" AND UTCSTAMP > ? and UTCSTAMP <= ? order by UTCSTAMP");
@@ -463,7 +479,7 @@ public class VaultImpl implements Vault {
         return builder.toString();
 	}
 	
-	private String entrySql(TimeSeries timeSeries) {
+	private String entrySql(TimeSeriesImpl timeSeries) {
 		StringBuilder builder = selectSql(timeSeries);
 		builder.append(" AND UTCSTAMP = ? ");
 		return builder.toString();
@@ -507,12 +523,11 @@ public class VaultImpl implements Vault {
 	}
 	
 		
-	StringBuilder selectSql(RecordSpec recordSpec) {
+	StringBuilder selectSql(RecordSpecImpl recordSpec) {
 		StringBuilder builder = new StringBuilder("select timeseriesid , utcstamp , versioncount , recordtime ");
-		List<? extends FieldSpec> fieldSpecs = recordSpec.getFieldSpecs();
-		for (int i = 0 ; i < fieldSpecs.size() ; i++) {
-			builder.append(",SLOT");
-			builder.append(i);
+		for (String column : recordSpec.columnNames()) {
+			builder.append(",");
+			builder.append(column);
 		}
 		builder.append(" FROM ");
 		builder.append(getTableName());
@@ -520,7 +535,7 @@ public class VaultImpl implements Vault {
 		return builder;
 	}
 	
-	String insertSql(RecordSpec recordSpec) {
+	String insertSql(RecordSpecImpl recordSpec) {
 		StringBuilder builder = new StringBuilder("insert into ");
 		builder.append(getTableName());
 		builder.append(" (");
@@ -528,30 +543,28 @@ public class VaultImpl implements Vault {
 		if (hasLocalTime()) {
 			builder.append(",LOCALDATE");
 		}		
-		List<? extends FieldSpec> fieldSpecs = recordSpec.getFieldSpecs();
-		for (int i = 0 ; i < fieldSpecs.size() ; i++) {
-			builder.append(",SLOT");
-			builder.append(i);
+		for (String column : recordSpec.columnNames()) {
+			builder.append(",");
+			builder.append(column);
 		}
 		builder.append(") VALUES (?,?,1,?");
 		if (hasLocalTime()) {
 			builder.append(",?");			
 		}
-		for (int i = 0 ; i < fieldSpecs.size() ; i++) {
+		for (int i = 0 ; i < recordSpec.getFieldSpecs().size() ; i++) {
 			builder.append(",?");			
 		}
 		builder.append(")");
 		return builder.toString();
 	}
 	
-	String updateSql(RecordSpec recordSpec) {
+	String updateSql(RecordSpecImpl recordSpec) {
 		StringBuilder builder = new StringBuilder("update ");
 		builder.append(getTableName());
 		builder.append(" SET VERSIONCOUNT = VERSIONCOUNT + 1, RECORDTIME = ?");
-		List<? extends FieldSpec> fieldSpecs = recordSpec.getFieldSpecs();
-		for (int i = 0 ; i < fieldSpecs.size() ; i++) {
-			builder.append(",SLOT");
-			builder.append(i);
+		for (String column : recordSpec.columnNames()) {
+			builder.append(",");
+			builder.append(column);
 			builder.append(" = ?");
 		}
 		builder.append(" WHERE TIMESERIESID = ? and UTCSTAMP = ?");
@@ -612,7 +625,7 @@ public class VaultImpl implements Vault {
 		return result;
 	}
 	
-	private String entriesBeforeSql(TimeSeries timeSeries,boolean includeBoundary) {
+	private String entriesBeforeSql(TimeSeriesImpl timeSeries,boolean includeBoundary) {
 		StringBuilder base = selectSql(timeSeries);
 		base.append(" AND UTCSTAMP ");
 		base.append(includeBoundary ? "<= " : "<");

@@ -12,6 +12,7 @@ public interface Vault {
 	boolean isRegular();
 	boolean hasJournal();
 	int getSlotCount();
+	int getTextSlotCount();
 	boolean hasLocalTime();
 	boolean isPartitioned();
 	boolean isActive();

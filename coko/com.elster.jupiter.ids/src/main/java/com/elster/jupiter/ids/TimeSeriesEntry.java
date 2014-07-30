@@ -20,6 +20,8 @@ public interface TimeSeriesEntry {
     long getLong(int offset);
 
     long getVersion();
-
+    
+    String getString(int offset);
+    
     Object[] getValues();
 }

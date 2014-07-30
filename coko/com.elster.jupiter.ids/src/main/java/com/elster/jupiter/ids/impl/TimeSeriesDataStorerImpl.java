@@ -138,7 +138,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	private static class SlaveTimeSeriesDataStorer {
 		private final Map<Long, SingleTimeSeriesStorer> storerMap = new HashMap<>();
         private final VaultImpl vault;
-        private final RecordSpec recordSpec;
+        private final RecordSpecImpl recordSpec;
         private final DataModel dataModel;
         private final Clock  clock;
 		

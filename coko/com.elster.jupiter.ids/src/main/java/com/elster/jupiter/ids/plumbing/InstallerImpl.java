@@ -33,7 +33,7 @@ public class InstallerImpl {
 	}
 
 	private void createVaults() {
-		Vault newVault = idsService.newVault("IDS",1,"Regular TimeSeries Default ", DEFAULT_SLOT_COUNT, true);
+		Vault newVault = idsService.newVault("IDS",1,"Regular TimeSeries Default ", DEFAULT_SLOT_COUNT, 0,true);
 		newVault.persist();
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MONTH,1);

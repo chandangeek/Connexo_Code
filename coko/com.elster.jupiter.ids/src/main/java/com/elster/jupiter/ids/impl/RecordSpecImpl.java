@@ -117,5 +117,19 @@ public final class RecordSpecImpl implements RecordSpec {
     	}
     	return result;
     }
+    
+    List<String> columnNames() {
+    	int textSlotCount = 0;
+    	int slotCount = 0;
+    	List<String> result = new ArrayList<>(fieldSpecs.size());
+    	for (FieldSpec spec : fieldSpecs) {
+    		if (spec.getType().equals(FieldType.TEXT)) {
+    			result.add("TEXTSLOT" + textSlotCount++);
+    		} else {
+    			result.add("SLOT" + slotCount++);
+    		}
+    	}
+    	return result;
+    }
 	
 }
