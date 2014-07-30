@@ -133,6 +133,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                         action: 'addValidationRuleSets',
+                        itemId: 'addRuleSet',
                         ui: 'action'
                     },
                     {

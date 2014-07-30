@@ -52,8 +52,17 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
 
     onChangeRadio: function () {
         var grid = Ext.ComponentQuery.query('rule-device-configuration-add grid')[0];
-        grid.getSelectionModel().getSelection().length === 0 ? grid.down('#uncheckAll').setDisabled(true) : grid.down('#uncheckAll').setDisabled(false);
-        this.getRuleDeviceConfigurationAddPanel().down('#radioAll').getValue() && grid.down('#uncheckAll').setDisabled(true);
+        if (grid.getSelectionModel().getSelection().length === 0) {
+            grid.down('#uncheckAll').setDisabled(true);
+            grid.down('#addDeviceConfigToRuleSet').setDisabled(true);
+        } else {
+            grid.down('#uncheckAll').setDisabled(false);
+            grid.down('#addDeviceConfigToRuleSet').setDisabled(false);
+        }
+        if (this.getRuleDeviceConfigurationAddPanel().down('#radioAll').getValue()) {
+            grid.down('#uncheckAll').setDisabled(true);
+            grid.down('#addDeviceConfigToRuleSet').setDisabled(false);
+        }
     },
 
     showDeviceConfigView: function (ruleSetId) {
@@ -125,7 +134,13 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
 
         textLabel.setText(selectionText);
         me.changeRadioFromAllToSelected();
-        selection.length === 0 ? gridview.down('#uncheckAll').setDisabled(true) : gridview.down('#uncheckAll').setDisabled(false);
+        if (selection.length === 0) {
+            gridview.down('#uncheckAll').setDisabled(true);
+            gridview.down('#addDeviceConfigToRuleSet').setDisabled(true);
+        } else {
+            gridview.down('#uncheckAll').setDisabled(false);
+            gridview.down('#addDeviceConfigToRuleSet').setDisabled(false);
+        }
     },
 
     changeRadioFromAllToSelected: function () {
