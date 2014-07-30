@@ -38,6 +38,9 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             'comServersGrid': {
                 select: this.showComServerPreview
             },
+            'comServersSetup': {
+                beforerender: this.loadTimeUnitStore
+            },
             '#comserverViewMenu': {
                 click: this.chooseAction,
                 show: this.configureMenu
@@ -103,17 +106,21 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             id = record.getId();
 
         itemPanel.setLoading(this.getModel('Mdc.model.ComServer'));
-
         model.load(id, {
             success: function (record) {
                 if (!form.isDestroyed) {
                     form.loadRecord(record);
-                    form.up('panel').down('menu').record = record;
                     itemPanel.setLoading(false);
+                    form.up('panel').down('menu').record = record;
                     itemPanel.setTitle(record.get('name'));
                 }
             }
         });
+    },
+
+    loadTimeUnitStore: function () {
+        var timeUnitStore = Ext.getStore('Mdc.store.TimeUnitsWithoutMilliseconds');
+        timeUnitStore.load();
     },
 
     editComServer: function (record) {

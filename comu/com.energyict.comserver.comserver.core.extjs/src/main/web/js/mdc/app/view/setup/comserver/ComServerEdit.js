@@ -106,7 +106,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                     store: 'Mdc.store.TimeUnitsWithoutMilliseconds',
                                     queryMode: 'local',
                                     editable: false,
-                                    displayField: 'timeUnit',
+                                    displayField: 'localizedValue',
                                     valueField: 'timeUnit',
                                     flex: 1
                                 }
@@ -147,7 +147,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                     store: 'Mdc.store.TimeUnitsWithoutMilliseconds',
                                     queryMode: 'local',
                                     editable: false,
-                                    displayField: 'timeUnit',
+                                    displayField: 'localizedValue',
                                     valueField: 'timeUnit',
                                     flex: 1
                                 }

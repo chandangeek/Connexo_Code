@@ -47,6 +47,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             'comServerComPortsView comServerComPortsGrid': {
                 select: this.showPreview
             },
+            'comServerComPortsView': {
+                beforerender: this.loadTimeUnitStore
+            },
             'comServerComPortsView comServerComPortsAddMenu' : {
                 click: this.addComPortToComServer
             },
@@ -58,6 +61,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 show: this.configureMenu
             }
         });
+    },
+
+    loadTimeUnitStore: function () {
+        var timeUnitStore = Ext.getStore('Mdc.store.TimeUnits');
+        timeUnitStore.load();
     },
 
 

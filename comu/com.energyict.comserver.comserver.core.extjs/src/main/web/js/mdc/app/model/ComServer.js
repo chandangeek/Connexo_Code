@@ -16,8 +16,6 @@ Ext.define('Mdc.model.ComServer', {
         {name: 'storeTaskThreadPriority', type: 'int', useNull: true},
         'changesInterPollDelay',
         'schedulingInterPollDelay',
-        {name: 'queryAPIUsername', type: 'string', useNull: true},
-        {name: 'queryAPIPassword', type: 'string', useNull: true},
         {name: 'onlineComServerId', type: 'int', useNull: true},
         {
             name: 'comportslink',

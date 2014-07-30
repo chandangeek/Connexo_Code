@@ -36,7 +36,8 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
     showEditView: function (id) {
         var me = this,
             widget = Ext.widget('comServerEdit'),
-            model = me.getModel('Mdc.model.ComServer');
+            model = me.getModel('Mdc.model.ComServer'),
+            timeUnitStore = Ext.getStore('Mdc.store.TimeUnitsWithoutMilliseconds');
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setEdit(true, '#/administration/comservers');
@@ -62,24 +63,29 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
                 form.setTitle(title);
                 form.down('[name=comServerTypeVisual]').setValue(comServerType);
                 form.down('[name=comServerTypeVisual]').show();
-                me.modelToForm(record, form);
-            },
-            callback: function () {
-                widget.setLoading(false);
+                timeUnitStore.load({
+                    callback: function() {
+                        me.modelToForm(record, form);
+                        widget.setLoading(false);
+                    }
+                });
             }
         });
     },
 
     showOnlineAddView: function () {
-        var widget = Ext.widget('comServerEdit'),
+        var me = this,
+            widget = Ext.widget('comServerEdit'),
             model = Ext.create(Mdc.model.ComServer),
+            timeUnitStore = Ext.getStore('Mdc.store.TimeUnitsWithoutMilliseconds'),
             form;
+
 
         model.set('comServerType', 'Online');
         model.set('serverLogLevel' , 'Warning');
         model.set('communicationLogLevel' , 'Warning');
-        model.set('changesInterPollDelay' , {count: '5', timeUnit: 'minutes'});
-        model.set('schedulingInterPollDelay' , {count: '60', timeUnit: 'seconds'});
+        model.set('changesInterPollDelay' , {count: '5', timeUnit: 12});
+        model.set('schedulingInterPollDelay' , {count: '60', timeUnit: 13});
         model.set('storeTaskQueueSize' , 50);
         model.set('numberOfStoreTaskThreads' , 1);
         model.set('storeTaskThreadPriority' , 5);
@@ -87,9 +93,16 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         this.comServerModel = model;
 
         this.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
         form = widget.down('form');
         form.setTitle(Uni.I18n.translate('comServer.title.addOnline', 'MDC', 'Add online communication server'));
-        this.modelToForm(model, form);
+        timeUnitStore.load({
+            callback: function() {
+                me.modelToForm(model, form);
+                widget.setLoading(false);
+            }
+        });
+
         widget.setEdit(false, '#/administration/comservers');
     },
 

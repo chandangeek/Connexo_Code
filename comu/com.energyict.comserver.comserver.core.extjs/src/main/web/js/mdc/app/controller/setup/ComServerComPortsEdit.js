@@ -180,11 +180,18 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             nrOfDatabits = view.down('#addFormNest').down('#bits'),
             parity = view.down('#addFormNest').down('#parity'),
             flowControl = view.down('#addFormNest').down('#flowControl'),
-            nrOfStopBits = view.down('#addFormNest').down('#stopBits');
-        connectTimeoutUnit.setValue('seconds', true);
-        connectDelayUnit.setValue('milliseconds', true);
-        sendDelayUnit.setValue('milliseconds', true);
-        atCommandTimeoutUnit.setValue('seconds', true);
+            nrOfStopBits = view.down('#addFormNest').down('#stopBits'),
+            timeUnitStore = Ext.getStore('Mdc.store.TimeUnits');
+
+        timeUnitStore.load({
+            callback: function() {
+                connectTimeoutUnit.setValue(13, true);
+                connectDelayUnit.setValue(14, true);
+                sendDelayUnit.setValue(14, true);
+                atCommandTimeoutUnit.setValue(13, true);
+            }
+        })
+
         baudRate.setValue('9600', true);
         nrOfDatabits.setValue('8', true);
         nrOfStopBits.setValue('1', true);

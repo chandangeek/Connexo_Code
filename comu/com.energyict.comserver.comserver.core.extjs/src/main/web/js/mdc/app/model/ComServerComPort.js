@@ -99,8 +99,21 @@ Ext.define('Mdc.model.ComServerComPort', {
             name: 'atCommandTimeout',
             type: 'string',
             mapping: function (data) {
-                var val = data.atCommandTimeout;
-                return val ? val.count ? val.count + (val.timeUnit ? ' ' + val.timeUnit : '') : undefined : undefined;
+                var val = data.atCommandTimeout,
+                    store = Ext.getStore('Mdc.store.TimeUnits');
+                if (val) {
+                    if (store.getCount() < 1) {
+                        store.load({
+                            callback: function() {
+                                return val.count + ' ' + store.getAt(store.findExact('timeUnit', val.timeUnit)).get('localizedValue');
+                            }
+                        });
+                    } else {
+                        return val.count + ' ' + store.getAt(store.findExact('timeUnit', val.timeUnit)).get('localizedValue');
+                    }
+                } else {
+                    return null
+                }
             }
         },
         {
@@ -115,24 +128,63 @@ Ext.define('Mdc.model.ComServerComPort', {
             name: 'connectTimeout',
             type: 'string',
             mapping: function (data) {
-                var val = data.connectTimeout;
-                return val ? val.count ? val.count + (val.timeUnit ? ' ' + val.timeUnit : '') : undefined : undefined;
+                var val = data.connectTimeout,
+                    store = Ext.getStore('Mdc.store.TimeUnits');
+                if (val) {
+                    if (store.getCount() < 1) {
+                        store.load({
+                            callback: function() {
+                                return val.count + ' ' + store.getAt(store.findExact('timeUnit', val.timeUnit)).get('localizedValue');
+                            }
+                        });
+                    } else {
+                        return val.count + ' ' + store.getAt(store.findExact('timeUnit', val.timeUnit)).get('localizedValue');
+                    }
+                } else {
+                    return null
+                }
             }
         },
         {
             name: 'delayAfterConnect',
             type: 'string',
             mapping: function (data) {
-                var val = data.delayAfterConnect;
-                return val ? val.count ? val.count + (val.timeUnit ? ' ' + val.timeUnit : '') : undefined : undefined;
+                var val = data.delayAfterConnect,
+                    store = Ext.getStore('Mdc.store.TimeUnits');
+                if (val) {
+                    if (store.getCount() < 1) {
+                        store.load({
+                            callback: function() {
+                                return val.count + ' ' + store.getAt(store.findExact('timeUnit', val.timeUnit)).get('localizedValue');
+                            }
+                        });
+                    } else {
+                        return val.count + ' ' + store.getAt(store.findExact('timeUnit', val.timeUnit)).get('localizedValue');
+                    }
+                } else {
+                    return null
+                }
             }
         },
         {
             name: 'delayBeforeSend',
             type: 'string',
             mapping: function (data) {
-                var val = data.delayBeforeSend;
-                return val ? val.count ? val.count + (val.timeUnit ? ' ' + val.timeUnit : '') : undefined : undefined;
+                var val = data.delayBeforeSend,
+                    store = Ext.getStore('Mdc.store.TimeUnits');
+                if (val) {
+                    if (store.getCount() < 1) {
+                        store.load({
+                            callback: function() {
+                                return val.count + ' ' + store.getAt(store.findExact('timeUnit', val.timeUnit)).get('localizedValue');
+                            }
+                        });
+                    } else {
+                        return val.count + ' ' + store.getAt(store.findExact('timeUnit', val.timeUnit)).get('localizedValue');
+                    }
+                } else {
+                    return null
+                }
             }
         },
         {

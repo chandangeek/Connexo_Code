@@ -77,20 +77,23 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
     showOverview: function (id) {
         var me = this,
             widget = Ext.widget('comServerOverview'),
-            model = this.getModel('Mdc.model.ComServer');
+            model = this.getModel('Mdc.model.ComServer'),
+            timeUnitStore = Ext.getStore('Mdc.store.TimeUnitsWithoutMilliseconds');
 
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         model.load(id, {
             success: function (record) {
                 var form = widget.down('form');
-                form.loadRecord(record);
+                timeUnitStore.load({
+                    callback: function(){
+                        form.loadRecord(record);
+                        widget.setLoading(false);
+                    }
+                });
                 form.up('container').down('container').down('button').menu.record = record;
                 widget.down('comserversubmenu').setServer(record);
                 me.getApplication().fireEvent('comServerOverviewLoad', record);
-            },
-            callback: function () {
-                widget.setLoading(false);
             }
         });
     },
