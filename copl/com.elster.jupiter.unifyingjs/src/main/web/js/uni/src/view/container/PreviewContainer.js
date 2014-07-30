@@ -202,7 +202,11 @@ Ext.define('Uni.view.container.PreviewContainer', {
         var me = this,
             activeIndex = me.items.indexOf(me.getLayout().getActiveItem());
 
-        me.grid.getView().getSelectionModel().deselectAll(true);
+        try {
+            me.grid.getView().getSelectionModel().deselectAll(true);
+        } catch (ex) {
+            // Ignore exceptions for when the selection model is not ready yet.
+        }
 
         if (activeIndex !== 1) {
             me.getLayout().setActiveItem(1);
