@@ -73,7 +73,8 @@ public class DeviceApplication extends Application implements InstallService{
                 ProtocolDialectResource.class,
                 RegisterResource.class,
                 RegisterDataResource.class,
-                DeviceValidationResource.class
+                DeviceValidationResource.class,
+                LoadProfileResource.class
         );
     }
 

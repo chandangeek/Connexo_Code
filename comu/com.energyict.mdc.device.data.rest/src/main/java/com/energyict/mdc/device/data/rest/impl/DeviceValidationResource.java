@@ -1,11 +1,15 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.MeterActivationValidation;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
-import com.energyict.cpo.TransactionResourceAdapter;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -14,14 +18,25 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.Striped;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class DeviceValidationResource {
     private final ResourceHelper resourceHelper;
@@ -31,6 +46,7 @@ public class DeviceValidationResource {
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
+    private final Striped<ReadWriteLock> stripedLock = Striped.readWriteLock(32);
 
     @Inject
     public DeviceValidationResource (ResourceHelper resourceHelper, ValidationService validationService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
@@ -122,7 +138,7 @@ public class DeviceValidationResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         MeterActivation activation = getCurrentMeterActivation(device);
         Date maxDate = validationService.getLastChecked(activation);
-        if(date == null || (date != null && date.after(maxDate))) {
+        if(date == null || date.after(maxDate)) {
             throw exceptionFactory.newException(MessageSeeds.INVALID_DATE, maxDate);
         }
         validationService.setLastChecked(activation, date);
@@ -133,34 +149,40 @@ public class DeviceValidationResource {
     @Path("/devicevalidation")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public synchronized Response activateValidationFeatureOnDevice(@PathParam("mRID") String mrid) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(1);
-        Meter meter = null;
-        Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
-        if(meterRef.isPresent()) {
-            meter = meterRef.get();
-        } else {
-            meter = amrSystemRef.get().newMeter(String.valueOf(device.getId()), device.getmRID());
-            meter.save();
-        }
-        Optional<MeterActivation> activationRef = meter.getCurrentMeterActivation();
-        MeterActivation meterActivation = null;
-        Date date =  clock.now();
-        if(activationRef.isPresent()) {
-            meterActivation = activationRef.get();
-        } else {
-            meterActivation = meter.activate(date);
-        }
+    public Response activateValidationFeatureOnDevice(@PathParam("mRID") String mrid) {
+        Lock lock = stripedLock.get(mrid).writeLock(); // we use striped locking to improve concurrency.
+        lock.lock();
         DeviceValidationStatusInfo status = null;
-        if(!validationService.getMeterValidation(meterActivation).isPresent()) {
-            validationService.createMeterValidation(meterActivation);
-            status = new DeviceValidationStatusInfo(false, null);
-        } else{
-            status = new DeviceValidationStatusInfo(true, null);
-        }
-        if(validationService.getMeterActivationValidationsForMeterActivation(meterActivation).isEmpty()) {
-            List<MeterActivationValidation> meterActivationValidations = validationService.getMeterActivationValidations(meterActivation, Interval.startAt(date));
+        try {
+            Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+            Meter meter;
+            Optional<Meter> meterRef = amrSystem.findMeter(String.valueOf(device.getId()));
+            if(meterRef.isPresent()) {
+                meter = meterRef.get();
+            } else {
+                meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
+                meter.save();
+            }
+            Optional<MeterActivation> activationRef = meter.getCurrentMeterActivation();
+            MeterActivation meterActivation;
+            Date date =  clock.now();
+            if(activationRef.isPresent()) {
+                meterActivation = activationRef.get();
+            } else {
+                meterActivation = meter.activate(date);
+            }
+            if(!validationService.getMeterValidation(meterActivation).isPresent()) {
+                validationService.createMeterValidation(meterActivation);
+                status = new DeviceValidationStatusInfo(false, null);
+            } else {
+                status = new DeviceValidationStatusInfo(true, null);
+            }
+            if(validationService.getMeterActivationValidationsForMeterActivation(meterActivation).isEmpty()) {
+                List<MeterActivationValidation> meterActivationValidations = validationService.getMeterActivationValidations(meterActivation, Interval.startAt(date));
+            }
+        } finally {
+            lock.unlock();
         }
         return Response.ok(status).build();
     }

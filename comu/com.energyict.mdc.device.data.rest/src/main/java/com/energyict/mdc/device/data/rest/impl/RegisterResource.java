@@ -4,14 +4,16 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.Comparator;
 import java.util.List;
@@ -36,7 +38,7 @@ public class RegisterResource {
         List<Register> registers = ListPager.of(device.getRegisters(), new Comparator<Register>() {
             @Override
             public int compare(Register o1, Register o2) {
-                return o1.getRegisterSpec().getRegisterMapping().getName().compareToIgnoreCase(o2.getRegisterSpec().getRegisterMapping().getName());
+                return o1.getRegisterSpec().getRegisterType().getName().compareToIgnoreCase(o2.getRegisterSpec().getRegisterType().getName());
             }
         }).from(queryParameters).find();
         List<RegisterInfo> registerInfos = RegisterInfoFactory.asInfoList(registers);
