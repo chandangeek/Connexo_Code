@@ -7,7 +7,7 @@ import org.junit.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link TaskStatusBreakdownCountersImplWithLowercaseD} component.
+ * Tests the {@link TaskStatusBreakdownCountersImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (13:12)
@@ -96,7 +96,7 @@ public class TaskStatusBreakdownCountersImplTest {
         assertThat(totalCount).isEqualTo(SUCCESS_COUNT + FAILED_COUNT + PENDING_COUNT);
     }
 
-    private class Breakdown extends TaskStatusBreakdownCountersImplWithLowercaseD<CounterTarget> {
+    private class Breakdown extends TaskStatusBreakdownCountersImpl<CounterTarget> {
         private Breakdown() {
             super();
         }
