@@ -36,18 +36,21 @@ public class ConnectionOverviewInfo {
     public ConnectionOverviewInfo(DashboardService dashboardService, Thesaurus thesaurus) throws Exception {
         this.thesaurus = thesaurus;
         overviews=new ArrayList<>(2);
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), null), dashboardService.getConnectionStatusOverview(), taskStatusAdapter)); // JP-4278
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), null), dashboardService.getComTaskCompletionOverview(), completionCodeAdapter)); // JP-4280
+        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), null), dashboardService.getConnectionStatusOverview(), FilterOption.state, taskStatusAdapter)); // JP-4278
+        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), null), dashboardService.getComTaskCompletionOverview(), FilterOption.latestResult, completionCodeAdapter)); // JP-4280
 
+        breakdowns=new ArrayList<>(3);
     }
 
-    private <C> TaskSummaryInfo createOverview(String overviewBreakdownName, DashboardCounters<C> dashboardCounters, MapBasedXmlAdapter<C> adapter) throws Exception {
+    private <C> TaskSummaryInfo createOverview(String overviewBreakdownName, DashboardCounters<C> dashboardCounters, FilterOption alias, MapBasedXmlAdapter<C> adapter) throws Exception {
         TaskSummaryInfo info = new TaskSummaryInfo();
-        info.name=overviewBreakdownName;
+        info.displayName =overviewBreakdownName;
+        info.alias=alias;
         info.counters=new ArrayList<>();
         for (Counter<C> taskStatusCounter : dashboardCounters) {
             info.counters.add(new TaskCounterInfo(
                     thesaurus.getString(adapter.marshal(taskStatusCounter.getCountTarget()), null),
+                    adapter.marshal(taskStatusCounter.getCountTarget()),
                     taskStatusCounter.getCount()));
         }
 
@@ -56,7 +59,8 @@ public class ConnectionOverviewInfo {
 }
 
 class TaskSummaryInfo {
-    public String name;
+    public String displayName;
+    public FilterOption alias;
     public List<TaskCounterInfo> counters;
 }
 
@@ -75,11 +79,18 @@ class TaskBreakdownInfo {
 }
 
 class TaskCounterInfo {
-    public String name;
+    public String alias;
+    public String displayName;
     public long count;
 
-    TaskCounterInfo(String name, long count) {
-        this.name = name;
+    TaskCounterInfo(String displayName, String alias, long count) {
+        this.displayName = displayName;
+        this.alias = alias;
         this.count = count;
     }
+}
+
+enum FilterOption {
+    state,
+    latestResult
 }
