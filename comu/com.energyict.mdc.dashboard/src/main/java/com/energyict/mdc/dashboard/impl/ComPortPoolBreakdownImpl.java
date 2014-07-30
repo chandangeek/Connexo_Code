@@ -9,7 +9,7 @@ import com.energyict.mdc.engine.model.ComPortPool;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (12:00)
  */
-public class ComPortPoolBreakdownImpl extends TaskStatusBreakdownCountersImplWithLowercaseD<ComPortPool> implements ComPortPoolBreakdown {
+public class ComPortPoolBreakdownImpl extends TaskStatusBreakdownCountersImpl<ComPortPool> implements ComPortPoolBreakdown {
     public ComPortPoolBreakdownImpl() {
         super();
     }

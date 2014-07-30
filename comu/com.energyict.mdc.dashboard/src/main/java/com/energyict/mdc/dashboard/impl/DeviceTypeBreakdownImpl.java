@@ -9,7 +9,7 @@ import com.energyict.mdc.device.config.DeviceType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (14:03)
  */
-public class DeviceTypeBreakdownImpl extends TaskStatusBreakdownCountersImplWithLowercaseD<DeviceType> implements DeviceTypeBreakdown {
+public class DeviceTypeBreakdownImpl extends TaskStatusBreakdownCountersImpl<DeviceType> implements DeviceTypeBreakdown {
     public DeviceTypeBreakdownImpl() {
         super();
     }

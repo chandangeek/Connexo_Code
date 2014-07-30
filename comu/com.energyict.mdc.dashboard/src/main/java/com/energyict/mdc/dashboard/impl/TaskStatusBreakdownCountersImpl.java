@@ -1,6 +1,6 @@
 package com.energyict.mdc.dashboard.impl;
 
-import com.energyict.mdc.dashboard.TaskStatusBreakdownCountersWithLowercaseD;
+import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 
 import java.util.ArrayList;
@@ -9,20 +9,20 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link TaskStatusBreakdownCountersWithLowercaseD} interface.
+ * Provides an implementation for the {@link TaskStatusBreakdownCounters} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (12:02)
  */
-public abstract class TaskStatusBreakdownCountersImplWithLowercaseD<T> implements TaskStatusBreakdownCountersWithLowercaseD<T> {
+public abstract class TaskStatusBreakdownCountersImpl<T> implements TaskStatusBreakdownCounters<T> {
 
     private List<TaskStatusBreakdownCounter<T>> counters = new ArrayList<>();
 
-    public TaskStatusBreakdownCountersImplWithLowercaseD() {
+    public TaskStatusBreakdownCountersImpl() {
         super();
     }
 
-    public TaskStatusBreakdownCountersImplWithLowercaseD(TaskStatusBreakdownCounter<T>... counters) {
+    public TaskStatusBreakdownCountersImpl(TaskStatusBreakdownCounter<T>... counters) {
         this();
         for (TaskStatusBreakdownCounter<T> counter : counters) {
             this.add(counter);

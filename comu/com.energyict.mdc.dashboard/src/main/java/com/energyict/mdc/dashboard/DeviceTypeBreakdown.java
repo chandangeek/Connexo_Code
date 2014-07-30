@@ -8,5 +8,5 @@ import com.energyict.mdc.device.config.DeviceType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (09:30)
  */
-public interface DeviceTypeBreakdown extends TaskStatusBreakdownCountersWithLowercaseD<DeviceType> {
+public interface DeviceTypeBreakdown extends TaskStatusBreakdownCounters<DeviceType> {
 }
