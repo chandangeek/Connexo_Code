@@ -83,7 +83,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
     
     private void validate(IntervalLength intervalLength) {
-        if (IntervalLengthUnit.MINUTE.equals(intervalLengthUnit)) {
+        if (IntervalLengthUnit.MINUTE.equals(intervalLength.getUnitCode())) {
             if (MINUTES_PER_HOUR % intervalLength.getLength() != 0) {
                 throw new IllegalArgumentException("Only minute interval lengths that are divisors of one hour are supported.");
             }
