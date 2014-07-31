@@ -6,6 +6,7 @@ import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiEntry;
+import com.elster.jupiter.kpi.TargetStorer;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
@@ -78,7 +79,7 @@ class KpiMemberImpl implements IKpiMember {
 
     @Override
     public void score(Date date, BigDecimal bigDecimal) {
-        TimeSeriesDataStorer storer = idsService.createStorer(false);
+        TimeSeriesDataStorer storer = idsService.createStorer(true);
         storer.add(getTimeSeries(), date, bigDecimal, getTarget(date));
         storer.execute();
     }
@@ -107,6 +108,25 @@ class KpiMemberImpl implements IKpiMember {
         return timeSeries.get();
     }
 
+    @Override
+    public TargetStorer getTargetStorer() {
+        return new TargetStorer() {
+
+            private final TimeSeriesDataStorer storer = idsService.createStorer(true);
+
+            @Override
+            public TargetStorer add(Date timestamp, BigDecimal target) {
+                storer.add(getTimeSeries(), timestamp, null, target);
+                return this;
+            }
+
+            @Override
+            public void execute() {
+                storer.execute();
+            }
+        };
+    }
+
     private static class DynamicKpiTarget implements KpiTarget {
 
         private final TimeSeries timeSeries;
@@ -119,7 +139,7 @@ class KpiMemberImpl implements IKpiMember {
         public BigDecimal get(Date date) {
             Optional<TimeSeriesEntry> entry = timeSeries.getEntry(date);
             if (entry.isPresent()) {
-                entry.get().getBigDecimal(1);
+                return entry.get().getBigDecimal(1);
             }
             return null;
         }

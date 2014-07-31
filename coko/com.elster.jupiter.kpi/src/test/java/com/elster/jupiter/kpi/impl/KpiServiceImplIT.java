@@ -184,6 +184,68 @@ public class KpiServiceImplIT {
     }
 
 
+    @Test
+    public void testStoreDynamicTargets() {
+        Date date = new DateMidnight(2013, 7, 31, DateTimeZone.UTC).toDate();
+
+        long id = 0;
+        try (TransactionContext context = transactionService.getContext()) {
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+                    .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
+                    .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
+                    .build();
+            kpi.save();
+
+            kpi.getMembers().get(0).getTargetStorer().add(date, BigDecimal.valueOf(85, 2)).execute();
+
+            id = kpi.getId();
+            context.commit();
+        }
+
+
+        Optional<Kpi> found = kpiService.getKpi(id);
+        assertThat(found).isPresent();
+
+        Kpi kpi = found.get();
+
+        assertThat(kpi.getMembers().get(0).getTarget(date)).isEqualTo(BigDecimal.valueOf(85, 2));
+    }
+
+    @Test
+    public void testScoreOverDynamicTargets() {
+        Date date = new DateMidnight(2013, 7, 31, DateTimeZone.UTC).toDate();
+
+        long id = 0;
+        try (TransactionContext context = transactionService.getContext()) {
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+                    .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
+                    .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
+                    .build();
+            kpi.save();
+
+            kpi.getMembers().get(0).getTargetStorer().add(date, BigDecimal.valueOf(85, 0)).execute();
+            kpi.getMembers().get(0).score(date, BigDecimal.valueOf(87, 0));
+
+            id = kpi.getId();
+            context.commit();
+        }
+
+
+        Optional<Kpi> found = kpiService.getKpi(id);
+        assertThat(found).isPresent();
+
+        Kpi kpi = found.get();
+
+        List<? extends KpiEntry> entries =  kpi.getMembers().get(0).getScores(Interval.startAt(new Date(0)));
+        assertThat(entries).hasSize(1);
+        KpiEntry entry = entries.get(0);
+        assertThat(entry.getScore()).isEqualTo(BigDecimal.valueOf(87, 0));
+        assertThat(entry.getTarget()).isEqualTo(BigDecimal.valueOf(85, 0));
+        assertThat(entry.meetsTarget()).isTrue();
+    }
+
+
+
     @After
     public void tearDown() {
         inMemoryBootstrapModule.deactivate();
