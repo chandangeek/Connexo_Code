@@ -11,7 +11,7 @@ import com.energyict.mdc.rest.impl.comserver.LogLevelAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfDataBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfStopBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.ParitiesAdapter;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -39,7 +39,8 @@ public class ComServerFieldResource extends FieldResource {
     @GET
     @Path("/timeUnit")
     public Object getTimeUnits() {
-        List<Integer> timeDurations = Arrays.asList(
+        final List<Object> timeUnitStrings = new ArrayList<>();
+        int[] timeDurations = new int[] {
                 TimeDuration.MILLISECONDS,
                 TimeDuration.SECONDS,
                 TimeDuration.MINUTES,
@@ -48,13 +49,13 @@ public class ComServerFieldResource extends FieldResource {
                 TimeDuration.WEEKS,
                 TimeDuration.MONTHS,
                 TimeDuration.YEARS
-        );
+        };
 
-        List<String> timeDurationTranslationKeys = Arrays.asList(
-            "milliseconds","seconds","minutes","hours","days","weeks","months","years"
-        );
+        for (final int timeDuration : timeDurations) {
+            timeUnitStrings.add(TimeDuration.getTimeUnitDescription(timeDuration));
+        }
 
-        return asJsonArrayObjectWithTranslation("timeUnits", "timeUnit", timeDurations, timeDurationTranslationKeys);
+        return asJsonArrayObjectWithTranslation("timeUnits", "timeUnit", timeUnitStrings);
     }
 
     @GET

@@ -160,7 +160,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         Map<String, Object> taskExecutionTimeout = (Map<String, Object>) comPortPool1.get("taskExecutionTimeout");
         assertThat(taskExecutionTimeout).hasSize(2)
                 .contains(MapEntry.entry("count", 5))
-                .contains(MapEntry.entry("timeUnit", 12));
+                .contains(MapEntry.entry("timeUnit", "minutes"));
     }
 
     @Test

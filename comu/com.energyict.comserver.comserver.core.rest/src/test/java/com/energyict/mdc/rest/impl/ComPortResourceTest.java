@@ -539,7 +539,7 @@ public class ComPortResourceTest extends JerseyTest {
     private Map<String, Object> asMapValue(TimeDuration timeDuration) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("count", timeDuration.getCount());
-        map.put("timeUnit", timeDuration.getTimeUnitCode());
+        map.put("timeUnit", TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode()));
         return map;
     }
 }
