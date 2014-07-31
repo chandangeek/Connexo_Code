@@ -1,15 +1,21 @@
 package com.elster.jupiter.kpi.impl;
 
+import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.kpi.Kpi;
+import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 class KpiMemberImpl implements IKpiMember {
 
@@ -23,11 +29,15 @@ class KpiMemberImpl implements IKpiMember {
 
     private transient KpiTarget target;
 
+    private final IdsService idsService;
+
     @Inject
-    KpiMemberImpl() {
+    KpiMemberImpl(IdsService idsService) {
+        this.idsService = idsService;
     }
 
-    KpiMemberImpl(KpiImpl kpi, String name) {
+    KpiMemberImpl(IdsService idsService, KpiImpl kpi, String name) {
+        this.idsService = idsService;
         this.kpi.set(kpi);
         this.name = name;
     }
@@ -64,6 +74,22 @@ class KpiMemberImpl implements IKpiMember {
     @Override
     public boolean targetIsMaximum() {
         return !targetIsMinimum;
+    }
+
+    @Override
+    public void score(Date date, BigDecimal bigDecimal) {
+        TimeSeriesDataStorer storer = idsService.createStorer(false);
+        storer.add(getTimeSeries(), date, bigDecimal, getTarget(date));
+        storer.execute();
+    }
+
+    @Override
+    public List<? extends KpiEntry> getScores(Interval interval) {
+        ImmutableList.Builder<KpiEntry> result = ImmutableList.builder();
+        for (TimeSeriesEntry entry : getTimeSeries().getEntries(interval)) {
+            result.add(new KpiEntryImpl(this, entry));
+        }
+        return result.build();
     }
 
     @Override

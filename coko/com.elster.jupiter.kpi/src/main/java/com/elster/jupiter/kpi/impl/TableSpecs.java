@@ -30,9 +30,11 @@ enum TableSpecs {
             table.column("DYNAMIC").bool().map("dynamic").add();
             table.column("TARGET").number().map("targetValue").add();
             table.column("MINIMUM").bool().map("targetIsMinimum").add();
+            Column timeseriesColumn = table.column("TIMESERIES").number().add();
 
             table.primaryKey("KPI_PK_KPIMEMBER").on(kpiColumn, positionColumn).add();
             table.foreignKey("KPI_FK_KPI_MEMBER").on(kpiColumn).references(KPI_KPI.name()).composition().reverseMap("members").reverseMapOrder("position").map("kpi").add();
+            table.foreignKey("KPI_FK_MEMBER_TIMESERIES").on(timeseriesColumn).references("IDS", "IDS_TIMESERIES").map("timeSeries").add();
         }
     };
 

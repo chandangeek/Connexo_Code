@@ -6,6 +6,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.Kpi;
+import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -19,11 +20,13 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.assertj.core.api.Assertions;
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -37,8 +40,10 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class KpiServiceImplIT {
@@ -100,7 +105,7 @@ public class KpiServiceImplIT {
     }
 
     @Test
-    public void test() {
+    public void testCreateKpi() {
         long id = 0;
         try (TransactionContext context = transactionService.getContext()) {
             Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
@@ -132,6 +137,49 @@ public class KpiServiceImplIT {
         Assertions.assertThat(second.getTarget(date)).isEqualTo(BigDecimal.valueOf(1, 2));
         Assertions.assertThat(second.targetIsMinimum()).isFalse();
         Assertions.assertThat(second.targetIsMaximum()).isTrue();
+
+    }
+
+    @Test
+    public void testStoreKpiValue() {
+        long id = 0;
+        try (TransactionContext context = transactionService.getContext()) {
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+                    .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
+                    .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
+                    .build();
+            kpi.save();
+
+            Date date = new DateMidnight(2013, 7, 31, DateTimeZone.UTC).toDate();
+
+            kpi.getMembers().get(0).score(date, BigDecimal.valueOf(8, 0));
+            kpi.getMembers().get(1).score(date, BigDecimal.valueOf(2, 2));
+
+            id = kpi.getId();
+            context.commit();
+        }
+
+
+        Optional<Kpi> found = kpiService.getKpi(id);
+        assertThat(found).isPresent();
+
+        Kpi kpi = found.get();
+
+        {
+            List<? extends KpiEntry> entries =  kpi.getMembers().get(0).getScores(Interval.startAt(date));
+            assertThat(entries).hasSize(1);
+            assertThat(entries.get(0).getScore()).isEqualTo(BigDecimal.valueOf(8, 0));
+            assertThat(entries.get(0).meetsTarget()).isTrue();
+        }
+
+        {
+            List<? extends KpiEntry> entries =  kpi.getMembers().get(1).getScores(Interval.startAt(date));
+            assertThat(entries).hasSize(1);
+            KpiEntry entry = entries.get(0);
+            assertThat(entry.getScore()).isEqualTo(BigDecimal.valueOf(2, 2));
+            assertThat(entry.getTarget()).isEqualTo(BigDecimal.valueOf(1, 2));
+            assertThat(entry.meetsTarget()).isFalse();
+        }
 
     }
 

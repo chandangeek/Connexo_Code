@@ -19,6 +19,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
+import org.joda.time.MutableDateTime;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -31,6 +32,7 @@ public class KpiServiceImpl implements IKpiService, InstallService {
 
     private static final long VAULT_ID = 1L;
     private static final long RECORD_SPEC_ID = 1L;
+    private static final int MONTHS_PER_YEAR = 12;
 
     private volatile IdsService idsService;
     private volatile QueryService queryService;
@@ -97,6 +99,7 @@ public class KpiServiceImpl implements IKpiService, InstallService {
         try {
             Vault newVault = idsService.newVault(COMPONENT_NAME, VAULT_ID, COMPONENT_NAME, 2, 0, true);
             newVault.persist();
+            createPartitions(newVault);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -110,6 +113,19 @@ public class KpiServiceImpl implements IKpiService, InstallService {
         }
         initVaultAndRecordSpec();
     }
+
+    private void createPartitions(Vault vault) {
+        MutableDateTime startOfMonth = new MutableDateTime();
+        startOfMonth.setMillisOfDay(0);
+        startOfMonth.setMonthOfYear(1);
+        startOfMonth.setDayOfMonth(1);
+        vault.activate(startOfMonth.toDate());
+        for (int i = 0; i < MONTHS_PER_YEAR; i++) {
+            startOfMonth.addMonths(1);
+            vault.addPartition(startOfMonth.toDate());
+        }
+    }
+
 
     @Reference
     public final void setOrmService(OrmService ormService) {
