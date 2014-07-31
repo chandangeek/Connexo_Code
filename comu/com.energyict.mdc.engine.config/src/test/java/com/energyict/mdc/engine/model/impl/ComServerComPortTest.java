@@ -50,8 +50,8 @@ import static org.assertj.core.api.Fail.fail;
 @RunWith(MockitoJUnitRunner.class)
 public class ComServerComPortTest extends PersistenceTest {
 
-    private static final String QUERY_API_POST_URL = "http://comserver.energyict.com/queryAPI";
-    private static final String EVENT_REGISTRATION_URL = "http://comserver.energyict.com/events/registration";
+    private static final String QUERY_API_POST_URL = "ws://comserver.energyict.com/queryAPI";
+    private static final String EVENT_REGISTRATION_URL = "ws://comserver.energyict.com/events/registration";
 
     private static final ComServer.LogLevel SERVER_LOG_LEVEL = ComServer.LogLevel.ERROR;
     private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;

@@ -5,6 +5,9 @@ import com.google.common.base.Optional;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.ComPortType;
+
+import java.net.URI;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -14,6 +17,10 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComServerCrudTest extends PersistenceTest {
+
+    private static final String CUSTOM_EVENT_REGISTRATION_URI = "ws://another.domain.com/uri";
+    private static final String CUSTOM_QUERY_API_URI = "ws://some.domain.com/uri";
+
     @Test
     @Transactional
     public void testCreateLoadOfflineComServer() throws Exception {
@@ -112,6 +119,7 @@ public class ComServerCrudTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateLoadOnlineComServerWithCustomUris() throws Exception {
+        URI uri = new URI(CUSTOM_EVENT_REGISTRATION_URI);
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
         onlineComServer.setName("Onliner-2");
         onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
@@ -122,8 +130,8 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServer.setStoreTaskQueueSize(10);
         onlineComServer.setStoreTaskThreadPriority(3);
         onlineComServer.setNumberOfStoreTaskThreads(6);
-        onlineComServer.setEventRegistrationUri("http://some/uri");
-        onlineComServer.setQueryAPIPostUri("http://another/uri");
+        onlineComServer.setEventRegistrationUri(CUSTOM_EVENT_REGISTRATION_URI);
+        onlineComServer.setQueryAPIPostUri(CUSTOM_QUERY_API_URI);
 
         onlineComServer.save();
 
@@ -134,9 +142,9 @@ public class ComServerCrudTest extends PersistenceTest {
         assertThat(reloaded.getServerLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
         assertThat(reloaded.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.INFO);
         assertThat(((OnlineComServer) reloaded).usesDefaultQueryApiPostUri()).isEqualTo(false);
-        assertThat(((OnlineComServer) reloaded).getQueryApiPostUri()).isEqualTo("http://another/uri");
+        assertThat(((OnlineComServer) reloaded).getQueryApiPostUri()).isEqualTo(CUSTOM_QUERY_API_URI);
         assertThat(((OnlineComServer) reloaded).usesDefaultEventRegistrationUri()).isEqualTo(false);
-        assertThat(((OnlineComServer) reloaded).getEventRegistrationUri()).isEqualTo("http://some/uri");
+        assertThat(((OnlineComServer) reloaded).getEventRegistrationUri()).isEqualTo(CUSTOM_EVENT_REGISTRATION_URI);
         assertThat(((OnlineComServer) reloaded).getNumberOfStoreTaskThreads()).isEqualTo(6);
         assertThat(((OnlineComServer) reloaded).getStoreTaskThreadPriority()).isEqualTo(3);
         assertThat(((OnlineComServer) reloaded).getStoreTaskQueueSize()).isEqualTo(10);

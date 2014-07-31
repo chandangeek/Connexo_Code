@@ -33,11 +33,11 @@ import org.hibernate.validator.constraints.URL;
 public class OnlineComServerImpl extends ComServerImpl implements OnlineComServer {
 
     private final EngineModelService engineModelService;
-    @URL(protocol = "ws", message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
+    @URI(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
     @Size(max = 512)
     private String queryAPIPostUri;
     private boolean usesDefaultQueryAPIPostUri = true;
-    @URL(protocol = "ws", message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
+    @URI(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
     @Size(max = 512)
     private String eventRegistrationUri;
     private boolean usesDefaultEventRegistrationUri = true;

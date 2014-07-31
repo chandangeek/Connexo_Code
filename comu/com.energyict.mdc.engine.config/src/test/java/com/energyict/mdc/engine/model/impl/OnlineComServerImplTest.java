@@ -32,9 +32,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class OnlineComServerImplTest extends PersistenceTest {
 
-    private static final String QUERY_API_POST_URI = "http://comserver.energyict.com/queryAPI";
-    private static final String INVALID_URL = "Anything but a valid URL";
-    private static final String EVENT_REGISTRATION_URI = "http://comserver.energyict.com/custom/events/registration";
+    private static final String QUERY_API_POST_URI = "ws://comserver.energyict.com/queryAPI";
+    private static final String INVALID_URL = "http://Anything but a valid URL";
+    private static final String EVENT_REGISTRATION_URI = "ws://comserver.energyict.com/custom/events/registration";
 
     private static final ComServer.LogLevel SERVER_LOG_LEVEL = ComServer.LogLevel.ERROR;
     private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;
