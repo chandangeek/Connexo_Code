@@ -17,7 +17,7 @@ public class ParameterInfo {
     private String help;
     private Object defaultValue;
     private List<String> dependOn;
-    private List<Object> values;
+    private List<Object> defaultValues;
 
     public ParameterInfo(ParameterDefinition parameter) {
         if (parameter == null) {
@@ -29,7 +29,7 @@ public class ParameterInfo {
         this.suffix = is(parameter.getSuffix()).emptyOrOnlyWhiteSpace() ? null : parameter.getSuffix();
         this.help = is(parameter.getHelp()).emptyOrOnlyWhiteSpace() ? null : parameter.getHelp();
         this.defaultValue = parameter.getDefaultValue();
-        this.values = parameter.getDefaultValues();
+        this.defaultValues = parameter.getDefaultValues();
         this.dependOn = parameter.getDependOn();
         this.control = parameter.getControl();
         if (parameter.getConstraint() != null) {
@@ -65,8 +65,8 @@ public class ParameterInfo {
         return defaultValue;
     }
 
-    public List<Object> getValues() {
-        return values;
+    public List<Object> getDefaultValues() {
+        return defaultValues;
     }
 
     public List<String> getDependOn() {
