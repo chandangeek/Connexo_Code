@@ -198,7 +198,8 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
                                 channelInfos.size(),
                                 lpChannel.getObisCode().toString(),
                                 lpChannel.getUnit(),
-                                lpChannel.getMasterSerialNumber()));
+                                lpChannel.getMasterSerialNumber(),
+                                lpChannel.getReadingType()));
             }
         }
         return channelInfos;

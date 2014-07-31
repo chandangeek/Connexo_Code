@@ -10,7 +10,9 @@ import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
@@ -86,6 +88,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
     private static InMemoryBootstrapModule bootstrapModule;
     private static MeteringService meteringService;
     private static Clock clock = mock(Clock.class);
+    private static MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private static MasterDataService masterDataService;
 
     @Mock
     private DeviceFactory deviceFactory;
@@ -145,6 +149,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 EventService eventService = injector.getInstance(EventService.class);
                 makeSureJupiterEventsAreInstalled(eventService);
                 meteringService = injector.getInstance(MeteringService.class);
+                mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
+                masterDataService = injector.getInstance(MasterDataService.class);
             }
         });
     }
@@ -217,6 +223,14 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
     MeteringService getMeteringService() {
         return meteringService;
+    }
+
+    public MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
+        return mdcReadingTypeUtilService;
+    }
+
+    public MasterDataService getMasterDataService() {
+        return masterDataService;
     }
 
     private static class MockModule extends AbstractModule {

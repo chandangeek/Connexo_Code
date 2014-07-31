@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 
@@ -21,9 +22,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -101,16 +100,20 @@ public final class MeterDataFactory {
         List<IntervalBlockImpl> intervalBlocks = new ArrayList<>();
         for (ChannelInfo channelInfo : collectedLoadProfile.getChannelInfo()) {
             ObisCode channelObisCode;
-            try {
-                channelObisCode = channelInfo.getChannelObisCode();
-            } catch (IOException e) {
-                throw DeviceConfigurationException.channelNameNotAnObisCode(channelInfo.getName());
-            }
-            String mrid = readingTypeUtilService.getReadingTypeFrom(channelObisCode, channelInfo.getUnit(), interval);
-            intervalBlocks.add(new IntervalBlockImpl(mrid));
+            channelObisCode = channelInfo.getChannelObisCode();
+            String readingTypeMRID = getReadingTypeFrom(interval, readingTypeUtilService, channelInfo, channelObisCode);
+            intervalBlocks.add(new IntervalBlockImpl(readingTypeMRID));
         }
         return intervalBlocks;
 
+    }
+
+    private static String getReadingTypeFrom(TimeDuration interval, MdcReadingTypeUtilService readingTypeUtilService, ChannelInfo channelInfo, ObisCode channelObisCode) {
+        String readingTypeMRID = channelInfo.getReadingTypeMRID();
+        if(Checks.is(readingTypeMRID).empty()){
+            readingTypeMRID = readingTypeUtilService.getReadingTypeFrom(channelObisCode, channelInfo.getUnit(), interval);
+        }
+        return readingTypeMRID;
     }
 
 }

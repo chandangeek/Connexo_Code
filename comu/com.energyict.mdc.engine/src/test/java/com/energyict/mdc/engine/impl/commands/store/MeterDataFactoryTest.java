@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -56,7 +57,7 @@ public class MeterDataFactoryTest {
         assertThat(intervalBlocks.get(0).getReadingTypeCode()).isEqualTo("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
     }
 
-    @Test(expected = DeviceConfigurationException.class)
+    @Test(expected = GeneralParseException.class)
     public void channelInfoIsNotAnObisCode() {
         TimeDuration interval = new TimeDuration(15, TimeDuration.MINUTES);
         ChannelInfo channelInfo = new ChannelInfo(1, "NotAnObisCode", Unit.get("kWh"));
@@ -64,8 +65,8 @@ public class MeterDataFactoryTest {
         when(collectedLoadProfile.getChannelInfo()).thenReturn(Arrays.asList(channelInfo));
         try {
             MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, interval, new MdcReadingTypeUtilServiceImpl());
-        } catch (DeviceConfigurationException e) {
-            if (!e.getMessageId().equals("CSC-CONF-111")) {
+        } catch (GeneralParseException e) {
+            if (!e.getMessageId().equals("CSC-DQUA-146")) {
                 fail("Should have gotten an exception indicating that the channelInfo object does not contain an obiscode, but was " + e.getMessage());
             } else {
                 throw e;

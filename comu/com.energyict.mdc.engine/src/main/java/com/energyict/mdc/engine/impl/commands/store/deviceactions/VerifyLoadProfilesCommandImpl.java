@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
@@ -110,7 +109,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                                             loadProfileConfiguration.getObisCode(),
 // Todo: Move CommonExceptionReferences to MessageSeeds
 // Environment.DEFAULT.get().getTranslation("unknownclocktasktype").replaceAll("'", "''"),
-                                            "Clock action can not be performed due to an unknown type({0}) of the Clock action",
+                                            "Loadprofile {0} is not supported by the device.",
                                             loadProfileConfiguration.getObisCode()),
                                     CompletionCode.ConfigurationWarning);
                         }

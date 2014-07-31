@@ -3,11 +3,14 @@ package com.energyict.mdc.engine;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -18,6 +21,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +38,9 @@ import static org.mockito.Mockito.when;
  */
 public final class DeviceCreator implements DeviceBuilderForTesting {
 
+    public static final int CHANNEL_OVERFLOW_VALUE = 999999;
     static final String DEVICE_TYPE_NAME = DeviceCreator.class.getName() + "Type";
+
     static final String DEVICE_CONFIGURATION_NAME = DeviceCreator.class.getName() + "Config";
 
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
@@ -47,7 +53,6 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
     });
 
     private final DeviceConfigurationService deviceConfigurationService;
-
     private final DeviceDataService deviceDataService;
     private final TransactionService transactionService;
     private final DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -170,7 +175,11 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
             if (this.deviceConfiguration == null) {
                 DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = getDeviceType().newConfiguration(DEVICE_CONFIGURATION_NAME);
                 for (LoadProfileType loadProfileType : loadProfileTypes) {
-                    deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
+                    LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
+                    for (ChannelType channelType : loadProfileType.getChannelTypes()) {
+                        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfigurationBuilder.newChannelSpec(channelType, channelType.getPhenomenon(), loadProfileSpecBuilder);
+                        channelSpecBuilder.setOverflow(BigDecimal.valueOf(CHANNEL_OVERFLOW_VALUE));
+                    }
                 }
                 for (LogBookType logBookType : logBookTypes) {
                     deviceConfigurationBuilder.newLogBookSpec(logBookType);

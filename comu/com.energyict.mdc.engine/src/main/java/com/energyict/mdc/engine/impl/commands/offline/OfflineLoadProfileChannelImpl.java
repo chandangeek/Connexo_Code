@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Channel;
@@ -47,6 +48,10 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
      * The SerialNumber of the {@link com.energyict.mdc.protocol.api.device.BaseDevice Device} which owns this {@link com.energyict.mdc.protocol.api.device.BaseChannel}
      */
     private String serialNumber;
+    /**
+     * The ReadingType of the Kore channel that will store the data
+     */
+    private ReadingType readingType;
 
     public OfflineLoadProfileChannelImpl(Channel channel) {
         this.channel = channel;
@@ -65,6 +70,7 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
         setLoadProfileId((int) this.channel.getLoadProfile().getId());
         setStoreData(true);
         setSerialNumber(this.channel.getDevice().getSerialNumber());
+        setReadingType(this.channel.getChannelSpec().getReadingType());
     }
 
     /**
@@ -127,6 +133,11 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
         return serialNumber;
     }
 
+    @Override
+    public ReadingType getReadingType() {
+        return this.readingType;
+    }
+
     private void setChannelObisCode(final ObisCode channelObisCode) {
         this.channelObisCode = channelObisCode;
     }
@@ -149,5 +160,9 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
 
     private void setStoreData(final boolean storeData) {
         this.storeData = storeData;
+    }
+
+    private void setReadingType(ReadingType readingType) {
+        this.readingType = readingType;
     }
 }

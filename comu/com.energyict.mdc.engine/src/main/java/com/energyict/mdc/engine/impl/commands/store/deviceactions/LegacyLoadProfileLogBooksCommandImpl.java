@@ -231,7 +231,8 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
         for (OfflineLoadProfileChannel lpChannel : offlineLoadProfile.getAllChannels()) {
             if (lpChannel.isStoreData()) {
                 channelInfos.add(new ChannelInfo(channelInfos.size(), lpChannel.getObisCode().toString(),
-                        lpChannel.getUnit(), lpChannel.getMasterSerialNumber()));
+                        lpChannel.getUnit(), lpChannel.getMasterSerialNumber(),
+                        lpChannel.getReadingType()));
             }
         }
         return channelInfos;

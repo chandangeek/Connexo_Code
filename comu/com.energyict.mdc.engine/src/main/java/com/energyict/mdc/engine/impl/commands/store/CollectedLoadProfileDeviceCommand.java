@@ -3,8 +3,11 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.collections.DualIterable;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -15,6 +18,7 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,37 +43,19 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
     public void doExecute (ComServerDAO comServerDAO) {
         LoadProfileIdentifier loadProfileFinder = this.collectedLoadProfile.getLoadProfileIdentifier();
         LoadProfile loadProfile = (LoadProfile) loadProfileFinder.findLoadProfile();
-        LocalLoadProfile localLoadProfile = filterFutureDatesAndCalculateLastReading(loadProfile);
+        LoadProfilePreStorer loadProfilePreStorer = new LoadProfilePreStorer(getClock(), getMdcReadingTypeUtilService());
+        LoadProfilePreStorer.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
         storeReadingsAndUpdateLastReading(comServerDAO, loadProfile, localLoadProfile);
     }
 
-    private void storeReadingsAndUpdateLastReading(ComServerDAO comServerDAO, final LoadProfile loadProfile, final LocalLoadProfile localLoadProfile) {
+    private void storeReadingsAndUpdateLastReading(ComServerDAO comServerDAO, final LoadProfile loadProfile, final LoadProfilePreStorer.LocalLoadProfile localLoadProfile) {
         MeterReadingImpl meterReading = new MeterReadingImpl();
-        meterReading.addAllIntervalBlocks(localLoadProfile.intervalBlocks);
+        meterReading.addAllIntervalBlocks(localLoadProfile.getIntervalBlocks());
         comServerDAO.storeMeterReadings(new DeviceIdentifierById(loadProfile.getDevice().getId(), getDeviceDataService()), meterReading);
         // Todo: use method on the comServerDAO
         LoadProfile.LoadProfileUpdater loadProfileUpdater = loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile);
-        loadProfileUpdater.setLastReadingIfLater(localLoadProfile.lastReading);
+        loadProfileUpdater.setLastReadingIfLater(localLoadProfile.getLastReading());
         loadProfileUpdater.update();
-    }
-
-    private LocalLoadProfile filterFutureDatesAndCalculateLastReading(LoadProfile loadProfile) {
-        List<IntervalBlock> filteredBlocks = new ArrayList<>();
-        Date lastReading = null;
-        Date currentDate = getClock().now();
-        for (IntervalBlock intervalBlock : MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, loadProfile.getInterval(), getMdcReadingTypeUtilService())) {
-            IntervalBlockImpl filteredBlock = new IntervalBlockImpl(intervalBlock.getReadingTypeCode());
-            for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
-                if (!intervalReading.getTimeStamp().after(currentDate)) {
-                    filteredBlock.addIntervalReading(intervalReading);
-                    if (lastReading == null || intervalReading.getTimeStamp().after(lastReading)) {
-                        lastReading = intervalReading.getTimeStamp();
-                    }
-                }
-            }
-            filteredBlocks.add(filteredBlock);
-        }
-        return new LocalLoadProfile(filteredBlocks, lastReading);
     }
 
     @Override
@@ -86,18 +72,6 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
             for (ChannelInfo channel : this.collectedLoadProfile.getChannelInfo()) {
                 listBuilder.append(channel.getChannelId()).next();
             }
-        }
-    }
-
-    private class LocalLoadProfile {
-
-        private final List<IntervalBlock> intervalBlocks;
-        private final Date lastReading;
-
-        private LocalLoadProfile(List<IntervalBlock> intervalBlocks, Date lastReading) {
-            super();
-            this.intervalBlocks = intervalBlocks;
-            this.lastReading = lastReading;
         }
     }
 
