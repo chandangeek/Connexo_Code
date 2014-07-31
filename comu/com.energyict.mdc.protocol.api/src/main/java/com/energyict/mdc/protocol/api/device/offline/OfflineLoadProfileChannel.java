@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.Unit;
@@ -53,5 +54,12 @@ public interface OfflineLoadProfileChannel extends Offline {
      * @return the SerialNumber of the Device
      */
     public String getMasterSerialNumber();
+
+    /**
+     * Returns the ReadingType of the Kore channel that will store the data
+     *
+     * @return the ReadingType
+     */
+    public ReadingType getReadingType();
 
 }

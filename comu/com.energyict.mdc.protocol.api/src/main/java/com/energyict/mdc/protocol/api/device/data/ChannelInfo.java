@@ -1,7 +1,10 @@
 package com.energyict.mdc.protocol.api.device.data;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -46,108 +49,47 @@ public class ChannelInfo implements java.io.Serializable {
     private String meterIdentifier = "";
 
     /**
-     * Constructor
-     *
-     * @param id   logical channel id (0 based, contrary to previous documentation all protocols use zero base)
-     * @param name logical channel name (use OBIS code if device uses OBIS codes)
-     * @param unit the logical channel unit
+     * The ReadingType of the <i>channel</i> which will store the collected Data
      */
-    public ChannelInfo(int id, String name, Unit unit) {
-        this.id = id;
-        this.channelId = id;
-        this.name = name;
-        this.unit = unit;
-    }
+    private ReadingType readingType;
+    private String readingTypeMRID;
 
-    /**
-     * Constructor
-     *
-     * @param id     logical channel id (0 based, contrary to previous documentation all protocols use zero base)
-     * @param name   logical channel name (use OBIS code if device uses OBIS codes)
-     * @param unit   the logical channel unit
-     * @param scaler unit scale
-     * @deprecated scaler is obsolete (contained in unit), use {@link #ChannelInfo(int, int, String, Unit)} instead
-     */
-    public ChannelInfo(int id, String name, Unit unit, int scaler) {
-        this(id, name, unit);
-    }
-
-    /**
-     * Constructor
-     *
-     * @param channelId logical channel id (0 based, contrary to previous documentation all protocols use zero base)
-     * @param id        logical channel id (0 based, contrary to previous documentation all protocols use zero base)
-     * @param name      logical channel name (use OBIS code if device uses OBIS codes)
-     * @param unit      the logical channel unit
-     * @param scaler    unit scale
-     * @deprecated scaler is obsolete (contained in unit)
-     */
-    public ChannelInfo(int id, String name, Unit unit, int scaler, int channelId) {
-        this(id, name, unit, scaler);
-        this.channelId = channelId;
-    }
-
-    // KV added 6/4/2006
-
-    /**
-     * Constructor
-     *
-     * @param id         0-based channel id
-     * @param name       logical channel name (use OBIS code if device uses OBIS codes)
-     * @param unit       the logical channel unit
-     * @param scaler     unit scale
-     * @param channelId  logical channel id (0 based, contrary to previous documentation all protocols use zero base)
-     * @param multiplier BigDecimal multiplier to calculate engineering values from basic pulse values
-     */
-    public ChannelInfo(int id, String name, Unit unit, int scaler, int channelId, BigDecimal multiplier) {
-        this(id, name, unit, scaler);
-        this.channelId = channelId;
-        this.multiplier = multiplier;
-    }
-
-    /**
-     * <p></p>
-     *
-     * @param channelId logical channel id (0 based, contrary to previous documentation all protocols use zero base)
-     * @param id        logical channel id (0 based)
-     * @param name      logical channel name (use OBIS code if device uses OBIS codes, 0 based)
-     * @param unit      the logical channel unit
-     */
-    public ChannelInfo(int id, int channelId, String name, Unit unit) {
-        this(id, name, unit);
-        this.channelId = channelId;
-    }
+    private ChannelInfo(){}
 
     /**
      * Constructor for <CODE>LoadProfiles</CODE> which contain channels from different meters. The {@link #name} field is used to identify the <CODE>ObisCode</CODE> but
-     * some <CODE>ProfileData</CODE may contain multiple channels with the same <CODE>ObisCode</CODE> but from a different Slave meter. The distiction between those channels is
+     * some <CODE>ProfileData</CODE may contain multiple channels with the same <CODE>ObisCode</CODE> but from a different Slave meter. The distinction between those channels is
      * made with the {@link #meterIdentifier}
      *
      * @param id                  logical channel id (0 based)
      * @param name                logical channel name (use OBIS code if device uses OBIS codes, 0 based)
      * @param unit                the logical channel unit
      * @param meterIdentification identifier (SerialNumber) of the meter which will provide data for this channel
+     * @param readingType         the ReadingType of the MeasurementType
      */
-    public ChannelInfo(int id, String name, Unit unit, String meterIdentification) {
+    public ChannelInfo(int id, String name, Unit unit, String meterIdentification, ReadingType readingType) {
         this(id, name, unit);
         this.meterIdentifier = meterIdentification;
+        this.readingType = readingType;
     }
 
     /**
      * Constructor for <CODE>LoadProfiles</CODE> which contain channels from different meters. The {@link #name} field is used to identify the <CODE>ObisCode</CODE> but
-     * some <CODE>ProfileData</CODE may contain multiple channels with the same <CODE>ObisCode</CODE> but from a different Slave meter. The distiction between those channels is
+     * some <CODE>ProfileData</CODE may contain multiple channels with the same <CODE>ObisCode</CODE> but from a different Slave meter. The distinction between those channels is
      * made with the {@link #meterIdentifier}
      *
      * @param id                  logical channel id (0 based)
      * @param name                logical channel name (use OBIS code if device uses OBIS codes, 0 based)
      * @param unit                the logical channel unit
-     * @param cumulative          indicates whether the channel is cumulative
      * @param meterIdentification identifier (SerialNumber) of the meter which will provide data for this channel
+     * @param cumulative          indicates whether the channel is cumulative
+     * @param readingType         the ReadingType of the MeasurementType
      */
-    public ChannelInfo(int id, String name, Unit unit, String meterIdentification, boolean cumulative) {
+    public ChannelInfo(int id, String name, Unit unit, String meterIdentification, boolean cumulative, ReadingType readingType) {
         this(id, name, unit);
         this.meterIdentifier = meterIdentification;
         this.cumulative = cumulative;
+        this.readingType = readingType;
     }
 
     /**
@@ -298,11 +240,11 @@ public class ChannelInfo implements java.io.Serializable {
      *
      * @return the <CODE>ObisCode</CODE> of this channel
      */
-    public ObisCode getChannelObisCode() throws IOException {
+    public ObisCode getChannelObisCode() {
         try {
             return ObisCode.fromString(this.name);
         } catch (IllegalArgumentException e) {
-            throw new IOException("The name of the channelInfo is not a valid Obiscode [" + this.name + "]");
+            throw new GeneralParseException(e);
         }
     }
 
@@ -315,13 +257,15 @@ public class ChannelInfo implements java.io.Serializable {
         return meterIdentifier;
     }
 
-    /**
-     * Setter for the {@link #meterIdentifier}
-     *
-     * @param meterIdentifier the new meterIdentifier to set
-     */
-    public void setMeterIdentifier(String meterIdentifier) {
-        this.meterIdentifier = meterIdentifier;
+    public ReadingType getReadingType() {
+        return readingType;
+    }
+
+    public String getReadingTypeMRID(){
+        if(Checks.is(readingTypeMRID).empty() && readingType != null){
+            this.readingTypeMRID = readingType.getMRID();
+        }
+        return this.readingTypeMRID;
     }
 
     /**
@@ -349,4 +293,145 @@ public class ChannelInfo implements java.io.Serializable {
     public String toString() {
         return "ChannelInfo -> Id: " + this.id + " - Name: " + this.name + " - Unit: " + this.unit;
     }
-} // end ChannelInfo
+
+
+    public static class ChannelInfoBuilder{
+
+        private String name;
+        private ObisCode obisCode;
+        private Unit unit;
+        private String meterIdentifier;
+        private ReadingType readingType;
+        private String readingTypeMRID;
+
+        private int id;
+        private int channelId;
+        private BigDecimal cumulativeWrapValue;
+        private boolean cumulative = false;
+        private BigDecimal multiplier = BigDecimal.ONE;
+
+        private ChannelInfoBuilder(ObisCode obisCode) {
+            this.obisCode = obisCode;
+        }
+
+        public static ChannelInfoBuilder fromObisCode(ObisCode obisCode){
+            ChannelInfoBuilder channelInfoBuilder = new ChannelInfoBuilder(obisCode);
+            channelInfoBuilder.name = obisCode.toString();
+            return channelInfoBuilder;
+        }
+
+        public ChannelInfoBuilder meterIdentifier(String meterIdentifier){
+            this.meterIdentifier = meterIdentifier;
+            return this;
+        }
+
+        public ChannelInfoBuilder readingType(ReadingType readingType){
+            this.readingType = readingType;
+            this.readingTypeMRID = readingType.getMRID();
+            return this;
+        }
+
+        public ChannelInfoBuilder readingTypeMRID(String readingTypeMRID){
+            this.readingTypeMRID = readingTypeMRID;
+            return this;
+        }
+
+        public ChannelInfoBuilder unit(Unit unit){
+            this.unit = unit;
+            return this;
+        }
+
+        public ChannelInfoBuilder multiplier(BigDecimal multiplier){
+            this.multiplier = multiplier;
+            return this;
+        }
+
+        public ChannelInfoBuilder id(int id){
+            this.id = id;
+            return this;
+        }
+
+        public ChannelInfoBuilder channelId(int channelId){
+            this.channelId = channelId;
+            return this;
+        }
+
+        public ChannelInfoBuilder cumulativeWrapValue(BigDecimal cumulativeWrapValue){
+            this.cumulativeWrapValue = cumulativeWrapValue;
+            return this;
+        }
+
+        public ChannelInfoBuilder cumulative(boolean cumulative){
+            this.cumulative = cumulative;
+            return this;
+        }
+
+        public ChannelInfo build(){
+            ChannelInfo channelInfo = new ChannelInfo();
+            channelInfo.id = this.id;
+            channelInfo.name = this.name;
+            channelInfo.unit = this.unit;
+            channelInfo.meterIdentifier = this.meterIdentifier;
+            channelInfo.cumulative = this.cumulative;
+            channelInfo.readingType = this.readingType;
+            channelInfo.readingTypeMRID = this.readingTypeMRID;
+            channelInfo.cumulativeWrapValue = this.cumulativeWrapValue;
+            channelInfo.channelId = this.channelId;
+            return channelInfo;
+        }
+    }
+
+
+
+    /**
+     * @param id   logical channel id (0 based, contrary to previous documentation all protocols use zero base)
+     * @param name logical channel name (use OBIS code if device uses OBIS codes)
+     * @param unit the logical channel unit
+     * @deprecated You are highly encouraged to use one of the following constructors instead:
+     * <ul>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, com.elster.jupiter.metering.ReadingType)}</li>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, boolean, com.elster.jupiter.metering.ReadingType)}</li>
+     * </ul>
+     */
+    public ChannelInfo(int id, String name, Unit unit) {
+        this.id = id;
+        this.channelId = id;
+        this.name = name;
+        this.unit = unit;
+    }
+
+    /**
+     * @param id         0-based channel id
+     * @param name       logical channel name (use OBIS code if device uses OBIS codes)
+     * @param unit       the logical channel unit
+     * @param scaler     unit scale
+     * @param channelId  logical channel id (0 based, contrary to previous documentation all protocols use zero base)
+     * @param multiplier BigDecimal multiplier to calculate engineering values from basic pulse values
+     * @deprecated You are highly encouraged to use one of the following constructors instead:
+     * <ul>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, com.elster.jupiter.metering.ReadingType)}</li>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, boolean, com.elster.jupiter.metering.ReadingType)}</li>
+     * </ul>
+     */
+    public ChannelInfo(int id, String name, Unit unit, int scaler, int channelId, BigDecimal multiplier) {
+        this(id, name, unit);
+        this.channelId = channelId;
+        this.multiplier = multiplier;
+    }
+
+    /**
+     * @param channelId logical channel id (0 based, contrary to previous documentation all protocols use zero base)
+     * @param id        logical channel id (0 based)
+     * @param name      logical channel name (use OBIS code if device uses OBIS codes, 0 based)
+     * @param unit      the logical channel unit
+     * @deprecated You are highly encouraged to use one of the following constructors instead:
+     * <ul>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, com.elster.jupiter.metering.ReadingType)}</li>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, boolean, com.elster.jupiter.metering.ReadingType)}</li>
+     * </ul>
+     */
+    public ChannelInfo(int id, int channelId, String name, Unit unit) {
+        this(id, name, unit);
+        this.channelId = channelId;
+    }
+}

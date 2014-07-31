@@ -26,9 +26,6 @@ public interface DeviceLoadProfileSupport extends DeviceBasicTimeSupport {
     public ObisCode GENERIC_CHANNEL_OBISCODE = ObisCode.fromString("0.x.128.0.0.255");
 
     /**
-     * <b>Note:</b> This method is only called by the Collection Software if the option to "fail if channel configuration mismatch" is
-     * checked on the <code>CommunicationProfile</code>
-     * <p/>
      * Get the configuration(interval, number of channels, channelUnits) of all given <code>LoadProfiles</code> from the Device.
      * Build up a list of <CODE>LoadProfileConfiguration</CODE> objects and return them so the framework can validate them to the configuration
      * in EIServer.

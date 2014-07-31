@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * <p>
- * Straightforward ValueObject representing a meters's LoadProfile to read.
+ * Straightforward ValueObject representing a meter's LoadProfile to read.
  * </p>
  * <p/>
  * The 'Date' strategy:<br>
