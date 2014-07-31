@@ -1,8 +1,9 @@
 package com.energyict.mdc.pluggable;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
-
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-27 (14:56)
  */
-public interface PluggableClass {
+public interface PluggableClass extends HasId, HasName {
 
     /**
      * Returns the object that uniquely identifies this PluggableClass.
