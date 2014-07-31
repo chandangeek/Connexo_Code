@@ -29,7 +29,9 @@ public enum MessageSeeds implements MessageSeed {
     RESCHEDULED(21, "Rescheduled", "Rescheduled", Level.SEVERE),
     TIME_ERROR(22, "TimeError", "Time error", Level.SEVERE),
     UNEXPECTED_ERROR(22, "UnexpectedError", "Unexpected error", Level.SEVERE),
-
+    PER_COMMUNICATION_POOL(23, "PerCommunicationPool", "Per communication pool", Level.SEVERE),
+    PER_CONNECTION_TYPE(24, "PerConnectionType", "Per connection type", Level.SEVERE ),
+    PER_DEVICE_TYPE(24, "PerDeviceType", "Per device type", Level.SEVERE ),
     ;
 
     private final int number;

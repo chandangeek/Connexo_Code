@@ -1,24 +1,43 @@
 package com.energyict.mdc.dashboard.rest.status;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardCounters;
 import com.energyict.mdc.dashboard.DashboardService;
+import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
+import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
- * This JSON representation holds the entire connection over
+ * This JSON representation holds the entire connection overview
  * @link http://confluence.eict.vpdc/display/JUP/Connections
  * Created by bvn on 7/29/14.
  */
 public class ConnectionOverviewInfo {
 
+    public static final Comparator<TaskCounterInfo> TASK_COUNTER_INFO_COMPARATOR = new Comparator<TaskCounterInfo>() {
+        @Override
+        public int compare(TaskCounterInfo o1, TaskCounterInfo o2) {
+            return Long.valueOf(o1.count).compareTo(o2.count);
+        }
+    };
+
+    public static final Comparator<TaskBreakdownInfo> TASK_BREAKDOWN_INFO_COMPARATOR = new Comparator<TaskBreakdownInfo>() {
+        @Override
+        public int compare(TaskBreakdownInfo o1, TaskBreakdownInfo o2) {
+            return Long.valueOf(o1.failedCount).compareTo(o2.failedCount);
+        }
+    };
+
     @JsonIgnore
-    private final Thesaurus thesaurus;
+    private Thesaurus thesaurus;
     @JsonIgnore
     private final static TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
     @JsonIgnore
@@ -27,11 +46,10 @@ public class ConnectionOverviewInfo {
     public ConnectionSummaryInfo connectionSummary;
 
     public List<TaskSummaryInfo> overviews;
-    public List<TaskBreakdownInfo> breakdowns;
+    public List<BreakdownSummaryInfo> breakdowns;
 
-    public Map<String, Map<String, Integer>> breakdownPerCommunicationPortPool; // JP-4281
-    public Map<String, Map<String, Integer>> breakdownPerConnectionType; // JP-4283
-    public Map<String, Map<String, Integer>> breakdownPerDeviceType; // JP-4284
+    public ConnectionOverviewInfo() {
+    }
 
     public ConnectionOverviewInfo(DashboardService dashboardService, Thesaurus thesaurus) throws Exception {
         this.thesaurus = thesaurus;
@@ -40,6 +58,45 @@ public class ConnectionOverviewInfo {
         overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), null), dashboardService.getComTaskCompletionOverview(), FilterOption.latestResult, completionCodeAdapter)); // JP-4280
 
         breakdowns=new ArrayList<>(3);
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), null), dashboardService.getComPortPoolBreakdown(), FilterOption.comPortPool)); // JP-4281
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), null), dashboardService.getConnectionTypeBreakdown(), FilterOption.connectionType)); // JP-4283
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), null), dashboardService.getDeviceTypeBreakdown(), FilterOption.deviceType)); // JP-4284
+
+        sortAllOverviews();
+        sortAllBreakdowns();
+
+    }
+
+    private void sortAllBreakdowns() {
+        for (BreakdownSummaryInfo breakdown : breakdowns) {
+            Collections.sort(breakdown.counters, TASK_BREAKDOWN_INFO_COMPARATOR);
+        }
+    }
+
+    private void sortAllOverviews() {
+        for (TaskSummaryInfo overview : overviews) {
+            Collections.sort(overview.counters, TASK_COUNTER_INFO_COMPARATOR);
+        }
+    }
+
+    private <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters, FilterOption alias) {
+        BreakdownSummaryInfo info = new BreakdownSummaryInfo();
+        info.displayName=name;
+        info.alias=alias;
+        info.total=breakdownCounters.getTotalCount();
+        info.totalSuccessCount=breakdownCounters.getTotalSuccessCount();
+        info.totalPendingCount=breakdownCounters.getTotalPendingCount();
+        info.totalFailedCount =breakdownCounters.getTotalFailedCount();
+        info.counters=new ArrayList<>();
+        for (TaskStatusBreakdownCounter<C> counter : breakdownCounters) {
+            TaskBreakdownInfo taskBreakdownInfo = new TaskBreakdownInfo(counter.getCountTarget().getName(), counter.getCountTarget().getId());
+            taskBreakdownInfo.successCount=counter.getSuccessCount();
+            taskBreakdownInfo.pendingCount=counter.getPendingCount();
+            taskBreakdownInfo.failedCount=counter.getFailedCount();
+            info.counters.add(taskBreakdownInfo);
+        }
+
+        return info;
     }
 
     private <C> TaskSummaryInfo createOverview(String overviewBreakdownName, DashboardCounters<C> dashboardCounters, FilterOption alias, MapBasedXmlAdapter<C> adapter) throws Exception {
@@ -65,23 +122,38 @@ class TaskSummaryInfo {
 }
 
 class BreakdownSummaryInfo {
-    public String name;
+    public String displayName;
+    public FilterOption alias;
     public long total;
+    public long totalSuccessCount;
+    public long totalPendingCount;
+    public long totalFailedCount;
     public List<TaskBreakdownInfo> counters;
 }
 
 class TaskBreakdownInfo {
-    public String name;
-    public long id;
+    public String displayName;
+    public long alias;
     public long successCount;
-    public long failureCount;
+    public long failedCount;
     public long pendingCount;
+
+    TaskBreakdownInfo() {
+    }
+
+    TaskBreakdownInfo(String displayName, long alias) {
+        this.displayName = displayName;
+        this.alias = alias;
+    }
 }
 
 class TaskCounterInfo {
     public String alias;
     public String displayName;
     public long count;
+
+    TaskCounterInfo() {
+    }
 
     TaskCounterInfo(String displayName, String alias, long count) {
         this.displayName = displayName;
@@ -92,5 +164,6 @@ class TaskCounterInfo {
 
 enum FilterOption {
     state,
-    latestResult
+    comPortPool,
+    connectionType, deviceType, latestResult
 }
