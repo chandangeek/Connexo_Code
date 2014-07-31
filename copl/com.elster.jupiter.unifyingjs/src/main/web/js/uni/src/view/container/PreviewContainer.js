@@ -59,6 +59,13 @@ Ext.define('Uni.view.container.PreviewContainer', {
      */
     previewComponent: null,
 
+    /**
+     * @cfg {Boolean}
+     *
+     * Select a row by default or not, by default true.
+     */
+    selectByDefault: true,
+
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
@@ -225,7 +232,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
             me.getLayout().setActiveItem(1);
         }
 
-        if (!isEmpty) {
+        if (me.selectByDefault && !isEmpty) {
             me.grid.getView().getSelectionModel().preventFocus = true;
             me.grid.getView().getSelectionModel().select(0);
         }
