@@ -18,6 +18,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -132,7 +133,7 @@ public class LoadProfileBuilder {
             if (cpc != null) {
                 try {
                     lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
-                    List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
+                    List<ChannelInfo> channelInfos = constructChannelInfos(lpr, ccoCapturedObjectRegisterUnits);
                     int statusMask = constructStatusMask(capturedObjectRegisterListMap.get(lpr));
                     int channelMask = constructChannelMask(capturedObjectRegisterListMap.get(lpr));
                     lpc.setChannelInfos(channelInfos);
@@ -267,23 +268,23 @@ public class LoadProfileBuilder {
      * Construct a list of <CODE>ChannelInfos</CODE>.
      * If a given register is not available, then the corresponding profile may not be fetched.
      *
-     * @param registers        a list or <CODE>Registers</CODE> which have to be converted to a list of <CODE>ChannelInfos</CODE>
      * @param ccoRegisterUnits the {@link com.energyict.dlms.cosem.ComposedCosemObject} which groups the reading of all the registers
      * @return a constructed list of <CODE>ChannelInfos</CODE>
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
-    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    protected List<ChannelInfo> constructChannelInfos(LoadProfileReader loadProfileReader, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<>();
-        for (CapturedRegisterObject registerUnit : registers) {
+        for (CapturedRegisterObject registerUnit : capturedObjectRegisterListMap.get(loadProfileReader)) {
             if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
+                    ChannelInfo configuredChannelInfo = getConfiguredChannelInfo(loadProfileReader, registerUnit);
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true, configuredChannelInfo.getReadingType());
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true, configuredChannelInfo.getReadingType());
                         channelInfos.add(ci);
                         //                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
                     }
@@ -293,6 +294,15 @@ public class LoadProfileBuilder {
             }
         }
         return channelInfos;
+    }
+
+    protected ChannelInfo getConfiguredChannelInfo(LoadProfileReader loadProfileReader, Register registerUnit) throws IOException {
+        for (ChannelInfo channelInfo : loadProfileReader.getChannelInfos()) {
+            if(channelInfo.getChannelObisCode().equals(registerUnit.getObisCode())){
+                return channelInfo;
+            }
+        }
+        return null;
     }
 
     private int constructStatusMask(List<CapturedRegisterObject> registers) {

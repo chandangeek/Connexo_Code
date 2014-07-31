@@ -8,6 +8,7 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -36,19 +37,20 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
     }
 
     @Override
-    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    protected List<ChannelInfo> constructChannelInfos(LoadProfileReader loadProfileReader, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<>();
-        for (CapturedRegisterObject registerObject : registers) {
+        for (CapturedRegisterObject registerObject : capturedObjectRegisterListMap.get(loadProfileReader)) {
             if (!"".equalsIgnoreCase(registerObject.getSerialNumber()) && isDataObisCode(registerObject.getObisCode(), registerObject.getSerialNumber())) {
                 if (this.getRegisterUnitMap().containsKey(registerObject)) {
                     registerObject.getAttribute();
+                    ChannelInfo configuredChannelInfo = getConfiguredChannelInfo(loadProfileReader, registerObject);
                     ScalerUnit su = getScalerUnitForCapturedRegisterObject(registerObject, ccoRegisterUnits);
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject));
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject), configuredChannelInfo.getReadingType());
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), registerObject.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), registerObject.getSerialNumber(), true, configuredChannelInfo.getReadingType());
                         channelInfos.add(ci);
 //                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerObject + " - unitCode was 0.");
                     }

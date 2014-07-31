@@ -264,7 +264,7 @@ public class PartialLoadProfileMessageBuilder extends AbstractMessageBuilder {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         List<BaseChannel> allChannels = lpt.getAllChannels();
         for (BaseChannel lpChannel : allChannels) {
-            channelInfos.add(new ChannelInfo(channelInfos.size(), lpChannel.getRegisterTypeObisCode().toString(), lpChannel.getUnit(), lpChannel.getDevice().getSerialNumber()));
+            channelInfos.add(new ChannelInfo(channelInfos.size(), lpChannel.getRegisterTypeObisCode().toString(), lpChannel.getUnit(), lpChannel.getDevice().getSerialNumber(), null)); //TODO add the readingType
         }
         return channelInfos;
     }
@@ -304,7 +304,7 @@ public class PartialLoadProfileMessageBuilder extends AbstractMessageBuilder {
                     channelInfos = new ArrayList<>();
                 } else if (ChannelTag.equals(localName)) {
                     channelInfos.add(new ChannelInfo(Integer.valueOf(atts.getValue(namespaceURI, ChannelIdTag)), atts.getValue(namespaceURI, ChannelNametag),
-                            Unit.get(atts.getValue(namespaceURI, ChannelUnitTag)), atts.getValue(namespaceURI, ChannelMeterIdentifier)));
+                            Unit.get(atts.getValue(namespaceURI, ChannelUnitTag)), atts.getValue(namespaceURI, ChannelMeterIdentifier), null));
                 }
             }
         }

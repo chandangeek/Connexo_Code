@@ -87,25 +87,25 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
     private static final List<ChannelInfo> HourlyChannelInfosSlave2 = new ArrayList<ChannelInfo>();
 
     static {
-        QuarterlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.0.255", Unit.get("kWh"), MasterSerialNumber, true));
-        QuarterlyHourChannelInfos.add(new ChannelInfo(1, "1.0.2.8.0.255", Unit.get("kWh"), MasterSerialNumber, true));
+        QuarterlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.0.255", Unit.get("kWh"), MasterSerialNumber, true, null));
+        QuarterlyHourChannelInfos.add(new ChannelInfo(1, "1.0.2.8.0.255", Unit.get("kWh"), MasterSerialNumber, true, null));
 
-        DailyChannelInfos.add(new ChannelInfo(0, "1.0.1.8.1.255", Unit.get("kWh"), MasterSerialNumber, true));
-        DailyChannelInfos.add(new ChannelInfo(1, "1.0.1.8.2.255", Unit.get("kWh"), MasterSerialNumber, true));
-        DailyChannelInfos.add(new ChannelInfo(2, "1.0.2.8.1.255", Unit.get("kWh"), MasterSerialNumber, true));
-        DailyChannelInfos.add(new ChannelInfo(3, "1.0.2.8.2.255", Unit.get("kWh"), MasterSerialNumber, true));
-        DailyChannelInfos.add(new ChannelInfo(4, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber, true));
-        DailyChannelInfos.add(new ChannelInfo(5, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber, true));
+        DailyChannelInfos.add(new ChannelInfo(0, "1.0.1.8.1.255", Unit.get("kWh"), MasterSerialNumber, true, null));
+        DailyChannelInfos.add(new ChannelInfo(1, "1.0.1.8.2.255", Unit.get("kWh"), MasterSerialNumber, true, null));
+        DailyChannelInfos.add(new ChannelInfo(2, "1.0.2.8.1.255", Unit.get("kWh"), MasterSerialNumber, true, null));
+        DailyChannelInfos.add(new ChannelInfo(3, "1.0.2.8.2.255", Unit.get("kWh"), MasterSerialNumber, true, null));
+        DailyChannelInfos.add(new ChannelInfo(4, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber, true, null));
+        DailyChannelInfos.add(new ChannelInfo(5, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber, true, null));
 
-        MonthlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.1.255", Unit.get("kWh"), MasterSerialNumber, true));
-        MonthlyHourChannelInfos.add(new ChannelInfo(1, "1.0.1.8.2.255", Unit.get("kWh"), MasterSerialNumber, true));
-        MonthlyHourChannelInfos.add(new ChannelInfo(2, "1.0.2.8.1.255", Unit.get("kWh"), MasterSerialNumber, true));
-        MonthlyHourChannelInfos.add(new ChannelInfo(3, "1.0.2.8.2.255", Unit.get("kWh"), MasterSerialNumber, true));
-        MonthlyHourChannelInfos.add(new ChannelInfo(4, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber, true));
-        MonthlyHourChannelInfos.add(new ChannelInfo(5, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber, true));
+        MonthlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.1.255", Unit.get("kWh"), MasterSerialNumber, true, null));
+        MonthlyHourChannelInfos.add(new ChannelInfo(1, "1.0.1.8.2.255", Unit.get("kWh"), MasterSerialNumber, true, null));
+        MonthlyHourChannelInfos.add(new ChannelInfo(2, "1.0.2.8.1.255", Unit.get("kWh"), MasterSerialNumber, true, null));
+        MonthlyHourChannelInfos.add(new ChannelInfo(3, "1.0.2.8.2.255", Unit.get("kWh"), MasterSerialNumber, true, null));
+        MonthlyHourChannelInfos.add(new ChannelInfo(4, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber, true, null));
+        MonthlyHourChannelInfos.add(new ChannelInfo(5, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber, true, null));
 
-        HourlyChannelInfosSlave1.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber, true));
-        HourlyChannelInfosSlave2.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber, true));
+        HourlyChannelInfosSlave1.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave1SerialNumber, true, null));
+        HourlyChannelInfosSlave2.add(new ChannelInfo(0, "0.x.24.2.0.255", Unit.get("m3"), Slave2SerialNumber, true, null));
     }
 
     private static final ObisCode QuarterlyObisCode = ObisCode.fromString("1.0.99.1.0.255");

@@ -26,6 +26,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
@@ -50,15 +51,15 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
-* Provides functionality to fetch and create {@link com.energyict.mdc.protocol.api.device.data.ProfileData} objects for a {@link SmartMeterProtocol}
-* <p/>
-* <pre>
-* Copyrights EnergyICT
-* Date: 3-mrt-2011
-* Time: 17:02:07
-* </pre>
-*/
-public class LoadProfileBuilder implements DeviceLoadProfileSupport{
+ * Provides functionality to fetch and create {@link com.energyict.mdc.protocol.api.device.data.ProfileData} objects for a {@link SmartMeterProtocol}
+ * <p/>
+ * <pre>
+ * Copyrights EnergyICT
+ * Date: 3-mrt-2011
+ * Time: 17:02:07
+ * </pre>
+ */
+public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
     /**
      * Hardcoded ObisCode for the status of the 15min profile
@@ -131,7 +132,6 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
     /**
      * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles for the {@link #meterProtocol}
      *
-     *
      * @param loadProfileReaders a list of definitions of expected loadProfiles to read
      * @return the list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are in the device
      * @throws java.io.IOException when error occurred during dataFetching or -Parsing
@@ -155,7 +155,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
                 if (cpc != null) {
                     try {
                         lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
-                        List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
+                        List<ChannelInfo> channelInfos = constructChannelInfos(lpr, ccoCapturedObjectRegisterUnits);
                         int statusMask = constructStatusMask(capturedObjectRegisterListMap.get(lpr));
                         int channelMask = constructChannelMask(capturedObjectRegisterListMap.get(lpr));
                         lpc.setChannelInfos(channelInfos);
@@ -235,14 +235,14 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
                     for (CapturedObject co : capturedObjects) {
                         String deviceSerialNumber = this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
 //                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
-                            DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
-                            CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
+                        DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
+                        CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
 
-                            // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
-                            if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
-                                channelRegisters.add(reg);
-                            }
-                            coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
+                        // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
+                        if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
+                            channelRegisters.add(reg);
+                        }
+                        coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
 //                        }
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
@@ -295,23 +295,31 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
      * Construct a list of <CODE>ChannelInfos</CODE>.
      * If a given register is not available, then the corresponding profile may not be fetched.
      *
-     * @param registers        a list or <CODE>Registers</CODE> which have to be converted to a list of <CODE>ChannelInfos</CODE>
      * @param ccoRegisterUnits the {@link com.energyict.dlms.cosem.ComposedCosemObject} which groups the reading of all the registers
      * @return a constructed list of <CODE>ChannelInfos</CODE>
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
-    private List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    protected List<ChannelInfo> constructChannelInfos(LoadProfileReader loadProfileReader, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        for (CapturedRegisterObject registerUnit : registers) {
+        for (CapturedRegisterObject registerUnit : capturedObjectRegisterListMap.get(loadProfileReader)) {
             if (!registerUnit.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
+                    ChannelInfo configuredChannelInfo = getConfiguredChannelInfo(loadProfileReader, registerUnit);
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = ChannelInfo.ChannelInfoBuilder.fromObisCode(registerUnit.getObisCode())
+                                .meterIdentifier(registerUnit.getSerialNumber())
+                                .unit(su.getEisUnit())
+                                .cumulative(true)
+                                .readingType(configuredChannelInfo.getReadingType()).build();
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = ChannelInfo.ChannelInfoBuilder.fromObisCode(registerUnit.getObisCode())
+                                .meterIdentifier(registerUnit.getSerialNumber())
+                                .unit(Unit.getUndefined())
+                                .cumulative(true)
+                                .readingType(configuredChannelInfo.getReadingType()).build();
                         channelInfos.add(ci);
 //                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
                     }
@@ -323,12 +331,21 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
         return channelInfos;
     }
 
+    protected ChannelInfo getConfiguredChannelInfo(LoadProfileReader loadProfileReader, Register registerUnit) throws IOException {
+        for (ChannelInfo channelInfo : loadProfileReader.getChannelInfos()) {
+            if (channelInfo.getChannelObisCode().equals(registerUnit.getObisCode())) {
+                return channelInfo;
+            }
+        }
+        return null;
+    }
+
     private int constructStatusMask(List<CapturedRegisterObject> registers) {
         int statusMask = 0;
         int counter = 0;
         for (CapturedRegisterObject registerUnit : registers) {
             if (isStatusObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
-                statusMask |= (int)Math.pow(2, counter);
+                statusMask |= (int) Math.pow(2, counter);
             }
             counter++;
         }
@@ -458,7 +475,6 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
 
     /**
      * Look for the <CODE>DeviceLoadProfileConfiguration</CODE> in the previously build up list
-     *
      *
      * @param loadProfileReader the reader linking to the <CODE>DeviceLoadProfileConfiguration</CODE>
      * @return requested configuration

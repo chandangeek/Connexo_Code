@@ -139,18 +139,29 @@ public class LoadProfileBuilder {
         channelMaskMap.put(lpr, new int[] {clockMask, statusMask, Integer.parseInt(channelMask, 2)});
         List<RegisterValue> registerValues = meterProtocol.readRegisters(registerList);
         for (RegisterValue channelInformation : registerValues) {
+            ChannelInfo configuredChannelInfo = getConfiguredChannelInfo(lpr, channelInformation.getObisCode());
+
             if (channelInformation.getQuantity().getBaseUnit().getDlmsCode() != 0) {
-                ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), channelInformation.getObisCode().toString(), channelInformation.getQuantity().getUnit(), channelInformation.getSerialNumber(), true);
+                ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), channelInformation.getObisCode().toString(), channelInformation.getQuantity().getUnit(), channelInformation.getSerialNumber(), true, configuredChannelInfo.getReadingType());
                 if (channelInformation.getQuantity().getUnit().isUndefined()) {
                     channelInfo.setMultiplier(new BigDecimal(new BigInteger("1"), -channelInformation.getQuantity().getUnit().getScale()));
                 }
                 channelInfos.add(channelInfo);
             } else {
-                ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), channelInformation.getObisCode().toString(), Unit.getUndefined(), channelInformation.getSerialNumber(), true);
+                ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), channelInformation.getObisCode().toString(), Unit.getUndefined(), channelInformation.getSerialNumber(), true, configuredChannelInfo.getReadingType());
                 channelInfos.add(channelInfo);
             }
         }
         return channelInfos;
+    }
+
+    private ChannelInfo getConfiguredChannelInfo(LoadProfileReader loadProfileReader, ObisCode channelObisCode) throws IOException {
+        for (ChannelInfo channelInfo : loadProfileReader.getChannelInfos()) {
+            if(channelInfo.getChannelObisCode().equals(channelObisCode)){
+                return channelInfo;
+            }
+        }
+        return null;
     }
 
     private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) throws IOException {

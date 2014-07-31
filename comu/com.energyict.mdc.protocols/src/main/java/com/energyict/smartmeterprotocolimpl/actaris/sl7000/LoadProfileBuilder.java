@@ -146,15 +146,16 @@ public class LoadProfileBuilder {
 
         for (CapturedObject capturedObject : captureObjects.subList(4, captureObjects.size())) {
             ObisCode registerObisCode = ObisCode.fromString(capturedObject.getLogicalName().toString());
-            if (loadProfileContains(lpr, registerObisCode)) {
+            ChannelInfo loadProfileChannelInfo = getLoadProfileChannelInfo(lpr, registerObisCode);
+            if (loadProfileChannelInfo != null) {
                 ScalerUnit scalerUnit = loadProfileInformation.get(registerObisCode);
 
                 if (scalerUnit != null) {
                     if (scalerUnit.getUnitCode() != 0) {
-                        ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), registerObisCode.toString(), scalerUnit.getEisUnit(), meterProtocol.getMeterSerialNumber(), true);
+                        ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), registerObisCode.toString(), scalerUnit.getEisUnit(), meterProtocol.getMeterSerialNumber(), true, loadProfileChannelInfo.getReadingType());
                         channelInfos.add(channelInfo);
                     } else {
-                        ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), registerObisCode.toString(), Unit.getUndefined(), meterProtocol.getMeterSerialNumber(), true);
+                        ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), registerObisCode.toString(), Unit.getUndefined(), meterProtocol.getMeterSerialNumber(), true, loadProfileChannelInfo.getReadingType());
                         channelInfos.add(channelInfo);
                     }
                 }
@@ -165,13 +166,13 @@ public class LoadProfileBuilder {
     }
 
 
-    private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
+    private ChannelInfo getLoadProfileChannelInfo(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
         for (ChannelInfo channelInfo : lpr.getChannelInfos()) {
             if (channelInfo.getChannelObisCode().equals(obisCode)) {
-                return true;
+                return channelInfo;
             }
         }
-        return false;
+        return null;
     }
 
     /**

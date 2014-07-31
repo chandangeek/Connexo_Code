@@ -17,7 +17,6 @@ import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByDeviceAndObisCode;
@@ -145,12 +144,8 @@ public class ProtocolHandler {
             BigDecimal value = meterReadings.get(i);
             ChannelInfo channelInfo = profileBuilder.getProfileData().getChannel(i);
             PrimeRegisterForChannelIdentifier registerIdentifier;
-            try {
-                registerIdentifier = new PrimeRegisterForChannelIdentifier(
-                        this.getDeviceIdentifier(), channelInfo.getChannelObisCode(), channelInfo.getChannelObisCode(), channelInfo.getChannelId());
-            } catch (IOException e) {
-                throw DeviceConfigurationException.channelNameNotAnObisCode(channelInfo.getName());
-            }
+            registerIdentifier = new PrimeRegisterForChannelIdentifier(
+                    this.getDeviceIdentifier(), channelInfo.getChannelObisCode(), channelInfo.getChannelObisCode(), channelInfo.getChannelId());
             CollectedRegister reading = this.getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
             reading.setReadTime(now);
             reading.setCollectedData(new Quantity(value, Unit.get(BaseUnit.COUNT)), "???");

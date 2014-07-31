@@ -84,10 +84,10 @@ public class Dsmr40EictMain extends AbstractSmartDebuggingMain<Dsmr40Protocol> {
 
     private LoadProfileReader getMbusProfileReader() {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        channelInfos.add(new ChannelInfo(0, "1.x.1.8.1.255", Unit.getUndefined(), MASTER_SERIAL_NUMBER));
-        channelInfos.add(new ChannelInfo(1, "1.x.2.8.1.255", Unit.getUndefined(), MASTER_SERIAL_NUMBER));
-        channelInfos.add(new ChannelInfo(2, "0.x.24.2.1.255", Unit.get("m3"), MBUS_SERIAL_NUMBER));
-        channelInfos.add(new ChannelInfo(3, "0.x.24.2.1.255", Unit.get("ms"), MBUS_SERIAL_NUMBER));
+        channelInfos.add(new ChannelInfo(0, "1.x.1.8.1.255", Unit.getUndefined(), MASTER_SERIAL_NUMBER, null));
+        channelInfos.add(new ChannelInfo(1, "1.x.2.8.1.255", Unit.getUndefined(), MASTER_SERIAL_NUMBER, null));
+        channelInfos.add(new ChannelInfo(2, "0.x.24.2.1.255", Unit.get("m3"), MBUS_SERIAL_NUMBER, null));
+        channelInfos.add(new ChannelInfo(3, "0.x.24.2.1.255", Unit.get("ms"), MBUS_SERIAL_NUMBER, null));
 
         return new LoadProfileReader(
                 ObisCode.fromString("0.x.98.1.0.255"),

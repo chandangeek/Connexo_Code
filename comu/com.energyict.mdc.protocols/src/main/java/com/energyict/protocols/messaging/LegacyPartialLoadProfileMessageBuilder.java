@@ -2,8 +2,6 @@ package com.energyict.protocols.messaging;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -269,11 +267,10 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         for (BaseChannel lpChannel : loadProfile.getAllChannels()) {
                 channelInfos.add(
-                        new ChannelInfo(
-                                channelInfos.size(),
-                                lpChannel.getRegisterTypeObisCode().toString(),
-                                lpChannel.getUnit(),
-                                lpChannel.getDevice().getSerialNumber()));
+                        ChannelInfo.ChannelInfoBuilder.fromObisCode(lpChannel.getRegisterTypeObisCode())
+                        .unit(lpChannel.getUnit())
+                        .meterIdentifier(lpChannel.getDevice().getSerialNumber())
+                        .build()); //TODO there should be a readingType in here...
         }
         return channelInfos;
     }
@@ -317,10 +314,10 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
                         this.messageBuilder.setLoadProfileId(Integer.valueOf(atts.getValue(namespaceURI, LoadProfileIdTag)));
                     }
                 } else if (ChannelInfosTag.equals(localName)) {
-                    channelInfos = new ArrayList<ChannelInfo>();
+                    channelInfos = new ArrayList<>();
                 } else if (ChannelTag.equals(localName)) {
                     channelInfos.add(new ChannelInfo(Integer.valueOf(atts.getValue(namespaceURI, ChannelIdTag)), atts.getValue(namespaceURI, ChannelNametag),
-                            Unit.get(atts.getValue(namespaceURI, ChannelUnitTag)), atts.getValue(namespaceURI, ChannelMeterIdentifier)));
+                            Unit.get(atts.getValue(namespaceURI, ChannelUnitTag)), atts.getValue(namespaceURI, ChannelMeterIdentifier), null));
                 }
             }
         }

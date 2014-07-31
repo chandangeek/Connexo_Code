@@ -76,7 +76,7 @@ public class AS300LoadProfileBuilder {
             if (cpc != null) {
                 try {
                     lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
-                    List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
+                    List<ChannelInfo> channelInfos = constructChannelInfos(lpr, ccoCapturedObjectRegisterUnits);
                     lpc.setChannelInfos(channelInfos);
                     this.channelInfoMap.put(lpr, channelInfos);
                 } catch (IOException e) {
@@ -119,17 +119,18 @@ public class AS300LoadProfileBuilder {
         return uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId();
     }
 
-    private List<ChannelInfo> constructChannelInfos(List<Register> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    private List<ChannelInfo> constructChannelInfos(LoadProfileReader loadProfileReader, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<>();
-        for (Register registerUnit : registers) {
+        for (Register registerUnit : capturedObjectRegisterListMap.get(loadProfileReader)) {
             if (isDataObisCode(registerUnit.getObisCode())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
+                    ChannelInfo configuredChannelInfo = getConfiguredChannelInfo(loadProfileReader, registerUnit);
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true, configuredChannelInfo.getReadingType());
                         channelInfos.add(ci);
                     } else {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true, configuredChannelInfo.getReadingType());
                         channelInfos.add(ci);
                     }
                 } else {
@@ -138,6 +139,15 @@ public class AS300LoadProfileBuilder {
             }
         }
         return channelInfos;
+    }
+
+    private ChannelInfo getConfiguredChannelInfo(LoadProfileReader loadProfileReader, Register registerUnit) throws IOException {
+        for (ChannelInfo channelInfo : loadProfileReader.getChannelInfos()) {
+            if(channelInfo.getChannelObisCode().equals(registerUnit.getObisCode())){
+                return channelInfo;
+            }
+        }
+        return null;
     }
 
     /**
