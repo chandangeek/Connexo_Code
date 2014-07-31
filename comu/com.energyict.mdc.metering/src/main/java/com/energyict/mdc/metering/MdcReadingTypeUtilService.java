@@ -59,4 +59,12 @@ public interface MdcReadingTypeUtilService {
      * @return the interval applied ReadingType
      */
     public ReadingType getIntervalAppliedReadingType(ReadingType readingType, TimeDuration interval, ObisCode registerObisCode);
+
+    /**
+     * Gets the MDC unit according to the CIM ReadingType
+     *
+     * @param readingType the ReadingType
+     * @return the mdc Unit
+     */
+    public Unit getMdcUnitFor(ReadingType readingType);
 }

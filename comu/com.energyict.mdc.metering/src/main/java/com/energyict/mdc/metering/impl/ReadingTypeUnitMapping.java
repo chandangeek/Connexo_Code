@@ -150,6 +150,15 @@ enum ReadingTypeUnitMapping {
         return NO_CIM_UNIT_FOUND;
     }
 
+    public static Unit getMdcUnitFor(ReadingTypeUnit readingTypeUnit, MetricMultiplier metricMultiplier){
+        for (ReadingTypeUnitMapping readingTypeUnitMapping : values()) {
+            if(readingTypeUnitMapping.cimUnit.equals(readingTypeUnit) && readingTypeUnitMapping.metricMultiplier.equals(metricMultiplier)){
+                return Unit.get(readingTypeUnitMapping.mdcUnit, metricMultiplier.getMultiplier());
+            }
+        }
+        return Unit.getUndefined();
+    }
+
     private static MetricMultiplier getCombinedMultiplier(Unit unit, ReadingTypeUnitMapping readingTypeUnitMapping) {
         return MetricMultiplier.with(readingTypeUnitMapping.metricMultiplier.getMultiplier() + unit.getScale());
     }
@@ -169,22 +178,4 @@ enum ReadingTypeUnitMapping {
     Matcher<Integer> getcField() {
         return cField;
     }
-
-//    /**
-//     * A ScaledCimUnit combines a {@link ReadingTypeUnit} with a {@link MetricMultiplier}
-//     */
-//    static class ScaledCimUnit extends  {
-//
-//        public ScaledCimUnit(ReadingTypeUnit cimUnit, MetricMultiplier metricMultiplier) {
-//            super(cimUnit, metricMultiplier);
-//        }
-//
-//        public ReadingTypeUnit getCimUnit() {
-//            return getFirst();
-//        }
-//
-//        public MetricMultiplier getMetricMultiplier() {
-//            return getLast();
-//        }
-//    }
 }

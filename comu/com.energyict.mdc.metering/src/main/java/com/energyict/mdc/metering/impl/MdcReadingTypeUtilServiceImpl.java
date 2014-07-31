@@ -128,4 +128,8 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
                 .tou(readingType.getTou());
     }
 
+    @Override
+    public Unit getMdcUnitFor(ReadingType readingType) {
+        return ReadingTypeUnitMapping.getMdcUnitFor(readingType.getUnit(), readingType.getMultiplier());
+    }
 }
