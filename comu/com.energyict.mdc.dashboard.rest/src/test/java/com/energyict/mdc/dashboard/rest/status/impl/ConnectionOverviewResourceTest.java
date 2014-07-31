@@ -1,4 +1,4 @@
-package com.energyict.mdc.dashboard.rest.status;
+package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -57,8 +57,6 @@ import static org.mockito.Mockito.when;
  */
 public class ConnectionOverviewResourceTest extends JerseyTest {
 
-    private static final String DUMMY_THESAURUS_STRING = "";
-
     @Mock
     private StatusService statusService;
     @Mock
@@ -74,11 +72,11 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
             @Override
             public String answer(InvocationOnMock invocationOnMock) throws Throwable {
                 for (MessageSeeds messageSeeds : MessageSeeds.values()) {
-                    if (messageSeeds.getKey().equals((String) invocationOnMock.getArguments()[0])) {
+                    if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
                         return messageSeeds.getDefaultFormat();
                     }
                 }
-                return "xxx";
+                return (String) invocationOnMock.getArguments()[1];
             }
         });
         NlsMessageFormat mft = mock(NlsMessageFormat.class);
@@ -169,7 +167,7 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
         Comparator<TaskCounterInfo> counterInfoComparator = new Comparator<TaskCounterInfo>() {
             @Override
             public int compare(TaskCounterInfo o1, TaskCounterInfo o2) {
-                return Long.valueOf(o1.count).compareTo(o2.count);
+                return Long.valueOf(o2.count).compareTo(o1.count);
             }
         };
         assertThat(connectionOverviewInfo.overviews.get(0).counters).isSortedAccordingTo(counterInfoComparator);
@@ -178,7 +176,7 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
         Comparator<TaskBreakdownInfo> taskBreakdownInfoComparator = new Comparator<TaskBreakdownInfo>() {
             @Override
             public int compare(TaskBreakdownInfo o1, TaskBreakdownInfo o2) {
-                return Long.valueOf(o1.failedCount).compareTo(o2.failedCount);
+                return Long.valueOf(o2.failedCount).compareTo(o1.failedCount);
             }
         };
         assertThat(connectionOverviewInfo.breakdowns.get(0).counters).isSortedAccordingTo(taskBreakdownInfoComparator);

@@ -1,4 +1,4 @@
-package com.energyict.mdc.dashboard.rest.status;
+package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dashboard.DashboardService;

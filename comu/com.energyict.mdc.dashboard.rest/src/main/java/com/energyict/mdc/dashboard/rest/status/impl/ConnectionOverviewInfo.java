@@ -1,18 +1,22 @@
-package com.energyict.mdc.dashboard.rest.status;
+package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
+import com.energyict.mdc.dashboard.ConnectionStatusOverview;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardCounters;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
@@ -25,14 +29,14 @@ public class ConnectionOverviewInfo {
     public static final Comparator<TaskCounterInfo> TASK_COUNTER_INFO_COMPARATOR = new Comparator<TaskCounterInfo>() {
         @Override
         public int compare(TaskCounterInfo o1, TaskCounterInfo o2) {
-            return Long.valueOf(o1.count).compareTo(o2.count);
+            return -Long.valueOf(o1.count).compareTo(o2.count);
         }
     };
 
     public static final Comparator<TaskBreakdownInfo> TASK_BREAKDOWN_INFO_COMPARATOR = new Comparator<TaskBreakdownInfo>() {
         @Override
         public int compare(TaskBreakdownInfo o1, TaskBreakdownInfo o2) {
-            return Long.valueOf(o1.failedCount).compareTo(o2.failedCount);
+            return -Long.valueOf(o1.failedCount).compareTo(o2.failedCount);
         }
     };
 
@@ -54,7 +58,8 @@ public class ConnectionOverviewInfo {
     public ConnectionOverviewInfo(DashboardService dashboardService, Thesaurus thesaurus) throws Exception {
         this.thesaurus = thesaurus;
         overviews=new ArrayList<>(2);
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), null), dashboardService.getConnectionStatusOverview(), FilterOption.state, taskStatusAdapter)); // JP-4278
+        ConnectionStatusOverview connectionStatusOverview = dashboardService.getConnectionStatusOverview();
+        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), null), connectionStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
         overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), null), dashboardService.getComTaskCompletionOverview(), FilterOption.latestResult, completionCodeAdapter)); // JP-4280
 
         breakdowns=new ArrayList<>(3);
@@ -65,6 +70,28 @@ public class ConnectionOverviewInfo {
         sortAllOverviews();
         sortAllBreakdowns();
 
+        completeConnectionSummary(connectionStatusOverview);
+
+    }
+
+    private void completeConnectionSummary(ConnectionStatusOverview connectionStatusOverview) {
+        Map<TaskStatus, Long> counts = getTaskStatusCountsAsMap(connectionStatusOverview);
+
+        connectionSummary = new ConnectionSummaryInfo();
+        connectionSummary.failedConnections=counts.get(TaskStatus.Failed)+counts.get(TaskStatus.NeverCompleted);
+        connectionSummary.pendingConnections=counts.get(TaskStatus.Pending)+counts.get(TaskStatus.Busy)+counts.get(TaskStatus.Retrying);
+    }
+
+    private Map<TaskStatus, Long> getTaskStatusCountsAsMap(ConnectionStatusOverview connectionStatusOverview) {
+        Map<TaskStatus, Long> counts = new HashMap<>();
+        for (TaskStatus taskStatus : TaskStatus.values()) {
+            counts.put(taskStatus, 0L);
+        }
+
+        for (Counter<TaskStatus> taskStatusCounter : connectionStatusOverview) {
+            counts.put(taskStatusCounter.getCountTarget(), taskStatusCounter.getCount());
+        }
+        return counts;
     }
 
     private void sortAllBreakdowns() {
@@ -133,7 +160,7 @@ class BreakdownSummaryInfo {
 
 class TaskBreakdownInfo {
     public String displayName;
-    public long alias;
+    public long id;
     public long successCount;
     public long failedCount;
     public long pendingCount;
@@ -141,23 +168,23 @@ class TaskBreakdownInfo {
     TaskBreakdownInfo() {
     }
 
-    TaskBreakdownInfo(String displayName, long alias) {
+    TaskBreakdownInfo(String displayName, long id) {
         this.displayName = displayName;
-        this.alias = alias;
+        this.id = id;
     }
 }
 
 class TaskCounterInfo {
-    public String alias;
+    public String id;
     public String displayName;
     public long count;
 
     TaskCounterInfo() {
     }
 
-    TaskCounterInfo(String displayName, String alias, long count) {
+    TaskCounterInfo(String displayName, String id, long count) {
         this.displayName = displayName;
-        this.alias = alias;
+        this.id = id;
         this.count = count;
     }
 }
@@ -165,5 +192,7 @@ class TaskCounterInfo {
 enum FilterOption {
     state,
     comPortPool,
-    connectionType, deviceType, latestResult
+    connectionType,
+    deviceType,
+    latestResult
 }
