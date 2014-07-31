@@ -23,7 +23,7 @@ public class DashboardFieldResource extends FieldResource {
     }
 
     @GET
-    @Path("/breakdowns")
+    @Path("/breakdown")
     public Object getBreakdownValues() {
         return asJsonArrayObjectWithTranslation("breakdowns", "breakdown", EnumSet.of(FilterOption.comPortPool, FilterOption.connectionType, FilterOption.deviceType));
     }
