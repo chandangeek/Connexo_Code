@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
@@ -28,6 +27,7 @@ import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinde
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskFilterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.TimedOutTasksSqlBuilder;
@@ -35,6 +35,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
@@ -72,6 +73,7 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
@@ -93,8 +95,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -118,7 +124,6 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     private volatile Clock clock;
     private volatile RelationService relationService;
-    private volatile PluggableService pluggableService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile EngineModelService engineModelService;
@@ -177,14 +182,14 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     @Override
     public void releaseInterruptedConnectionTasks(ComServer comServer) {
         SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_CONNECTIONTASK.name() + " SET comserver = NULL WHERE comserver = ?");
-        sqlBuilder.bindLong(comServer.getId());
+        sqlBuilder.addLong(comServer.getId());
         this.executeUpdate(sqlBuilder);
     }
 
     @Override
     public void releaseInterruptedComTasks(ComServer comServer) {
         SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_COMTASKEXEC.name() + " SET comport = NULL, executionStart = null WHERE comport in (select id from mdc_comport where COMSERVERID = ?)");
-        sqlBuilder.bindLong(comServer.getId());
+        sqlBuilder.addLong(comServer.getId());
         this.executeUpdate(sqlBuilder);
     }
 
@@ -257,7 +262,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     private void executeUpdate(SqlBuilder sqlBuilder) {
         try (Connection connection = this.dataModel.getConnection(true)) {
-            try (PreparedStatement statement = sqlBuilder.getStatement(connection)) {
+            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                 statement.executeUpdate();
                 // Don't care about how many rows were updated and if that matches the expected number of updates
             }
@@ -344,7 +349,65 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public List<ConnectionTask> findByStatus(TaskStatus status) {
-        return this.getDataModel().mapper(ConnectionTask.class).select(ServerConnectionTaskStatus.forTaskStatus(status).condition(this.getDataModel()));
+        return this.getDataModel().mapper(ConnectionTask.class).select(ServerConnectionTaskStatus.forTaskStatus(status).condition());
+    }
+
+    @Override
+    public Map<TaskStatus, Integer> getConnectionTaskStatusCount(ConnectionTaskFilterSpecification filter) {
+        SqlBuilder globalSqlBuilder = null;
+        for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(filter)) {
+            // Check first pass
+            if (globalSqlBuilder == null) {
+                globalSqlBuilder = new SqlBuilder();
+                this.countByFilterAndTaskStatusSqlBuilder(globalSqlBuilder, filter, taskStatus);
+            }
+            else {
+                globalSqlBuilder.append(" UNION ALL ");
+                this.countByFilterAndTaskStatusSqlBuilder(globalSqlBuilder, filter, taskStatus);
+            }
+        }
+        return this.addMissingCounters(this.fetchCounters(globalSqlBuilder));
+    }
+
+    private Set<ServerConnectionTaskStatus> taskStatusesForCounting (ConnectionTaskFilterSpecification filter) {
+        Set<ServerConnectionTaskStatus> taskStatuses = EnumSet.noneOf(ServerConnectionTaskStatus.class);
+        for (TaskStatus taskStatus : filter.taskStatuses) {
+            taskStatuses.add(ServerConnectionTaskStatus.forTaskStatus(taskStatus));
+        }
+        return taskStatuses;
+    }
+
+    public void countByFilterAndTaskStatusSqlBuilder(SqlBuilder sqlBuilder, ConnectionTaskFilterSpecification filter, ServerConnectionTaskStatus taskStatus) {
+        ConnectionTaskFilterSqlBuilder countingFilter = new ConnectionTaskFilterSqlBuilder(taskStatus, filter);
+        countingFilter.appendTo(sqlBuilder);
+    }
+
+    private Map<TaskStatus, Integer> fetchCounters(SqlBuilder builder) {
+        Map<TaskStatus, Integer> counters = new HashMap<>();
+        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(false))) {
+            this.fetchCounters(stmnt, counters);
+        }
+        catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+        return counters;
+    }
+
+    private void fetchCounters(PreparedStatement statement, Map<TaskStatus, Integer> counters) throws SQLException {
+        try (ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                String taskStatusName = resultSet.getString(1);
+                int counter = resultSet.getInt(2);
+                counters.put(TaskStatus.valueOf(taskStatusName), counter);
+            }
+        }
+    }
+
+    private Map<TaskStatus, Integer> addMissingCounters(Map<TaskStatus, Integer> counters) {
+        for (TaskStatus missing : EnumSet.complementOf(EnumSet.copyOf(counters.keySet()))) {
+            counters.put(missing, 0);
+        }
+        return counters;
     }
 
     @Override
@@ -458,16 +521,16 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" set connectionTask = null");
         sqlBuilder.append(" where comtask = ?");  // Match the ComTask
-        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.addLong(comTask.getId());
         sqlBuilder.append("   and connectionTask = ");
         sqlBuilder.append("(select id from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append("  where device = " + TableSpecs.DDC_COMTASKEXEC.name() + ".device");
         sqlBuilder.append("    and partialconnectiontask = ?");   // Match the connection task
         sqlBuilder.append("    and obsolete_date is null)");
-        sqlBuilder.bindLong(previousPartialConnectionTask.getId());
+        sqlBuilder.addLong(previousPartialConnectionTask.getId());
         sqlBuilder.append("   and device in (select id from " + TableSpecs.DDC_DEVICE.name() + " where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.addLong(deviceConfiguration.getId());
         return sqlBuilder;
     }
 
@@ -485,11 +548,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(" where device = " + TableSpecs.DDC_COMTASKEXEC.name() + ".device");
         sqlBuilder.append("   and partialconnectiontask = ?");  //Match the connection task against the same device
         sqlBuilder.append("   and obsolete_date is null)");
-        sqlBuilder.bindLong(partialConnectionTask.getId());
+        sqlBuilder.addLong(partialConnectionTask.getId());
         sqlBuilder.append(" where comtask = ?");  // Match the ComTask
-        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.addLong(comTask.getId());
         sqlBuilder.append("   and device in (select id from " + TableSpecs.DDC_DEVICE.name() + " where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.addLong(deviceConfiguration.getId());
         return sqlBuilder;
     }
 
@@ -508,9 +571,9 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append("    and isdefault = 1");  // Match the default connection task against the same device
         sqlBuilder.append("    and obsolete_date is null)");
         sqlBuilder.append(" where comtask = ?");  // Match the ComTask
-        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.addLong(comTask.getId());
         sqlBuilder.append("   and device in (select id from " + TableSpecs.DDC_DEVICE.name() + " where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.addLong(deviceConfiguration.getId());
         return sqlBuilder;
     }
 
@@ -524,9 +587,9 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" set useDefaultConnectionTask = 0");
         sqlBuilder.append(" where comtask = ?");  // Match the ComTask
-        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.addLong(comTask.getId());
         sqlBuilder.append("   and device in (select id from " + TableSpecs.DDC_DEVICE.name() + " where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.addLong(deviceConfiguration.getId());
         return sqlBuilder;
     }
 
@@ -545,16 +608,16 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append("    and isdefault = 1");  // Match the default connection task against the same device
         sqlBuilder.append("    and obsolete_date is null)");
         sqlBuilder.append(" where comtask = ?");  // Match the ComTask
-        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.addLong(comTask.getId());
         sqlBuilder.append("   and connectionTask = ");
         sqlBuilder.append("(select id from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append("  where device = " + TableSpecs.DDC_COMTASKEXEC.name() + ".device");
         sqlBuilder.append("    and partialconnectiontask = ?");   // Match the connection task
         sqlBuilder.append("    and obsolete_date is null)");
-        sqlBuilder.bindLong(previousPartialConnectionTask.getId());
+        sqlBuilder.addLong(previousPartialConnectionTask.getId());
         sqlBuilder.append("   and device in (select id from " + TableSpecs.DDC_DEVICE.name() + " where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.addLong(deviceConfiguration.getId());
         return sqlBuilder;
     }
 
@@ -571,19 +634,19 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append("     where device = " + TableSpecs.DDC_COMTASKEXEC.name() + ".device");
         sqlBuilder.append("       and partialconnectiontask = ?");  //Match the connection task against the same device
         sqlBuilder.append("       and obsolete_date is null)");
-        sqlBuilder.bindLong(newPartialConnectionTask.getId());
+        sqlBuilder.addLong(newPartialConnectionTask.getId());
         // Avoid comTaskExecutions that use the default connection
         sqlBuilder.append(" where useDefaultConnectionTask = 0");
         sqlBuilder.append("   and comtask = ?");  // Match the ComTask
-        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.addLong(comTask.getId());
         sqlBuilder.append("   and connectionTask = ");
         sqlBuilder.append("     (select id from " + TableSpecs.DDC_CONNECTIONTASK.name() + "");
         sqlBuilder.append("       where device = " + TableSpecs.DDC_COMTASKEXEC.name() + ".device");
         sqlBuilder.append("         and partialconnectiontask = ?");   // Match the previous connection task
         sqlBuilder.append("         and obsolete_date is null)");
-        sqlBuilder.bindLong(previousPartialConnectionTask.getId());
+        sqlBuilder.addLong(previousPartialConnectionTask.getId());
         sqlBuilder.append("   and device in (select id from " + TableSpecs.DDC_DEVICE.name() + " where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.addLong(deviceConfiguration.getId());
         return sqlBuilder;
     }
 
@@ -598,8 +661,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(" inner join dtc_devicecommconfig dcc on dcf.id = dcc.deviceconfiguration");
         sqlBuilder.append(" inner join dtc_comtaskenablement ctn on dcc.id = ctn.devicecomconfig and cte.comtask = ctn.comtask");
         sqlBuilder.append(" where ctn.id = ?  and cte.obsolete_date is null");
-        sqlBuilder.bindLong(comTaskEnablement.getId());
-        try (PreparedStatement statement = sqlBuilder.getStatement(this.dataModel.getConnection(true))) {
+        sqlBuilder.addLong(comTaskEnablement.getId());
+        try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 int count = resultSet.getInt(1);
@@ -690,14 +753,13 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         SqlBuilder sqlBuilder = new SqlBuilder("update ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" set priority = ?");
-        sqlBuilder.bindInt(newPreferredPriority);
-        sqlBuilder.appendWhereOrAnd();
-        sqlBuilder.append("priority = ?");  // Match the previous priority
-        sqlBuilder.bindInt(previousPreferredPriority);
+        sqlBuilder.addInt(newPreferredPriority);
+        sqlBuilder.append("   and priority = ?");  // Match the previous priority
+        sqlBuilder.addInt(previousPreferredPriority);
         sqlBuilder.append("   and comtask = ?");  // Match the ComTask
-        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.addLong(comTask.getId());
         sqlBuilder.append("   and device in (select id from " + TableSpecs.DDC_DEVICE.name() + " where deviceConfigId = ?)");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.addLong(deviceConfiguration.getId());
         return sqlBuilder;
     }
 
@@ -711,9 +773,9 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" set nextExecutionTimestamp = null");
         sqlBuilder.append(" where device in (select id from " + TableSpecs.DDC_DEVICE.name() + " where deviceConfigId = ?)");    // against devices of the specified configuration
-        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.addLong(deviceConfiguration.getId());
         sqlBuilder.append("   and comtask = ?");
-        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.addLong(comTask.getId());
         sqlBuilder.append("   and comport is null");    // exclude tasks that are currently executing
         sqlBuilder.append("   and plannedNextExecutionTimestamp is not null");  // Exclude tasks that have been put on hold manually
         return sqlBuilder;
@@ -729,9 +791,9 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" set nextExecutionTimestamp = plannedNextExecutionTimestamp");
         sqlBuilder.append(" where device in (select id from " + TableSpecs.DDC_DEVICE.name() + " where deviceConfigId = ?)");    // against devices of the specified configuration
-        sqlBuilder.bindLong(deviceConfiguration.getId());
+        sqlBuilder.addLong(deviceConfiguration.getId());
         sqlBuilder.append("   and comtask = ?");
-        sqlBuilder.bindLong(comTask.getId());
+        sqlBuilder.addLong(comTask.getId());
         sqlBuilder.append("   and nextExecutionTimestamp is null");      // Only tasks that were suspended
         sqlBuilder.append("   and plannedNextExecutionTimestamp is not null");  // Only tasks that were suspended
         return sqlBuilder;
@@ -778,7 +840,6 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     @Reference
     public void setPluggableService(PluggableService pluggableService) {
         // Not actively used but required for foreign keys in TableSpecs
-        this.pluggableService = pluggableService;
     }
 
     @Reference

@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 /**
  * Provides sql building services that support cleaning marker flags on
@@ -36,9 +37,9 @@ public class TimedOutTasksSqlBuilder {
         sqlBuilder.append("   AND ct.connectionmethod = cm.id");
         sqlBuilder.append("   AND cm.comportpool = ?");
         sqlBuilder.append("   AND cte.executionStart + ? < ?");
-        sqlBuilder.bindLong(ComPortPool.getId());
-        sqlBuilder.bindInt(timeOutSeconds);
-        sqlBuilder.bindLong(now);
+        sqlBuilder.addLong(ComPortPool.getId());
+        sqlBuilder.addInt(timeOutSeconds);
+        sqlBuilder.addLong(now);
     }
 
     // Hide utility class constructor

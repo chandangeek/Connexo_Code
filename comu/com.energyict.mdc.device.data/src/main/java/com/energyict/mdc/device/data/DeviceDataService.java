@@ -1,20 +1,14 @@
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -22,15 +16,18 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -127,6 +124,15 @@ public interface DeviceDataService {
      * @return The ConnectionTasks with the specified TaskStatus
      */
     public List<ConnectionTask> findByStatus(TaskStatus status);
+
+    /**
+     * Counts the number of {@link ConnectionTask}s that match the specified filter
+     * and breaks the numbers down by their respective {@link TaskStatus}.
+     *
+     * @param filter The ConnectionTaskFilter
+     * @return The numbers, broken down by TaskStatus
+     */
+    public Map<TaskStatus, Integer> getConnectionTaskStatusCount(ConnectionTaskFilterSpecification filter);
 
     /**
      * Sets the specified {@link ConnectionTask} as the default for the Device

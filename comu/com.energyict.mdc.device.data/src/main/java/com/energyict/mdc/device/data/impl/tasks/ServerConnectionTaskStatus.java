@@ -1,26 +1,22 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-import java.util.Date;
+
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import org.joda.time.DateTimeConstants;
+
+import java.util.Date;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Represents the counterpart of {@link TaskStatus} for {@link ScheduledConnectionTask}s
  * and adds behavior that is reserved for server components.
- *
- * Todo (JP-1125): override the condition method on every enum element that also
- * overrides the completeFindBySqlBuilder method.
- * We need to use the Query API to implement the exists clauses
- * but ComTaskExecution needs to be managed by the ORM layer first.
  */
 public enum ServerConnectionTaskStatus {
 
@@ -44,9 +40,9 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and (not exists (select * from " + TableSpecs.DDC_COMTASKEXEC.name() + " cte where mdcconnectiontask.id = cte.connectiontask and comport is not null) ");
             sqlBuilder.append("and " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is null) ");
             sqlBuilder.append("and (   (discriminator = ? and paused = 1)");
-            sqlBuilder.bindString(ConnectionTaskImpl.INBOUND_DISCRIMINATOR);
+            sqlBuilder.addObject(ConnectionTaskImpl.INBOUND_DISCRIMINATOR);
             sqlBuilder.append("     or (discriminator = ? and (paused = 1 or " + TableSpecs.DDC_CONNECTIONTASK.name() + ".nextExecutionTimestamp is null)))");
-            sqlBuilder.bindString(ConnectionTaskImpl.SCHEDULED_DISCRIMINATOR);
+            sqlBuilder.addObject(ConnectionTaskImpl.SCHEDULED_DISCRIMINATOR);
         }
 
     },
@@ -106,7 +102,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("     and " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is null) ");
             sqlBuilder.append("and paused = 0 ");
             sqlBuilder.append("and nextexecutiontimestamp <= ? ");
-            sqlBuilder.bindLong(this.asSeconds(new Date()));
+            sqlBuilder.addLong(this.asSeconds(new Date()));
         }
 
     },
@@ -134,7 +130,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and currentretrycount = 0 ");
             sqlBuilder.append("and nextexecutiontimestamp > ? ");
             sqlBuilder.append("and lastsuccessfulcommunicationend is null");
-            sqlBuilder.bindLong(this.asSeconds(new Date()));
+            sqlBuilder.addLong(this.asSeconds(new Date()));
         }
 
     },
@@ -161,7 +157,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and paused = 0 ");
             sqlBuilder.append("and currentretrycount > 0 ");
             sqlBuilder.append("and nextexecutiontimestamp > ? ");
-            sqlBuilder.bindLong(this.asSeconds(new Date()));
+            sqlBuilder.addLong(this.asSeconds(new Date()));
         }
 
     },
@@ -191,7 +187,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and lastExecutionFailed = 1 ");
             sqlBuilder.append("and nextexecutiontimestamp > ? ");
             sqlBuilder.append("and lastsuccessfulcommunicationend is not null");
-            sqlBuilder.bindLong(this.asSeconds(new Date()));
+            sqlBuilder.addLong(this.asSeconds(new Date()));
         }
 
     },
@@ -222,7 +218,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and nextexecutiontimestamp > ? ");
             sqlBuilder.append("and lastsuccessfulcommunicationend is not null");
 
-            sqlBuilder.bindLong(this.asSeconds(new Date()));
+            sqlBuilder.addLong(this.asSeconds(new Date()));
         }
 
     };
@@ -244,7 +240,7 @@ public enum ServerConnectionTaskStatus {
     public abstract boolean appliesTo(ScheduledConnectionTask task, Date now);
 
     public void completeFindBySqlBuilder(SqlBuilder sqlBuilder) {
-        sqlBuilder.appendWhereOrAnd();
+        sqlBuilder.append(" and ");
         sqlBuilder.append("obsolete_date is null ");
     }
 
@@ -254,9 +250,8 @@ public enum ServerConnectionTaskStatus {
      * that are in this status.
      *
      * @return The Condition
-     * @param dataModel
      */
-    public Condition condition(DataModel dataModel) {
+    public Condition condition() {
         return where("obsoleteDate").isNull();
     }
 
