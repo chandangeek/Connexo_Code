@@ -228,6 +228,7 @@ public class MeterReadingStorerTest {
                     meteringService.getReadingType(registerReadingTypeCode).get());
             assertThat(readings).hasSize(1);
             assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1200));
+            assertThat(readings.get(0).getQuantities().get(0).getValue()).isEqualTo(BigDecimal.valueOf(1200));
             assertThat(((Reading) readings.get(0)).getText()).isNull();
             ctx.commit();
         }

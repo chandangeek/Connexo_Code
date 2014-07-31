@@ -1,5 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
+import java.math.BigDecimal;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -7,12 +13,6 @@ import com.elster.jupiter.metering.ProcesStatus;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
-
-import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 
 public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
@@ -53,16 +53,20 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     public List<Quantity> getQuantities() {
         // do not use ImmutableList.builder() as getQuantity(i) can return null;
         List<Quantity> result = new ArrayList<>();
-        for (int i = 0; i < entry.size() - getReadingTypeOffset(); i++) {
-            result.add(getQuantity(i));
+        int offset = 0;
+        for (ReadingType readingType : channel.getReadingTypes()) {
+            result.add(getQuantity(offset++,readingType));
         }
         return result;
     }
 
     @Override
     public Quantity getQuantity(int offset) {
-        ReadingTypeImpl readingType = channel.getReadingTypes().get(offset);
-        return readingType.toQuantity(doGetValue(offset));
+        return getQuantity(offset,channel.getReadingTypes().get(offset));
+    }
+    
+    private Quantity getQuantity(int offset, ReadingType readingType) {
+    	return ((ReadingTypeImpl) readingType).toQuantity(doGetValue(offset));
     }
 
     private BigDecimal doGetValue(int offset) {
@@ -71,13 +75,10 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
 
     @Override
     public Quantity getQuantity(ReadingType readingType) {
-        int i = 0;
-        for (ReadingTypeImpl each : channel.getReadingTypes()) {
-            if (each.equals(readingType)) {
-                return each.toQuantity(doGetValue(i));
-            }
-            i++;
-        }
+        int i = channel.getReadingTypes().indexOf(readingType);
+        if (i >= 0) {
+        	return getQuantity(i,readingType);
+        } 
         throw new IllegalArgumentException(MessageFormat.format("ReadingType {0} does not occur on this channel", readingType.getMRID()));
     }
 
