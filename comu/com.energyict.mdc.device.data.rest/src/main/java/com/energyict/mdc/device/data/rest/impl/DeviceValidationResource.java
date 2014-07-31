@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
@@ -33,6 +34,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -152,39 +154,86 @@ public class DeviceValidationResource {
     public Response activateValidationFeatureOnDevice(@PathParam("mRID") String mrid) {
         Lock lock = stripedLock.get(mrid).writeLock(); // we use striped locking to improve concurrency.
         lock.lock();
-        DeviceValidationStatusInfo status = new DeviceValidationStatusInfo();
         try {
+            Date now =  clock.now();
             Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            Meter meter;
-            Optional<Meter> meterRef = amrSystem.findMeter(String.valueOf(device.getId()));
-            if(meterRef.isPresent()) {
-                meter = meterRef.get();
-            } else {
-                meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
-                meter.save();
-            }
-            Optional<MeterActivation> activationRef = meter.getCurrentMeterActivation();
-            MeterActivation meterActivation;
-            Date date =  clock.now();
-            if(activationRef.isPresent()) {
-                meterActivation = activationRef.get();
-            } else {
-                meterActivation = meter.activate(date);
-            }
+            MeterActivation meterActivation = findOrCreateMeterActivation(now, findOrCreateMeter(device));
             if(!validationService.getMeterValidation(meterActivation).isPresent()) {
                 validationService.createMeterValidation(meterActivation);
-                status.hasValidation = false;
-            } else {
-                status.hasValidation = true;
             }
-            if(validationService.getMeterActivationValidationsForMeterActivation(meterActivation).isEmpty()) {
-                List<MeterActivationValidation> meterActivationValidations = validationService.getMeterActivationValidations(meterActivation, Interval.startAt(date));
-            }
+            return Response.ok(determineStatus(meterActivation, now)).build();
         } finally {
             lock.unlock();
         }
-        return Response.ok(status).build();
+    }
+
+    private MeterActivation findOrCreateMeterActivation(Date now, Meter meter) {
+        MeterActivation meterActivation;
+        Optional<MeterActivation> activationRef = meter.getCurrentMeterActivation();
+        if(activationRef.isPresent()) {
+            meterActivation = activationRef.get();
+        } else {
+            meterActivation = meter.activate(now);
+        }
+        return meterActivation;
+    }
+
+    private Meter findOrCreateMeter(Device device) {
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        Meter meter;
+        Optional<Meter> meterRef = amrSystem.findMeter(String.valueOf(device.getId()));
+        if(meterRef.isPresent()) {
+            meter = meterRef.get();
+        } else {
+            meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
+            meter.save();
+        }
+        return meter;
+    }
+
+    private DeviceValidationStatusInfo determineStatus(MeterActivation meterActivation, Date now) {
+        DeviceValidationStatusInfo status = new DeviceValidationStatusInfo();
+        for (MeterActivationValidation meterActivationValidation : findOrCreateActivationValidation(meterActivation, now)) {
+            apply(status, meterActivationValidation);
+        }
+        return status;
+    }
+
+    private void apply(DeviceValidationStatusInfo status, MeterActivationValidation meterActivationValidation) {
+        status.isActive = status.isActive || meterActivationValidation.isActive();
+        for (ChannelValidation channelValidation : meterActivationValidation.getChannelValidations()) {
+            status.hasValidation = status.hasValidation || channelValidation.getLastChecked() != null;
+            if (status.hasValidation) {
+                status.lastChecked = max(status.lastChecked, channelValidation.getLastChecked());
+            }
+        }
+    }
+
+    private List<? extends MeterActivationValidation> findOrCreateActivationValidation(MeterActivation meterActivation, Date now) {
+        List<? extends MeterActivationValidation> meterActivationValidations = validationService.getMeterActivationValidationsForMeterActivation(meterActivation);
+        if (meterActivationValidations.isEmpty()) {
+            meterActivationValidations = validationService.getMeterActivationValidations(meterActivation, Interval.startAt(now));
+        }
+        return meterActivationValidations;
+    }
+
+    private Date max(Date date1, Date date2) {
+        return NullSafe.DATE_COMPARATOR.compare(date1, date2) >= 0 ? date1 : date2;
+    }
+
+    private static enum NullSafe implements Comparator<Date> {
+        DATE_COMPARATOR {
+            @Override
+            public int compare(Date o1, Date o2) {
+                if (o1 == null) {
+                    return o2 == null ? 0 : -1;
+                }
+                if (o2 == null) {
+                    return 1;
+                }
+                return o1.compareTo(o2);
+            }
+        }
     }
 
     private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
