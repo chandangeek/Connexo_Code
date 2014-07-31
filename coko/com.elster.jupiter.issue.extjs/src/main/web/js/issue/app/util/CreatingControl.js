@@ -24,6 +24,9 @@ Ext.define('Isu.util.CreatingControl', {
             case 'usercombobox':
                 control = Ext.isEmpty(obj.suffix) ? this.createUserCombobox(obj) : this.suffixAppender(this.createUserCombobox(obj), obj.suffix);
                 break;
+            case 'trendperiodcontrol':
+                control = this.createTrendPeriodControl(obj);
+                break;
         }
 
         return control;
@@ -71,7 +74,7 @@ Ext.define('Isu.util.CreatingControl', {
     createCombobox: function (obj) {
         var comboboxStore = Ext.create('Ext.data.Store', {
                 fields: ['id', 'title'],
-                data: obj.values
+                data: obj.defaultValues
             }),
             combobox = {
                 xtype: 'combobox',
@@ -155,11 +158,34 @@ Ext.define('Isu.util.CreatingControl', {
         return userCombobox;
     },
 
+    createTrendPeriodControl: function (obj) {
+        var trendPeriodControl = {
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                fieldLabel: obj.label,
+                name: obj.key,
+                required: obj.constraint.required,
+                items: []
+            },
+            trendPeriod = this.createNumberField(obj),
+            trendPeriodUnit = this.createCombobox(obj.control.unitParameter);
+
+        delete trendPeriod.fieldLabel;
+        delete trendPeriod.required;
+        trendPeriod.width = 150;
+        trendPeriod.margin = '0 10 0 0' ;
+        trendPeriodUnit.flex = 1;
+        trendPeriodControl.items.push(trendPeriod, trendPeriodUnit);
+
+        return trendPeriodControl;
+    },
+
     suffixAppender: function (field, suffix) {
         field.columnWidth = 1;
         return {
             xtype: 'fieldcontainer',
             layout: 'column',
+            name: field.name,
             defaults: {
                 labelWidth: 150,
                 anchor: '100%',
