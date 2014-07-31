@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (13:26)
  */
-public class TaskStatusBreakdownCounterImplTestWithLowercaseD {
+public class TaskStatusBreakdownCounterImplTest {
 
     private static final long SUCCESS_COUNT = 12L;
     private static final long FAILED_COUNT = 45L;
