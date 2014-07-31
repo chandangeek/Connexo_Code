@@ -31,8 +31,8 @@ public class TaskStatusBreakdownCountersImplTest {
 
     @Test
     public void testConstructorWithBreakdowns () {
-        TaskStatusBreakdownCounter<CounterTarget> allZeros = new TaskStatusBreakdownCounterImplWithLowercaseD<>(new CounterTarget(1));
-        TaskStatusBreakdownCounter<CounterTarget> nonZeros = new TaskStatusBreakdownCounterImplWithLowercaseD<>(new CounterTarget(2), SUCCESS_COUNT, FAILED_COUNT, PENDING_COUNT);
+        TaskStatusBreakdownCounter<CounterTarget> allZeros = new TaskStatusBreakdownCounterImpl<>(new CounterTarget(1));
+        TaskStatusBreakdownCounter<CounterTarget> nonZeros = new TaskStatusBreakdownCounterImpl<>(new CounterTarget(2), SUCCESS_COUNT, FAILED_COUNT, PENDING_COUNT);
 
         // Business method
         this.breakdown = new Breakdown(allZeros, nonZeros);
@@ -61,7 +61,7 @@ public class TaskStatusBreakdownCountersImplTest {
     @Test
     public void testGetTotalsAfterAddingBreakdown() {
         this.breakdown = new Breakdown();
-        TaskStatusBreakdownCounter<CounterTarget> nonZeros = new TaskStatusBreakdownCounterImplWithLowercaseD<>(new CounterTarget(2), SUCCESS_COUNT, FAILED_COUNT, PENDING_COUNT);
+        TaskStatusBreakdownCounter<CounterTarget> nonZeros = new TaskStatusBreakdownCounterImpl<>(new CounterTarget(2), SUCCESS_COUNT, FAILED_COUNT, PENDING_COUNT);
         this.breakdown.add(nonZeros);
 
         // Business method
@@ -79,8 +79,8 @@ public class TaskStatusBreakdownCountersImplTest {
 
     @Test
     public void testGetTotalsWithBreakdowns() {
-        TaskStatusBreakdownCounter<CounterTarget> allZeros = new TaskStatusBreakdownCounterImplWithLowercaseD<>(new CounterTarget(1));
-        TaskStatusBreakdownCounter<CounterTarget> nonZeros = new TaskStatusBreakdownCounterImplWithLowercaseD<>(new CounterTarget(2), SUCCESS_COUNT, FAILED_COUNT, PENDING_COUNT);
+        TaskStatusBreakdownCounter<CounterTarget> allZeros = new TaskStatusBreakdownCounterImpl<>(new CounterTarget(1));
+        TaskStatusBreakdownCounter<CounterTarget> nonZeros = new TaskStatusBreakdownCounterImpl<>(new CounterTarget(2), SUCCESS_COUNT, FAILED_COUNT, PENDING_COUNT);
         this.breakdown = new Breakdown(allZeros, nonZeros);
 
         // Business method
