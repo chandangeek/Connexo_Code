@@ -13,6 +13,7 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.metering.IllegalCurrencyCodeException;
 import com.elster.jupiter.metering.IllegalMRIDFormatException;
 import com.elster.jupiter.metering.ReadingType;
@@ -263,8 +264,20 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	}
 
 	Optional<IntervalLength> getIntervalLength() {
-		return IntervalLength.from(this);
-	}
+        switch (getMacroPeriod()) {
+            case MONTHLY:
+                return Optional.of(IntervalLength.ofMonth());
+            case DAILY:
+                return Optional.of(IntervalLength.ofDay());
+            default:
+        }
+        if (getMeasuringPeriod() == TimeAttribute.HOUR24) {
+            return Optional.of(IntervalLength.ofDay());
+        }
+        int minutes = getMeasuringPeriod().getMinutes();
+        return minutes == 0 ? Optional.<IntervalLength>absent() : Optional.of(IntervalLength.ofMinutes(minutes));
+    }
+
 
     @Override
     public final boolean equals(Object o) {

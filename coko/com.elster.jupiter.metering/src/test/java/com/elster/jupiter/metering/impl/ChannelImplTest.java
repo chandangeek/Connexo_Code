@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.IntervalLengthUnit;
+import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
@@ -103,7 +103,7 @@ public class ChannelImplTest extends EqualsContractTest {
         when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, 2)).thenReturn(Optional.of(recordSpec));
         when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, 4)).thenReturn(Optional.of(recordSpec));
         when(vault.createIrregularTimeSeries(recordSpec, TIME_ZONE)).thenReturn(timeSeries);
-        when(vault.createRegularTimeSeries(recordSpec, TIME_ZONE, 1, IntervalLengthUnit.DAY, 0)).thenReturn(regularTimeSeries);
+        when(vault.createRegularTimeSeries(recordSpec, TIME_ZONE, IntervalLength.ofDay(), 0)).thenReturn(regularTimeSeries);
         when(timeSeries.getId()).thenReturn(TIMESERIES_ID);
         when(regularTimeSeries.getId()).thenReturn(TIMESERIES_ID);
 

@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
@@ -105,7 +106,7 @@ public final class ChannelImpl implements Channel {
 		return timeSeries.get();
 	}
 	
-	Optional<IntervalLength> getIntervalLength() {		
+	Optional<IntervalLength> getIntervalLength() {
 		Iterator<ReadingTypeImpl> it = getReadingTypes().iterator();
 		Optional<IntervalLength> result = ((ReadingTypeImpl) it.next()).getIntervalLength();
 		while (it.hasNext()) {
@@ -125,7 +126,7 @@ public final class ChannelImpl implements Channel {
         RecordSpec recordSpec = getRecordSpec(regular);
         TimeZone timeZone = clock.getTimeZone();
 		return regular ? 
-			vault.createRegularTimeSeries(recordSpec, clock.getTimeZone(), intervalLength.get().getLength() , intervalLength.get().getUnitCode(),0) :
+			vault.createRegularTimeSeries(recordSpec, clock.getTimeZone(), intervalLength.get(), 0) :
 			vault.createIrregularTimeSeries(recordSpec, timeZone);
 	
 	}
