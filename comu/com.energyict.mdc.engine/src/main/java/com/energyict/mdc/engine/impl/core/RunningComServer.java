@@ -1,10 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.core.ServerProcess;
 import com.energyict.mdc.engine.model.ComServer;
 
 /**
- * Models the scheduling aspects of a {@link com.energyict.mdc.engine.model.ComServer}.
+ * Models the aspects of a {@link com.energyict.mdc.engine.model.ComServer} that is actually running.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-03 (09:55)
@@ -24,5 +23,11 @@ public interface RunningComServer extends ServerProcess {
     public int getNumberOfCollectedDataStorageThreads ();
 
     public int getCollectedDataStorageThreadPriority ();
+
+    public void eventClientRegistered();
+
+    public void eventClientUnregistered();
+
+    public void eventWasPublished();
 
 }

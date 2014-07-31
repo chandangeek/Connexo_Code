@@ -231,8 +231,9 @@ public class RescheduleBehaviorForAsapTest {
                         mock(JobExecution.class),
                         connectionTask,
                         comPort,
-                        commandRootServiceProvider);
+                        this.serviceProvider);
         executionContext.setLogger(logger);
         return executionContext;
     }
+
 }

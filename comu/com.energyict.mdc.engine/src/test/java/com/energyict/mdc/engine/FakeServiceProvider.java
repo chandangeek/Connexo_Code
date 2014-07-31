@@ -1,5 +1,24 @@
 package com.energyict.mdc.engine;
 
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.web.EmbeddedJettyServer;
+import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
+import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
+import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
+import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiServiceFactory;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -8,22 +27,19 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.SocketService;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.services.HexService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
-
 /**
  * Copyrights EnergyICT
  * Date: 19/05/2014
  * Time: 13:24
  */
-public class FakeServiceProvider implements ServiceProvider {
+public class FakeServiceProvider
+    implements
+        ServiceProvider,
+        ComChannelBasedComPortListenerImpl.ServiceProvider,
+        ExecutionContext.ServiceProvider,
+        RequestParser.ServiceProvider,
+        EmbeddedJettyServer.ServiceProvider,
+        RunningComServerImpl.ServiceProvider {
 
     private EventService eventService;
     private TransactionService transactionService;
@@ -41,6 +57,10 @@ public class FakeServiceProvider implements ServiceProvider {
     private ProtocolPluggableService protocolPluggableService;
     private SocketService socketService;
     private SerialComponentService serialComponentService;
+    private ManagementBeanFactory managementBeanFactory;
+    private WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory;
+    private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
+    private EmbeddedWebServerFactory embeddedWebServerFactory;
 
     @Override
     public EventService eventService() {
@@ -184,6 +204,42 @@ public class FakeServiceProvider implements ServiceProvider {
 
     public void setSerialComponentService(SerialComponentService serialComponentService) {
         this.serialComponentService = serialComponentService;
+    }
+
+    @Override
+    public ManagementBeanFactory managementBeanFactory() {
+        return this.managementBeanFactory;
+    }
+
+    public void setManagementBeanFactory(ManagementBeanFactory managementBeanFactory) {
+        this.managementBeanFactory = managementBeanFactory;
+    }
+
+    @Override
+    public WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory() {
+        return this.webSocketQueryApiServiceFactory;
+    }
+
+    public void setWebSocketQueryApiServiceFactory(WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory) {
+        this.webSocketQueryApiServiceFactory = webSocketQueryApiServiceFactory;
+    }
+
+    @Override
+    public WebSocketEventPublisherFactory webSocketEventPublisherFactory() {
+        return this.webSocketEventPublisherFactory;
+    }
+
+    public void setWebSocketEventPublisherFactory(WebSocketEventPublisherFactory webSocketEventPublisherFactory) {
+        this.webSocketEventPublisherFactory = webSocketEventPublisherFactory;
+    }
+
+    @Override
+    public EmbeddedWebServerFactory embeddedWebServerFactory() {
+        return this.embeddedWebServerFactory;
+    }
+
+    public void setEmbeddedWebServerFactory(EmbeddedWebServerFactory embeddedWebServerFactory) {
+        this.embeddedWebServerFactory = embeddedWebServerFactory;
     }
 
 }

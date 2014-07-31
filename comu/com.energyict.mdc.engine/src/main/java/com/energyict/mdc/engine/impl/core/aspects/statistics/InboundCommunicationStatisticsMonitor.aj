@@ -24,9 +24,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 public privileged aspect InboundCommunicationStatisticsMonitor extends AbstractCommunicationStatisticsMonitor {
     declare precedence :
-            CommunicationStatisticsMonitor,
-            com.energyict.comserver.aspects.events.InboundConnectionEventPublisher,
-            com.energyict.mdc.inbound.aspects.logging.ComPortDiscoveryLogging;
+            InboundCommunicationStatisticsMonitor,
+            com.energyict.mdc.engine.impl.core.aspects.events.InboundConnectionEventPublisher,
+            com.energyict.mdc.engine.impl.core.inbound.aspects.logging.ComPortDiscoveryLogging ;
 
     private StopWatch InboundCommunicationHandler.discovering;
 

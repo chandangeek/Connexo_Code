@@ -31,6 +31,10 @@ import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifierFactory;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -208,6 +212,12 @@ public class MultiThreadedScheduledComPortTest {
     private ComSessionBuilder comSessionBuilder;
     @Mock
     private ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
+    @Mock
+    private ManagementBeanFactory managementBeanFactory;
+    @Mock(extraInterfaces = ScheduledComPortMonitor.class)
+    private ScheduledComPortMonitorImplMBean scheduledComPortMonitor;
+    @Mock
+    private ScheduledComPortOperationalStatistics operationalStatistics;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class));
@@ -261,6 +271,10 @@ public class MultiThreadedScheduledComPortTest {
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
         this.serviceProvider.setEngineService(engineService);
         this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
+        this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
+        when(this.managementBeanFactory.findOrCreateFor(any(ScheduledComPort.class))).thenReturn(this.scheduledComPortMonitor);
+        ScheduledComPortMonitor comPortMonitor = (ScheduledComPortMonitor) this.scheduledComPortMonitor;
+        when(comPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
                 thenReturn(comSessionBuilder);

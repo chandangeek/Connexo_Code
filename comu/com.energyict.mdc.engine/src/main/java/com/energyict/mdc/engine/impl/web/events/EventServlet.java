@@ -19,11 +19,17 @@ import java.util.List;
  */
 public class EventServlet extends WebSocketServlet implements WebSocketCloseEventListener {
 
+    private final WebSocketEventPublisherFactory webSocketEventPublisherFactory;
     private List<WebSocketEventPublisher> eventPublishers = new ArrayList<>();
+
+    public EventServlet(WebSocketEventPublisherFactory webSocketEventPublisherFactory) {
+        super();
+        this.webSocketEventPublisherFactory = webSocketEventPublisherFactory;
+    }
 
     @Override
     public WebSocket doWebSocketConnect (HttpServletRequest request, String protocol) {
-        WebSocketEventPublisher newEventPublisher = WebSocketEventPublisherFactory.getInstance().newWebSocketEventPublisher(this);
+        WebSocketEventPublisher newEventPublisher = this.webSocketEventPublisherFactory.newWebSocketEventPublisher(this);
         this.eventPublishers.add(newEventPublisher);
         return newEventPublisher;
     }

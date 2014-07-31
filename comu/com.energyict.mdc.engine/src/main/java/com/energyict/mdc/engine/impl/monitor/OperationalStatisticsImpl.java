@@ -1,10 +1,9 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.impl.core.RunningComServer;
-import com.energyict.mdc.engine.monitor.OperationalStatistics;
+
+import com.elster.jupiter.util.time.Clock;
 import org.joda.time.DateTimeConstants;
 
 import javax.management.openmbean.CompositeType;
@@ -32,22 +31,16 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
     public static final String LAST_CHECK_FOR_CHANGES_ITEM_NAME = "lastCheckForChangesTimestamp";
     private static final String LAST_CHECK_FOR_CHANGES_ITEM_DESCRIPTION = "last check for changes timestamp";
 
-    private RunningComServer runningComServer;
-    private Date startTimestamp;
-    private TimeDuration changesInterPollDelay;
-    private Date lastCheckForChangesTimestamp;
     private final Clock clock;
+    private final Date startTimestamp;
+    private final TimeDuration changesInterPollDelay;
+    private Date lastCheckForChangesTimestamp;
 
-    public OperationalStatisticsImpl(RunningComServer runningComServer, Clock clock) {
+    public OperationalStatisticsImpl(Clock clock, TimeDuration changesInterPollDelay) {
         super();
-        this.runningComServer = runningComServer;
         this.clock = clock;
         this.startTimestamp = this.clock.now();
-        this.changesInterPollDelay = runningComServer.getComServer().getChangesInterPollDelay();
-    }
-
-    protected RunningComServer getRunningComServer () {
-        return runningComServer;
+        this.changesInterPollDelay = changesInterPollDelay;
     }
 
     @Override

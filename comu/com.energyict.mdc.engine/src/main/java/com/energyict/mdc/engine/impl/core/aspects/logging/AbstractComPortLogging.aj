@@ -27,14 +27,14 @@ import java.util.logging.Logger;
  */
 public abstract aspect AbstractComPortLogging {
     declare precedence :
-            com.energyict.comserver.aspects.statistics.outbound.CommunicationStatisticsMonitor,
-            com.energyict.comserver.aspects.logging.ComChannelReadWriteLogger,
-            com.energyict.comserver.aspects.journaling.ComCommandJournaling,
-            com.energyict.comserver.scheduling.aspects.events.OutboundConnectionEventPublisher,
-            com.energyict.comserver.scheduling.aspects.events.OutboundComTaskEventPublisher,
-            com.energyict.comserver.scheduling.aspects.logging.InboundComPortLogging,
+            com.energyict.mdc.engine.impl.core.aspects.statistics.OutboundCommunicationStatisticsMonitor,
+            ComChannelReadWriteLogger,
+            com.energyict.mdc.engine.impl.core.aspects.journaling.ComCommandJournaling,
+            com.energyict.mdc.engine.impl.core.aspects.events.OutboundConnectionEventPublisher,
+            com.energyict.mdc.engine.impl.core.aspects.events.OutboundComTaskEventPublisher,
+            InboundComPortLogging,
             ComPortLogging,
-            com.energyict.comserver.scheduling.aspects.events.ComPortLogEventPublisher;
+            com.energyict.mdc.engine.impl.core.aspects.events.ComPortLogEventPublisher;
 
     CompositeComPortConnectionLogger ExecutionContext.connectionLogger;
     ComPortOperationsLogger ComPortServerProcess.normalOperationsLogger;

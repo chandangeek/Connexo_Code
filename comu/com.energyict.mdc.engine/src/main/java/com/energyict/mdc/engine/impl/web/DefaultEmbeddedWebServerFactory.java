@@ -4,11 +4,15 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
+import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,16 +23,34 @@ import java.net.URISyntaxException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-11 (10:17)
  */
+@Component(name = "com.energyict.mdc.engine.web.embedded.server", service = EmbeddedWebServerFactory.class, immediate = true)
 public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerFactory {
 
-    public EmbeddedWebServer findOrCreateFor(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    private volatile WebSocketEventPublisherFactory webSocketEventPublisherFactory;
+
+    public DefaultEmbeddedWebServerFactory() {
+        super();
+    }
+
+    // For testing purposes only
+    public DefaultEmbeddedWebServerFactory(WebSocketEventPublisherFactory webSocketEventPublisherFactory) {
+        super();
+        this.webSocketEventPublisherFactory = webSocketEventPublisherFactory;
+    }
+
+    @Reference
+    public void setWebSocketEventPublisherFactory(WebSocketEventPublisherFactory webSocketEventPublisherFactory) {
+        this.webSocketEventPublisherFactory = webSocketEventPublisherFactory;
+    }
+
+    public EmbeddedWebServer findOrCreateFor(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         return EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
     public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer) {
         try {
             URI eventRegistrationUri = new URI(comServer.getEventRegistrationUriIfSupported());
-            return EmbeddedJettyServer.newForEventMechanism(eventRegistrationUri);
+            return EmbeddedJettyServer.newForEventMechanism(eventRegistrationUri, new EmbeddedJettyServerServiceProvider());
         }
         catch (BusinessException e) {
             // Event registration is not supported
@@ -50,10 +72,10 @@ public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerF
     }
 
     @Override
-    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (OnlineComServer comServer) {
+    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (RunningOnlineComServer runningComServer) {
         try {
-            String queryApiPostUri = comServer.getQueryApiPostUriIfSupported();
-            return EmbeddedJettyServer.newForQueryApi(new URI(queryApiPostUri), comServer);
+            String queryApiPostUri = runningComServer.getComServer().getQueryApiPostUriIfSupported();
+            return EmbeddedJettyServer.newForQueryApi(new URI(queryApiPostUri), runningComServer);
         }
         catch (BusinessException e) {
             // Event registration is not supported
@@ -88,6 +110,13 @@ public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerF
             // The null object does not need an implementation here
         }
 
+    }
+
+    private class EmbeddedJettyServerServiceProvider implements EmbeddedJettyServer.ServiceProvider {
+        @Override
+        public WebSocketEventPublisherFactory webSocketEventPublisherFactory() {
+            return webSocketEventPublisherFactory;
+        }
     }
 
 }

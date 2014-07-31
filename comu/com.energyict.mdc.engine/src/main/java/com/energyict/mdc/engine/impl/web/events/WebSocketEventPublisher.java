@@ -1,8 +1,9 @@
 package com.energyict.mdc.engine.impl.web.events;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.EventReceiver;
@@ -12,9 +13,8 @@ import com.energyict.mdc.engine.impl.web.events.commands.RequestParseException;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+
 import org.eclipse.jetty.websocket.WebSocket;
 
 import java.io.ByteArrayOutputStream;
@@ -33,20 +33,18 @@ import java.util.Set;
  */
 public class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocket.OnTextMessage {
 
-    private final ServiceProvider serviceProvider;
     private final WebSocketCloseEventListener closeEventListener;
     private EventPublisher systemWideEventPublisher;
     private Connection connection;
     private RequestParser parser;
     private boolean sendBinary = false;
 
-    public WebSocketEventPublisher(ServiceProvider serviceProvider, WebSocketCloseEventListener closeEventListener) {
+    public WebSocketEventPublisher(RequestParser.ServiceProvider serviceProvider, WebSocketCloseEventListener closeEventListener) {
         this(serviceProvider, EventPublisherImpl.getInstance(), closeEventListener);
     }
 
-    public WebSocketEventPublisher(ServiceProvider serviceProvider, EventPublisher systemWideEventPublisher, WebSocketCloseEventListener closeEventListener) {
+    public WebSocketEventPublisher(RequestParser.ServiceProvider serviceProvider, EventPublisher systemWideEventPublisher, WebSocketCloseEventListener closeEventListener) {
         super();
-        this.serviceProvider = serviceProvider;
         this.closeEventListener = closeEventListener;
         this.systemWideEventPublisher = systemWideEventPublisher;
         this.parser = new RequestParser(serviceProvider);
@@ -141,6 +139,11 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     @Override
     public void unregisterAllInterests (EventReceiver receiver) {
         // Unregistering only happens via onClose
+    }
+
+    @Override
+    public void shutdown() {
+        this.connection.close();
     }
 
     @Override

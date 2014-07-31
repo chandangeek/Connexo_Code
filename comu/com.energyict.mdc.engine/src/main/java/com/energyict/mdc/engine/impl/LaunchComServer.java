@@ -21,7 +21,7 @@ import org.osgi.service.component.annotations.Reference;
         immediate = true)
 public class LaunchComServer {
 
-    private final static String PROPERTY_NAME_AUTO_START = "com.energyict.comserver.autostart";
+    private static final String PROPERTY_NAME_AUTO_START = "com.energyict.comserver.autostart";
 
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;

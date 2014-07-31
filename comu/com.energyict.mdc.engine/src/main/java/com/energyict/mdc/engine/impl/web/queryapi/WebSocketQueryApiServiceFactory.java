@@ -1,33 +1,15 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
-import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 
 /**
  * Provides factory services for {@link WebSocketQueryApiService}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2013-04-09 (11:20)
+ * @since 2014-07-16 (10:13)
  */
-public class WebSocketQueryApiServiceFactory {
+public interface WebSocketQueryApiServiceFactory {
 
-    private static WebSocketQueryApiServiceFactory soleInstance;
-
-    public static WebSocketQueryApiServiceFactory getInstance () {
-        if (soleInstance == null) {
-            soleInstance = new WebSocketQueryApiServiceFactory();
-        }
-        return soleInstance;
-    }
-
-    public static void setInstance (WebSocketQueryApiServiceFactory factory) {
-        soleInstance = factory;
-    }
-
-    public WebSocketQueryApiService newWebSocketQueryApiService (OnlineComServer comServer) {
-        return new WebSocketQueryApiService(comServer);
-    }
-
-    // Hide utility class constructor
-    protected WebSocketQueryApiServiceFactory () {}
+    public WebSocketQueryApiService newWebSocketQueryApiService (RunningOnlineComServer comServer);
 
 }

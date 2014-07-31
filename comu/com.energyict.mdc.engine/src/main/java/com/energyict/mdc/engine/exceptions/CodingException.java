@@ -10,6 +10,8 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
@@ -461,7 +463,15 @@ public final class CodingException extends ComServerRuntimeException {
     }
 
     public static CodingException malformedObjectName (RunningComServer comServer, MalformedObjectNameException e) {
-        return new CodingException(e, malformedObjectNameExceptionCode(), comServer.getComServer().getName());
+        return malformedObjectName(comServer.getComServer(), e);
+    }
+
+    public static CodingException malformedObjectName (ComServer comServer, MalformedObjectNameException e) {
+        return new CodingException(e, malformedObjectNameExceptionCode(), comServer.getName());
+    }
+
+    public static CodingException malformedObjectName (ComPort comPort, MalformedObjectNameException e) {
+        return new CodingException(e, malformedObjectNameExceptionCode(), comPort.getName());
     }
 
     private static ExceptionCode malformedObjectNameExceptionCode () {

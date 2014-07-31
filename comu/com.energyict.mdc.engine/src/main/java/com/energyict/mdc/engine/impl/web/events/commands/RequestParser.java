@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.engine.model.EngineModelService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +17,14 @@ import static com.elster.jupiter.util.Checks.is;
  * @since 2012-11-02 (17:57)
  */
 public class RequestParser {
+
+    public interface ServiceProvider {
+
+        public DeviceDataService deviceDataService();
+
+        public EngineModelService engineModelService();
+
+    }
 
     private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)register request (?:for (text|binary) events )?for (.*):\\s*(.*)");
     private List<RequestType> requestTypes;

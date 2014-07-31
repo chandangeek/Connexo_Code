@@ -1,9 +1,12 @@
-package com.energyict.mdc.engine.monitor;
+package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
-import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.OutboundComPort;
+
+import com.google.common.base.Optional;
 
 /**
  * Provides factory services for management beans (aka MBean)
@@ -24,13 +27,12 @@ public interface ManagementBeanFactory {
     public ComServerMonitorImplMBean findOrCreateFor (RunningComServer runningComServer);
 
     /**
-     * Finds or creates the {@link ComServerMonitorImplMBean}
-     * for the specified {@link OnlineComServer}.
+     * Finds the {@link ComServerMonitorImplMBean} for the specified {@link ComServer}.
      *
-     * @param onlineComServer The OnlineComServer
-     * @return The ComServerMonitorImplMBean
+     * @param comServer The ComServer
+     * @return The ComServerMonitorImplMBean or <code>null</code> if the ComServer has not registered yet
      */
-    public ComServerMonitorImplMBean findOrCreateFor (OnlineComServer onlineComServer);
+    public Optional<ComServerMonitorImplMBean> findFor(ComServer comServer);
 
     /**
      * Removes the {@link ComServerMonitorImplMBean}
@@ -43,13 +45,32 @@ public interface ManagementBeanFactory {
     public void removeIfExistsFor (RunningComServer runningComServer);
 
     /**
-     * Finds or creates the {@link OutboundComPortMBean}
+     * Finds or creates the {@link ScheduledComPortMBean}
      * for the specified {@link ScheduledComPort outbound ComPort}.
      *
-     * @param outboundComPort The ScheduledComPort
+     * @param comPort The ScheduledComPort
      * @return The OutboundComPortMBean
      */
-    public OutboundComPortMBean findOrCreateFor (ScheduledComPort outboundComPort);
+    public ScheduledComPortMonitorImplMBean findOrCreateFor (ScheduledComPort comPort);
+
+    /**
+     * Finds or creates the {@link ScheduledComPortMBean}
+     * for the specified {@link ScheduledComPort outbound ComPort}.
+     *
+     * @param comPort The ScheduledComPort
+     * @return The OutboundComPortMBean
+     */
+    public Optional<ScheduledComPortMonitorImplMBean> findFor (OutboundComPort comPort);
+
+    /**
+     * Removes the {@link ScheduledComPortMBean}
+     * for the specified {@link ScheduledComPort}
+     * if it already exists and does nothing when
+     * the OutboundComPortImplMBean does not exist.
+     *
+     * @param comPort The RunningComServer
+     */
+    public void removeIfExistsFor (ScheduledComPort comPort);
 
     /**
      * Finds or creates the {@link InboundComPortMBean}

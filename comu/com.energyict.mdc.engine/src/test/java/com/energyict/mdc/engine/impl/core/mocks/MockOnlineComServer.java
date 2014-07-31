@@ -39,7 +39,6 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     private LogLevel communicationLogLevel;
     private TimeDuration changesInterPollDelay;
     private TimeDuration schedulingInterPollDelay;
-    private String queryAPIPostUri;
     private List<MockTCPInboundComPort> inboundComPorts = new ArrayList<>();
     private List<MockOutboundComPort> outboundComPorts = new ArrayList<>();
     private boolean dirty;
@@ -48,8 +47,11 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     private int numberOfStoreTaskThreads = ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS;
     private int storeTaskThreadPriority = ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY;
     private boolean usesDefaultEventRegistrationUri = false;
-    private boolean usesDefaultQueryApiPostUri = false;
     private String eventRegistrationUri;
+    private String queryAPIPostUri;
+    private boolean usesDefaultQueryApiPostUri = false;
+    private String statusUri;
+    private boolean usesDefaultStatusUri = false;
 
     public MockOnlineComServer (String name) {
         super();
@@ -174,8 +176,28 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
+    public String getStatusUri() {
+        return this.statusUri;
+    }
+
+    @Override
+    public void setStatusUri(String statusUri) {
+        this.statusUri = statusUri;
+    }
+
+    @Override
     public int getStoreTaskQueueSize () {
         return this.storeTaskQueueSize;
+    }
+
+    @Override
+    public boolean usesDefaultStatusUri() {
+        return this.usesDefaultStatusUri;
+    }
+
+    @Override
+    public void setUsesDefaultStatusUri(boolean usesDefaultStatusUri) {
+        this.usesDefaultStatusUri = usesDefaultStatusUri;
     }
 
     @Override

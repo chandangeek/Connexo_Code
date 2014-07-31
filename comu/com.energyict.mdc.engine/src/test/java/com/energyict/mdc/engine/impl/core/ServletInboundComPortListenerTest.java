@@ -4,13 +4,15 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedJettyServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-import org.junit.Test;
+
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -38,6 +40,11 @@ public class ServletInboundComPortListenerTest {
     private DeviceCommandExecutor deviceCommandExecutor;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+
+    @Before
+    public void setupServiceProvider () {
+        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory());
+    }
 
     @Test(timeout = 10000)
     public void testNewComPortIsReturned() throws BusinessException {

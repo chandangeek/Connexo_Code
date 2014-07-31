@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  */
 public aspect DeviceCommandExecutorLogEventPublisher extends AbstractDeviceCommandExecutorLogging {
     declare precedence:
-            com.energyict.comserver.core.impl.devices.DeviceCommandExecutorLogging,
+            com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorLogging,
             DeviceCommandExecutorLogEventPublisher;
 
     @Override

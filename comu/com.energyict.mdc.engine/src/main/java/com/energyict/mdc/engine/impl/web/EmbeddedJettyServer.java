@@ -2,13 +2,16 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.EventServlet;
+import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -34,6 +37,12 @@ import static com.elster.jupiter.util.Checks.is;
  */
 public class EmbeddedJettyServer implements EmbeddedWebServer {
 
+    public interface ServiceProvider {
+
+        public WebSocketEventPublisherFactory webSocketEventPublisherFactory();
+
+    }
+
     /**
      * The number of seconds that accepted requests are allowed to complete
      * during the graceful shutdown.
@@ -53,11 +62,11 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param deviceCommandExecutor The DeviceCommandExecutor
      * @param serviceProvider The IssueService
      */
-    public static EmbeddedJettyServer newForInboundDeviceCommunication(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    public static EmbeddedJettyServer newForInboundDeviceCommunication(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         return new EmbeddedJettyServer(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
-    private EmbeddedJettyServer(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    private EmbeddedJettyServer(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
         this.jetty = new Server();
         if (comPort.isHttps()) {
@@ -117,21 +126,22 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
     }
 
     /**
-     * Creates a new EmbeddedJettyServer that will host
-     * the servlet for the event mechanism.
+     * Creates a new EmbeddedJettyServer that will host the servlet for the event mechanism.
      *
      * @param eventRegistrationUri The URI on which the servlet should be listening
+     * @param serviceProvider The ServiceProvider
      */
-    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri) {
+    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, ServiceProvider serviceProvider) {
         EmbeddedJettyServer server = new EmbeddedJettyServer();
-        server.addEventMechanism(eventRegistrationUri);
+        server.addEventMechanism(eventRegistrationUri, serviceProvider);
         return server;
     }
 
-    public void addEventMechanism (URI eventRegistrationUri) {
+    public void addEventMechanism (URI eventRegistrationUri, ServiceProvider serviceProvider) {
         this.jetty = new Server(getPortNumber(eventRegistrationUri, ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER));
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        handler.addServlet(EventServlet.class, eventRegistrationUri.getPath());
+        ServletHolder servletHolder = new ServletHolder(new EventServlet(serviceProvider.webSocketEventPublisherFactory()));
+        handler.addServlet(servletHolder, eventRegistrationUri.getPath());
         this.jetty.setHandler(handler);
     }
 
@@ -143,13 +153,13 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param queryApiPostUri The URI on which the servlet should be listening
      * @param comServer The OnlineComServer
      */
-    public static EmbeddedJettyServer newForQueryApi (URI queryApiPostUri, OnlineComServer comServer) {
+    public static EmbeddedJettyServer newForQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer) {
         EmbeddedJettyServer server = new EmbeddedJettyServer();
         server.addQueryApi(queryApiPostUri, comServer);
         return server;
     }
 
-    public void addQueryApi (URI queryApiPostUri, OnlineComServer comServer) {
+    public void addQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer) {
         this.jetty = new Server(getPortNumber(queryApiPostUri, ComServer.DEFAULT_QUERY_API_PORT_NUMBER));
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
         ServletHolder servletHolder = new ServletHolder(new QueryApiServlet(comServer));

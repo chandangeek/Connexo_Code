@@ -4,11 +4,10 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.InboundComPortExecutor;
 import com.energyict.mdc.engine.impl.core.InboundComPortExecutorImpl;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.InboundComPort;
 
 /**
- * Provides simple functionality to create an {@link InboundComPortExecutor}
+ * Provides simple functionality to create an {@link InboundComPortExecutor}.
  * <p/>
  * Copyrights EnergyICT
  * Date: 22/10/12
@@ -16,14 +15,16 @@ import com.energyict.mdc.engine.model.InboundComPort;
  */
 public class InboundComPortExecutorFactoryImpl implements InboundComPortExecutorFactory{
 
-    /**
-     * Default no argument constructor
-     */
-    public InboundComPortExecutorFactoryImpl() {
+    private final InboundComPortExecutorImpl.ServiceProvider serviceProvider;
+
+    public InboundComPortExecutorFactoryImpl(InboundComPortExecutorImpl.ServiceProvider serviceProvider) {
+        super();
+        this.serviceProvider = serviceProvider;
     }
 
     @Override
-    public InboundComPortExecutor create(InboundComPort inboundComPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        return new InboundComPortExecutorImpl(inboundComPort, comServerDAO, deviceCommandExecutor, serviceProvider);
+    public InboundComPortExecutor create(InboundComPort inboundComPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
+        return new InboundComPortExecutorImpl(inboundComPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
     }
+
 }

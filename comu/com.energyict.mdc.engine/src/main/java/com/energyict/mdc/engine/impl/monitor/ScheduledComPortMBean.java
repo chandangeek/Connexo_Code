@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.monitor;
+package com.energyict.mdc.engine.impl.monitor;
 
 /**
  * Exposes the information that is gathered by the process
@@ -7,8 +7,8 @@ package com.energyict.mdc.engine.monitor;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-03 (13:03)
  */
-public interface OutboundComPortMBean {
+public interface ScheduledComPortMBean {
 
-    public OutboundComPortOperationalStatistics getOperationalStatistics ();
+    public ScheduledComPortOperationalStatistics getOperationalStatistics ();
 
 }

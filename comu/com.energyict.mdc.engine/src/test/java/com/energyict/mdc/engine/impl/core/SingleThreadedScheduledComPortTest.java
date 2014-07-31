@@ -30,6 +30,10 @@ import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -180,6 +184,12 @@ public class SingleThreadedScheduledComPortTest {
     private ComSessionBuilder comSessionBuilder;
     @Mock
     private ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
+    @Mock
+    private ManagementBeanFactory managementBeanFactory;
+    @Mock(extraInterfaces = ScheduledComPortMonitor.class)
+    private ScheduledComPortMonitorImplMBean scheduledComPortMonitor;
+    @Mock
+    private ScheduledComPortOperationalStatistics operationalStatistics;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class));
@@ -236,6 +246,10 @@ public class SingleThreadedScheduledComPortTest {
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
         this.serviceProvider.setEngineService(engineService);
         this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
+        this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
+        when(this.managementBeanFactory.findOrCreateFor(any(ScheduledComPort.class))).thenReturn(this.scheduledComPortMonitor);
+        ScheduledComPortMonitor comPortMonitor = (ScheduledComPortMonitor) this.scheduledComPortMonitor;
+        when(comPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
             thenReturn(comSessionBuilder);
@@ -667,7 +681,7 @@ public class SingleThreadedScheduledComPortTest {
         CountDownLatch stopLatch = new CountDownLatch(1);
         CountDownLatch deviceCommandExecutorStartedLatch = new CountDownLatch(1);
         when(comServerDAO.findExecutableOutboundComTasks(comPort)).thenReturn(jobs).thenReturn(Collections.<ComJob>emptyList());;
-        DeviceCommandExecutor deviceCommandExecutor = spy(new RealTimeWorkingLatchDrivenDeviceCommandExecutor(comServer, 10, 1, 1, ComServer.LogLevel.TRACE, comServerDAO, deviceCommandExecutorStartedLatch, stopLatch));
+        DeviceCommandExecutor deviceCommandExecutor = spy(new RealTimeWorkingLatchDrivenDeviceCommandExecutor(comServer.getName(), 10, 1, 1, ComServer.LogLevel.TRACE, new ComServerThreadFactory(comServer), comServerDAO, deviceCommandExecutorStartedLatch, stopLatch));
         deviceCommandExecutor.start();
         SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
 
@@ -920,8 +934,8 @@ public class SingleThreadedScheduledComPortTest {
         private CountDownLatch startedLatch;
         private CountDownLatch executeLatch;
 
-        private RealTimeWorkingLatchDrivenDeviceCommandExecutor(ComServer comServer, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ComServerDAO comServerDAO,  CountDownLatch startedLatch, CountDownLatch executeLatch) {
-            super(comServer, queueCapacity, numberOfThreads, threadPriority, logLevel, comServerDAO, threadPrincipalService, userService);
+        private RealTimeWorkingLatchDrivenDeviceCommandExecutor(String comServerName, int queueCapacity, int numberOfThreads, int threadPriority, ComServer.LogLevel logLevel, ThreadFactory threadFactory, ComServerDAO comServerDAO,  CountDownLatch startedLatch, CountDownLatch executeLatch) {
+            super(comServerName, queueCapacity, numberOfThreads, threadPriority, logLevel, threadFactory, comServerDAO, threadPrincipalService, userService);
             this.startedLatch = startedLatch;
             this.executeLatch = executeLatch;
         }

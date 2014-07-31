@@ -4,8 +4,13 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
+
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
 import org.joda.time.DateTimeConstants;
 
 import java.util.List;
@@ -25,6 +30,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable {
 
+    public interface ServiceProvider extends JobExecution.ServiceProvider {
+
+        public UserService userService();
+
+        public ThreadPrincipalService threadPrincipalService();
+
+        public ManagementBeanFactory managementBeanFactory();
+
+    }
+
     private final ServiceProvider serviceProvider;
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private OutboundComPort comPort;
@@ -35,6 +50,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private AtomicBoolean continueRunning;
     private DeviceCommandExecutor deviceCommandExecutor;
     private TimeDuration schedulingInterpollDelay;
+    private ScheduledComPortMonitor operationalMonitor;
 
     public ScheduledComPortImpl(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this(comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
@@ -106,12 +122,21 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     protected void doStart () {
+        this.registerAsMBean();
         this.status = ServerProcessStatus.STARTING;
         this.continueRunning = new AtomicBoolean(true);
         self = this.threadFactory.newThread(this);
         self.setName(this.getThreadName());
         self.start();
         this.status = ServerProcessStatus.STARTED;
+    }
+
+    private void registerAsMBean() {
+        this.operationalMonitor = (ScheduledComPortMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor(this);
+    }
+
+    protected ScheduledComPortMonitor getOperationalMonitor() {
+        return this.operationalMonitor;
     }
 
     @Override
@@ -170,7 +195,12 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     protected final void executeTasks () {
         List<ComJob> jobs = this.getComServerDAO().findExecutableOutboundComTasks(this.getComPort());
+        this.queriedForTasks();
         scheduleAll(jobs);
+    }
+
+    private void queriedForTasks () {
+        this.getOperationalMonitor().getOperationalStatistics().setLastCheckForChangesTimestamp(this.serviceProvider.clock().now());
     }
 
     private void scheduleAll(List<ComJob> jobs) {
@@ -203,15 +233,15 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTask) {
-        return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTask, serviceProvider);
+        return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTask, this.serviceProvider);
     }
 
     protected ScheduledComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
-        return new ScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, serviceProvider);
+        return new ScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, this.serviceProvider);
     }
 
     protected ScheduledComTaskExecutionGroup newComTaskGroup (ComJob groupComJob) {
-        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) groupComJob.getConnectionTask();
+        ScheduledConnectionTask connectionTask = groupComJob.getConnectionTask();
         ScheduledComTaskExecutionGroup group = newComTaskGroup(connectionTask);
         for (ComTaskExecution scheduledComTask : groupComJob.getComTaskExecutions()) {
             group.add(scheduledComTask);
@@ -223,4 +253,5 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     ServiceProvider getServiceProvider() {
         return serviceProvider;
     }
+
 }

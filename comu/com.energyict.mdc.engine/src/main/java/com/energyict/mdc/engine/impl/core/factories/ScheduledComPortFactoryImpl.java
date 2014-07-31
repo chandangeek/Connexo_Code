@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.MultiThreadedScheduledComPort;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.ScheduledComPortImpl;
 import com.energyict.mdc.engine.impl.core.SingleThreadedScheduledComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
@@ -19,26 +19,25 @@ import java.util.concurrent.ThreadFactory;
  */
 public class ScheduledComPortFactoryImpl implements ScheduledComPortFactory {
 
-    private final ServiceProvider serviceProvider;
-
     private ComServerDAO comServerDAO;
     private DeviceCommandExecutor deviceCommandExecutor;
     private ThreadFactory threadFactory;
+    private final ScheduledComPortImpl.ServiceProvider serviceProvider;
 
-    public ScheduledComPortFactoryImpl(ServiceProvider serviceProvider, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
-        this(serviceProvider, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory());
+    public ScheduledComPortFactoryImpl(ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledComPortImpl.ServiceProvider serviceProvider) {
+        this(comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
     }
 
-    public ScheduledComPortFactoryImpl(ServiceProvider serviceProvider, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory) {
+    public ScheduledComPortFactoryImpl(ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ScheduledComPortImpl.ServiceProvider serviceProvider) {
         super();
-        this.serviceProvider = serviceProvider;
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.threadFactory = threadFactory;
+        this.serviceProvider = serviceProvider;
     }
 
     @Override
-    public ScheduledComPort newFor(OutboundComPort comPort, ServiceProvider serviceProvider) {
+    public ScheduledComPort newFor(OutboundComPort comPort) {
         if (comPort.isActive()) {
             switch (comPort.getNumberOfSimultaneousConnections()) {
                 case 0: {

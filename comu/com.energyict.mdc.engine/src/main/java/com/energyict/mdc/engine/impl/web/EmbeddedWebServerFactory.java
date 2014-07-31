@@ -2,12 +2,10 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Provides factory services for {@link EmbeddedWebServer}s.
@@ -16,8 +14,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @since 2012-12-04 (12:03)
  */
 public interface EmbeddedWebServerFactory {
-
-    public AtomicReference<EmbeddedWebServerFactory> DEFAULT = new AtomicReference<EmbeddedWebServerFactory>(new DefaultEmbeddedWebServerFactory());
 
     /**
      * Finds or creates the {@link EmbeddedWebServer} that hosts
@@ -30,7 +26,7 @@ public interface EmbeddedWebServerFactory {
      * @param serviceProvider The IssueService
      * @return The EmbeddedWebServer
      */
-    public EmbeddedWebServer findOrCreateFor(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider);
+    public EmbeddedWebServer findOrCreateFor(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider);
 
     /**
      * Finds or creates the {@link EmbeddedWebServer} that hosts
@@ -49,9 +45,9 @@ public interface EmbeddedWebServerFactory {
      * to execute queries using the specified
      * {@link com.energyict.mdc.engine.model.OnlineComServer}.
      *
-     * @param comServer The OnlineComServer
+     * @param comServer The RunningOnlineComServer
      * @return The EmbeddedWebServer
      */
-    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (OnlineComServer comServer);
+    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (RunningOnlineComServer comServer);
 
 }

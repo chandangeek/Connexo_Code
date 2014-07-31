@@ -1,13 +1,14 @@
 package com.energyict.mdc.engine.impl.events;
 
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
@@ -31,19 +32,25 @@ public class EventPublisherImpl implements EventPublisher {
     private final Clock clock;
     private final EngineModelService engineModelService;
     private final DeviceDataService deviceDataService;
+    private final RunningComServer comServer;
     private FilteringEventReceiverFactory factory;
     private List<FilteringEventReceiver> filters = new LinkedList<>();
 
-    public EventPublisherImpl(Clock clock, EngineModelService engineModelService, DeviceDataService deviceDataService) {
-        this(clock, engineModelService, deviceDataService, new FilteringEventReceiverFactoryImpl());
+    public EventPublisherImpl(RunningComServer comServer, Clock clock, EngineModelService engineModelService, DeviceDataService deviceDataService) {
+        this(comServer, clock, engineModelService, deviceDataService, new FilteringEventReceiverFactoryImpl());
     }
 
-    public EventPublisherImpl (Clock clock, EngineModelService engineModelService, DeviceDataService deviceDataService, FilteringEventReceiverFactory factory) {
+    public EventPublisherImpl (RunningComServer comServer, Clock clock, EngineModelService engineModelService, DeviceDataService deviceDataService, FilteringEventReceiverFactory factory) {
         super();
+        this.comServer = comServer;
         this.clock = clock;
         this.engineModelService = engineModelService;
         this.deviceDataService = deviceDataService;
         this.factory = factory;
+        /* Todo: Every RunningComServer should have its own publisher
+         *       so avoid setting the one and only publisher.
+         *       This will require refactoring in AOP code though. */
+        setInstance(this);
     }
 
     public static synchronized EventPublisherImpl getInstance () {
@@ -59,11 +66,17 @@ public class EventPublisherImpl implements EventPublisher {
     }
 
     @Override
+    public void shutdown() {
+
+    }
+
+    @Override
     public void unregisterAllInterests (EventReceiver receiver) {
         synchronized (this.filters) {
             FilteringEventReceiver filter = this.findFilter(receiver);
             if (filter != null) {
                 this.filters.remove(filter);
+                this.notifyClientUnregistered();
             }
         }
     }
@@ -188,7 +201,20 @@ public class EventPublisherImpl implements EventPublisher {
     private FilteringEventReceiver createFilter (EventReceiver receiver) {
         FilteringEventReceiver filter = this.factory.newFor(receiver);
         this.filters.add(filter);
+        this.notifyClientRegistered();
         return filter;
+    }
+
+    private void notifyClientRegistered() {
+        this.comServer.eventClientRegistered();
+    }
+
+    private void notifyClientUnregistered() {
+        this.comServer.eventClientUnregistered();
+    }
+
+    private void notifyEventWasPublished() {
+        this.comServer.eventWasPublished();
     }
 
     private FilteringEventReceiver findFilter (EventReceiver receiver) {
@@ -206,6 +232,7 @@ public class EventPublisherImpl implements EventPublisher {
             for (FilteringEventReceiver filter : this.filters) {
                 filter.receive(event);
             }
+            this.notifyEventWasPublished();
         }
     }
 

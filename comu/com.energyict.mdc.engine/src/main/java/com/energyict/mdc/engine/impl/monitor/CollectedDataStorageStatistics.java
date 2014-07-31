@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.monitor;
+package com.energyict.mdc.engine.impl.monitor;
 
 /**
  * Models the statistics of the data collection storage process

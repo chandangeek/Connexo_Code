@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.web;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
@@ -43,14 +42,14 @@ import java.util.logging.Logger;
 public class ComServlet extends HttpServlet {
 
     private static final Logger LOGGER = Logger.getLogger(ComServlet.class.getName());
-    private final ServiceProvider serviceProvider;
+    private final InboundCommunicationHandler.ServiceProvider serviceProvider;
 
     private Statistics statistics = new Statistics();
     private InboundCommunicationHandler communicationHandler;
     private ServletBasedInboundComPort comPort;
     private ComServerDAO comServerDAO;
 
-    public ComServlet(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+    public ComServlet(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
         this.communicationHandler = new InboundCommunicationHandler(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.comPort = comPort;

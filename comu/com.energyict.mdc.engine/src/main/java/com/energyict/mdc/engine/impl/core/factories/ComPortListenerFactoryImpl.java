@@ -1,10 +1,10 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComPortListener;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.ServletInboundComPortListener;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -22,16 +22,18 @@ public class ComPortListenerFactoryImpl implements ComPortListenerFactory {
     private final ComServerDAO comServerDAO;
     private final DeviceCommandExecutor deviceCommandExecutor;
     private final ThreadFactory threadFactory;
+    private final ComChannelBasedComPortListenerImpl.ServiceProvider  serviceProvider;
 
-    public ComPortListenerFactoryImpl(ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory) {
+    public ComPortListenerFactoryImpl(ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ComChannelBasedComPortListenerImpl.ServiceProvider  serviceProvider) {
         super();
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.threadFactory = threadFactory;
+        this.serviceProvider = serviceProvider;
     }
 
     @Override
-    public ComPortListener newFor(InboundComPort comPort, ServiceProvider serviceProvider) {
+    public ComPortListener newFor(InboundComPort comPort) {
         if (comPort.isActive()) {
             if (!comPort.isServletBased()) {
                 switch (comPort.getNumberOfSimultaneousConnections()) {

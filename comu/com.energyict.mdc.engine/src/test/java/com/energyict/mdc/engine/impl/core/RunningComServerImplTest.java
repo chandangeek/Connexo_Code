@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
@@ -15,6 +16,9 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.RemoteComServer;
+import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
@@ -32,7 +36,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -57,15 +60,29 @@ public class RunningComServerImplTest {
     private EngineModelService engineModelService;
     @Mock
     private DeviceDataService deviceDataService;
+    @Mock
+    private ManagementBeanFactory managementBeanFactory;
+    @Mock(extraInterfaces = ComServerMonitor.class)
+    private ComServerMonitorImplMBean comServerMonitor;
+    @Mock
+    private EventAPIStatistics eventApiStatistics;
 
     private Clock clock = new DefaultClock();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
+
+    @Before
+    public void setupManagementBeanFactory () {
+        when(this.managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(this.comServerMonitor);
+        ComServerMonitor comServerMonitor = (ComServerMonitor) this.comServerMonitor;
+        when(comServerMonitor.getEventApiStatistics()).thenReturn(this.eventApiStatistics);
+    }
 
     @Before
     public void setupServiceProvider () {
         this.serviceProvider.setClock(this.clock);
         this.serviceProvider.setEngineModelService(this.engineModelService);
         this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
         ServiceProvider.instance.set(this.serviceProvider);
     }
 
@@ -76,17 +93,16 @@ public class RunningComServerImplTest {
 
     @Before
     public void initializeEmbeddedWebServerFactory() {
-        EmbeddedWebServerFactory.DEFAULT.set(this.embeddedWebServerFactory);
+        this.serviceProvider.setEmbeddedWebServerFactory(this.embeddedWebServerFactory);
     }
 
     @After
     public void resetEmbeddedWebServerFactory() {
-        EmbeddedWebServerFactory.DEFAULT.set(new DefaultEmbeddedWebServerFactory());
+        this.serviceProvider.setEmbeddedWebServerFactory(new DefaultEmbeddedWebServerFactory());
     }
 
-    @Before
-    public void initializeEventPublisher() {
-        EventPublisherImpl.setInstance(new EventPublisherImpl(this.clock, this.engineModelService, this.deviceDataService));
+    private void initializeEventPublisher(RunningComServer comServer) {
+        EventPublisherImpl.setInstance(new EventPublisherImpl(comServer, this.clock, this.engineModelService, this.deviceDataService));
     }
 
     @After
@@ -110,11 +126,11 @@ public class RunningComServerImplTest {
 
         // Business method
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, mock(CleanupDuringStartup.class), this.serviceProvider);
+        new RunningOnlineComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, mock(CleanupDuringStartup.class), this.serviceProvider);
 
         // Asserts
-        verify(scheduledComPortFactory, times(0)).newFor(any(OutboundComPort.class), eq(this.serviceProvider));
-        verify(comPortListenerFactory, times(0)).newFor(any(InboundComPort.class), eq(this.serviceProvider));
+        verify(scheduledComPortFactory, times(0)).newFor(any(OutboundComPort.class));
+        verify(comPortListenerFactory, times(0)).newFor(any(InboundComPort.class));
         verify(threadFactory, times(0)).newThread(any(Runnable.class));
     }
 
@@ -146,11 +162,11 @@ public class RunningComServerImplTest {
 
         // Business method
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, mock(CleanupDuringStartup.class), this.serviceProvider);
+        new RunningOnlineComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, mock(CleanupDuringStartup.class), this.serviceProvider);
 
         // Asserts
-        verify(scheduledComPortFactory, times(numberOfInactiveOutboundComPorts)).newFor(any(OutboundComPort.class), eq(this.serviceProvider));
-        verify(comPortListenerFactory, times(numberOfInactiveInboundComPorts)).newFor(any(InboundComPort.class), eq(this.serviceProvider));
+        verify(scheduledComPortFactory, times(numberOfInactiveOutboundComPorts)).newFor(any(OutboundComPort.class));
+        verify(comPortListenerFactory, times(numberOfInactiveInboundComPorts)).newFor(any(InboundComPort.class));
         verify(threadFactory, times(0)).newThread(any(Runnable.class));
     }
 
@@ -179,7 +195,8 @@ public class RunningComServerImplTest {
 
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         CleanupDuringStartup cleanupDuringStartup = mock(CleanupDuringStartup.class);
-        OnlineRunningComServerImpl runningComServer = new OnlineRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup, this.serviceProvider);
+        RunningOnlineComServerImpl runningComServer = new RunningOnlineComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup, this.serviceProvider);
+        this.initializeEventPublisher(runningComServer);
 
         // Business method
         runningComServer.start();
@@ -190,7 +207,7 @@ public class RunningComServerImplTest {
         verify(timeOutMonitorThread).start();
         verify(cleanupDuringStartup).releaseInterruptedTasks();
         verify(this.engineModelService).findRemoteComServersForOnlineComServer(comServer);
-        verify(this.embeddedWebServerFactory, never()).findOrCreateRemoteQueryWebServer(comServer);
+        verify(this.embeddedWebServerFactory, never()).findOrCreateRemoteQueryWebServer(runningComServer);
     }
 
     @Test
@@ -216,11 +233,12 @@ public class RunningComServerImplTest {
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
         EmbeddedWebServer queryWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateRemoteQueryWebServer(comServer)).thenReturn(queryWebServer);
 
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         CleanupDuringStartup cleanupDuringStartup = mock(CleanupDuringStartup.class);
-        OnlineRunningComServerImpl runningComServer = new OnlineRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup, this.serviceProvider);
+        RunningOnlineComServerImpl runningComServer = new RunningOnlineComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup, this.serviceProvider);
+        this.initializeEventPublisher(runningComServer);
+        when(this.embeddedWebServerFactory.findOrCreateRemoteQueryWebServer(runningComServer)).thenReturn(queryWebServer);
 
         // Business method
         runningComServer.start();
@@ -230,7 +248,7 @@ public class RunningComServerImplTest {
         verify(changesMonitorThread).start();
         verify(timeOutMonitorThread).start();
         verify(cleanupDuringStartup).releaseInterruptedTasks();
-        verify(this.embeddedWebServerFactory).findOrCreateRemoteQueryWebServer(comServer);
+        verify(this.embeddedWebServerFactory).findOrCreateRemoteQueryWebServer(runningComServer);
         verify(queryWebServer).start();
     }
 
@@ -255,7 +273,8 @@ public class RunningComServerImplTest {
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, mock(CleanupDuringStartup.class), this.serviceProvider);
+        RunningOnlineComServerImpl runningComServer = new RunningOnlineComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, mock(CleanupDuringStartup.class), this.serviceProvider);
+        this.initializeEventPublisher(runningComServer);
         runningComServer.start();
 
         // Business method
@@ -289,12 +308,13 @@ public class RunningComServerImplTest {
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
         EmbeddedWebServer queryWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateRemoteQueryWebServer(comServer)).thenReturn(queryWebServer);
 
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        OnlineRunningComServerImpl runningComServer = new OnlineRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, mock(CleanupDuringStartup.class), this.serviceProvider);
-        runningComServer.start();
+        RunningOnlineComServerImpl runningComServer = new RunningOnlineComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, mock(CleanupDuringStartup.class), this.serviceProvider);
+        this.initializeEventPublisher(runningComServer);
         when(queryWebServer.getStatus()).thenReturn(ServerProcessStatus.STARTED, ServerProcessStatus.SHUTDOWN);
+        when(this.embeddedWebServerFactory.findOrCreateRemoteQueryWebServer(runningComServer)).thenReturn(queryWebServer);
+        runningComServer.start();
 
         // Business method
         runningComServer.shutdown();
@@ -329,10 +349,10 @@ public class RunningComServerImplTest {
 
         ScheduledComPortFactory scheduledComPortFactory = mock(ScheduledComPortFactory.class);
         ScheduledComPort scheduledComPort = mock(ScheduledComPort.class);
-        when(scheduledComPortFactory.newFor(any(OutboundComPort.class), eq(this.serviceProvider))).thenReturn(scheduledComPort);
+        when(scheduledComPortFactory.newFor(any(OutboundComPort.class))).thenReturn(scheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         ComPortListener comPortListener = mock(ComPortListener.class);
-        when(comPortListenerFactory.newFor(any(InboundComPort.class), eq(this.serviceProvider))).thenReturn(comPortListener);
+        when(comPortListenerFactory.newFor(any(InboundComPort.class))).thenReturn(comPortListener);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread timeOutMonitorThread = this.mockedThread();
         Thread changesMonitorThread = this.mockedThread();
@@ -343,7 +363,8 @@ public class RunningComServerImplTest {
 
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         CleanupDuringStartup cleanupDuringStartup = mock(CleanupDuringStartup.class);
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup, this.serviceProvider);
+        RunningOnlineComServerImpl runningComServer = new RunningOnlineComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup, this.serviceProvider);
+        this.initializeEventPublisher(runningComServer);
 
         // Business method
         runningComServer.start();
@@ -368,10 +389,10 @@ public class RunningComServerImplTest {
 
         ScheduledComPortFactory scheduledComPortFactory = mock(ScheduledComPortFactory.class);
         ScheduledComPort scheduledComPort = mock(ScheduledComPort.class);
-        when(scheduledComPortFactory.newFor(any(OutboundComPort.class), eq(this.serviceProvider))).thenReturn(scheduledComPort);
+        when(scheduledComPortFactory.newFor(any(OutboundComPort.class))).thenReturn(scheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         ComPortListener comPortListener = mock(ComPortListener.class);
-        when(comPortListenerFactory.newFor(any(InboundComPort.class), eq(this.serviceProvider))).thenReturn(comPortListener);
+        when(comPortListenerFactory.newFor(any(InboundComPort.class))).thenReturn(comPortListener);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread timeOutMonitorThread = this.mockedThread();
         Thread changesMonitorThread = this.mockedThread();
@@ -380,7 +401,8 @@ public class RunningComServerImplTest {
         CleanupDuringStartup cleanupDuringStartup = mock(CleanupDuringStartup.class);
         doThrow(SQLException.class).when(cleanupDuringStartup).releaseInterruptedTasks();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup, this.serviceProvider);
+        RunningOnlineComServerImpl runningComServer = new RunningOnlineComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup, this.serviceProvider);
+        this.initializeEventPublisher(runningComServer);
 
         // Business method
         runningComServer.start();
@@ -419,11 +441,11 @@ public class RunningComServerImplTest {
         ScheduledComPortFactory scheduledComPortFactory = mock(ScheduledComPortFactory.class);
         ScheduledComPort scheduledComPort = mock(ScheduledComPort.class);
         when(scheduledComPort.getStatus()).thenReturn(ServerProcessStatus.STARTED);
-        when(scheduledComPortFactory.newFor(any(OutboundComPort.class), eq(this.serviceProvider))).thenReturn(scheduledComPort);
+        when(scheduledComPortFactory.newFor(any(OutboundComPort.class))).thenReturn(scheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         ComPortListener comPortListener = mock(ComPortListener.class);
         when(comPortListener.getStatus()).thenReturn(ServerProcessStatus.STARTED);
-        when(comPortListenerFactory.newFor(any(InboundComPort.class), eq(this.serviceProvider))).thenReturn(comPortListener);
+        when(comPortListenerFactory.newFor(any(InboundComPort.class))).thenReturn(comPortListener);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread timeOutMonitorThread = this.mockedThread();
         Thread changesMonitorThread = this.mockedThread();
@@ -433,7 +455,8 @@ public class RunningComServerImplTest {
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        RunningComServerImpl runningComServer = new RunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, mock(CleanupDuringStartup.class), this.serviceProvider);
+        RunningOnlineComServerImpl runningComServer = new RunningOnlineComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, mock(CleanupDuringStartup.class), this.serviceProvider);
+        this.initializeEventPublisher(runningComServer);
         runningComServer.start();
 
         when(scheduledComPort.getStatus()).thenReturn(ServerProcessStatus.SHUTDOWN);

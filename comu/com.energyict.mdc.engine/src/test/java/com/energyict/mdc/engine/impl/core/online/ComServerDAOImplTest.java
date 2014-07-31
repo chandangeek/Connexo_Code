@@ -8,7 +8,6 @@ import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -19,6 +18,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import com.elster.jupiter.transaction.TransactionService;
+import com.google.common.base.Optional;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -33,7 +33,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -87,8 +86,8 @@ public class ComServerDAOImplTest {
         this.serviceProvider.setTransactionService(this.transactionService);
         this.serviceProvider.setEngineModelService(this.engineModelService);
         this.serviceProvider.setDeviceDataService(this.deviceDataService);
-        when(this.engineModelService.findComServerBySystemName()).thenReturn(this.comServer);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(this.comServer);
+        when(this.engineModelService.findComServerBySystemName()).thenReturn(Optional.<ComServer>of(this.comServer));
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(this.comPort);
         when(this.deviceDataService.findComTaskExecution(SCHEDULED_COMTASK_ID)).thenReturn(this.scheduledComTask);
         when(this.comServer.getId()).thenReturn(COMSERVER_ID);
@@ -117,7 +116,7 @@ public class ComServerDAOImplTest {
         when(this.comServer.getModificationDate()).thenReturn(modificationDate);
         OutboundCapableComServer reloaded = mock(OutboundCapableComServer.class);
         when(reloaded.getModificationDate()).thenReturn(modificationDate);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(reloaded);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(reloaded));
 
         // Business method and asserts
         ComServer refreshed = this.comServerDAO.refreshComServer(this.comServer);
@@ -132,7 +131,7 @@ public class ComServerDAOImplTest {
         Date february1st2012 = this.newDate(YEAR, Calendar.FEBRUARY, 1);
         when(this.comServer.getModificationDate()).thenReturn(january1st2012);
         when(changed.getModificationDate()).thenReturn(february1st2012);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(changed);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(changed));
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isSameAs(changed);
@@ -142,7 +141,7 @@ public class ComServerDAOImplTest {
     public void testRefreshComServerThatWasMadeObsolete () {
         ComServer obsolete = mock(ComServer.class);
         when(obsolete.isObsolete()).thenReturn(true);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(obsolete);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(obsolete));
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isNull();
@@ -150,7 +149,7 @@ public class ComServerDAOImplTest {
 
     @Test
     public void testRefreshComServerThatWasDeleted () {
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(null);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>absent());
 
         // Business method and asserts
         assertThat(this.comServerDAO.refreshComServer(this.comServer)).isNull();

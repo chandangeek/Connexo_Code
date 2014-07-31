@@ -1,10 +1,5 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.energyict.mdc.engine.monitor.CollectedDataStorageStatistics;
-import com.energyict.mdc.engine.monitor.EventAPIStatistics;
-import com.energyict.mdc.engine.monitor.OperationalStatistics;
-import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
-
 /**
  * Exposes the information that is gathered by the process
  * that monitors a RunningComServer.
@@ -14,7 +9,7 @@ import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
  */
 public interface ComServerMonitor {
 
-    public OperationalStatistics getOperationalStatistics ();
+    public ComServerOperationalStatistics getOperationalStatistics ();
 
     public EventAPIStatistics getEventApiStatistics ();
 

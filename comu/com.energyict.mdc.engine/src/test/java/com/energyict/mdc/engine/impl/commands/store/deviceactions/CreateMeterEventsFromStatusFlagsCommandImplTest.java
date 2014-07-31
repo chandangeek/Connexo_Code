@@ -1,10 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -38,15 +33,13 @@ import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,8 +47,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author sva
@@ -147,7 +149,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPort comPort = mock(ComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
-        ExecutionContext executionContext = new ExecutionContext(new MockJobExecution(), connectionTask, comPort, commandRootServiceProvider);
+        ExecutionContext executionContext = new ExecutionContext(new MockJobExecution(), connectionTask, comPort, this.serviceProvider);
 
         verifyDeviceError(command, executionContext);
         verifyPowerDown(command, executionContext);

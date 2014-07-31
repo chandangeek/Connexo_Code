@@ -14,9 +14,9 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.ServerProcess;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
@@ -28,11 +28,12 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.elster.jupiter.util.time.Clock;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
@@ -63,6 +64,14 @@ import java.util.concurrent.TimeoutException;
  * @since 2012-11-21 (15:56)
  */
 public class RemoteComServerDAOImpl implements ComServerDAO {
+
+    public interface ServiceProvider {
+
+        public Clock clock();
+
+        public EngineModelService engineModelService();
+
+    }
 
     private ServerProcess comServer;
     private String queryAPIPostUri;

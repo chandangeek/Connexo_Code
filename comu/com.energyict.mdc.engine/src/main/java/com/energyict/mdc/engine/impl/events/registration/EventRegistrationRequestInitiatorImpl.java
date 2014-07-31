@@ -5,6 +5,8 @@ import com.energyict.mdc.engine.events.EventRegistrationRequestInitiator;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 
+import com.google.common.base.Optional;
+
 /**
  * Provides the default implementation for the {@link EventRegistrationRequestInitiator} interface.
  *
@@ -21,12 +23,12 @@ public class EventRegistrationRequestInitiatorImpl implements EventRegistrationR
 
     @Override
     public String getRegistrationURL (String comServerName) throws BusinessException {
-        ComServer comServer = engineModelService.findComServer(comServerName);
-        if (comServer == null) {
+        Optional<ComServer> comServer = engineModelService.findComServer(comServerName);
+        if (!comServer.isPresent()) {
             throw new BusinessException("ComServerXByNameDoesNotExist", "The Comserver by the name of {0} does not exist");
         }
         else {
-            return this.getRegistrationURL(comServer);
+            return this.getRegistrationURL(comServer.get());
         }
     }
 

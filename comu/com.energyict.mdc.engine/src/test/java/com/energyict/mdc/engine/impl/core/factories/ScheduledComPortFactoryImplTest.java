@@ -52,20 +52,20 @@ public class ScheduledComPortFactoryImplTest {
 
     @Test
     public void testWithActivePort () {
-        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(serviceProvider, this.comServerDAO(), this.deviceCommandExecutor);
-        assertNotNull("Was NOT expecting the factory to return null for an active port", factory.newFor(this.activeComPort(), serviceProvider));
+        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor, this.serviceProvider);
+        assertNotNull("Was NOT expecting the factory to return null for an active port", factory.newFor(this.activeComPort()));
     }
 
     @Test
     public void testWithInactivePort () {
-        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(serviceProvider, this.comServerDAO(), this.deviceCommandExecutor);
-        assertNull("Was expecting the factory to return null for an inactive port", factory.newFor(this.inactiveComPort(), serviceProvider));
+        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor, this.serviceProvider);
+        assertNull("Was expecting the factory to return null for an inactive port", factory.newFor(this.inactiveComPort()));
     }
 
     @Test
     public void testWithActivePortWithZeroSimultaneousConnections () {
-        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(serviceProvider, this.comServerDAO(), this.deviceCommandExecutor);
-        assertNull("Was expecting the factory to return null for active port with 0 simultaneous connections", factory.newFor(this.activeComPortWithZeroSimultaneousConnections(), serviceProvider));
+        ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor, this.serviceProvider);
+        assertNull("Was expecting the factory to return null for active port with 0 simultaneous connections", factory.newFor(this.activeComPortWithZeroSimultaneousConnections()));
     }
 
     private ComServerDAO comServerDAO () {

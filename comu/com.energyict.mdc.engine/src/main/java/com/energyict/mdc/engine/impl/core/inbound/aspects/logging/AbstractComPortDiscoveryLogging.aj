@@ -20,9 +20,9 @@ import java.util.logging.Logger;
  */
 public abstract aspect AbstractComPortDiscoveryLogging {
     declare precedence:
-            com.energyict.comserver.aspects.statistics.inbound.CommunicationStatisticsMonitor,
+            com.energyict.mdc.engine.impl.core.aspects.statistics.InboundCommunicationStatisticsMonitor,
             ComPortDiscoveryLogging,
-            com.energyict.mdc.inbound.aspects.events.ComPortDiscoveryEventPublisher;
+            com.energyict.mdc.engine.impl.core.inbound.aspects.events.ComPortDiscoveryEventPublisher;
 
     private pointcut doDiscovery (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol):
            execution(InboundDeviceProtocol.DiscoverResultType doDiscovery(InboundDeviceProtocol))

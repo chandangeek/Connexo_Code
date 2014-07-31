@@ -1,10 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.issues.IssueService;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -17,9 +14,9 @@ import java.util.concurrent.Executors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-21 (16:20)
  */
-public class RemoteRunningComServerImpl extends RunningComServerImpl {
+public class RunningRemoteComServerImpl extends RunningComServerImpl {
 
-    public RemoteRunningComServerImpl(RemoteComServer comServer, RemoteComServerDAOImpl comServerDAO, ServiceProvider serviceProvider) {
+    public RunningRemoteComServerImpl(RemoteComServer comServer, RemoteComServerDAOImpl comServerDAO, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, null, null, Executors.defaultThreadFactory(), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
         comServerDAO.setComServer(this);
     }

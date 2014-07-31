@@ -69,7 +69,7 @@ public class GenericDeviceProtocolTest {
         serviceProvider = new FakeServiceProvider();
         serviceProvider.setClock(new ProgrammableClock());
         serviceProvider.setTaskHistoryService(taskHistoryService);
-        CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(new CommandRootServiceProviderAdapter(serviceProvider)), this.serviceProvider);
+        CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(this.serviceProvider), this.serviceProvider);
         root.addCommand(readRegistersCommand, null);
         root.addCommand(setClockCommand, null);
 
@@ -81,11 +81,11 @@ public class GenericDeviceProtocolTest {
         assertThat(root.getCommands()).contains(MapEntry.entry(readRegistersCommand.getCommandType(), readRegistersCommand));
     }
 
-    private ExecutionContext newTestExecutionContext(CommandRoot.ServiceProvider commandServiceProvider) {
-        return newTestExecutionContext(Logger.getAnonymousLogger(), commandServiceProvider);
+    private ExecutionContext newTestExecutionContext(ExecutionContext.ServiceProvider serviceProvider) {
+        return newTestExecutionContext(Logger.getAnonymousLogger(), serviceProvider);
     }
 
-    private ExecutionContext newTestExecutionContext(Logger logger, CommandRoot.ServiceProvider commandServiceProvider) {
+    private ExecutionContext newTestExecutionContext(Logger logger, ExecutionContext.ServiceProvider serviceProvider) {
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPortPool comPortPool = mock(ComPortPool.class);
@@ -101,7 +101,7 @@ public class GenericDeviceProtocolTest {
                         mock(JobExecution.class),
                         connectionTask,
                         comPort,
-                        commandServiceProvider);
+                        serviceProvider);
         executionContext.setLogger(logger);
         return executionContext;
     }

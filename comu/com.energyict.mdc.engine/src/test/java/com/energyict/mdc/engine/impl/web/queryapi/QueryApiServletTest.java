@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 
 import org.eclipse.jetty.websocket.WebSocket;
@@ -31,19 +32,16 @@ import static org.mockito.Mockito.when;
 public class QueryApiServletTest {
 
     @Mock
-    private WebSocketQueryApiServiceFactory serviceFactory;
-    @Mock
     private WebSocketQueryApiService service;
+    @Mock
+    private OnlineComServer comServer;
+    @Mock
+    private RunningOnlineComServer runningComServer;
 
     @Before
     public void initializeMockAndFactories () {
-        WebSocketQueryApiServiceFactory.setInstance(this.serviceFactory);
-        when(this.serviceFactory.newWebSocketQueryApiService(any(OnlineComServer.class))).thenReturn(this.service);
-    }
-
-    @After
-    public void resetFactory () {
-        WebSocketQueryApiServiceFactory.setInstance(null);
+        when(this.runningComServer.getComServer()).thenReturn(this.comServer);
+        when(this.runningComServer.newWebSocketQueryApiService()).thenReturn(this.service);
     }
 
     @Test
@@ -53,14 +51,13 @@ public class QueryApiServletTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getSession()).thenReturn(httpSession);
         when(request.getSession(anyBoolean())).thenReturn(httpSession);
-        OnlineComServer comServer = mock(OnlineComServer.class);
-        QueryApiServlet servlet = new QueryApiServlet(comServer);
+        QueryApiServlet servlet = new QueryApiServlet(this.runningComServer);
 
         // Business method
         servlet.doWebSocketConnect(request, "http");    // Don't care about the protocol
 
         // Asserts
-        verify(this.serviceFactory).newWebSocketQueryApiService(comServer);
+        verify(this.runningComServer).newWebSocketQueryApiService();
     }
 
     @Test
@@ -70,16 +67,15 @@ public class QueryApiServletTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getSession()).thenReturn(httpSession);
         when(request.getSession(anyBoolean())).thenReturn(httpSession);
-        OnlineComServer comServer = mock(OnlineComServer.class);
-        QueryApiServlet servlet = new QueryApiServlet(comServer);
+        QueryApiServlet servlet = new QueryApiServlet(this.runningComServer);
         WebSocket initialWebSocket = servlet.doWebSocketConnect(request, "http");// Don't care about the protocol
-        reset(this.serviceFactory);
+        reset(this.runningComServer);
 
         // Business method
         WebSocket webSocket = servlet.doWebSocketConnect(request, "http");// Don't care about the protocol
 
         // Asserts
-        verify(this.serviceFactory, never()).newWebSocketQueryApiService(comServer);
+        verify(this.runningComServer, never()).newWebSocketQueryApiService();
         Assertions.assertThat(webSocket).isSameAs(initialWebSocket);
     }
 

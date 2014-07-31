@@ -129,7 +129,7 @@ public class QueryMethodTest {
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
         when(comServer.getModificationDate()).thenReturn(now);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(comServer);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
 
         // Business method
         Map<String, Object> parameters = new HashMap<>();
@@ -149,7 +149,7 @@ public class QueryMethodTest {
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
         when(comServer.getModificationDate()).thenReturn(modificationDateAfterChanges);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(comServer);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
 
         // Business method
         Map<String, Object> parameters = new HashMap<>();
@@ -322,7 +322,7 @@ public class QueryMethodTest {
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(comServer);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTIONTASK_ID);
         when(this.deviceDataService.findConnectionTask(CONNECTIONTASK_ID)).thenReturn(Optional.of(connectionTask));
@@ -343,7 +343,7 @@ public class QueryMethodTest {
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(comServer);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTIONTASK_ID);
         when(this.deviceDataService.findConnectionTask(CONNECTIONTASK_ID)).thenReturn(Optional.of(connectionTask));
@@ -363,7 +363,7 @@ public class QueryMethodTest {
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(comServer);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
         OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTIONTASK_ID);
         when(this.deviceDataService.findOutboundConnectionTask(CONNECTIONTASK_ID)).thenReturn(Optional.of(connectionTask));
@@ -384,7 +384,7 @@ public class QueryMethodTest {
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(comServer);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
         OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTIONTASK_ID);
         when(this.deviceDataService.findOutboundConnectionTask(CONNECTIONTASK_ID)).thenReturn(Optional.of(connectionTask));
@@ -421,7 +421,7 @@ public class QueryMethodTest {
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(comServer);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
         OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTIONTASK_ID);
         when(this.deviceDataService.findOutboundConnectionTask(CONNECTIONTASK_ID)).thenReturn(Optional.of(connectionTask));
@@ -572,7 +572,7 @@ public class QueryMethodTest {
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(comServer);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
 
         // Business method
         Map<String, Object> parameters = new HashMap<>();
@@ -588,7 +588,7 @@ public class QueryMethodTest {
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
-        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(comServer);
+        when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
         when(comServerDAO.releaseTimedOutTasks(comServer)).thenReturn(new TimeDuration(951));
 
         // Business method

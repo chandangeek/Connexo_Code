@@ -17,9 +17,9 @@ import org.joda.time.Duration;
  */
 public privileged aspect OutboundCommunicationStatisticsMonitor extends AbstractCommunicationStatisticsMonitor {
     declare precedence:
-            CommunicationStatisticsMonitor,
-            com.energyict.comserver.aspects.logging.ComChannelReadWriteLogger,
-            com.energyict.comserver.aspects.events.ComChannelReadWriteEventPublisher;
+            OutboundCommunicationStatisticsMonitor,
+            com.energyict.mdc.engine.impl.core.aspects.logging.ComChannelReadWriteLogger,
+            com.energyict.mdc.engine.impl.core.aspects.events.ComChannelReadWriteEventPublisher;
 
     private StopWatch ExecutionContext.connecting;
     private StopWatch ExecutionContext.executing;

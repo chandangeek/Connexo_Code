@@ -187,4 +187,6 @@ public interface EventPublisher {
      */
     public void publish (ComServerEvent event);
 
+    public void shutdown();
+
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
@@ -17,16 +18,16 @@ import java.util.Map;
  */
 public class QueryApiServlet extends WebSocketServlet {
 
-    private OnlineComServer comServer;
+    private RunningOnlineComServer comServer;
     private Map<String, WebSocketQueryApiService> queryApiServices = new HashMap<>();
 
-    public QueryApiServlet (OnlineComServer comServer) {
+    public QueryApiServlet (RunningOnlineComServer comServer) {
         super();
         this.comServer = comServer;
     }
 
     public OnlineComServer getComServer () {
-        return comServer;
+        return comServer.getComServer();
     }
 
     @Override
@@ -46,7 +47,9 @@ public class QueryApiServlet extends WebSocketServlet {
     }
 
     private WebSocketQueryApiService createQueryApiService () {
-        return WebSocketQueryApiServiceFactory.getInstance().newWebSocketQueryApiService(this.comServer);
+        WebSocketQueryApiService queryApiService = this.comServer.newWebSocketQueryApiService();
+        this.comServer.queryApiClientRegistered();
+        return queryApiService;
     }
 
 }

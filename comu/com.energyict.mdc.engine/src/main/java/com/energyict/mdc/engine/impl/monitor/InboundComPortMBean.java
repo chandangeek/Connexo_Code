@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.monitor;
+package com.energyict.mdc.engine.impl.monitor;
 
 /**
  * Exposes the information that is gathered by the process

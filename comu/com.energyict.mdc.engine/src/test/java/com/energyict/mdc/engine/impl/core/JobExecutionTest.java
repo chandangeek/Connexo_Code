@@ -11,7 +11,6 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -34,7 +33,6 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -53,7 +51,6 @@ import com.energyict.mdc.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
 
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
 import com.google.common.base.Optional;
@@ -71,7 +68,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -469,7 +465,7 @@ public class JobExecutionTest {
                         jobExecution,
                         this.connectionTask,
                         this.comPort,
-                        new CommandRootServiceProviderAdapter());
+                        this.serviceProvider);
         executionContext.setLogger(logger);
         return executionContext;
     }
@@ -490,39 +486,6 @@ public class JobExecutionTest {
             when(preparedComTaskExecution.getCommandRoot()).thenReturn(root);
             return preparedComTaskExecution;
         }
-    }
-
-    private class CommandRootServiceProviderAdapter implements CommandRoot.ServiceProvider {
-        @Override
-        public IssueService issueService() {
-            return serviceProvider.issueService();
-        }
-
-        @Override
-        public Clock clock() {
-            return serviceProvider.clock();
-        }
-
-        @Override
-        public DeviceDataService deviceDataService() {
-            return serviceProvider.deviceDataService();
-        }
-
-        @Override
-        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
-            return serviceProvider.mdcReadingTypeUtilService();
-        }
-
-        @Override
-        public TaskHistoryService taskHistoryService() {
-            return serviceProvider.taskHistoryService();
-        }
-
-        @Override
-        public TransactionService transactionService() {
-            return serviceProvider.transactionService();
-        }
-
     }
 
 }
