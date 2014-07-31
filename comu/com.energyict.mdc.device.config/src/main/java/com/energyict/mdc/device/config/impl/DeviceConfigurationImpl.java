@@ -73,8 +73,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
- *
  * User: gde
  * Date: 5/11/12
  */
@@ -429,12 +427,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public void deleteRegisterSpec(RegisterSpec registerSpec) {
-        // TODO Complete!!!
-
-//        if (getActive() && !shadow.getRegisterSpecShadows().getDeletedShadows().isEmpty()) {
-//            throw new BusinessException("deleteRegisterSpecsFromActiveDeviceConfigIsNotAllowed",
-//                    "It's not allowed to delete register specifications of an active device configuration");
-//        }
         if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.canNotDeleteRegisterSpec(this.thesaurus, this, registerSpec);
         }
