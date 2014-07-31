@@ -108,7 +108,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                             items: [
                                 {
                                     xtype: 'displayfield',
-                                    name: 'connectionType',
+                                    name: 'connectionTypePluggableClass',
                                     fieldLabel: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type')
                                 },
                                 {
