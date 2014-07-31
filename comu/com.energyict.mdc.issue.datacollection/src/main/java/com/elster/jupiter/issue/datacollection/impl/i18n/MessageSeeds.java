@@ -22,7 +22,7 @@ public enum MessageSeeds implements MessageSeed {
     PARAMETER_NAME_READING_TYPE(13, "ParameterNameReadingType", "CIM reading type", Level.INFO),
     PARAMETER_NAME_TREND_PERIOD(14, "ParameterNameTrendPeriod", "Trend period", Level.INFO),
     PARAMETER_NAME_TREND_PERIOD_UNIT(15, "ParameterNameTrendPeriodUnit", "Trend period units", Level.INFO),
-    PARAMETER_NAME_MAX_SLOPE_SUFFIX(16, "ParameterNameTrendPeriodUnitSuffix", "&deg;C/hour", Level.INFO),
+    PARAMETER_NAME_MAX_SLOPE_SUFFIX(16, "ParameterNameTrendPeriodUnitSuffix", "&deg;C", Level.INFO),
     PARAMETER_NAME_READING_TYPE_DESCRIPTION(17, "ParameterNameReadingTypeDescription", "Provide the value for the 18 attributes of the CIM reading type. Separate each value with a \".\"", Level.INFO),
     TEMPLATE_EVT_AGGREGATION_NAME (18, "TemapleEvtAggregationName", "Events from meters of concentrator", Level.INFO),
     TEMPLATE_EVT_AGGREGATION_DESCRIPTION (19, "TemapleEvtAggregationDescription", "Create an issue based on multiple events that are related", Level.INFO),
@@ -40,6 +40,7 @@ public enum MessageSeeds implements MessageSeed {
     EVENT_TITLE_DEVICE_EVENT(30, "EventTitleDeviceCreated", "Device Created", Level.INFO),
     EVENT_BAD_DATA_NO_EVENT_IDENTIFIER(31, "EventBadDataNoVentIdentifier", "Unable to process issue creation event because target event identifier wasn't found", Level.SEVERE),
     EVENT_BAD_DATA_WRONG_EVENT_TYPE(32, "EventBadDataWrongEventType", "Unable to process issue creation event because endDeviceEventType doesn't match to eventRecord type mrId", Level.SEVERE),
+    PARAMETER_NAME_MAX_SLOPE_SUFFIX_PER_HOUR(33, "ParameterNameTrendPeriodUnitSuffixPerHour", "/hour", Level.INFO),
     ;
 
     private final int number;

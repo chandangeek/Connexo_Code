@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.datacollection.templates.params;
 
 import com.elster.jupiter.issue.datacollection.impl.TrendPeriodUnit;
-import com.elster.jupiter.issue.datacollection.impl.i18n.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.NumberParameterConstraint;
 import com.elster.jupiter.issue.share.cep.ParameterConstraint;
 import com.elster.jupiter.issue.share.cep.ParameterControl;
@@ -43,7 +42,7 @@ public class TrendPeriodUnitParameter extends TranslatedParameter{
 
     @Override
     public String getLabel() {
-        return getString(MessageSeeds.PARAMETER_NAME_TREND_PERIOD_UNIT);
+        return "";
     }
 
     @Override

@@ -7,12 +7,15 @@ import com.elster.jupiter.issue.datacollection.templates.params.ReadingTypeParam
 import com.elster.jupiter.issue.datacollection.templates.params.TrendPeriodParameter;
 import com.elster.jupiter.issue.datacollection.templates.params.TrendPeriodUnitParameter;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.cep.ParameterDefinition;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.util.Map;
 
 @Component(name = "com.elster.jupiter.issue.datacollection.SlopeDetectionRuleTemplate", property = {"uuid=" + SlopeDetectionRuleTemplate.SLOPE_DETECTION_ID}, service = CreationRuleTemplate.class, immediate = true)
 public class SlopeDetectionRuleTemplate extends AbstractTemplate {
@@ -24,7 +27,6 @@ public class SlopeDetectionRuleTemplate extends AbstractTemplate {
     public void activate(){
         addParameterDefinition(new ReadingTypeParameter(getThesaurus()));
         addParameterDefinition(new TrendPeriodParameter(getThesaurus()));
-        addParameterDefinition(new TrendPeriodUnitParameter(getThesaurus()));
         addParameterDefinition(new MaxSlopeParameter(getThesaurus(), meteringService));
     }
 
@@ -51,6 +53,14 @@ public class SlopeDetectionRuleTemplate extends AbstractTemplate {
     @Override
     public String getDescription() {
         return getString(MessageSeeds.SLOPE_DETECTION_TEMPLATE_DESCRIPTION);
+    }
+
+    @Override
+    public Map<String, ParameterDefinition> getParameterDefinitionsForValidation() {
+        Map<String, ParameterDefinition> copy = super.getParameterDefinitionsForValidation();
+        TrendPeriodUnitParameter unitParameter = new TrendPeriodUnitParameter(getThesaurus());
+        copy.put(unitParameter.getKey(), unitParameter);
+        return copy;
     }
 
     @Override

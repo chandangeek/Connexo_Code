@@ -62,6 +62,7 @@ public class MeterReadingIssueEvent implements IssueEvent {
                 new Interval(new Date(unit.getStartMillisForTrendPeriod(trendPeriod)), new Date()), readingType);
         if (!isValidReadings(readings)) {
             //Nothing to do because at least two measurement points needed
+            LOG.info("Device '" + getDevice().getMRID() + "' has no valid readings (less than 2)");
             return 0d;
         }
 
@@ -70,16 +71,21 @@ public class MeterReadingIssueEvent implements IssueEvent {
                    s2 = new BigDecimal(0),
                    t0 = new BigDecimal(0),
                    t1 = new BigDecimal(0);
+        StringBuilder sb = new StringBuilder();
         for (BaseReadingRecord reading : readings) {
             s0d++;
             BigDecimal time = new BigDecimal(reading.getTimeStamp().getTime()).divide(new BigDecimal(DateTimeConstants.MILLIS_PER_HOUR), 10, RoundingMode.HALF_UP);
+            sb.append("\n\treading with time = ").append(time.doubleValue()).append(" and value = ").append(reading.getValue());
             s1 = s1.add(time);
             s2 = s2.add(time.multiply(time));
             t0 = t0.add(reading.getValue());
             t1 = t1.add(time.multiply(reading.getValue()));
         }
+        LOG.info("Processed readings:" + sb.toString());
         BigDecimal s0 = new BigDecimal(s0d);
-        return s0.multiply(t1).subtract(s1.multiply(t0)).divide(s0.multiply(s2).subtract(s1.multiply(s1)), RoundingMode.HALF_UP).doubleValue();
+        double result = Math.abs(s0.multiply(t1).subtract(s1.multiply(t0)).divide(s0.multiply(s2).subtract(s1.multiply(s1)), RoundingMode.HALF_UP).doubleValue());
+        LOG.info("Slope for device '" + getDevice().getMRID() + "' with " + readings.size() + " readings is: " + result);
+        return result;
     }
 
     private boolean isValidReadings(List<? extends BaseReadingRecord> readings){

@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class MaxSlopeParameter extends TranslatedParameter{
     private static List<String> PRIMARY_LIST = Collections.singletonList(ReadingTypeParameter.READING_TYPE_PARAMETER_KEY);
-    private static final ParameterConstraint CONSTRAINT = new NumberParameterConstraint(false, -100, 100);
+    private static final ParameterConstraint CONSTRAINT = new NumberParameterConstraint(false, 0, Integer.MAX_VALUE);
 
     private final MeteringService meteringService;
     private String defaultValue;
@@ -27,7 +27,7 @@ public class MaxSlopeParameter extends TranslatedParameter{
     public MaxSlopeParameter(Thesaurus thesaurus, MeteringService meteringService) {
         super(thesaurus);
         this.meteringService = meteringService;
-        this.suffix = getString(MessageSeeds.PARAMETER_NAME_MAX_SLOPE_SUFFIX);
+        this.suffix = getString(MessageSeeds.PARAMETER_NAME_MAX_SLOPE_SUFFIX) + getString(MessageSeeds.PARAMETER_NAME_MAX_SLOPE_SUFFIX_PER_HOUR);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class MaxSlopeParameter extends TranslatedParameter{
             Optional<ReadingType> readingTypeRef = meteringService.getReadingType(cimReadingType);
             if (readingTypeRef.isPresent()) {
                 ReadingType readingType = readingTypeRef.get();
-                result.suffix = readingType.getUnit().getSymbol();
+                result.suffix = readingType.getUnit().getSymbol() + getString(MessageSeeds.PARAMETER_NAME_MAX_SLOPE_SUFFIX_PER_HOUR);
             }
         }
         return result;

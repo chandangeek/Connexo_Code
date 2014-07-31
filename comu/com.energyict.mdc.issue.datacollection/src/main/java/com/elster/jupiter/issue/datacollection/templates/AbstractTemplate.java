@@ -58,7 +58,7 @@ public abstract class AbstractTemplate implements CreationRuleTemplate {
             throw new IllegalArgumentException("Rule is missing");
         }
 
-        Map<String, ParameterDefinition> parameterDefinitionsCopy = new HashMap<>(parameterDefinitions);
+        Map<String, ParameterDefinition> parameterDefinitionsCopy = getParameterDefinitionsForValidation();
         for (CreationRuleParameter parameter : rule.getParameters()) {
             ParameterDefinition definition = parameterDefinitionsCopy.remove(parameter.getKey());
             errors.addAll(definition.validate(parameter.getValue(), ParameterDefinitionContext.RULE));
@@ -69,5 +69,9 @@ public abstract class AbstractTemplate implements CreationRuleTemplate {
             }
         }
         return errors;
+    }
+
+    protected Map<String, ParameterDefinition> getParameterDefinitionsForValidation(){
+        return new HashMap<>(parameterDefinitions);
     }
 }

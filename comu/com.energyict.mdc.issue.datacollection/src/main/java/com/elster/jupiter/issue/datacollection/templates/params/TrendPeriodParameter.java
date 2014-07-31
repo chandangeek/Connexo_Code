@@ -4,11 +4,20 @@ import com.elster.jupiter.issue.datacollection.impl.i18n.MessageSeeds;
 import com.elster.jupiter.issue.share.cep.NumberParameterConstraint;
 import com.elster.jupiter.issue.share.cep.ParameterConstraint;
 import com.elster.jupiter.issue.share.cep.ParameterControl;
-import com.elster.jupiter.issue.share.cep.controls.SimpleControl;
+import com.elster.jupiter.issue.share.cep.ParameterDefinition;
 import com.elster.jupiter.nls.Thesaurus;
 
 public class TrendPeriodParameter extends TranslatedParameter{
     private static final ParameterConstraint CONSTRAINT = new NumberParameterConstraint(false, 1, 7);
+    private final ParameterControl control = new ParameterControl(){
+        public ParameterDefinition getUnitParameter(){
+            return new TrendPeriodUnitParameter(TrendPeriodParameter.this.getThesaurus());
+        }
+        @Override
+        public String getXtype() {
+            return "trendPeriodControl";
+        }
+    };
 
     public TrendPeriodParameter(Thesaurus thesaurus) {
         super(thesaurus);
@@ -21,7 +30,7 @@ public class TrendPeriodParameter extends TranslatedParameter{
 
     @Override
     public ParameterControl getControl() {
-        return SimpleControl.NUMBER_FIELD;
+        return control;
     }
 
     @Override
