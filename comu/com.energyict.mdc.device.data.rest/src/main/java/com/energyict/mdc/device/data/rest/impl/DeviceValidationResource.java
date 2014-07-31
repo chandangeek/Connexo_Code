@@ -152,7 +152,7 @@ public class DeviceValidationResource {
     public Response activateValidationFeatureOnDevice(@PathParam("mRID") String mrid) {
         Lock lock = stripedLock.get(mrid).writeLock(); // we use striped locking to improve concurrency.
         lock.lock();
-        DeviceValidationStatusInfo status = null;
+        DeviceValidationStatusInfo status = new DeviceValidationStatusInfo();
         try {
             Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
@@ -174,9 +174,9 @@ public class DeviceValidationResource {
             }
             if(!validationService.getMeterValidation(meterActivation).isPresent()) {
                 validationService.createMeterValidation(meterActivation);
-                status = new DeviceValidationStatusInfo(false, null);
+                status.hasValidation = false;
             } else {
-                status = new DeviceValidationStatusInfo(true, null);
+                status.hasValidation = true;
             }
             if(validationService.getMeterActivationValidationsForMeterActivation(meterActivation).isEmpty()) {
                 List<MeterActivationValidation> meterActivationValidations = validationService.getMeterActivationValidations(meterActivation, Interval.startAt(date));

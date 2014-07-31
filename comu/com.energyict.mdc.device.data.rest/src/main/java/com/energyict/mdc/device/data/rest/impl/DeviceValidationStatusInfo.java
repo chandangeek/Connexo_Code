@@ -6,6 +6,7 @@ import java.util.Date;
 public class DeviceValidationStatusInfo {
     public boolean isActive;
     public Date lastChecked;
+    public boolean hasValidation;
 
     public DeviceValidationStatusInfo() {}
 
