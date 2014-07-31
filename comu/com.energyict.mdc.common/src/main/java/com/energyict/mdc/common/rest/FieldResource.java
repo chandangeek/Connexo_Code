@@ -60,6 +60,7 @@ public class FieldResource {
     }
 
     /**
+     * Creates a list with all allowed values for a field, including localized display value
      * For JavaScript, values have to be wrapped, for example
      *
      * Don't serialize as
@@ -113,6 +114,60 @@ public class FieldResource {
     }
 
     /**
+     * For JavaScript, values have to be wrapped, for example
+     *
+     * Don't serialize as
+     * {
+     *   [
+     *      "FIVE",
+     *      "SIX",
+     *      "SEVEN",
+     *      "EIGHT"
+     *   ]
+     * }
+     *
+     * But as
+     * {
+     *   "nrOfDataBits": [
+     *       {
+     *           "nrOfDataBits": "FIVE",
+     *           "localizedValue": "vijf"
+     *       },
+     *       {
+     *           "nrOfDataBits": "SIX"
+     *           "localizedValue": ...
+     *       },
+     *       {
+     *           "nrOfDataBits": "SEVEN"
+     *           "localizedValue": ...
+     *       },
+     *       {
+     *           "nrOfDataBits": "EIGHT"
+     *           "localizedValue": ...
+     *       }
+     *   ]
+     * }
+     * @param fieldName the top level list name, collection name for the values, eg: values
+     * @param valueName value level field name, eg: value
+     * @param values The actual values to enumerate
+     * @param <T> The type of values being listed
+     * @return ExtJS JSON format for listed values
+     */
+    protected <T> Map<String, Object> asJsonArrayObject(String fieldName, String valueName, Collection<T> values) {
+        Map<String, Object> map = new HashMap<>();
+        List<Map<String, Object>> list = new ArrayList<>();
+        map.put(fieldName, list);
+        for (final T value: values) {
+            HashMap<String, Object> subMap = new HashMap<>();
+            subMap.put(valueName, value);
+            list.add(subMap);
+        }
+        return map;
+    }
+
+    /**
+     * Creates a list with all allowed values for a field, including localized display value
+     * Localization keys can be explicitly provided in the method
      * For JavaScript, values have to be wrapped, for example
      *
      * Don't serialize as
