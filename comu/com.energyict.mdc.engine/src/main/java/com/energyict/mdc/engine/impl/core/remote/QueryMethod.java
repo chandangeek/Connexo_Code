@@ -51,7 +51,7 @@ public enum QueryMethod {
             if (comServer.isPresent()) {
                 Date modificationDate = this.getModificationDate(parameters);
                 if (comServer.get().getModificationDate().after(modificationDate)) {
-                    return comServer;
+                    return comServer.get();
                 }
             }
             return null;
