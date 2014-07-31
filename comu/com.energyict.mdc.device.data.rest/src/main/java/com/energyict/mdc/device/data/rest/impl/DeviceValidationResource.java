@@ -193,6 +193,7 @@ public class DeviceValidationResource {
 
     private DeviceValidationStatusInfo determineStatus(MeterActivation meterActivation, Date now) {
         DeviceValidationStatusInfo status = new DeviceValidationStatusInfo();
+        status.isActive = status.isActive || validationService.getMeterValidation(meterActivation).get().getActivationStatus();
         for (MeterActivationValidation meterActivationValidation : findOrCreateActivationValidation(meterActivation, now)) {
             apply(status, meterActivationValidation);
         }
@@ -200,7 +201,6 @@ public class DeviceValidationResource {
     }
 
     private void apply(DeviceValidationStatusInfo status, MeterActivationValidation meterActivationValidation) {
-        status.isActive = status.isActive || meterActivationValidation.isActive();
         for (ChannelValidation channelValidation : meterActivationValidation.getChannelValidations()) {
             status.hasValidation = status.hasValidation || channelValidation.getLastChecked() != null;
             if (status.hasValidation) {
