@@ -12,6 +12,7 @@ import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
+import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
@@ -30,10 +31,10 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (10:32)
  */
-@Component(name = "com.energyict.mdc.dashboard.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/dsb", "name=" + DashboardApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.dashboard.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/dsr", "name=" + DashboardApplication.COMPONENT_NAME})
 public class DashboardApplication extends Application implements InstallService {
 
-    public static final String COMPONENT_NAME = "DSB";
+    public static final String COMPONENT_NAME = "DSR";
 
     private volatile StatusService statusService;
     private volatile EngineModelService engineModelService;
@@ -64,7 +65,8 @@ public class DashboardApplication extends Application implements InstallService 
                 LocalizedExceptionMapper.class,
                 ComServerStatusResource.class,
                 ComServerStatusSummaryResource.class,
-                ConnectionOverviewResource.class
+                ConnectionOverviewResource.class,
+                DashboardFieldResource.class
         );
     }
 
@@ -87,6 +89,7 @@ public class DashboardApplication extends Application implements InstallService 
         protected void configure() {
             bind(statusService).to(StatusService.class);
             bind(engineModelService).to(EngineModelService.class);
+            bind(nlsService).to(NlsService.class);
         }
     }
 

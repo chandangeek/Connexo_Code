@@ -116,7 +116,9 @@ public class ConnectionOverviewInfo {
         info.totalFailedCount =breakdownCounters.getTotalFailedCount();
         info.counters=new ArrayList<>();
         for (TaskStatusBreakdownCounter<C> counter : breakdownCounters) {
-            TaskBreakdownInfo taskBreakdownInfo = new TaskBreakdownInfo(counter.getCountTarget().getName(), counter.getCountTarget().getId());
+            TaskBreakdownInfo taskBreakdownInfo = new TaskBreakdownInfo();
+            taskBreakdownInfo.id=counter.getCountTarget().getId();
+            taskBreakdownInfo.displayName=counter.getCountTarget().getName();
             taskBreakdownInfo.successCount=counter.getSuccessCount();
             taskBreakdownInfo.pendingCount=counter.getPendingCount();
             taskBreakdownInfo.failedCount=counter.getFailedCount();
@@ -132,10 +134,11 @@ public class ConnectionOverviewInfo {
         info.alias=alias;
         info.counters=new ArrayList<>();
         for (Counter<C> taskStatusCounter : dashboardCounters) {
-            info.counters.add(new TaskCounterInfo(
-                    thesaurus.getString(adapter.marshal(taskStatusCounter.getCountTarget()), null),
-                    adapter.marshal(taskStatusCounter.getCountTarget()),
-                    taskStatusCounter.getCount()));
+            TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
+            taskCounterInfo.id=adapter.marshal(taskStatusCounter.getCountTarget());
+            taskCounterInfo.displayName=thesaurus.getString(adapter.marshal(taskStatusCounter.getCountTarget()), null);
+            taskCounterInfo.count=taskStatusCounter.getCount();
+            info.counters.add(taskCounterInfo);
         }
 
         return info;
@@ -164,29 +167,12 @@ class TaskBreakdownInfo {
     public long successCount;
     public long failedCount;
     public long pendingCount;
-
-    TaskBreakdownInfo() {
-    }
-
-    TaskBreakdownInfo(String displayName, long id) {
-        this.displayName = displayName;
-        this.id = id;
-    }
 }
 
 class TaskCounterInfo {
     public String id;
     public String displayName;
     public long count;
-
-    TaskCounterInfo() {
-    }
-
-    TaskCounterInfo(String displayName, String id, long count) {
-        this.displayName = displayName;
-        this.id = id;
-        this.count = count;
-    }
 }
 
 enum FilterOption {
