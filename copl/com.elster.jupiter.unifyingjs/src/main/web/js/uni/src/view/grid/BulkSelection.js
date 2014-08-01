@@ -367,5 +367,9 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     getAddButton: function () {
         return this.down('#addButton');
+    },
+
+    getCancelButton: function () {
+        return this.down('#cancelButton');
     }
 });
