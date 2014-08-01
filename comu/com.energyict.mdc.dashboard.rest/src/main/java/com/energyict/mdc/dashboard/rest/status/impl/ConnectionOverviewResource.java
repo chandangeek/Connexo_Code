@@ -8,6 +8,10 @@ import com.energyict.mdc.dashboard.ConnectionStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
+import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
+import com.energyict.mdc.tasks.history.CompletionCode;
+import java.util.HashMap;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -41,7 +45,7 @@ public class ConnectionOverviewResource {
             ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
             DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getDeviceTypeBreakdown();
             ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(connectionStatusOverview);
-            info = new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comTaskCompletionOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, breakdown,thesaurus);
+            info = new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comTaskCompletionOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown,breakdown,thesaurus);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -49,4 +53,7 @@ public class ConnectionOverviewResource {
     }
 
 
+    static class HeatMapData {
+        Map<CompletionCode, TaskStatusBreakdownCounter<?>> map = new HashMap<>();
+    }
 }
