@@ -35,6 +35,10 @@ public enum TrendPeriodUnit {
         return System.currentTimeMillis() - trendPeriod * this.multiplier;
     }
 
+    public long getTrendPeriodInMillis(long trendPeriod){
+        return trendPeriod * this.multiplier;
+    }
+
     public static TrendPeriodUnit getById(int id){
         for (TrendPeriodUnit candidate : TrendPeriodUnit.values()) {
             if (candidate.id == id){

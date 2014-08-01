@@ -58,11 +58,12 @@ public class MeterReadingIssueEvent implements IssueEvent {
             LOG.warning("Unknown thrend period unit"); // TODO may be it will be better to throw exception?
             return 0d;
         }
+        long trendPeriodInMillis = unit.getTrendPeriodInMillis(trendPeriod);
         List<? extends BaseReadingRecord> readings = meter.getReadings(
                 new Interval(new Date(unit.getStartMillisForTrendPeriod(trendPeriod)), new Date()), readingType);
-        if (!isValidReadings(readings)) {
+        if (!isValidReadings(readings,trendPeriodInMillis)) {
             //Nothing to do because at least two measurement points needed
-            LOG.info("Device '" + getDevice().getMRID() + "' has no valid readings (less than 2)");
+            LOG.info("Device '" + getDevice().getMRID() + "' hasn't enought readings (only " + readings.size() + ")");
             return 0d;
         }
 
@@ -88,7 +89,7 @@ public class MeterReadingIssueEvent implements IssueEvent {
         return result;
     }
 
-    private boolean isValidReadings(List<? extends BaseReadingRecord> readings){
+    private boolean isValidReadings(List<? extends BaseReadingRecord> readings, long trendPeriodInMillis){
         if (readings != null) {
             Iterator<? extends BaseReadingRecord> itr = readings.iterator();
             while (itr.hasNext()) {
@@ -97,7 +98,10 @@ public class MeterReadingIssueEvent implements IssueEvent {
                     itr.remove();
                 }
             }
-            return readings.size() >= 2;
+            long readingInterval = readingType.getMeasuringPeriod().getMinutes() * DateTimeConstants.MILLIS_PER_MINUTE;
+            long expectedReadingsCount = (trendPeriodInMillis / readingInterval) / 4; // At least quarter of all expected readings
+            LOG.info("Expected readings count: " + expectedReadingsCount);
+            return readings.size() >= 2 && readings.size() >= expectedReadingsCount;
         }
         return false;
     }

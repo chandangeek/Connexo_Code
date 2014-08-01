@@ -27,6 +27,7 @@ import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 public class MeterReadingIssueEventTest extends BaseTest {
     
@@ -83,7 +84,8 @@ public class MeterReadingIssueEventTest extends BaseTest {
     @Test
     public void testComputeMaxSlope() {
         MeterReadingImpl meterReading = new MeterReadingImpl();
-        DateTime dateTime = getCurrentDateTime().minusHours(1);
+        DateTime now = getCurrentDateTime();
+        DateTime dateTime = now.minusHours(2);
 
         IntervalBlockImpl block = new IntervalBlockImpl(readingTypeCode);
 
@@ -92,13 +94,18 @@ public class MeterReadingIssueEventTest extends BaseTest {
         block.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(30).toDate(), BigDecimal.valueOf(12)));
         block.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(45).toDate(), BigDecimal.valueOf(13)));
         block.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(60).toDate(), BigDecimal.valueOf(14)));
+        block.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(75).toDate(), BigDecimal.valueOf(15)));
+        block.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(90).toDate(), BigDecimal.valueOf(16)));
+        block.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(105).toDate(), BigDecimal.valueOf(17)));
+        block.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(120).toDate(), BigDecimal.valueOf(18)));
+        block.addIntervalReading(new IntervalReadingImpl(dateTime.plusMinutes(135).toDate(), BigDecimal.valueOf(19)));
 
         meterReading.addIntervalBlock(block);
         meter.store(meterReading);
         readingType = getMeteringService().getReadingType(readingTypeCode).get();
 
         MeterReadingIssueEvent event = new MeterReadingIssueEvent(meter, readingType, null, null);
-        assertThat(event.computeMaxSlope(1, TrendPeriodUnit.DAYS.getId())).isEqualTo(4.0);
+        assertThat(event.computeMaxSlope(2, TrendPeriodUnit.HOURS.getId())).isEqualTo(4.0);
     }
     
     @Test
@@ -106,27 +113,32 @@ public class MeterReadingIssueEventTest extends BaseTest {
         DateTime now = getCurrentDateTime();
 
         MeterReadingImpl meterReading1 = new MeterReadingImpl();
-        DateTime twoDayAgo = now.minusDays(2);// readings 2 days ago
+        DateTime twoHoursAgo = now.minusHours(2);// readings 2 hours ago
         IntervalBlockImpl block1 = new IntervalBlockImpl(readingTypeCode);
-        block1.addIntervalReading(new IntervalReadingImpl(twoDayAgo.plusMinutes(0).toDate(), BigDecimal.valueOf(-100500)));
-        block1.addIntervalReading(new IntervalReadingImpl(twoDayAgo.plusMinutes(15).toDate(), BigDecimal.valueOf(100500)));
+        block1.addIntervalReading(new IntervalReadingImpl(twoHoursAgo.plusMinutes(0).toDate(), BigDecimal.valueOf(-100500)));
+        block1.addIntervalReading(new IntervalReadingImpl(twoHoursAgo.plusMinutes(15).toDate(), BigDecimal.valueOf(100500)));
         meterReading1.addIntervalBlock(block1);
         meter.store(meterReading1);
 
         MeterReadingImpl meterReading2 = new MeterReadingImpl();
-        DateTime twoHoursBefore = now.minusHours(1);// readings 1 hour before
+        DateTime twoHoursBefore = now.minusHours(2);// readings 1 hour before
         IntervalBlockImpl block2 = new IntervalBlockImpl(readingTypeCode);
         block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(0).toDate(), BigDecimal.valueOf(0)));
         block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(15).toDate(), BigDecimal.valueOf(25)));
         block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(30).toDate(), BigDecimal.valueOf(50)));
         block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(45).toDate(), BigDecimal.valueOf(75)));
         block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(60).toDate(), BigDecimal.valueOf(100)));
+        block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(75).toDate(), BigDecimal.valueOf(125)));
+        block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(90).toDate(), BigDecimal.valueOf(150)));
+        block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(105).toDate(), BigDecimal.valueOf(175)));
+        block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(120).toDate(), BigDecimal.valueOf(200)));
+        block2.addIntervalReading(new IntervalReadingImpl(twoHoursBefore.plusMinutes(135).toDate(), BigDecimal.valueOf(225)));
         meterReading2.addIntervalBlock(block2);
 
         meter.store(meterReading2);
 
         MeterReadingIssueEvent event = new MeterReadingIssueEvent(meter, readingType, null, null);
-        assertThat(event.computeMaxSlope(3, TrendPeriodUnit.HOURS.getId())).isEqualTo(100.0);
+        assertThat(event.computeMaxSlope(2, TrendPeriodUnit.HOURS.getId())).isEqualTo(100.0);
     }
 
     private static DateTime getCurrentDateTime() {
