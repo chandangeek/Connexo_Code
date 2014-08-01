@@ -14,6 +14,8 @@ Ext.define('Mdc.model.ComServer', {
         {name: 'storeTaskQueueSize', type: 'int', useNull: true},
         {name: 'numberOfStoreTaskThreads', type: 'int', useNull: true},
         {name: 'storeTaskThreadPriority', type: 'int', useNull: true},
+        'inboundComPorts',
+        'outboundComPorts',
         'changesInterPollDelay',
         'schedulingInterPollDelay',
         {name: 'onlineComServerId', type: 'int', useNull: true},
