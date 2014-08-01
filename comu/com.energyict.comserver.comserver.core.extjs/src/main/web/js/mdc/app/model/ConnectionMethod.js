@@ -10,7 +10,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
         {name: 'allowSimultaneousConnections', type: 'boolean', useNull: true},
         {name: 'isDefault', type: 'boolean', useNull: true},
         {name: 'comPortPool', type: 'string', useNull: true},
-        {name: 'connectionType', type: 'string', useNull: true},
+        {name: 'connectionTypePluggableClass', type: 'string', useNull: true},
         {name: 'connectionStrategy', type: 'string', useNull: true},
         'rescheduleRetryDelay',
         {name: 'nextExecutionSpecs', useNull: true},

@@ -388,7 +388,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                         connectionStrategiesStore.load({
                                             callback: function () {
                                                 me.comPortPoolStore.clearFilter(true);
-                                                me.comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionType: connectionTypesStore.findRecord('name',connectionMethod.get('connectionType')).get('id')});
+                                                me.comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionType: connectionTypesStore.findRecord('name',connectionMethod.get('connectionTypePluggableClass')).get('id')});
                                                 me.comPortPoolStore.load({
 
                                                     callback: function () {
@@ -400,7 +400,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         widget.down('form').loadRecord(connectionMethod);
                                                         var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + connectionMethod.get('name') + "'";
                                                         widget.down('#connectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
-                                                        widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionType'));
+                                                        widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionTypePluggableClass'));
                                                         me.getConnectionTypeComboBox().disable();
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));

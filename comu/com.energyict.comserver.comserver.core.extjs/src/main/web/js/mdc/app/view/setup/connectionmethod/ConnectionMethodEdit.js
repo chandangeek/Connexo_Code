@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             },
                             {
                                 xtype: 'combobox',
-                                name: 'connectionType',
+                                name: 'connectionTypePluggableClass',
                                 fieldLabel: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type'),
                                 itemId: 'connectionTypeComboBox',
                                 store: this.connectionTypes,
