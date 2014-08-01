@@ -5,10 +5,12 @@ import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComTaskCompletionOverview;
 import com.energyict.mdc.dashboard.ConnectionStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
+import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -16,6 +18,10 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -24,6 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -34,6 +41,8 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DashboardServiceImplTest {
+
+    private static final long EXPECTED_STATUS_COUNT_VALUE = 97L;
 
     @Mock
     private EngineModelService engineModelService;
@@ -53,11 +62,23 @@ public class DashboardServiceImplTest {
 
     @Test
     public void testConnectionOverview () {
+        Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
+        for (TaskStatus taskStatus : TaskStatus.values()) {
+            statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
+        }
+        when(this.deviceDataService.getConnectionTaskStatusCount()).thenReturn(statusCounters);
         // Business methods
         ConnectionStatusOverview overview = this.dashboardService.getConnectionStatusOverview();
 
         // Asserts
+        verify(this.deviceDataService).getConnectionTaskStatusCount();
         assertThat(overview).isNotNull();
+        Set<TaskStatus> missingTaskStatusses = EnumSet.allOf(TaskStatus.class);
+        for (Counter<TaskStatus> taskStatusCounter : overview) {
+            assertThat(taskStatusCounter.getCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
+            missingTaskStatusses.remove(taskStatusCounter.getCountTarget());
+        }
+        assertThat(missingTaskStatusses).as("Some TaskStatusses were not reported!").isEmpty();
     }
 
     @Test

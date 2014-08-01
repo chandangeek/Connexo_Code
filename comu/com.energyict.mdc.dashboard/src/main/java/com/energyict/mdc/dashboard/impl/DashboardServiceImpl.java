@@ -21,6 +21,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provides an implementation for the {@link DashboardService} interface.
@@ -52,8 +53,9 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public ConnectionStatusOverview getConnectionStatusOverview() {
         ConnectionStatusOverviewImpl overview = new ConnectionStatusOverviewImpl();
+        Map<TaskStatus, Long> statusCounters = this.deviceDataService.getConnectionTaskStatusCount();
         for (TaskStatus taskStatus : TaskStatus.values()) {
-            overview.add(new CounterImpl<>(taskStatus));
+            overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
         }
         return overview;
     }
