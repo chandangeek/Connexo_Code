@@ -864,6 +864,12 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
                             action: 'showDeviceDataValidationMainView'
+                        },
+                        loadprofiles: {
+                            title: 'Load profiles',
+                            route: 'loadprofiles',
+                            controller: 'Mdc.controller.setup.DeviceLoadProfiles',
+                            action: 'showView'
                         }
                     }
                 }
