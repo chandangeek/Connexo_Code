@@ -50,7 +50,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'deviceLoadProfilesPreview'
+                        xtype: 'deviceLoadProfilesPreview',
+                        mRID: me.mRID
                     }
                 }
             ]
