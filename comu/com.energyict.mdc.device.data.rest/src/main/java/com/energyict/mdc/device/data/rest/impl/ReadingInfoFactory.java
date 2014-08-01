@@ -12,8 +12,8 @@ public class ReadingInfoFactory {
     public static ReadingInfo asInfo(Reading reading, RegisterSpec registerSpec) {
         if(NumericalReading.class.isAssignableFrom(reading.getClass())) {
             return new NumericalReadingInfo((NumericalReading)reading, (NumericalRegisterSpec)registerSpec);
-        } else if(EventReading.class.isAssignableFrom(reading.getClass())) {
-            return new EventReadingInfo((EventReading)reading, (NumericalRegisterSpec)registerSpec);
+        } else if(BillingReading.class.isAssignableFrom(reading.getClass())) {
+            return new EventReadingInfo((BillingReading)reading, (NumericalRegisterSpec)registerSpec);
         } else if(TextReading.class.isAssignableFrom(reading.getClass())) {
             return new TextReadingInfo((TextReading)reading, (TextualRegisterSpec)registerSpec);
         }
