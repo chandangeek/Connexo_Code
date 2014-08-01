@@ -39,7 +39,12 @@ public class GroupInfo {
 
         Collections.sort(privileges, new Comparator<PrivilegeInfo>() {
             public int compare(PrivilegeInfo p1, PrivilegeInfo p2) {
-                return p1.name.compareTo(p2.name);
+                if(p1.id.equals(p2.id)){
+                    return p1.name.compareTo(p2.name);
+                }
+                else{
+                    return p1.id.compareTo(p2.id);
+                }
             }
         });
     }

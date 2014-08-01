@@ -6,14 +6,12 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PrivilegeInfo {
     
-    public String componentName;
+    public String id;
     public String name;
-    public String description;
 
     public PrivilegeInfo(Privilege privilege) {
-        componentName = privilege.getComponentName();
+        id = privilege.getCode();
         name = privilege.getName();
-        description = privilege.getDescription();
     }
 
     public PrivilegeInfo() {
