@@ -10,9 +10,9 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.EventReading;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
@@ -492,13 +492,13 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         List<Reading> readings = reloadedDevice.getRegisterWithDeviceObisCode(this.averageForwardEnergyObisCode).getReadings(Interval.sinceEpoch());
         assertThat(readings).isNotEmpty();
         assertThat(readings).hasSize(1);
-        assertThat(readings.get(0)).isInstanceOf(EventReading.class);
-        EventReading eventReading = (EventReading) readings.get(0);
-        assertThat(eventReading.getType().getMRID()).isEqualTo(forwardEnergyReadingType.getMRID());
-        assertThat(eventReading.getTimeStamp()).isEqualTo(readingTimeStamp);
-        assertThat(eventReading.getInterval().isPresent()).isTrue();
-        assertThat(eventReading.getInterval().get()).isEqualTo(new Interval(eventStart, eventEnd));
-        assertThat(eventReading.getValue()).isEqualTo(readingValue);
+        assertThat(readings.get(0)).isInstanceOf(BillingReading.class);
+        BillingReading billingReading = (BillingReading) readings.get(0);
+        assertThat(billingReading.getType().getMRID()).isEqualTo(forwardEnergyReadingType.getMRID());
+        assertThat(billingReading.getTimeStamp()).isEqualTo(readingTimeStamp);
+        assertThat(billingReading.getInterval().isPresent()).isTrue();
+        assertThat(billingReading.getInterval().get()).isEqualTo(new Interval(eventStart, eventEnd));
+        assertThat(billingReading.getValue()).isEqualTo(readingValue);
     }
 
     @Test

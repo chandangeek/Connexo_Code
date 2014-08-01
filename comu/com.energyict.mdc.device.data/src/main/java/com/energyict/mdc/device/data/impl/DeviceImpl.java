@@ -1564,7 +1564,7 @@ public class DeviceImpl implements Device, PersistenceAware {
             }
         },
 
-        Event {
+        Billing {
             @Override
             boolean appliesTo(RegisterSpec registerSpec) {
                 Set<Aggregate> eventAggregates = EnumSet.of(Aggregate.AVERAGE, Aggregate.SUM, Aggregate.MAXIMUM, Aggregate.SECONDMAXIMUM, Aggregate.THIRDMAXIMUM, Aggregate.FOURTHMAXIMUM, Aggregate.FIFTHMAXIMIMUM, Aggregate.MINIMUM, Aggregate.SECONDMINIMUM);
@@ -1573,7 +1573,7 @@ public class DeviceImpl implements Device, PersistenceAware {
 
             @Override
             RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new EventRegisterImpl(device, registerSpec);
+                return new BillingRegisterImpl(device, registerSpec);
             }
         },
 
