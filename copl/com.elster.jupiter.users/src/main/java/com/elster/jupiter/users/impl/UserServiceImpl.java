@@ -256,6 +256,11 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
+    public List<Resource> getResources(String component){
+        return resourceFactory().find("componentName", component);
+    }
+
+    @Override
     public List<Module> getModules() {
         List<Module> modules = new ArrayList<>();
         for(DataModel model : ormService.getDataModels()){

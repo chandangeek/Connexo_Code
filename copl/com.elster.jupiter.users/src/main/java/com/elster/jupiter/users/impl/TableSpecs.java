@@ -28,7 +28,7 @@ public enum TableSpecs {
 		void addTo(DataModel dataModel) {
 			Table<Privilege> table = dataModel.addTable(name(), Privilege.class);
 			table.map(PrivilegeImpl.class);
-            Column idColumn = table.column("CODE").type("varchar(8)").notNull().map("code").add();
+            Column idColumn = table.column("CODE").type("varchar(80)").notNull().map("code").add();
 			table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column resourceColumn = table.column("RESOURCEID").type("number").notNull().add();
 			table.primaryKey("USR_PK_PRIVILEGES").on(idColumn).add();

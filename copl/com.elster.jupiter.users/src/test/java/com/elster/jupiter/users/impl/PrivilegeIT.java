@@ -29,6 +29,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Locale;
 
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -93,6 +94,7 @@ public class PrivilegeIT {
                 Resource resource = userService.createResource("USR", "User", "Test user resource");
 
                 Optional<Resource> found = userService.findResource("User");
+
                 assertThat(found).contains(resource);
                 assertThat(found.get().getComponentName()).isEqualTo("USR");
                 assertThat(found.get().getName()).isEqualTo("User");

@@ -53,6 +53,8 @@ public interface UserService {
 
     List<Resource> getResources();
 
+    List<Resource> getResources(String component);
+
     List<Module> getModules();
 
     UserDirectory createInternalDirectory(String domain);
