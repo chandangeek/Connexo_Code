@@ -5,11 +5,11 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
 
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Usr.store.Privileges',
+        'Usr.store.Resources',
         'Usr.view.group.privilege.FeatureActionMenu'
     ],
 
-    store: 'Usr.store.Privileges',
+    store: 'Usr.store.Resources',
 
     initComponent: function () {
         this.columns = {
@@ -21,33 +21,34 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
             },
             items: [
                 {
-                    header: Uni.I18n.translate('privilege.feature', 'USM', 'Feature'),
-                    dataIndex: 'name',
-                    flex: 7,
+                    header: Uni.I18n.translate('privilege.feature', 'USM', 'Resource'),
+                    flex: 3,
                     renderer: function (value, metadata, record) {
-                        if(record.get('selected')){
-                            return '<img src="../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-yes.png"/>&nbsp;' + record.get('name');
+                        var name = Uni.I18n.translate(record.get('name'), 'USM', record.get('name'));
+                        if(record.get('selected') == 0){
+                            return '<img src="../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-no.png"/>&nbsp;' + name;
                         }
                         else{
-                            return '<img src="../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-no.png"/>&nbsp;' + record.get('name');
+                            if(record.privileges().data.items.length == record.get('selected')){
+                                return '<img src="../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-yes.png"/>&nbsp;' + name;
+                            }
+                            else{
+                                return '<img src="../ext/packages/uni-theme-skyline/build/resources/images/tree/drop-above.png"/>&nbsp;' + name;
+                            }
                         }
                     }
                 },
                 {
-                    header: Uni.I18n.translate('privilege.permissions', 'USM', 'Permissions'),
+                    header: Uni.I18n.translate('privilege.description', 'USM', 'Description'),
                     flex: 3,
-                    renderer: function (value, b, record) {
-                        var text = Uni.I18n.translate('privilege.deny', 'USM', 'Deny');
-                        if(record.get('selected')){
-                            text = Uni.I18n.translate('privilege.allow', 'USM', 'Allow');
-                        }
-
-                        if(record.isModified('selected')){
-                            text = text + '<img src="../ext/packages/uni-theme-skyline/build/resources/images/grid/dirty-rtl.png"/>';
-                        }
-
-                        return text;
+                    renderer: function (value, metadata, record) {
+                        return Uni.I18n.translate(record.get('description'), 'USM', record.get('description'));
                     }
+                },
+                {
+                    header: Uni.I18n.translate('privilege.permissions', 'USM', 'Privileges'),
+                    flex: 7,
+                    dataIndex: 'permissions'
                 },
                 {
                     xtype: 'uni-actioncolumn',
@@ -61,7 +62,7 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('privilege.feature.top', 'USM', 'Privileges')
+                displayMsg: Uni.I18n.translate('privilege.feature.top', 'USM', 'Resources')
             }
         ];
 

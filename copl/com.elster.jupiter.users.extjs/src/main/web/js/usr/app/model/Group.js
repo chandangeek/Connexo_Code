@@ -1,5 +1,8 @@
 Ext.define('Usr.model.Group', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Usr.model.Privilege'
+    ],
     fields: [
         {name: 'id', type: 'int', useNull: true},
         'name',

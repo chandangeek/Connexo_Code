@@ -26,7 +26,7 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                     flex: 3,
                     renderer: function (value, metadata, record) {
                         var text = [];
-                        switch(record.get('rights')){
+                        switch(record.get('selected')){
                             case 0: {
                                 text = '<img src="../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-no.png"/>&nbsp;' + record.get('componentName');
                                 break;
@@ -46,7 +46,7 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                 {
                     header: Uni.I18n.translate('privilege.description', 'USM', 'Description'),
                     dataIndex: 'description',
-                    flex: 7
+                    flex: 10
                 },
                 {
                     xtype: 'uni-actioncolumn',

@@ -1,9 +1,9 @@
-Ext.define('Usr.store.Privileges', {
+Ext.define('Usr.store.Resources', {
     extend: 'Ext.data.Store',
     requires: [
-        'Usr.model.Privilege'
+        'Usr.model.Resource'
     ],
-    model: 'Usr.model.Privilege',
+    model: 'Usr.model.Resource',
     groupField: 'componentName',
     remoteSort: true,
     sorters: {

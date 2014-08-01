@@ -4,7 +4,7 @@ Ext.define('Usr.controller.Group', {
         'Usr.controller.GroupEdit'
     ],
     stores: [
-        'Usr.store.Privileges',
+        'Usr.store.Resources',
         'Usr.store.Groups'
     ],
     views: [

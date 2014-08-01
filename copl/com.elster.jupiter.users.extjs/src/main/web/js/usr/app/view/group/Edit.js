@@ -2,7 +2,7 @@ Ext.define('Usr.view.group.Edit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.groupEdit',
     requires: [
-        'Usr.store.Privileges',
+        'Usr.store.Resources',
         'Uni.view.form.CheckboxGroup',
         'Ext.button.Button',
         'Usr.view.group.privilege.ApplicationList',

@@ -1,14 +1,15 @@
 Ext.define('Usr.controller.GroupEdit', {
     extend: 'Ext.app.Controller',
     requires: [
+        'Usr.view.group.privilege.FeatureActionMenu'
     ],
     stores: [
-        'Usr.store.Privileges',
+        'Usr.store.Resources',
         'Usr.store.Groups',
         'Usr.store.Applications'
     ],
     models: [
-        'Usr.model.Privilege',
+        'Usr.model.Resource',
         'Usr.model.Group',
         'Usr.model.Application'
     ],
@@ -38,10 +39,6 @@ Ext.define('Usr.controller.GroupEdit', {
                 selectionchange: this.refreshFeatureList,
                 afterrender: this.selectFeatureList
             },
-            'groupEdit #featureList actioncolumn': {
-                privilegeAllow: this.allowPrivilege,
-                privilegeDeny: this.denyPrivilege
-            },
             'groupEdit #applicationList actioncolumn': {
                 privilegeNoAccess: this.applicationNoAccess,
                 privilegeFullControl: this.applicationFullControl
@@ -51,6 +48,9 @@ Ext.define('Usr.controller.GroupEdit', {
             },
             'groupEdit #applicationList button[action = privilegesFullControl]': {
                 click: this.systemFullControl
+            },
+            'groupEdit #featureList': {
+                beforecellmousedown: this.displayPermissionsMenu
             }
         });
     },
@@ -92,15 +92,29 @@ Ext.define('Usr.controller.GroupEdit', {
         widget.setLoading(true);
         panel.setTitle(title);
 
-        me.getStore('Usr.store.Privileges').load(function () {
+        var name = '',
+            previousPermissions = '';
+        me.getStore('Usr.store.Resources').load(function () {
             widget.down('form').loadRecord(record);
-            var currentPrivileges = record.privileges().data.items;
-            for(var i=0; i<currentPrivileges.length; i++){
-                var field = this.findRecord('name', currentPrivileges[i].data.name);
-                if(field){
-                    field.set('selected', true);
+            var allPrivileges, currentPrivileges = record.privileges(), index=0;
+            for(var i=0; i<this.data.items.length; i++){
+                allPrivileges = this.data.items[i].privileges();
+                for(var j=0; j<allPrivileges.data.items.length; j++){
+                    index = currentPrivileges.indexOf(allPrivileges.data.items[j]);
+                    if(index >= 0){
+                        allPrivileges.data.items[j].set('selected', true);
+
+                        previousPermissions = this.data.items[i].data.permissions;
+                        if(previousPermissions){
+                            previousPermissions += ', ';
+                        }
+                        name = currentPrivileges.data.items[index].data.name;
+                        this.data.items[i].set('permissions',  previousPermissions + Uni.I18n.translate(name, 'USM', name));
+                        this.data.items[i].set('selected', this.data.items[i].data.selected + 1);
+                    }
                 }
             }
+
             this.commitChanges();
             me.onPrivilegesStoreLoad();
             widget.setLoading(false);
@@ -110,7 +124,7 @@ Ext.define('Usr.controller.GroupEdit', {
     },
 
     onPrivilegesStoreLoad: function () {
-        var privileges = Ext.data.StoreManager.lookup('Usr.store.Privileges'),
+        var privileges = Ext.data.StoreManager.lookup('Usr.store.Resources'),
             applications = Ext.data.StoreManager.lookup('Usr.store.Applications');
 
         privileges.clearFilter(true);
@@ -123,7 +137,7 @@ Ext.define('Usr.controller.GroupEdit', {
             var record = Ext.create(Ext.ModelManager.getModel('Usr.model.Application'));
             record.set('componentName', groups[i].name);
             var value = this.checkRights(record, groups[i].children);
-            record.set('rights', value);
+            record.set('selected', value);
             applications.add(record);
         }
         applications.commitChanges();
@@ -134,22 +148,21 @@ Ext.define('Usr.controller.GroupEdit', {
             noAccess = true;
 
         for(var i=0; i<features.length && (noAccess || fullAccess); i++){
-            if(features[i].data.selected){
+            if(features[i].data.selected > 0){
                 noAccess = false;
             }
-            else{
+            if(features[i].data.selected < features[i].privileges().data.items.length){
                 fullAccess = false;
             }
         }
 
-        var value = 1;
         if(noAccess){
-            value = 0;
+            return 0;
         }
         if(fullAccess){
-            value = 2;
+            return 2;
         }
-        return value;
+        return 1;
     },
 
     selectFeatureList: function () {
@@ -178,8 +191,11 @@ Ext.define('Usr.controller.GroupEdit', {
         features.clearFilter(true);
 
         for(var i=0; i<features.count(); i++){
-            if(features.data.items[i].get('selected')){
-                record.privilegesStore.add(features.data.items[i])
+            var privileges = features.data.items[i].privileges();
+            for(var j=0; j<privileges.data.items.length; j++){
+                if(privileges.data.items[j].get('selected')){
+                    record.privilegesStore.add(privileges.data.items[j]);
+                }
             }
         }
 
@@ -204,61 +220,62 @@ Ext.define('Usr.controller.GroupEdit', {
         });
     },
 
-    allowPrivilege: function (record) {
-        this.updatePrivilege(record, true);
-    },
-
-    denyPrivilege: function (record) {
-        this.updatePrivilege(record, false);
-    },
-
-    updatePrivilege: function (record, value) {
-        record.set('selected', value);
-        this.updateApplication();
-    },
-
-    updateApplication: function () {
+    updateApplicationRow: function () {
         var record = this.getSelectApplicationsGrid().getSelectionModel().getSelection()[0],
             value = this.checkRights(record, this.getSelectFeaturesGrid().getStore().data.items);
-        record.set('rights', value);
+        record.set('selected', value);
     },
 
     applicationNoAccess: function (record) {
-        this.updateApplicationPrivileges(record, false);
+        this.updateApplicationFeatures(record, false);
     },
 
     applicationFullControl: function (record) {
-        this.updateApplicationPrivileges(record, true);
+        this.updateApplicationFeatures(record, true);
     },
 
-    updateApplicationPrivileges: function (record, value) {
+    updateApplicationFeatures: function (record, value) {
         var store = this.getSelectFeaturesGrid().getStore();
+        this.updateAllApplicationFeatures(store, value);
+        record.set('selected', value?2:0);
+    },
+
+    updateAllApplicationFeatures: function (store, value) {
+        var permissions = '',
+            name = '';
         for(var i=0; i<store.count(); i++){
-            store.data.items[i].set('selected', value);
-        }
-        if(value){
-            record.set('rights', 2);
-        }
-        else{
-            record.set('rights', 0);
+            var privileges = store.data.items[i].privileges();
+            permissions = '';
+
+
+            for(var j=0; j<privileges.data.items.length; j++){
+                privileges.data.items[j].data.selected = value;
+                if(value){
+                    if(permissions != ''){
+                        permissions += ', ';
+                    }
+                    name = privileges.data.items[j].data.name;
+                    permissions += Uni.I18n.translate(name, 'USM', name);
+                }
+            }
+            store.data.items[i].set('permissions', permissions);
+            store.data.items[i].set('selected', value?privileges.data.items.length:0);
         }
     },
 
     systemNoAccess: function () {
-        this.updateAllPrivileges(false);
+        this.updateAllFeatures(false);
     },
 
     systemFullControl: function () {
-        this.updateAllPrivileges(true);
+        this.updateAllFeatures(true);
     },
 
-    updateAllPrivileges: function (value) {
+    updateAllFeatures: function (value) {
         var features = this.getSelectFeaturesGrid().getStore();
         features.clearFilter(true);
 
-        for(var i=0; i<features.count(); i++){
-            features.data.items[i].set('selected', value);
-        }
+        this.updateAllApplicationFeatures(features, value);
 
         var application = this.getSelectApplicationsGrid().getSelectionModel().getSelection()[0];
         if(application){
@@ -268,13 +285,111 @@ Ext.define('Usr.controller.GroupEdit', {
         var applications = this.getSelectApplicationsGrid().getStore();
         for(var i=0; i<applications.data.length; i++){
             var record = applications.data.get(i);
-            if(value){
-                record.set('rights', 2);
-            }
-            else{
-                record.set('rights', 0);
-            }
+            record.set('selected', value?2:0);
         }
         this.getSelectApplicationsGrid().getView().refresh();
+    },
+
+    addPermissionMenuNoAccess: function (menu, selected) {
+        menu.add({
+            xtype: 'menucheckitem',
+            text: Uni.I18n.translate('privilege.noAccess', 'USM', 'No access'),
+            checked: selected,
+            listeners:{
+                checkchange: function(item, checked){
+                    if(checked){
+                        var menu = item.up('menu');
+                        for(var i=1; i<menu.items.length; i++){
+                            menu.items.items[i].setChecked(false);
+                        }
+                    }
+                }
+            }
+        });
+    },
+
+    addPermissionMenuFullControl: function (menu, selected) {
+        menu.add({
+            xtype: 'menucheckitem',
+            text: Uni.I18n.translate('privilege.fullControl', 'USM', 'Full control'),
+            checked: selected,
+            listeners:{
+                checkchange: function(item, checked){
+                    if(checked){
+                        var menu = item.up('menu');
+                        menu.items.items[0].setChecked(false);
+                        for(var i=1; i<menu.items.length-1; i++){
+                            menu.items.items[i].setChecked(true);
+                        }
+                    }
+                }
+            }
+        });
+    },
+
+    addPermissionMenuItem: function (menu, name, code, selected) {
+        menu.add(
+            {
+                xtype: 'menucheckitem',
+                text: Uni.I18n.translate(name, 'USM', name),
+                code: code,
+                checked: selected,
+                listeners:{
+                    checkchange: function(item, checked){
+                        var panel = item.up('menu');
+                        if(checked){
+                            panel.items.items[0].setChecked(false);
+                        }
+                        else{
+                            panel.items.items[panel.items.length-1].setChecked(false);
+                        }
+                    }
+                }
+            }
+        );
+    },
+
+    displayPermissionsMenu: function (grid, td, cellIndex, record, tr, rowIndex) {
+        var lastColumn = grid.panel.columns.length - 1,
+            privileges = record.privileges().data.items;
+
+
+        if(cellIndex == lastColumn){
+            var menu = menu = grid.panel.columns[lastColumn].menu;
+            menu.removeAll();
+
+            this.addPermissionMenuNoAccess(menu, (record.get('permissions') == ''));
+            for(var i=0; i<privileges.length; i++){
+                this.addPermissionMenuItem(menu, privileges[i].data.name, privileges[i].data.id, privileges[i].data.selected);
+            }
+            this.addPermissionMenuFullControl(menu, (record.get('selected') == privileges.length));
+
+            var me=this;
+            menu.on('beforehide', function (panel) {
+                var text = '',
+                    total = 0,
+                    selRecord = me.getSelectFeaturesGrid().getSelectionModel().getSelection()[0];
+
+                for(var i=1; i<panel.items.length-1; i++){
+                    if(panel.items.items[i].checked){
+                        if(text != ''){
+                            text += ', ';
+                        }
+                        text += panel.items.items[i].text;
+                        selRecord.privileges().data.items[i-1].data.selected = true;
+                        total += 1;
+                    }
+                    else{
+                        selRecord.privileges().data.items[i-1].data.selected = false;
+                    }
+                }
+                if(selRecord.data.permissions != text){
+                    selRecord.set('permissions', text);
+                    selRecord.set('selected', total);
+                }
+                me.updateApplicationRow();
+            });
+        }
+        return true;
     }
 });

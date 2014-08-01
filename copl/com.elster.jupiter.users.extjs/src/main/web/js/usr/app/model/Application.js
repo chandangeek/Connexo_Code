@@ -3,6 +3,6 @@ Ext.define('Usr.model.Application', {
     fields: [
         'componentName',
         'description',
-        'rights'
+        'selected'
     ]
 });
