@@ -189,7 +189,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
      *
      * The URL to be used for the cancel button.
      */
-    cancelHref: '#',
+    cancelHref: undefined,
 
     /**
      * @cfg allChosenByDefault
@@ -234,7 +234,10 @@ Ext.define('Uni.view.grid.BulkSelection', {
             {
                 xtype: 'toolbar',
                 dock: 'top',
-                layout: 'vbox',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
                 items: [
                     {
                         xtype: 'radiogroup',
@@ -263,6 +266,11 @@ Ext.define('Uni.view.grid.BulkSelection', {
                     },
                     {
                         xtype: 'container',
+                        itemId: 'topToolbarContainer',
+                        layout: {
+                            type: 'hbox',
+                            align: 'middle'
+                        },
                         items: [
                             {
                                 xtype: 'text',
