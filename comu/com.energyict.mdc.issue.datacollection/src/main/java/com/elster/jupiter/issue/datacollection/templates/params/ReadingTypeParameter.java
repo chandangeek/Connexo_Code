@@ -11,7 +11,6 @@ public class ReadingTypeParameter extends TranslatedParameter{
     public static final String READING_TYPE_PARAMETER_KEY = "readingType";
     private static final ParameterConstraint CONSTRAINT = new StringParameterConstraint(false, 2, 80);
 
-    private ParameterControl control;
     public ReadingTypeParameter(Thesaurus thesaurus) {
         super(thesaurus);
         ((StringParameterConstraint)CONSTRAINT).setRegexp("(\\d+\\.){17}\\d+");

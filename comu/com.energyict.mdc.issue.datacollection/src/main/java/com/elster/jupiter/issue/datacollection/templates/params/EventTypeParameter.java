@@ -36,7 +36,7 @@ public class EventTypeParameter extends TranslatedParameter {
         public List<ParameterViolation> validate(String value, String paramKey, MeteringService meteringService) {
             List<ParameterViolation> errors = new ArrayList<ParameterViolation>();
             if (value == null){
-                errors.add(new ParameterViolation(paramKey, MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT.getKey(), ModuleConstants.COMPONENT_NAME, value));
+                errors.add(new ParameterViolation(paramKey, MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT.getKey(), ModuleConstants.COMPONENT_NAME));
                 return errors;
             }
             if (!validateValueInEventDescriptions(value) && !validateValueInEndDeviceEventTypes(meteringService, value)){
@@ -110,19 +110,19 @@ public class EventTypeParameter extends TranslatedParameter {
 
     private void searchEventTypesInEndDeviceEventTypes(String userValue){
         if (userValue != null) {
-            String dbSearchString = "%" + userValue + "%";
             /*
-            TODO search in DB
-            getAvailableEndDeviceEventTypes() retruns more than 10000 records! So we need to have an ability to search
-            EndDeviceEventTypes by name / id
+            //TODO search in DB
+            //getAvailableEndDeviceEventTypes() retruns more than 10000 records! So we need to have an ability to search
+            //EndDeviceEventTypes by name / id
+            String dbSearchString = "%" + userValue + "%";
             for(EndDeviceEventType endDeviceEventType : meteringService.getAvailableEndDeviceEventTypes()) {
                 ComboBoxControl.Values info = new ComboBoxControl.Values();
                 info.id = endDeviceEventType.getMRID();
                 info.title = endDeviceEventType.getName();
                 eventTypes.add(info);
             }
-            For now we use only this two, see the
-            http://confluence.eict.vpdc/display/JUP/Create+an+issue+for+the+event%2C+mapping+of+event+to+issue?focusedCommentId=26674337#comment-26674337
+            //For now we use only this two, see the
+            //http://confluence.eict.vpdc/display/JUP/Create+an+issue+for+the+event%2C+mapping+of+event+to+issue?focusedCommentId=26674337#comment-26674337
             */
             addDefaultEventTypes();
         } else {

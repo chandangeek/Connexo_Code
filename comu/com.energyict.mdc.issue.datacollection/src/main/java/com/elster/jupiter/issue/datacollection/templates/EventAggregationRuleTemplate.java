@@ -60,7 +60,8 @@ public class EventAggregationRuleTemplate extends AbstractTemplate {
                 "\teval( event.computeCurrentThreshold() > @{threshold} )\n"+
                 "then\n"+
                 "\tSystem.out.println(\"Events from meters of concentrator @{ruleId}\");\n"+
-                "\tissueCreationService.processCreationEvent(@{ruleId}, event);\n"+
+                "\tAbstractEvent eventClone = event.cloneForAggregation();\n"+
+                "\tissueCreationService.processCreationEvent(@{ruleId}, eventClone);\n"+
                 "end";
     }
 }

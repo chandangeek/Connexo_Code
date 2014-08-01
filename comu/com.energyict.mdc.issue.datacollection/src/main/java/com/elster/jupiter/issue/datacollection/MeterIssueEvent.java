@@ -23,6 +23,10 @@ public class MeterIssueEvent extends AbstractEvent {
     private String endDeviceEventType;
     private EndDeviceEventRecord eventRecord;
 
+    protected MeterIssueEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, Thesaurus thesaurus) {
+        super(issueService, meteringService, deviceDataService, thesaurus);
+    }
+
     public MeterIssueEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, Thesaurus thesaurus, Map<?, ?> rawEvent) {
         super(issueService, meteringService, deviceDataService, thesaurus, rawEvent);
     }
@@ -59,6 +63,14 @@ public class MeterIssueEvent extends AbstractEvent {
     @Override
     public String getEventType() {
         return endDeviceEventType;
+    }
+
+    @Override
+    protected AbstractEvent cloneInternal() {
+        MeterIssueEvent event = new MeterIssueEvent(getIssueService(), getMeteringService(), getDeviceDataService(), getThesaurus());
+        event.endDeviceEventType = endDeviceEventType;
+        event.eventRecord = eventRecord;
+        return event;
     }
 
     @Override

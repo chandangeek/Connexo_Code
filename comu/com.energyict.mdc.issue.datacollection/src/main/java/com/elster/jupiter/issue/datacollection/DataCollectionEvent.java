@@ -16,7 +16,12 @@ import java.util.logging.Level;
 public class DataCollectionEvent extends AbstractEvent {
     
     private final TaskHistoryService taskHistoryService;
-    
+
+    protected DataCollectionEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, TaskHistoryService taskHistoryService, Thesaurus thesaurus) {
+        super(issueService, meteringService, deviceDataService, thesaurus);
+        this.taskHistoryService = taskHistoryService;
+    }
+
     public DataCollectionEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, TaskHistoryService taskHistoryService, Thesaurus thesaurus, Map<?, ?> rawEvent) {
         super(issueService, meteringService, deviceDataService, thesaurus, rawEvent);
         this.taskHistoryService = taskHistoryService;
@@ -32,5 +37,11 @@ public class DataCollectionEvent extends AbstractEvent {
             LOG.log(Level.WARNING, "Incorrect communication type for concentrator[id={0}]", concentrator.getId());
         }
         return numberOfEvents;
+    }
+
+    @Override
+    protected AbstractEvent cloneInternal() {
+        DataCollectionEvent event = new DataCollectionEvent(getIssueService(), getMeteringService(), getDeviceDataService(), taskHistoryService, getThesaurus());
+        return event;
     }
 }

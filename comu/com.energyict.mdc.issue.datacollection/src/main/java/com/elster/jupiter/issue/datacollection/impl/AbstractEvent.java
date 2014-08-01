@@ -36,11 +36,15 @@ public abstract class AbstractEvent implements IssueEvent {
     private IssueStatus status;
     private DataCollectionEventDescription eventDescription;
 
-    public AbstractEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, Thesaurus thesaurus, Map<?, ?> rawEvent) {
+    protected AbstractEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, Thesaurus thesaurus){
         this.issueService = issueService;
         this.meteringService = meteringService;
         this.deviceDataService = deviceDataService;
         this.thesaurus = thesaurus;
+    }
+
+    public AbstractEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, Thesaurus thesaurus, Map<?, ?> rawEvent) {
+        this(issueService, meteringService, deviceDataService, thesaurus);
         init(rawEvent);
     }
 
@@ -170,4 +174,23 @@ public abstract class AbstractEvent implements IssueEvent {
         Object contents = map.get(key);
         return contents instanceof Long ? (Long) contents : ((Integer) contents).longValue();
     }
+
+    @Override
+    protected AbstractEvent clone() {
+        AbstractEvent clone = cloneInternal();
+        clone.device = device;
+        clone.endDevice = endDevice ;
+        clone.status = status;
+        clone.eventDescription = eventDescription;
+        return clone;
+    }
+
+    public AbstractEvent cloneForAggregation(){
+        AbstractEvent clone = clone();
+        clone.device = device.getPhysicalGateway();
+        clone.endDevice = clone.findEndDeviceByDevice();
+        return clone;
+    }
+
+    protected abstract AbstractEvent cloneInternal();
 }
