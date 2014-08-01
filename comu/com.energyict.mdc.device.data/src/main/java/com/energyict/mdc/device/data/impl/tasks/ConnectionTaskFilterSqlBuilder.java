@@ -175,7 +175,7 @@ public class ConnectionTaskFilterSqlBuilder {
         sqlBuilder.append(COMSESSION_TABLENAME);
         sqlBuilder.append(" group by connectiontask) ");
         sqlBuilder.append(comTaskSessionAliasName);
-        sqlBuilder.append(" where ");
+        sqlBuilder.appendWhereOrAnd();
         sqlBuilder.append(connectionTaskTableName);
         sqlBuilder.append(".id = ");
         sqlBuilder.append(comTaskSessionAliasName);
