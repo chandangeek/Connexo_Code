@@ -52,13 +52,14 @@ public class Installer {
     }
 
     private void createPrivileges() {
-        for (DeviceSecurityUserAction userAction : DeviceSecurityUserAction.values()) {
-            try {
-                userService.createPrivilege(DeviceConfigurationService.COMPONENTNAME, userAction.name(), "");
-            } catch (Exception e) {
-                logger.severe(e.getMessage());
-            }
-        }
+        //TODO: privilege structure has been modified; add all privileges here
+//        for (DeviceSecurityUserAction userAction : DeviceSecurityUserAction.values()) {
+//            try {
+//                userService.createPrivilege(DeviceConfigurationService.COMPONENTNAME, userAction.name(), "");
+//            } catch (Exception e) {
+//                logger.severe(e.getMessage());
+//            }
+//        }
 
     }
 
