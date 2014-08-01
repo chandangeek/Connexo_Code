@@ -4,19 +4,19 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
+import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ConnectionStatusOverview;
+import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardCounters;
-import com.energyict.mdc.dashboard.DashboardService;
+import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.tasks.history.CompletionCode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
@@ -52,46 +52,38 @@ public class ConnectionOverviewInfo {
     public List<TaskSummaryInfo> overviews;
     public List<BreakdownSummaryInfo> breakdowns;
 
+    public HeatChartInfo heatChartInfo;
+
     public ConnectionOverviewInfo() {
     }
 
-    public ConnectionOverviewInfo(DashboardService dashboardService, Thesaurus thesaurus) throws Exception {
+    public ConnectionOverviewInfo(
+            ConnectionSummaryData connectionSummaryData,
+            ConnectionStatusOverview connectionStatusOverview,
+            DashboardCounters<CompletionCode> comTaskCompletionOverview,
+            ComPortPoolBreakdown comPortPoolBreakdown,
+            ConnectionTypeBreakdown connectionTypeBreakdown,
+            DeviceTypeBreakdown deviceTypeBreakdown,
+            FilterOption breakdown,
+            Thesaurus thesaurus) throws Exception {
         this.thesaurus = thesaurus;
+
+        connectionSummary = ConnectionSummaryInfo.from(connectionSummaryData);
+
         overviews=new ArrayList<>(2);
-        ConnectionStatusOverview connectionStatusOverview = dashboardService.getConnectionStatusOverview();
         overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), null), connectionStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), null), dashboardService.getComTaskCompletionOverview(), FilterOption.latestResult, completionCodeAdapter)); // JP-4280
+        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), null), comTaskCompletionOverview, FilterOption.latestResult, completionCodeAdapter)); // JP-4280
 
         breakdowns=new ArrayList<>(3);
-        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), null), dashboardService.getComPortPoolBreakdown(), FilterOption.comPortPool)); // JP-4281
-        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), null), dashboardService.getConnectionTypeBreakdown(), FilterOption.connectionType)); // JP-4283
-        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), null), dashboardService.getDeviceTypeBreakdown(), FilterOption.deviceType)); // JP-4284
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), null), comPortPoolBreakdown, BreakdownOption.comPortPool)); // JP-4281
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), null), connectionTypeBreakdown, BreakdownOption.connectionType)); // JP-4283
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), null), deviceTypeBreakdown, BreakdownOption.deviceType)); // JP-4284
 
         sortAllOverviews();
         sortAllBreakdowns();
 
-        completeConnectionSummary(connectionStatusOverview);
 
-    }
 
-    private void completeConnectionSummary(ConnectionStatusOverview connectionStatusOverview) {
-        Map<TaskStatus, Long> counts = getTaskStatusCountsAsMap(connectionStatusOverview);
-
-        connectionSummary = new ConnectionSummaryInfo();
-        connectionSummary.failedConnections=counts.get(TaskStatus.Failed)+counts.get(TaskStatus.NeverCompleted);
-        connectionSummary.pendingConnections=counts.get(TaskStatus.Pending)+counts.get(TaskStatus.Busy)+counts.get(TaskStatus.Retrying);
-    }
-
-    private Map<TaskStatus, Long> getTaskStatusCountsAsMap(ConnectionStatusOverview connectionStatusOverview) {
-        Map<TaskStatus, Long> counts = new HashMap<>();
-        for (TaskStatus taskStatus : TaskStatus.values()) {
-            counts.put(taskStatus, 0L);
-        }
-
-        for (Counter<TaskStatus> taskStatusCounter : connectionStatusOverview) {
-            counts.put(taskStatusCounter.getCountTarget(), taskStatusCounter.getCount());
-        }
-        return counts;
     }
 
     private void sortAllBreakdowns() {
@@ -106,7 +98,7 @@ public class ConnectionOverviewInfo {
         }
     }
 
-    private <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters, FilterOption alias) {
+    private <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters, BreakdownOption alias) {
         BreakdownSummaryInfo info = new BreakdownSummaryInfo();
         info.displayName=name;
         info.alias=alias;
@@ -153,7 +145,7 @@ class TaskSummaryInfo {
 
 class BreakdownSummaryInfo {
     public String displayName;
-    public FilterOption alias;
+    public BreakdownOption alias;
     public long total;
     public long totalSuccessCount;
     public long totalPendingCount;
@@ -177,8 +169,11 @@ class TaskCounterInfo {
 
 enum FilterOption {
     state,
-    comPortPool,
+    latestResult
+}
+
+enum BreakdownOption {
     connectionType,
     deviceType,
-    latestResult
+    comPortPool
 }

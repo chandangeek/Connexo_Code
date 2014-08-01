@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
-import java.util.EnumSet;
+import java.util.Arrays;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -25,7 +25,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/breakdown")
     public Object getBreakdownValues() {
-        return asJsonArrayObjectWithTranslation("breakdowns", "breakdown", EnumSet.of(FilterOption.comPortPool, FilterOption.connectionType, FilterOption.deviceType));
+        return asJsonArrayObjectWithTranslation("breakdowns", "breakdown", Arrays.asList(BreakdownOption.values()));
     }
 
 }

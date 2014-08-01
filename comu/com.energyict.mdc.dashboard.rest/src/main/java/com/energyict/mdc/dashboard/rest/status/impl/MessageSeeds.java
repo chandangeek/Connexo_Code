@@ -31,10 +31,10 @@ public enum MessageSeeds implements MessageSeed {
     UNEXPECTED_ERROR(22, "UnexpectedError", "Unexpected error", Level.SEVERE),
     PER_COMMUNICATION_POOL(23, "PerCommunicationPool", "Per communication pool", Level.SEVERE),
     PER_CONNECTION_TYPE(24, "PerConnectionType", "Per connection type", Level.SEVERE ),
-    PER_DEVICE_TYPE(24, "PerDeviceType", "Per device type", Level.SEVERE ),
-    COMPORTPOOL_FILTER(25, FilterOption.comPortPool.name(), "communication port pool", Level.SEVERE),
-    DEVICETYPE_FILTER(26, FilterOption.deviceType.name(), "device type", Level.SEVERE),
-    CONNECTIONTYPE_FILTER(27, FilterOption.connectionType.name(), "connection type", Level.SEVERE),
+    PER_DEVICE_TYPE(25, "PerDeviceType", "Per device type", Level.SEVERE ),
+    COMPORTPOOL_FILTER(26, BreakdownOption.comPortPool.name(), "communication port pool", Level.SEVERE),
+    DEVICETYPE_FILTER(27, BreakdownOption.deviceType.name(), "device type", Level.SEVERE),
+    CONNECTIONTYPE_FILTER(28, BreakdownOption.connectionType.name(), "connection type", Level.SEVERE),
     ;
 
     private final int number;
