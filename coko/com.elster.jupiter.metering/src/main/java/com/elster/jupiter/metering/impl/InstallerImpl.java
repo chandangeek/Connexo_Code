@@ -178,7 +178,8 @@ public class InstallerImpl {
 
     private void createPrivileges() {
         for (String each : getPrivileges()) {
-            userService.createPrivilege(MeteringService.COMPONENTNAME, each, "");
+            //TODO: privilege structure has been modified; add all privileges here
+            //userService.createPrivilege(MeteringService.COMPONENTNAME, each, "");
         }
     }
 
