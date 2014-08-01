@@ -20,7 +20,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         {ref: 'loadTypeEmptyListContainer', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypeEmptyListContainer'},
         {ref: 'addLoadProfileTypesGrid', selector: '#loadProfileTypesAddToDeviceTypeGrid'},
         {ref: 'uncheckLoadProfileButton', selector: '#uncheckAllLoadProfileTypes'},
-        {ref: 'loadTypesToDeviceTypeCountContainer', selector: 'loadProfileTypesAddToDeviceTypeDockedItems #addLoadProfileTypesToDeviceTypeCountContainer'},
         {ref: 'addLoadProfileTypesSetup', selector: '#loadProfileTypesAddToDeviceTypeSetup' }
     ],
 
@@ -38,14 +37,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             'loadProfileTypesAddToDeviceTypeSetup radiogroup[name=allOrSelectedLoadProfileTypes]': {
                 change: this.selectRadioButton
             },
-            '#loadProfileTypesAddToDeviceTypeGrid': {
-                selectionchange: this.getCountOfCheckedLoadProfileTypes
-            },
-            'loadProfileTypesAddToDeviceTypeSetup loadProfileTypesAddToDeviceTypeDockedItems button[action=uncheckallloadprofiletypes]': {
-                click: this.unCheckAllLoadProfileTypes
-            },
-            'loadProfileTypesAddToDeviceTypeSetup button[name=addloadprofiletypestodevicetype]': {
-                click: this.addLoadProfileTypesToDeviceType
+            'loadProfileTypesAddToDeviceTypeSetup loadProfileTypesAddToDeviceTypeGrid': {
+                allitemsadd: this.onAllLoadProfileTypesAdd,
+                selecteditemsadd: this.onSelectedLoadProfileTypesAdd
             },
             'button[action=loadprofiletypeondevicetypenotificationerrorretry]': {
                 click: this.retrySubmit
@@ -103,30 +97,39 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         }
     },
 
-    unCheckAllLoadProfileTypes: function () {
-        var grid = this.getAddLoadProfileTypesGrid();
-        grid.getView().getSelectionModel().deselectAll();
-    },
-
-
     retrySubmit: function (btn) {
         btn.up('messagebox').hide();
         this.addLoadProfileTypesToDeviceType();
     },
 
-    addLoadProfileTypesToDeviceType: function () {
+    onAllLoadProfileTypesAdd: function () {
+        var me = this,
+            store = me.getAddLoadProfileTypesGrid().store;
+
+        me.addLoadProfileTypesToDeviceType(store.data.items);
+    },
+
+    onSelectedLoadProfileTypesAdd: function (selection) {
+        this.addLoadProfileTypesToDeviceType(selection);
+    },
+
+    addLoadProfileTypesToDeviceType: function (selection) {
         var me = this,
             grid = this.getAddLoadProfileTypesGrid(),
-            selectedArray = grid.getView().getSelectionModel().getSelection(),
             idsArray = [],
             jsonData;
+
+        // TODO Workaround for not having an empty grid view here: JP-4617
+        if (Ext.isEmpty(selection)) {
+            return;
+        }
 
         preloader = Ext.create('Ext.LoadMask', {
             msg: "Adding load profile types to device type ",
             target: grid.up('#loadProfileTypesAddToDeviceTypeSetup')
         });
 
-        Ext.each(selectedArray, function (loadprofileType) {
+        Ext.each(selection, function (loadprofileType) {
             idsArray.push(loadprofileType.getData().id);
         });
 
@@ -189,38 +192,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             msg: errormsgs,
             icon: Ext.MessageBox.ERROR
         });
-    },
-
-    getCountOfCheckedLoadProfileTypes: function () {
-        var grid = this.getAddLoadProfileTypesGrid(),
-            loadProfileTypesCountSelected = grid.getView().getSelectionModel().getSelection().length,
-            loadProfileTypesCountContainer = this.getLoadTypesToDeviceTypeCountContainer(),
-            loadProfileTypesWord;
-
-        if (loadProfileTypesCountSelected == 1) {
-            loadProfileTypesWord = ' load profile type selected'
-        } else {
-            loadProfileTypesWord = ' load profile types selected'
-        }
-
-        var widget = Ext.widget('container', {
-            html: loadProfileTypesCountSelected + loadProfileTypesWord
-        });
-
-        loadProfileTypesCountContainer.removeAll(true);
-        loadProfileTypesCountContainer.add(widget);
-    },
-
-    checkAndMarkLoadProfileTypes: function () {
-        var grid = this.getAddLoadProfileTypesGrid(),
-            view = this.getAddLoadProfileTypesSetup(),
-            uncheckMeasurement = this.getUncheckLoadProfileButton();
-        if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
-            var selectionModel = grid.getView().getSelectionModel();
-            selectionModel.selectAll();
-            grid.disable();
-            uncheckMeasurement.disable();
-        }
     },
 
     selectRadioButton: function (radiogroup) {
@@ -342,7 +313,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
 
     showDeviceTypeLoadProfileTypesAddView: function (deviceTypeId) {
         var me = this,
-            widget = Ext.widget('loadProfileTypesAddToDeviceTypeSetup', { intervalStore: this.intervalStore });
+            widget = Ext.widget('loadProfileTypesAddToDeviceTypeSetup', {
+                intervalStore: me.intervalStore, deviceTypeId: deviceTypeId
+            });
 
         me.deviceTypeId = deviceTypeId;
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId});
@@ -353,8 +326,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                 me.deviceTypeName = deviceType.get('name');
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.store.load({ params: { available: true }, callback: function () {
-                    var radiogroup = Ext.ComponentQuery.query('loadProfileTypesAddToDeviceTypeSetup radiogroup[name=allOrSelectedLoadProfileTypes]')[0],
-                        grid = me.getAddLoadProfileTypesGrid(),
+                    var grid = me.getAddLoadProfileTypesGrid(),
+
                     // Not a good solution ( need to be replaced with opening web socket connection between server and web application )
                         autoRefresherTask = {
                             run: function () {
@@ -385,8 +358,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                         };
                     Ext.TaskManager.start(autoRefresherTask);
                     // end
-                    radiogroup.fireEvent('change', radiogroup);
-                    grid.fireEvent('selectionchange', grid);
                 }});
             }
         });
