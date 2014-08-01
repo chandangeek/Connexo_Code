@@ -86,8 +86,6 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             record.set('active', activeChange);
             record.set('inboundComPorts', formRecord.get('inboundComPorts'));
             record.set('outboundComPorts', formRecord.get('outboundComPorts'));
-            console.log(record);
-            console.log(form.getRecord());
             record.save({
                 callback: function (model) {
                     var msg = activeChange ? Uni.I18n.translate('comserver.changeState.activated', 'MDC', 'activated') :
