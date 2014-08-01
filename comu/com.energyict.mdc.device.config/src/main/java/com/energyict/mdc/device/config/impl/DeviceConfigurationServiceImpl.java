@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -413,10 +414,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     private void initPrivileges() {
+        // TODO check this in the upcoming security technical spike
         privileges.clear();
-        for (Privilege privilege : userService.getPrivileges()) {
-            if (COMPONENTNAME.equals(privilege.getComponentName())) {
-                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forName(privilege.getName());
+        Optional<Resource> resource = userService.getResource(COMPONENTNAME);
+        if(resource.isPresent()){
+            for(Privilege privilege : resource.get().getPrivileges()){
+                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forName(privilege.getCode());
                 if (found.isPresent()) {
                     privileges.put(found.get(), privilege);
                 }
