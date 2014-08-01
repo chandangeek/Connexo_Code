@@ -1,0 +1,57 @@
+{
+    "total": 8,
+    "comServerStatusInfos": [
+        {
+            "comServerName": "DEMO-SERVER",
+            "comServerType": "ONLINE",
+            "running": false,
+            "blocked": false
+        },
+        {
+            "comServerName": "Rudi-Retina.local",
+            "comServerType": "ONLINE",
+            "running": true,
+            "blocked": true,
+            "blockTime": {
+                "count": 55,
+                "timeUnit": 13
+            }
+        },
+        {
+            "comServerName": "Test-comm-server",
+            "comServerType": "ONLINE",
+            "running": false,
+            "blocked": false
+        },
+        {
+            "comServerName": "Rudi-Retina.local",
+            "comServerType": "ONLINE",
+            "running": false,
+            "blocked": false
+        },
+        {
+            "comServerName": "gna",
+            "comServerType": "ONLINE",
+            "running": false,
+            "blocked": false
+        },
+        {
+            "comServerName": "DEITVS015",
+            "comServerType": "ONLINE",
+            "running": false,
+            "blocked": false
+        },
+        {
+            "comServerName": "Demo",
+            "comServerType": "ONLINE",
+            "running": false,
+            "blocked": false
+        },
+        {
+            "comServerName": "Demo",
+            "comServerType": "ONLINE",
+            "running": false,
+            "blocked": false
+        }
+    ]
+}
