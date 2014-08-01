@@ -10,6 +10,7 @@ import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -25,10 +26,12 @@ import java.util.Set;
 
 import org.junit.*;
 import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,6 +70,7 @@ public class DashboardServiceImplTest {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
         }
         when(this.deviceDataService.getConnectionTaskStatusCount()).thenReturn(statusCounters);
+
         // Business methods
         ConnectionStatusOverview overview = this.dashboardService.getConnectionStatusOverview();
 
@@ -110,17 +114,26 @@ public class DashboardServiceImplTest {
     public void testComPortPoolBreakdownWithComPortPoolsButNoConnections () {
         ComPortPool comPortPool = mock(ComPortPool.class);
         when(this.engineModelService.findAllComPortPools()).thenReturn(Arrays.asList(comPortPool));
+        Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
+        for (TaskStatus taskStatus : TaskStatus.values()) {
+            statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
+        }
+        when(this.deviceDataService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
 
         // Business methods
         ComPortPoolBreakdown breakdown = this.dashboardService.getComPortPoolBreakdown();
 
         // Asserts
+        ArgumentCaptor<ConnectionTaskFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(this.deviceDataService).getConnectionTaskStatusCount(filterCaptor.capture());
+        assertThat(filterCaptor.getValue().comPortPools).hasSize(1);
+        assertThat(filterCaptor.getValue().comPortPools.iterator().next()).isEqualTo(comPortPool);
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
-        assertThat(breakdown.getTotalCount()).isZero();
-        assertThat(breakdown.getTotalSuccessCount()).isZero();
-        assertThat(breakdown.getTotalFailedCount()).isZero();
-        assertThat(breakdown.getTotalPendingCount()).isZero();
+        assertThat(breakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
     @Test
