@@ -7,11 +7,6 @@ import com.elster.jupiter.kpi.KpiMember;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 31/07/2014
- * Time: 10:41
- */
 public class KpiEntryImpl implements KpiEntry {
 
     private final KpiMember member;
