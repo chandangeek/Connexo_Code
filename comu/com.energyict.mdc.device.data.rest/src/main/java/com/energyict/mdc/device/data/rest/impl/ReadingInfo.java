@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = EventReadingInfo.class, name = "event"),
+        @JsonSubTypes.Type(value = BillingReadingInfo.class, name = "event"),
         @JsonSubTypes.Type(value = NumericalReadingInfo.class, name = "numerical"),
         @JsonSubTypes.Type(value = TextReadingInfo.class, name = "text")
 })

@@ -11,7 +11,7 @@ import java.util.List;
 public class RegisterInfoFactory {
     public static RegisterInfo asInfo(Register register) {
         if(BillingRegister.class.isAssignableFrom(register.getClass())) {
-            return new EventRegisterInfo((BillingRegister)register);
+            return new BillingRegisterInfo((BillingRegister)register);
         } else if(NumericalRegister.class.isAssignableFrom(register.getClass())) {
             return new NumericalRegisterInfo((NumericalRegister)register);
         } else if(TextRegister.class.isAssignableFrom(register.getClass())) {

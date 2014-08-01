@@ -10,11 +10,11 @@ import java.util.List;
 
 public class ReadingInfoFactory {
     public static ReadingInfo asInfo(Reading reading, RegisterSpec registerSpec) {
-        if(NumericalReading.class.isAssignableFrom(reading.getClass())) {
+        if (reading instanceof BillingReading) {
+            return new BillingReadingInfo((BillingReading)reading, (NumericalRegisterSpec)registerSpec);
+        } else if(reading instanceof NumericalReading) {
             return new NumericalReadingInfo((NumericalReading)reading, (NumericalRegisterSpec)registerSpec);
-        } else if(BillingReading.class.isAssignableFrom(reading.getClass())) {
-            return new EventReadingInfo((BillingReading)reading, (NumericalRegisterSpec)registerSpec);
-        } else if(TextReading.class.isAssignableFrom(reading.getClass())) {
+        } else if(reading instanceof TextReading) {
             return new TextReadingInfo((TextReading)reading, (TextualRegisterSpec)registerSpec);
         }
 

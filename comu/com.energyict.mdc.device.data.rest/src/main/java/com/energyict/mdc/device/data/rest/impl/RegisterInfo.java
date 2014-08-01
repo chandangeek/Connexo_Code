@@ -21,7 +21,7 @@ import java.util.Date;
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = EventRegisterInfo.class, name = "event"),
+        @JsonSubTypes.Type(value = BillingRegisterInfo.class, name = "event"),
         @JsonSubTypes.Type(value = NumericalRegisterInfo.class, name = "numerical"),
         @JsonSubTypes.Type(value = TextRegisterInfo.class, name = "text")
 })
