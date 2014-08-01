@@ -1,9 +1,11 @@
 package com.energyict.mdc.pluggable;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.HasName;
+
 import java.util.Date;
 import java.util.List;
 
