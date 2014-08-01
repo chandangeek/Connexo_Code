@@ -9,7 +9,8 @@ Ext.define('Cfg.controller.Validation', {
 
     requires: [
         'Uni.model.BreadcrumbItem',
-        'Ext.ux.window.Notification'
+        'Ext.ux.window.Notification',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     models: [
