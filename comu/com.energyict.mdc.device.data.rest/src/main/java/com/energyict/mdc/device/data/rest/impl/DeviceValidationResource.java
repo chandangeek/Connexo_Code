@@ -81,10 +81,15 @@ public class DeviceValidationResource {
     private void fillValidationRuleSetStatus(List<ValidationRuleSet> linkedRuleSets, MeterActivation activation, List<DeviceValidationRuleSetInfo> result) {
         List<? extends MeterActivationValidation> validations = validationService.getMeterActivationValidationsForMeterActivation(activation);
         for(ValidationRuleSet ruleset : linkedRuleSets) {
+            boolean found = false;
             for (MeterActivationValidation validation : validations) {
                 if(validation.getRuleSet().equals(ruleset)) {
                     result.add(new DeviceValidationRuleSetInfo(ruleset, validation.isActive()));
+                    found = true;
                 }
+            }
+            if (!found) { // recently added rulesets
+                result.add(new DeviceValidationRuleSetInfo(ruleset, true));
             }
         }
     }
