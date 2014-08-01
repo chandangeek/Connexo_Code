@@ -26,7 +26,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         {ref: 'loadTypePreview', selector: 'loadProfileTypeSetup #loadProfileTypePreview'},
         {ref: 'loadTypeCountContainer', selector: 'loadProfileTypeSetup #loadProfileTypesCountContainer'},
         {ref: 'loadTypeEmptyListContainer', selector: 'loadProfileTypeSetup #loadProfileTypeEmptyListContainer'},
-        {ref: 'addMeasurementTypesGrid', selector: '#loadProfileTypeAddMeasurementTypesGrid'},
+        {ref: 'addMeasurementTypesGrid', selector: 'loadProfileTypeAddMeasurementTypesView #loadProfileTypeAddMeasurementTypesGrid'},
         {ref: 'addMeasurementTypesView', selector: '#loadProfileTypeAddMeasurementTypesView'},
         {ref: 'addMeasurementTypesCount', selector: '#measurementTypesCountContainer'},
         {ref: 'uncheckMeasurementButton', selector: '#uncheckAllMeasurementTypes'},
@@ -34,7 +34,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         {ref: 'loadProfileSorting', selector: '#LoadProfileTypeSorting'},
         {ref: 'loadProfileFiltering', selector: '#LoadProfileTypeFiltering'},
         {ref: 'loadProfileDockedItems', selector: '#LoadProfileTypeDockedItems'}
-
     ],
 
     init: function () {
@@ -46,13 +45,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 afterrender: this.measurementTypesLoad
             },
             'loadProfileTypeAddMeasurementTypesView loadProfileTypeAddMeasurementTypesGrid': {
-                selectionchange: this.onSelectionChange
-            },
-            'loadProfileTypeAddMeasurementTypesView loadProfileTypeAddMeasurementTypesDockedItems button[action=uncheckallmeasurementtypes]': {
-                click: this.unCheckAllMeasurementTypes
-            },
-            'loadProfileTypeAddMeasurementTypesView button[name=addmeasurementtypestoloadprofiletype]': {
-                click: this.addMeasurementTypes
+                allitemsadd: this.onAllMeasurementTypesAdd,
+                selecteditemsadd: this.onSelectedMeasurementTypesAdd
             },
             'loadProfileTypeForm button[name=loadprofiletypeaction]': {
                 click: this.onSubmit
@@ -145,7 +139,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             }
         }
     },
-
 
     onSubmit: function (btn) {
         var me = this,
@@ -251,69 +244,34 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         })
     },
 
-    addMeasurementTypes: function () {
-        var me = this,
-            radioAll = me.getAddMeasurementTypesView().down('#radioAll'),
-            grid = me.getAddMeasurementTypesGrid(),
-            selectedArray = grid.getView().getSelectionModel().getSelection();
+    onAllMeasurementTypesAdd: function () {
+        this.addMeasurementTypes([]);
+    },
 
-        if (radioAll.getValue()) {
-            selectedArray = grid.getStore().data.items;
+    onSelectedMeasurementTypesAdd: function (selection) {
+        this.addMeasurementTypes(selection);
+    },
+
+    addMeasurementTypes: function (selection) {
+        var me = this,
+            grid = me.getAddMeasurementTypesGrid();
+
+        if (Ext.isEmpty(selection)) {
+            selection = grid.getStore().data.items;
         }
 
         me.selectedMeasurementTypesStore.removeAll();
-        me.selectedMeasurementTypesStore.add(selectedArray);
-        Ext.History.back();
-    },
+        me.selectedMeasurementTypesStore.add(selection);
 
-    unCheckAllMeasurementTypes: function () {
-        var grid = this.getAddMeasurementTypesGrid();
-        grid.getView().getSelectionModel().deselectAll(true);
-        this.onSelectionChange();
-    },
-
-    onSelectionChange: function () {
-        var radiogroup = Ext.ComponentQuery.query('loadProfileTypeAddMeasurementTypesView radiogroup[name=AllOrSelectedMeasurementTypes]')[0];
-        this.updateCountOfCheckedMeasurementTypes();
-        radiogroup.items.items[1].setValue(true);
-    },
-
-    updateCountOfCheckedMeasurementTypes: function () {
-        var grid = this.getAddMeasurementTypesGrid(),
-            measurementTypesCountSelected = grid.getView().getSelectionModel().getSelection().length,
-            measurementTypesCountContainer = this.getAddMeasurementTypesCount();
-
-        var widget = Ext.widget('component', {
-            html: Uni.I18n.translatePlural(
-                'setup.measurementTypesCountContainer.count',
-                measurementTypesCountSelected,
-                'MDC',
-                '{0} measurement types selected'
-            )
-        });
-
-        measurementTypesCountContainer.removeAll(true);
-        measurementTypesCountContainer.add(widget);
+        window.location = '#/administration/loadprofiletypes/create';
     },
 
     checkAndMarkMeasurementTypes: function () {
-        var grid = this.getAddMeasurementTypesGrid(),
-            view = this.getAddMeasurementTypesView(),
-            selectionModel = grid.getView().getSelectionModel(),
-            radiogroup = Ext.ComponentQuery.query('loadProfileTypeAddMeasurementTypesView radiogroup[name=AllOrSelectedMeasurementTypes]')[0],
-            recordsArray = [];
+        var me = this,
+            grid = this.getAddMeasurementTypesGrid(),
+            selectionModel = grid.getView().getSelectionModel();
 
-        if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
-            if (this.selectedMeasurementTypesStore.getCount() > 0) {
-                radiogroup.items.items[1].setValue(true);
-                this.selectedMeasurementTypesStore.each(function (value) {
-                    recordsArray.push(value);
-                });
-                selectionModel.select(recordsArray);
-            }
-        }
-
-        this.updateCountOfCheckedMeasurementTypes();
+        selectionModel.select(me.selectedMeasurementTypesStore.data.items);
     },
 
     checkLoadProfileTypesCount: function () {
@@ -474,9 +432,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     },
 
     showMeasurementTypesAddView: function (id) {
-        var form = this.getLoadTypeForm(),
-            loadProfileAction,
-            breadcrumbActionHref;
+        var form = this.getLoadTypeForm();
+
         if (!Ext.isEmpty(form)) {
             this.saveTemporallyValues(form);
         }
