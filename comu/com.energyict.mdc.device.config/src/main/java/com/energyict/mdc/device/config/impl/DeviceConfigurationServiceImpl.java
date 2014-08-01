@@ -415,16 +415,16 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     private void initPrivileges() {
         // TODO check this in the upcoming security technical spike
-        privileges.clear();
-        Optional<Resource> resource = userService.getResource(COMPONENTNAME);
-        if(resource.isPresent()){
-            for(Privilege privilege : resource.get().getPrivileges()){
-                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forName(privilege.getCode());
-                if (found.isPresent()) {
-                    privileges.put(found.get(), privilege);
-                }
-            }
-        }
+//        privileges.clear();
+//        Optional<Resource> resource = userService.getResource(COMPONENTNAME);
+//        if(resource.isPresent()){
+//            for(Privilege privilege : resource.get().getPrivileges()){
+//                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forName(privilege.getCode());
+//                if (found.isPresent()) {
+//                    privileges.put(found.get(), privilege);
+//                }
+//            }
+//        }
     }
 
     Optional<Privilege> findPrivilege(DeviceSecurityUserAction userAction) {
