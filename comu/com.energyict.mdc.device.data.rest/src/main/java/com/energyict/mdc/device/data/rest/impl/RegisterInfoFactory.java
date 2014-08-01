@@ -10,11 +10,11 @@ import java.util.List;
 
 public class RegisterInfoFactory {
     public static RegisterInfo asInfo(Register register) {
-        if(BillingRegister.class.isAssignableFrom(register.getClass())) {
+        if (register instanceof BillingRegister) {
             return new BillingRegisterInfo((BillingRegister)register);
-        } else if(NumericalRegister.class.isAssignableFrom(register.getClass())) {
+        } else if (register instanceof NumericalRegister) {
             return new NumericalRegisterInfo((NumericalRegister)register);
-        } else if(TextRegister.class.isAssignableFrom(register.getClass())) {
+        } else if (TextRegister.class.isAssignableFrom(register.getClass())) {
             return new TextRegisterInfo((TextRegister)register);
         }
 
