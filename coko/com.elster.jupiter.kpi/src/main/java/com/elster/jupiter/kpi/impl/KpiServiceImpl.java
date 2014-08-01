@@ -26,9 +26,13 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.kpi", service = {KpiService.class, InstallService.class}, property = "name=" + KpiService.COMPONENT_NAME)
 public class KpiServiceImpl implements IKpiService, InstallService {
+
+    private static final Logger LOGGER = Logger.getLogger(KpiServiceImpl.class.getName());
 
     private static final long VAULT_ID = 1L;
     private static final long RECORD_SPEC_ID = 1L;
@@ -66,6 +70,7 @@ public class KpiServiceImpl implements IKpiService, InstallService {
             @Override
             protected void configure() {
                 bind(IdsService.class).toInstance(idsService);
+                bind(EventService.class).toInstance(eventService);
                 bind(IKpiService.class).toInstance(KpiServiceImpl.this);
             }
         });
@@ -111,7 +116,22 @@ public class KpiServiceImpl implements IKpiService, InstallService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        try {
+            createEventTypes();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         initVaultAndRecordSpec();
+    }
+
+    private void createEventTypes() {
+        for (EventType eventType : EventType.values()) {
+            try {
+                eventType.install(eventService);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Could not create event type : " + eventType.name(), e);
+            }
+        }
     }
 
     private void createPartitions(Vault vault) {

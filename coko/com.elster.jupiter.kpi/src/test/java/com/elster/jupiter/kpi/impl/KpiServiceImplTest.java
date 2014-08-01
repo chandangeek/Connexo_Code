@@ -1,5 +1,6 @@
 package com.elster.jupiter.kpi.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
@@ -41,6 +42,8 @@ public class KpiServiceImplTest {
     @Mock
     private IdsService idsService;
     @Mock
+    private EventService eventService;
+    @Mock
     private Vault vault;
     @Mock
     private RecordSpec recordSpec;
@@ -57,7 +60,7 @@ public class KpiServiceImplTest {
         when(dataModel.getInstance(KpiImpl.class)).thenAnswer(new Answer<KpiImpl>() {
             @Override
             public KpiImpl answer(InvocationOnMock invocation) throws Throwable {
-                return new KpiImpl(dataModel, idsService, kpiService);
+                return new KpiImpl(dataModel, idsService, kpiService, eventService);
             }
         });
         when(idsService.newRecordSpec(anyString(), anyLong(), anyString())).thenReturn(recordSpec);

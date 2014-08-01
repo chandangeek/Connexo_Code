@@ -1,5 +1,6 @@
 package com.elster.jupiter.kpi.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
@@ -31,16 +32,24 @@ class KpiMemberImpl implements IKpiMember {
     private transient KpiTarget target;
 
     private final IdsService idsService;
+    private final EventService eventService;
 
     @Inject
-    KpiMemberImpl(IdsService idsService) {
+    KpiMemberImpl(IdsService idsService, EventService eventService) {
         this.idsService = idsService;
+        this.eventService = eventService;
     }
 
-    KpiMemberImpl(IdsService idsService, KpiImpl kpi, String name) {
+    KpiMemberImpl(IdsService idsService, EventService eventService, KpiImpl kpi, String name) {
         this.idsService = idsService;
+        this.eventService = eventService;
         this.kpi.set(kpi);
         this.name = name;
+    }
+
+    @Override
+    public Kpi getKpi() {
+        return kpi.get();
     }
 
     @Override
@@ -82,6 +91,18 @@ class KpiMemberImpl implements IKpiMember {
         TimeSeriesDataStorer storer = idsService.createStorer(true);
         storer.add(getTimeSeries(), date, bigDecimal, getTarget(date));
         storer.execute();
+        KpiEntry kpiEntry = getScore(date).get();
+        if (!kpiEntry.meetsTarget()) {
+            eventService.postEvent(EventType.KPI_TARGET_MISSED.topic(), new KpiMissEventImpl(this, kpiEntry));
+        }
+    }
+
+    public Optional<KpiEntry> getScore(Date date) {
+        Optional<TimeSeriesEntry> entry = getTimeSeries().getEntry(date);
+        if (entry.isPresent()) {
+            return Optional.<KpiEntry>of(new KpiEntryImpl(this, entry.get()));
+        }
+        return Optional.absent();
     }
 
     @Override
@@ -125,6 +146,10 @@ class KpiMemberImpl implements IKpiMember {
                 storer.execute();
             }
         };
+    }
+
+    int getPosition() {
+        return position;
     }
 
     private static class DynamicKpiTarget implements KpiTarget {

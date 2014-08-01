@@ -1,5 +1,6 @@
 package com.elster.jupiter.kpi.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
@@ -28,12 +29,14 @@ class KpiImpl implements Kpi {
     private final DataModel dataModel;
     private final IdsService idsService;
     private final IKpiService kpiService;
+    private final EventService eventService;
 
     @Inject
-    KpiImpl(DataModel dataModel, IdsService idsService, IKpiService iKpiService) {
+    KpiImpl(DataModel dataModel, IdsService idsService, IKpiService iKpiService, EventService eventService) {
         this.dataModel = dataModel;
         this.idsService = idsService;
         this.kpiService = iKpiService;
+        this.eventService = eventService;
     }
 
     KpiImpl init(String name, TimeZone timeZone, IntervalLength intervalLength) {
@@ -93,19 +96,19 @@ class KpiImpl implements Kpi {
     }
 
     KpiMemberImpl dynamicMaximum(String name) {
-        return add(new KpiMemberImpl(idsService, this, name).setDynamicTarget().asMaximum());
+        return add(new KpiMemberImpl(idsService, eventService, this, name).setDynamicTarget().asMaximum());
     }
 
     KpiMemberImpl dynamicMinimum(String name) {
-        return add(new KpiMemberImpl(idsService, this, name).setDynamicTarget().asMinimum());
+        return add(new KpiMemberImpl(idsService, eventService, this, name).setDynamicTarget().asMinimum());
     }
 
     KpiMemberImpl staticMaximum(String name, BigDecimal maximum) {
-        return add(new KpiMemberImpl(idsService, this, name).setStatictarget(maximum).asMaximum());
+        return add(new KpiMemberImpl(idsService, eventService, this, name).setStatictarget(maximum).asMaximum());
     }
 
     KpiMemberImpl staticMinimum(String name, BigDecimal minimum) {
-        return add(new KpiMemberImpl(idsService, this, name).setStatictarget(minimum).asMinimum());
+        return add(new KpiMemberImpl(idsService, eventService, this, name).setStatictarget(minimum).asMinimum());
     }
 
     KpiMemberImpl add(KpiMemberImpl member) {

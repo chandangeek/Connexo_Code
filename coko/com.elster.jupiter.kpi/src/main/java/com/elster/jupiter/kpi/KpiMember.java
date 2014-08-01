@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface KpiMember extends HasName {
 
+    Kpi getKpi();
 
     boolean hasDynamicTarget();
 
