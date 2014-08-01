@@ -59,6 +59,7 @@ public class KpiMemberImplTest {
         when(idsService.createStorer(true)).thenReturn(storer);
         when(timeSeries.getEntry(TIMESTAMP)).thenReturn(Optional.of(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(0)).thenReturn(SCORE);
+        when(timeSeriesEntry.getBigDecimal(1)).thenReturn(TARGET);
         when(timeSeriesEntry.getTimeStamp()).thenReturn(TIMESTAMP);
     }
 
@@ -103,5 +104,15 @@ public class KpiMemberImplTest {
         order.verify(storer).execute();
 
     }
+
+    @Test
+    public void testGetDynamicTarget() {
+        kpiMember.setDynamicTarget();
+
+        BigDecimal target = kpiMember.getTarget(TIMESTAMP);
+
+        assertThat(target).isEqualTo(TARGET);
+    }
+
 
 }
