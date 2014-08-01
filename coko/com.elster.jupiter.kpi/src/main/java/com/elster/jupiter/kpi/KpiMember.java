@@ -2,6 +2,7 @@ package com.elster.jupiter.kpi;
 
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.base.Optional;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -20,6 +21,8 @@ public interface KpiMember extends HasName {
     boolean targetIsMaximum();
 
     void score(Date date, BigDecimal bigDecimal);
+
+    Optional<KpiEntry> getScore(Date date);
 
     List<? extends KpiEntry> getScores(Interval interval);
 

@@ -97,6 +97,7 @@ class KpiMemberImpl implements IKpiMember {
         }
     }
 
+    @Override
     public Optional<KpiEntry> getScore(Date date) {
         Optional<TimeSeriesEntry> entry = getTimeSeries().getEntry(date);
         if (entry.isPresent()) {
@@ -131,6 +132,9 @@ class KpiMemberImpl implements IKpiMember {
 
     @Override
     public TargetStorer getTargetStorer() {
+        if (!dynamic) {
+            throw new IllegalStateException("KpiMember : '" + getName() + "' : Cannot store targets for a KpiMember with static target.");
+        }
         return new TargetStorer() {
 
             private final TimeSeriesDataStorer storer = idsService.createStorer(true);

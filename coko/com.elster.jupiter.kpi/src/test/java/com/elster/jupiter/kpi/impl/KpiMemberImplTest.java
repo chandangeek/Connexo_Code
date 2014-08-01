@@ -5,6 +5,9 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.kpi.KpiEntry;
+import com.elster.jupiter.kpi.TargetStorer;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeZone;
@@ -12,12 +15,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +48,7 @@ public class KpiMemberImplTest {
     @Mock
     private TimeSeries timeSeries;
     @Mock
-    private TimeSeriesEntry timeSeriesEntry;
+    private TimeSeriesEntry timeSeriesEntry, timeSeriesEntry2;
 
     @Before
     public void setUp() {
@@ -66,5 +74,34 @@ public class KpiMemberImplTest {
         verify(storer).add(timeSeries, TIMESTAMP, SCORE, TARGET);
     }
 
+    @Test
+    public void testGetScores() {
+        when(timeSeries.getEntries(Interval.sinceEpoch())).thenReturn(Arrays.asList(timeSeriesEntry, timeSeriesEntry2));
+
+        List<? extends KpiEntry> scores = kpiMember.getScores(Interval.sinceEpoch());
+
+        assertThat(scores).hasSize(2);
+
+        assertThat(scores.get(0).getScore()).isEqualTo(SCORE);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testStoreTargetsOnStaticKpiMember() {
+        kpiMember.getTargetStorer();
+    }
+
+    @Test
+    public void testStoreTargets() {
+        kpiMember.setDynamicTarget();
+
+        TargetStorer targetStorer = kpiMember.getTargetStorer();
+        targetStorer.add(TIMESTAMP, TARGET);
+        targetStorer.execute();
+
+        InOrder order = inOrder(storer);
+        order.verify(storer).add(timeSeries, TIMESTAMP, null, TARGET);
+        order.verify(storer).execute();
+
+    }
 
 }
