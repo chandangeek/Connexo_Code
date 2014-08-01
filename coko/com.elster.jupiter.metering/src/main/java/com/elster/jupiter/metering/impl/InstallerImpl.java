@@ -212,13 +212,14 @@ public class InstallerImpl {
     }
 
     private void createPrivileges() {
-        for (String each : getPrivileges()) {
-            try {
-                userService.createPrivilege(MeteringService.COMPONENTNAME, each, "");
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error creating privilege \'" + each + "\': " + e.getMessage(), e);
-            }
-        }
+        //TODO: privilege structure has been modified; add all privileges here
+//        for (String each : getPrivileges()) {
+//            try {
+//                userService.createPrivilege(MeteringService.COMPONENTNAME, each, "");
+//            } catch (Exception e) {
+//                LOGGER.log(Level.SEVERE, "Error creating privilege \'" + each + "\': " + e.getMessage(), e);
+//            }
+//        }
     }
 
     private List<String> getPrivileges() {
