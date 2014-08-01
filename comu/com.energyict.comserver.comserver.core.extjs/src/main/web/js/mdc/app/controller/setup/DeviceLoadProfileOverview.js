@@ -14,16 +14,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
         'Mdc.store.TimeUnits'
     ],
 
-    refs: [
-
-    ],
-
-    init: function () {
-        this.control({
-
-        });
-    },
-
     showOverview: function (mRID, loadProfileId) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
