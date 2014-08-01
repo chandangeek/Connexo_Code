@@ -1,5 +1,6 @@
 package com.elster.jupiter.kpi.impl;
 
+import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
 import org.junit.Before;
@@ -25,6 +26,8 @@ public class KpiMissEventImplTest {
     private KpiEntry entry;
     @Mock
     private KpiMemberImpl member;
+    @Mock
+    private Kpi kpi;
 
     @Before
     public void setUp() {
@@ -35,9 +38,11 @@ public class KpiMissEventImplTest {
                 return !((KpiMember) invocation.getMock()).targetIsMinimum();
             }
         });
+        when(member.getKpi()).thenReturn(kpi);
 
         when(entry.getScore()).thenReturn(SCORE);
         when(entry.getTarget()).thenReturn(TARGET);
+        when(entry.getTimestamp()).thenReturn(new Date());
     }
 
     @Test
