@@ -38,9 +38,6 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             'comServersGrid': {
                 select: this.showComServerPreview
             },
-            'comServersSetup': {
-                beforerender: this.loadTimeUnitStore
-            },
             '#comserverViewMenu': {
                 click: this.chooseAction,
                 show: this.configureMenu
@@ -66,8 +63,9 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             gridView = me.getComServerGrid().getView(),
             record = gridView.getSelectionModel().getLastSelected(),
             activeChange = 'notChanged',
+            form = this.getComServerPreview().down('form'),
+            formRecord = form.getRecord();
 
-            form = this.getComServerPreview().down('form');
 
         switch (item.action) {
             case 'edit':
@@ -86,6 +84,8 @@ Ext.define('Mdc.controller.setup.ComServersView', {
 
         if (activeChange != 'notChanged') {
             record.set('active', activeChange);
+            record.set('inboundComPorts', formRecord.get('inboundComPorts'));
+            record.set('outboundComPorts', formRecord.get('outboundComPorts'));
             record.save({
                 callback: function (model) {
                     var msg = activeChange ? Uni.I18n.translate('comserver.changeState.activated', 'MDC', 'activated') :
@@ -106,21 +106,17 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             id = record.getId();
 
         itemPanel.setLoading(this.getModel('Mdc.model.ComServer'));
+
         model.load(id, {
             success: function (record) {
                 if (!form.isDestroyed) {
                     form.loadRecord(record);
-                    itemPanel.setLoading(false);
                     form.up('panel').down('menu').record = record;
+                    itemPanel.setLoading(false);
                     itemPanel.setTitle(record.get('name'));
                 }
             }
         });
-    },
-
-    loadTimeUnitStore: function () {
-        var timeUnitStore = Ext.getStore('Mdc.store.TimeUnitsWithoutMilliseconds');
-        timeUnitStore.load();
     },
 
     editComServer: function (record) {

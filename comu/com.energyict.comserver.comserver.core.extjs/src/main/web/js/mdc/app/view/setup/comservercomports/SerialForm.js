@@ -217,8 +217,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     editable: false,
                     name: 'connectTimeout[timeUnit]',
                     flex: 1,
-                    valueField: 'timeUnit',
-                    displayField: 'localizedValue',
+                    displayField: 'timeUnit',
                     itemId: 'connectTimeoutUnit',
                     store: 'Mdc.store.TimeUnits'
                 }
@@ -250,8 +249,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     editable: false,
                     name: 'delayAfterConnect[timeUnit]',
                     flex: 1,
-                    valueField: 'timeUnit',
-                    displayField: 'localizedValue',
+                    displayField: 'timeUnit',
                     store: 'Mdc.store.TimeUnits'
                 }
             ]
@@ -282,8 +280,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     allowBlank: false,
                     name: 'delayBeforeSend[timeUnit]',
                     flex: 1,
-                    valueField: 'timeUnit',
-                    displayField: 'localizedValue',
+                    displayField: 'timeUnit',
                     store: 'Mdc.store.TimeUnits'
                 }
             ]
@@ -314,8 +311,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
                     editable: false,
                     name: 'atCommandTimeout[timeUnit]',
                     flex: 1,
-                    valueField: 'timeUnit',
-                    displayField: 'localizedValue',
+                    displayField: 'timeUnit',
                     store: 'Mdc.store.TimeUnits'
                 }
             ]

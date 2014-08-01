@@ -52,12 +52,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                         fieldLabel: Uni.I18n.translate('comserver.preview.changesInterPollDelay', 'MDC', 'Changes inter poll delay'),
                         name: 'changesInterPollDelay',
                         renderer: function (val) {
-                            var store = Ext.getStore('Mdc.store.TimeUnitsWithoutMilliseconds');
-                            if (val) {
-                                return val.count + ' ' + store.getAt(store.findExact('timeUnit', val.timeUnit)).get('localizedValue');
-                            } else {
-                                return null
-                            }
+                            val ? val = val.count + ' ' + val.timeUnit : null;
+                            return val;
                         }
                     },
                     {
@@ -96,13 +92,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                         fieldLabel: Uni.I18n.translate('comserver.preview.schedulingInterPollDelay', 'MDC', 'Scheduling inter poll delay'),
                         name: 'schedulingInterPollDelay',
                         renderer: function (val) {
-                            var store = Ext.getStore('Mdc.store.TimeUnitsWithoutMilliseconds');
-                            if (val) {
-                                return val.count + ' ' + store.getAt(store.findExact('timeUnit', val.timeUnit)).get('localizedValue');
-                            } else {
-                                return null
-                            }
-
+                            val ? val = val.count + ' ' + val.timeUnit : null;
+                            return val;
                         }
                     },
                     {
