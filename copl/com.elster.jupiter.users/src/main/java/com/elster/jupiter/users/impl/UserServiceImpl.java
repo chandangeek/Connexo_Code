@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -34,6 +35,7 @@ import static com.elster.jupiter.util.Checks.is;
 public class UserServiceImpl implements UserService, InstallService {
 
     private volatile DataModel dataModel;
+    private volatile OrmService ormService;
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
@@ -149,8 +151,8 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public Privilege createPrivilege(String componentName, String privilegeName, String description) {
-        PrivilegeImpl result = PrivilegeImpl.from(dataModel, componentName, privilegeName, description);
+    public Resource createResource(String componentName, String privilegeName, String description) {
+        ResourceImpl result = ResourceImpl.from(dataModel, componentName, privilegeName, description);
         result.persist();
 
         return result;
@@ -168,6 +170,13 @@ public class UserServiceImpl implements UserService, InstallService {
             }
         }
         return Optional.<Group>absent();
+    }
+
+    @Override
+    public Optional<Resource> findResource(String name) {
+        Condition condition = Operator.EQUALIGNORECASE.compare("name", name);
+        List<Resource> resources = dataModel.query(Resource.class).select(condition);
+        return resources.isEmpty() ? Optional.<Resource>absent() : Optional.of(resources.get(0));
     }
 
     @Override
@@ -220,8 +229,12 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public Optional<Privilege> getPrivilege(String privilegeName) {
-        return privilegeFactory().getOptional(privilegeName);
+    public Optional<Privilege> getPrivilege(String privilegeCode) {
+        return privilegeFactory().getOptional(privilegeCode);
+    }
+
+    public Optional<Resource> getResource(String resourceName){
+        return resourceFactory().getOptional(resourceName);
     }
 
     private DataMapper<Privilege> privilegeFactory() {
@@ -231,6 +244,24 @@ public class UserServiceImpl implements UserService, InstallService {
     @Override
     public List<Privilege> getPrivileges() {
         return privilegeFactory().find();
+    }
+
+    private DataMapper<Resource> resourceFactory() {
+        return dataModel.mapper(Resource.class);
+    }
+
+    @Override
+    public List<Resource> getResources() {
+        return resourceFactory().find();
+    }
+
+    @Override
+    public List<Module> getModules() {
+        List<Module> modules = new ArrayList<>();
+        for(DataModel model : ormService.getDataModels()){
+            modules.add(new ModuleImpl(model.getName(), model.getDescription()));
+        }
+        return modules;
     }
 
     public QueryService getQueryService() {
@@ -255,6 +286,11 @@ public class UserServiceImpl implements UserService, InstallService {
     @Override
     public Query<Privilege> getPrivilegeQuery() {
         return getQueryService().wrap(dataModel.query(Privilege.class));
+    }
+
+    @Override
+    public Query<Resource> getResourceQuery() {
+        return getQueryService().wrap(dataModel.query(Resource.class));
     }
 
     public void install() {
@@ -292,6 +328,8 @@ public class UserServiceImpl implements UserService, InstallService {
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+
+        this.ormService = ormService;
     }
 
     @Reference

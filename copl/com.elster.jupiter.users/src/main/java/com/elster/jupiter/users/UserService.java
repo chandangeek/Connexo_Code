@@ -17,9 +17,11 @@ public interface UserService {
 
     Group createGroup(String name, String description);
 
-    Privilege createPrivilege(String componentName, String name, String description);
+    Resource createResource(String componentName, String name, String description);
 
     Optional<User> findUser(String authenticationName);
+
+    Optional<Resource> findResource(String name);
 
     Optional<Group> findGroup(String name);
 
@@ -27,7 +29,9 @@ public interface UserService {
 
     Optional<User> getUser(long id);
 
-    Optional<Privilege> getPrivilege(String privilegeName);
+    Optional<Privilege> getPrivilege(String privilegeCode);
+
+    Optional<Resource> getResource(String resourceName);
 
     Optional<User> authenticateBase64(String base64String);
 
@@ -41,9 +45,15 @@ public interface UserService {
 
     Query<Privilege> getPrivilegeQuery();
 
+    Query<Resource> getResourceQuery();
+
     Group newGroup(String name, String description);
 
     List<Privilege> getPrivileges();
+
+    List<Resource> getResources();
+
+    List<Module> getModules();
 
     UserDirectory createInternalDirectory(String domain);
 

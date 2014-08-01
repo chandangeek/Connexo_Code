@@ -1,11 +1,9 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.security.Privileges;
+import com.elster.jupiter.users.security.Resources;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 public class InstallerImpl {
 
@@ -39,7 +37,8 @@ public class InstallerImpl {
     private GroupImpl createAdministrators() {
 		GroupImpl group = GroupImpl.from(dataModel, "Administrators", "Administrative privileges");
 		group.save();
-		group.grant(Privileges.MANAGE_USERS);
+        grantAllPrivileges(group);
+
 		return group;
 	}
 	
@@ -52,23 +51,21 @@ public class InstallerImpl {
 	}
 	
 	private void createPrivileges() {
-		for (String each : getPrivileges()) {
-			PrivilegeImpl result = PrivilegeImpl.from(dataModel, "USR",each,"");
-			result.persist();			
-		}
+        for(Resources item : Resources.values()){
+            ResourceImpl resource = ResourceImpl.from(dataModel, dataModel.getName(), item.getValue(), item.getDescription());
+            resource.persist();
+
+            for(Map.Entry<Long, String> entry : item.getPrivilegeValues().entrySet()){
+                resource.createPrivilege(dataModel.getName() + entry.getKey(), entry.getValue());
+            }
+        }
 	}
-	
-	private List<String> getPrivileges() {
-		Field[] fields = Privileges.class.getFields();
-		List<String> result = new ArrayList<>(fields.length);
-		for (Field each : fields) {
-			try {
-				result.add((String) each.get(null));
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return result;
-	}
-	
+
+    private void grantAllPrivileges(GroupImpl group){
+        for(Resources item : Resources.values()){
+            for(Map.Entry<Long, String> entry : item.getPrivilegeValues().entrySet()){
+                group.grant(dataModel.getName() + entry.getKey());
+            }
+        }
+    }
 }

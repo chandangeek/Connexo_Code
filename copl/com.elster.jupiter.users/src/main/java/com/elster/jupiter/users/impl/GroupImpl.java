@@ -11,6 +11,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -65,8 +66,8 @@ final class GroupImpl implements Group , PersistenceAware {
 	}
 
 	@Override
-	public boolean hasPrivilege(String privilegeName) {
-        return FluentIterable.from(getPrivileges()).transform(To.NAME).contains(privilegeName);
+	public boolean hasPrivilege(String privilegeCode) {
+        return FluentIterable.from(getPrivileges()).transform(To.NAME).contains(privilegeCode);
 	}
 
     @Override
@@ -156,8 +157,8 @@ final class GroupImpl implements Group , PersistenceAware {
 	}
 	
 	@Override
-	public void grant(String privilegeName) {
-		Privilege privilege = dataModel.mapper(Privilege.class).getExisting(privilegeName);
+	public void grant(String privilegeCode) {
+        Privilege privilege = dataModel.mapper(Privilege.class).getExisting(privilegeCode);
 		grant(privilege);
 	}
 	

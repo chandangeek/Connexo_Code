@@ -3,25 +3,35 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.*;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 public enum TableSpecs {
-	USR_PRIVILEGE {
+    USR_RESOURCE {
+        void addTo(DataModel dataModel) {
+            Table<Resource> table = dataModel.addTable(name(), Resource.class);
+            table.map(ResourceImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column("NAME").type("varchar2(256)").notNull().map("name").add();
+            table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
+            table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
+            table.addCreateTimeColumn("CREATETIME", "createTime");
+            table.primaryKey("USR_PK_RESOURCE").on(idColumn).add();
+            table.unique("IDS_U_RESOURCE").on(nameColumn).add();
+        }
+    },
+    USR_PRIVILEGE {
 		void addTo(DataModel dataModel) {
 			Table<Privilege> table = dataModel.addTable(name(), Privilege.class);
 			table.map(PrivilegeImpl.class);
-			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
-			table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
-			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
-			table.addCreateTimeColumn("CREATETIME", "createTime");
-			table.primaryKey("USR_PK_PRIVILEGES").on(nameColumn).add();
+            Column idColumn = table.column("CODE").type("varchar(8)").notNull().map("code").add();
+			table.column("NAME").type("varchar2(256)").notNull().map("name").add();
+            Column resourceColumn = table.column("RESOURCEID").type("number").notNull().add();
+			table.primaryKey("USR_PK_PRIVILEGES").on(idColumn).add();
+            table.foreignKey("USR_FK_PRIVILEGES_RESOURCE").references(USR_RESOURCE.name()).onDelete(CASCADE).map("resource").on(resourceColumn).add();
 		}
 	},
 	USR_GROUP {
@@ -79,11 +89,11 @@ public enum TableSpecs {
 			Table<PrivilegeInGroup> table = dataModel.addTable(name(), PrivilegeInGroup.class);
 			table.map(PrivilegeInGroup.class);
 			Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
-			Column privilegeNameColumn = table.column("PRIVILEGENAME").type("varchar2(80)").notNull().map("privilegeName").add();
+			Column privilegeIdColumn = table.column("PRIVILEGEID").type("varchar(8)").notNull().map("privilegeCode").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
-			table.primaryKey("USR_PK_PRIVILEGEINGROUP").on(groupIdColumn , privilegeNameColumn).add();
+			table.primaryKey("USR_PK_PRIVILEGEINGROUP").on(groupIdColumn , privilegeIdColumn).add();
 			table.foreignKey("FK_PRIVINGROUP2GROUP").references(USR_GROUP.name()).onDelete(CASCADE).map("group").reverseMap("privilegeInGroups").on(groupIdColumn).add();
-			table.foreignKey("FK_PRIVINGROUP2PRIV").references(USR_PRIVILEGE.name()).onDelete(CASCADE).map("privilege").on(privilegeNameColumn).add();
+			table.foreignKey("FK_PRIVINGROUP2PRIV").references(USR_PRIVILEGE.name()).onDelete(CASCADE).map("privilege").on(privilegeIdColumn).add();
 		}
 	},
 	USR_USERINGROUP {

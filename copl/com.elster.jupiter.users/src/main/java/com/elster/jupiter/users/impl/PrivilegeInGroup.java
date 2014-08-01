@@ -10,7 +10,7 @@ import javax.inject.Inject;
 class PrivilegeInGroup {
 	// persistent fields
 	private long groupId;
-	private String privilegeName;
+	private String privilegeCode;
 	@SuppressWarnings("unused")
 	private UtcInstant createTime;
 	
@@ -27,7 +27,7 @@ class PrivilegeInGroup {
 	PrivilegeInGroup init(Group group , Privilege privilege) {
 		this.groupId = group.getId();
 		this.group = group;
-		this.privilegeName = privilege.getName();
+		this.privilegeCode = privilege.getCode();
 		this.privilege = privilege;
         return this;
 	}
@@ -38,7 +38,7 @@ class PrivilegeInGroup {
 
 	Privilege getPrivilege() {
 		if (privilege == null) {
-			privilege = dataModel.mapper(Privilege.class).getExisting(privilegeName);
+			privilege = dataModel.mapper(Privilege.class).getExisting(privilegeCode);
 		}
 		return privilege;
 	}

@@ -9,9 +9,9 @@ public interface Group extends HasName {
 
     long getId();
 
-    boolean hasPrivilege(String privilegeName);
+    boolean hasPrivilege(String privilegeCode);
 
-    void grant(String privilegeName);
+    void grant(String privilegeCode);
 
     long getVersion();
 

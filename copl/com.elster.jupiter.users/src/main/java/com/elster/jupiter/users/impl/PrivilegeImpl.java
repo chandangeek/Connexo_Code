@@ -1,35 +1,43 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
 
 class PrivilegeImpl implements Privilege {
 	// persistent fields
-	private String componentName;
+	private String code;
 	private String name;
-	private String description;
+    private Reference<Resource> resource = ValueReference.absent();
 	@SuppressWarnings("unused")
-	private UtcInstant createTime;
-    private final DataModel dataModel;
+	private final DataModel dataModel;
 
 	@Inject
 	private PrivilegeImpl(DataModel dataModel) {
         this.dataModel = dataModel;
 	}
 
-    static PrivilegeImpl from(DataModel dataModel, String componentName , String name , String description) {
-        return new PrivilegeImpl(dataModel).init(componentName, name, description);
+    static PrivilegeImpl from(DataModel dataModel, String code , String name, Resource resource) {
+        return new PrivilegeImpl(dataModel).init(code, name, resource);
     }
 
-	PrivilegeImpl init(String componentName , String name , String description) {
-		this.componentName = componentName;
+	PrivilegeImpl init(String code , String name, Resource resource) {
+		this.code = code;
 		this.name = name;
-		this.description = description;
-        return this;
+        this.resource.set(resource);
+		return this;
 	}
+
+    @Override
+    public String getCode() {
+        return code;
+    }
 
 	@Override 
 	public String getName() {
@@ -37,21 +45,11 @@ class PrivilegeImpl implements Privilege {
 	}
 	
 	@Override
-	public String getDescription() {
-		return description;
-	}
-
-    @Override
     public void delete() {
         dataModel.mapper(Privilege.class).remove(this);
     }
 
-    @Override
-	public String getComponentName() {
-		return componentName;
-	}
-
-	void persist() {
+    void persist() {
 		dataModel.mapper(Privilege.class).persist(this);
 	}
 
@@ -66,7 +64,7 @@ class PrivilegeImpl implements Privilege {
 
         Privilege privilege = (Privilege) o;
 
-        return name.equals(privilege.getName());
+        return (code.equals(privilege.getCode()));
 
     }
 
@@ -78,7 +76,7 @@ class PrivilegeImpl implements Privilege {
     @Override
     public String toString() {
         return "PrivilegeImpl{" +
-                "componentName='" + componentName + '\'' +
+                "code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 '}';
     }
