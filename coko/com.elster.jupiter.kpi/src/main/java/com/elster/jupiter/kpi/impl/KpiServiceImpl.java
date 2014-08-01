@@ -1,6 +1,5 @@
 package com.elster.jupiter.kpi.impl;
 
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.IdsService;
@@ -9,14 +8,9 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import org.joda.time.MutableDateTime;
@@ -39,12 +33,8 @@ public class KpiServiceImpl implements IKpiService, InstallService {
     private static final int MONTHS_PER_YEAR = 12;
 
     private volatile IdsService idsService;
-    private volatile QueryService queryService;
-    private volatile Clock clock;
-    private volatile UserService userService;
     private volatile EventService eventService;
     private volatile DataModel dataModel;
-    private volatile Thesaurus thesaurus;
     private volatile Vault vault;
     private volatile RecordSpec recordSpec;
 
@@ -52,20 +42,16 @@ public class KpiServiceImpl implements IKpiService, InstallService {
     }
 
     @Inject
-    KpiServiceImpl(IdsService idsService, QueryService queryService, Clock clock, UserService userService, EventService eventService, NlsService nlsService, OrmService ormService) {
+    KpiServiceImpl(IdsService idsService, EventService eventService, OrmService ormService) {
         setIdsService(idsService);
-        setQueryService(queryService);
-        setClock(clock);
-        setUserService(userService);
         setEventService(eventService);
-        setNlsService(nlsService);
         setOrmService(ormService);
         activate();
         install();
     }
 
     @Activate
-    public void activate() {
+    public final void activate() {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -77,7 +63,7 @@ public class KpiServiceImpl implements IKpiService, InstallService {
     }
 
     @Deactivate
-    public void deactivate() {
+    public final void deactivate() {
 
     }
 
@@ -95,7 +81,7 @@ public class KpiServiceImpl implements IKpiService, InstallService {
     }
 
     @Override
-    public void install() {
+    public final void install() {
         try {
             dataModel.install(true, true);
         } catch (Exception e) {
@@ -109,10 +95,10 @@ public class KpiServiceImpl implements IKpiService, InstallService {
             e.printStackTrace();
         }
         try {
-            RecordSpec recordSpec = idsService.newRecordSpec(COMPONENT_NAME, RECORD_SPEC_ID, "kpi");
-            recordSpec.addFieldSpec("value", FieldType.NUMBER);
-            recordSpec.addFieldSpec("target", FieldType.NUMBER);
-            recordSpec.persist();
+            RecordSpec newRecordSpec = idsService.newRecordSpec(COMPONENT_NAME, RECORD_SPEC_ID, "kpi");
+            newRecordSpec.addFieldSpec("value", FieldType.NUMBER);
+            newRecordSpec.addFieldSpec("target", FieldType.NUMBER);
+            newRecordSpec.persist();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -172,16 +158,6 @@ public class KpiServiceImpl implements IKpiService, InstallService {
         }
     }
 
-    @Reference
-    public final void setQueryService(QueryService queryService) {
-        this.queryService = queryService;
-    }
-
-    @Reference
-    public final void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
     public EventService getEventService() {
         return eventService;
     }
@@ -189,15 +165,6 @@ public class KpiServiceImpl implements IKpiService, InstallService {
     @Reference
     public final void setEventService(EventService eventService) {
         this.eventService = eventService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
-    }
-
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Override

@@ -152,7 +152,7 @@ class KpiMemberImpl implements IKpiMember {
         return position;
     }
 
-    private static class DynamicKpiTarget implements KpiTarget {
+    private static final class DynamicKpiTarget implements KpiTarget {
 
         private final TimeSeries timeSeries;
 
@@ -170,7 +170,7 @@ class KpiMemberImpl implements IKpiMember {
         }
     }
 
-    private static class StaticKpiTarget implements KpiTarget {
+    private static final class StaticKpiTarget implements KpiTarget {
 
         private final BigDecimal targetValue;
 
