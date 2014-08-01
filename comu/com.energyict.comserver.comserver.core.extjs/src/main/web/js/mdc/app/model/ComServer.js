@@ -18,6 +18,8 @@ Ext.define('Mdc.model.ComServer', {
         'outboundComPorts',
         'changesInterPollDelay',
         'schedulingInterPollDelay',
+        {name: 'queryAPIUsername', type: 'string', useNull: true},
+        {name: 'queryAPIPassword', type: 'string', useNull: true},
         {name: 'onlineComServerId', type: 'int', useNull: true},
         {
             name: 'comportslink',
