@@ -126,13 +126,21 @@ public interface DeviceDataService {
     public List<ConnectionTask> findByStatus(TaskStatus status);
 
     /**
-     * Counts the number of {@link ConnectionTask}s that match the specified filter
-     * and breaks the numbers down by their respective {@link TaskStatus}.
+     * Counts all {@link ConnectionTask}s in the system,
+     * grouping them by their respective {@link TaskStatus}.
+     *
+     * @return The numbers, broken down by TaskStatus
+     */
+    public Map<TaskStatus, Long> getConnectionTaskStatusCount();
+
+    /**
+     * Counts all {@link ConnectionTask}s that match the specified filter,
+     * grouping them by their respective {@link TaskStatus}.
      *
      * @param filter The ConnectionTaskFilter
      * @return The numbers, broken down by TaskStatus
      */
-    public Map<TaskStatus, Integer> getConnectionTaskStatusCount(ConnectionTaskFilterSpecification filter);
+    public Map<TaskStatus, Long> getConnectionTaskStatusCount(ConnectionTaskFilterSpecification filter);
 
     /**
      * Sets the specified {@link ConnectionTask} as the default for the Device

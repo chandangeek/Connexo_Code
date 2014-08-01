@@ -37,6 +37,6 @@ public class ConnectionTaskFilterSpecification {
     /**
      * The Set of {@link SuccessIndicator}s.
      */
-    public Set<SuccessIndicator> successIndicators = EnumSet.allOf(SuccessIndicator.class);
+    public Set<SuccessIndicator> successIndicators = EnumSet.noneOf(SuccessIndicator.class);
 
 }

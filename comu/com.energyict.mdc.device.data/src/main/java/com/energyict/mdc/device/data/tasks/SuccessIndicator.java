@@ -16,7 +16,7 @@ public enum SuccessIndicator {
     FAILURE,
 
     /**
-     * Indicates that there is not last ComSession.
+     * Indicates that there is no last ComSession.
      */
     NOT_APPLICABLE;
 

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
@@ -8,8 +9,6 @@ import com.energyict.mdc.device.data.tasks.SuccessIndicator;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -45,32 +44,31 @@ public class ConnectionTaskFilterSqlBuilder {
         this.successIndicators = EnumSet.copyOf(filterSpecification.successIndicators);
     }
 
-    public void appendTo(SqlBuilder sqlBuilder) {
+    public void appendTo(ClauseAwareSqlBuilder sqlBuilder) {
         this.appendSelectClause(sqlBuilder);
         this.appendFromClause(sqlBuilder);
         this.appendWhereClause(sqlBuilder);
     }
 
-    private void appendSelectClause(SqlBuilder sqlBuilder) {
+    private void appendSelectClause(ClauseAwareSqlBuilder sqlBuilder) {
+        sqlBuilder.append("select '");
         sqlBuilder.append(this.taskStatus.getPublicStatus().name());
         sqlBuilder.append("', count(*)");
     }
 
-    private void appendFromClause(SqlBuilder sqlBuilder) {
+    private void appendFromClause(ClauseAwareSqlBuilder sqlBuilder) {
         sqlBuilder.append(" from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-
         this.appendJoinedTables(sqlBuilder);
     }
 
-    private void appendWhereClause(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(" where ");
+    private void appendWhereClause(ClauseAwareSqlBuilder sqlBuilder) {
         this.taskStatus.completeFindBySqlBuilder(sqlBuilder);
         this.appendCompletionCodesSql(sqlBuilder);
         this.appendComPortPoolSql(sqlBuilder);
     }
 
-    private void appendJoinedTables(SqlBuilder sqlBuilder) {
+    private void appendJoinedTables(ClauseAwareSqlBuilder sqlBuilder) {
         if (!this.connectionTypes.isEmpty()) {
             sqlBuilder.append(" inner join mdcconnectionmethod on mdcconnectionmethod.id = ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
@@ -83,19 +81,19 @@ public class ConnectionTaskFilterSqlBuilder {
         }
     }
 
-    private void appendComPortPoolSql(SqlBuilder sqlBuilder) {
+    private void appendComPortPoolSql(ClauseAwareSqlBuilder sqlBuilder) {
         if (!this.comPortPools.isEmpty()) {
-            sqlBuilder.append(" and ");
+            sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(" (");
             this.appendInClause(TableSpecs.DDC_CONNECTIONTASK.name() + ".comportpool", sqlBuilder, this.comPortPools);
             sqlBuilder.append(")");
         }
     }
 
-    private void appendInClause(String columnName, SqlBuilder sqlBuilder, Set<? extends HasId> idBusinessObjects) {
+    private void appendInClause(String columnName, ClauseAwareSqlBuilder sqlBuilder, Set<? extends HasId> idBusinessObjects) {
         if (idBusinessObjects.size() == 1) {
             sqlBuilder.append(columnName);
-            sqlBuilder.append(" = ?");
+            sqlBuilder.append(" = ");
             sqlBuilder.addLong(idBusinessObjects.iterator().next().getId());
         }
         else {
@@ -140,12 +138,12 @@ public class ConnectionTaskFilterSqlBuilder {
         return allChunks;
     }
 
-    private void appendInSql(String columName, SqlBuilder sqlBuilder) {
+    private void appendInSql(String columName, ClauseAwareSqlBuilder sqlBuilder) {
         sqlBuilder.append(columName);
         sqlBuilder.append(" in (");
     }
 
-    private void appendIds(SqlBuilder sqlBuilder, List<? extends HasId> idBusinessObjects) {
+    private void appendIds(ClauseAwareSqlBuilder sqlBuilder, List<? extends HasId> idBusinessObjects) {
         Iterator<? extends HasId> iterator = idBusinessObjects.iterator();
         while (iterator.hasNext()) {
             HasId hasId = iterator.next();
@@ -160,7 +158,7 @@ public class ConnectionTaskFilterSqlBuilder {
         return !this.successIndicators.isEmpty();
     }
 
-    private void appendCompletionCodeJoinClause(SqlBuilder sqlBuilder, String connectionTaskTableName) {
+    private void appendCompletionCodeJoinClause(ClauseAwareSqlBuilder sqlBuilder, String connectionTaskTableName) {
         this.appendLastSessionJoinClauseForConnectionTask(
                         sqlBuilder,
                         COM_TASK_SESSION_ALIAS_NAME,
@@ -168,7 +166,7 @@ public class ConnectionTaskFilterSqlBuilder {
                         connectionTaskTableName);
     }
 
-    private void appendLastSessionJoinClauseForConnectionTask(SqlBuilder sqlBuilder, String comTaskSessionAliasName, String successIndicatorAliasName, String connectionTaskTableName) {
+    private void appendLastSessionJoinClauseForConnectionTask(ClauseAwareSqlBuilder sqlBuilder, String comTaskSessionAliasName, String successIndicatorAliasName, String connectionTaskTableName) {
         sqlBuilder.append(", (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY ");
         sqlBuilder.append(COMSESSION_TABLENAME);
         sqlBuilder.append(".startdate) ");
@@ -183,13 +181,13 @@ public class ConnectionTaskFilterSqlBuilder {
         sqlBuilder.append(comTaskSessionAliasName);
         sqlBuilder.append(".connectiontask");
     }
-    private void appendCompletionCodesSql(SqlBuilder sqlBuilder) {
+    private void appendCompletionCodesSql(ClauseAwareSqlBuilder sqlBuilder) {
         if (this.requiresCompletionCodesClause()) {
             this.appendCompletionCodeClause(sqlBuilder, this.successIndicators);
         }
     }
 
-    private void appendCompletionCodeClause(SqlBuilder sqlBuilder, Set<SuccessIndicator> includedSuccessIndicators) {
+    private void appendCompletionCodeClause(ClauseAwareSqlBuilder sqlBuilder, Set<SuccessIndicator> includedSuccessIndicators) {
         sqlBuilder.append(" and ");
         sqlBuilder.append(COM_TASK_SESSION_ALIAS_NAME);
         sqlBuilder.append(".");
@@ -200,7 +198,6 @@ public class ConnectionTaskFilterSqlBuilder {
             if (notFirst) {
                 sqlBuilder.append(", ");
             }
-            sqlBuilder.append("?");
             sqlBuilder.addInt(successIndicator.ordinal());
             notFirst = true;
         }

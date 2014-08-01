@@ -353,20 +353,25 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
-    public Map<TaskStatus, Integer> getConnectionTaskStatusCount(ConnectionTaskFilterSpecification filter) {
-        SqlBuilder globalSqlBuilder = null;
+    public Map<TaskStatus, Long> getConnectionTaskStatusCount() {
+        return this.getConnectionTaskStatusCount(new ConnectionTaskFilterSpecification());
+    }
+
+    @Override
+    public Map<TaskStatus, Long> getConnectionTaskStatusCount(ConnectionTaskFilterSpecification filter) {
+        ClauseAwareSqlBuilder sqlBuilder = null;
         for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(filter)) {
             // Check first pass
-            if (globalSqlBuilder == null) {
-                globalSqlBuilder = new SqlBuilder();
-                this.countByFilterAndTaskStatusSqlBuilder(globalSqlBuilder, filter, taskStatus);
+            if (sqlBuilder == null) {
+                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
             }
             else {
-                globalSqlBuilder.append(" UNION ALL ");
-                this.countByFilterAndTaskStatusSqlBuilder(globalSqlBuilder, filter, taskStatus);
+                sqlBuilder.unionAll();
+                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
             }
         }
-        return this.addMissingCounters(this.fetchCounters(globalSqlBuilder));
+        return this.addMissingCounters(this.fetchCounters(sqlBuilder));
     }
 
     private Set<ServerConnectionTaskStatus> taskStatusesForCounting (ConnectionTaskFilterSpecification filter) {
@@ -377,13 +382,13 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         return taskStatuses;
     }
 
-    public void countByFilterAndTaskStatusSqlBuilder(SqlBuilder sqlBuilder, ConnectionTaskFilterSpecification filter, ServerConnectionTaskStatus taskStatus) {
+    public void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ConnectionTaskFilterSpecification filter, ServerConnectionTaskStatus taskStatus) {
         ConnectionTaskFilterSqlBuilder countingFilter = new ConnectionTaskFilterSqlBuilder(taskStatus, filter);
         countingFilter.appendTo(sqlBuilder);
     }
 
-    private Map<TaskStatus, Integer> fetchCounters(SqlBuilder builder) {
-        Map<TaskStatus, Integer> counters = new HashMap<>();
+    private Map<TaskStatus, Long> fetchCounters(ClauseAwareSqlBuilder builder) {
+        Map<TaskStatus, Long> counters = new HashMap<>();
         try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(false))) {
             this.fetchCounters(stmnt, counters);
         }
@@ -393,19 +398,19 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         return counters;
     }
 
-    private void fetchCounters(PreparedStatement statement, Map<TaskStatus, Integer> counters) throws SQLException {
+    private void fetchCounters(PreparedStatement statement, Map<TaskStatus, Long> counters) throws SQLException {
         try (ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 String taskStatusName = resultSet.getString(1);
-                int counter = resultSet.getInt(2);
+                long counter = resultSet.getLong(2);
                 counters.put(TaskStatus.valueOf(taskStatusName), counter);
             }
         }
     }
 
-    private Map<TaskStatus, Integer> addMissingCounters(Map<TaskStatus, Integer> counters) {
+    private Map<TaskStatus, Long> addMissingCounters(Map<TaskStatus, Long> counters) {
         for (TaskStatus missing : EnumSet.complementOf(EnumSet.copyOf(counters.keySet()))) {
-            counters.put(missing, 0);
+            counters.put(missing, 0L);
         }
         return counters;
     }
