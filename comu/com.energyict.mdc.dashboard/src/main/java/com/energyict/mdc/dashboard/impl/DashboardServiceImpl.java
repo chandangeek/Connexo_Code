@@ -1,11 +1,14 @@
 package com.energyict.mdc.dashboard.impl;
 
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
+import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
+import com.energyict.mdc.dashboard.ConnectionTypeHeatMap;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
+import com.energyict.mdc.dashboard.DeviceTypeHeatMap;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -128,6 +131,21 @@ public class DashboardServiceImpl implements DashboardService {
         filter.taskStatuses.addAll(this.successTaskStatusses());
         filter.taskStatuses.addAll(this.failedTaskStatusses());
         filter.taskStatuses.addAll(this.pendingTaskStatusses());
+    }
+
+    @Override
+    public ConnectionTypeHeatMap getConnectionTypeHeatMap() {
+        return new ConnectionTypeHeatMapImpl();
+    }
+
+    @Override
+    public DeviceTypeHeatMap getDeviceTypeHeatMap() {
+        return new DeviceTypeHeatMapImpl();
+    }
+
+    @Override
+    public ComPortPoolHeatMap getComPortPoolHeatMap() {
+        return new ComPortPoolHeatMapImpl();
     }
 
     private List<DeviceType> availableDeviceTypes () {

@@ -21,4 +21,10 @@ public interface DashboardService {
 
     public DeviceTypeBreakdown getDeviceTypeBreakdown();
 
+    public ConnectionTypeHeatMap getConnectionTypeHeatMap();
+
+    public DeviceTypeHeatMap getDeviceTypeHeatMap();
+
+    public ComPortPoolHeatMap getComPortPoolHeatMap();
+
 }
