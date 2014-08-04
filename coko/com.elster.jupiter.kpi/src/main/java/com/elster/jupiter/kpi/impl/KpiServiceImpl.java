@@ -85,14 +85,14 @@ public class KpiServiceImpl implements IKpiService, InstallService {
         try {
             dataModel.install(true, true);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
         }
         try {
             Vault newVault = idsService.newVault(COMPONENT_NAME, VAULT_ID, COMPONENT_NAME, 2, 0, true);
             newVault.persist();
             createPartitions(newVault);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
         }
         try {
             RecordSpec newRecordSpec = idsService.newRecordSpec(COMPONENT_NAME, RECORD_SPEC_ID, "kpi");
@@ -100,12 +100,12 @@ public class KpiServiceImpl implements IKpiService, InstallService {
             newRecordSpec.addFieldSpec("target", FieldType.NUMBER);
             newRecordSpec.persist();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
         }
         try {
             createEventTypes();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
         }
         initVaultAndRecordSpec();
     }
