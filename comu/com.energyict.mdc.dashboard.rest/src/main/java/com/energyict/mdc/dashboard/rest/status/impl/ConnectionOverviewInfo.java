@@ -60,7 +60,7 @@ public class ConnectionOverviewInfo {
         overviews=new ArrayList<>(2);
         ConnectionStatusOverview connectionStatusOverview = dashboardService.getConnectionStatusOverview();
         overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), null), connectionStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), null), dashboardService.getComTaskCompletionOverview(), FilterOption.latestResult, completionCodeAdapter)); // JP-4280
+        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), null), dashboardService.getComSessionSuccessIndicatorOverview(), FilterOption.latestResult, completionCodeAdapter)); // JP-4280
 
         breakdowns=new ArrayList<>(3);
         breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), null), dashboardService.getComPortPoolBreakdown(), FilterOption.comPortPool)); // JP-4281
