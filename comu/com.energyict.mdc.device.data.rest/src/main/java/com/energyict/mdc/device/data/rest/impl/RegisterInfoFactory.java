@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.data.EventRegister;
+import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.TextRegister;
@@ -10,11 +10,11 @@ import java.util.List;
 
 public class RegisterInfoFactory {
     public static RegisterInfo asInfo(Register register) {
-        if(EventRegister.class.isAssignableFrom(register.getClass())) {
-            return new EventRegisterInfo((EventRegister)register);
-        } else if(NumericalRegister.class.isAssignableFrom(register.getClass())) {
+        if (register instanceof BillingRegister) {
+            return new BillingRegisterInfo((BillingRegister)register);
+        } else if (register instanceof NumericalRegister) {
             return new NumericalRegisterInfo((NumericalRegister)register);
-        } else if(TextRegister.class.isAssignableFrom(register.getClass())) {
+        } else if (TextRegister.class.isAssignableFrom(register.getClass())) {
             return new TextRegisterInfo((TextRegister)register);
         }
 

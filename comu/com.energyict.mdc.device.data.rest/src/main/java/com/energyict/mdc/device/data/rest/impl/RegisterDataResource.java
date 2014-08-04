@@ -39,7 +39,7 @@ public class RegisterDataResource {
                 return o2.getTimeStamp().compareTo(o1.getTimeStamp());
             }
         }).from(queryParameters).find();
-        List<ReadingInfo> readingInfos = ReadingInfoFactory.asInfoList(readings, register);
+        List<ReadingInfo> readingInfos = ReadingInfoFactory.asInfoList(readings, register.getRegisterSpec());
         return PagedInfoList.asJson("data", readingInfos, queryParameters);
     }
 
@@ -51,7 +51,7 @@ public class RegisterDataResource {
         Register register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Optional<Reading> reading = register.getReading(new Date(readingId));
         if(reading.isPresent()) {
-            return ReadingInfoFactory.asInfo(reading.get(), register);
+            return ReadingInfoFactory.asInfo(reading.get(), register.getRegisterSpec());
         }
 
         throw exceptionFactory.newException(MessageSeeds.NO_SUCH_READING, registerId, readingId);

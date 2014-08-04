@@ -485,7 +485,7 @@ public class DeviceResourceTest extends JerseyTest {
         Map<String, Object> interval = (Map<String, Object>) response.get("interval");
         assertThat(interval)
                 .contains(MapEntry.entry("count", 15))
-                .contains(MapEntry.entry("timeUnit", TimeDuration.MINUTES));
+                .contains(MapEntry.entry("timeUnit", "minutes"));
 
         List<String> channels = (List<String>) response.get("channels");
         assertThat(channels).hasSize(2).containsExactly("A-channel2", "Z-channel1");
