@@ -1,41 +1,15 @@
 Ext.define('Cfg.view.validation.RuleList', {
     extend: 'Ext.grid.Panel',
-    border: true,
     alias: 'widget.validationruleList',
     itemId: 'validationruleList',
     store: 'ValidationRules',
     overflowY: 'auto',
-
-    selModel: {
-        mode: 'SINGLE'
-    },
-
+    maxHeight: 300,
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Cfg.view.validation.RuleActionMenu'
     ],
-
-    listeners: {
-        'render': function (component) {
-            // Get sure that the store is not loading and that it
-            // has at least a record on it
-            if (this.store.isLoading() || this.store.getCount() == 0) {
-                // If it is still pending attach a listener to load
-                // event for a single time to handle the selection
-                // after the store has been loaded
-                this.store.on('load', function () {
-                    this.getView().getSelectionModel().select(0);
-                }, this, {
-                    single: true
-                });
-            } else {
-                this.getView().getSelectionModel().select(0);
-            }
-
-        }
-    },
-
     ruleSetId: null,
 
     initComponent: function () {
@@ -70,7 +44,9 @@ Ext.define('Cfg.view.validation.RuleList', {
                 store: me.store,
                 itemId: 'rulesTopPagingToolbar',
                 dock: 'top',
-                displayMsg: '{0} - {1} of {2} validation rules',
+                displayMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMsgRule', 'CFG', '{0} - {1} of {2} validation rules'),
+                displayMoreMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMoreMsgRule', 'CFG', '{0} - {1} of more than {2} validation rules'),
+                emptyMsg: Uni.I18n.translate('validation.pagingtoolbartop.emptyMsgRule', 'CFG', 'There are no validation rule sets to display'),
                 items: [
                     {
                         xtype: 'component',
@@ -87,10 +63,9 @@ Ext.define('Cfg.view.validation.RuleList', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                margins: '10 10 10 10',
                 store: me.store,
-                pageSizeParam: 'limit2',
-                pageStartParam: 'start2',
+//                pageSizeParam: 'limit2',
+//                pageStartParam: 'start2',
                 dock: 'bottom',
                 itemsPerPageMsg: 'Validation rules per page',
                 itemId: 'rulesListBottomPagingToolbar',

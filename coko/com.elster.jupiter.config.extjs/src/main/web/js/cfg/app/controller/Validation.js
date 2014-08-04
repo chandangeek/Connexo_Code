@@ -33,7 +33,8 @@ Ext.define('Cfg.controller.Validation', {
         'validation.RulePreviewContainer',
         'validation.RuleSetSubMenu',
         'validation.RuleOverview',
-        'validation.RuleSubMenu'
+        'validation.RuleSubMenu',
+        'validation.RulePreviewContainerPanel'
     ],
 
     refs: [
@@ -67,7 +68,8 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'ruleBrowsePanel', selector: 'validationruleBrowse'},
         {ref: 'ruleSetBrowsePanel', selector: 'validationrulesetBrowse'},
         {ref: 'rulePreviewContainer', selector: 'rulePreviewContainer'},
-        {ref: 'ruleOverview', selector: 'ruleOverview'}
+        {ref: 'ruleOverview', selector: 'ruleOverview'},
+        {ref: 'ruleSetBrowsePreviewCt', selector: '#ruleSetBrowsePreviewCt'}
     ],
 
     readingTypeIndex: 2,
@@ -79,7 +81,7 @@ Ext.define('Cfg.controller.Validation', {
     init: function () {
         this.control({
             '#validationrulesetList': {
-                selectionchange: this.previewValidationRuleSet
+                select: this.previewValidationRuleSet
             },
             '#validationruleList': {
                 select: this.previewValidationRule
@@ -133,6 +135,7 @@ Ext.define('Cfg.controller.Validation', {
         var index = location.href.indexOf(urlPart);
         return parseInt(location.href.substring(index + urlPart.length));
     },
+
 
     createEditRule: function (button) {
         var me = this,
@@ -440,8 +443,8 @@ Ext.define('Cfg.controller.Validation', {
     showRules: function (id) {
         var me = this,
             ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
-        this.getValidationRulesStore().clearFilter();
-        this.getValidationRulesStore().filter('ruleSetId', id);
+//        this.getValidationRulesStore().clearFilter();
+//        this.getValidationRulesStore().filter('ruleSetId', id);
         me.ruleSetId = id;
         me.fromRulePreview = false;
         ruleSetsStore.load({
@@ -484,102 +487,18 @@ Ext.define('Cfg.controller.Validation', {
         });
     },
 
-    previewValidationRuleSet: function (grid, record) {
-        var me = this,
-            selection = this.getRuleSetsGrid().getSelectionModel().getSelection();
-        this.ruleSetId = grid.view.getSelectionModel().getLastSelected().get('id');
-
-        if (selection.length > 0) {
-            this.getRuleSetPreview().hide();
-            this.showRulesGrid();
-        } else {
-            if (me.getRuleSetBrowsePanel() && me.getRuleSetBrowsePanel().down('#validationruleBrowse')) {
-                me.getRuleSetBrowsePanel().down('#validationruleBrowse').destroy();
-            }
-            if (me.getRulePreview()) {
-                me.getRulePreview().destroy();
-            }
-            if (me.getRuleSetBrowsePanel() && me.getRuleSetBrowsePanel().down('#emptyRuleContainer')) {
-                me.getRuleSetBrowsePanel().down('#ruleBrowseTitle').destroy();
-                me.getRuleSetBrowsePanel().down('#emptyRuleContainer').destroy();
-            }
-        }
-    },
-
-    showRulesGrid: function () {
-        var me = this,
-            ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
-        me.getValidationRulesStore().clearFilter();
-        me.getValidationRulesStore().filter('ruleSetId', me.ruleSetId);
-        ruleSetsStore.load({
-            params: {
-                id: me.ruleSetId
-            },
-            callback: function (records) {
-                var selectedRuleSet = ruleSetsStore.getByInternalId(me.ruleSetId);
-                if (selectedRuleSet) {
-                    var rulesCount = selectedRuleSet.get('numberOfRules'),
-                        ruleSetName = selectedRuleSet.get('name');
-                    me.ruleSetName = selectedRuleSet.get('name');
-
-                    if (me.getRuleSetBrowsePanel() && me.getRuleSetBrowsePanel().down('#validationruleBrowse')) {
-                        me.getRuleSetBrowsePanel().down('#validationruleBrowse').destroy();
-                    }
-                    if (me.getRulePreview()) {
-                        me.getRulePreview().destroy();
-                    }
-                    var rulesPanel = Ext.create('Cfg.view.validation.RuleBrowse', {ruleSetId: me.ruleSetId});
-                    if (me.getRuleSetBrowsePanel() && me.getRuleSetBrowsePanel().down('#emptyRuleContainer')) {
-                        me.getRuleSetBrowsePanel().down('#ruleBrowseTitle').destroy();
-                        me.getRuleSetBrowsePanel().down('#emptyRuleContainer').destroy();
-                    }
-                    if (rulesCount > 0) {
-                        rulesPanel.down('#addRuleLink').hide();
-                        me.getRuleSetBrowsePanel().down('panel').add(rulesPanel);
-                    } else {
-                        me.createEmptyComponent();
-                    }
-                    me.getRuleSetBrowsePanel().down('panel').down('#ruleBrowseTitle').update('<h2>' + ruleSetName + '</h2>');
-                }
-            }
+    previewValidationRuleSet: function (selectionModel, record) {
+        this.getRuleSetBrowsePreviewCt().removeAll(true);
+        var rulesPreviewContainerPanel = Ext.widget('rule-preview-container-panel', {
+                ruleSetId: record.getId(),
+                margin: '-20 0 0 0',
+                title: '<h2>' + record.get('name') + '</h2>'
+            });
+        this.ruleSetId = record.getId();
+        Ext.Array.each(Ext.ComponentQuery.query('#addRuleLink'), function (item) {
+            item.hide();
         });
-    },
-
-    createEmptyComponent: function () {
-        var me = this;
-        if (me.getRuleSetBrowsePanel()) {
-            me.getRuleSetBrowsePanel().down('panel').add(
-                {
-                    xtype: 'component',
-                    html: '<h1>' + Uni.I18n.translate('validation.rules', 'CFG', 'Rules') + '</h1>',
-                    margin: '0 0 10 0',
-                    itemId: 'ruleBrowseTitle'
-                },
-                {
-                    xtype: 'no-items-found-panel',
-                    itemId: 'emptyRuleContainer',
-                    title: Uni.I18n.translate('validation.empty.rules.title', 'CFG', 'No validation rules found'),
-                    reasons: [
-                        Uni.I18n.translate('validation.empty.rules.list.item1', 'CFG', 'No validation rules have been added yet.'),
-                        Uni.I18n.translate('validation.empty.list.item2', 'MDC', 'Validation rules exists, but you do not have permission to view them.')
-                    ],
-                    stepItems: [
-                        {
-                            text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
-                            itemId: 'addRuleLink',
-                            ui: 'action',
-                            listeners: {
-                                click: {
-                                    fn: function () {
-                                        window.location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/add';
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                }
-            );
-        }
+        this.getRuleSetBrowsePreviewCt().add(rulesPreviewContainerPanel);
     },
 
     previewValidationRule: function (grid, record) {
