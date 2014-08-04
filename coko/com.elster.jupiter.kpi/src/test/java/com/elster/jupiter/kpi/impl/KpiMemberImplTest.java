@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -50,7 +51,7 @@ public class KpiMemberImplTest {
     private TimeSeries timeSeries;
     @Mock
     private TimeSeriesEntry timeSeriesEntry, timeSeriesEntry2;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataModel dataModel;
 
     @Before
@@ -117,5 +118,18 @@ public class KpiMemberImplTest {
         assertThat(target).isEqualTo(TARGET);
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testUpdateStaticTargetDynamicMember() {
+        kpiMember.setDynamicTarget();
+
+        kpiMember.updateTarget(BigDecimal.valueOf(480, 1));
+    }
+
+    @Test
+    public void testUpdateStaticTarget() {
+        kpiMember.updateTarget(BigDecimal.valueOf(480, 1));
+
+        verify(dataModel.mapper(IKpiMember.class)).update(kpiMember);
+    }
 
 }
