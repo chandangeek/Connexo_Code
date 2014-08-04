@@ -1,5 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.dialer.core.LinkException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -8,6 +11,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.Dsmr40Protocol;
@@ -94,9 +98,24 @@ public class Dsmr40EictMain extends AbstractSmartDebuggingMain<Dsmr40Protocol> {
                 new Date(System.currentTimeMillis() - (24 * 3600 * 1000)),
                 new Date(),
                 0,
-                MASTER_SERIAL_NUMBER,
-                channelInfos
-        );
+                new DeviceIdentifier<BaseDevice<?, ?, ?>>() {
+                    @Override
+                    public String getIdentifier() {
+                        return MASTER_SERIAL_NUMBER;
+                    }
+
+                    @Override
+                    public BaseDevice<?, ?, ?> findDevice() {
+                        throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper Device ...");
+                    }
+                },
+                channelInfos,
+                MASTER_SERIAL_NUMBER, new LoadProfileIdentifier() {
+            @Override
+            public BaseLoadProfile findLoadProfile() {
+                throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper LoadProfile ...");
+            }
+        });
     }
 
     private void objectList() {

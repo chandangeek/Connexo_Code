@@ -171,8 +171,8 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
         loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
 
         for (LoadProfileReader lpr : loadProfilesToRead) {
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
-            Map<ObisCode, List<ChannelInfo>> tempMap = LoadProfileSerialNumberChannelInfoMap.get(lpr.getMeterSerialNumber());
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());
+            Map<ObisCode, List<ChannelInfo>> tempMap = LoadProfileSerialNumberChannelInfoMap.get(lpr.getDeviceIdentifier());
             if (tempMap.containsKey(lpr.getProfileObisCode())) {
                 lpc.setChannelInfos(tempMap.get(lpr.getProfileObisCode()));
                 lpc.setProfileInterval(LoadProfileIntervalMap.get(lpr.getProfileObisCode()));
@@ -219,7 +219,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      */
     private LoadProfileConfiguration getLoadProfileConfigurationForGivenReadObject(LoadProfileReader lpro)  {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (lpc.getObisCode().equals(lpro.getProfileObisCode()) && lpc.getMeterSerialNumber().equalsIgnoreCase(lpro.getMeterSerialNumber())) {
+            if (lpc.getObisCode().equals(lpro.getProfileObisCode()) && lpc.getDeviceIdentifier().getIdentifier().equals(lpro.getDeviceIdentifier().getIdentifier())) {
                 return lpc;
             }
         }
@@ -242,7 +242,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
             int timeDuration = lpc.getProfileInterval();
 
             ProfileData pd = new ProfileData(lpro.getLoadProfileId());
-            pd.setChannelInfos(LoadProfileSerialNumberChannelInfoMap.get(lpro.getMeterSerialNumber()).get(lpro.getProfileObisCode()));
+            pd.setChannelInfos(LoadProfileSerialNumberChannelInfoMap.get(lpro.getDeviceIdentifier()).get(lpro.getProfileObisCode()));
 
             Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
             cal.setTime(lpro.getStartReadingTime());

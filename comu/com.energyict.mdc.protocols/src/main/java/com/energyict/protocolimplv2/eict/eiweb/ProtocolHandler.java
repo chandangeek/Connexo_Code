@@ -146,7 +146,7 @@ public class ProtocolHandler {
             PrimeRegisterForChannelIdentifier registerIdentifier;
             registerIdentifier = new PrimeRegisterForChannelIdentifier(
                     this.getDeviceIdentifier(), channelInfo.getChannelObisCode(), channelInfo.getChannelObisCode(), channelInfo.getChannelId());
-            CollectedRegister reading = this.getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
+            CollectedRegister reading = this.getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier, channelInfo.getReadingType());
             reading.setReadTime(now);
             reading.setCollectedData(new Quantity(value, Unit.get(BaseUnit.COUNT)), "???");
             this.registerData.add(reading);

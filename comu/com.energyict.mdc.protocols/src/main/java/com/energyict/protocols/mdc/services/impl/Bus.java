@@ -4,6 +4,7 @@ import com.elster.jupiter.util.time.Clock;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,6 +20,7 @@ public final class Bus {
     private static AtomicReference<IssueService> issueServiceProvider = new AtomicReference<>();
     private static AtomicReference<Clock> clockProvider = new AtomicReference<>();
     private static AtomicReference<PropertySpecService> propertySpecServiceProvider = new AtomicReference<>();
+    private static AtomicReference<MdcReadingTypeUtilService> mdcReadingTypeUtilServiceProvider = new AtomicReference<>();
 
     public static IssueService getIssueService() {
         return issueServiceProvider.get();
@@ -56,4 +58,15 @@ public final class Bus {
         propertySpecServiceProvider.compareAndSet(old, null);
     }
 
+    public static MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
+        return mdcReadingTypeUtilServiceProvider.get();
+    }
+
+    public static void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+        mdcReadingTypeUtilServiceProvider.set(mdcReadingTypeUtilService);
+    }
+
+    public static void clearMdcReadingTypeUtilService(MdcReadingTypeUtilService old){
+        mdcReadingTypeUtilServiceProvider.compareAndSet(old, null);
+    }
 }

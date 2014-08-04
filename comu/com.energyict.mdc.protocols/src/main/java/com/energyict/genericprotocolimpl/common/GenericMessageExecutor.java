@@ -119,14 +119,22 @@ public abstract class GenericMessageExecutor {
     }
 
     /**
-     * Substracts 5 seconds from the startReadingTime and adds 5 seconds to the endReadingTime
+     * Subtracts 5 seconds from the startReadingTime and adds 5 seconds to the endReadingTime
      *
      * @param loadProfileReader the reader
      * @return the reader with the adjested times
      */
-    protected LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
+    protected LoadProfileReader constructDateTimeCorrectedLoadProfileReader(final LoadProfileReader loadProfileReader) {
         Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
         Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
-        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
+        return new LoadProfileReader(
+                loadProfileReader.getProfileObisCode(),
+                from,
+                to,
+                loadProfileReader.getLoadProfileId(),
+                loadProfileReader.getDeviceIdentifier(),
+                loadProfileReader.getChannelInfos(),
+                loadProfileReader.getMeterSerialNumber(),
+                loadProfileReader.getLoadProfileIdentifier());
     }
 }

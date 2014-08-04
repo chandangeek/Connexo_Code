@@ -9,6 +9,8 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 
 import org.xml.sax.Attributes;
@@ -23,8 +25,8 @@ import java.util.TimeZone;
 
 /**
  * Message builder class responsible of generating and parsing Partial LoadProfile request Messages for {@link DeviceProtocol}s.<br></br>
-  * <b>Warning:</b> For {@link SmartMeterProtocol}s the legacy builder ({@link LegacyLoadProfileRegisterMessageBuilder}) should be used.
-  * <p/>
+ * <b>Warning:</b> For {@link SmartMeterProtocol}s the legacy builder ({@link LegacyLoadProfileRegisterMessageBuilder}) should be used.
+ * <p/>
  */
 public class PartialLoadProfileMessageBuilder extends AbstractMessageBuilder {
 
@@ -270,7 +272,23 @@ public class PartialLoadProfileMessageBuilder extends AbstractMessageBuilder {
     }
 
     public LoadProfileReader getLoadProfileReader() {
-        return new LoadProfileReader(this.profileObisCode, startReadingTime, endReadingTime, loadProfileId, meterSerialNumber, getChannelInfos());
+        return new LoadProfileReader(this.profileObisCode, startReadingTime, endReadingTime, loadProfileId,
+                new DeviceIdentifier<BaseDevice<?, ?, ?>>() {
+                    @Override
+                    public String getIdentifier() {
+                        return meterSerialNumber;
+                    }
+
+                    @Override
+                    public BaseDevice<?, ?, ?> findDevice() {
+                        throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper Device ...");
+                    }
+                }, getChannelInfos(), meterSerialNumber, new LoadProfileIdentifier() {
+            @Override
+            public BaseLoadProfile findLoadProfile() {
+                throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper LoadProfile ...");
+            }
+        });
     }
 
     /**

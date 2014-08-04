@@ -295,7 +295,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             LegacyLoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
             builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
 
-            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
+            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectedLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
@@ -384,7 +384,14 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
      */
     private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, final MessageEntry msgEntry) {
         if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
-            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), msgEntry.getSerialNumber(), lpr.getChannelInfos());
+            return new LoadProfileReader(lpr.getProfileObisCode(),
+                    lpr.getStartReadingTime(),
+                    lpr.getEndReadingTime(),
+                    lpr.getLoadProfileId(),
+                    lpr.getDeviceIdentifier(),
+                    lpr.getChannelInfos(),
+                    msgEntry.getSerialNumber(),
+                    lpr.getLoadProfileIdentifier());
         } else {
             return lpr;
         }

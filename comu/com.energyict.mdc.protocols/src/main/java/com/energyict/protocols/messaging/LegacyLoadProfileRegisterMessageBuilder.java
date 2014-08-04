@@ -2,8 +2,6 @@ package com.energyict.protocols.messaging;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
@@ -12,6 +10,8 @@ import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -221,7 +221,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
 
     private BaseLoadProfile<BaseChannel> findLoadProfile(int loadProfileId) {
         List<LoadProfileFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LoadProfileFactory.class);
-        if(modulesImplementing.isEmpty()){
+        if (modulesImplementing.isEmpty()) {
             return null;
         } else {
             return modulesImplementing.get(0).findLoadProfileById(loadProfileId);
@@ -271,7 +271,22 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     }
 
     public LoadProfileReader getLoadProfileReader() {
-        return new LoadProfileReader(this.profileObisCode, startReadingTime, startReadingTime, loadProfileId, meterSerialNumber, Collections.<ChannelInfo>emptyList());
+        return new LoadProfileReader(this.profileObisCode, startReadingTime, startReadingTime, loadProfileId, new DeviceIdentifier<BaseDevice<?, ?, ?>>() {
+            @Override
+            public String getIdentifier() {
+                return meterSerialNumber;
+            }
+
+            @Override
+            public BaseDevice<?, ?, ?> findDevice() {
+                throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper Device ...");
+            }
+        }, Collections.<ChannelInfo>emptyList(), meterSerialNumber, new LoadProfileIdentifier() {
+            @Override
+            public BaseLoadProfile findLoadProfile() {
+                throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper LoadProfile ...");
+            }
+        });
     }
 
 

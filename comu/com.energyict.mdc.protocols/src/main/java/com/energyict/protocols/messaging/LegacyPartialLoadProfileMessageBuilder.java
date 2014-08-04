@@ -11,6 +11,8 @@ import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -276,7 +278,22 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
     }
 
     public LoadProfileReader getLoadProfileReader() {
-        return new LoadProfileReader(this.profileObisCode, startReadingTime, endReadingTime, loadProfileId, meterSerialNumber, getChannelInfos());
+        return new LoadProfileReader(this.profileObisCode, startReadingTime, endReadingTime, loadProfileId, new DeviceIdentifier<BaseDevice<?,?,?>>() {
+            @Override
+            public String getIdentifier() {
+                return meterSerialNumber;
+            }
+
+            @Override
+            public BaseDevice<?, ?, ?> findDevice() {
+                throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper Device ...");
+            }
+        }, getChannelInfos(), meterSerialNumber, new LoadProfileIdentifier() {
+            @Override
+            public BaseLoadProfile findLoadProfile() {
+                throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper LoadProfile ...");
+            }
+        });
     }
 
     /**

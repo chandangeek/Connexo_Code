@@ -19,8 +19,8 @@ import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
@@ -30,7 +30,6 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
@@ -115,7 +114,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                 }
 
                 if (rv != null) {
-                    CollectedRegister deviceRegister = this.createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
+                    CollectedRegister deviceRegister = this.createMaximumDemandCollectedRegister(register);
                     deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
                     deviceRegister.setCollectedTimeStamps(rv.getReadTime(), rv.getFromTime(), rv.getToTime(), rv.getEventTime());
                     collectedRegisters.add(deviceRegister);
@@ -136,9 +135,9 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         return collectedRegisters;
     }
 
-    private CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier) {
+    private CollectedRegister createMaximumDemandCollectedRegister(OfflineRegister offlineRegister) {
         CollectedDataFactory collectedDataFactory = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
-        return collectedDataFactory.createMaximumDemandCollectedRegister(registerIdentifier);
+        return collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister), offlineRegister.getReadingType());
     }
 
     /**
@@ -325,7 +324,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = this.createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = this.createDefaultCollectedRegister(register);
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(ResultType.InCompatible, Bus.getIssueService()
                     .newIssueCollector()
@@ -338,9 +337,9 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         return collectedRegister;
     }
 
-    private CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier) {
+    private CollectedRegister createDefaultCollectedRegister(OfflineRegister offlineRegister) {
         CollectedDataFactory collectedDataFactory = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
-        return collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);
+        return collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(offlineRegister), offlineRegister.getReadingType());
     }
 
 }

@@ -30,6 +30,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
@@ -101,39 +102,36 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         List<CollectedLoadProfileConfiguration> result = new ArrayList<>();
         CollectedLoadProfileConfiguration loadProfileConfiguration;
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
-            if (isMaster(loadProfileReader.getMeterSerialNumber())) {     //Master device
+            if (isMaster(loadProfileReader.getDeviceIdentifier())) {     //Master device
                 ObisCode profileObisCode = loadProfileReader.getProfileObisCode();
                 if (profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {//Only one LP is supported
-                    loadProfileConfiguration = this.newDeviceLoadProfileConfiguration(profileObisCode, getSerialNumber(), true);
+                    loadProfileConfiguration = this.newDeviceLoadProfileConfiguration(profileObisCode, loadProfileReader.getDeviceIdentifier(), true);
                 } else {
-                    loadProfileConfiguration = this.newDeviceLoadProfileConfiguration(profileObisCode, getSerialNumber(), false);
+                    loadProfileConfiguration = this.newDeviceLoadProfileConfiguration(profileObisCode, loadProfileReader.getDeviceIdentifier(), false);
                 }
                 result.add(loadProfileConfiguration);
             } else {//Slave doesn't support
-                result.add(this.newDeviceLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getSerialNumber(), false));
+                result.add(this.newDeviceLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier(), false));
             }
         }
         return result;
     }
 
-    private CollectedLoadProfileConfiguration newDeviceLoadProfileConfiguration(ObisCode profileObisCode, String serialNumber, boolean supported) {
-        return this.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, serialNumber, supported);
+    private CollectedLoadProfileConfiguration newDeviceLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier<?> deviceIdentifier, boolean supported) {
+        return this.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, deviceIdentifier, supported);
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         List<CollectedLoadProfile> result = new ArrayList<>();
         for (LoadProfileReader loadProfileReader : loadProfiles) {
-            if (isMaster(loadProfileReader.getMeterSerialNumber())) {//Master device
+            if (isMaster(loadProfileReader.getDeviceIdentifier())) {//Master device
                 ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this);
                 result.addAll(readLoadProfileRequest.request(loadProfileReader));
             } else {//Slave device
                 CollectedLoadProfile collectedLoadProfile =
                         this.createCollectedLoadProfile(
-                                new LoadProfileIdentifierByObisCodeAndDevice(
-                                        loadProfileReader.getProfileObisCode(),
-                                        new DeviceIdentifierBySerialNumber(
-                                                loadProfileReader.getMeterSerialNumber())));
+                                loadProfileReader.getLoadProfileIdentifier());
                 collectedLoadProfile.setFailureInformation(
                         ResultType.NotSupported,
                         Bus.getIssueService().newIssueCollector().
@@ -228,7 +226,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
         boolean requestMBusRegisters = false;
         for (OfflineRegister register : registers) {
-            if (!isMaster(register.getSerialNumber())) {
+            if (!isMaster(register.getDeviceIdentifier())) {
                 requestMBusRegisters = true;
                 break;
             }
@@ -305,7 +303,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         LogBookReader logBookReader = logBooks.get(0);
-        if (isMaster(logBookReader.getMeterSerialNumber())) {
+        if (isMaster(logBookReader.getDeviceIdentifier())) {
             ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(this);
             return readMeterEventsRequest.request(logBookReader.getLogBookIdentifier());
         } else {
@@ -321,8 +319,8 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         return this.getCollectedDataFactory().createCollectedLogBook(logBookIdentifier);
     }
 
-    private boolean isMaster(String serialNumber) {
-        return offlineDevice.getSerialNumber().equalsIgnoreCase(serialNumber);
+    private boolean isMaster(DeviceIdentifier<?> deviceIdentifier) {
+        return offlineDevice.getDeviceIdentifier().getIdentifier().equals(deviceIdentifier.getIdentifier());
     }
 
     public OfflineDevice getOfflineDevice() {

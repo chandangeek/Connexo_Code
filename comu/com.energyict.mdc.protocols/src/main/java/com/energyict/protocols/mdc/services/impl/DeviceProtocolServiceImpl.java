@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.google.inject.AbstractModule;
@@ -33,6 +34,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile IssueService issueService;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
+    private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     public DeviceProtocolServiceImpl() {
         super();
@@ -106,6 +108,16 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
+        Bus.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
+    }
+
+    public MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
+        return mdcReadingTypeUtilService;
     }
 
     @Override

@@ -329,7 +329,14 @@ public class ACE4000MessageExecutor implements MessageProtocol {
         LoadProfileReader loadProfileReader = null;
         for (OfflineLoadProfile offlineLoadProfile : ace4000.getOfflineDevice().getMasterOfflineLoadProfiles()) {
             if (offlineLoadProfile.getObisCode().equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {
-                loadProfileReader = new LoadProfileReader(offlineLoadProfile.getObisCode(), fromDate, toDate, offlineLoadProfile.getLoadProfileId(), ace4000.getSerialNumber(), new ArrayList<ChannelInfo>());
+                loadProfileReader = new LoadProfileReader(offlineLoadProfile.getObisCode(),
+                        fromDate,
+                        toDate,
+                        offlineLoadProfile.getLoadProfileId(),
+                        loadProfileReader.getDeviceIdentifier(),
+                        new ArrayList<ChannelInfo>(),
+                        loadProfileReader.getMeterSerialNumber(),
+                        loadProfileReader.getLoadProfileIdentifier());
             }
         }
 

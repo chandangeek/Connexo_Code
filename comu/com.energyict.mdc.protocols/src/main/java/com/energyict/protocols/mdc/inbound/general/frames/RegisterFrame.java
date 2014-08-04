@@ -71,15 +71,18 @@ public class RegisterFrame extends AbstractInboundFrame {
     private CollectedRegister processRegister (RegisterValue register) {
         CollectedRegister deviceRegister;
         if (register.getObisCode().getF() != 255) {
-            deviceRegister = this.getCollectedDataFactory().createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()));
+            deviceRegister = this.getCollectedDataFactory().createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()),
+                    Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime());
         } else if (register.getEventTime() != null) {
-            deviceRegister = this.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()));
+            deviceRegister = this.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()),
+                    Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime(), register.getEventTime());
         } else {
-            deviceRegister = this.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()));
+            deviceRegister = this.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()),
+                    Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setReadTime(getInboundParameters().getReadTime());
         }

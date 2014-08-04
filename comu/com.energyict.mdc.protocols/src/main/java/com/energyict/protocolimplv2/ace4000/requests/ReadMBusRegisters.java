@@ -109,7 +109,7 @@ public class ReadMBusRegisters extends AbstractRequest<List<OfflineRegister>, Li
                             new RegisterDataIdentifierByObisCodeAndDevice(
                                     rtuRegister.getObisCode(),
                                     rtuRegister.getObisCode(),
-                                    getAce4000().getDeviceIdentifier()));
+                                    getAce4000().getDeviceIdentifier()), rtuRegister.getReadingType());
                 defaultDeviceRegister.setFailureInformation(ResultType.DataIncomplete, Bus.getIssueService().newIssueCollector().addProblem(rtuRegister.getObisCode(), msg, rtuRegister.getObisCode()));
                 result.add(defaultDeviceRegister);
             }

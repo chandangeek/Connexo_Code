@@ -21,6 +21,7 @@ import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -914,7 +915,7 @@ public class ObjectFactory {
 
     public List<String> getAllSlaveSerialNumbers() {
         if (allSlaveSerialNumbers == null) {
-            allSlaveSerialNumbers = new ArrayList<String>();
+            allSlaveSerialNumbers = new ArrayList<>();
         }
         return allSlaveSerialNumbers;
     }
@@ -923,7 +924,7 @@ public class ObjectFactory {
         return createCommonRegister(registerValue, getAce4000().getDeviceIdentifier());
     }
 
-    private CollectedRegister createCommonRegister(RegisterValue registerValue, DeviceIdentifier deviceIdentifier) {
+    private CollectedRegister createCommonRegister(RegisterValue registerValue, DeviceIdentifier<?> deviceIdentifier) {
         //TODO should this be max demand register?
         CollectedRegister deviceRegister =
                 this.getCollectedDataFactory().
@@ -931,7 +932,7 @@ public class ObjectFactory {
                                 new RegisterDataIdentifierByObisCodeAndDevice(
                                         registerValue.getObisCode(),
                                         registerValue.getObisCode(),
-                                        deviceIdentifier));
+                                        deviceIdentifier), Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerValue.getObisCode(), registerValue.getQuantity().getUnit()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;
@@ -944,7 +945,7 @@ public class ObjectFactory {
                                 new RegisterDataIdentifierByObisCodeAndDevice(
                                         registerValue.getObisCode(),
                                         registerValue.getObisCode(),
-                                        getAce4000().getDeviceIdentifier()));
+                                        getAce4000().getDeviceIdentifier()), Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerValue.getObisCode(), registerValue.getQuantity().getUnit()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
         return deviceRegister;

@@ -25,12 +25,12 @@ import java.util.List;
 public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdentifier {
 
     private final ObisCode registerObisCode;
-    private final DeviceIdentifier deviceIdentifier;
+    private final DeviceIdentifier<?> deviceIdentifier;
     private final ObisCode deviceRegisterObisCode;
 
     private BaseRegister register;
 
-    public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, ObisCode deviceRegisterObisCode, DeviceIdentifier deviceIdentifier) {
+    public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, ObisCode deviceRegisterObisCode, DeviceIdentifier<?> deviceIdentifier) {
         this.registerObisCode = registerObisCode;
         this.deviceRegisterObisCode = deviceRegisterObisCode;
         this.deviceIdentifier = deviceIdentifier;
@@ -40,7 +40,7 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     public BaseRegister findRegister () {
         if (this.register == null) {
             List<RegisterFactory> registerFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(RegisterFactory.class);
-            BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device = deviceIdentifier.findDevice();
+            BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = deviceIdentifier.findDevice();
             for (BaseRegister register : device.getRegisters()) {
                 // first need to check the DeviceObisCde
                 if (register.getDeviceObisCode() != null && register.getDeviceObisCode().equals(registerObisCode)){
@@ -70,7 +70,7 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
         return "deviceIdentifier = " + this.deviceIdentifier + " and ObisCode = " + this.registerObisCode.toString();
     }
 
-    public DeviceIdentifier getDeviceIdentifier() {
+    public DeviceIdentifier<?> getDeviceIdentifier() {
         return deviceIdentifier;
     }
 }
