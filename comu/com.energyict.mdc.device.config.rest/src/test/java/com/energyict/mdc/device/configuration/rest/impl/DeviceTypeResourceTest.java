@@ -34,10 +34,12 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -45,7 +47,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -454,12 +455,13 @@ public class DeviceTypeResourceTest extends JerseyTest {
         RegisterType registerType = mock(RegisterType.class);
         ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
-        RegisterSpec registerSpec = mock(RegisterSpec.class);
+        TextualRegisterSpec registerSpec = mock(TextualRegisterSpec.class);
+        when(registerSpec.isTextual()).thenReturn(true);
         when(registerSpec.getId()).thenReturn(1L);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerSpec));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
 
         when(deviceConfigurationService.findDeviceType(6)).thenReturn(deviceType);
@@ -965,8 +967,9 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(deviceType);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        RegisterSpec registerSpec = mock(RegisterSpec.class);
+        NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
         when(registerSpec.getId()).thenReturn(registerConfig_id);
+        when(registerSpec.isTextual()).thenReturn(false);
         ReadingType readingType = mockReadingType();
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getReadingType()).thenReturn(readingType);
@@ -974,7 +977,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
 
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerSpec));
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -994,13 +997,13 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(masterDataService.findRegisterType(registerType_id)).thenReturn(Optional.of(registerType));
         ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
-        RegisterSpec registerConfig = mock(RegisterSpec.class);
+        NumericalRegisterSpec registerConfig = mock(NumericalRegisterSpec.class);
         when(registerConfig.getRegisterType()).thenReturn(registerType);
         ObisCode obisCode = mockObisCode();
         when(registerConfig.getObisCode()).thenReturn(obisCode);
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = mock(RegisterSpec.RegisterSpecBuilder.class, Answers.RETURNS_SELF);
+        NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
         when(registerSpecBuilder.add()).thenReturn(registerConfig);
-        when(deviceConfiguration.createRegisterSpec(Matchers.<RegisterType>any())).thenReturn(registerSpecBuilder);
+        when(deviceConfiguration.createNumericalRegisterSpec(Matchers.<RegisterType>any())).thenReturn(registerSpecBuilder);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType =registerType_id;
         registerConfigInfo.multiplier= BigDecimal.TEN;
@@ -1017,8 +1020,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         verify(registerSpecBuilder).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         verify(registerSpecBuilder).setNumberOfDigits(4);
         verify(registerSpecBuilder).setNumberOfFractionDigits(6);
-        verify(registerSpecBuilder).setOverflow(BigDecimal.TEN);
-        verify(deviceConfiguration).createRegisterSpec(registerTypeArgumentCaptor.capture());
+        verify(registerSpecBuilder).setOverflowValue(BigDecimal.TEN);
+        verify(deviceConfiguration).createNumericalRegisterSpec(registerTypeArgumentCaptor.capture());
         assertThat(registerTypeArgumentCaptor.getValue()).isEqualTo(registerType);
     }
 
@@ -1037,14 +1040,14 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(masterDataService.findRegisterType(registerType_id)).thenReturn(Optional.of(registerType));
         ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
-        RegisterSpec registerConfig = mock(RegisterSpec.class);
+        NumericalRegisterSpec registerConfig = mock(NumericalRegisterSpec.class);
         when(registerConfig.getRegisterType()).thenReturn(registerType);
         when(registerConfig.getId()).thenReturn(registerSpec_id);
         ObisCode obisCode = mockObisCode();
         when(registerConfig.getObisCode()).thenReturn(obisCode);
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = mock(RegisterSpec.RegisterSpecBuilder.class, Answers.RETURNS_SELF);
+        NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
         when(registerSpecBuilder.add()).thenReturn(registerConfig);
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerConfig));
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerConfig));
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType =registerType_id;
         registerConfigInfo.multiplier= BigDecimal.TEN;
@@ -1061,7 +1064,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         verify(registerConfig).setRegisterType(registerType);
         verify(registerConfig).setOverruledObisCode(obisCodeArgumentCaptor.capture());
         assertThat(obisCodeArgumentCaptor.getValue().toString()).isEqualTo(obisCode.toString());
-        verify(registerConfig).setOverflow(BigDecimal.valueOf(123));
+        verify(registerConfig).setOverflowValue(BigDecimal.valueOf(123));
         verify(registerConfig).setNumberOfDigits(4);
         verify(registerConfig).setNumberOfFractionDigits(6);
         verify(registerConfig).save();

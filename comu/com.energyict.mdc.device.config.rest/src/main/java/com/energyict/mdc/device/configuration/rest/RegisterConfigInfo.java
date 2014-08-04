@@ -4,14 +4,18 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.UnitAdapter;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
+
+import org.codehaus.jackson.annotate.JsonProperty;
+
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 public class RegisterConfigInfo {
     @JsonProperty("id")
@@ -50,10 +54,12 @@ public class RegisterConfigInfo {
     public RegisterConfigInfo() {
     }
 
-    public RegisterConfigInfo(RegisterSpec registerSpec) {
+    public RegisterConfigInfo(NumericalRegisterSpec registerSpec) {
         this.id = registerSpec.getId();
         this.name = registerSpec.getRegisterType().getName();
+        this.registerType = registerSpec.getRegisterType().getId();
         this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
+        this.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();
         this.obisCode = registerSpec.getObisCode();
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
@@ -62,13 +68,33 @@ public class RegisterConfigInfo {
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         this.multiplier = registerSpec.getMultiplier();
         this.overflow = registerSpec.getOverflowValue();
-        this.registerType = registerSpec.getRegisterType().getId();
-        this.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();
         this.multiplierMode = registerSpec.getMultiplierMode();
     }
 
+    public RegisterConfigInfo(TextualRegisterSpec registerSpec) {
+        this.id = registerSpec.getId();
+        this.name = registerSpec.getRegisterType().getName();
+        this.registerType = registerSpec.getRegisterType().getId();
+        this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
+        this.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();
+        this.obisCode = registerSpec.getObisCode();
+        this.overruledObisCode = registerSpec.getDeviceObisCode();
+        this.obisCodeDescription = registerSpec.getObisCode().getDescription();
+        this.unitOfMeasure = registerSpec.getUnit();
+        this.numberOfDigits = null;
+        this.numberOfFractionDigits = null;
+        this.multiplier = null;
+        this.overflow = null;
+        this.multiplierMode = null;
+    }
+
     public static RegisterConfigInfo from(RegisterSpec registerSpec) {
-        return new RegisterConfigInfo(registerSpec);
+        if (registerSpec.isTextual()) {
+            return new RegisterConfigInfo((TextualRegisterSpec) registerSpec);
+        }
+        else {
+            return new RegisterConfigInfo((NumericalRegisterSpec) registerSpec);
+        }
     }
 
     public static List<RegisterConfigInfo> from(List<RegisterSpec> registerSpecList) {
@@ -80,12 +106,19 @@ public class RegisterConfigInfo {
     }
 
     public void writeTo(RegisterSpec registerSpec, RegisterType registerType) {
-        registerSpec.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
-        registerSpec.setMultiplier(this.multiplier);
-        registerSpec.setOverflow(this.overflow);
-        registerSpec.setNumberOfDigits(this.numberOfDigits!=null?this.numberOfDigits:0);
-        registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits!=null?this.numberOfFractionDigits:0);
         registerSpec.setOverruledObisCode(this.overruledObisCode);
         registerSpec.setRegisterType(registerType);
+        if (!registerSpec.isTextual()) {
+            this.writeTo((NumericalRegisterSpec) registerSpec);
+        }
     }
+
+    private void writeTo(NumericalRegisterSpec registerSpec) {
+        registerSpec.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
+        registerSpec.setMultiplier(this.multiplier);
+        registerSpec.setOverflowValue(this.overflow);
+        registerSpec.setNumberOfDigits(this.numberOfDigits != null ? this.numberOfDigits : 0);
+        registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits != null ? this.numberOfFractionDigits : 0);
+    }
+
 }

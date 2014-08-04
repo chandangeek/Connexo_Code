@@ -10,7 +10,6 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigurationComparator;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.google.common.base.Optional;
@@ -60,15 +59,16 @@ public class RegisterConfigurationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response createRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, RegisterConfigInfo registerConfigInfo) {
+        // Todo: find out if a numerical or a textual register needs to be created
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         RegisterType registerType = registerConfigInfo.registerType ==null?null: findRegisterTypeOrThrowException(registerConfigInfo.registerType);
-        RegisterSpec registerSpec = deviceConfiguration.createRegisterSpec(registerType)
+        RegisterSpec registerSpec = deviceConfiguration.createNumericalRegisterSpec(registerType)
                 .setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT)
                 .setMultiplier(registerConfigInfo.multiplier)
                 .setNumberOfDigits(registerConfigInfo.numberOfDigits)
                 .setNumberOfFractionDigits(registerConfigInfo.numberOfFractionDigits)
-                .setOverflow(registerConfigInfo.overflow)
+                .setOverflowValue(registerConfigInfo.overflow)
                 .setOverruledObisCode(registerConfigInfo.overruledObisCode)
                 .add();
         return Response.status(Response.Status.CREATED).entity(RegisterConfigInfo.from(registerSpec)).build();
