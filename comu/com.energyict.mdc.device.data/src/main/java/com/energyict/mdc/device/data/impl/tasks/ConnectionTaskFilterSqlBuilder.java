@@ -75,11 +75,15 @@ public class ConnectionTaskFilterSqlBuilder {
 
     private void appendJoinedTables(ClauseAwareSqlBuilder sqlBuilder) {
         if (!this.connectionTypes.isEmpty()) {
-            sqlBuilder.append(" inner join mdcconnectionmethod on mdcconnectionmethod.id = ");
+            sqlBuilder.append(" inner join ");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONMETHOD.name());
+            sqlBuilder.append(" on ");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONMETHOD.name());
+            sqlBuilder.append(".id = ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-            sqlBuilder.append(".connectionmethod");
-            sqlBuilder.append(" and (");
-            this.appendInClause("mdcconnectionmethod.connectiontypepluggableClass", sqlBuilder, this.connectionTypes);
+            sqlBuilder.append(".connectionmethod and (");
+            this.appendInClause(TableSpecs.DDC_CONNECTIONMETHOD.name() + ".connectiontypepluggableClass", sqlBuilder, this.connectionTypes);
+            sqlBuilder.append(")");
         }
         if (this.requiresCompletionCodesClause()) {
             this.appendCompletionCodeJoinClause(sqlBuilder, TableSpecs.DDC_CONNECTIONTASK.name());
