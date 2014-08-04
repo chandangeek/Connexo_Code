@@ -1,6 +1,6 @@
 Ext.define('Mdc.view.setup.validation.AddRuleSets', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.validation-add-rulesets',
+    xtype: 'validation-add-rulesets',
 
     requires: [
         'Uni.view.container.PreviewContainer',
@@ -41,6 +41,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                     {
                         xtype: 'preview-container',
                         itemId: 'previewContainer',
+                        selectByDefault: false,
                         grid: {
                             xtype: 'validation-add-rulesets-grid',
                             deviceTypeId: me.deviceTypeId,
@@ -63,7 +64,8 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                             ]
                         },
                         previewComponent: {
-                            xtype: 'validation-ruleset-view'
+                            xtype: 'validation-ruleset-view',
+                            hidden: true
                         }
                     }
                 ]

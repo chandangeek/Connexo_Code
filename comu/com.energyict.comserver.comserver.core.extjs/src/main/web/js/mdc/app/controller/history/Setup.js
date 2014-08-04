@@ -864,6 +864,37 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
                             action: 'showDeviceDataValidationMainView'
+                        },
+                        loadprofiles: {
+                            title: 'Load profiles',
+                            route: 'loadprofiles',
+                            controller: 'Mdc.controller.setup.DeviceLoadProfiles',
+                            action: 'showView',
+                            items: {
+                                loadprofile: {
+                                    title: 'Load profile',
+                                    route: '{loadProfileId}',
+                                    controller: 'Mdc.controller.setup.DeviceLoadProfileOverview',
+                                    action: 'showOverview',
+                                    redirect: 'devices/device/loadprofiles/loadprofile/overview',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+
+                                    },
+                                    items: {
+                                        overview: {
+                                            title: 'Overview',
+                                            route: 'overview',
+                                            controller: 'Mdc.controller.setup.DeviceLoadProfileOverview',
+                                            action: 'showOverview'
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

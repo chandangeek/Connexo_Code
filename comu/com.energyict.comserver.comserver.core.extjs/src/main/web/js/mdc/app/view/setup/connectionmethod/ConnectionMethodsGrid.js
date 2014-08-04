@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
             },
             {
                 header: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type'),
-                dataIndex: 'connectionType',
+                dataIndex: 'connectionTypePluggableClass',
                 flex: 0.3
             },
 
