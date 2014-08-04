@@ -354,7 +354,9 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public Map<TaskStatus, Long> getConnectionTaskStatusCount() {
-        return this.getConnectionTaskStatusCount(new ConnectionTaskFilterSpecification());
+        ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
+        filter.useLastComSession = false;
+        return this.getConnectionTaskStatusCount(filter);
     }
 
     @Override

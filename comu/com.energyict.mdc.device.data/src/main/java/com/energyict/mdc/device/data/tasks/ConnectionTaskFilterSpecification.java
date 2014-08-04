@@ -42,8 +42,9 @@ public class ConnectionTaskFilterSpecification {
     public Set<TaskStatus> taskStatuses = EnumSet.allOf(TaskStatus.class);
 
     /**
-     * The Set of {@link SuccessIndicator}s.
+     * The flag that indicates if only the data from the {@link ConnectionTask}'s
+     * last communication session should be used.
      */
-    public Set<SuccessIndicator> successIndicators = EnumSet.noneOf(SuccessIndicator.class);
+    public boolean useLastComSession = true;
 
 }

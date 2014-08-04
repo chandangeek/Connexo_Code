@@ -6,13 +6,11 @@ import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
-import com.energyict.mdc.device.data.tasks.SuccessIndicator;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -27,17 +25,15 @@ import java.util.Set;
  */
 public class ConnectionTaskFilterSqlBuilder {
 
-    private static final String COM_TASK_SESSION_ALIAS_NAME = "ctes";
     private static final String SUCCESS_INDICATOR_ALIAS_NAME = "successindicator";
     private static final int MAX_ELEMENTS_FOR_IN_CLAUSE = 1000;
     private static final String COMSESSION_TABLENAME = "THS_COMSESSION";
-    private static final String DEVICE_CONFIGURATION_TABLENAME = "DTC_DEVICECONFIG";
 
     private ServerConnectionTaskStatus taskStatus;
     private Set<ConnectionTypePluggableClass> connectionTypes;
     private Set<ComPortPool> comPortPools;
     private Set<DeviceType> deviceTypes;
-    private Set<SuccessIndicator> successIndicators;
+    private boolean useLastComSession;
 
     public ConnectionTaskFilterSqlBuilder(ServerConnectionTaskStatus taskStatus, ConnectionTaskFilterSpecification filterSpecification) {
         super();
@@ -45,7 +41,7 @@ public class ConnectionTaskFilterSqlBuilder {
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
         this.comPortPools = new HashSet<>(filterSpecification.comPortPools);
         this.deviceTypes = new HashSet<>(filterSpecification.deviceTypes);
-        this.successIndicators = EnumSet.copyOf(filterSpecification.successIndicators);
+        this.useLastComSession = filterSpecification.useLastComSession;
     }
 
     public void appendTo(ClauseAwareSqlBuilder sqlBuilder) {
@@ -68,7 +64,6 @@ public class ConnectionTaskFilterSqlBuilder {
 
     private void appendWhereClause(ClauseAwareSqlBuilder sqlBuilder) {
         this.taskStatus.completeFindBySqlBuilder(sqlBuilder);
-        this.appendCompletionCodesSql(sqlBuilder);
         this.appendComPortPoolSql(sqlBuilder);
         this.appendDeviceTypeSql(sqlBuilder);
     }
@@ -85,8 +80,8 @@ public class ConnectionTaskFilterSqlBuilder {
             this.appendInClause(TableSpecs.DDC_CONNECTIONMETHOD.name() + ".connectiontypepluggableClass", sqlBuilder, this.connectionTypes);
             sqlBuilder.append(")");
         }
-        if (this.requiresCompletionCodesClause()) {
-            this.appendCompletionCodeJoinClause(sqlBuilder, TableSpecs.DDC_CONNECTIONTASK.name());
+        if (this.requiresLastComSessionClause()) {
+            this.appendLastComSessionJoinClause(sqlBuilder, TableSpecs.DDC_CONNECTIONTASK.name());
         }
     }
 
@@ -176,54 +171,28 @@ public class ConnectionTaskFilterSqlBuilder {
         }
     }
 
-    private boolean requiresCompletionCodesClause() {
-        return !this.successIndicators.isEmpty();
+    private boolean requiresLastComSessionClause() {
+        return this.useLastComSession;
     }
 
-    private void appendCompletionCodeJoinClause(ClauseAwareSqlBuilder sqlBuilder, String connectionTaskTableName) {
-        this.appendLastSessionJoinClauseForConnectionTask(
-                        sqlBuilder,
-                        COM_TASK_SESSION_ALIAS_NAME,
-                        SUCCESS_INDICATOR_ALIAS_NAME,
-                        connectionTaskTableName);
+    private void appendLastComSessionJoinClause(ClauseAwareSqlBuilder sqlBuilder, String connectionTaskTableName) {
+        this.appendLastComSessionJoinClauseForConnectionTask(
+                sqlBuilder,
+                SUCCESS_INDICATOR_ALIAS_NAME,
+                connectionTaskTableName);
     }
 
-    private void appendLastSessionJoinClauseForConnectionTask(ClauseAwareSqlBuilder sqlBuilder, String comTaskSessionAliasName, String successIndicatorAliasName, String connectionTaskTableName) {
+    private void appendLastComSessionJoinClauseForConnectionTask(ClauseAwareSqlBuilder sqlBuilder, String successIndicatorAliasName, String connectionTaskTableName) {
         sqlBuilder.append(", (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY ");
         sqlBuilder.append(COMSESSION_TABLENAME);
         sqlBuilder.append(".startdate) ");
         sqlBuilder.append(successIndicatorAliasName);
         sqlBuilder.append(" from ");
         sqlBuilder.append(COMSESSION_TABLENAME);
-        sqlBuilder.append(" group by connectiontask) ");
-        sqlBuilder.append(comTaskSessionAliasName);
+        sqlBuilder.append(" group by connectiontask) cs");
         sqlBuilder.appendWhereOrAnd();
         sqlBuilder.append(connectionTaskTableName);
-        sqlBuilder.append(".id = ");
-        sqlBuilder.append(comTaskSessionAliasName);
-        sqlBuilder.append(".connectiontask");
-    }
-    private void appendCompletionCodesSql(ClauseAwareSqlBuilder sqlBuilder) {
-        if (this.requiresCompletionCodesClause()) {
-            this.appendCompletionCodeClause(sqlBuilder, this.successIndicators);
-        }
-    }
-
-    private void appendCompletionCodeClause(ClauseAwareSqlBuilder sqlBuilder, Set<SuccessIndicator> includedSuccessIndicators) {
-        sqlBuilder.append(" and ");
-        sqlBuilder.append(COM_TASK_SESSION_ALIAS_NAME);
-        sqlBuilder.append(".");
-        sqlBuilder.append(SUCCESS_INDICATOR_ALIAS_NAME);
-        sqlBuilder.append(" in (");
-        boolean notFirst = false;
-        for (SuccessIndicator successIndicator : includedSuccessIndicators) {
-            if (notFirst) {
-                sqlBuilder.append(", ");
-            }
-            sqlBuilder.addInt(successIndicator.ordinal());
-            notFirst = true;
-        }
-        sqlBuilder.append(")");
+        sqlBuilder.append(".id = cs.connectiontask");
     }
 
 }
