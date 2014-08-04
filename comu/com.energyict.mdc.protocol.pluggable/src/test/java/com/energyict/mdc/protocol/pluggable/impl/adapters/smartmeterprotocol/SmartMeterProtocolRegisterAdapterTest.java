@@ -6,7 +6,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -79,22 +78,22 @@ public class SmartMeterProtocolRegisterAdapterTest {
 
     @Before
     public void initializeEnvironment() {
-        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class))).
+        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class), readingType)).
                 thenAnswer(new Answer<CollectedRegister>() {
                     @Override
                     public CollectedRegister answer(InvocationOnMock invocationOnMock) throws Throwable {
                         RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                        MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier);
+                        MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier, readingType);
                         collectedRegister.setResultType(ResultType.Supported);
                         return collectedRegister;
                     }
                 });
-        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class))).
+        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class), readingType)).
                 thenAnswer(new Answer<CollectedRegister>() {
                     @Override
                     public CollectedRegister answer(InvocationOnMock invocationOnMock) throws Throwable {
                         RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                        return new MockCollectedRegister(registerIdentifier);
+                        return new MockCollectedRegister(registerIdentifier, readingType);
                     }
                 });
         when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));

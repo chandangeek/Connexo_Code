@@ -47,7 +47,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Sma
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolMessageAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolRegisterAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
-import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -354,7 +353,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        this.deviceProtocolTopologyAdapter.setDeviceIdentifier(new SerialNumberDeviceIdentifier(this.offlineDevice.getSerialNumber()));
+        this.deviceProtocolTopologyAdapter.setDeviceIdentifier(this.offlineDevice.getDeviceIdentifier());
         return this.deviceProtocolTopologyAdapter.getDeviceTopology();
     }
 

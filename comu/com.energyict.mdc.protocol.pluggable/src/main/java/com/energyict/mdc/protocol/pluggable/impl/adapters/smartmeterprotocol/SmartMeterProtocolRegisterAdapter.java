@@ -14,7 +14,6 @@ import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.RegisterDataIdentifier;
-import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,12 +60,12 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
                 for (OfflineRegister register : offlineRegisters) {
                     RegisterValue registerValue = findRegisterValue(register, registerValues);
                     if(!registerValue.equals(INVALID_REGISTER_VALUE)){
-                        CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(getRegisterIdentifier(register));
+                        CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(getRegisterIdentifier(register), register.getReadingType());
                         adapterDeviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
                         adapterDeviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
                         collectedRegisters.add(adapterDeviceRegister);
                     } else {
-                        CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
+                        CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
                         defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
                         collectedRegisters.add(defaultDeviceRegister);
                     }
@@ -81,7 +80,7 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRegister){
-        return new RegisterDataIdentifier(offlineRegister.getAmrRegisterObisCode(), offlineRegister.getObisCode(), new SerialNumberDeviceIdentifier(offlineRegister.getSerialNumber()));
+        return new RegisterDataIdentifier(offlineRegister.getAmrRegisterObisCode(), offlineRegister.getObisCode(), offlineRegister.getDeviceIdentifier());
     }
 
     private List<Register> convertOfflineRegistersToRegister(final List<OfflineRegister> offlineRegisters) {

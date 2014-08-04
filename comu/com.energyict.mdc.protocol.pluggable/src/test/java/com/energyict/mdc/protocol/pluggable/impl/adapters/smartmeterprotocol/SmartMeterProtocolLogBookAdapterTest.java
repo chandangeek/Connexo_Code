@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.impl.MeteringServiceImpl;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -153,9 +152,9 @@ public class SmartMeterProtocolLogBookAdapterTest {
 
         // Asserts
         assertThat(logBookReaders.size()).isEqualTo(logBookData.size());
-        assertThat(logBookReaders.get(0).getMeterSerialNumber()).isEqualTo(SERIAL_NUMBER);
-        assertThat(logBookReaders.get(1).getMeterSerialNumber()).isEqualTo(SERIAL_NUMBER);
-        assertThat(logBookReaders.get(2).getMeterSerialNumber()).isEqualTo(SERIAL_NUMBER);
+        assertThat(logBookReaders.get(0).getDeviceIdentifier()).isEqualTo(SERIAL_NUMBER);
+        assertThat(logBookReaders.get(1).getDeviceIdentifier()).isEqualTo(SERIAL_NUMBER);
+        assertThat(logBookReaders.get(2).getDeviceIdentifier()).isEqualTo(SERIAL_NUMBER);
 
         assertThat(LOGBOOK1_ID).isEqualTo(((LogBookIdentifierById) logBookData.get(0).getLogBookIdentifier()).getLogBookId());
         assertThat(ResultType.NotSupported).isEqualTo(logBookData.get(0).getResultType());

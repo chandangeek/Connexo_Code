@@ -48,7 +48,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolA
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolTopologyAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
-import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -346,7 +345,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        this.deviceProtocolTopologyAdapter.setDeviceIdentifier(new SerialNumberDeviceIdentifier(this.offlineDevice.getSerialNumber()));
+        this.deviceProtocolTopologyAdapter.setDeviceIdentifier(this.offlineDevice.getDeviceIdentifier());
         return this.deviceProtocolTopologyAdapter.getDeviceTopology();
     }
 

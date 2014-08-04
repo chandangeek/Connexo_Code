@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.StackTracePrinter;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
@@ -15,9 +16,6 @@ import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.mdc.common.StackTracePrinter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.LoadProfileDataIdentifier;
-import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -94,7 +92,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
         CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
         List<CollectedLoadProfileConfiguration> configurations = new ArrayList<>();
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
-            CollectedLoadProfileConfiguration deviceLoadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber(), false);
+            CollectedLoadProfileConfiguration deviceLoadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier(), false);
             deviceLoadProfileConfiguration.setFailureInformation(ResultType.DataIncomplete, getIssue(this, "deviceprotocol.legacy.issue", StackTracePrinter.print(e)));
             configurations.add(deviceLoadProfileConfiguration);
         }
@@ -105,7 +103,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
         CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
         List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = new ArrayList<>();
         for (LoadProfileConfiguration loadProfileConfiguration : loadProfileConfigurations) {
-            CollectedLoadProfileConfiguration deviceLoadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileConfiguration.getObisCode(), loadProfileConfiguration.getMeterSerialNumber());
+            CollectedLoadProfileConfiguration deviceLoadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileConfiguration.getObisCode(), loadProfileConfiguration.getDeviceIdentifier());
             deviceLoadProfileConfiguration.setSupportedByMeter(loadProfileConfiguration.isSupportedByMeter());
             deviceLoadProfileConfiguration.setChannelInfos(loadProfileConfiguration.getChannelInfos());
             deviceLoadProfileConfiguration.setProfileInterval(loadProfileConfiguration.getProfileInterval());
@@ -137,19 +135,17 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                 CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
                 final List<ProfileData> loadProfileData = this.smartMeterProtocol.getLoadProfileData(loadProfiles);
                 CollectedLoadProfile deviceLoadProfile;
-                for (LoadProfileReader loadProfile : loadProfiles) {
-                    final ProfileData profileDataWithLoadProfileId = getProfileDataWithLoadProfileId(loadProfileData, loadProfile.getLoadProfileId());
+                for (LoadProfileReader loadProfileReader : loadProfiles) {
+                    final ProfileData profileDataWithLoadProfileId = getProfileDataWithLoadProfileId(loadProfileData, loadProfileReader.getLoadProfileId());
                     profileDataWithLoadProfileId.sort();
                     deviceLoadProfile =
                             collectedDataFactory.createCollectedLoadProfile(
-                                    new LoadProfileDataIdentifier(
-                                            loadProfile.getProfileObisCode(),
-                                            new SerialNumberDeviceIdentifier(loadProfile.getMeterSerialNumber())));
+                                    loadProfileReader.getLoadProfileIdentifier());
                     if (!profileDataWithLoadProfileId.equals(INVALID_PROFILE_DATA)) {
                         deviceLoadProfile.setCollectedData(profileDataWithLoadProfileId.getIntervalDatas(), profileDataWithLoadProfileId.getChannelInfos());
                         deviceLoadProfile.setDoStoreOlderValues(profileDataWithLoadProfileId.shouldStoreOlderValues());
                     } else {
-                        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfile.getProfileObisCode(), "profileXnotsupported", loadProfile.getProfileObisCode()));
+                        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfileReader.getProfileObisCode(), "profileXnotsupported", loadProfileReader.getProfileObisCode()));
                     }
                     collectedLoadProfiles.add(deviceLoadProfile);
                 }
@@ -196,7 +192,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
         return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
-    private Issue getIssue(Object source, String description, Object... arguments){
+    private Issue getIssue(Object source, String description, Object... arguments) {
         return this.issueService.newProblem(
                 source,
                 Environment.DEFAULT.get().getTranslation(description).replaceAll("'", "''"),

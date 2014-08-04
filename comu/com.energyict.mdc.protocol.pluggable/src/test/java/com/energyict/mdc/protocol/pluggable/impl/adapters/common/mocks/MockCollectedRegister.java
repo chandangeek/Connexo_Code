@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -18,6 +19,7 @@ import java.util.List;
  * @since 2014-01-27 (13:47)
  */
 public class MockCollectedRegister implements CollectedRegister {
+    private final ReadingType readingType;
     private Date fromTime;
     private Date toTime;
     private Date eventTime;
@@ -28,14 +30,20 @@ public class MockCollectedRegister implements CollectedRegister {
     private ResultType resultType;
     private List<Issue> issues = new ArrayList<>();
 
-    public MockCollectedRegister(RegisterIdentifier registerIdentifier) {
+    public MockCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
         super();
+        this.readingType = readingType;
         this.setRegisterIdentifier(registerIdentifier);
     }
 
     @Override
     public RegisterIdentifier getRegisterIdentifier() {
         return registerIdentifier;
+    }
+
+    @Override
+    public ReadingType getReadingType() {
+        return this.readingType;
     }
 
     public void setRegisterIdentifier(RegisterIdentifier registerIdentifier) {

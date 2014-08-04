@@ -61,12 +61,12 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
             for (OfflineRegister register : registers) {
                 try {
                     RegisterValue registerValue = this.registerProtocol.readRegister(register.getObisCode());
-                    CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(getRegisterIdentifier(register));
+                    CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(getRegisterIdentifier(register), register.getReadingType());
                     adapterDeviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
                     adapterDeviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
                     collectedRegisters.add(adapterDeviceRegister);
                 } catch (UnsupportedException | NoSuchRegisterException e) {
-                    CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
+                    CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
                     defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
                     collectedRegisters.add(defaultDeviceRegister);
                 }

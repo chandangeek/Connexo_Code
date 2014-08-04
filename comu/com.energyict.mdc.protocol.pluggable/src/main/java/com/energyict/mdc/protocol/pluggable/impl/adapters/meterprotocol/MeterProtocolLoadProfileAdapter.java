@@ -23,8 +23,6 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.LoadProfileDataIdentifier;
-import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import org.joda.time.DateTimeConstants;
 
 import java.io.IOException;
@@ -71,7 +69,6 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      * equal to {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport#GENERIC_LOAD_PROFILE_OBISCODE}), the corresponding boolean in the <code>DeviceLoadProfileConfiguration</code> must
      * be set to false.
      *
-     *
      * @param loadProfilesToRead the <CODE>List</CODE> of <CODE>LoadProfileReaders</CODE> to indicate which profiles will be read
      * @return a list of <CODE>DeviceLoadProfileConfiguration</CODE> objects corresponding with the meter
      */
@@ -83,12 +80,12 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             CollectedLoadProfileConfiguration loadProfileConfiguration;
             for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
                 if (GENERIC_LOAD_PROFILE_OBISCODE.equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
-                    loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
+                    loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier());
                     loadProfileConfiguration.setChannelInfos(getDefaultChannelInfo());
                     // the B-field will be used as marker for the interval in minutes
                     loadProfileConfiguration.setProfileInterval(loadProfileReader.getProfileObisCode().getB() * DateTimeConstants.SECONDS_PER_MINUTE);
                 } else { // if it is not the standard ObisCode, then we indicate the LoadProfile is not supported
-                    loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber(), false);
+                    loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier(), false);
                 }
                 loadProfileConfigurations.add(loadProfileConfiguration);
             }
@@ -114,7 +111,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             int numberOfChannels = this.meterProtocol.getNumberOfChannels();
             List<ChannelInfo> listOfChannelInfo = new ArrayList<>();
             for (int i = 0; i < numberOfChannels; i++) {
-                listOfChannelInfo.add(new ChannelInfo(i, new ObisCode(GENERIC_CHANNEL_OBISCODE, i+1).toString(), Unit.getUndefined()));  //NON-NLS
+                listOfChannelInfo.add(new ChannelInfo(i, new ObisCode(GENERIC_CHANNEL_OBISCODE, i + 1).toString(), Unit.getUndefined()));  //NON-NLS
             }
             return listOfChannelInfo;
         } catch (IOException e) {
@@ -131,9 +128,9 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
                 if (GENERIC_LOAD_PROFILE_OBISCODE.equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
                     if (logBookReader != null) {
                         logBookReadNotRead = false;
-                        collectedData.addAll(getSingleProfileData(loadProfileReader.getProfileObisCode(), loadProfileReader.getStartReadingTime(), loadProfileReader.getMeterSerialNumber(), logBookReader));
+                        collectedData.addAll(getSingleProfileData(loadProfileReader, logBookReader));
                     } else {
-                        collectedData.addAll(getSingleProfileData(loadProfileReader.getProfileObisCode(), loadProfileReader.getStartReadingTime(), loadProfileReader.getMeterSerialNumber()));
+                        collectedData.addAll(getSingleProfileData(loadProfileReader));
                     }
                 } else {
                     collectedData.add(createUnSupportedCollectedLoadProfile(loadProfileReader));
@@ -141,7 +138,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             }
         }
 
-        if ((logBookReader != null)&& logBookReadNotRead) {
+        if ((logBookReader != null) && logBookReadNotRead) {
             collectedData.addAll(getLogBookData(logBookReader));
         }
         collectedData.addAll(createUnSupportedCollectedLogBooksForInvalidLogBookReaders(logBookReaders));
@@ -192,28 +189,22 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      * <li>An incompatible resultType if we could not correctly parse the received data</li>
      * </ul>
      *
-     *
-     * @param loadProfileObisCode  the ObisCode of the LoadProfile
-     * @param startReadingTime the time of the last collected interval
-     * @param meterSerialNumber the SerialNumber of the Device collecting the LoadProfile
-     * @return a CollectedLoadProfile
+     * @param loadProfileReader@return a CollectedLoadProfile
      */
-    protected List<CollectedData> getSingleProfileData(final ObisCode loadProfileObisCode, final Date startReadingTime, final String meterSerialNumber) {
+    protected List<CollectedData> getSingleProfileData(LoadProfileReader loadProfileReader) {
         List<CollectedData> collectedDataList = new ArrayList<>(1);
 
         CollectedLoadProfile deviceLoadProfile =
                 this.getCollectedDataFactory().createCollectedLoadProfile(
-                        new LoadProfileDataIdentifier(
-                                loadProfileObisCode,
-                                new SerialNumberDeviceIdentifier(meterSerialNumber)));
+                        loadProfileReader.getLoadProfileIdentifier());
         try {
-            ProfileData profileData = this.meterProtocol.getProfileData(startReadingTime, false);
+            ProfileData profileData = this.meterProtocol.getProfileData(loadProfileReader.getStartReadingTime(), false);
             deviceLoadProfile.setCollectedData(profileData.getIntervalDatas(), convertToProperChannelInfos(profileData));
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
         } catch (IOException e) {
-            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfileObisCode, "CouldNotReadoutLoadProfileData", e.getMessage()));
+            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfileReader.getProfileObisCode(), "CouldNotReadoutLoadProfileData", e.getMessage()));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
-            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getIssue(loadProfileObisCode, "CouldNotParseLoadProfileData"));
+            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getIssue(loadProfileReader.getProfileObisCode(), "CouldNotParseLoadProfileData"));
         }
         collectedDataList.add(deviceLoadProfile);
         return collectedDataList;
@@ -222,32 +213,30 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
     private List<ChannelInfo> convertToProperChannelInfos(ProfileData profileData) {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (ChannelInfo ci : profileData.getChannelInfos()) {
-            channelInfos.add(new ChannelInfo(ci.getId(), ci.getChannelId(), new ObisCode(GENERIC_CHANNEL_OBISCODE, (int) (ci.getChannelId()+1)).toString(), ci.getUnit()));
+            channelInfos.add(new ChannelInfo(ci.getId(), ci.getChannelId(), new ObisCode(GENERIC_CHANNEL_OBISCODE, (int) (ci.getChannelId() + 1)).toString(), ci.getUnit()));
         }
         return channelInfos;
     }
 
-    protected List<CollectedData> getSingleProfileData(final ObisCode loadProfileObisCode, final Date startReadingTime, final String meterSerialNumber, final LogBookReader logBookReader) {
+    protected List<CollectedData> getSingleProfileData(LoadProfileReader loadProfileReader, final LogBookReader logBookReader) {
         List<CollectedData> collectedDataList = new ArrayList<>(2);
-        Date combinedLastReadingTime = startReadingTime.before(logBookReader.getLastLogBook()) ? startReadingTime : logBookReader.getLastLogBook();
+        Date combinedLastReadingTime = loadProfileReader.getStartReadingTime().before(logBookReader.getLastLogBook()) ? loadProfileReader.getStartReadingTime() : logBookReader.getLastLogBook();
 
         CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
         CollectedLoadProfile deviceLoadProfile =
                 collectedDataFactory.createCollectedLoadProfile(
-                        new LoadProfileDataIdentifier(
-                                loadProfileObisCode,
-                                new SerialNumberDeviceIdentifier(meterSerialNumber)));
+                        loadProfileReader.getLoadProfileIdentifier());
         CollectedLogBook deviceLogBook = collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
         try {
             ProfileData profileData = this.meterProtocol.getProfileData(combinedLastReadingTime, true);
-            deviceLoadProfile.setCollectedData(getIntervalDatas(profileData.getIntervalDatas(), startReadingTime), convertToProperChannelInfos(profileData));
+            deviceLoadProfile.setCollectedData(getIntervalDatas(profileData.getIntervalDatas(), loadProfileReader.getStartReadingTime()), convertToProperChannelInfos(profileData));
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
             deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
         } catch (IOException e) {
-            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfileObisCode, "CouldNotReadoutLoadProfileData"));
+            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfileReader.getProfileObisCode(), "CouldNotReadoutLoadProfileData"));
             deviceLogBook.setFailureInformation(ResultType.NotSupported, getIssue(logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData"));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
-            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getIssue(loadProfileObisCode, "CouldNotParseLoadProfileData"));
+            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getIssue(loadProfileReader.getProfileObisCode(), "CouldNotParseLoadProfileData"));
             deviceLogBook.setFailureInformation(ResultType.InCompatible, getIssue(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
         }
         collectedDataList.add(deviceLoadProfile);
@@ -275,7 +264,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      * All intervals before this startReadingTime should be ignored.
      *
      * @param allIntervalDatas
-     * @param startReadingTime  the startReadingTime of the profile
+     * @param startReadingTime the startReadingTime of the profile
      * @return
      */
     private List<IntervalData> getIntervalDatas(List<IntervalData> allIntervalDatas, Date startReadingTime) {
@@ -300,7 +289,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
-    private Issue getIssue(Object source, String description, Object... arguments){
+    private Issue getIssue(Object source, String description, Object... arguments) {
         return this.issueService.newProblem(
                 source,
                 Environment.DEFAULT.get().getTranslation(description).replaceAll("'", "''"),

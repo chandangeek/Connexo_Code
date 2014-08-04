@@ -15,6 +15,7 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLoadProfile;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLoadProfileConfiguration;
@@ -70,7 +71,7 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
                         return collectedLoadProfile;
                     }
                 });
-        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), anyString())).
+        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), any(DeviceIdentifier.class))).
                 thenAnswer(new Answer<CollectedLoadProfileConfiguration>() {
                     @Override
                     public CollectedLoadProfileConfiguration answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -79,7 +80,7 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
                                 (String) invocationOnMock.getArguments()[1]);
                     }
                 });
-        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), anyString(), eq(true))).
+        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), any(DeviceIdentifier.class), eq(true))).
                 thenAnswer(new Answer<CollectedLoadProfileConfiguration>() {
                     @Override
                     public CollectedLoadProfileConfiguration answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -89,7 +90,7 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
                                 true);
                     }
                 });
-        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), anyString(), eq(false))).
+        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), any(DeviceIdentifier.class), eq(false))).
                 thenAnswer(new Answer<CollectedLoadProfileConfiguration>() {
                     @Override
                     public CollectedLoadProfileConfiguration answer(InvocationOnMock invocationOnMock) throws Throwable {

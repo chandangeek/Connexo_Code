@@ -43,7 +43,7 @@ public class MockCollectedLoadProfileConfiguration implements CollectedLoadProfi
     }
 
     @Override
-    public String getMeterSerialNumber() {
+    public com.energyict.mdc.protocol.api.inbound.DeviceIdentifier<?> getDeviceIdentifier() {
         return meterSerialNumber;
     }
 
