@@ -16,13 +16,16 @@ import java.util.logging.Logger;
  * @author sva
  * @since 4/06/13 - 15:42
  */
-@Component(name="com.energyict.mdc.protocols.api.cim.enddeviceeventtype.factory", service = {EndDeviceEventTypeFactory.class}, property = "name=CEF")
+@Component(name="com.energyict.mdc.protocols.api.cim.enddeviceeventtype.factory", service = {EndDeviceEventTypeFactory.class}, property = "name=CEF", immediate = true)
 public class EndDeviceEventTypeFactory {
 
     private static final Logger LOGGER = Logger.getLogger(EndDeviceEventTypeFactory.class.getName());
     static AtomicReference<EndDeviceEventTypeFactory> current = new AtomicReference<>();
 
     private volatile MeteringService meteringService;
+
+    public EndDeviceEventTypeFactory() {
+    }
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {

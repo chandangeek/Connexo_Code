@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.api.device.offline;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.Date;
 
@@ -55,4 +56,5 @@ public interface OfflineLogBook extends Offline {
      */
     public ObisCode getObisCode();
 
+    public DeviceIdentifier<?> getDeviceIdentifier();
 }

@@ -1,9 +1,12 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 
 /**
@@ -75,4 +78,24 @@ public interface OfflineRegister extends Offline {
      * @return the obisCode of the Register, known by the HeadEnd system
      */
     public ObisCode getAmrRegisterObisCode();
+
+    /**
+     * The identifier that uniquely identifies the device
+     *
+     * @return the deviceIdentifier
+     */
+    public DeviceIdentifier<?> getDeviceIdentifier();
+
+    /**
+     * Returns the ReadingType of the Kore channel that will store the data
+     *
+     * @return the ReadingType
+     */
+    public ReadingType getReadingType();
+
+    /**
+     * The overflow value which is configured for this Register
+     * @return the configured overFlowValue
+     */
+    public BigDecimal getOverFlowValue();
 }

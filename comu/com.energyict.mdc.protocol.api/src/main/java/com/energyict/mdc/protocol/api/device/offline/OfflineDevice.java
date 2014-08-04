@@ -5,6 +5,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.List;
 import java.util.TimeZone;
@@ -119,5 +120,7 @@ public interface OfflineDevice extends Offline {
      * @return the used DeviceProtocolCache
      */
     public DeviceProtocolCache getDeviceProtocolCache();
+
+    public DeviceIdentifier<?> getDeviceIdentifier();
 
 }

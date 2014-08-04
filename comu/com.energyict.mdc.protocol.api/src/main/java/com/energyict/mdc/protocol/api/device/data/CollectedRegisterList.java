@@ -17,6 +17,6 @@ public interface CollectedRegisterList extends CollectedData {
     /**
      * @return the unique identifier of the Device
      */
-    public DeviceIdentifier getDeviceIdentifier();
+    public DeviceIdentifier<?> getDeviceIdentifier();
 
 }

@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface CollectedLoadProfileConfiguration extends CollectedData{
 
     public ObisCode getObisCode();
 
-    public String getMeterSerialNumber();
+    public DeviceIdentifier<?> getDeviceIdentifier();
 
     public int getProfileInterval();
 

@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.List;
 
@@ -18,9 +19,9 @@ public class LoadProfileConfiguration {
     private final ObisCode obisCode;
 
     /**
-     * The serialNumber of the <CODE>Device</CODE>
+     * The identifier of the owning Device
      */
-    private final String meterSerialNumber;
+    private final DeviceIdentifier<?> deviceIdentifier;
 
     /**
      * The interval (in seconds) of this LoadProfileConfiguration
@@ -39,26 +40,24 @@ public class LoadProfileConfiguration {
 
     /**
      * Default constructor. {@link #supportedByMeter} will default be set to true
-     *
-     * @param obisCode          the LoadProfileObisCode for this configuration
-     * @param meterSerialNumber the serialNumber of the master of this LoadProfileConfiguration
+     *  @param obisCode          the LoadProfileObisCode for this configuration
+     * @param deviceIdentifier the serialNumber of the master of this LoadProfileConfiguration
      */
-    public LoadProfileConfiguration(ObisCode obisCode, String meterSerialNumber) {
+    public LoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier<?> deviceIdentifier) {
         this.obisCode = obisCode;
-        this.meterSerialNumber = meterSerialNumber;
+        this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = true;
     }
 
     /**
      * Default constructor. {@link #supportedByMeter} will default be set to true
-     *
-     * @param obisCode          the LoadProfileObisCode for this configuration
-     * @param meterSerialNumber the serialNumber of the master of this LoadProfileConfiguration
+     *  @param obisCode          the LoadProfileObisCode for this configuration
+     * @param deviceIdentifier the serialNumber of the master of this LoadProfileConfiguration
      * @param supported         indicates whether the LoadProfileConfiguration is supported by the Device
      */
-    public LoadProfileConfiguration(ObisCode obisCode, String meterSerialNumber, boolean supported) {
+    public LoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier<?> deviceIdentifier, boolean supported) {
         this.obisCode = obisCode;
-        this.meterSerialNumber = meterSerialNumber;
+        this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = supported;
     }
 
@@ -72,12 +71,12 @@ public class LoadProfileConfiguration {
     }
 
     /**
-     * Getter for the {@link #meterSerialNumber}
+     * Getter for the {@link #deviceIdentifier}
      *
-     * @return {@link #meterSerialNumber}
+     * @return {@link #deviceIdentifier}
      */
-    public String getMeterSerialNumber() {
-        return meterSerialNumber;
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     /**

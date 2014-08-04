@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.Date;
 
@@ -25,9 +26,9 @@ public class LogBookReader {
     private final Date lastLogBook;
 
     /**
-     * Holds the serialNumber of the meter for this LogBook
+     * The Identifier of the holding Device
      */
-    private final String meterSerialNumber;
+    private final DeviceIdentifier<?> deviceIdentifier;
 
     /**
      * The LogBookIdentifier, which unique defines the LogBook to read.
@@ -38,9 +39,9 @@ public class LogBookReader {
      * @param logBookObisCode   Holds the ObisCode from the LogBook to read
      * @param lastLogBook       Holds the Date from where to start fetching data from the LogBook
      * @param logBookIdentifier The LogBookIdentifier, which unique defines the LogBook to read.
-     * @param meterSerialNumber The serial number of the meter of the logbook
+     * @param deviceIdentifier The serial number of the meter of the logbook
      */
-    public LogBookReader(ObisCode logBookObisCode, Date lastLogBook, LogBookIdentifier logBookIdentifier, String meterSerialNumber) {
+    public LogBookReader(ObisCode logBookObisCode, Date lastLogBook, LogBookIdentifier logBookIdentifier, DeviceIdentifier<?> deviceIdentifier) {
         if(lastLogBook == null){
             this.lastLogBook = new Date(new Date().getTime() - (DAYS_IN_MONTH * SECONDS_IN_DAY * MILLISECONDS_IN_SECOND));    //endTime - 1 month
         } else {
@@ -48,7 +49,7 @@ public class LogBookReader {
         }
         this.logBookObisCode = logBookObisCode;
         this.logBookIdentifier = logBookIdentifier;
-        this.meterSerialNumber = meterSerialNumber;
+        this.deviceIdentifier = deviceIdentifier;
     }
 
     /**
@@ -61,12 +62,12 @@ public class LogBookReader {
     }
 
     /**
-     * Getter for the {@link #meterSerialNumber}
+     * Getter for the deviceIdentifier
      *
-     * @return the {@link #meterSerialNumber}
+     * @return the deviceIdentifier
      */
-    public String getMeterSerialNumber() {
-        return meterSerialNumber;
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     /**

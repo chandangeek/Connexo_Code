@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.device.data;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
@@ -66,6 +67,13 @@ public interface CollectedRegister extends CollectedData {
      *         of the BusinessObject which is actionHolder of the request
      */
     public RegisterIdentifier getRegisterIdentifier();
+
+    /**
+     * Gets the ReadingType of the collected Register
+     *
+     * @returnthe ReadingType of the collected Register
+     */
+    public ReadingType getReadingType();
 
     /**
      * Set the collected timeStamps.<br/>

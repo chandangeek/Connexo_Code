@@ -5,6 +5,8 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.Unit;
 
+import java.math.BigDecimal;
+
 /**
  * Represents an Offline version of a Channel in a specific LoadProfile
  *
@@ -62,4 +64,10 @@ public interface OfflineLoadProfileChannel extends Offline {
      */
     public ReadingType getReadingType();
 
+    /**
+     * Gets the configured overflow value for this channel
+     *
+     * @return the configured overflow value
+     */
+    public BigDecimal getOverflow();
 }

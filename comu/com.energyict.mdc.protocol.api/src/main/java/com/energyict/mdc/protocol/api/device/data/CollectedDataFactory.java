@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.device.data;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -23,13 +24,13 @@ public interface CollectedDataFactory {
 
     public CollectedLogBook createCollectedLogBook(LogBookIdentifier logBookIdentifier);
 
-    public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier);
+    public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType);
 
-    public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier);
+    public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier, ReadingType readingType);
 
-    public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier);
+    public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType);
 
-    public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier);
+    public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType);
 
     public CollectedLogBook createNoLogBookCollectedData(DeviceIdentifier deviceIdentifier);
 
@@ -43,9 +44,9 @@ public interface CollectedDataFactory {
 
     public CollectedRegisterList createCollectedRegisterList(DeviceIdentifier deviceIdentifier);
 
-    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, String meterSerialNumber);
+    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier<?> deviceIdentifier);
 
-    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, String meterSerialNumber, boolean supported);
+    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier<?> deviceIdentifier, boolean supported);
 
     public CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileExtension, byte[] contents);
 

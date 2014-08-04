@@ -2,6 +2,8 @@ package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.Date;
 import java.util.List;
@@ -25,6 +27,11 @@ public class LoadProfileReader {
      * Holds the <CODE>ObisCode</CODE> from the <CODE>LoadProfile</CODE> to read
      */
     private final ObisCode profileObisCode;
+    /**
+     * Holds the identifier of the Device
+     */
+    private final DeviceIdentifier<?> deviceIdentifier;
+
     /**
      * Holds the serialNumber of the meter for this LoadProfile
      */
@@ -50,18 +57,21 @@ public class LoadProfileReader {
      * Contains a <CODE>List</CODE> of <b>necessary</b> channels to read from the meter.
      */
     private final List<ChannelInfo> channelInfos;
+    private LoadProfileIdentifier loadProfileIdentifier;
 
 
     /**
      * Default constructor
      *
-     * @param profileObisCode   the <CODE>ObisCode</CODE> from the <CODE>LoadProfile</CODE>
-     * @param startReadingTime  the readTime to start reading the <CODE>LoadProfile</CODE>
-     * @param endReadingTime    the endTime of the last <CODE>LoadProfile</CODE> interval
-     * @param meterSerialNumber the serialNumber of the meter for which this <CODE>ObisCode</CODE> and <CODE>LoadProfile</CODE> is mapped
-     * @param channelInfos      the <CODE>List</CODE> of <CODE>ChannelInfo</CODE> representing the channels to read from the profile in the meter
+     * @param profileObisCode       the <CODE>ObisCode</CODE> from the <CODE>LoadProfile</CODE>
+     * @param startReadingTime      the readTime to start reading the <CODE>LoadProfile</CODE>
+     * @param endReadingTime        the endTime of the last <CODE>LoadProfile</CODE> interval
+     * @param deviceIdentifier      the DeviceIdentifier for the Device which owns the LoadProfile
+     * @param channelInfos          the <CODE>List</CODE> of <CODE>ChannelInfo</CODE> representing the channels to read from the profile in the meter
+     * @param meterSerialNumber     the serialNumber of the device which owns this LoadProfile
+     * @param loadProfileIdentifier the unique identifier of the LoadProfile
      */
-    public LoadProfileReader(ObisCode profileObisCode, Date startReadingTime, Date endReadingTime, long loadProfileId, String meterSerialNumber, List<ChannelInfo> channelInfos) {
+    public LoadProfileReader(ObisCode profileObisCode, Date startReadingTime, Date endReadingTime, long loadProfileId, DeviceIdentifier<?> deviceIdentifier, List<ChannelInfo> channelInfos, String meterSerialNumber, LoadProfileIdentifier loadProfileIdentifier) {
         this.profileObisCode = profileObisCode;
         if (endReadingTime == null) {
             this.endReadingTime = new Date();
@@ -74,8 +84,10 @@ public class LoadProfileReader {
             this.startReadingTime = startReadingTime;
         }
         this.loadProfileId = loadProfileId;
-        this.meterSerialNumber = meterSerialNumber;
+        this.deviceIdentifier = deviceIdentifier;
         this.channelInfos = channelInfos;
+        this.meterSerialNumber = meterSerialNumber;
+        this.loadProfileIdentifier = loadProfileIdentifier;
     }
 
     /**
@@ -97,12 +109,12 @@ public class LoadProfileReader {
     }
 
     /**
-     * Getter for the {@link #meterSerialNumber}
+     * Getter for the {@link #deviceIdentifier}
      *
-     * @return the {@link #meterSerialNumber}
+     * @return the {@link #deviceIdentifier}
      */
-    public String getMeterSerialNumber() {
-        return meterSerialNumber;
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     /**
@@ -130,6 +142,10 @@ public class LoadProfileReader {
      */
     public List<ChannelInfo> getChannelInfos() {
         return channelInfos;
+    }
+
+    public String getMeterSerialNumber() {
+        return meterSerialNumber;
     }
 
     /**
@@ -161,5 +177,9 @@ public class LoadProfileReader {
         builder.append(" for meter : ");
         builder.append(getMeterSerialNumber());
         return builder.toString();
+    }
+
+    public LoadProfileIdentifier getLoadProfileIdentifier() {
+        return loadProfileIdentifier;
     }
 }

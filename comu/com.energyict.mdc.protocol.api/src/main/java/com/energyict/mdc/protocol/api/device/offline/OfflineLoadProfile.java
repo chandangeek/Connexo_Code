@@ -3,6 +3,8 @@ package com.energyict.mdc.protocol.api.device.offline;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.Date;
 import java.util.List;
@@ -81,5 +83,9 @@ public interface OfflineLoadProfile extends Offline {
      * @return a <CODE>List</CODE> of {@link OfflineLoadProfileChannel} objects
      */
     public List<OfflineLoadProfileChannel> getAllChannels();
+
+    public DeviceIdentifier<?> getDeviceIdentifier();
+
+    public LoadProfileIdentifier getLoadProfileIdentifier();
 
 }
