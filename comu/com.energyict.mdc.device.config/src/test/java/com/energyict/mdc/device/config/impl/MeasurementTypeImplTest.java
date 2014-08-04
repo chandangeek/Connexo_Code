@@ -1,5 +1,23 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
+import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenMeasurementTypeIsInUseException;
+import com.energyict.mdc.device.config.exceptions.CannotUpdatePhenomenonWhenMeasurementTypeIsInUseException;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.protocol.api.device.MultiplierMode;
+import com.energyict.mdc.protocol.api.device.ReadingMethod;
+import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
+
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
@@ -11,30 +29,11 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenMeasurementTypeIsInUseException;
-import com.energyict.mdc.device.config.exceptions.CannotUpdatePhenomenonWhenMeasurementTypeIsInUseException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import com.energyict.mdc.protocol.api.device.ReadingMethod;
-import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 import com.google.common.base.Optional;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,7 +96,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addRegisterType(registerType);
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = configurationBuilder.newRegisterSpec(registerType);
+        NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
         registerSpecBuilder.setNumberOfDigits(5);
         registerSpecBuilder.setNumberOfFractionDigits(2);
         registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
@@ -175,7 +174,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addRegisterType(registerType);
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = configurationBuilder.newRegisterSpec(registerType);
+        NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
         registerSpecBuilder.setNumberOfDigits(5);
         registerSpecBuilder.setNumberOfFractionDigits(2);
         registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
@@ -253,7 +252,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addRegisterType(registerType);
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = configurationBuilder.newRegisterSpec(registerType);
+        NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
         registerSpecBuilder.setNumberOfDigits(5);
         registerSpecBuilder.setNumberOfFractionDigits(2);
         registerSpecBuilder.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);

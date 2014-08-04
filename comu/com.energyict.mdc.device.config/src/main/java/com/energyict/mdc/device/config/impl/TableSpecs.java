@@ -218,22 +218,23 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<RegisterSpec> table = dataModel.addTable(name(), RegisterSpec.class);
-            table.map(RegisterSpecImpl.class);
+            table.map(RegisterSpecImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column registerTypeId = table.column("REGISTERTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).notNull().map(RegisterSpecImpl.Fields.NUMBER_OF_DIGITS.fieldName()).add();
+            table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecFields.NUMBER_OF_DIGITS.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").insert("sysdate").update("sysdate").add();
-            table.column("DEVICEOBISCODE").varChar(80).map("overruledObisCodeString").add();
-            table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecImpl.Fields.NUMBER_OF_FRACTION_DIGITS.fieldName()).add();
-            table.column("OVERFLOWVALUE").number().map("overflow").add();
+            table.column("DEVICEOBISCODE").varChar().map("overruledObisCodeString").add();
+            table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecFields.NUMBER_OF_FRACTION_DIGITS.fieldName()).add();
+            table.column("OVERFLOWVALUE").number().map(RegisterSpecFields.OVERFLOW_VALUE.fieldName()).add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("MULTIPLIER").number().map(RegisterSpecImpl.Fields.MULTIPLIER.fieldName()).add();
-            table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
+            table.column("MULTIPLIER").number().map(RegisterSpecFields.MULTIPLIER.fieldName()).add();
+            table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).map("multiplierMode").add();
             table.primaryKey("PK_DTC_REGISTERSPEC").on(id).add();
             table.foreignKey("FK_DTC_REGISTERSPEC_REGMAP").
                     on(registerTypeId).
                     references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE").
-                    map(RegisterSpecImpl.Fields.REGISTER_TYPE.fieldName()).
+                    map(RegisterSpecFields.REGISTER_TYPE.fieldName()).
                     add();
             table.foreignKey("FK_DTC_REGISTERSPEC_DEVCONFIG").
                     on(deviceConfiguration).

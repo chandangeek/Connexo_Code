@@ -1,18 +1,17 @@
 package com.energyict.mdc.device.config;
 
-import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import java.math.BigDecimal;
+
+import com.elster.jupiter.validation.ValidationRule;
+
 import java.util.Date;
 import java.util.List;
 
 /**
- * Represents a register specification
+ * Models the specification of a register.
  *
  * @author Geert
  */
@@ -35,13 +34,19 @@ public interface RegisterSpec extends HasId {
      */
     public RegisterType getRegisterType();
 
+    void setRegisterType(RegisterType registerType);
 
     /**
-     * Tests if this is a cumulative register mapping
+     * Tests if this RegisterSpec was marked by the user to contain textual data.
+     * When this returns <code>true</code>, it will be safe to cast to {@link TextualRegisterSpec}.
+     * I all other cases, it will be safe to cast to {@link NumericalRegisterSpec}.
+     * <br>
+     * Note that {@link com.elster.jupiter.metering.ReadingType}
+     * has no flag or other indication that the data is textual.
      *
-     * @return true if cumulative, false otherwise.
+     * @return <code>true</code> iff the user indicates registers of this specification will contain textual data
      */
-    public boolean isCumulative();
+    public boolean isTextual();
 
     /**
      * Returns the spec's unit
@@ -57,6 +62,7 @@ public interface RegisterSpec extends HasId {
      */
     public ObisCode getObisCode();
 
+    public void setOverruledObisCode(ObisCode overruledObisCode);
 
     /**
      * Returns the obis code of the device.
@@ -65,78 +71,12 @@ public interface RegisterSpec extends HasId {
      */
     public ObisCode getDeviceObisCode();
 
-
     /**
      * Returns the receiver's last modification date
      *
      * @return the last modification date
      */
     public Date getModificationDate();
-
-    /**
-    /**
-     * Returns the number of digits for this spec
-     *
-     * @return the number of digits
-     */
-    public int getNumberOfDigits();
-
-    /**
-     * Returns the number of fraction digits for this spec
-     *
-     * @return the number of fraction digits
-     */
-    public int getNumberOfFractionDigits();
-
-    /**
-     * Returns the configured multiplier.
-     *
-     * @return the receiver's multiplier.
-     */
-    BigDecimal getMultiplier();
-
-    /**
-     * Returns the configured multiplier mode.
-     *
-     * @return the receiver's multiplier mode.
-     */
-    MultiplierMode getMultiplierMode();
-
-    /**
-     * Returns the overflow value
-     *
-     * @return the overflow value
-     */
-    public BigDecimal getOverflowValue();
-
-    void setRegisterType(RegisterType registerType);
-
-    void setNumberOfDigits(int numberOfDigits);
-
-    void setNumberOfFractionDigits(int numberOfFractionDigits);
-
-    void setOverruledObisCode(ObisCode overruledObisCode);
-
-    void setOverflow(BigDecimal overflow);
-
-    /**
-     * Set the Multiplier of the RegisterSpec to the given <i>multiplier</i>.
-     * <p/>
-     * <b>Note:</b> By setting the Multiplier, you automatically set the MultiplierMode to {@link MultiplierMode#CONFIGURED_ON_OBJECT}
-     *
-     * @param multiplier the multiplier to set
-     */
-    void setMultiplier(BigDecimal multiplier);
-
-    /**
-     * Set the MultiplierMode to the given mode.
-     * <p/>
-     * <b>Note:</b> By setting the mode to either {@link MultiplierMode#VERSIONED} or {@link MultiplierMode#NONE},
-     * you automatically set a previously given Multiplier back to {@link BigDecimal#ONE}
-     *
-     * @param multiplierMode the given MultiplierMode
-     */
-    void setMultiplierMode(MultiplierMode multiplierMode);
 
     void validateDelete();
 
@@ -146,85 +86,4 @@ public interface RegisterSpec extends HasId {
 
     public List<ValidationRule> getValidationRules();
 
-    /**
-     * Defines a Builder interface to construct a {@link RegisterSpec}
-     */
-    interface RegisterSpecBuilder {
-
-        RegisterSpecBuilder setRegisterType(RegisterType registerType);
-
-        RegisterSpecBuilder setNumberOfDigits(int numberOfDigits);
-
-        RegisterSpecBuilder setNumberOfFractionDigits(int numberOfFractionDigits);
-
-        RegisterSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
-
-        RegisterSpecBuilder setOverflow(BigDecimal overflow);
-
-        /**
-         * Set the Multiplier of the RegisterSpec to the given <i>multiplier</i>.
-         * <p/>
-         * <b>Note:</b> By setting the Multiplier, you automatically set the MultiplierMode to {@link MultiplierMode#CONFIGURED_ON_OBJECT}
-         *
-         * @param multiplier the multiplier to set
-         */
-        RegisterSpecBuilder setMultiplier(BigDecimal multiplier);
-
-        /**
-         * Set the MultiplierMode to the given mode.
-         * <p/>
-         * <b>Note:</b> By setting the mode to either {@link MultiplierMode#VERSIONED} or {@link MultiplierMode#NONE},
-         * you automatically set a previously given Multiplier back to {@link BigDecimal#ONE}
-         *
-         * @param multiplierMode the given MultiplierMode
-         */
-        RegisterSpecBuilder setMultiplierMode(MultiplierMode multiplierMode);
-
-        /**
-         * Does final validation and <i>creates</i> the {@link RegisterSpec}
-         *
-         * @return the RegisterSpec
-         */
-        RegisterSpec add();
-    }
-
-    /**
-     * Defines a updater component to update a {@link RegisterSpec}
-     */
-    interface RegisterSpecUpdater {
-
-        RegisterSpecUpdater setNumberOfDigits(int numberOfDigits);
-
-        RegisterSpecUpdater setNumberOfFractionDigits(int numberOfFractionDigits);
-
-        RegisterSpecUpdater setOverruledObisCode(ObisCode overruledObisCode);
-
-        RegisterSpecUpdater setOverflow(BigDecimal overflow);
-
-        /**
-         * Set the Multiplier of the RegisterSpec to the given <i>multiplier</i>.
-         * <p/>
-         * <b>Note:</b> By setting the Multiplier, you automatically set the MultiplierMode to {@link MultiplierMode#CONFIGURED_ON_OBJECT}
-         *
-         * @param multiplier the multiplier to set
-         */
-        RegisterSpecUpdater setMultiplier(BigDecimal multiplier);
-
-        /**
-         * Set the MultiplierMode to the given mode.
-         * <p/>
-         * <b>Note:</b> By setting the mode to either {@link MultiplierMode#VERSIONED} or {@link MultiplierMode#NONE},
-         * you automatically set a previously given Multiplier back to {@link BigDecimal#ONE}
-         *
-         * @param multiplierMode the given MultiplierMode
-         */
-        RegisterSpecUpdater setMultiplierMode(MultiplierMode multiplierMode);
-
-        /**
-         * Updates the RegisterSpec, preferably via his DeviceConfiguration
-         */
-        void update();
-
-
-    }
 }

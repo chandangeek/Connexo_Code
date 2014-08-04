@@ -1,20 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.RegisterType;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.Phenomenon;
@@ -30,6 +15,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -41,6 +27,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
@@ -49,12 +36,26 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeExcept
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
@@ -119,7 +120,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private Date modificationDate;
     private Clock clock;
     private final Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
-    private final Provider<RegisterSpecImpl> registerSpecProvider;
+    private final Provider<NumericalRegisterSpecImpl> numericalRegisterSpecProvider;
+    private final Provider<TextualRegisterSpecImpl> textualRegisterSpecProvider;
     private final Provider<LogBookSpecImpl> logBookSpecProvider;
     private final Provider<ChannelSpecImpl> channelSpecProvider;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -130,7 +132,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Inject
     protected DeviceConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock,
                                       Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
-                                      Provider<RegisterSpecImpl> registerSpecProvider,
+                                      Provider<NumericalRegisterSpecImpl> numericalRegisterSpecProvider,
+                                      Provider<TextualRegisterSpecImpl> textualRegisterSpecProvider,
                                       Provider<LogBookSpecImpl> logBookSpecProvider,
                                       Provider<ChannelSpecImpl> channelSpecProvider,
                                       Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory,
@@ -139,7 +142,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.clock = clock;
 
         this.loadProfileSpecProvider = loadProfileSpecProvider;
-        this.registerSpecProvider = registerSpecProvider;
+        this.numericalRegisterSpecProvider = numericalRegisterSpecProvider;
+        this.textualRegisterSpecProvider = textualRegisterSpecProvider;
         this.logBookSpecProvider = logBookSpecProvider;
         this.channelSpecProvider = channelSpecProvider;
         this.deviceConfValidationRuleSetUsageFactory = deviceConfValidationRuleSetUsageFactory;
@@ -380,19 +384,19 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterType registerType) {
-        return new RegisterSpecBuilderForConfig(registerSpecProvider, this, registerType);
+    public NumericalRegisterSpec.Builder createNumericalRegisterSpec(RegisterType registerType) {
+        return new NumericalRegisterSpecBuilderForConfig(this.numericalRegisterSpecProvider, this, registerType);
     }
 
-    class RegisterSpecBuilderForConfig extends RegisterSpecImpl.RegisterSpecBuilder {
+    class NumericalRegisterSpecBuilderForConfig extends NumericalRegisterSpecImpl.AbstractBuilder {
 
-        RegisterSpecBuilderForConfig(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterType registerType) {
+        NumericalRegisterSpecBuilderForConfig(Provider<NumericalRegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterType registerType) {
             super(registerSpecProvider, deviceConfiguration, registerType);
         }
 
         @Override
-        public RegisterSpec add() {
-            RegisterSpec registerSpec = super.add();
+        public NumericalRegisterSpec add() {
+            NumericalRegisterSpec registerSpec = super.add();
             validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewRegisterSpec(getThesaurus()));
             validateUniqueRegisterSpecObisCode(registerSpec);
             DeviceConfigurationImpl.this.registerSpecs.add(registerSpec);
@@ -401,19 +405,59 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public RegisterSpec.RegisterSpecUpdater getRegisterSpecUpdaterFor(RegisterSpec registerSpec) {
-        return new RegisterSpecUpdaterForConfig(registerSpec);
+    public TextualRegisterSpec.Builder createTextualRegisterSpec(RegisterType registerType) {
+        return new TextualRegisterSpecBuilderForConfig(this.textualRegisterSpecProvider, this, registerType);
     }
 
-    class RegisterSpecUpdaterForConfig extends RegisterSpecImpl.RegisterSpecUpdater {
+    class TextualRegisterSpecBuilderForConfig extends TextualRegisterSpecImpl.AbstractBuilder {
 
-        RegisterSpecUpdaterForConfig(RegisterSpec registerSpec) {
+        TextualRegisterSpecBuilderForConfig(Provider<TextualRegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterType registerType) {
+            super(registerSpecProvider, deviceConfiguration, registerType);
+        }
+
+        @Override
+        public TextualRegisterSpec add() {
+            TextualRegisterSpec registerSpec = super.add();
+            validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewRegisterSpec(getThesaurus()));
+            validateUniqueRegisterSpecObisCode(registerSpec);
+            DeviceConfigurationImpl.this.registerSpecs.add(registerSpec);
+            return registerSpec;
+        }
+
+    }
+
+    @Override
+    public NumericalRegisterSpec.Updater getRegisterSpecUpdaterFor(NumericalRegisterSpec registerSpec) {
+        return new NumericalRegisterSpecUpdaterForConfig(registerSpec);
+    }
+
+    class NumericalRegisterSpecUpdaterForConfig extends NumericalRegisterSpecImpl.AbstractUpdater {
+
+        NumericalRegisterSpecUpdaterForConfig(NumericalRegisterSpec registerSpec) {
             super(registerSpec);
         }
 
         @Override
         public void update() {
-            validateUniqueRegisterSpecObisCode(registerSpec);
+            validateUniqueRegisterSpecObisCode(this.updateTarget());
+            super.update();
+        }
+    }
+
+    @Override
+    public TextualRegisterSpec.Updater getRegisterSpecUpdaterFor(TextualRegisterSpec registerSpec) {
+        return new TextualRegisterSpecUpdaterForConfig(registerSpec);
+    }
+
+    class TextualRegisterSpecUpdaterForConfig extends TextualRegisterSpecImpl.AbstractUpdater {
+
+        TextualRegisterSpecUpdaterForConfig(TextualRegisterSpec registerSpec) {
+            super(registerSpec);
+        }
+
+        @Override
+        public void update() {
+            validateUniqueRegisterSpecObisCode(this.updateTarget());
             super.update();
         }
     }
