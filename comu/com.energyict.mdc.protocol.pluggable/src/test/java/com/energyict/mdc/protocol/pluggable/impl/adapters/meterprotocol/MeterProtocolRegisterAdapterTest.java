@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -74,21 +75,23 @@ public class MeterProtocolRegisterAdapterTest {
         when(this.environment.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(this.environment.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
-        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class), readingType)).
+        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class), any(ReadingType.class))).
             thenAnswer(new Answer<CollectedRegister>() {
                 @Override
                 public CollectedRegister answer(InvocationOnMock invocationOnMock) throws Throwable {
                     RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
+                    ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
                     MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier, readingType);
                     collectedRegister.setResultType(ResultType.Supported);
                     return collectedRegister;
                 }
             });
-        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class), readingType)).
+        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class), any(ReadingType.class))).
             thenAnswer(new Answer<CollectedRegister>() {
                 @Override
                 public CollectedRegister answer(InvocationOnMock invocationOnMock) throws Throwable {
                     RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
+                    ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
                     return new MockCollectedRegister(registerIdentifier, readingType);
                 }
             });
