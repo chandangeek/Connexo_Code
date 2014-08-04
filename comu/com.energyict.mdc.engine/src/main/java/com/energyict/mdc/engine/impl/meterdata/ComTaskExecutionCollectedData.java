@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.ComTaskExecutionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
@@ -55,10 +56,10 @@ public class ComTaskExecutionCollectedData extends CompositeCollectedData<Server
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService) {
+    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
         List<DeviceCommand> nestedCommands = new ArrayList<>(this.getElements().size());
         for (ServerCollectedData collectedData : this.getElements()) {
-            nestedCommands.add(collectedData.toDeviceCommand(issueService));
+            nestedCommands.add(collectedData.toDeviceCommand(issueService, meterDataStoreCommand));
         }
         return new ComTaskExecutionRootDeviceCommand(this.comTaskExecution, this.communicationLogLevel, nestedCommands);
     }

@@ -8,7 +8,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
-import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;

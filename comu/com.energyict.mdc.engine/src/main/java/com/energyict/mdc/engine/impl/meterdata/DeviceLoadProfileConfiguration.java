@@ -2,11 +2,13 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.List;
 
@@ -29,9 +31,9 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
     private final ObisCode obisCode;
 
     /**
-     * The serialNumber of the <CODE>Device</CODE>
+     * The DeviceIdentifier which owns this LoadProfile
      */
-    private final String meterSerialNumber;
+    private final DeviceIdentifier<?> deviceIdentifier;
 
     /**
      * The interval (in seconds) of this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
@@ -50,26 +52,24 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
 
     /**
      * Default constructor. {@link #supportedByMeter} will default be set to true
-     *
-     * @param obisCode the LoadProfileObisCode for this configuration
-     * @param meterSerialNumber the serialNumber of the master of this <code>LoadProfile</code>
+     *  @param obisCode the LoadProfileObisCode for this configuration
+     * @param deviceIdentifier the serialNumber of the master of this <code>LoadProfile</code>
      */
-    public DeviceLoadProfileConfiguration (ObisCode obisCode, String meterSerialNumber) {
+    public DeviceLoadProfileConfiguration (ObisCode obisCode, DeviceIdentifier<?> deviceIdentifier) {
         this.obisCode = obisCode;
-        this.meterSerialNumber = meterSerialNumber;
+        this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = true;
     }
 
     /**
      * Default constructor. {@link #supportedByMeter} will default be set to true
-     *
-     * @param obisCode the LoadProfileObisCode for this configuration
-     * @param meterSerialNumber the serialNumber of the master of this <code>LoadProfile</code>
+     *  @param obisCode the LoadProfileObisCode for this configuration
+     * @param deviceIdentifier the serialNumber of the master of this <code>LoadProfile</code>
      * @param supported indicates whether the <code>LoadProfile</code> is supported by the Device
      */
-    public DeviceLoadProfileConfiguration (ObisCode obisCode, String meterSerialNumber, boolean supported) {
+    public DeviceLoadProfileConfiguration (ObisCode obisCode, DeviceIdentifier<?> deviceIdentifier, boolean supported) {
         this.obisCode = obisCode;
-        this.meterSerialNumber = meterSerialNumber;
+        this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = supported;
     }
 
@@ -84,13 +84,13 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
     }
 
     /**
-     * Getter for the {@link #meterSerialNumber}
+     * Getter for the {@link #deviceIdentifier}
      *
-     * @return {@link #meterSerialNumber}
+     * @return {@link #deviceIdentifier}
      */
     @Override
-    public String getMeterSerialNumber () {
-        return meterSerialNumber;
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     /**
@@ -162,7 +162,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService) {
+    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
         return new NoopDeviceCommand();
     }
 

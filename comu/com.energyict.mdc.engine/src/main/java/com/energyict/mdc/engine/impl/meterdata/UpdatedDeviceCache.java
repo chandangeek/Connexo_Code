@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceCacheCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceCache;
@@ -63,7 +64,7 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService) {
+    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
         return new CollectedDeviceCacheCommand(this);
     }
 

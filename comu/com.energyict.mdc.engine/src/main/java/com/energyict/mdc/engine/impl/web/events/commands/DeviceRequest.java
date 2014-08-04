@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import java.util.ArrayList;

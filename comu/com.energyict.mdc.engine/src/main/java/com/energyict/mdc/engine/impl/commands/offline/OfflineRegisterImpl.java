@@ -1,11 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,7 +27,9 @@ public class OfflineRegisterImpl implements OfflineRegister {
     /**
      * The Register which will go Offline
      */
-    private final Register register;
+    private final Register<?> register;
+
+    private final Device device;
 
     /**
      * The ObisCode of the register which is know/used by the Device
@@ -48,15 +55,27 @@ public class OfflineRegisterImpl implements OfflineRegister {
      * The ID of the {@link RegisterGroup} where this registers belongs to.
      */
     private List<Long> registerGroupIds;
-
     /**
      * The serialNumber of the Device owning this Register
      */
     private String meterSerialNumber;
+    /**
+     * The database ID of the Device
+     */
     private long deviceId;
 
-    public OfflineRegisterImpl(final Register register) {
+    /**
+     * The ReadingType of the Register
+     */
+    private ReadingType readingType;
+    /**
+     * The configured OverFlow value
+     */
+    private BigDecimal overFlow;
+
+    public OfflineRegisterImpl(final Register<?> register) {
         this.register = register;
+        this.device = register.getDevice();
         this.deviceId = (int) register.getDevice().getId();
         this.goOffline();
     }
@@ -79,6 +98,8 @@ public class OfflineRegisterImpl implements OfflineRegister {
             this.registerGroupIds.add(registerGroup.getId());
         }
         this.meterSerialNumber = this.register.getDevice().getSerialNumber();
+        this.readingType = this.register.getRegisterSpec().getRegisterType().getReadingType();
+        this.overFlow = this.register.getRegisterSpec().getOverflowValue();
     }
 
     /**
@@ -140,4 +161,18 @@ public class OfflineRegisterImpl implements OfflineRegister {
         return this.deviceId;
     }
 
+    @Override
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDevice(this.device);
+    }
+
+    @Override
+    public ReadingType getReadingType() {
+        return this.readingType;
+    }
+
+    @Override
+    public BigDecimal getOverFlowValue() {
+        return this.overFlow;
+    }
 }

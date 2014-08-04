@@ -3,10 +3,15 @@ package com.energyict.mdc.engine.impl.commands.offline;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.engine.impl.LoadProfileIdentifierForAlreadyKnownLoadProfile;
 import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,6 +29,8 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      * The {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} which is going offline
      */
     private final LoadProfile loadProfile;
+
+    private final Device device;
 
     /**
      * The ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} that will go offline
@@ -59,7 +66,6 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      * The serialNumber of the master {@link com.energyict.mdc.protocol.api.device.BaseDevice Device}
      */
     private String serialNumber;
-
     /**
      * Represents a list of {@link OfflineLoadProfileChannel offlineLoadProfileChannels} which are owned by the master {@link com.energyict.mdc.protocol.api.device.BaseDevice Device}
      */
@@ -72,6 +78,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
 
     public OfflineLoadProfileImpl(final LoadProfile loadProfile) {
         this.loadProfile = loadProfile;
+        this.device = loadProfile.getDevice();
         goOffline();
     }
 
@@ -198,6 +205,16 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     @Override
     public List<OfflineLoadProfileChannel> getAllChannels() {
         return allLoadProfileChannels;
+    }
+
+    @Override
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDevice(this.device);
+    }
+
+    @Override
+    public LoadProfileIdentifier getLoadProfileIdentifier() {
+        return new LoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile);
     }
 
     private void setAllLoadProfileChannels(final List<OfflineLoadProfileChannel> allLoadProfileChannels) {

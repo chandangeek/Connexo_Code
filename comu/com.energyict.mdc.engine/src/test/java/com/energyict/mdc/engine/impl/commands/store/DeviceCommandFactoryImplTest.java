@@ -54,7 +54,7 @@ public class DeviceCommandFactoryImplTest {
         // Asserts
         assertThat(compositeDeviceCommand).isNotNull();
         assertThat(compositeDeviceCommand.getChildren()).hasSize(1);
-        verify(collectedData).toDeviceCommand(issueService);
+        verify(collectedData).toDeviceCommand(issueService, meterDataStoreCommand);
     }
 
     @Test
@@ -62,13 +62,13 @@ public class DeviceCommandFactoryImplTest {
         DeviceCommandFactory factory = new DeviceCommandFactoryImpl();
         DeviceCommand deviceCommand1 = mock(DeviceCommand.class);
         ServerCollectedData collectedData1 = mockCollectedData(deviceCommand1);
-        when(collectedData1.toDeviceCommand(issueService)).thenReturn(deviceCommand1);
+        when(collectedData1.toDeviceCommand(issueService, meterDataStoreCommand)).thenReturn(deviceCommand1);
         DeviceCommand deviceCommand2 = mock(DeviceCommand.class);
         ServerCollectedData collectedData2 = mockCollectedData(deviceCommand2);
-        when(collectedData2.toDeviceCommand(issueService)).thenReturn(deviceCommand2);
+        when(collectedData2.toDeviceCommand(issueService, meterDataStoreCommand)).thenReturn(deviceCommand2);
         DeviceCommand deviceCommand3 = mock(DeviceCommand.class);
         ServerCollectedData collectedData3 = mockCollectedData(deviceCommand3);
-        when(collectedData3.toDeviceCommand(issueService)).thenReturn(deviceCommand3);
+        when(collectedData3.toDeviceCommand(issueService, meterDataStoreCommand)).thenReturn(deviceCommand3);
 
         // Business method
         CompositeDeviceCommand compositeDeviceCommand = factory.newCompositeForAll(Arrays.asList(collectedData1, collectedData2, collectedData3), ComServer.LogLevel.INFO, issueService, builder);
@@ -85,7 +85,7 @@ public class DeviceCommandFactoryImplTest {
 
     private ServerCollectedData mockCollectedData (DeviceCommand deviceCommand) {
         ServerCollectedData mock = mock(ServerCollectedData.class);
-        when(mock.toDeviceCommand(issueService)).thenReturn(deviceCommand);
+        when(mock.toDeviceCommand(issueService, meterDataStoreCommand)).thenReturn(deviceCommand);
         return mock;
     }
 

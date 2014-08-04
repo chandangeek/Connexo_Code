@@ -65,7 +65,7 @@ public class CollectedMessageListDeviceCommandTest {
 
         DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage));
         deviceProtocolMessageList.addCollectedMessages(collectedMessage1);
-        DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(issueService);
+        DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(issueService, meterDataStoreCommand);
         command.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
@@ -94,7 +94,7 @@ public class CollectedMessageListDeviceCommandTest {
         DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2));
         deviceProtocolMessageList.addCollectedMessages(collectedMessage1);
         deviceProtocolMessageList.addCollectedMessages(collectedMessage2);
-        DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(issueService);
+        DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(issueService, meterDataStoreCommand);
 
 
         // Business method
@@ -123,7 +123,7 @@ public class CollectedMessageListDeviceCommandTest {
         DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2));
         deviceProtocolMessageList.addCollectedMessages(collectedMessage1);
         deviceProtocolMessageList.addCollectedMessages(collectedMessage2);
-        DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(issueService);
+        DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(issueService, meterDataStoreCommand);
 
 
         // Business method
@@ -154,7 +154,7 @@ public class CollectedMessageListDeviceCommandTest {
         deviceProtocolMessageList.addCollectedMessages(collectedMessage1);
         // only adding the CollectedResult for DeviceMessage 1
 
-        DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(issueService);
+        DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(issueService, meterDataStoreCommand);
         command.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 

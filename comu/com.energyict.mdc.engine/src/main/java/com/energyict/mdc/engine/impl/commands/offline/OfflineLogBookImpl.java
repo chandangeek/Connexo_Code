@@ -1,8 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.Date;
 
@@ -19,6 +22,8 @@ public class OfflineLogBookImpl implements OfflineLogBook {
      */
     private final LogBook logBook;
 
+    private final Device device;
+
     /**
      * The database ID of this {@link com.energyict.mdc.protocol.api.device.offline.OfflineDevice devices'} {@link com.energyict.mdc.protocol.api.device.BaseLogBook}
      */
@@ -33,7 +38,6 @@ public class OfflineLogBookImpl implements OfflineLogBook {
      * The serialNumber of the {@link com.energyict.mdc.protocol.api.device.BaseDevice Device}
      */
     private String serialNumber;
-
     /**
      * The Date from where to start fetching data from the {@link com.energyict.mdc.protocol.api.device.BaseLogBook}
      */
@@ -49,6 +53,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
 
     public OfflineLogBookImpl(LogBook logBook) {
         this.logBook = logBook;
+        this.device = logBook.getDevice();
         goOffline();
     }
 
@@ -94,6 +99,11 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     @Override
     public ObisCode getObisCode() {
         return obisCode;
+    }
+
+    @Override
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDevice(this.device);
     }
 
     public void setLogBookId(long logBookId) {

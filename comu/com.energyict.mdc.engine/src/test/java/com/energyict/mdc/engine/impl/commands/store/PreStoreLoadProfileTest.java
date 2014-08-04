@@ -56,7 +56,7 @@ import static org.mockito.Mockito.*;
  * Time: 15:30
  */
 @RunWith(MockitoJUnitRunner.class)
-public class LoadProfilePreStorerTest extends AbstractCollectedDataIntegrationTest {
+public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTest {
 
     static final String DEVICE_NAME = "DeviceName";
 
@@ -112,8 +112,8 @@ public class LoadProfilePreStorerTest extends AbstractCollectedDataIntegrationTe
             @Override
             public LoadProfileType perform() {
                 LoadProfileType loadProfileType = getInjector().getInstance(MasterDataService.class).newLoadProfileType("MyLoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15));
-                loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), kiloWattHours)).get()).get());
-                loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.2.8.0.255"), kiloWattHours)).get()).get());
+                loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(ObisCode.fromString("1.0.1.8.0.255"), kiloWattHours)).get()).get());
+                loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(ObisCode.fromString("1.0.2.8.0.255"), kiloWattHours)).get()).get());
                 loadProfileType.save();
                 return loadProfileType;
             }
@@ -143,8 +143,8 @@ public class LoadProfilePreStorerTest extends AbstractCollectedDataIntegrationTe
 
         assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 
-        LoadProfilePreStorer loadProfilePreStorer = new LoadProfilePreStorer(getClock(), getMdcReadingTypeUtilService());
-        LoadProfilePreStorer.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
         assertThat(localLoadProfile.getIntervalBlocks().get(0).getIntervals()).hasSize(4);
     }
@@ -158,8 +158,8 @@ public class LoadProfilePreStorerTest extends AbstractCollectedDataIntegrationTe
 
         freezeClock(currentTimeStamp);
 
-        LoadProfilePreStorer loadProfilePreStorer = new LoadProfilePreStorer(getClock(), getMdcReadingTypeUtilService());
-        LoadProfilePreStorer.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
@@ -184,8 +184,8 @@ public class LoadProfilePreStorerTest extends AbstractCollectedDataIntegrationTe
 
         freezeClock(currentTimeStamp);
 
-        LoadProfilePreStorer loadProfilePreStorer = new LoadProfilePreStorer(getClock(), getMdcReadingTypeUtilService());
-        LoadProfilePreStorer.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
@@ -210,8 +210,8 @@ public class LoadProfilePreStorerTest extends AbstractCollectedDataIntegrationTe
 
         freezeClock(currentTimeStamp);
 
-        LoadProfilePreStorer loadProfilePreStorer = new LoadProfilePreStorer(getClock(), getMdcReadingTypeUtilService());
-        LoadProfilePreStorer.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
@@ -244,8 +244,8 @@ public class LoadProfilePreStorerTest extends AbstractCollectedDataIntegrationTe
 
         freezeClock(currentTimeStamp);
 
-        LoadProfilePreStorer loadProfilePreStorer = new LoadProfilePreStorer(getClock(), getMdcReadingTypeUtilService());
-        LoadProfilePreStorer.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
@@ -279,8 +279,8 @@ public class LoadProfilePreStorerTest extends AbstractCollectedDataIntegrationTe
 
         freezeClock(currentTimeStamp);
 
-        LoadProfilePreStorer loadProfilePreStorer = new LoadProfilePreStorer(getClock(), getMdcReadingTypeUtilService());
-        LoadProfilePreStorer.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);

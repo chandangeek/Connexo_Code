@@ -5,7 +5,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.engine.impl.LoadProfileDataIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link LoadProfileDataIdentifier}.
+ * Tests the {@link com.energyict.mdc.engine.impl.LoadProfileDataIdentifier}.
  * <p/>
  * Copyrights EnergyICT
  * Date: 16/10/12

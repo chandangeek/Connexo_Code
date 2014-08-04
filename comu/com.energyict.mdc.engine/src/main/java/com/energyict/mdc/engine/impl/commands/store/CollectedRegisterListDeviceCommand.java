@@ -1,13 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.metering.readings.Reading;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
+import java.util.List;
 
 /**
  * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseRegister} data into the system
@@ -19,24 +20,29 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl {
 
     private final CollectedRegisterList collectedRegisterList;
+    private final MeterDataStoreCommand meterDataStoreCommand;
 
-    public CollectedRegisterListDeviceCommand(CollectedRegisterList collectedRegisterList) {
+    public CollectedRegisterListDeviceCommand(CollectedRegisterList collectedRegisterList, MeterDataStoreCommand meterDataStoreCommand) {
         super();
         this.collectedRegisterList = collectedRegisterList;
+        this.meterDataStoreCommand = meterDataStoreCommand;
     }
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        MeterReadingImpl meterReading = new MeterReadingImpl();
-        for (CollectedRegister collectedRegister : collectedRegisterList.getCollectedRegisters()) {
-            meterReading.addReading(MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister, collectedRegister.getRegisterIdentifier().getObisCode(), getMdcReadingTypeUtilService()));
+        PreStoreRegisters preStoreRegisters = new PreStoreRegisters(getMdcReadingTypeUtilService(), comServerDAO);
+        List<Reading> readings = preStoreRegisters.preStore(collectedRegisterList);
+        if(readings.size() > 0){
+            this.meterDataStoreCommand.addReadings(getDeviceIdentifier(), readings);
         }
+    }
 
-        comServerDAO.storeMeterReadings(collectedRegisterList.getDeviceIdentifier(), meterReading);
+    private DeviceIdentifier<Device> getDeviceIdentifier() {
+        return (DeviceIdentifier<Device>) collectedRegisterList.getDeviceIdentifier();
     }
 
     @Override
-    public ComServer.LogLevel getJournalingLogLevel () {
+    public ComServer.LogLevel getJournalingLogLevel() {
         return ComServer.LogLevel.INFO;
     }
 

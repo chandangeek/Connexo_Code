@@ -10,10 +10,14 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -27,14 +31,16 @@ import java.util.List;
  * Date: 7/30/14
  * Time: 9:34 AM
  */
-public class LoadProfilePreStorer {
+public class PreStoreLoadProfile {
 
     private final Clock clock;
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private final ComServerDAO comServerDAO;
 
-    public LoadProfilePreStorer(Clock clock, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+    public PreStoreLoadProfile(Clock clock, MdcReadingTypeUtilService mdcReadingTypeUtilService, ComServerDAO comServerDAO) {
         this.clock = clock;
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
+        this.comServerDAO = comServerDAO;
     }
 
     /**
@@ -50,18 +56,17 @@ public class LoadProfilePreStorer {
      * @return the preStored LoadProfile
      */
     LocalLoadProfile preStore(CollectedLoadProfile collectedLoadProfile) {
-        LoadProfileIdentifier loadProfileFinder = collectedLoadProfile.getLoadProfileIdentifier();
-        LoadProfile loadProfile = (LoadProfile) loadProfileFinder.findLoadProfile();
+        OfflineLoadProfile offlineLoadProfile = this.comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier());
         List<IntervalBlock> processedBlocks = new ArrayList<>();
         Date lastReading = null;
         Date currentDate = this.clock.now();
-        for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, loadProfile.getInterval(), this.mdcReadingTypeUtilService), collectedLoadProfile.getChannelInfo())) {
+        for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile, offlineLoadProfile.getInterval(), this.mdcReadingTypeUtilService), collectedLoadProfile.getChannelInfo())) {
             IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
             ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
 
             Unit configuredUnit = this.mdcReadingTypeUtilService.getReadingTypeInformationFor(channelInfo.getReadingTypeMRID()).getUnit();
             int scaler = getScaler(channelInfo.getUnit(), configuredUnit);
-            BigDecimal channelOverFlowValue = getChannelOverFlowValue(channelInfo, loadProfile);
+            BigDecimal channelOverFlowValue = getChannelOverFlowValue(channelInfo, offlineLoadProfile);
             IntervalBlockImpl processingBlock = new IntervalBlockImpl(intervalBlock.getReadingTypeCode());
             for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
                 if (!intervalReading.getTimeStamp().after(currentDate)) {
@@ -83,13 +88,13 @@ public class LoadProfilePreStorer {
         return scaledIntervalReading;
     }
 
-    private BigDecimal getChannelOverFlowValue(ChannelInfo channelInfo, LoadProfile loadProfile) {
-        for (Channel channel : loadProfile.getChannels()) {
+    private BigDecimal getChannelOverFlowValue(ChannelInfo channelInfo, OfflineLoadProfile offlineLoadProfile) {
+        for (OfflineLoadProfileChannel offlineLoadProfileChannel : offlineLoadProfile.getChannels()) {
             /**
              * Check the ObisCode, NOT the ReadingTye
              */
-            if(channel.getChannelSpec().getDeviceObisCode().equals(channelInfo.getChannelObisCode())){
-                return channel.getChannelSpec().getOverflow();
+            if(offlineLoadProfileChannel.getObisCode().equals(channelInfo.getChannelObisCode())){
+                return offlineLoadProfileChannel.getOverflow();
             }
         }
         return new BigDecimal(Double.MAX_VALUE);

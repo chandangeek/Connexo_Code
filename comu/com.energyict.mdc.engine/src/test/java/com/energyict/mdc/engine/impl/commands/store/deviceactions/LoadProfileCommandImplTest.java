@@ -104,7 +104,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         assertEquals("Expect 1 element in the list", 1, loadProfileCommand.getLoadProfileReaders().size());
         LoadProfileReader loadProfileReader = loadProfileCommand.getLoadProfileReaders().get(0);
         Assert.assertEquals(FIXED_LOAD_PROFILE_OBIS_CODE, loadProfileReader.getProfileObisCode());
-        Assert.assertEquals(FIXED_DEVICE_SERIAL_NUMBER, loadProfileReader.getMeterSerialNumber());
+        Assert.assertEquals(FIXED_DEVICE_SERIAL_NUMBER, loadProfileReader.getDeviceIdentifier());
         Assert.assertEquals(LAST_READING, loadProfileReader.getStartReadingTime());
         assertNotNull(loadProfileReader.getEndReadingTime());
     }

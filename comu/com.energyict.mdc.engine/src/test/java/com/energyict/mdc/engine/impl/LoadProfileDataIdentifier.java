@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.meterdata.identifiers;
+package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;

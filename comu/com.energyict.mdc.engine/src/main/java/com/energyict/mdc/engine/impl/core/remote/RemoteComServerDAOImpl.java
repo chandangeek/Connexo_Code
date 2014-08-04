@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -20,11 +21,14 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
@@ -46,6 +50,7 @@ import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -199,6 +204,26 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
+        return null;
+    }
+
+    @Override
+    public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
+        return null;
+    }
+
+    @Override
+    public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading) {
+
+    }
+
+    @Override
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+
+    }
+
+    @Override
     public void executionStarted (ComTaskExecution comTaskExecution, ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
@@ -269,7 +294,12 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public OfflineRegister findRegister(RegisterIdentifier identifier) {
+    public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
+        return null;
+    }
+
+    @Override
+    public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
         return null;
     }
 

@@ -138,12 +138,12 @@ public class ComTaskExecutionCollectedDataTest {
         ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
 
         // Business method
-        collectedData.toDeviceCommand(this.issueService);
+        collectedData.toDeviceCommand(this.issueService, meterDataStoreCommand);
 
         // Asserts
-        verify(cd1).toDeviceCommand(this.issueService);
-        verify(cd2).toDeviceCommand(this.issueService);
-        verify(cd3).toDeviceCommand(this.issueService);
+        verify(cd1).toDeviceCommand(this.issueService, meterDataStoreCommand);
+        verify(cd2).toDeviceCommand(this.issueService, meterDataStoreCommand);
+        verify(cd3).toDeviceCommand(this.issueService, meterDataStoreCommand);
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
@@ -12,7 +13,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.history.CompletionCode;
-import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -126,7 +126,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
      */
     private void handleRemovalOfSlave(ComServerDAO comServerDAO, OfflineDevice removedSlave) {
         if (deviceTopology.getTopologyAction() == TopologyAction.UPDATE) {
-            comServerDAO.updateGateway(new SerialNumberDeviceIdentifier(removedSlave.getSerialNumber()), null);
+            comServerDAO.updateGateway(new DeviceIdentifierById(removedSlave.getId(), getDeviceDataService()), null);
         }
     }
 

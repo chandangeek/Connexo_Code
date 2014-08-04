@@ -178,7 +178,7 @@ public aspect ComCommandLogging extends AbstractComCommandLogging {
         strBuilder.append("\t");
         strBuilder.append(loadProfileConfiguration.getObisCode());
         strBuilder.append("\t");
-        strBuilder.append(loadProfileConfiguration.getMeterSerialNumber());
+        strBuilder.append(loadProfileConfiguration.getDeviceIdentifier());
         if (loadProfileConfiguration.getChannelInfos() != null) {
             for (ChannelInfo channelInfo : loadProfileConfiguration.getChannelInfos()) {
                 strBuilder.append("\r\n");

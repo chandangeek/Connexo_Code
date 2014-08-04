@@ -8,6 +8,8 @@ import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -23,6 +25,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import com.google.common.base.Optional;
@@ -425,6 +428,11 @@ public class OfflineDeviceImpl implements OfflineDevice {
     @Override
     public DeviceProtocolCache getDeviceProtocolCache() {
         return deviceProtocolCache;
+    }
+
+    @Override
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDevice(device);
     }
 
     private void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
@@ -23,8 +24,8 @@ public class AdapterDeviceRegister extends MaximumDemandDeviceRegister {
      *
      * @param registerIdentifier the register identifier linked the to readOut data
      */
-    public AdapterDeviceRegister(RegisterIdentifier registerIdentifier) {
-        super(registerIdentifier);
+    public AdapterDeviceRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+        super(registerIdentifier, readingType);
     }
 
 }

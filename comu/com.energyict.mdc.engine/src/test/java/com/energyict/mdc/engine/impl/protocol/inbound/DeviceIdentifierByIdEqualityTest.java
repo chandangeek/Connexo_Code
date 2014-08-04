@@ -6,12 +6,13 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 
 import java.util.Arrays;
 
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import org.junit.*;
 
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests the equals contract of the {@link DeviceIdentifierById} component.
+ * Tests the equals contract of the {@link com.energyict.mdc.engine.impl.DeviceIdentifierById} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-05-06 (11:53)

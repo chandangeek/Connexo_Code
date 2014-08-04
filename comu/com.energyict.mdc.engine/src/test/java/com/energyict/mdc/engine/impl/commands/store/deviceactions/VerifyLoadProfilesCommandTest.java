@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import org.junit.Test;
@@ -139,7 +138,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         when(loadProfileReader.getProfileObisCode()).thenReturn(ObisCode.fromString("0.0.0.0.0.0"));
         LoadProfileReader loadProfileReader2 = mock(LoadProfileReader.class);
         when(loadProfileReader2.getProfileObisCode()).thenReturn(LoadProfileObisCode);
-        when(loadProfileReader2.getMeterSerialNumber()).thenReturn(MeterSerialNumber);
+        when(loadProfileReader2.getDeviceIdentifier()).thenReturn(MeterSerialNumber);
 
         when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
         when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Arrays.asList(loadProfileReader, loadProfileReader2));
@@ -148,7 +147,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
-        when(loadProfileConfiguration.getMeterSerialNumber()).thenReturn(MeterSerialNumber);
+        when(loadProfileConfiguration.getDeviceIdentifier()).thenReturn(MeterSerialNumber);
 
         //asserts
         assertNotNull(verifyLoadProfilesCommand.getLoadProfileReaderForGivenLoadProfileConfiguration(loadProfileConfiguration));
@@ -167,7 +166,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
-        when(loadProfileConfiguration.getMeterSerialNumber()).thenReturn(MeterSerialNumber);
+        when(loadProfileConfiguration.getDeviceIdentifier()).thenReturn(MeterSerialNumber);
         when(loadProfileConfiguration.getProfileInterval()).thenReturn(ProfileIntervalInSeconds);
 
         verifyLoadProfilesCommand.verifyProfileInterval(loadProfileReader, loadProfileConfiguration);
@@ -192,7 +191,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = mock(DeviceLoadProfileConfiguration.class);
         when(loadProfileConfiguration.getObisCode()).thenReturn(LoadProfileObisCode);
-        when(loadProfileConfiguration.getMeterSerialNumber()).thenReturn(MeterSerialNumber);
+        when(loadProfileConfiguration.getDeviceIdentifier()).thenReturn(MeterSerialNumber);
         when(loadProfileConfiguration.getProfileInterval()).thenReturn(ProfileIntervalInSeconds);
 
         verifyLoadProfilesCommand.verifyProfileInterval(loadProfileReader, loadProfileConfiguration);
@@ -400,7 +399,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     private LoadProfileReader createSimpleLoadProfileReader() {
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
         when(loadProfileReader.getProfileObisCode()).thenReturn(LoadProfileObisCode);
-        when(loadProfileReader.getMeterSerialNumber()).thenReturn(MeterSerialNumber);
+        when(loadProfileReader.getDeviceIdentifier()).thenReturn(MeterSerialNumber);
         return loadProfileReader;
     }
 }

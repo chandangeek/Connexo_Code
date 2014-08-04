@@ -167,18 +167,19 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     /**
      * Add the given BaseLoadProfile to the {@link #loadProfileReaderMap readerMap}
      *
-     * @param loadProfile the loadProfile to add
+     * @param offlineLoadProfile the loadProfile to add
      */
-    protected void addLoadProfileToReaderList(final OfflineLoadProfile loadProfile) {
+    protected void addLoadProfileToReaderList(final OfflineLoadProfile offlineLoadProfile) {
         LoadProfileReader loadProfileReader =
                 new LoadProfileReader(
-                        loadProfile.getObisCode(),
-                        loadProfile.getLastReading(),
+                        offlineLoadProfile.getObisCode(),
+                        offlineLoadProfile.getLastReading(),
                         null,
-                        loadProfile.getLoadProfileId(),
-                        loadProfile.getMasterSerialNumber(),
-                        createChannelInfos(loadProfile));
-        this.loadProfileReaderMap.put(loadProfileReader, loadProfile);
+                        offlineLoadProfile.getLoadProfileId(),
+                        offlineLoadProfile.getDeviceIdentifier(),
+                        createChannelInfos(offlineLoadProfile), offlineLoadProfile.getMasterSerialNumber(),
+                        offlineLoadProfile.getLoadProfileIdentifier());
+        this.loadProfileReaderMap.put(loadProfileReader, offlineLoadProfile);
     }
 
     /**

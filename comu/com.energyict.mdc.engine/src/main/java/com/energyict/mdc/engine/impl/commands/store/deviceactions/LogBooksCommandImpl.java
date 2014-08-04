@@ -98,7 +98,7 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
                         logBook.getObisCode(),
                         logBook.getLastLogBook(),
                         logBookIdentifier,
-                        logBook.getMasterSerialNumber());
+                        logBook.getDeviceIdentifier());
         this.logBookReaders.add(logBookReader);
     }
 

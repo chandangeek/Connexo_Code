@@ -4,6 +4,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -42,7 +43,7 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
     private List<ChannelInfo> deviceChannelInfo;
 
     /**
-     * Indication whether to store {@link IntervalData} before the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile#getLastReading() lastReading} of
+     * Indication whether to store {@link IntervalData} before the lastReading of
      * a {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
      * <ul>
      * <li>true: store values before the lastReading</li>
@@ -52,8 +53,8 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
     private boolean doStoreOlderValues = false;
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedLoadProfileDeviceCommand(this);
+    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
+        return new CollectedLoadProfileDeviceCommand(this, meterDataStoreCommand);
     }
 
     /**
@@ -72,7 +73,7 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
     }
 
     /**
-     * @return the collected {@link IntervalData} since {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile#getLastReading()}
+     * @return the collected {@link IntervalData} since lastReading
      */
     @Override
     public List<IntervalData> getCollectedIntervalData() {

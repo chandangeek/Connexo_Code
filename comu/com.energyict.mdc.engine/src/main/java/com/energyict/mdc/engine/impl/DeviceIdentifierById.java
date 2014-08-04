@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.protocol.inbound;
+package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;

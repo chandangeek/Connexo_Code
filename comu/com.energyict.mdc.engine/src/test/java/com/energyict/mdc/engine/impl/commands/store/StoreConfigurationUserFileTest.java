@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
-import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.engine.model.ComServer;
 import org.junit.*;

@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
@@ -81,7 +82,6 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * The used {@link MarkIntervalsAsBadTimeCommandImpl}
      */
     private MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand;
-
     /**
      * The used {@link CreateMeterEventsFromStatusFlagsCommand}
      */
@@ -102,7 +102,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
         this.logBooksTask = logBooksTask;
         this.device = device;
 
-        if(this.loadProfilesTask != null){
+        if (this.loadProfilesTask != null) {
             /**
              * It is important that the VerifyLoadProfilesCommand is first added to the command list.
              * The Execute method will chronologically execute all the commands so this one should be first
@@ -122,7 +122,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
             createLoadProfileReaders();
         }
 
-        if(this.logBooksTask != null){
+        if (this.logBooksTask != null) {
             /* Adding it a second time is oké, the root will check if it exists and return the existing one */
             this.readLegacyLoadProfileLogBooksDataCommand = getCommandRoot().getReadLegacyLoadProfileLogBooksDataCommand(this, comTaskExecution);
             createLogBookReaders(this.device);
@@ -130,7 +130,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     }
 
     @Override
-    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
+    protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (this.logBooksTask != null) {
             PropertyDescriptionBuilder logbookObisCodesBuilder = builder.addListProperty("logbookObisCodes");
@@ -139,34 +139,32 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
         }
     }
 
-    private void logBookObisCodes (PropertyDescriptionBuilder builder) {
+    private void logBookObisCodes(PropertyDescriptionBuilder builder) {
         if (!logBookReaders.isEmpty()) {
             this.doLogBookObisCodes(builder);
-        }
-        else {
+        } else {
             builder.append("none");
         }
     }
 
-    private void doLogBookObisCodes (PropertyDescriptionBuilder builder) {
+    private void doLogBookObisCodes(PropertyDescriptionBuilder builder) {
         for (LogBookReader logBookReader : logBookReaders) {
             builder = builder.append(logBookReader.getLogBookObisCode()).next();
         }
     }
 
-    private void loadProfileObisCodes (DescriptionBuilder builder) {
+    private void loadProfileObisCodes(DescriptionBuilder builder) {
         if (loadProfilesTask != null &&
-            !loadProfilesTask.getLoadProfileTypes().isEmpty()) {
+                !loadProfilesTask.getLoadProfileTypes().isEmpty()) {
             this.doLoadProfileObisCodes(builder.addListProperty("loadProfileObisCodes"));
             builder.addProperty("markAsBadTime").append(this.loadProfilesTask.isMarkIntervalsAsBadTime());
             builder.addProperty("createEventsFromStatusFlag").append(this.loadProfilesTask.createMeterEventsFromStatusFlags());
-        }
-        else {
+        } else {
             builder.addProperty("loadProfileObisCodes").append("none");
         }
     }
 
-    private void doLoadProfileObisCodes (PropertyDescriptionBuilder builder) {
+    private void doLoadProfileObisCodes(PropertyDescriptionBuilder builder) {
         for (LoadProfileType loadProfileType : loadProfilesTask.getLoadProfileTypes()) {
             builder = builder.append(loadProfileType.getObisCode());
         }
@@ -213,8 +211,8 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      */
     protected void addLoadProfileToReaderList(final OfflineLoadProfile loadProfile) {
         LoadProfileReader loadProfileReader = new LoadProfileReader(loadProfile.getObisCode(),
-                loadProfile.getLastReading(), null, loadProfile.getLoadProfileId(), loadProfile.getMasterSerialNumber(),
-                createChannelInfos(loadProfile));
+                loadProfile.getLastReading(), null, loadProfile.getLoadProfileId(), new DeviceIdentifierById(loadProfile.getDeviceId(), getCommandRoot().getServiceProvider().deviceDataService()),
+                createChannelInfos(loadProfile), loadProfile.getMasterSerialNumber(), loadProfile.getLoadProfileIdentifier());
         this.loadProfileReaderMap.put(loadProfileReader, loadProfile);
     }
 
@@ -270,7 +268,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     protected void addLogBookToReaderList(final OfflineLogBook logBook) {
         LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl(logBook.getLogBookId(), getCommandRoot().getServiceProvider().deviceDataService());
         LogBookReader logBookReader = new LogBookReader(logBook.getObisCode(),
-                logBook.getLastLogBook(), logBookIdentifier, logBook.getMasterSerialNumber());
+                logBook.getLastLogBook(), logBookIdentifier, logBook.getDeviceIdentifier());
         this.logBookReaders.add(logBookReader);
     }
 

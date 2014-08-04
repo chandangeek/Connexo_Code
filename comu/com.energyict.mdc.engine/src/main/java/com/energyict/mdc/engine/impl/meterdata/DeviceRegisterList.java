@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.impl.commands.store.CollectedRegisterListDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
@@ -17,9 +18,9 @@ import java.util.List;
 
 public class DeviceRegisterList extends CompositeCollectedData<CollectedRegister> implements CollectedRegisterList {
 
-    private final DeviceIdentifier deviceIdentifier;
+    private final DeviceIdentifier<?> deviceIdentifier;
 
-    public DeviceRegisterList(DeviceIdentifier deviceIdentifier) {
+    public DeviceRegisterList(DeviceIdentifier<?> deviceIdentifier) {
         this.deviceIdentifier = deviceIdentifier;
     }
 
@@ -34,14 +35,14 @@ public class DeviceRegisterList extends CompositeCollectedData<CollectedRegister
     }
 
     @Override
-    public DeviceIdentifier getDeviceIdentifier() {
+    public DeviceIdentifier<?> getDeviceIdentifier() {
         return deviceIdentifier;
     }
 
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedRegisterListDeviceCommand(this);
+    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
+        return new CollectedRegisterListDeviceCommand(this, meterDataStoreCommand);
     }
 
     @Override

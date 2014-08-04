@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.impl.commands.store.CollectedRegisterListDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -23,13 +24,13 @@ import java.util.List;
 public class DeviceProtocolMessageWithCollectedRegisterData extends CollectedDeviceData implements CollectedMessage, CollectedRegisterList {
 
     private final MessageIdentifier deviceMessageIdentifier;
-    private final DeviceIdentifier deviceIdentifier;
+    private final DeviceIdentifier<?> deviceIdentifier;
     private List<CollectedRegister> collectedRegisters;
 
     private DeviceMessageStatus deviceMessageStatus;
     private String deviceProtocolInformation;
 
-    public DeviceProtocolMessageWithCollectedRegisterData (DeviceIdentifier deviceIdentifier, MessageIdentifier deviceMessageIdentifier, List<CollectedRegister> collectedRegisters) {
+    public DeviceProtocolMessageWithCollectedRegisterData (DeviceIdentifier<?> deviceIdentifier, MessageIdentifier deviceMessageIdentifier, List<CollectedRegister> collectedRegisters) {
         this.deviceIdentifier = deviceIdentifier;
         this.deviceMessageIdentifier = deviceMessageIdentifier;
         this.collectedRegisters = collectedRegisters;
@@ -66,8 +67,8 @@ public class DeviceProtocolMessageWithCollectedRegisterData extends CollectedDev
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedRegisterListDeviceCommand(this);
+    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
+        return new CollectedRegisterListDeviceCommand(this, meterDataStoreCommand);
     }
 
     @Override
@@ -81,7 +82,7 @@ public class DeviceProtocolMessageWithCollectedRegisterData extends CollectedDev
     }
 
     @Override
-    public DeviceIdentifier getDeviceIdentifier () {
+    public DeviceIdentifier<?> getDeviceIdentifier () {
         return deviceIdentifier;
     }
 }

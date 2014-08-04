@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
-import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
 import org.junit.*;
 import org.junit.runner.*;

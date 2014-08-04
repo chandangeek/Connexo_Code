@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -55,7 +56,7 @@ public class DeviceProtocolMessage extends CollectedDeviceData implements Collec
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService) {
+    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
         return new NoopDeviceCommand();
     }
 }

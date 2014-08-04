@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
-import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -61,7 +61,7 @@ public class DeviceIpAddressTest {
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
-        DeviceCommand command = deviceIpAddress.toDeviceCommand(issueService);
+        DeviceCommand command = deviceIpAddress.toDeviceCommand(issueService, meterDataStoreCommand);
 
         // Asserts
         assertThat(command).isNotNull();

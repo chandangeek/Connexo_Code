@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -11,11 +12,14 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
@@ -28,6 +32,7 @@ import com.elster.jupiter.transaction.Transaction;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -114,7 +119,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public OfflineRegister findRegister(RegisterIdentifier identifier) {
+    public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
+        return null;
+    }
+
+    @Override
+    public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
         return null;
     }
 
@@ -214,6 +224,26 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
+        return this.actual.getDeviceIdentifierFor(loadProfileIdentifier);
+    }
+
+    @Override
+    public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
+        return this.actual.getDeviceIdentifierFor(logBookIdentifier);
+    }
+
+    @Override
+    public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading) {
+        this.actual.updateLastReadingFor(loadProfileIdentifier, lastReading);
+    }
+
+    @Override
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+        this.actual.updateLastLogBook(logBookIdentifier, lastLogBook);
+    }
+
+    @Override
     public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
         return this.actual.createComSession(builder, successIndicator);
     }
@@ -266,6 +296,26 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
+            return null;
+        }
+
+        @Override
+        public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
+            return null;
+        }
+
+        @Override
+        public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading) {
+
+        }
+
+        @Override
+        public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+
+        }
+
+        @Override
         public List<ComTaskExecution> findExecutableInboundComTasks (OfflineDevice device, InboundComPort comPort) {
             return null;
         }
@@ -276,7 +326,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public OfflineRegister findRegister(RegisterIdentifier identifier) {
+        public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
+            return null;
+        }
+
+        @Override
+        public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
             return null;
         }
 

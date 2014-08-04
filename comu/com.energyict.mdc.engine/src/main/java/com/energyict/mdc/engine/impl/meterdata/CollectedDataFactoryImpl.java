@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
@@ -52,23 +53,23 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
-    public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier) {
-        return new MaximumDemandDeviceRegister(registerIdentifier);
+    public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+        return new MaximumDemandDeviceRegister(registerIdentifier, readingType);
     }
 
     @Override
-    public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier) {
-        return new AdapterDeviceRegister(registerIdentifier);
+    public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+        return new AdapterDeviceRegister(registerIdentifier, readingType);
     }
 
     @Override
-    public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier) {
-        return new BillingDeviceRegisters(registerIdentifier);
+    public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+        return new BillingDeviceRegisters(registerIdentifier, readingType);
     }
 
     @Override
-    public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier) {
-        return new DefaultDeviceRegister(registerIdentifier);
+    public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+        return new DefaultDeviceRegister(registerIdentifier, readingType);
     }
 
     @Override
@@ -100,13 +101,13 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
-    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, String meterSerialNumber) {
-        return new DeviceLoadProfileConfiguration(profileObisCode, meterSerialNumber);
+    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier<?> deviceIdentifier) {
+        return new DeviceLoadProfileConfiguration(profileObisCode, deviceIdentifier);
     }
 
     @Override
-    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, String meterSerialNumber, boolean supported) {
-        return new DeviceLoadProfileConfiguration(profileObisCode, meterSerialNumber, supported);
+    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier<?> deviceIdentifier, boolean supported) {
+        return new DeviceLoadProfileConfiguration(profileObisCode, deviceIdentifier, supported);
     }
 
     @Override

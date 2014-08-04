@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
@@ -32,12 +34,12 @@ public class MaximumDemandDeviceRegister extends DeviceRegister {
      *
      * @param registerIdentifier the register identifier linked the to readOut data
      */
-    public MaximumDemandDeviceRegister(RegisterIdentifier registerIdentifier) {
-        super(registerIdentifier);
+    public MaximumDemandDeviceRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+        super(registerIdentifier, readingType);
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService) {
+    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
         return new NoopDeviceCommand();
     }
 

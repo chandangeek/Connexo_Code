@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.impl.commands.store.CollectedMessageListDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -29,8 +30,8 @@ public class DeviceProtocolMessageList extends CompositeCollectedData<CollectedM
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedMessageListDeviceCommand(this, offlineDeviceMessages);
+    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
+        return new CollectedMessageListDeviceCommand(this, offlineDeviceMessages, meterDataStoreCommand);
     }
 
     @Override

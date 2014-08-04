@@ -6,6 +6,8 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 
+import java.math.BigDecimal;
+
 
 /**
  * An offline implementation version of a {@link com.energyict.mdc.protocol.api.device.BaseChannel} mainly containing information which is relevant to use at offline-time.
@@ -52,6 +54,10 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
      * The ReadingType of the Kore channel that will store the data
      */
     private ReadingType readingType;
+    /**
+     * The configured overflow
+     */
+    private BigDecimal overflow;
 
     public OfflineLoadProfileChannelImpl(Channel channel) {
         this.channel = channel;
@@ -71,6 +77,7 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
         setStoreData(true);
         setSerialNumber(this.channel.getDevice().getSerialNumber());
         setReadingType(this.channel.getChannelSpec().getReadingType());
+        this.overflow = this.channel.getChannelSpec().getOverflow();
     }
 
     /**
@@ -136,6 +143,11 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     @Override
     public ReadingType getReadingType() {
         return this.readingType;
+    }
+
+    @Override
+    public BigDecimal getOverflow() {
+        return this.overflow;
     }
 
     private void setChannelObisCode(final ObisCode channelObisCode) {

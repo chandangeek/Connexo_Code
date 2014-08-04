@@ -10,13 +10,11 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
-import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -72,7 +70,7 @@ public class CollectedRegisterListDeviceCommandTest {
     @Before
     public void initializeMocksAndFactories() {
         when(this.offlineDevice.getId()).thenReturn(DEVICE_ID);
-        when(comServerDAO.findRegister(any(RegisterIdentifier.class))).thenReturn(offlineRegister);
+        when(comServerDAO.findOfflineRegister(any(RegisterIdentifier.class))).thenReturn(offlineRegister);
         when(offlineRegister.getRegisterId()).thenReturn(REGISTER_ID);
         when(offlineRegister.getObisCode()).thenReturn(REGISTER_OBIS);
 
@@ -92,7 +90,7 @@ public class CollectedRegisterListDeviceCommandTest {
 
     @Test
     public void testExecutionOfDeviceCommand() {
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList());
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), meterDataStoreCommand);
         command.logExecutionWith(this.executionLogger);
 
         // Business methods
@@ -113,7 +111,7 @@ public class CollectedRegisterListDeviceCommandTest {
 
     @Test
     public void testToJournalMessageDescription() {
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList());
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), meterDataStoreCommand);
         command.logExecutionWith(this.executionLogger);
 
         // Business methods

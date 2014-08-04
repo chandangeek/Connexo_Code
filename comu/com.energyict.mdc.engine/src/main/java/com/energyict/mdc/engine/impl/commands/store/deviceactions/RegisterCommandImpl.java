@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
-import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -64,7 +64,7 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
         }
         ReadRegistersCommand readRegistersCommand = getCommandRoot().getReadRegistersCommand(this, comTaskExecution);
         readRegistersCommand.addRegisters(registers);
-        deviceRegisterList = new DeviceRegisterList(new DeviceIdentifierById(device.getId(), getCommandRoot().getServiceProvider().deviceDataService()));
+        deviceRegisterList = new DeviceRegisterList(device.getDeviceIdentifier());
     }
 
     private List<Long> getRegisterGroupIds () {

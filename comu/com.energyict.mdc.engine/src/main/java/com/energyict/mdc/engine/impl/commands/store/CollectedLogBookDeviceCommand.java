@@ -1,15 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
-import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
-import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,33 +22,30 @@ import java.util.List;
 public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
 
     private final DeviceLogBook deviceLogBook;
+    private final MeterDataStoreCommand meterDataStoreCommand;
+    private ComServerDAO comServerDAO;
 
 
     private interface Duo<A,B>{}
 
-    public CollectedLogBookDeviceCommand(DeviceLogBook deviceLogBook) {
+    public CollectedLogBookDeviceCommand(DeviceLogBook deviceLogBook, MeterDataStoreCommand meterDataStoreCommand) {
         super();
         this.deviceLogBook = deviceLogBook;
+        this.meterDataStoreCommand = meterDataStoreCommand;
     }
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        LogBookIdentifier logBookIdentifier = this.deviceLogBook.getLogBookIdentifier();
-        LogBook logBook = (LogBook) logBookIdentifier.getLogBook();
-
+        this.comServerDAO = comServerDAO;
         LocalLogBook localLogBook = filterFutureDatesAndCalculateLastReading();
-        storeEventsAndUpdateLastLogbook(comServerDAO, logBook, localLogBook);
+        storeEventsAndUpdateLastLogbook(localLogBook);
     }
 
-    private void storeEventsAndUpdateLastLogbook(ComServerDAO comServerDAO, LogBook logBook, LocalLogBook localLogBook) {
+    private void storeEventsAndUpdateLastLogbook(LocalLogBook localLogBook) {
         if (localLogBook.endDeviceEvents.size() > 0) {
-            MeterReadingImpl meterReading = new MeterReadingImpl();
-            meterReading.addAllEndDeviceEvents(localLogBook.endDeviceEvents);
-            Device device = logBook.getDevice();
-            comServerDAO.storeMeterReadings(new DeviceIdentifierById(device.getId(), getDeviceDataService()), meterReading);
-            LogBook.LogBookUpdater logBookUpdaterFor = device.getLogBookUpdaterFor(logBook);
-            logBookUpdaterFor.setLastLogBookIfLater(localLogBook.lastLogbook);
-            logBookUpdaterFor.update();
+            DeviceIdentifier<Device> deviceIdentifier = this.comServerDAO.getDeviceIdentifierFor(this.deviceLogBook.getLogBookIdentifier());
+            this.meterDataStoreCommand.addEventReadings(deviceIdentifier, localLogBook.endDeviceEvents);
+            this.meterDataStoreCommand.addLastLogBookUpdater(this.deviceLogBook.getLogBookIdentifier(), localLogBook.lastLogbook);
         }
     }
 

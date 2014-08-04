@@ -171,7 +171,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         assertEquals("Expect 1 element in the list", 1, legacyCommand.getLoadProfileReaders().size());
         LoadProfileReader loadProfileReader = legacyCommand.getLoadProfileReaders().get(0);
         assertEquals(FIXED_LOAD_PROFILE_OBIS_CODE, loadProfileReader.getProfileObisCode());
-        assertEquals(FIXED_DEVICE_SERIAL_NUMBER, loadProfileReader.getMeterSerialNumber());
+        assertEquals(FIXED_DEVICE_SERIAL_NUMBER, loadProfileReader.getDeviceIdentifier());
         assertEquals(LAST_READING.now(), loadProfileReader.getStartReadingTime());
         assertNotNull(loadProfileReader.getEndReadingTime());
     }

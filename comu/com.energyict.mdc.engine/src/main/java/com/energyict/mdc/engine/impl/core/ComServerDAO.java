@@ -12,10 +12,13 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.tasks.history.ComSession;
@@ -23,6 +26,7 @@ import com.energyict.mdc.tasks.history.ComSessionBuilder;
 
 import java.text.DateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -269,7 +273,9 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param identifier The RegisterIdentifier
      * @return The offline version of the Register that is identified by the RegisterIdentifier
      */
-    public OfflineRegister findRegister (RegisterIdentifier identifier);
+    public OfflineRegister findOfflineRegister(RegisterIdentifier identifier);
+
+    public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier);
 
     //TODO enable once messages are ported
 //    /**
@@ -360,5 +366,13 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param transaction the transaction to execute
      */
     public <T> T executeTransaction(Transaction<T> transaction);
+
+    public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier);
+
+    public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier);
+
+    public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading);
+
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook);
 
 }

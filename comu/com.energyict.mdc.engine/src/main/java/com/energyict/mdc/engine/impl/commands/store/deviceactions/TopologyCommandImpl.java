@@ -2,6 +2,8 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
@@ -13,9 +15,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
-import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +58,7 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
     private List<DeviceIdentifier> getSlaveIdentifiersFromOfflineDevices() {
         List<DeviceIdentifier> slaveIdentifiers = new ArrayList<>();
         for (OfflineDevice device : this.offlineDevice.getAllSlaveDevices()) {
-            slaveIdentifiers.add(new SerialNumberDeviceIdentifier(device.getSerialNumber()));
+            slaveIdentifiers.add(new DeviceIdentifierById(device.getId(), getCommandRoot().getServiceProvider().deviceDataService()));
         }
         return slaveIdentifiers;
     }

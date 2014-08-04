@@ -20,11 +20,10 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.engine.impl.meterdata.identifiers.RegisterDataIdentifier;
-import com.energyict.mdc.engine.impl.protocol.inbound.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.metering.impl.ObisCodeToReadingTypeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
@@ -35,7 +34,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -103,7 +101,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
 
         DeviceRegisterList collectedRegisterList = new DeviceRegisterList(deviceIdentifier);
         collectedRegisterList.addCollectedRegister(collectedRegister);
-        CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList);
+        CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, meterDataStoreCommand);
 
         ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
 

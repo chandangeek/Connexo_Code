@@ -41,21 +41,19 @@ public final class MeterDataFactory {
      * Creates a {@link Reading} based on the given CollectedRegister and the ObisCode.
      *
      * @param deviceRegister The given collectedRegister
-     * @param obisCode The obisCode of the collectedRegister
-     * @param readingTypeUtilService The MdcReadingTypeUtilService
      * @return the newly created Reading
      */
-    public static Reading createReadingForDeviceRegisterAndObisCode(final CollectedRegister deviceRegister, final ObisCode obisCode, MdcReadingTypeUtilService readingTypeUtilService) {
-        ReadingImpl reading = getRegisterReading(deviceRegister, obisCode, readingTypeUtilService);
+    public static Reading createReadingForDeviceRegisterAndObisCode(final CollectedRegister deviceRegister) {
+        ReadingImpl reading = getRegisterReading(deviceRegister);
         if (deviceRegister.getFromTime() != null && deviceRegister.getToTime() != null) {
             reading.setInterval(deviceRegister.getFromTime(), deviceRegister.getToTime());
         }
         return reading;
     }
 
-    private static ReadingImpl getRegisterReading(final CollectedRegister collectedRegister, final ObisCode obisCode, MdcReadingTypeUtilService readingTypeUtilService) {
+    private static ReadingImpl getRegisterReading(final CollectedRegister collectedRegister) {
         return new ReadingImpl(
-                readingTypeUtilService.getReadingTypeFrom(obisCode, collectedRegister.getCollectedQuantity().getUnit()),
+                collectedRegister.getReadingType().getMRID(),
                 collectedRegister.getCollectedQuantity().getAmount(),
                 collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime());
     }

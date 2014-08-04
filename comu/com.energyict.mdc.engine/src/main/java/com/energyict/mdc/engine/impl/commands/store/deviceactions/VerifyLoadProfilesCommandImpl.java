@@ -232,7 +232,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     protected LoadProfileReader getLoadProfileReaderForGivenLoadProfileConfiguration(final CollectedLoadProfileConfiguration loadProfileConfiguration) {
         for (LoadProfileReader loadProfileReader : loadProfileCommand.getLoadProfileReaders()) {
             if (loadProfileReader.getProfileObisCode().equalsIgnoreBChannel(loadProfileConfiguration.getObisCode()) &&
-                    loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(loadProfileConfiguration.getMeterSerialNumber())) {
+                    loadProfileReader.getDeviceIdentifier().getIdentifier().equals(loadProfileConfiguration.getDeviceIdentifier().getIdentifier())) {
                 return loadProfileReader;
             }
         }

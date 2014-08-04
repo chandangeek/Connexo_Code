@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLogBookDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -46,8 +47,8 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
     }
 
     @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService) {
-        return new CollectedLogBookDeviceCommand(this);
+    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
+        return new CollectedLogBookDeviceCommand(this, meterDataStoreCommand);
     }
 
     @Override

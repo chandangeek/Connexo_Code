@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
@@ -23,6 +24,11 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
      * The identifier of the referenced Register
      */
     private final RegisterIdentifier registerIdentifier;
+
+    /**
+     * The readingType of the Collected Register
+     */
+    private final ReadingType readingType;
 
     /**
      * The collected {@link Quantity}
@@ -64,9 +70,10 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
      *
      * @param registerIdentifier the identifier of the Register
      */
-    public DeviceRegister(RegisterIdentifier registerIdentifier) {
+    public DeviceRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
         super();
         this.registerIdentifier = registerIdentifier;
+        this.readingType = readingType;
     }
 
     @Override
@@ -124,6 +131,11 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
 
     public Date getEventTime() {
         return eventTime;
+    }
+
+    @Override
+    public ReadingType getReadingType() {
+        return this.readingType;
     }
 
     @Override

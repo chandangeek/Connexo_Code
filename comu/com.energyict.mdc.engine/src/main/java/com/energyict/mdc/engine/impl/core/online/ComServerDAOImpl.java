@@ -8,6 +8,9 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.ServerDeviceCommunicationConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -15,9 +18,11 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComJobFactory;
@@ -36,11 +41,14 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
@@ -59,6 +67,7 @@ import com.google.common.base.Optional;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -223,11 +232,16 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public OfflineRegister findRegister(RegisterIdentifier identifier) {
-        return new OfflineRegisterImpl((com.energyict.mdc.device.data.Register) identifier.findRegister());
+    public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
+        return new OfflineRegisterImpl((Register) identifier.findRegister());
     }
 
-//    @Override
+    @Override
+    public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
+        return new OfflineLoadProfileImpl((LoadProfile) loadProfileIdentifier.findLoadProfile());
+    }
+
+    //    @Override
 //    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
 //        EndDeviceMessage deviceMessage = (EndDeviceMessage) identifier.getDeviceMessage();
 //        return deviceMessage.goOffline();
@@ -662,6 +676,33 @@ public class ComServerDAOImpl implements ComServerDAO {
         return (ServerComTaskExecution) scheduledComTask;
     }
 
+
+    @Override
+    public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
+        return new DeviceIdentifierForAlreadyKnownDevice((Device) loadProfileIdentifier.findLoadProfile().getDevice());
+    }
+
+    @Override
+    public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
+        return new DeviceIdentifierForAlreadyKnownDevice(((LogBook) logBookIdentifier.getLogBook()).getDevice());
+    }
+
+    @Override
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+        LogBook logBook = (LogBook) logBookIdentifier.getLogBook();
+        LogBook.LogBookUpdater logBookUpdater = logBook.getDevice().getLogBookUpdaterFor(logBook);
+        logBookUpdater.setLastLogBookIfLater(lastLogBook);
+        logBookUpdater.update();
+    }
+
+    @Override
+    public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading) {
+        LoadProfile loadProfile = (LoadProfile) loadProfileIdentifier.findLoadProfile();
+        LoadProfile.LoadProfileUpdater loadProfileUpdater = loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile);
+        loadProfileUpdater.setLastReadingIfLater(lastReading);
+        loadProfileUpdater.update();
+    }
+
     private enum FutureMessageState {
         //TODO enable once messages are properly ported
 //        INDOUBT {
@@ -684,7 +725,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 //                ((EndDeviceMessage) message).moveTo(DeviceMessageStatus.CONFIRMED);
 //            }
 //        };
-        ;
+//        ;
 
         //public abstract void applyTo(DeviceMessage message) throws BusinessException, SQLException;
 
