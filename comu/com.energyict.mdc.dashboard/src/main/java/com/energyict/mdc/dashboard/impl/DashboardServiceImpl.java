@@ -1,7 +1,7 @@
 package com.energyict.mdc.dashboard.impl;
 
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
-import com.energyict.mdc.dashboard.ComTaskCompletionOverview;
+import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
@@ -15,7 +15,8 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -38,6 +39,7 @@ public class DashboardServiceImpl implements DashboardService {
     private volatile EngineModelService engineModelService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceDataService deviceDataService;
+    private volatile TaskHistoryService taskHistoryService;
     private volatile ProtocolPluggableService protocolPluggableService;
 
     public DashboardServiceImpl() {
@@ -45,11 +47,12 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Inject
-    public DashboardServiceImpl(EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService) {
+    public DashboardServiceImpl(EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, TaskHistoryService taskHistoryService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setDeviceDataService(deviceDataService);
+        this.setTaskHistoryService(taskHistoryService);
         this.setProtocolPluggableService(protocolPluggableService);
     }
 
@@ -64,10 +67,11 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ComTaskCompletionOverview getComTaskCompletionOverview() {
-        ComTaskCompletionOverviewImpl overview = new ComTaskCompletionOverviewImpl();
-        for (CompletionCode completionCode : CompletionCode.values()) {
-            overview.add(new CounterImpl<>(completionCode));
+    public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview() {
+        ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(this.taskHistoryService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
+        Map<ComSession.SuccessIndicator, Long> successIndicatorCount = this.taskHistoryService.getConnectionTaskLastComSessionSuccessIndicatorCount();
+        for (ComSession.SuccessIndicator successIndicator : ComSession.SuccessIndicator.values()) {
+            overview.add(new CounterImpl<>(successIndicator, successIndicatorCount.get(successIndicator)));
         }
         return overview;
     }
@@ -175,6 +179,11 @@ public class DashboardServiceImpl implements DashboardService {
     @Reference
     public void setDeviceDataService(DeviceDataService deviceDataService) {
         this.deviceDataService = deviceDataService;
+    }
+
+    @Reference
+    public void setTaskHistoryService(TaskHistoryService taskHistoryService) {
+        this.taskHistoryService = taskHistoryService;
     }
 
     @Reference
