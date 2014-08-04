@@ -4,7 +4,6 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
 
     requires: [
         'Cfg.view.validation.RuleSetList',
-        'Cfg.view.validation.RuleSetBrowseFilter',
         'Cfg.view.validation.RuleSetPreview',
         'Cfg.view.validation.RuleSetActionMenu',
         'Uni.view.container.PreviewContainer',
@@ -14,9 +13,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
     content: [
         {
             ui: 'large',
-            xtype: 'panel',
             title: Uni.I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets'),
-            overflowY: 'auto',
             items: [
                 {
                     xtype: 'preview-container',
@@ -38,18 +35,8 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'validation-ruleset-preview',
-                        tools: [
-                            {
-                                xtype: 'button',
-                                text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
-                                iconCls: 'x-uni-action-iconD',
-                                menu: {
-                                    xtype: 'ruleset-action-menu'
-                                }
-                            }
-                        ],
-                        hidden: true
+                        xtype: 'container',
+                        itemId: 'ruleSetBrowsePreviewCt'
                     }
                 }
             ]
