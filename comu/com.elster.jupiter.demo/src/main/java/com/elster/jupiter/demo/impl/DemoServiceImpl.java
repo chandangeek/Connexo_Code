@@ -1,16 +1,23 @@
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.DemoService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.engine.model.*;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
+import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -24,16 +31,19 @@ public class DemoServiceImpl implements DemoService {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile MasterDataService masterDataService;
+    private volatile MeteringService meteringService;
 
     public void createDemoData() {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                OnlineComServer comServer = createComServer("099deitvs015");
-                OutboundComPort outboundTCPPort = createOutboundTcpComPort("099DefaultActiveOutboundTCPPort", comServer);
-                createOutboundTcpComPortPool("099DefaultActiveComPortPool", outboundTCPPort);
-                InboundComPortPool inboundServletComPortPool = createInboundServletComPortPool("099DefaultInboundServletComPortPool");
-                createInboundServletPort("099DefaultActiveInboundServletPort", 4444, comServer, inboundServletComPortPool);
+                OnlineComServer comServer = createComServer("deitvs015");
+                OutboundComPort outboundTCPPort = createOutboundTcpComPort("DefaultActiveOutboundTCPPort", comServer);
+                createOutboundTcpComPortPool("DefaultActiveComPortPool", outboundTCPPort);
+                InboundComPortPool inboundServletComPortPool = createInboundServletComPortPool("DefaultInboundServletComPortPool");
+                createInboundServletPort("DefaultActiveInboundServletPort", 4444, comServer, inboundServletComPortPool);
+                createRegisterTypes();
             }
         });
     }
@@ -112,6 +122,32 @@ public class DemoServiceImpl implements DemoService {
 
     }
 
+    private void createRegisterTypes(){
+
+        System.out.println("==> Creating Register Types...");
+        createRegisterType("Active Energy Import Tariff 1 (kWh)", "1.0.1.8.1.255", "kWh","0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0", 0);
+        createRegisterType("Active Energy Import Tariff 1 (Wh)", "1.0.1.8.1.255", "Wh",  "0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0", 0);
+        createRegisterType("Active Energy Import Tariff 2 (kWh)", "1.0.1.8.2.255", "kWh","0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0", 0);
+        createRegisterType("Active Energy Import Tariff 2 (Wh)", "1.0.1.8.2.255", "Wh",  "0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0", 0);
+        createRegisterType("Active Energy Export Tariff 1 (kWh)", "1.0.1.8.1.255", "kWh","0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0", 0);
+        createRegisterType("Active Energy Export Tariff 1 (Wh)", "1.0.1.8.1.255", "Wh",  "0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0", 0);
+        createRegisterType("Active Energy Export Tariff 2 (kWh)", "1.0.1.8.2.255", "kWh","0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0", 0);
+        createRegisterType("Active Energy Export Tariff 2 (Wh)", "1.0.1.8.2.255", "Wh",  "0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0", 0);
+
+    }
+
+    private RegisterType createRegisterType(String name, String obisCode, String unit, String readingType, int timeOfUse){
+
+        Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
+        if (!readingTypeOptional.isPresent()){
+            System.out.println("==> No such reading type"); // how to create?
+        }
+        RegisterType registerType = masterDataService.newRegisterType(name, ObisCode.fromString(obisCode), Unit.get(unit), readingTypeOptional.get(), timeOfUse);
+        registerType.save();
+        return registerType;
+
+    }
+
     @Reference
     public void setEngineModelService(EngineModelService engineModelService) {
         this.engineModelService = engineModelService;
@@ -130,6 +166,16 @@ public class DemoServiceImpl implements DemoService {
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
+    public void setMasterDataService(MasterDataService masterDataService) {
+        this.masterDataService = masterDataService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     private <T> T executeTransaction(Transaction<T> transaction) {
