@@ -5,9 +5,8 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.*;
+import com.energyict.mdc.protocol.api.ComPortType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -22,12 +21,15 @@ public class DemoServiceImpl implements DemoService {
     private volatile ThreadPrincipalService threadPrincipalService;
 
     public void createDemoData(){
-        createComServer("deitvs015");
+        OnlineComServer comServer = createComServer("deitvs015");
+        OutboundComPort outboundTCPPort = createOutpoundTcpComPort("DefaultActiveOutboundTCPPort", comServer);
+        OutboundComPortPool comPortPool = createOutboundTcpComPortPool("DefaultActiveComPortPool", outboundTCPPort);
+        
     }
 
     // Creates active ComServer with the name of the demo environment (deitvs015)
-    private void createComServer(final String name){
-        executeTransaction(new Transaction<OnlineComServer>(){
+    private OnlineComServer createComServer(final String name){
+        return executeTransaction(new Transaction<OnlineComServer>(){
             @Override
             public OnlineComServer perform() {
                 System.out.println("==> Creating ComServer...");
@@ -42,8 +44,40 @@ public class DemoServiceImpl implements DemoService {
                 comServer.setNumberOfStoreTaskThreads(1);
                 comServer.setStoreTaskThreadPriority(5);
                 comServer.save();
-                System.out.println("==> Success");
                 return comServer;
+            }
+        });
+    }
+
+    // Creates active outbound TCP port with 5 simultaneous connections
+    private OutboundComPort createOutpoundTcpComPort(final String name, final ComServer comServer){
+        return executeTransaction(new Transaction<OutboundComPort>(){
+            @Override
+            public OutboundComPort perform() {
+                System.out.println("==> Creating Outbound TCP Port...");
+                OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = comServer.newOutboundComPort(name, 5);
+                outboundComPortBuilder.comPortType(ComPortType.TCP).active(true);
+                return outboundComPortBuilder.add();
+            }
+        });
+    }
+
+    private OutboundComPortPool createOutboundTcpComPortPool(final String name, final OutboundComPort... comPorts){
+        return executeTransaction(new Transaction<OutboundComPortPool>(){
+            @Override
+            public OutboundComPortPool perform() {
+                System.out.println("==> Creating Outbound TCP Port Pool...");
+                OutboundComPortPool outboundComPortPool = engineModelService.newOutboundComPortPool();
+                outboundComPortPool.setActive(true);
+                outboundComPortPool.setComPortType(ComPortType.TCP);
+                outboundComPortPool.setName(name);
+                if (comPorts != null) {
+                    for (OutboundComPort comPort : comPorts) {
+                        outboundComPortPool.addOutboundComPort(comPort);
+                    }
+                }
+                outboundComPortPool.save();
+                return outboundComPortPool;
             }
         });
     }
@@ -72,6 +106,7 @@ public class DemoServiceImpl implements DemoService {
             ex.printStackTrace();
             return null;
         } finally {
+            System.out.println("==> Success");
             clearPrincipal();
         }
     }
