@@ -1,5 +1,5 @@
 Ext.define('Dsh.view.Main', {
-    xtype: 'app-main',
+    alias: 'widget.app-main',
     extend: 'Ext.container.Container',
     requires: [
         'Ext.tab.Panel',

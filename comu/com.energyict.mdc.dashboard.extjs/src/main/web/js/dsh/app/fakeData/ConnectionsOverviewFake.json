@@ -1,0 +1,155 @@
+{ "data": {
+    "connectionSummary": null,
+    "overviews": [
+        {
+            "displayName": "Per current state",
+            "alias": "state",
+            "counters": [
+                {
+                    "alias": "Busy",
+                    "displayName": "Busy",
+                    "count": 41
+                },
+                {
+                    "alias": "OnHold",
+                    "displayName": "On hold",
+                    "count": 27
+                },
+                {
+                    "alias": "Retrying",
+                    "displayName": "Retrying",
+                    "count": 15
+                },
+                {
+                    "alias": "NeverCompleted",
+                    "displayName": "Never completed",
+                    "count": 15
+                },
+                {
+                    "alias": "Waiting",
+                    "displayName": "Waiting",
+                    "count": 15
+                },
+                {
+                    "alias": "Pending",
+                    "displayName": "Pending",
+                    "count": 42
+                },
+                {
+                    "alias": "Failed",
+                    "displayName": "Failed",
+                    "count": 41
+                }
+            ]
+        },
+        {
+            "displayName": "Per latest result",
+            "alias": "latestResult",
+            "counters": [
+                {
+                    "alias": "OK",
+                    "displayName": "Ok",
+                    "count": 101
+                },
+                {
+                    "alias": "ProtocolError",
+                    "displayName": "protocol error",
+                    "count": 12
+                },
+                {
+                    "alias": "ConnectionError",
+                    "displayName": "connection error",
+                    "count": 41
+                },
+                {
+                    "alias": "IoError",
+                    "displayName": "I/O error",
+                    "count": 1
+                }
+            ]
+        }
+    ],
+    "breakdowns": [
+        {
+            "displayName": "Per communication pool",
+            "alias": "comPortPool",
+            "total": 649,
+            "totalSuccessCount": 411,
+            "totalPendingCount": 4,
+            "totalFailedCount": 234,
+            "counters": [
+                {
+                    "displayName": "Outbound IP",
+                    "id": 1,
+                    "successCount": 11,
+                    "failedCount": 25,
+                    "pendingCount": 11
+                },
+                {
+                    "displayName": "Outbound IP post dial",
+                    "id": 2,
+                    "successCount": 411,
+                    "failedCount": 233,
+                    "pendingCount": 78
+                },
+                {
+                    "displayName": "Outbound UDP",
+                    "id": 3,
+                    "successCount": 11,
+                    "failedCount": 1233,
+                    "pendingCount": 8
+                },
+                {
+                    "displayName": "Serial",
+                    "id": 4,
+                    "successCount": 911,
+                    "failedCount": 0,
+                    "pendingCount": 8
+                },
+                {
+                    "displayName": "Serial PEMP",
+                    "id": 5,
+                    "successCount": 1,
+                    "failedCount": 0,
+                    "pendingCount": 8
+                },
+                {
+                    "displayName": "Serial PTPP",
+                    "id": 6,
+                    "successCount": 36,
+                    "failedCount": 0,
+                    "pendingCount": 0
+                },
+                {
+                    "displayName": "GPRS",
+                    "id": 7,
+                    "successCount": 1036,
+                    "failedCount": 29,
+                    "pendingCount": 0
+                }
+            ]
+        },
+        {
+            "displayName": "Per connection type",
+            "alias": "connectionType",
+            "total": 0,
+            "totalSuccessCount": 0,
+            "totalPendingCount": 0,
+            "totalFailedCount": 0,
+            "counters": [
+
+            ]
+        },
+        {
+            "displayName": "Per connection type",
+            "alias": "deviceType",
+            "total": 0,
+            "totalSuccessCount": 0,
+            "totalPendingCount": 0,
+            "totalFailedCount": 0,
+            "counters": [
+
+            ]
+        }
+    ]
+}}
