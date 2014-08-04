@@ -66,7 +66,7 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     public void getReadingTypeFrom(String... arguments){
         try {
             if(arguments.length == 2){
-                logger.info("ReadingType : " + getReadingTypeFrom(ObisCode.fromString(arguments[0]), Unit.get(arguments[1])));
+                logger.info("ReadingType : " + getReadingTypeMridFrom(ObisCode.fromString(arguments[0]), Unit.get(arguments[1])));
             } else if (arguments.length == 3){
                 logger.info("ReadingType : " + getReadingTypeFrom(ObisCode.fromString(arguments[0]), Unit.get(arguments[1]), new TimeDuration(Integer.valueOf(arguments[2]))));
             } else {
@@ -88,8 +88,14 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     @Override
-    public String getReadingTypeFrom(ObisCode obisCode, Unit unit){
+    public String getReadingTypeMridFrom(ObisCode obisCode, Unit unit){
         return ObisCodeToReadingTypeFactory.createMRIDFromObisCodeAndUnit(obisCode, unit);
+    }
+
+    @Override
+    public ReadingType getReadingTypeFrom(ObisCode obisCode, Unit unit) {
+        String readingTypeMridFrom = getReadingTypeMridFrom(obisCode, unit);
+        return this.meteringService.getReadingType(readingTypeMridFrom).orNull();
     }
 
     @Override

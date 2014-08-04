@@ -37,7 +37,9 @@ public interface MdcReadingTypeUtilService {
      * @param unit     the Unit that models the ReadingType
      * @return the ReadingType string modeled by the given arguments
      */
-    public String getReadingTypeFrom(ObisCode obisCode, Unit unit);
+    public String getReadingTypeMridFrom(ObisCode obisCode, Unit unit);
+
+    public ReadingType getReadingTypeFrom(ObisCode obisCode, Unit unit);
 
     /**
      * Creates a ReadingType string based on the given arguments
