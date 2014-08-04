@@ -2,17 +2,25 @@ package com.elster.jupiter.kpi.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.KpiMember;
+import com.elster.jupiter.kpi.KpiMissEvent;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.pubsub.impl.PublisherImpl;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -33,17 +41,23 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Dictionary;
 import java.util.List;
 
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class KpiServiceImplIT {
@@ -93,6 +107,17 @@ public class KpiServiceImplIT {
                 new NlsModule(),
                 new KpiModule()
         );
+
+        final PublisherImpl pub = (PublisherImpl) injector.getInstance(Publisher.class);
+        doAnswer(new Answer<ServiceRegistration<Subscriber>>() {
+
+            @Override
+            public ServiceRegistration<Subscriber> answer(InvocationOnMock invocation) throws Throwable {
+                pub.addHandler((Subscriber) invocation.getArguments()[1]);
+                return null;
+            }
+        }).
+                when(bundleContext).registerService(eq(Subscriber.class), any(Subscriber.class), any(Dictionary.class));
 
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(new Transaction<Void>() {
@@ -301,6 +326,44 @@ public class KpiServiceImplIT {
         kpi = found.get();
         assertThat(kpi.getMembers().get(1).getTarget(new Date(0))).isEqualTo(BigDecimal.valueOf(7, 5));
     }
+
+    @Test
+    public void testStoreKpiValueThatNotMeetsTargetTriggersEvent() {
+        EventServiceImpl eventService = (EventServiceImpl) injector.getInstance(EventService.class);
+        TopicHandler topicHandler = mock(TopicHandler.class);
+        when(topicHandler.getTopicMatcher()).thenReturn(EventType.KPI_TARGET_MISSED.topic());
+
+        eventService.addTopicHandler(topicHandler);
+
+        long id = 0;
+        try (TransactionContext context = transactionService.getContext()) {
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+                    .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
+                    .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
+                    .build();
+            kpi.save();
+
+            Date date = new DateMidnight(2013, 7, 31, DateTimeZone.UTC).toDate();
+
+            kpi.getMembers().get(0).score(date, BigDecimal.valueOf(8, 0));
+            kpi.getMembers().get(1).score(date, BigDecimal.valueOf(2, 2));
+
+            id = kpi.getId();
+            context.commit();
+        }
+
+        ArgumentCaptor<LocalEvent> eventCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(topicHandler).handle(eventCaptor.capture());
+
+        LocalEvent localEvent = eventCaptor.getValue();
+        assertThat(localEvent.getSource()).isInstanceOf(KpiMissEvent.class);
+        KpiMissEvent event = (KpiMissEvent) localEvent.getSource();
+        assertThat(event.getMember().getName()).isEqualTo(NON_COMMUNICATING_METERS);
+        assertThat(event.getEntry().getScore()).isEqualTo(BigDecimal.valueOf(2, 2));
+        assertThat(event.getEntry().getTarget()).isEqualTo(BigDecimal.valueOf(1, 2));
+
+    }
+
 
 
     @After
