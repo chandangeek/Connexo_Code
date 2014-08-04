@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 public class DataCollectionEvent extends AbstractEvent {
-    
+
     private final TaskHistoryService taskHistoryService;
 
     protected DataCollectionEvent(IssueService issueService, MeteringService meteringService, DeviceDataService deviceDataService, TaskHistoryService taskHistoryService, Thesaurus thesaurus) {
@@ -26,13 +26,13 @@ public class DataCollectionEvent extends AbstractEvent {
         super(issueService, meteringService, deviceDataService, thesaurus, rawEvent);
         this.taskHistoryService = taskHistoryService;
     }
-    
+
     @Override
     protected int getNumberOfEvents(Device concentrator) {
         Date start = getLastSuccessfulCommunicationEnd(concentrator);
         int numberOfEvents = 0;
         try {
-            numberOfEvents = taskHistoryService.countNumberOfCommunicationErrorsInGatewayTopology(getDescription().getErrorType(), concentrator, Interval.startAt(start));
+            numberOfEvents = taskHistoryService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(getDescription().getErrorType(), concentrator, Interval.startAt(start));
         } catch (RuntimeException ex){
             LOG.log(Level.WARNING, "Incorrect communication type for concentrator[id={0}]", concentrator.getId());
         }
