@@ -1,31 +1,12 @@
 Ext.define('Mdc.model.LoadProfileOfDevice', {
     extend: 'Ext.data.Model',
     fields: [
-        {
-            name: 'id',
-            type: 'int'
-        },
-        {
-            name: 'name',
-            type: 'string'
-        },
-        {
-            name: 'obisCode',
-            type: 'string'
-        },
-        {
-            name: 'interval',
-            type: 'auto'
-        },
-        {
-            name: 'lastReading',
-            dateFormat: 'time',
-            type: 'date'
-        },
-        {
-            name: 'channels',
-            type: 'auto'
-        },
+        {name: 'id', type: 'int'},
+        {name: 'name', type: 'string'},
+        {name: 'obisCode', type: 'string'},
+        {name: 'interval', type: 'auto'},
+        {name: 'lastReading', dateFormat: 'time', type: 'date'},
+        {name: 'channels', type: 'auto'},
         {
             name: 'interval_formatted',
             persist: false,
