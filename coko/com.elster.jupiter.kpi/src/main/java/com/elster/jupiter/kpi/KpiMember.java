@@ -27,4 +27,7 @@ public interface KpiMember extends HasName {
     List<? extends KpiEntry> getScores(Interval interval);
 
     TargetStorer getTargetStorer();
+
+    void updateTarget(BigDecimal target);
+
 }

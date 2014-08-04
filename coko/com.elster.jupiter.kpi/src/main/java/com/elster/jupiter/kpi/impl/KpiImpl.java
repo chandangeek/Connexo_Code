@@ -96,19 +96,19 @@ class KpiImpl implements Kpi {
     }
 
     KpiMemberImpl dynamicMaximum(String name) {
-        return add(new KpiMemberImpl(idsService, eventService, this, name).setDynamicTarget().asMaximum());
+        return add(new KpiMemberImpl(idsService, eventService, dataModel, this, name).setDynamicTarget().asMaximum());
     }
 
     KpiMemberImpl dynamicMinimum(String name) {
-        return add(new KpiMemberImpl(idsService, eventService, this, name).setDynamicTarget().asMinimum());
+        return add(new KpiMemberImpl(idsService, eventService, dataModel, this, name).setDynamicTarget().asMinimum());
     }
 
     KpiMemberImpl staticMaximum(String name, BigDecimal maximum) {
-        return add(new KpiMemberImpl(idsService, eventService, this, name).setStatictarget(maximum).asMaximum());
+        return add(new KpiMemberImpl(idsService, eventService, dataModel, this, name).setStatictarget(maximum).asMaximum());
     }
 
     KpiMemberImpl staticMinimum(String name, BigDecimal minimum) {
-        return add(new KpiMemberImpl(idsService, eventService, this, name).setStatictarget(minimum).asMinimum());
+        return add(new KpiMemberImpl(idsService, eventService, dataModel, this, name).setStatictarget(minimum).asMinimum());
     }
 
     KpiMemberImpl add(KpiMemberImpl member) {

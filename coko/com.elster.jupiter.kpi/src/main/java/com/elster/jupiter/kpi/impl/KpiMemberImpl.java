@@ -8,6 +8,7 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.TargetStorer;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
@@ -33,16 +34,19 @@ class KpiMemberImpl implements IKpiMember {
 
     private final IdsService idsService;
     private final EventService eventService;
+    private final DataModel dataModel;
 
     @Inject
-    KpiMemberImpl(IdsService idsService, EventService eventService) {
+    KpiMemberImpl(IdsService idsService, EventService eventService, DataModel dataModel) {
         this.idsService = idsService;
         this.eventService = eventService;
+        this.dataModel = dataModel;
     }
 
-    KpiMemberImpl(IdsService idsService, EventService eventService, KpiImpl kpi, String name) {
+    KpiMemberImpl(IdsService idsService, EventService eventService, DataModel dataModel, KpiImpl kpi, String name) {
         this.idsService = idsService;
         this.eventService = eventService;
+        this.dataModel = dataModel;
         this.kpi.set(kpi);
         this.name = name;
     }
@@ -150,6 +154,15 @@ class KpiMemberImpl implements IKpiMember {
                 storer.execute();
             }
         };
+    }
+
+    @Override
+    public void updateTarget(BigDecimal target) {
+        if (dynamic) {
+            throw new IllegalStateException("KpiMember : '" + getName() + "' : Cannot set static target for a KpiMember with dynamic target.");
+        }
+        this.targetValue = target;
+        dataModel.mapper(IKpiMember.class).update(this);
     }
 
     int getPosition() {

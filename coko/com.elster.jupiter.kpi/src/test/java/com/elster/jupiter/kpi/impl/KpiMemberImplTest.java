@@ -7,6 +7,7 @@ import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.kpi.KpiEntry;
 import com.elster.jupiter.kpi.TargetStorer;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import org.joda.time.DateMidnight;
@@ -49,10 +50,12 @@ public class KpiMemberImplTest {
     private TimeSeries timeSeries;
     @Mock
     private TimeSeriesEntry timeSeriesEntry, timeSeriesEntry2;
+    @Mock
+    private DataModel dataModel;
 
     @Before
     public void setUp() {
-        kpiMember = new KpiMemberImpl(idsService, eventService, kpi, "name");
+        kpiMember = new KpiMemberImpl(idsService, eventService, dataModel, kpi, "name");
         kpiMember.setTimeSeries(timeSeries);
         kpiMember.setStatictarget(TARGET);
 

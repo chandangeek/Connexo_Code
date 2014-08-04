@@ -244,6 +244,63 @@ public class KpiServiceImplIT {
         assertThat(entry.meetsTarget()).isTrue();
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testUpdateStaticTargetOnDynamicMemberShouldFail() {
+        long id = 0;
+        try (TransactionContext context = transactionService.getContext()) {
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+                    .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
+                    .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
+                    .build();
+            kpi.save();
+
+            id = kpi.getId();
+            context.commit();
+        }
+
+        Optional<Kpi> found = kpiService.getKpi(id);
+        assertThat(found).isPresent();
+
+        Kpi kpi = found.get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            kpi.getMembers().get(0).updateTarget(BigDecimal.valueOf(7, 5));
+            context.commit();
+        }
+
+    }
+
+
+    @Test
+    public void testUpdateStaticTarget() {
+        long id = 0;
+        try (TransactionContext context = transactionService.getContext()) {
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(IntervalLength.ofDay())
+                    .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
+                    .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
+                    .build();
+            kpi.save();
+
+            id = kpi.getId();
+            context.commit();
+        }
+
+        Optional<Kpi> found = kpiService.getKpi(id);
+        assertThat(found).isPresent();
+
+        Kpi kpi = found.get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            kpi.getMembers().get(1).updateTarget(BigDecimal.valueOf(7, 5));
+            context.commit();
+        }
+
+        found = kpiService.getKpi(id);
+        assertThat(found).isPresent();
+
+        kpi = found.get();
+        assertThat(kpi.getMembers().get(1).getTarget(new Date(0))).isEqualTo(BigDecimal.valueOf(7, 5));
+    }
 
 
     @After
