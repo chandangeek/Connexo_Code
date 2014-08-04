@@ -68,7 +68,6 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'ruleSetBrowsePanel', selector: 'validationrulesetBrowse'},
         {ref: 'rulePreviewContainer', selector: 'rulePreviewContainer'},
         {ref: 'ruleOverview', selector: 'ruleOverview'}
-
     ],
 
     readingTypeIndex: 2,
@@ -135,13 +134,12 @@ Ext.define('Cfg.controller.Validation', {
         return parseInt(location.href.substring(index + urlPart.length));
     },
 
-
     createEditRule: function (button) {
         var me = this,
             form = button.up('panel'),
             formErrorsPanel = form.down('[name=form-errors]');
+
         if (form.isValid()) {
-            formErrorsPanel.hide();
             var ruleSetId = this.getRuleSetIdFromHref() || me.ruleSetId,
                 record = me.ruleModel || Ext.create(Cfg.model.ValidationRule),
                 values = form.getValues(),
@@ -149,6 +147,8 @@ Ext.define('Cfg.controller.Validation', {
                 rule = values.implementation,
                 name = values.name,
                 properties = this.getPropertiesContainer().items;
+
+            formErrorsPanel.hide();
 
             if (form.down('#validatorCombo').isDisabled()) {
                 rule = form.down('#validatorCombo').value;
@@ -169,6 +169,7 @@ Ext.define('Cfg.controller.Validation', {
                 var readingTypeMRID = readingTypes.items[i].items.items[0],
                     readingType = readingTypeMRID.value,
                     readingTypeRecord = Ext.create(Cfg.model.ReadingType);
+
                 readingTypeMRID.name = 'readingTypesInRule[' + i + '].readingTypeMRID';
                 readingTypeRecord.set('mRID', readingType);
                 record.readingTypes().add(readingTypeRecord);
@@ -314,20 +315,23 @@ Ext.define('Cfg.controller.Validation', {
         return widget;
     },
 
-    addRule: function (id) {
+    addRule: function (ruleSetId) {
         var me = this,
             widget = Ext.widget('addRule', {
                 edit: false,
-                returnLink: '#/administration/validation/rulesets/' + id + '/rules'
+                returnLink: '#/administration/validation/rulesets/' + ruleSetId + '/rules'
             }),
-            editRulePanel = me.getAddRule();
+            editRulePanel = me.getAddRule(),
+            ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
+
+        me.ruleSetId = ruleSetId;
         me.getApplication().fireEvent('changecontentevent', widget);
         editRulePanel.down('#addRuleTitle').setTitle(Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'));
         me.ruleModel = null;
-        var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
+
         ruleSetsStore.load({
             params: {
-                id: id
+                id: ruleSetId
             }
         });
     },
@@ -389,6 +393,7 @@ Ext.define('Cfg.controller.Validation', {
         var me = this,
             cancelLink,
             widget;
+
         if (ruleSetId) {
             me.fromRuleSetOverview ? cancelLink = '#/administration/validation/rulesets/' + ruleSetId : cancelLink = '#/administration/validation/rulesets/';
             widget = Ext.widget('createRuleSet', {
