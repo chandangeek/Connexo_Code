@@ -33,6 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -102,6 +103,7 @@ public class DashboardServiceImplTest {
         ComPortPoolBreakdown breakdown = this.dashboardService.getComPortPoolBreakdown();
 
         // Asserts
+        verify(this.deviceDataService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -180,6 +182,7 @@ public class DashboardServiceImplTest {
         DeviceTypeBreakdown breakdown = this.dashboardService.getDeviceTypeBreakdown();
 
         // Asserts
+        verify(this.deviceDataService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -194,18 +197,27 @@ public class DashboardServiceImplTest {
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Arrays.asList(deviceType));
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
+        Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
+        for (TaskStatus taskStatus : TaskStatus.values()) {
+            statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
+        }
+        when(this.deviceDataService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
 
         // Business methods
         DeviceTypeBreakdown breakdown = this.dashboardService.getDeviceTypeBreakdown();
 
         // Asserts
+        ArgumentCaptor<ConnectionTaskFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(this.deviceDataService).getConnectionTaskStatusCount(filterCaptor.capture());
+        assertThat(filterCaptor.getValue().deviceTypes).hasSize(1);
+        assertThat(filterCaptor.getValue().deviceTypes.iterator().next()).isEqualTo(deviceType);
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
-        assertThat(breakdown.getTotalCount()).isZero();
-        assertThat(breakdown.getTotalSuccessCount()).isZero();
-        assertThat(breakdown.getTotalFailedCount()).isZero();
-        assertThat(breakdown.getTotalPendingCount()).isZero();
+        assertThat(breakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
 }

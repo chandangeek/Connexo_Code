@@ -88,6 +88,43 @@ public class DashboardServiceImpl implements DashboardService {
         return breakdown;
     }
 
+    private List<ComPortPool> availableComPortPools () {
+        return this.engineModelService.findAllComPortPools();
+    }
+
+    @Override
+    public ConnectionTypeBreakdown getConnectionTypeBreakdown() {
+        ConnectionTypeBreakdownImpl breakdown = new ConnectionTypeBreakdownImpl();
+        for (ConnectionTypePluggableClass connectionTypePluggableClass : this.availableConnectionTypes()) {
+            breakdown.add(new TaskStatusBreakdownCounterImpl<>(connectionTypePluggableClass));
+        }
+        return breakdown;
+    }
+
+    private List<ConnectionTypePluggableClass> availableConnectionTypes () {
+        return this.protocolPluggableService.findAllConnectionTypePluggableClasses();
+    }
+
+    @Override
+    public DeviceTypeBreakdown getDeviceTypeBreakdown() {
+        DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
+        for (DeviceType deviceType : this.availableDeviceTypes()) {
+            ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
+            filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
+            filter.taskStatuses.addAll(this.successTaskStatusses());
+            filter.taskStatuses.addAll(this.failedTaskStatusses());
+            filter.taskStatuses.addAll(this.pendingTaskStatusses());
+            filter.deviceTypes.add(deviceType);
+            Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
+            breakdown.add(new TaskStatusBreakdownCounterImpl<>(deviceType, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
+        }
+        return breakdown;
+    }
+
+    private List<DeviceType> availableDeviceTypes () {
+        return this.deviceConfigurationService.findAllDeviceTypes().find();
+    }
+
     private EnumSet<TaskStatus> successTaskStatusses() {
         return EnumSet.of(TaskStatus.Waiting);
     }
@@ -118,36 +155,6 @@ public class DashboardServiceImpl implements DashboardService {
             total = total + statusCount.get(taskStatus);
         }
         return total;
-    }
-
-    private List<ComPortPool> availableComPortPools () {
-        return this.engineModelService.findAllComPortPools();
-    }
-
-    @Override
-    public ConnectionTypeBreakdown getConnectionTypeBreakdown() {
-        ConnectionTypeBreakdownImpl breakdown = new ConnectionTypeBreakdownImpl();
-        for (ConnectionTypePluggableClass connectionTypePluggableClass : this.availableConnectionTypes()) {
-            breakdown.add(new TaskStatusBreakdownCounterImpl<>(connectionTypePluggableClass));
-        }
-        return breakdown;
-    }
-
-    private List<ConnectionTypePluggableClass> availableConnectionTypes () {
-        return this.protocolPluggableService.findAllConnectionTypePluggableClasses();
-    }
-
-    @Override
-    public DeviceTypeBreakdown getDeviceTypeBreakdown() {
-        DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
-        for (DeviceType deviceType : this.availableDeviceTypes()) {
-            breakdown.add(new TaskStatusBreakdownCounterImpl<>(deviceType));
-        }
-        return breakdown;
-    }
-
-    private List<DeviceType> availableDeviceTypes () {
-        return this.deviceConfigurationService.findAllDeviceTypes().find();
     }
 
     @Reference
