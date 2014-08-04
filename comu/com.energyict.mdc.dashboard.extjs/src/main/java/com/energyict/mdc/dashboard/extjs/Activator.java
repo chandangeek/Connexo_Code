@@ -1,4 +1,4 @@
-package com.energyict.mdc.dashboard.extjs;
+package main.java.com.energyict.mdc.dashboard.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
@@ -13,7 +13,7 @@ public class Activator {
     private volatile ServiceRegistration<HttpResource> registration;
 
     public void start(BundleContext bundleContext) throws Exception {
-        DefaultStartPage dsh = new DefaultStartPage("Dsh", "", "/index.html", "Dsh.controller.Main", null, Arrays.asList("DSH"));
+        DefaultStartPage dsh = new DefaultStartPage("Dsh", "", "/index.html", "Dsh.controller.Main", null, Arrays.asList("DSH"), Arrays.asList("/resources/css/font-awesome.min.css"));
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/js/dsh", new BundleResolver(bundleContext), dsh);
         registration = bundleContext.registerService(HttpResource.class, resource, null);
     }

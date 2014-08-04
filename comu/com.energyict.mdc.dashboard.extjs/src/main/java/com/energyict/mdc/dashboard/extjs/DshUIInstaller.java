@@ -1,4 +1,4 @@
-package com.energyict.mdc.dashboard.extjs;
+package main.java.com.energyict.mdc.dashboard.extjs;
 
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;

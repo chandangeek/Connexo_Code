@@ -44,7 +44,7 @@
         {
             "comServerName": "Demo",
             "comServerType": "ONLINE",
-            "running": false,
+            "running": true,
             "blocked": false
         },
         {
