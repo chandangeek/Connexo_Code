@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetView', {
                             text: Uni.I18n.translate('validation.addValidationRules', 'MDC', 'Add validation rule'),
                             ui: 'action',
                             action: 'addValidationRule',
-                            href: '#/administration/validation/addRule/' + me.validationRuleSetId
+                            href: '#/administration/validation/rulesets/' + me.validationRuleSetId + '/rules/add'
                         }
                     ]
                 },
@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetView', {
 
         me.setTitle(validationRuleSet.get('name'));
         me.validationRuleSetId = validationRuleSet.get('id');
-        addButton.setHref('#/administration/validation/addRule/' + me.validationRuleSetId);
+        addButton.setHref('#/administration/validation/rulesets/' + me.validationRuleSetId + '/rules/add');
         grid.updateValidationRuleSetId(me.validationRuleSetId);
 
         grid.store.load({params: {

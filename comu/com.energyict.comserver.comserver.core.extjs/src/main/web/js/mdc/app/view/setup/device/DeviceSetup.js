@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.device.DeviceCommunicationTopologyPanel',
         'Mdc.view.setup.device.DeviceGeneralInformationPanel',
-        'Mdc.view.setup.device.DeviceOpenIssuesPanel'
+        'Mdc.view.setup.device.DeviceOpenIssuesPanel',
+        'Mdc.view.setup.device.DeviceDataValidationPanel'
     ],
 
     content: [
@@ -68,6 +69,13 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         this.down('#DeviceContainer').add(
             {
                 xtype: 'deviceOpenIssuesPanel',
+                deviceId: this.deviceId,
+                mRID: this.mRID
+            }
+        );
+        this.down('#DeviceContainer').add(
+            {
+                xtype: 'device-data-validation-panel',
                 deviceId: this.deviceId,
                 mRID: this.mRID
             }

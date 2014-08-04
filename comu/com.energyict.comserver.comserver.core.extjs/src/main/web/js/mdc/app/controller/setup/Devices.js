@@ -18,6 +18,10 @@ Ext.define('Mdc.controller.setup.Devices', {
         'AvailableDeviceConfigurations'
     ],
 
+    mixins: [
+        'Mdc.util.DeviceDataValidationActivation'
+    ],
+
     refs: [
         {ref: 'deviceGeneralInformationForm', selector: '#deviceGeneralInformationForm'},
         {ref: 'deviceCommunicationTopologyForm', selector: '#deviceCommunicationTopologyForm'},
@@ -26,7 +30,8 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceSetupPanel', selector: '#deviceSetupPanel'},
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
-        {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'}
+        {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'},
+        {ref: 'validationFromDate', selector: '#validationFromDate'}
     ],
 
     init: function () {
@@ -36,6 +41,15 @@ Ext.define('Mdc.controller.setup.Devices', {
             },
             'deviceAdd button[action=cancel]': {
                 click: this.back
+            },
+            '#validationFromDate': {
+                change: this.onValidationFromDateChange
+            },
+            '#activate': {
+                click: this.onActivate
+            },
+            '#deactivate': {
+                click: this.onDeactivate
             }
         });
     },
@@ -67,6 +81,8 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceGeneralInformationForm().loadRecord(device);
                 me.getDeviceCommunicationTopologyForm().loadRecord(device);
                 me.getDeviceOpenIssuesForm().loadRecord(device);
+                me.getDeviceSetupPanel().down('#floatBtn').show();
+                me.updateDataValidationStatusSection(mRID, widget);
             }
         });
     },
@@ -99,7 +115,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         });
     },
 
-    showErrorPanel: function(form) {
+    showErrorPanel: function (form) {
         var formErrorsPlaceHolder = form.down('#addDeviceFormErrors');
 
         formErrorsPlaceHolder.hide();
@@ -115,6 +131,14 @@ Ext.define('Mdc.controller.setup.Devices', {
                 html: Uni.I18n.translate('addDevice.form.errors', 'MDC', 'There are errors on this page that require your attention.')
             });
         formErrorsPlaceHolder.show();
+    },
+
+    onActivate: function () {
+        this.showActivationConfirmation(this.getDeviceSetupPanel());
+    },
+
+    onDeactivate: function () {
+        this.showDeactivationConfirmation(this.getDeviceSetupPanel());
     }
 });
 
