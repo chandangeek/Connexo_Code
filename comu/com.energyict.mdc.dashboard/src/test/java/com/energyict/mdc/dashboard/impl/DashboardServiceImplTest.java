@@ -146,6 +146,7 @@ public class DashboardServiceImplTest {
         ConnectionTypeBreakdown breakdown = this.dashboardService.getConnectionTypeBreakdown();
 
         // Asserts
+        verify(this.deviceDataService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isFalse();
         assertThat(breakdown.getTotalCount()).isZero();
@@ -158,18 +159,24 @@ public class DashboardServiceImplTest {
     public void testConnectionTypeBreakdownWithConnectionTypesButNoConnections () {
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
         when(this.protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Arrays.asList(connectionTypePluggableClass));
+        Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
+        for (TaskStatus taskStatus : TaskStatus.values()) {
+            statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
+        }
+        when(this.deviceDataService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
 
         // Business methods
         ConnectionTypeBreakdown breakdown = this.dashboardService.getConnectionTypeBreakdown();
 
         // Asserts
+        verify(this.deviceDataService).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
-        assertThat(breakdown.getTotalCount()).isZero();
-        assertThat(breakdown.getTotalSuccessCount()).isZero();
-        assertThat(breakdown.getTotalFailedCount()).isZero();
-        assertThat(breakdown.getTotalPendingCount()).isZero();
+        assertThat(breakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
     @Test

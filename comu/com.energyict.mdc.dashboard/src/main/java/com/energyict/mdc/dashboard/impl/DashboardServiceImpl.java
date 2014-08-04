@@ -77,10 +77,7 @@ public class DashboardServiceImpl implements DashboardService {
         ComPortPoolBreakdownImpl breakdown = new ComPortPoolBreakdownImpl();
         for (ComPortPool comPortPool : this.availableComPortPools()) {
             ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
-            filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
-            filter.taskStatuses.addAll(this.successTaskStatusses());
-            filter.taskStatuses.addAll(this.failedTaskStatusses());
-            filter.taskStatuses.addAll(this.pendingTaskStatusses());
+            this.addBreakdownStatusses(filter);
             filter.comPortPools.add(comPortPool);
             Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(comPortPool, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
@@ -96,7 +93,11 @@ public class DashboardServiceImpl implements DashboardService {
     public ConnectionTypeBreakdown getConnectionTypeBreakdown() {
         ConnectionTypeBreakdownImpl breakdown = new ConnectionTypeBreakdownImpl();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : this.availableConnectionTypes()) {
-            breakdown.add(new TaskStatusBreakdownCounterImpl<>(connectionTypePluggableClass));
+            ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
+            this.addBreakdownStatusses(filter);
+            filter.connectionTypes.add(connectionTypePluggableClass);
+            Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
+            breakdown.add(new TaskStatusBreakdownCounterImpl<>(connectionTypePluggableClass, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
         }
         return breakdown;
     }
@@ -110,15 +111,19 @@ public class DashboardServiceImpl implements DashboardService {
         DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
         for (DeviceType deviceType : this.availableDeviceTypes()) {
             ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
-            filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
-            filter.taskStatuses.addAll(this.successTaskStatusses());
-            filter.taskStatuses.addAll(this.failedTaskStatusses());
-            filter.taskStatuses.addAll(this.pendingTaskStatusses());
+            this.addBreakdownStatusses(filter);
             filter.deviceTypes.add(deviceType);
             Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(deviceType, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
         }
         return breakdown;
+    }
+
+    private void addBreakdownStatusses(ConnectionTaskFilterSpecification filter) {
+        filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
+        filter.taskStatuses.addAll(this.successTaskStatusses());
+        filter.taskStatuses.addAll(this.failedTaskStatusses());
+        filter.taskStatuses.addAll(this.pendingTaskStatusses());
     }
 
     private List<DeviceType> availableDeviceTypes () {
