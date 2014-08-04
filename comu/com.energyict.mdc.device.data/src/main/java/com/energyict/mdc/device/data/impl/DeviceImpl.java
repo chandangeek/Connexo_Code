@@ -96,7 +96,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
@@ -127,7 +126,7 @@ import java.util.TimeZone;
 import static com.elster.jupiter.util.Checks.is;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
-public class DeviceImpl implements Device, PersistenceAware {
+public class DeviceImpl implements Device {
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -1557,11 +1556,6 @@ public class DeviceImpl implements Device, PersistenceAware {
                 return date1.compareTo(date2);
             }
         }
-    }
-
-    @Override
-    public void postLoad() {
-        this.setDeviceTypeFromDeviceConfiguration();
     }
 
     private enum RegisterFactory {

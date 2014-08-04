@@ -13,6 +13,7 @@ public enum DeviceFields implements ImplField {
     SERIALNUMBER("serialNumber"),
     TIMEZONE("timeZoneId"),
     MRID("mRID"),
+    DEVICETYPE("deviceType"),
     DEVICECONFIGURATION("deviceConfiguration"),
     ;
 

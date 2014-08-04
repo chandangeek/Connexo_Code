@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.tasks;
 
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
@@ -28,6 +29,12 @@ public class ConnectionTaskFilterSpecification {
      * if you want all ComPortPools that are configured in the system.
      */
     public Set<ComPortPool> comPortPools = new HashSet<>();
+
+    /**
+     * The Set of {@link DeviceType} or an empty set
+     * if you want all DeviceType that are configured in the system.
+     */
+    public Set<DeviceType> deviceTypes = new HashSet<>();
 
     /**
      * The Set of {@link TaskStatus}es.

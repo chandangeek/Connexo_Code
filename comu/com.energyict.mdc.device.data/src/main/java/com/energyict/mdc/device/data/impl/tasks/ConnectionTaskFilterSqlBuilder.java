@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -30,10 +31,12 @@ public class ConnectionTaskFilterSqlBuilder {
     private static final String SUCCESS_INDICATOR_ALIAS_NAME = "successindicator";
     private static final int MAX_ELEMENTS_FOR_IN_CLAUSE = 1000;
     private static final String COMSESSION_TABLENAME = "THS_COMSESSION";
+    private static final String DEVICE_CONFIGURATION_TABLENAME = "DTC_DEVICECONFIG";
 
     private ServerConnectionTaskStatus taskStatus;
     private Set<ConnectionTypePluggableClass> connectionTypes;
     private Set<ComPortPool> comPortPools;
+    private Set<DeviceType> deviceTypes;
     private Set<SuccessIndicator> successIndicators;
 
     public ConnectionTaskFilterSqlBuilder(ServerConnectionTaskStatus taskStatus, ConnectionTaskFilterSpecification filterSpecification) {
@@ -41,6 +44,7 @@ public class ConnectionTaskFilterSqlBuilder {
         this.taskStatus = taskStatus;
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
         this.comPortPools = new HashSet<>(filterSpecification.comPortPools);
+        this.deviceTypes = new HashSet<>(filterSpecification.deviceTypes);
         this.successIndicators = EnumSet.copyOf(filterSpecification.successIndicators);
     }
 
@@ -66,6 +70,7 @@ public class ConnectionTaskFilterSqlBuilder {
         this.taskStatus.completeFindBySqlBuilder(sqlBuilder);
         this.appendCompletionCodesSql(sqlBuilder);
         this.appendComPortPoolSql(sqlBuilder);
+        this.appendDeviceTypeSql(sqlBuilder);
     }
 
     private void appendJoinedTables(ClauseAwareSqlBuilder sqlBuilder) {
@@ -87,6 +92,19 @@ public class ConnectionTaskFilterSqlBuilder {
             sqlBuilder.append(" (");
             this.appendInClause(TableSpecs.DDC_CONNECTIONTASK.name() + ".comportpool", sqlBuilder, this.comPortPools);
             sqlBuilder.append(")");
+        }
+    }
+
+    private void appendDeviceTypeSql(ClauseAwareSqlBuilder sqlBuilder) {
+        if (!this.deviceTypes.isEmpty()) {
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(" (");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".device in (select id from ");
+            sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+            sqlBuilder.append(" where ");
+            this.appendInClause("devicetype", sqlBuilder, this.deviceTypes);
+            sqlBuilder.append("))");
         }
     }
 
