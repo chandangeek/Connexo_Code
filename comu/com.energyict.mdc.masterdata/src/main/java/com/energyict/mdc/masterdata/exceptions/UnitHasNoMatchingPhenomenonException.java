@@ -6,7 +6,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 
 /**
  * Models the exceptional situation that occurs when an attempt
- * is made to set a unit for a {@link com.energyict.mdc.masterdata.RegisterMapping},
+ * is made to set a unit for a {@link com.energyict.mdc.masterdata.MeasurementType},
  * but there is no phenomenon that has that unit defined.
  *
  */

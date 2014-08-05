@@ -9,11 +9,13 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 import com.energyict.mdc.masterdata.exceptions.UnitHasNoMatchingPhenomenonException;
 import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
@@ -39,8 +41,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link MasterDataService} interface.
@@ -148,17 +148,32 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
-    public Finder<RegisterMapping> findAllRegisterMappings() {
-        return DefaultFinder.of(RegisterMapping.class, this.getDataModel()).defaultSortColumn("lower(name)");
+    public Finder<MeasurementType> findAllMeasurementTypes() {
+        return DefaultFinder.of(MeasurementType.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
-    public Optional<RegisterMapping> findRegisterMapping(long id) {
-        return this.getDataModel().mapper(RegisterMapping.class).getUnique("id", id);
+    public Finder<ChannelType> findAllChannelTypes() {
+        return DefaultFinder.of(ChannelType.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
-    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
+    public Finder<RegisterType> findAllRegisterTypes() {
+        return DefaultFinder.of(RegisterType.class, this.getDataModel()).defaultSortColumn("lower(name)");
+    }
+
+    @Override
+    public Optional<RegisterType> findRegisterType(long id) {
+        return this.getDataModel().mapper(RegisterType.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<ChannelType> findChannelTypeById(long id) {
+        return this.getDataModel().mapper(ChannelType.class).getUnique("id", id);
+    }
+
+    @Override
+    public RegisterType newRegisterType(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse) {
         Phenomenon phenomenon = null;
         if (unit != null) {
             Optional<Phenomenon> xPhenomenon = this.findPhenomenonByUnit(unit);
@@ -169,31 +184,32 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
                 phenomenon = xPhenomenon.get();
             }
         }
-        return this.getDataModel().getInstance(RegisterMappingImpl.class).initialize(name, obisCode, phenomenon, readingType, timeOfUse);
+        return this.getDataModel().getInstance(RegisterTypeImpl.class).initialize(name, obisCode, phenomenon, readingType, timeOfUse);
     }
 
     @Override
-    public Optional<RegisterMapping> findRegisterMappingByName(String name) {
-        return this.getDataModel().mapper((RegisterMapping.class)).getUnique("name", name);
+    public ChannelType newChannelType(RegisterType templateMeasurementType, TimeDuration interval, ReadingType readingType) {
+        return this.getDataModel().getInstance(ChannelTypeImpl.class).initialize(templateMeasurementType, interval, readingType);
     }
 
     @Override
-    public Optional<RegisterMapping> findRegisterMappingByReadingType(ReadingType readingType) {
-        return this.getDataModel().mapper(RegisterMapping.class).getUnique("readingType", readingType);
+    public Optional<MeasurementType> findMeasurementTypeByName(String name) {
+        return this.getDataModel().mapper((MeasurementType.class)).getUnique("name", name);
     }
 
     @Override
-    public Optional<RegisterMapping> findRegisterMappingByObisCodeAndUnitAndTimeOfUse(ObisCode obisCode, Unit unit, int timeOfUse) {
-        List<RegisterMapping> registerMappings = this.getDataModel().query(RegisterMapping.class, Phenomenon.class).
-                select(where(RegisterMappingImpl.Fields.OBIS_CODE.fieldName()).isEqualTo(obisCode.toString()).
-                        and(where(RegisterMappingImpl.Fields.UNIT.fieldName()).isEqualTo(unit.dbString()).
-                                and(where(RegisterMappingImpl.Fields.TIME_OF_USE.fieldName()).isEqualTo(timeOfUse))));
-        if (registerMappings.isEmpty()) {
-            return Optional.absent();
-        }
-        else {
-            return Optional.of(registerMappings.get(0));
-        }
+    public Optional<MeasurementType> findMeasurementTypeByReadingType(ReadingType readingType) {
+        return this.getDataModel().mapper(MeasurementType.class).getUnique("readingType", readingType);
+    }
+
+    @Override
+    public Optional<ChannelType> findChannelTypeByReadingType(ReadingType readingType) {
+        return this.getDataModel().mapper(ChannelType.class).getUnique("readingType", readingType);
+    }
+
+    @Override
+    public Optional<RegisterType> findRegisterTypeByReadingType(ReadingType readingType) {
+        return this.getDataModel().mapper(RegisterType.class).getUnique("readingType", readingType);
     }
 
     @Override
@@ -218,18 +234,22 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
 
     @Override
     public void validateRegisterGroup(RegisterGroup group) {
-        if (group.getRegisterMappings().isEmpty()) {
+        if (group.getRegisterTypes().isEmpty()) {
             throw new RegisterTypesRequiredException();
         }
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "MDC Master data");
-        for (TableSpecs tableSpecs : TableSpecs.values()) {
-            tableSpecs.addTo(dataModel);
+        try {
+            DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "MDC Master data");
+            for (TableSpecs tableSpecs : TableSpecs.values()) {
+                tableSpecs.addTo(dataModel);
+            }
+            this.dataModel = dataModel;
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
-        this.dataModel = dataModel;
     }
 
     DataModel getDataModel() {
@@ -277,7 +297,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
 
     @Activate
     public void activate() {
-        this.dataModel.register(this.getModule());
+        try {
+            this.dataModel.register(this.getModule());
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -289,4 +313,14 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         new Installer(this.dataModel, this.thesaurus, eventService, this.meteringService, this.mdcReadingTypeUtilService, this).install(exeuteDdl, createDefaults);
     }
 
+    @Override
+    public Optional<ChannelType> findChannelTypeByTemplateRegisterAndInterval(RegisterType templateRegisterType, TimeDuration interval) {
+        return getDataModel().mapper(ChannelType.class).getUnique(MeasurementTypeImpl.Fields.TEMPLATE_REGISTER_ID.fieldName(), templateRegisterType.getId(),
+                MeasurementTypeImpl.Fields.INTERVAl.fieldName(), interval);
+    }
+
+    @Override
+    public List<ChannelType> findChannelTypeByTemplateRegister(RegisterType templateRegisterType) {
+        return getDataModel().mapper(ChannelType.class).find("templateRegisterId", templateRegisterType.getId());
+    }
 }

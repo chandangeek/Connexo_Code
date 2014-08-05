@@ -57,15 +57,15 @@ public interface LoadProfileType extends HasId {
     public void setInterval(TimeDuration timeDuration);
 
     /**
-     * Gets the list of RtuRegisterMappings for this LoadProfileType
+     * Gets the list of ChannelTypes for this LoadProfileType
      *
-     * @return a list of RegisterMapping
+     * @return a list of ChannelTypes
      */
-    public List<RegisterMapping> getRegisterMappings();
+    public List<ChannelType> getChannelTypes();
 
-    public void addRegisterMapping (RegisterMapping registerMapping);
+    public ChannelType createChannelTypeForRegisterType(RegisterType templateRegister);
 
-    public void removeRegisterMapping (RegisterMapping registerMapping);
+    public void removeChannelType(ChannelType channelType);
 
     public void save ();
 
