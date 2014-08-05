@@ -23,7 +23,7 @@ public enum TableSpecs {
             table.column("NAME").varChar().map(ComPortPoolImpl.Fields.NAME.fieldName()).add();
             table.column("ACTIVE").type("varchar2(1)").notNull().map(ComPortPoolImpl.Fields.ACTIVE.fieldName()).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").varChar().map(ComPortPoolImpl.Fields.DESCRIPTION.fieldName()).add();
-            table.column("OBSOLETE_DATE").type("DATE").map(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).add();
+            table.column("OBSOLETE_DATE").type("DATE").map(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).conversion(ColumnConversion.DATE2DATE).add();
             table.column("COMPORTTYPE").number().notNull().map(ComPortPoolImpl.Fields.COMPORTTYPE.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
             table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".count").add();
             table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".timeUnitCode").add();
