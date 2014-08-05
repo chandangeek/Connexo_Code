@@ -10,7 +10,7 @@ import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
-import com.energyict.mdc.dashboard.ComTaskCompletionOverview;
+import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
@@ -85,8 +85,8 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
 
     }
 
-    private ComTaskCompletionOverview createComTaskCompletionOverview() {
-        ComTaskCompletionOverview overview = mock(ComTaskCompletionOverview.class);
+    private ComSessionSuccessIndicatorOverview createComTaskCompletionOverview() {
+        ComSessionSuccessIndicatorOverview overview = mock(ComSessionSuccessIndicatorOverview.class);
         when(overview.getTotalCount()).thenReturn(100L);
         List<Counter<CompletionCode>> counters = new ArrayList<>();
         counters.add(createCounter(CompletionCode.Ok, 101L));
@@ -154,8 +154,8 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
     public void testGetOverview() {
         ConnectionStatusOverview connectionStatusOverview = createConnectionStatusOverview();
         when(dashboardService.getConnectionStatusOverview()).thenReturn(connectionStatusOverview);
-        ComTaskCompletionOverview comTaskCompletionOverview = createComTaskCompletionOverview();
-        when(dashboardService.getComTaskCompletionOverview()).thenReturn(comTaskCompletionOverview);
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
+        when(dashboardService.getComSessionSuccessIndicatorOverview()).thenReturn(comSessionSuccessIndicatorOverview);
         ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();
         when(dashboardService.getComPortPoolBreakdown()).thenReturn(comPortPoolBreakdown);
         ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
