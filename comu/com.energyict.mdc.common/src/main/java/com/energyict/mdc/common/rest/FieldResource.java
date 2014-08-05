@@ -228,11 +228,6 @@ public class FieldResource {
         return map;
     }
 
-    protected String translate(String value) {
-        return thesaurus.getString(value, value);
-    }
-
-
     private class NullObjectThesaurus implements Thesaurus {
 
         @Override
