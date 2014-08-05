@@ -27,14 +27,14 @@ public class DeviceConfigIsPresentAndActiveValidator  implements ConstraintValid
             if(!deviceConfigReference.isPresent()) {
                 constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext.
-                        buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DEVICE_CONFIGURATION_REQUIRED_KEY + "}").
+                        buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_CONFIGURATION_REQUIRED_KEY + "}").
                         addPropertyNode(DeviceFields.DEVICECONFIGURATION.fieldName()).
                         addConstraintViolation();
                 return false;
             } else if(!deviceConfigReference.get().isActive()){
                 constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext.
-                        buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DEVICE_CONFIGURATION_NOT_ACTIVE + "}").
+                        buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_CONFIGURATION_NOT_ACTIVE + "}").
                         addConstraintViolation();
                 return false;
             }

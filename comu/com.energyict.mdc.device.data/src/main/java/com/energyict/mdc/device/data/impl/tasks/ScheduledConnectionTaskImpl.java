@@ -62,7 +62,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private final SchedulingService schedulingService;
     private ComWindow comWindow;
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED_KEY + "}")
     private ConnectionStrategy connectionStrategy;
     private Date nextExecutionTimestamp;
     private Date plannedNextExecutionTimestamp;

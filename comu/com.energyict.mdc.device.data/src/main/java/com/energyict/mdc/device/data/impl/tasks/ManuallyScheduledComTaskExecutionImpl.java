@@ -5,7 +5,6 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.impl.constraintvalidators.NoManualSchedulingWhenAlreadyInComSchedule;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
@@ -32,10 +31,9 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-06-30 (10:59)
  */
-@NoManualSchedulingWhenAlreadyInComSchedule
 public class ManuallyScheduledComTaskExecutionImpl extends SingleComTaskExecutionImpl implements ManuallyScheduledComTaskExecution {
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NEXTEXECUTIONSPEC_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NEXTEXECUTIONSPEC_IS_REQUIRED + "}")
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
     @Inject

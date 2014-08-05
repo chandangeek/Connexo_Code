@@ -61,7 +61,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
                 if (connectionType.getPropertySpec(propertyName) == null) {
                     context.disableDefaultConstraintViolation();
                     context
-                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC_KEY + "}")
+                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC_KEY + "}")
                         .addPropertyNode("properties").addConstraintViolation();
                     this.valid = false;
                 }
@@ -100,7 +100,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         catch (InvalidValueException e) {
             context.disableDefaultConstraintViolation();
             context
-                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_TASK_INVALID_PROPERTY_KEY + "}")
+                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_INVALID_PROPERTY_KEY + "}")
                 .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
             this.valid = false;
         }
@@ -114,11 +114,11 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
                 context.disableDefaultConstraintViolation();
                 if(connectionTask.isAllowIncomplete()){
                     context
-                            .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
+                            .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
                             .addPropertyNode("status").addConstraintViolation();
                 } else {
                     context
-                            .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
+                            .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
                             .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
                 }
                 this.valid = false;

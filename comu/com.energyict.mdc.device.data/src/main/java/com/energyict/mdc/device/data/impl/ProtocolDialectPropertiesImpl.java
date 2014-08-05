@@ -51,12 +51,12 @@ public class ProtocolDialectPropertiesImpl
             ProtocolDialectProperties,
             PersistenceAware {
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY + "}")
     private Reference<Device> device = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY + "}")
     private Reference<ProtocolDialectConfigurationProperties> configurationProperties = ValueReference.absent();
     private DeviceProtocolDialectUsagePluggableClass deviceProtocolDialectUsagePluggableClass;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private Map<String,String> relationAttributeNamePropertyMap;
     private Date modificationDate;

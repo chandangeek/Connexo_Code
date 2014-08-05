@@ -246,7 +246,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT + "}")
     public void setNotToUseDefaultAndNoConnectionTaskSetTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
@@ -282,7 +282,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     public void negativePriorityOnBuilderTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
         int myPriority = -123;
@@ -300,7 +300,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     public void setPriorityOutOfRangeTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
         int myPriority = TaskPriorityConstants.LOWEST_PRIORITY + 1;
@@ -340,7 +340,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     public void negativePriorityOnUpdaterTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
         int myPriority = -7859;
@@ -361,7 +361,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     public void updatePriorityOutOfRangeTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
         int myPriority = TaskPriorityConstants.LOWEST_PRIORITY + 1;
@@ -421,7 +421,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
     @Transactional
     public void setNullProtocolDialectTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
@@ -578,7 +578,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NO_MANUAL_SCHEDULING_FOR_COMTASKS_IN_COMSCHEDULE + "}", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}", strict = false)
     public void comTaskAlreadyScheduledViaComScheduleTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);

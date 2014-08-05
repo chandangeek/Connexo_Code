@@ -31,7 +31,7 @@ import java.util.List;
 @UniqueComSchedulePerDevice
 public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implements ScheduledComTaskExecution {
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.COMSCHEDULE_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COMSCHEDULE_IS_REQUIRED + "}")
     private Reference<ComSchedule> comSchedule = ValueReference.absent();
 
     @Inject

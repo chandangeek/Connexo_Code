@@ -26,7 +26,6 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.domain.util.Save;
@@ -70,7 +69,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private final DeviceDataService deviceDataService;
     private final SchedulingService schedulingService;
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_IS_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
 
     private long connectionTaskId;  // Required for performance of ComTaskExecution query to avoid loading the ConnectionTask to only get the id
@@ -89,9 +88,9 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     /**
      * ExecutionPriority can be overruled by the Minimize ConnectionTask
      */
-    @Range(min = TaskPriorityConstants.HIGHEST_PRIORITY, max = TaskPriorityConstants.LOWEST_PRIORITY, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @Range(min = TaskPriorityConstants.HIGHEST_PRIORITY, max = TaskPriorityConstants.LOWEST_PRIORITY, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     private int executionPriority;
-    @Range(min = TaskPriorityConstants.HIGHEST_PRIORITY, max = TaskPriorityConstants.LOWEST_PRIORITY, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @Range(min = TaskPriorityConstants.HIGHEST_PRIORITY, max = TaskPriorityConstants.LOWEST_PRIORITY, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     private int plannedPriority;
     private int currentRetryCount;
     private boolean lastExecutionFailed;
