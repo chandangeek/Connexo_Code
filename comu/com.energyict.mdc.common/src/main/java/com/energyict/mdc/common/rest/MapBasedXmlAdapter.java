@@ -16,7 +16,7 @@ import static java.lang.Integer.parseInt;
  */
 public class MapBasedXmlAdapter<V> extends XmlAdapter<String, V>{
 
-    private final Map<String, V> map = new HashMap<>();
+    protected final Map<String, V> map = new HashMap<>();
 
     protected final void register(String jsonValue, V serverValue) {
         if (map.containsKey(jsonValue)) {
@@ -25,7 +25,7 @@ public class MapBasedXmlAdapter<V> extends XmlAdapter<String, V>{
         map.put(jsonValue, serverValue);
     }
 
-    public final List<String> getClientSideValues() {
+    public List<String> getClientSideValues() {
         List<String> list = new ArrayList<>(map.keySet());
         Collections.sort(list, new SmartComparator());
         return list;
