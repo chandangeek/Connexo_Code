@@ -5,18 +5,22 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
-import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.*;
 
 @Path("/loadprofiles")
@@ -44,7 +48,7 @@ public class LoadProfileResource {
             info.name = timeDurationEntry.getValue().toString(thesaurus);
             infos.add(info);
         }
-        return Response.ok(PagedInfoList.asJson("data", infos, queryParameters)).build();
+        return Response.ok(infos).build();
     }
 
     @GET
@@ -72,9 +76,14 @@ public class LoadProfileResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addNewLoadProfileType(LoadProfileTypeInfo request) {
+    public Response addNewLoadProfileType(LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
         LoadProfileType loadProfileType = masterDataService.newLoadProfileType(request.name, request.obisCode, request.timeDuration);
-        addRegisterMappingsToLoadProfileType(loadProfileType, request);
+        boolean all = getBoolean(uriInfo, "all");
+        if (all) {
+            addAllChannelTypesToLoadProfileType(loadProfileType);
+        } else {
+            addChannelTypesToLoadProfileType(loadProfileType, request);
+        }
         loadProfileType.save();
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, false)).build();
     }
@@ -83,14 +92,19 @@ public class LoadProfileResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request) {
+    public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
         LoadProfileType loadProfileType = findLoadProfileByIdOrThrowException(loadProfileId);
         loadProfileType.setName(request.name);
         boolean isInUse = isLoadProfileTypeAlreadyInUse(loadProfileType);
         if (!isInUse){
             loadProfileType.setInterval(request.timeDuration);
             loadProfileType.setObisCode(request.obisCode);
-            editRegisterMappingsToLoadProfileType(loadProfileType, request);
+            boolean all = getBoolean(uriInfo, "all");
+            if (all) {
+                addAllChannelTypesToLoadProfileType(loadProfileType);
+            } else {
+                editChannelTypesToLoadProfileType(loadProfileType, request);
+            }
         }
         loadProfileType.save();
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isInUse)).build();
@@ -116,27 +130,39 @@ public class LoadProfileResource {
     }
 
 
-    private void addRegisterMappingsToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
-        if (request.registerMappings != null) {
-            for (RegisterMappingInfo registerMapping : request.registerMappings) {
-                Optional<RegisterMapping> registerMappingRef = masterDataService.findRegisterMapping(registerMapping.id);
-                if (registerMappingRef.isPresent()) {
-                    loadProfileType.addRegisterMapping(registerMappingRef.get());
+    private void addChannelTypesToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
+        if (request.registerTypes != null) {
+            for (RegisterTypeInfo registerTypeInfo : request.registerTypes) {
+                Optional<RegisterType> registerType = masterDataService.findRegisterType(registerTypeInfo.id);
+                if (registerType.isPresent()) {
+                    loadProfileType.createChannelTypeForRegisterType(registerType.get());
                 }
             }
         }
     }
 
-    private void editRegisterMappingsToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
-        if (request.registerMappings != null) {
-            List<RegisterMapping> mappingsOnLoadProfile = loadProfileType.getRegisterMappings();
-            for (RegisterMapping registerMapping : mappingsOnLoadProfile) {
-                loadProfileType.removeRegisterMapping(registerMapping);
+    private void addAllChannelTypesToLoadProfileType(LoadProfileType loadProfileType) {
+        Set<Long> alreadyAdded = new HashSet<>();
+        for (ChannelType channelType : loadProfileType.getChannelTypes()) {
+            alreadyAdded.add(channelType.getId());
+        }
+        for (RegisterType registerType : masterDataService.findAllRegisterTypes().find()) {
+            if (!alreadyAdded.remove(registerType.getId())) {
+                loadProfileType.createChannelTypeForRegisterType(registerType);
             }
-            for (RegisterMappingInfo registerMapping : request.registerMappings) {
-                Optional<RegisterMapping> registerMappingRef = masterDataService.findRegisterMapping(registerMapping.id);
-                if (registerMappingRef.isPresent()) {
-                    loadProfileType.addRegisterMapping(registerMappingRef.get());
+        }
+    }
+
+    private void editChannelTypesToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
+        if (request.registerTypes != null) {
+            List<ChannelType> mappingsOnLoadProfile = loadProfileType.getChannelTypes();
+            for (ChannelType channelType : mappingsOnLoadProfile) {
+                loadProfileType.removeChannelType(channelType);
+            }
+            for (RegisterTypeInfo measurementType : request.registerTypes) {
+                Optional<RegisterType> registerType = masterDataService.findRegisterType(measurementType.id);
+                if (registerType.isPresent()) {
+                    loadProfileType.createChannelTypeForRegisterType(registerType.get());
                 }
             }
         }
@@ -145,4 +171,11 @@ public class LoadProfileResource {
         return !deviceConfigurationService.findDeviceConfigurationsUsingLoadProfileType(loadProfileType).isEmpty()
                 || !deviceConfigurationService.findDeviceTypesUsingLoadProfileType(loadProfileType).isEmpty();
     }
+
+    private boolean getBoolean(UriInfo uriInfo, String key) {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
+    }
+
+
 }

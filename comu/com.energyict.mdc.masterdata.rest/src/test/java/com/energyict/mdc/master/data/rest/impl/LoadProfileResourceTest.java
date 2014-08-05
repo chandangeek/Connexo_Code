@@ -13,9 +13,10 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.masterdata.rest.impl.LoadProfileResource;
 import com.google.common.base.Optional;
@@ -93,8 +94,7 @@ public class LoadProfileResourceTest extends JerseyTest {
     @Test
     public void testIntervalsList() throws Exception {
         when(thesaurus.getString(Matchers.<String>anyObject(), Matchers.<String>anyObject())).thenReturn("%s minute");
-        Map<String, Object> map = target("/loadprofiles/intervals").request().get(Map.class);
-        List<?> intervals = (List) map.get("data");
+        List<Object> intervals = target("/loadprofiles/intervals").request().get(List.class);
         assertThat(intervals).hasSize(11);
         assertThat(((Map)intervals.get(0)).get("name")).isEqualTo("1 minute");
     }
@@ -136,8 +136,9 @@ public class LoadProfileResourceTest extends JerseyTest {
 
     @Test
     public void testGetLoadProfileType() throws Exception {
-        LoadProfileType loadProfileType = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), getRandomTimeDuration(),
-                new ObisCode(10, 20, 30, 40, 50, 60), getRegisterMappings(2));
+        TimeDuration interval = getRandomTimeDuration();
+        LoadProfileType loadProfileType = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), interval,
+                new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
         when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.of(loadProfileType));
 
         Map<String, Object> map = target("/loadprofiles/1").request().get(Map.class);
@@ -159,18 +160,20 @@ public class LoadProfileResourceTest extends JerseyTest {
     private List<LoadProfileType> getLoadProfileTypes(int count) {
         List<LoadProfileType> loadProfileTypes = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
-            loadProfileTypes.add(mockLoadProfileType(1000 + i, String.format("Load Profile Type %04d", i), getRandomTimeDuration(),
-                    new ObisCode(i, i, i, i, i, i), getRegisterMappings(getRandomInt(4))));
+            TimeDuration interval = getRandomTimeDuration();
+            loadProfileTypes.add(mockLoadProfileType(1000 + i, String.format("Load Profile Type %04d", i), interval,
+                    new ObisCode(i, i, i, i, i, i), getChannelTypes(getRandomInt(4), interval)));
         }
         return loadProfileTypes;
     }
 
-    private List<RegisterMapping> getRegisterMappings(int count) {
-        List<RegisterMapping> mappings = new ArrayList<>(count);
+    private List<ChannelType> getChannelTypes(int count, TimeDuration interval) {
+        List<ChannelType> channelTypes = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
-            mappings.add(mockRegisterMapping(1000 + i, String.format("Register mapping %04d", i), new ObisCode(i, i, i, i, i, i)));
+            RegisterType registerType = mockRegisterType(1000 + i, String.format("Register type %04d", i), new ObisCode(i, i, i, i, i, i));
+            channelTypes.add(mockChannelType(1000 + i, String.format("Channel type %04d", i), new ObisCode(i, i, i, i, i, i),interval ,registerType));
         }
-        return mappings;
+        return channelTypes;
     }
 
     private int getRandomInt(int end) {
@@ -197,26 +200,40 @@ public class LoadProfileResourceTest extends JerseyTest {
         return obisCode;
     }
 
-    private LoadProfileType mockLoadProfileType(long id, String name, TimeDuration interval, ObisCode obisCode, List<RegisterMapping> mappings) {
+    private LoadProfileType mockLoadProfileType(long id, String name, TimeDuration interval, ObisCode obisCode, List<ChannelType> channelTypes) {
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         when(loadProfileType.getId()).thenReturn(id);
         when(loadProfileType.getName()).thenReturn(name);
         when(loadProfileType.getInterval()).thenReturn(interval);
         when(loadProfileType.getObisCode()).thenReturn(obisCode);
-        when(loadProfileType.getRegisterMappings()).thenReturn(mappings);
+        when(loadProfileType.getChannelTypes()).thenReturn(channelTypes);
         return loadProfileType;
     }
 
-    private RegisterMapping mockRegisterMapping(long id, String name, ObisCode obisCode) {
-        RegisterMapping registerMapping = mock(RegisterMapping.class);
-        when(registerMapping.getId()).thenReturn(id);
-        when(registerMapping.getName()).thenReturn(name);
-        when(registerMapping.getObisCode()).thenReturn(obisCode);
-        when(registerMapping.getTimeOfUse()).thenReturn(0);
-        when(registerMapping.getUnit()).thenReturn(Unit.get("kWh"));
+    private RegisterType mockRegisterType(long id, String name, ObisCode obisCode) {
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerType.getId()).thenReturn(id);
+        when(registerType.getName()).thenReturn(name);
+        when(registerType.getObisCode()).thenReturn(obisCode);
+        when(registerType.getTimeOfUse()).thenReturn(0);
+        when(registerType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mockReadingType();
-        when(registerMapping.getReadingType()).thenReturn(readingType);
-        return registerMapping;
+        when(registerType.getReadingType()).thenReturn(readingType);
+        return registerType;
+    }
+
+    private ChannelType mockChannelType(long id, String name, ObisCode obisCode, TimeDuration interval, RegisterType templateRegister) {
+        ChannelType channelType = mock(ChannelType.class);
+        when(channelType.getId()).thenReturn(id);
+        when(channelType.getName()).thenReturn(name);
+        when(channelType.getObisCode()).thenReturn(obisCode);
+        when(channelType.getTimeOfUse()).thenReturn(0);
+        when(channelType.getUnit()).thenReturn(Unit.get("kWh"));
+        ReadingType readingType = mockReadingType();
+        when(channelType.getReadingType()).thenReturn(readingType);
+        when(channelType.getInterval()).thenReturn(interval);
+        when(channelType.getTemplateRegister()).thenReturn(templateRegister);
+        return channelType;
     }
 
     private ReadingType mockReadingType() {
