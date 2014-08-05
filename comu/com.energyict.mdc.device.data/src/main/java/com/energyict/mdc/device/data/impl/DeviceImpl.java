@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -1033,11 +1034,24 @@ public class DeviceImpl implements Device {
             for (Channel channel : loadProfile.getChannels()) {
                 List<? extends BaseReadingRecord> meterReadings = meter.getReadings(interval, channel.getChannelSpec().getReadingType());
                 for (BaseReadingRecord meterReading : meterReadings) {
-                    sortedLoadProfileReadingMap.get(meterReading.getTimeStamp()).setChannelData(channel, meterReading.getValue());
+                    LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
+                    loadProfileReading.setChannelData(channel, meterReading.getValue());
+                    loadProfileReading.setFlags(getFlagsFromProcessStatus(meterReading.getProcesStatus()));
+                    loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
                 }
             }
         }
         return new ArrayList<>(sortedLoadProfileReadingMap.values());
+    }
+
+    private List<ProcessStatus.Flag> getFlagsFromProcessStatus(ProcessStatus processStatus) {
+        List<ProcessStatus.Flag> flags = new ArrayList<>();
+        for (ProcessStatus.Flag flag : ProcessStatus.Flag.values()) {
+            if (processStatus.get(flag)) {
+                flags.add(flag);
+            }
+        }
+        return flags;
     }
 
     private Map<Date, LoadProfileReading> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval interval) {
