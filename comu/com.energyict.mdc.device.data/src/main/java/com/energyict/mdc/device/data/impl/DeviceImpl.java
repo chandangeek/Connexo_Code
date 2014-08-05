@@ -1,8 +1,37 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -24,6 +53,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
@@ -71,43 +101,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -122,6 +117,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeMap;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -1022,16 +1023,68 @@ public class DeviceImpl implements Device {
         return Collections.emptyList();
     }
 
-    List<IntervalReadingRecord> getChannelDataFor(LoadProfile loadProfile, Interval interval) {
+    @Override
+    public List<LoadProfileReading> getChannelDataFor(LoadProfile loadProfile, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        List<IntervalReadingRecord> readings = new ArrayList<>();
+        Map<Date, LoadProfileReading> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval);
+
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateMeterInKore(amrSystem);
             for (Channel channel : loadProfile.getChannels()) {
-                readings.addAll((Collection<IntervalReadingRecord>) meter.getReadings(interval, channel.getChannelSpec().getReadingType()));
+                List<? extends BaseReadingRecord> meterReadings = meter.getReadings(interval, channel.getChannelSpec().getReadingType());
+                for (BaseReadingRecord meterReading : meterReadings) {
+                    sortedLoadProfileReadingMap.get(meterReading.getTimeStamp()).setChannelData(channel, meterReading.getValue());
+                }
             }
         }
-        return readings;
+        return new ArrayList<>(sortedLoadProfileReadingMap.values());
+    }
+
+    private Map<Date, LoadProfileReading> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval interval) {
+        Map<Date, LoadProfileReading> loadProfileReadingMap = new TreeMap<>();
+        DateTime timeIndex = new DateTime(interval.getStart().getTime());
+        DateTime endTime = new DateTime(interval.getEnd().getTime());
+        while (timeIndex.compareTo(endTime)<0) {
+            DateTime intervalEnd = getIntervalEnd(loadProfile.getInterval(), timeIndex);
+            LoadProfileReading value = new LoadProfileReadingImpl();
+            value.setInterval(new Interval(timeIndex.toDate(), intervalEnd.toDate()));
+            loadProfileReadingMap.put(timeIndex.toDate(), value);
+            timeIndex=intervalEnd;
+        }
+        return loadProfileReadingMap;
+    }
+
+    private DateTime getIntervalEnd(TimeDuration timeDuration, DateTime timeIndex) {
+        DateTime intervalEnd;
+        switch (timeDuration.getTimeUnitCode()) {
+            case TimeDuration.YEARS:
+                    intervalEnd=timeIndex.plusYears(timeDuration.getCount());
+                    break;
+            case TimeDuration.MONTHS:
+                    intervalEnd=timeIndex.plusMonths(timeDuration.getCount());
+                    break;
+            case TimeDuration.WEEKS:
+                    intervalEnd=timeIndex.plusWeeks(timeDuration.getCount());
+                    break;
+            case TimeDuration.DAYS:
+                    intervalEnd=timeIndex.plusDays(timeDuration.getCount());
+                    break;
+            case TimeDuration.HOURS:
+                    intervalEnd=timeIndex.plusHours(timeDuration.getCount());
+                    break;
+            case TimeDuration.MINUTES:
+                intervalEnd=timeIndex.plusMinutes(timeDuration.getCount());
+                break;
+            case TimeDuration.SECONDS:
+                intervalEnd=timeIndex.plusSeconds(timeDuration.getCount());
+                break;
+            case TimeDuration.MILLISECONDS:
+                intervalEnd=timeIndex.plusMillis(timeDuration.getCount());
+                break;
+            default:
+                throw new IllegalStateException("An unsupported timeUnit was encountered:"+ timeDuration.getTimeUnitCode());
+        }
+        return intervalEnd;
     }
 
     Optional<ReadingRecord> getLastReadingFor(Register<?> register) {
