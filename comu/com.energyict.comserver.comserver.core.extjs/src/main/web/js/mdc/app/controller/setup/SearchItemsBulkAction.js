@@ -84,9 +84,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             'searchitems-bulk-step3 #schedulesgrid gridview': {
                 itemclick: this.previewCommunicationSchedule
             },
-            '#searchitems-bulk-step3 #uncheck-all': {
-                click: this.uncheckAllSchedules
-            },
             'searchitems-wizard #backButton': {
                 click: this.backClick
             },
@@ -135,27 +132,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         }
     },
 
-    uncheckAllSchedules: function () {
-        this.getSchedulesGrid().getSelectionModel().deselectAll();
-        this.getCommunicationSchedulePreview().hide();
-        this.shedulesUnchecked = false;
-    },
-
     updateScheduleSelection: function (selModel, selected) {
-        var label = this.getSelectedScheduleQty(),
-            count = selected.length;
+        var count = selected.length;
 
-        if (count) {
-            label.update('<span style="color: grey;">'
-                + Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.scheduleSelected', count, 'MDC', '{0} schedules selected'), count)
-                + '</span>');
-        } else {
-            label.update('<span style="color: grey;">' +
-                Uni.I18n.translate('searchItems.bulk.noScheduleSelected', 'MDC', 'No schedule selected') +
-                '</span>');
+        if (count === 0) {
             this.getCommunicationSchedulePreview().hide();
-            this.shedulesUnchecked = true;
         }
+
+        this.shedulesUnchecked = count === 0;
     },
 
     previewCommunicationSchedule: function (grid, record) {
@@ -357,7 +341,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         switch (currentCmp.name) {
             case 'selectDevices':
-                me.devices = currentCmp.down('#devicesgrid').getSelectionModel().getSelection();
+                me.devices = me.getDevicesGrid().getSelectionModel().getSelection();
                 me.allDevices = me.getDevicesGrid().isAllSelected();
                 errorPanel = currentCmp.down('#step1-errors');
                 validation = me.devices.length || me.allDevices;
@@ -366,9 +350,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 me.operation = currentCmp.down('#searchitemsactionselect').getValue().operation;
                 break;
             case 'selectSchedules':
-                me.schedules = currentCmp.down('#schedulesgrid').getSelectionModel().getSelection();
+                me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
                 errorPanel = currentCmp.down('#step3-errors');
-                validation = me.schedules.length;
+                validation = me.schedules.length || me.getSchedulesGrid().isAllSelected();
                 break;
         }
 

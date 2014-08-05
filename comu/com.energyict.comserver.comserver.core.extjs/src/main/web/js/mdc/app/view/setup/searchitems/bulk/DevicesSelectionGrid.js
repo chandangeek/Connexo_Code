@@ -3,11 +3,6 @@ Ext.define('Mdc.view.setup.searchitems.bulk.DevicesSelectionGrid', {
     xtype: 'devices-selection-grid',
     itemId: 'devicesgrid',
 
-
-    requires: [
-        'Uni.view.grid.BulkSelection'
-    ],
-
     store: 'Mdc.store.DevicesBuffered',
 
     counterTextFn: function (count) {
