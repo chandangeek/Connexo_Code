@@ -23,4 +23,8 @@ public abstract class HeatMapImpl<T> implements HeatMap<T> {
         return Collections.unmodifiableList(this.rows).iterator();
     }
 
+    public void add(HeatMapRow<T> row) {
+        this.rows.add(row);
+    }
+
 }

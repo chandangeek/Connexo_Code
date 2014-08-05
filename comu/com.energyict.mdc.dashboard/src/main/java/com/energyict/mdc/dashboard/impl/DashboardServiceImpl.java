@@ -25,7 +25,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -135,7 +138,28 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ConnectionTypeHeatMap getConnectionTypeHeatMap() {
-        return new ConnectionTypeHeatMapImpl();
+        ConnectionTypeHeatMapImpl heatMap = new ConnectionTypeHeatMapImpl();
+        Map<ConnectionTypePluggableClass, List<Long>> rawData = this.taskHistoryService.getConnectionTypeHeatMap();
+        for (ConnectionTypePluggableClass connectionTypePluggableClass : rawData.keySet()) {
+            List<Long> counters = rawData.get(connectionTypePluggableClass);
+            HeatMapRowImpl<ConnectionTypePluggableClass> heatMapRow = new HeatMapRowImpl<>(connectionTypePluggableClass);
+            heatMapRow.add(this.newComSessionSuccessIndicatorOverview(counters));
+            heatMap.add(heatMapRow);
+        }
+        return heatMap;
+    }
+
+    private ComSessionSuccessIndicatorOverview newComSessionSuccessIndicatorOverview(List<Long> counters) {
+        Iterator<Long> successIndicatorValues = counters.iterator();
+        ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(successIndicatorValues.next());
+        for (ComSession.SuccessIndicator successIndicator : orderedSuccessIndicators()) {
+            overview.add(new CounterImpl<>(successIndicator, successIndicatorValues.next()));
+        }
+        return overview;
+    }
+
+    private List<ComSession.SuccessIndicator> orderedSuccessIndicators() {
+        return Arrays.asList(ComSession.SuccessIndicator.SetupError, ComSession.SuccessIndicator.Broken);
     }
 
     @Override
