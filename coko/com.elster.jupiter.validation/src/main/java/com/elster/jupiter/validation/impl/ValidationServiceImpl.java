@@ -34,6 +34,8 @@ import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
@@ -247,10 +249,22 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     @Override
     public void validate(MeterActivation meterActivation, Interval interval) {
+        Optional<MeterValidation> found = getMeterValidation(meterActivation);
+        if (found.isPresent() && found.get().getActivationStatus()) {
         List<MeterActivationValidation> meterActivationValidations = getMeterActivationValidations(meterActivation, interval);
-        for (MeterActivationValidation meterActivationValidation : meterActivationValidations) {
+            for (MeterActivationValidation meterActivationValidation : activeOnly(meterActivationValidations)) {
             meterActivationValidation.validate(interval);
         }
+        }
+    }
+
+    Iterable<MeterActivationValidation> activeOnly(Iterable<MeterActivationValidation> validations) {
+        return Iterables.filter(validations, new Predicate<MeterActivationValidation>() {
+            @Override
+            public boolean apply(MeterActivationValidation input) {
+                return input.isActive();
+            }
+        });
     }
 
     @Override
