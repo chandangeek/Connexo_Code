@@ -68,7 +68,7 @@ public class DeviceConfigFieldResource extends FieldResource{
     @GET
     @Path("/connectionStrategy")
     public Object getConnectionStrategies() {
-        return asJsonArrayObject("connectionStrategies", "connectionStrategy", new ConnectionStrategyAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("connectionStrategies", "connectionStrategy", new ConnectionStrategyAdapter().getClientSideValues());
     }
 
 }

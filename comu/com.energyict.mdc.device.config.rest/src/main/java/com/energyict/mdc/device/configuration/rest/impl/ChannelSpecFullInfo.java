@@ -4,7 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.masterdata.rest.PhenomenonInfo;
-import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChannelSpecFullInfo extends ChannelSpecInfo {
     @JsonProperty("measurementType")
-    public RegisterMappingInfo registerMapping;
+    public RegisterTypeInfo registerTypeInfo;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode overruledObisCode;
     public BigDecimal multiplier;
@@ -42,7 +42,7 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
         info.multiplier = channelSpec.getMultiplier();
         info.overflowValue = channelSpec.getOverflow();
         // TODO check that it is truth (true for isLinkedByDeviceType)
-        info.registerMapping = new RegisterMappingInfo(channelSpec.getRegisterMapping(), true);
+        info.registerTypeInfo = new RegisterTypeInfo(channelSpec.getChannelType(), true, false);
         info.unitOfMeasure = PhenomenonInfo.from(channelSpec.getPhenomenon());
         return info;
     }

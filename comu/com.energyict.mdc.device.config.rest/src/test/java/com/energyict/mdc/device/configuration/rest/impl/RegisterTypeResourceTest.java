@@ -20,7 +20,7 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import java.util.Collections;
 import java.util.Currency;
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Application;
 
+import com.energyict.mdc.masterdata.RegisterType;
 import com.google.common.base.Optional;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
@@ -94,8 +95,8 @@ public class RegisterTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetEmptyRegisterTypeList() throws Exception {
-        Finder<RegisterMapping> finder = mockFinder(Collections.<RegisterMapping>emptyList());
-        when(masterDataService.findAllRegisterMappings()).thenReturn(finder);
+        Finder<RegisterType> finder = mockFinder(Collections.<RegisterType>emptyList());
+        when(masterDataService.findAllRegisterTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/registertypes/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
@@ -104,14 +105,14 @@ public class RegisterTypeResourceTest extends JerseyTest {
 
     @Test
     public void testRegisterTypeInfoJavaScriptMappings() throws Exception {
-        RegisterMapping registerMapping = mock(RegisterMapping.class);
-        when(registerMapping.getId()).thenReturn(13L);
-        when(registerMapping.getName()).thenReturn("register type");
-        when(registerMapping.getObisCode()).thenReturn(new ObisCode(1,2,3,4,5,6));
-        when(deviceConfigurationService.isRegisterMappingUsedByDeviceType(registerMapping)).thenReturn(true);
-        when(registerMapping.getUnit()).thenReturn(Unit.get("kWh"));
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerType.getId()).thenReturn(13L);
+        when(registerType.getName()).thenReturn("register type");
+        when(registerType.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
+        when(deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType)).thenReturn(true);
+        when(registerType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mock(ReadingType.class);
-        when(registerMapping.getReadingType()).thenReturn(readingType);
+        when(registerType.getReadingType()).thenReturn(readingType);
         when(readingType.getMRID()).thenReturn("mrid");
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
         when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
@@ -132,8 +133,8 @@ public class RegisterTypeResourceTest extends JerseyTest {
 
         List<RegisterSpec> registerSpecs = mock(List.class);
         when(registerSpecs.size()).thenReturn(1);
-        when(masterDataService.findRegisterMapping(13)).thenReturn(Optional.of(registerMapping));
-        when(deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(any(DeviceType.class), any(RegisterMapping.class))).thenReturn(registerSpecs);
+        when(masterDataService.findRegisterType(13)).thenReturn(Optional.of(registerType));
+        when(deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterType(any(DeviceType.class), any(RegisterType.class))).thenReturn(registerSpecs);
 
         Map<String, Object> map = target("/registertypes/13").request().get(Map.class);
         assertThat(map).hasSize(9)

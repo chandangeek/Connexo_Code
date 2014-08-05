@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -21,6 +23,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,6 +66,10 @@ public class DeviceConfigurationResourceTest {
     private DeviceType deviceType;
     @Mock
     private DeviceConfiguration deviceConfiguration;
+    @Mock
+    private ReadingType readingType1, readingType2;
+    @Mock
+    private ValidationRule rule1, rule2;
 
     @Before
     public void setUp() {
@@ -95,10 +102,28 @@ public class DeviceConfigurationResourceTest {
         map.add("all", Boolean.TRUE.toString());
 
         when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(validationRuleSet1, validationRuleSet2));
+        when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration)).thenReturn(Arrays.asList(readingType1, readingType2));
+        when(validationRuleSet1.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule1));
+        when(validationRuleSet2.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule2));
 
         deviceConfigurationResource.addRuleSetsToDeviceConfiguration(DEVICE_TYPE_ID, DEVICE_CONFIGURATION_ID, Collections.<Long>emptyList(), uriInfo);
 
         verify(deviceConfiguration).addValidationRuleSet(validationRuleSet1);
+        verify(deviceConfiguration).addValidationRuleSet(validationRuleSet2);
+    }
+
+    @Test
+    public void testAddAllRuleSetsToDeviceConfigurationWithoutNonMatching() throws Exception {
+        map.add("all", Boolean.TRUE.toString());
+
+        when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(validationRuleSet1, validationRuleSet2));
+        when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration)).thenReturn(Arrays.asList(readingType1, readingType2));
+        when(validationRuleSet1.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Collections.<ValidationRule>emptyList());
+        when(validationRuleSet2.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule2));
+
+        deviceConfigurationResource.addRuleSetsToDeviceConfiguration(DEVICE_TYPE_ID, DEVICE_CONFIGURATION_ID, Collections.<Long>emptyList(), uriInfo);
+
+        verify(deviceConfiguration, never()).addValidationRuleSet(validationRuleSet1);
         verify(deviceConfiguration).addValidationRuleSet(validationRuleSet2);
     }
 

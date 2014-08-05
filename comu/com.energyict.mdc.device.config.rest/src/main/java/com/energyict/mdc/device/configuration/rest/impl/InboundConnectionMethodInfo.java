@@ -22,8 +22,8 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInb
     }
 
     @Override
-    protected void writeTo(PartialInboundConnectionTask partialConnectionTask, EngineModelService engineModelService) {
-        super.writeTo(partialConnectionTask, engineModelService);
+    protected void writeTo(PartialInboundConnectionTask partialConnectionTask, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
+        super.writeTo(partialConnectionTask, engineModelService, protocolPluggableService);
         partialConnectionTask.setComportPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()?null:(InboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
         partialConnectionTask.setDefault(this.isDefault);
     }
@@ -31,7 +31,7 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInb
     @Override
     public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils) {
         this.mdcPropertyUtils = mdcPropertyUtils;
-        ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionType, protocolPluggableService);
+        ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionTypePluggableClass, protocolPluggableService);
         PartialInboundConnectionTaskBuilder connectionTaskBuilder = deviceConfiguration.getCommunicationConfiguration().newPartialInboundConnectionTask(name, connectionTypePluggableClass)
             .comPortPool((InboundComPortPool) engineModelService.findComPortPool(this.comPortPool))
             .asDefault(this.isDefault);

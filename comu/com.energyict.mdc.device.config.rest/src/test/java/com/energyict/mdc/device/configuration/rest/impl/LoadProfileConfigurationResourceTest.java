@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -103,7 +104,8 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
 
         LoadProfileSpecInfo info = new LoadProfileSpecInfo();
         Entity<LoadProfileSpecInfo> json = Entity.json(info);
-        LoadProfileType loadProfileType = mockLoadProfileType(1, "loadProfile", getRandomTimeDuration(), new ObisCode(0, 1, 2, 3, 4, 5), getRegisterMappings(1));
+        TimeDuration interval = getRandomTimeDuration();
+        LoadProfileType loadProfileType = mockLoadProfileType(1, "loadProfile", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
         LoadProfileSpec.LoadProfileSpecBuilder specBuilder = mock(LoadProfileSpec.LoadProfileSpecBuilder.class);
         LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(15, "spec");
 

@@ -10,6 +10,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 
 import javax.inject.Inject;
@@ -95,7 +96,11 @@ public class LoadProfileTypeResource {
         return Iterables.transform(ids, new Function<Long, LoadProfileType>() {
             @Override
             public LoadProfileType apply(Long id) {
-                return masterDataService.findLoadProfileType(id).get();
+                Optional<LoadProfileType> loadProfileType = masterDataService.findLoadProfileType(id);
+                if (loadProfileType.isPresent()) {
+                    return loadProfileType.get();
+                }
+                throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, id);
             }
         });
     }
@@ -104,8 +109,6 @@ public class LoadProfileTypeResource {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
     }
-
-
 
     @DELETE
     @Path("/{loadProfileTypeId}")

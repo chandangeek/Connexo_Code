@@ -1,21 +1,27 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.Finder;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
-import com.google.common.base.Optional;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +29,7 @@ import java.util.List;
 @Path("/registergroups")
 public class RegisterGroupResource {
 
+    public static final String ALL = "all";
     private final MasterDataService masterDataService;
     private final ResourceHelper resourceHelper;
 
@@ -39,7 +46,7 @@ public class RegisterGroupResource {
     public PagedInfoList getRegisterGroups(@BeanParam QueryParameters queryParameters) {
         List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups().from(queryParameters).find();
         List<RegisterGroupInfo> registerGroupInfos = new ArrayList<>();
-        for(RegisterGroup registerGroup : allRegisterGroups){
+        for (RegisterGroup registerGroup : allRegisterGroups) {
             registerGroupInfos.add(new RegisterGroupInfo(registerGroup.getId(), registerGroup.getName()));
         }
 
@@ -58,18 +65,18 @@ public class RegisterGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
-        List<RegisterMappingInfo> registerMappingInfos = registerGroupInfo.registerTypes;
+        List<RegisterTypeInfo> registerTypeInfos = registerGroupInfo.registerTypes;
         if(queryParameters.getStart() != null && queryParameters.getStart() < registerGroupInfo.registerTypes.size()){
-            registerMappingInfos = registerMappingInfos.subList(queryParameters.getStart(), registerMappingInfos.size());
+            registerTypeInfos = registerTypeInfos.subList(queryParameters.getStart(), registerTypeInfos.size());
         }
-        return PagedInfoList.asJson("registerTypes", registerMappingInfos, queryParameters);
+        return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters);
     }
 
     @DELETE
     @Path("/{id}")
     public Response deleteRegisterGroup(@PathParam("id") long id) {
         RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
-        group.removeRegisterMappings();
+        group.removeRegisterTypes();
         group.delete();
         return Response.ok().build();
     }
@@ -77,11 +84,11 @@ public class RegisterGroupResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public RegisterGroupInfo createRegisterGroup(RegisterGroupInfo registerGroupInfo) {
+    public RegisterGroupInfo createRegisterGroup(RegisterGroupInfo registerGroupInfo, @Context UriInfo uriInfo) {
         RegisterGroup newGroup = this.masterDataService.newRegisterGroup(registerGroupInfo.name);
         newGroup.save();
 
-        return updateRegisterMappingInGroup(newGroup, registerGroupInfo, true);
+        return updateRegisterTypeInGroup(newGroup, registerGroupInfo, true, getBoolean(uriInfo, ALL));
 
     }
 
@@ -89,29 +96,46 @@ public class RegisterGroupResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public RegisterGroupInfo updateRegisterGroup(@PathParam("id") long id, RegisterGroupInfo registerGroupInfo) {
+    public RegisterGroupInfo updateRegisterGroup(@PathParam("id") long id, RegisterGroupInfo registerGroupInfo, @Context UriInfo uriInfo) {
         boolean modified = false;
         RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
-        if(!group.getName().equals(registerGroupInfo.name)){
+        if (!group.getName().equals(registerGroupInfo.name)) {
             group.setName(registerGroupInfo.name);
             modified = true;
         }
 
-        return updateRegisterMappingInGroup(group, registerGroupInfo, modified);
+        return updateRegisterTypeInGroup(group, registerGroupInfo, modified, getBoolean(uriInfo, ALL));
     }
 
-    private RegisterGroupInfo updateRegisterMappingInGroup(RegisterGroup group, RegisterGroupInfo registerGroupInfo, boolean modified){
-        HashMap<Long, RegisterMapping> registerMappings = new HashMap<>();
-        for(RegisterMappingInfo mapping : registerGroupInfo.registerTypes){
-            registerMappings.put(mapping.id, resourceHelper.findRegisterMappingByIdOrThrowException(mapping.id));
-        }
+    private RegisterGroupInfo updateRegisterTypeInGroup(RegisterGroup group, RegisterGroupInfo registerGroupInfo, boolean modified, boolean all) {
 
-        modified |= group.updateRegisterMappings(registerMappings);
+        boolean didUpdateMappings = group.updateRegisterTypes(extractMappings(registerGroupInfo, all));
 
-        if(modified){
+        if (didUpdateMappings || modified) {
             this.masterDataService.validateRegisterGroup(group);
             group.save();
         }
         return new RegisterGroupInfo(group);
     }
+
+    private HashMap<Long, RegisterType> extractMappings(RegisterGroupInfo registerGroupInfo, boolean all) {
+        HashMap<Long, RegisterType> registerMappings = new HashMap<>();
+        if (all) {
+            List<RegisterType> mappings = masterDataService.findAllRegisterTypes().find();
+            for (RegisterType mapping : mappings) {
+                registerMappings.put(mapping.getId(), mapping);
+            }
+        } else {
+            for (RegisterTypeInfo mapping : registerGroupInfo.registerTypes) {
+                registerMappings.put(mapping.id, resourceHelper.findRegisterTypeByIdOrThrowException(mapping.id));
+            }
+        }
+        return registerMappings;
+    }
+
+    private boolean getBoolean(UriInfo uriInfo, String key) {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
+    }
+
 }
