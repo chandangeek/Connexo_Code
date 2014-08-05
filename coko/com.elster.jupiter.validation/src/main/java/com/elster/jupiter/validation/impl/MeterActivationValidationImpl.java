@@ -11,7 +11,9 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 
 import javax.inject.Inject;
@@ -130,6 +132,9 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public void validate(Interval interval) {
+        if (!isActive()) {
+            return;
+        }
         for (Channel channel : getMeterActivation().getChannels()) {
             validateChannel(interval, channel);
         }
@@ -142,7 +147,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         ChannelValidation channelValidation = findOrAddValidationFor(channel);
         Date lastChecked = null;
         Interval intervalToValidate = new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), interval.getEnd());
-        for (IValidationRule validationRule : getRuleSet().getRules()) {
+        for (IValidationRule validationRule : getActiveRules()) {
             lastChecked = validationRule.validateChannel(channel, intervalToValidate);
             if (lastChecked != null) {
                 earliestLastChecked = getEarliestDate(earliestLastChecked, lastChecked);
@@ -152,6 +157,15 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         if (earliestLastChecked != null) {
             channelValidation.setLastChecked(earliestLastChecked);
         }
+    }
+
+    private Iterable<IValidationRule> getActiveRules() {
+        return Iterables.filter(getRuleSet().getRules(), new Predicate<IValidationRule>() {
+            @Override
+            public boolean apply(IValidationRule input) {
+                return input.isActive();
+            }
+        });
     }
 
     private Date getEarliestDate(Date first, Date second) {
