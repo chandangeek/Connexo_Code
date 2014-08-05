@@ -40,6 +40,9 @@ public interface KpiBuilder {
      */
     KpiBuilder interval(IntervalLength interval);
 
+    /**
+     * Intermediate builder for KpiMembers.
+     */
     interface KpiMemberBuilder {
 
         /**
