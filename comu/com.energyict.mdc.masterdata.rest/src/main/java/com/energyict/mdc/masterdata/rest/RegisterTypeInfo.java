@@ -2,13 +2,9 @@ package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.common.rest.UnitAdapter;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.ChannelType;
-
+import com.energyict.mdc.masterdata.MeasurementType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -52,7 +48,7 @@ public class RegisterTypeInfo {
         measurementType.setName(this.name);
         measurementType.setObisCode(this.obisCode);
         measurementType.setTimeOfUse(this.timeOfUse);
-        measurementType.setUnit(this.unit);
+        measurementType.setUnit(this.unitOfMeasure.unit);
         measurementType.setReadingType(readingType);
     }
 
