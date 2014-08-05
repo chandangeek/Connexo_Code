@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
@@ -69,7 +70,7 @@ public enum TableSpecs {
             table.column("ACTIVE").bool().map("active").add();
             table.column("OBSOLETETIME").number().conversion(NUMBER2UTCINSTANT).map("obsoleteTime").add();
             table.primaryKey("VAL_PK_MA_VALIDATION").on(idColumn).add();
-            table.foreignKey("VAL_FK_MA_VALIDATION_MA").references("MTR", "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
+            table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(MeteringService.COMPONENTNAME, "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).onDelete(DeleteRule.RESTRICT).map("ruleSet").on(ruleSetIdColumn).add();
         }
     },
@@ -82,7 +83,7 @@ public enum TableSpecs {
             Column meterActivationValidationColumn = table.column("MAV_ID").number().conversion(NUMBER2LONG).add();
             table.column("LASTCHECKED").number().conversion(NUMBER2UTCINSTANT).map("lastChecked").add();
             table.primaryKey("VAL_PK_CH_VALIDATION").on(idColumn).add();
-            table.foreignKey("VAL_FK_CH_VALIDATION_CH").references("MTR", "MTR_CHANNEL").onDelete(RESTRICT).map("channel").on(channelRef).add();
+            table.foreignKey("VAL_FK_CH_VALIDATION_CH").references(MeteringService.COMPONENTNAME, "MTR_CHANNEL").onDelete(RESTRICT).map("channel").on(channelRef).add();
             table.foreignKey("VAL_FK_CH_VALIDATION_MA_VAL").references(VAL_MA_VALIDATION.name()).onDelete(DeleteRule.CASCADE).map("meterActivationValidation").reverseMap("channelValidations")
                     .composition().on(meterActivationValidationColumn).add();
         }
@@ -95,7 +96,7 @@ public enum TableSpecs {
             Column meterActivationId = table.column("METERACTIVATIONID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("ACTIVE").bool().map("isActive").add();
             table.primaryKey("VAL_PK_MA_METER_VALIDATION").on(meterActivationId).add();
-            table.foreignKey("VAL_FK_MA_METER_VALIDATION").references("MTR", "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
+            table.foreignKey("VAL_FK_MA_METER_VALIDATION").references(MeteringService.COMPONENTNAME, "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
         }
     },
 
@@ -106,7 +107,7 @@ public enum TableSpecs {
             Column readingTypeMRIDColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRID").add();
             table.primaryKey("VAL_PK_RTYPEINVALRULE").on(ruleIdColumn, readingTypeMRIDColumn).add();
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RULE").references(VAL_VALIDATIONRULE.name()).onDelete(DeleteRule.CASCADE).map("rule").reverseMap("readingTypesInRule").composition().on(ruleIdColumn).add();
-            table.foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE").references("MTR", "MTR_READINGTYPE").onDelete(RESTRICT).map("readingType").on(readingTypeMRIDColumn).add();
+            table.foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE").references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").onDelete(RESTRICT).map("readingType").on(readingTypeMRIDColumn).add();
         }
     };
 

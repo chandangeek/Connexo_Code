@@ -36,6 +36,8 @@ import static com.elster.jupiter.validation.MessageSeeds.Constants;
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE_SET + "}")
 public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
+    static final String OBSOLETE_TIME_FIELD = "obsoleteTime";
+
     private long id;
     private String mRID;
 
