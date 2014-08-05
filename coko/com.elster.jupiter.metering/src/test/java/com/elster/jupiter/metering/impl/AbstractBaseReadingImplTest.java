@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
+import com.elster.jupiter.metering.ProcessStatus;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -30,7 +31,6 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ProcesStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
@@ -105,7 +105,7 @@ public abstract class AbstractBaseReadingImplTest {
         unknownReadingType = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
         channel = (ChannelImpl) meterActivation.createChannel(readingType1, readingType2, readingType);
        
-        when(entry.getLong(0)).thenReturn(1L << ProcesStatus.Flag.SUSPECT.ordinal());
+        when(entry.getLong(0)).thenReturn(1L << ProcessStatus.Flag.SUSPECT.ordinal());
         baseReading = createInstanceToTest(channel, entry);
         when(entry.size()).thenReturn(3 + baseReading.getReadingTypeOffset());
 
@@ -175,7 +175,7 @@ public abstract class AbstractBaseReadingImplTest {
 
     @Test
     public void testGetProcessingFlags() {
-        assertThat(baseReading.getProcesStatus()).isEqualTo(ProcesStatus.of(ProcesStatus.Flag.SUSPECT));
+        assertThat(baseReading.getProcesStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));
     }
     
     ChannelImpl getChannel() {
