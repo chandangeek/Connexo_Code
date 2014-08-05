@@ -41,7 +41,6 @@ public class DeviceConfigFieldResource extends FieldResource{
             try {
                 HashMap<String, Object> subMap = new HashMap<>();
                 subMap.put("unitOfMeasure", phenomenon.getId());
-                subMap.put("localizedValue", translate(phenomenon.getName()));
                 allUnitsWithPhenomena.add(subMap);
             } catch (Exception e) {
                 throw new WebApplicationException("Failed to convert unitOfMeasure into JSON", Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(phenomenon).build());
