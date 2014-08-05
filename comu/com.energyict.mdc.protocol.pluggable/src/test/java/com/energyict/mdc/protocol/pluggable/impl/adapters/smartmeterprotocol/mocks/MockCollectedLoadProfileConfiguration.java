@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfigurat
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.NotWorkingSerialNumberDeviceIdentifier;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.TestSerialNumberDeviceIdentifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +46,7 @@ public class MockCollectedLoadProfileConfiguration implements CollectedLoadProfi
 
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new NotWorkingSerialNumberDeviceIdentifier(meterSerialNumber);
+        return new TestSerialNumberDeviceIdentifier(meterSerialNumber);
     }
 
     @Override

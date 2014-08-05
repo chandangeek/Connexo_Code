@@ -11,11 +11,11 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 * Date: 8/4/14
 * Time: 12:09 PM
 */
-public class NotWorkingSerialNumberDeviceIdentifier implements DeviceIdentifier {
+public class TestSerialNumberDeviceIdentifier implements DeviceIdentifier {
 
     private final String serialNumber;
 
-    public NotWorkingSerialNumberDeviceIdentifier(String serialNumber) {
+    public TestSerialNumberDeviceIdentifier(String serialNumber) {
         this.serialNumber = serialNumber;
     }
 

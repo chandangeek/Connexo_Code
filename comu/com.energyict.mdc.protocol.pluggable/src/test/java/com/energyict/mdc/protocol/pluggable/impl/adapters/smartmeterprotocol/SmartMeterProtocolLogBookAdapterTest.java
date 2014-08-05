@@ -80,7 +80,7 @@ public class SmartMeterProtocolLogBookAdapterTest {
     @Mock
     private EndDeviceEventType otherEndDeviceEventType;
 
-    private DeviceIdentifier<?> serialNumberDeviceIdentifier = new NotWorkingSerialNumberDeviceIdentifier(SERIAL_NUMBER);
+    private DeviceIdentifier<?> serialNumberDeviceIdentifier = new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER);
 
     @Before
     public void initializeMocks () {
