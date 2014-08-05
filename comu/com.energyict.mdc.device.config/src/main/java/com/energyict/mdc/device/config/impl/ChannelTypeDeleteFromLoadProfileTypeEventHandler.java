@@ -4,8 +4,7 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LoadProfileTypeRegisterMappingUsage;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
@@ -18,9 +17,9 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.List;
 
 /**
- * Handles events that are being sent when a {@link RegisterMapping} is being
+ * Handles events that are being sent when a {@link com.energyict.mdc.masterdata.MeasurementType} is being
  * deleted from a {@link LoadProfileType}
- * and will veto the delete when the RegisterMapping is still used by:
+ * and will veto the delete when the ChannelType is still used by:
  * <ul>
  * <li>a {@link ChannelSpec}</li>
  * </ul>
@@ -28,19 +27,19 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-15 (17:44)
  */
-@Component(name="com.energyict.mdc.device.config.registermapping.in.loadprofiletype.delete.eventhandler", service = TopicHandler.class, immediate = true)
-public class RegisterMappingDeleteFromLoadProfileTypeEventHandler implements TopicHandler {
+@Component(name="com.energyict.mdc.device.config.channeltype.in.loadprofiletype.delete.eventhandler", service = TopicHandler.class, immediate = true)
+public class ChannelTypeDeleteFromLoadProfileTypeEventHandler implements TopicHandler {
 
-    private static final String TOPIC = "com/energyict/mdc/masterdata/registermappinginloadprofiletype/VALIDATEDELETE";
+    private static final String TOPIC = "com/energyict/mdc/masterdata/channeltypeinloadprofiletype/VALIDATEDELETE";
 
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    public RegisterMappingDeleteFromLoadProfileTypeEventHandler() {
+    public ChannelTypeDeleteFromLoadProfileTypeEventHandler() {
         super();
     }
 
-    public RegisterMappingDeleteFromLoadProfileTypeEventHandler(DeviceConfigurationService deviceConfigurationService) {
+    public ChannelTypeDeleteFromLoadProfileTypeEventHandler(DeviceConfigurationService deviceConfigurationService) {
         this();
         this.deviceConfigurationService = deviceConfigurationService;
     }
@@ -52,14 +51,14 @@ public class RegisterMappingDeleteFromLoadProfileTypeEventHandler implements Top
 
     @Override
     public void handle(LocalEvent event) {
-        LoadProfileTypeRegisterMappingUsage registerMappingUsage = (LoadProfileTypeRegisterMappingUsage) event.getSource();
-        this.validateNoChannelSpecForRegisterMapping(registerMappingUsage);
+        LoadProfileTypeChannelTypeUsage channelTypeUsage = (LoadProfileTypeChannelTypeUsage) event.getSource();
+        this.validateNoChannelSpecForChannelType(channelTypeUsage);
     }
 
-    private void validateNoChannelSpecForRegisterMapping(LoadProfileTypeRegisterMappingUsage registerMappingUsage) {
-        List<ChannelSpec> channelSpecs = this.deviceConfigurationService.findChannelSpecsForRegisterMappingInLoadProfileType(registerMappingUsage.getRegisterMapping(), registerMappingUsage.getLoadProfileType());
+    private void validateNoChannelSpecForChannelType(LoadProfileTypeChannelTypeUsage channelTypeUsage) {
+        List<ChannelSpec> channelSpecs = this.deviceConfigurationService.findChannelSpecsForChannelTypeInLoadProfileType(channelTypeUsage.getChannelType(), channelTypeUsage.getLoadProfileType());
         if (!channelSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByChannelSpecs(this.thesaurus, registerMappingUsage.getRegisterMapping(), channelSpecs);
+            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByChannelSpecs(this.thesaurus, channelTypeUsage.getChannelType(), channelSpecs);
         }
     }
 

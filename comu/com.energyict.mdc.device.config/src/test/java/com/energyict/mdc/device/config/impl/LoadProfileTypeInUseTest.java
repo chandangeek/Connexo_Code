@@ -15,12 +15,15 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadProfileTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.google.common.base.Optional;
 import org.assertj.core.api.Assertions;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.sql.SQLException;
 
@@ -89,44 +92,43 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
 
     @Test(expected = CannotDeleteBecauseStillInUseException.class)
     @Transactional
-    public void testRemoveRegisterMappingWhileInUse() {
+    public void testRemoveRegisterTypeWhileInUse() {
         MasterDataService masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
         DeviceConfigurationService deviceConfigurationService = PersistenceTest.inMemoryPersistence.getDeviceConfigurationService();
-        String loadProfileTypeName = "testRemoveRegisterMappingWhileInUse";
+        String loadProfileTypeName = "testRemoveRegisterTypeWhileInUse";
         TimeDuration interval = INTERVAL_15_MINUTES;
 
-        RegisterMapping registerMapping;
+        RegisterType registerType;
         LoadProfileType loadProfileType;
         this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup RegisterMapping
-        registerMapping = masterDataService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
-        registerMapping.save();
+        // Setup RegisterType
+        registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
-        // Setup LoadProfileType with RegisterMapping
+        // Setup LoadProfileType with RegisterType
         loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
         loadProfileType.setDescription("For testing purposes only");
-        loadProfileType.addRegisterMapping(registerMapping);
+        ChannelType channelTypeForRegisterType = loadProfileType.createChannelTypeForRegisterType(registerType);
         loadProfileType.save();
 
         // Setup DeviceType with a DeviceConfiguration and LoadProfileSpec and ChannelSpec that uses the LoadProfileType
         DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
         deviceType.addLoadProfileType(loadProfileType);
-        deviceType.addRegisterMapping(registerMapping);
+        deviceType.addRegisterType(registerType);
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
-        configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder);
+        configurationBuilder.newChannelSpec(channelTypeForRegisterType, this.phenomenon, loadProfileSpecBuilder);
         configurationBuilder.add();
         deviceType.save();
 
         try {
             // Business method
-            loadProfileType.removeRegisterMapping(registerMapping);
+            loadProfileType.removeChannelType(channelTypeForRegisterType);
         }
         catch (CannotDeleteBecauseStillInUseException e) {
             // Asserts
-            Assertions.assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC);
+            Assertions.assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC);
             throw e;
         }
     }
@@ -143,24 +145,23 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         this.setupPhenomenaInExistingTransaction();
         this.setupReadingTypeInExistingTransaction();
 
-        // Setup RegisterMapping
-        RegisterMapping registerMapping = masterDataService.newRegisterMapping("testCreateWithRegisterMapping", OBIS_CODE, unit, readingType, readingType.getTou());
-        registerMapping.save();
+        // Setup RegisterType
+        RegisterType registerType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
         // Setup LoadProfileType
         loadProfileType = masterDataService.newLoadProfileType(loadProfileTypeName, OBIS_CODE, interval);
         loadProfileType.setDescription("For testing purposes only");
-        loadProfileType.addRegisterMapping(registerMapping);
+        ChannelType channelTypeForRegisterType = loadProfileType.createChannelTypeForRegisterType(registerType);
         loadProfileType.save();
 
         // Setup DeviceType with a DeviceConfiguration and LoadProfileSpec and ChannelSpec that uses the LoadProfileType
         DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
-        deviceType.addRegisterMapping(registerMapping);
+        deviceType.addRegisterType(registerType);
         deviceType.addLoadProfileType(loadProfileType);
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
-        configurationBuilder.newChannelSpec(registerMapping, this.phenomenon, loadProfileSpecBuilder);
+        configurationBuilder.newChannelSpec(channelTypeForRegisterType, this.phenomenon, loadProfileSpecBuilder);
         configurationBuilder.add();
 
 
@@ -204,8 +205,7 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
                 .flow(FORWARD)
                 .measure(ENERGY)
                 .in(KILO, WATTHOUR)
-                .period(TimeAttribute.MINUTE15)
-                .accumulate(Accumulation.DELTADELTA)
+                .accumulate(Accumulation.BULKQUANTITY)
                 .code();
         this.readingType = PersistenceTest.inMemoryPersistence.getMeteringService().getReadingType(code).get();
     }

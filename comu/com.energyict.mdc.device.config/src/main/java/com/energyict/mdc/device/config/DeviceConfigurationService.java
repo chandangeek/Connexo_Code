@@ -1,12 +1,15 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -69,32 +72,32 @@ public interface DeviceConfigurationService {
     public RegisterSpec findRegisterSpec(long id);
 
     /**
-     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modelled by the given {@link RegisterMapping RegisterMappings}
+     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modelled by the given RegisterType
      * where the register spec if owned by an active device configuration
      *
      * @param deviceType      the DeviceType
-     * @param registerMapping the list of RegisterMappings
+     * @param registerType the list of RegisterType
      * @return all the {@link RegisterSpec RegisterSpecs} which are defined for the given parameters
      */
-    public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping);
+    public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterType(DeviceType deviceType, RegisterType registerType);
 
     /**
-     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modelled by the given {@link RegisterMapping RegisterMappings}
+     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modelled by the given RegisterType
      * where the register spec if owned by an inactive device configuration
      *
      * @param deviceType      the DeviceType
-     * @param registerMapping the list of RegisterMappings
+     * @param registerType the list of RegisterType
      * @return all the {@link RegisterSpec RegisterSpecs} which are defined for the given parameters
      */
-    public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping);
+    public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterType(DeviceType deviceType, RegisterType registerType);
 
     /**
-     * Finds a list of {@link RegisterSpec}s which are modeled by the given RegisterMapping.
+     * Finds a list of {@link RegisterSpec}s which are modeled by the given RegisterType.
      *
-     * @param registerMapping the RegisterMapping
+     * @param measurementType the MeasurementType
      * @return the list of RegisterSpecs
      */
-    public List<RegisterSpec> findRegisterSpecsByRegisterMapping(RegisterMapping registerMapping);
+    public List<RegisterSpec> findRegisterSpecsByMeasurementType(MeasurementType measurementType);
 
     /**
      * Finds a list of {@link ChannelSpec ChannelSpecs} which are linked to the given {@link LoadProfileSpec}
@@ -132,25 +135,25 @@ public interface DeviceConfigurationService {
      */
     public LogBookSpec findLogBookSpec(long id);
 
-    public ChannelSpec findChannelSpecForLoadProfileSpecAndRegisterMapping(LoadProfileSpec loadProfileSpec, RegisterMapping registerMapping);
+    public ChannelSpec findChannelSpecForLoadProfileSpecAndChannelType(LoadProfileSpec loadProfileSpec, ChannelType channelType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLoadProfileType(LoadProfileType loadProfileType);
 
-    public List<ChannelSpec> findChannelSpecsForRegisterMapping (RegisterMapping registerMapping);
+    public List<ChannelSpec> findChannelSpecsForMeasurementType(MeasurementType measurementType);
 
-    public List<ChannelSpec> findChannelSpecsForRegisterMappingInLoadProfileType (RegisterMapping registerMapping, LoadProfileType loadProfileType);
+    public List<ChannelSpec> findChannelSpecsForChannelTypeInLoadProfileType(ChannelType channelType, LoadProfileType loadProfileType);
 
     public List<DeviceType> findDeviceTypesUsingLoadProfileType(LoadProfileType loadProfileType);
 
     public List<DeviceType> findDeviceTypesUsingLogBookType(LogBookType logBookType);
 
-    public List<DeviceType> findDeviceTypesUsingRegisterMapping(RegisterMapping registerMapping);
+    public List<DeviceType> findDeviceTypesUsingRegisterType(MeasurementType measurementType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType);
 
-    public List<DeviceConfiguration> findDeviceConfigurationsUsingRegisterMapping(RegisterMapping registerMapping);
+    public List<DeviceConfiguration> findDeviceConfigurationsUsingMeasurementType(MeasurementType measurementType);
 
-    public boolean isRegisterMappingUsedByDeviceType(RegisterMapping registerMapping);
+    public boolean isRegisterTypeUsedByDeviceType(RegisterType registerType);
 
     public List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
@@ -208,4 +211,6 @@ public interface DeviceConfigurationService {
     public List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
 
     public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration);
+
+    List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
 }

@@ -1,5 +1,15 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredOnDeviceTypeException;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -10,74 +20,40 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
-import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
-import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import java.math.BigDecimal;
+import com.google.common.collect.ImmutableMap;
+
+import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.Range;
+import java.util.Map;
 
-@ValidRegisterSpec(groups = { Save.Update.class })
-public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implements RegisterSpec {
+public abstract class RegisterSpecImpl<T extends RegisterSpec> extends PersistentIdObject<T> implements RegisterSpec {
 
-    enum Fields {
-        REGISTER_MAPPING("registerMapping"),
-        NUMBER_OF_DIGITS("numberOfDigits"),
-        NUMBER_OF_FRACTION_DIGITS("numberOfFractionDigits"),
-        MULTIPLIER("multiplier");
-
-        private final String javaFieldName;
-
-        Fields(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        String fieldName() {
-            return javaFieldName;
-        }
-    }
+    protected static final String NUMERICAL_DISCRIMINATOR = "0";
+    protected static final String TEXTUAL_DISCRIMINATOR = "1";
+    static final Map<String, Class<? extends RegisterSpec>> IMPLEMENTERS =
+            ImmutableMap.<String, Class<? extends RegisterSpec>>of(
+                    NUMERICAL_DISCRIMINATOR, NumericalRegisterSpecImpl.class,
+                    TEXTUAL_DISCRIMINATOR, TextualRegisterSpecImpl.class);
 
     private final Reference<DeviceConfiguration> deviceConfig = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED + "}")
-    private final Reference<RegisterMapping> registerMapping = ValueReference.absent();
-    @Range(min = 1, max = 20, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
-    private int numberOfDigits;
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
-    @Range(min=0, max = 6, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
-    private Integer numberOfFractionDigits;
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED + "}")
+    private final Reference<RegisterType> registerType = ValueReference.absent();
+    @Size(max = 80, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
-    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}") //
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED + "}") //
-    private BigDecimal overflow;
-    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.REGISTER_SPEC_INVALID_MULTIPLIER_VALUE + "}") //
-    private BigDecimal multiplier = BigDecimal.ONE;
-    private MultiplierMode multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
-
     private Date modificationDate;
 
     @Inject
-    public RegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
-        super(RegisterSpec.class, dataModel, eventService, thesaurus);
+    public RegisterSpecImpl(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+        super(domainClass, dataModel, eventService, thesaurus);
     }
 
-    private RegisterSpecImpl initialize(DeviceConfiguration deviceConfig, RegisterMapping registerMapping) {
-        this.setDeviceConfig(deviceConfig);
-        this.setRegisterMapping(registerMapping);
+    protected RegisterSpecImpl initialize(DeviceConfiguration configuration, RegisterType registerType) {
+        this.setDeviceConfig(configuration);
+        this.setRegisterType(registerType);
         return this;
     }
 
@@ -87,23 +63,18 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     @Override
-    public RegisterMapping getRegisterMapping() {
-        return registerMapping.get();
+    public RegisterType getRegisterType() {
+        return registerType.get();
     }
 
     @Override
     public ObisCode getObisCode() {
-        return getRegisterMapping().getObisCode();
-    }
-
-    @Override
-    public boolean isCumulative() {
-        return getRegisterMapping().isCumulative();
+        return getRegisterType().getObisCode();
     }
 
     @Override
     public Unit getUnit() {
-        return getRegisterMapping().getUnit();
+        return getRegisterType().getUnit();
     }
 
     @Override
@@ -116,52 +87,34 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     @Override
+    public boolean isTextual() {
+        return false;
+    }
+
+    @Override
     public Date getModificationDate() {
         return modificationDate;
     }
 
-    public int getNumberOfDigits() {
-        return numberOfDigits;
-    }
-
-    public int getNumberOfFractionDigits() {
-        return numberOfFractionDigits;
-    }
-
-    public BigDecimal getOverflowValue() {
-        return overflow;
-    }
-
-    public MultiplierMode getMultiplierMode() {
-        return multiplierMode;
-    }
-
-    public BigDecimal getMultiplier() {
-        return multiplier;
-    }
-
-    private void validateBeforeAddToConfiguration() {
+    protected void validateBeforeAddToConfiguration() {
         Save.CREATE.validate(this.dataModel, this);
         this.validate();
     }
 
-    private void validate() {
-        validateOverFlowAndNumberOfDigits();
-        validateNumberOfFractionDigitsOfOverFlowValue();
-        validateDeviceTypeContainsRegisterMapping();
+    protected void validate() {
+        this.validateDeviceTypeContainsRegisterType();
     }
 
-    private void validateDeviceTypeContainsRegisterMapping() {
+    private void validateDeviceTypeContainsRegisterType() {
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
-        boolean found = false;
-        for (RegisterMapping mapping : deviceType.getRegisterMappings()) {
-            if (mapping.getId()==getRegisterMapping().getId()) {
-                found=true;
+        boolean notFound = true;
+        for (MeasurementType mapping : deviceType.getRegisterTypes()) {
+            if (mapping.getId()== getRegisterType().getId()) {
+                notFound = false;
             }
         }
-
-        if (!found) {
-            throw new RegisterMappingIsNotConfiguredOnDeviceTypeException(this.thesaurus, getRegisterMapping());
+        if (notFound) {
+            throw new RegisterTypeIsNotConfiguredOnDeviceTypeException(this.thesaurus, getRegisterType());
         }
     }
 
@@ -198,7 +151,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     public String toString() {
-        return getDeviceConfiguration().getName() + " - " + getRegisterMapping().getName();
+        return getDeviceConfiguration().getName() + " - " + getRegisterType().getName();
     }
 
     public void setDeviceConfig(DeviceConfiguration deviceConfig) {
@@ -206,18 +159,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     }
 
     @Override
-    public void setRegisterMapping(RegisterMapping registerMapping) {
-        this.registerMapping.set(registerMapping);
-    }
-
-    @Override
-    public void setNumberOfDigits(int numberOfDigits) {
-        this.numberOfDigits = numberOfDigits;
-    }
-
-    @Override
-    public void setNumberOfFractionDigits(int numberOfFractionDigits) {
-        this.numberOfFractionDigits = numberOfFractionDigits;
+    public void setRegisterType(RegisterType registerType) {
+        this.registerType.set(registerType);
     }
 
     @Override
@@ -226,184 +169,14 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         this.overruledObisCodeString = overruledObisCode==null?null:overruledObisCode.toString();
     }
 
-    @Override
-    public void setOverflow(BigDecimal overflow) {
-        this.overflow = overflow;
-    }
-
-    private void validateNumberOfFractionDigitsOfOverFlowValue() {
-        if (this.overflow != null) {
-            int scale = this.overflow.scale();
-            if (scale > this.numberOfFractionDigits) {
-                throw new OverFlowValueHasIncorrectFractionDigitsException(this.thesaurus, this.overflow, scale, this.numberOfFractionDigits);
-            }
-        }
-    }
-
-    /**
-     * We need to validate the OverFlow value and the NumberOfDigits together
-     */
-    private void validateOverFlowAndNumberOfDigits() {
-        if (this.overflow != null && this.numberOfDigits > 0) {
-            if (this.overflow.compareTo(BigDecimal.valueOf(10).pow(numberOfDigits))==1) {
-                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.thesaurus, this.overflow, Math.pow(10, this.numberOfDigits), this.numberOfDigits);
-            }
-            // should be covered by field validation
-            //else if (this.overflow.compareTo(BigDecimal.ZERO) <= 0) {
-             //   throw InvalidValueException.registerSpecOverFlowValueShouldBeLargerThanZero(this.thesaurus, this.overflow);
-            //}
-        }
-    }
-
-    @Override
-    public void setMultiplier(BigDecimal multiplier) {
-        this.multiplier = multiplier;
-        this.multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
-    }
-
-    @Override
-    public void setMultiplierMode(MultiplierMode multiplierMode) {
-        this.multiplierMode = multiplierMode;
-        if(!this.multiplierMode.equals(MultiplierMode.CONFIGURED_ON_OBJECT)){
-            this.multiplier = BigDecimal.ONE;
-        }
-    }
-
-    public void setModDate(Date modificationDate) {
+    public void setModificationDate(Date modificationDate) {
         this.modificationDate = modificationDate;
-    }
-
-    abstract static class RegisterSpecBuilder implements RegisterSpec.RegisterSpecBuilder {
-
-        private static final BigDecimal DEFAULT_MULTIPLIER = BigDecimal.ONE;
-        final RegisterSpecImpl registerSpec;
-
-        RegisterSpecBuilder(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
-            registerSpec = registerSpecProvider.get().initialize(deviceConfiguration, registerMapping);
-            registerSpec.setMultiplier(DEFAULT_MULTIPLIER);
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecBuilder setRegisterMapping(RegisterMapping registerMapping) {
-            this.registerSpec.setRegisterMapping(registerMapping);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecBuilder setNumberOfDigits(int numberOfDigits) {
-            this.registerSpec.setNumberOfDigits(numberOfDigits);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecBuilder setNumberOfFractionDigits(int numberOfFractionDigits) {
-            this.registerSpec.setNumberOfFractionDigits(numberOfFractionDigits);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {
-            this.registerSpec.setOverruledObisCode(overruledObisCode);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecBuilder setOverflow(BigDecimal overflow) {
-            this.registerSpec.setOverflow(overflow);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecBuilder setMultiplier(BigDecimal multiplier) {
-            this.registerSpec.setMultiplier(multiplier);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecBuilder setMultiplierMode(MultiplierMode multiplierMode) {
-            this.registerSpec.setMultiplierMode(multiplierMode);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec add() {
-            applyDefaultsIfApplicable();
-            this.registerSpec.validateBeforeAddToConfiguration();
-            return this.registerSpec;
-        }
-
-        private void applyDefaultsIfApplicable() {
-            if (this.registerSpec.getMultiplier()==null) {
-                registerSpec.setMultiplier(DEFAULT_MULTIPLIER);
-            }
-            if (this.registerSpec.getOverflowValue()==null && registerSpec.getNumberOfDigits()>0) {
-                registerSpec.setOverflow(BigDecimal.TEN.pow(registerSpec.getNumberOfDigits()));
-            }
-        }
     }
 
     public List<ValidationRule> getValidationRules() {
         List<ReadingType> readingTypes = new ArrayList<>();
-        readingTypes.add(getRegisterMapping().getReadingType());
+        readingTypes.add(getRegisterType().getReadingType());
         return getDeviceConfiguration().getValidationRules(readingTypes);
     }
 
-    abstract static class RegisterSpecUpdater implements RegisterSpec.RegisterSpecUpdater {
-
-        final RegisterSpec registerSpec;
-
-        RegisterSpecUpdater(RegisterSpec registerSpec) {
-            this.registerSpec = registerSpec;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setRegisterMapping(RegisterMapping registerMapping) {
-            this.registerSpec.setRegisterMapping(registerMapping);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setNumberOfDigits(int numberOfDigits) {
-            this.registerSpec.setNumberOfDigits(numberOfDigits);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setNumberOfFractionDigits(int numberOfFractionDigits) {
-            this.registerSpec.setNumberOfFractionDigits(numberOfFractionDigits);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setOverruledObisCode(ObisCode overruledObisCode) {
-            this.registerSpec.setOverruledObisCode(overruledObisCode);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setOverflow(BigDecimal overflow) {
-            this.registerSpec.setOverflow(overflow);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setMultiplier(BigDecimal multiplier) {
-            this.registerSpec.setMultiplier(multiplier);
-            return this;
-        }
-
-        @Override
-        public RegisterSpec.RegisterSpecUpdater setMultiplierMode(MultiplierMode multiplierMode) {
-            this.registerSpec.setMultiplierMode(multiplierMode);
-            return this;
-        }
-
-        @Override
-        public void update() {
-            this.registerSpec.validateUpdate();
-            this.registerSpec.save();
-        }
-
-
-    }
 }
