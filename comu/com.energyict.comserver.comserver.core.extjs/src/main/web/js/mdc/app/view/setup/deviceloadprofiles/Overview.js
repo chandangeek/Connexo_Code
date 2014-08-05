@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Overview', {
     ],
 
     mRID: null,
+    router: null,
 
     side: {
         xtype: 'deviceLoadProfilesSubMenuPanel'
@@ -20,7 +21,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Overview', {
             xtype: 'deviceLoadProfilesPreviewForm',
             ui: 'large',
             title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
-            mRID: me.mRID
+            mRID: me.mRID,
+            router: me.router
+        };
+
+        me.side = {
+            xtype: 'deviceLoadProfilesSubMenuPanel',
+            router: me.router
         };
 
         me.callParent(arguments);
