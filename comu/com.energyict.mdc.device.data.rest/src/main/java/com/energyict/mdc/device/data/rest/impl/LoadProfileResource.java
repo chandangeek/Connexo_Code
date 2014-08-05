@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -28,11 +29,13 @@ public class LoadProfileResource {
 
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public LoadProfileResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory) {
+    public LoadProfileResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -58,7 +61,7 @@ public class LoadProfileResource {
             if (loadProfile.getId()==loadProfileId) {
                 if (intervalStart!=null && intervalEnd!=null) {
                     List<LoadProfileReading> loadProfileData = device.getChannelDataFor(loadProfile, new Interval(new Date(intervalStart), new Date(intervalEnd)));
-                    return Response.ok(LoadProfileInfo.from(loadProfile, loadProfileData)).build();
+                    return Response.ok(LoadProfileInfo.from(loadProfile, loadProfileData, thesaurus)).build();
                 } else {
                     return Response.ok(LoadProfileInfo.from(loadProfile)).build();
                 }
