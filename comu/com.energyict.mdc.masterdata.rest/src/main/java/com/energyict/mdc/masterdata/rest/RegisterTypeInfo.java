@@ -2,12 +2,9 @@ package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.common.rest.UnitAdapter;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.ChannelType;
-
+import com.energyict.mdc.masterdata.MeasurementType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
