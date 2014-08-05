@@ -24,6 +24,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CONNECTION_TASK(16, "NoSuchConnectionTask", "No such connection task"),
     NO_DEVICECONFIG_ID_FOR_ADDING(17, "NoDeviceConfigurationIdForAdding", "User should specify ids of Device Configuration for adding"),
     CONNECTION_TYPE_UNKNOWN(18, "NoSuchConnectionType", "No connection type pluggable class could be found for ''{0}''"),
+    NO_SUCH_PHENOMENON(19, "NoSuchPhenomenon", "No such phenomenon"),
     ;
 
     private final int number;

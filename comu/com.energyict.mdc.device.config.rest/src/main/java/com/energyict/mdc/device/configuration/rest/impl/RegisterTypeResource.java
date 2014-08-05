@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -13,6 +14,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 
+import com.google.common.base.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -27,14 +29,16 @@ public class RegisterTypeResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final MeteringService meteringService;
     private final ResourceHelper resourceHelper;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public RegisterTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, ResourceHelper resourceHelper) {
+    public RegisterTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, ResourceHelper resourceHelper, ExceptionFactory exceptionFactory) {
         super();
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
         this.resourceHelper = resourceHelper;
+        this.exceptionFactory = exceptionFactory;
     }
 
     /**
@@ -73,8 +77,11 @@ public class RegisterTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterTypeInfo createRegisterType(RegisterTypeInfo registerTypeInfo) {
         ReadingType readingType = findReadingType(registerTypeInfo);
-
-        MeasurementType measurementType = this.masterDataService.newRegisterType(registerTypeInfo.name, registerTypeInfo.obisCode, registerTypeInfo.unitOfMeasure.unit, readingType, registerTypeInfo.timeOfUse);
+        Optional<Phenomenon> phenomenon = masterDataService.findPhenomenon(registerTypeInfo.unitOfMeasure.id);
+        if (!phenomenon.isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_PHENOMENON);
+        }
+        MeasurementType measurementType = this.masterDataService.newRegisterType(registerTypeInfo.name, registerTypeInfo.obisCode, phenomenon.get().getUnit(), readingType, registerTypeInfo.timeOfUse);
         registerTypeInfo.writeTo(measurementType, findReadingType(registerTypeInfo));
         try {
             measurementType.save();
