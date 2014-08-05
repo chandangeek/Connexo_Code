@@ -55,11 +55,12 @@ Ext.define('Uni.view.navigation.Header', {
         {
             xtype: 'button',
             itemId: 'globalSearch',
-            text: 'Search',
+            text: Uni.I18n.translate('navigation.header.search', 'UNI', 'Search'),
             cls: 'search-button',
             glyph: 'xe021@icomoon',
             scale: 'small',
-            action: 'search'
+            action: 'search',
+            href: '#/search'
         },
         {
             xtype: 'userMenu'

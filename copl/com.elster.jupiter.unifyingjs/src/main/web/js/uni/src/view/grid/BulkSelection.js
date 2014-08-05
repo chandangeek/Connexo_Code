@@ -293,6 +293,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
             {
                 xtype: 'toolbar',
                 dock: 'bottom',
+                itemId: 'bottomToolbar',
                 items: [
                     {
                         xtype: 'button',
@@ -325,8 +326,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
         var me = this,
             selection = me.view.getSelectionModel().getSelection();
 
-        me.getAddButton().setDisabled(value.selectedGroupType === me.selectedInputValue
-            && selection.length === 0);
+        me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
     },
 
     onClickUncheckAllButton: function (button) {
@@ -338,10 +338,9 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     onClickAddButton: function () {
         var me = this,
-            groupType = me.getSelectionGroupType().getValue(),
             selection = me.view.getSelectionModel().getSelection();
 
-        if (groupType.selectedGroupType === me.allInputValue) {
+        if (me.isAllSelected()) {
             me.fireEvent('allitemsadd');
         } else if (selection.length > 0) {
             me.fireEvent('selecteditemsadd', selection);
@@ -359,6 +358,13 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.getSelectionCounter().setText(me.counterTextFn(selection.length));
         me.getUncheckAllButton().setDisabled(selection.length === 0);
         me.getAddButton().setDisabled(selection.length === 0);
+    },
+
+    isAllSelected: function () {
+        var me = this,
+            groupType = me.getSelectionGroupType().getValue();
+
+        return groupType.selectedGroupType === me.allInputValue;
     },
 
     getSelectionGroupType: function () {
@@ -379,5 +385,9 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     getCancelButton: function () {
         return this.down('#cancelButton');
+    },
+
+    getBottomToolbar: function () {
+        return this.down('#bottomToolbar');
     }
 });
