@@ -475,7 +475,7 @@ public class DeviceResourceTest extends JerseyTest {
 
         Map<String, Object> response = target("/devices/mrid1/loadprofiles/1").request().get(Map.class);
         assertThat(response)
-                .hasSize(6)
+                .hasSize(7)
                 .contains(MapEntry.entry("id", 1))
                 .contains(MapEntry.entry("name", "lp1"))
                 .contains(MapEntry.entry("lastReading", 1406617200000L))

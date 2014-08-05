@@ -5,6 +5,7 @@ import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
+ * JSON structure for load profiles
  * Created by bvn on 7/28/14.
  */
 public class LoadProfileInfo {
@@ -22,6 +24,7 @@ public class LoadProfileInfo {
     public TimeDurationInfo interval; // the interval definition of the load profile
     public Date lastReading;
     public List<String> channels;
+    public LoadProfileDataInfo loadProfileData;
 
     public static LoadProfileInfo from(LoadProfile loadProfile) {
         LoadProfileInfo info = new LoadProfileInfo();
@@ -32,9 +35,15 @@ public class LoadProfileInfo {
         info.lastReading=loadProfile.getLastReading();
         info.channels=new ArrayList<>();
         for (Channel channel : loadProfile.getChannels()) {
-            info.channels.add(channel.getChannelSpec().getName());
+            info.channels.add(channel.getChannelSpec().getName()); // channel name is the id
         }
         Collections.sort(info.channels);
+        return info;
+    }
+
+    public static LoadProfileInfo from(LoadProfile loadProfile, List<LoadProfileReading> channelData) {
+        LoadProfileInfo info = from(loadProfile);
+        info.loadProfileData=LoadProfileDataInfo.from(info.channels, channelData);
         return info;
     }
 }

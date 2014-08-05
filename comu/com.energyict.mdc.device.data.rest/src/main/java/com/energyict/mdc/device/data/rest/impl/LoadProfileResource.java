@@ -1,12 +1,15 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -14,6 +17,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -48,11 +52,16 @@ public class LoadProfileResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lpid}")
-    public Response getAllLoadProfiles(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
+    public Response getLoadProfile(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         for (LoadProfile loadProfile : device.getLoadProfiles()) {
             if (loadProfile.getId()==loadProfileId) {
-                return Response.ok(LoadProfileInfo.from(loadProfile)).build();
+                if (intervalStart!=null && intervalEnd!=null) {
+                    List<LoadProfileReading> loadProfileData = device.getChannelDataFor(loadProfile, new Interval(new Date(intervalStart), new Date(intervalEnd)));
+                    return Response.ok(LoadProfileInfo.from(loadProfile, loadProfileData)).build();
+                } else {
+                    return Response.ok(LoadProfileInfo.from(loadProfile)).build();
+                }
             }
         }
         throw exceptionFactory.newException(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, mrid, loadProfileId);
