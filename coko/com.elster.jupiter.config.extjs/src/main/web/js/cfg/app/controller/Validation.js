@@ -140,6 +140,7 @@ Ext.define('Cfg.controller.Validation', {
     createEditRule: function (button) {
         var me = this,
             form = button.up('panel'),
+            arrReadingTypes = [],
             formErrorsPanel = form.down('[name=form-errors]');
 
         if (form.isValid()) {
@@ -167,17 +168,15 @@ Ext.define('Cfg.controller.Validation', {
                 record.readingTypes().removeAll();
                 record.properties().removeAll();
             }
-
             for (var i = 0; i < readingTypes.items.length; i++) {
                 var readingTypeMRID = readingTypes.items[i].items.items[0],
                     readingType = readingTypeMRID.value,
                     readingTypeRecord = Ext.create(Cfg.model.ReadingType);
-
                 readingTypeMRID.name = 'readingTypesInRule[' + i + '].readingTypeMRID';
                 readingTypeRecord.set('mRID', readingType);
-                record.readingTypes().add(readingTypeRecord);
+                arrReadingTypes.push(readingTypeRecord);
             }
-
+            record.readingTypes().add(arrReadingTypes);
             for (var i = 0; i < properties.items.length; i++) {
                 var propertyRecord = Ext.create(Cfg.model.ValidationRuleProperty);
                 propertyRecord.set('value', properties.items[i].value);
