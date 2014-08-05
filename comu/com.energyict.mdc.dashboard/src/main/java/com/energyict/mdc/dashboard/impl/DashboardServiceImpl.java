@@ -164,7 +164,15 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public DeviceTypeHeatMap getDeviceTypeHeatMap() {
-        return new DeviceTypeHeatMapImpl();
+        DeviceTypeHeatMapImpl heatMap = new DeviceTypeHeatMapImpl();
+        Map<DeviceType, List<Long>> rawData = this.taskHistoryService.getDeviceTypeHeatMap();
+        for (DeviceType deviceType : rawData.keySet()) {
+            List<Long> counters = rawData.get(deviceType);
+            HeatMapRowImpl<DeviceType> heatMapRow = new HeatMapRowImpl<>(deviceType);
+            heatMapRow.add(this.newComSessionSuccessIndicatorOverview(counters));
+            heatMap.add(heatMapRow);
+        }
+        return heatMap;
     }
 
     @Override
