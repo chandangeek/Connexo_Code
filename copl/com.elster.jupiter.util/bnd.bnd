@@ -3,6 +3,7 @@ Export-Package: com.elster.jupiter.util.conditions,\
 	com.elster.jupiter.util,\
 	com.elster.jupiter.util.beans,\
 	com.elster.jupiter.util.collections,\
+	com.elster.jupiter.util.comparators,\
 	com.elster.jupiter.util.cron,\
 	com.elster.jupiter.util.exception,\
 	com.elster.jupiter.util.geo,\
