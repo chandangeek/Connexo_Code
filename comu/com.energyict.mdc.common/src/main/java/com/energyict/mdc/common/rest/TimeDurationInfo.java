@@ -4,7 +4,7 @@ import com.energyict.mdc.common.TimeDuration;
 
 public class TimeDurationInfo {
     public int count;
-    public String timeUnit;
+    public String timeUnit = TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS);
 
     public TimeDurationInfo() {
     }
