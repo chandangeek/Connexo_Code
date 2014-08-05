@@ -69,7 +69,8 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'ruleSetBrowsePanel', selector: 'validationrulesetBrowse'},
         {ref: 'rulePreviewContainer', selector: 'rulePreviewContainer'},
         {ref: 'ruleOverview', selector: 'ruleOverview'},
-        {ref: 'ruleSetBrowsePreviewCt', selector: '#ruleSetBrowsePreviewCt'}
+        {ref: 'ruleSetBrowsePreviewCt', selector: '#ruleSetBrowsePreviewCt'},
+        {ref: 'rulePreviewContainerPanel', selector: 'rule-preview-container-panel'}
     ],
 
     readingTypeIndex: 2,
@@ -627,7 +628,7 @@ Ext.define('Cfg.controller.Validation', {
 
     deactivateRule: function (record, active) {
         var me = this,
-            view = me.getRulePreviewContainer() || me.getRuleOverview() || me.getRuleSetBrowsePanel().down('#validationruleBrowse'),
+            view = me.getRulePreviewContainer() || me.getRuleOverview() || me.getRuleSetBrowsePanel().down('#validationruleBrowse') || me.getRulePreviewContainerPanel(),
             grid = view.down('grid'),
             isActive = record.get('active');
         if (record) {
@@ -638,9 +639,7 @@ Ext.define('Cfg.controller.Validation', {
                 record.readingTypes().add(readingTypeRecord);
             });
         }
-
         record.set('active', !isActive);
-
         view.setLoading('Loading...');
         record.save({
             params: {
