@@ -72,14 +72,9 @@ public class MasterDataGenerator {
                 Unit unit = Unit.get(phenomenaEntry[1]);
                 if (!unitsToKeepTrack.contains(unit)) {
                     unitsToKeepTrack.add(unit);
-                    Optional<Phenomenon> existingPhenomenon = masterDataService.findPhenomenonByNameAndUnit(unit.toString(), unit);
-                    if(existingPhenomenon.isPresent()){
-                        phenomena.add(existingPhenomenon.get());
-                    } else {
-                        Phenomenon phenomenon = masterDataService.newPhenomenon(phenomenaEntry[0]+" ("+phenomenaEntry[1]+")", unit);
-                        phenomenon.save();
-                        phenomena.add(phenomenon);
-                    }
+                    Phenomenon phenomenon = masterDataService.newPhenomenon(phenomenaEntry[0]+" ("+phenomenaEntry[1]+")", unit);
+                    phenomenon.save();
+                    phenomena.add(phenomenon);
                 }
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
