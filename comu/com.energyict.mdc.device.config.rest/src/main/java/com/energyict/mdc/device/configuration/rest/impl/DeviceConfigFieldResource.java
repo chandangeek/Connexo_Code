@@ -34,19 +34,17 @@ public class DeviceConfigFieldResource extends FieldResource{
     @GET
     @Path("/unitOfMeasure")
     public Object getUnitValues() {
-        List<Map<String, Object>> allUnitsWithPhenomena = new ArrayList<>();
-        Map<String, Object> map = new HashMap<>();
-        map.put("unitOfMeasure", allUnitsWithPhenomena);
+        List<Long> allUnitsWithPhenomena = new ArrayList<>();
+        List<String> translationKeys = new ArrayList<>();
         for (Phenomenon phenomenon : this.masterDataService.findAllPhenomena()) {
             try {
-                HashMap<String, Object> subMap = new HashMap<>();
-                subMap.put("unitOfMeasure", phenomenon.getId());
-                allUnitsWithPhenomena.add(subMap);
+                allUnitsWithPhenomena.add(phenomenon.getId());
+                translationKeys.add(phenomenon.getName());
             } catch (Exception e) {
-                throw new WebApplicationException("Failed to convert unitOfMeasure into JSON", Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(phenomenon).build());
+                throw new WebApplicationException("Failed to convert unit into JSON", Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(phenomenon).build());
             }
         }
-        return asJsonArrayObjectWithTranslation("units", "unit", allUnitsWithPhenomena);
+        return asJsonArrayObjectWithTranslation("units", "unit", allUnitsWithPhenomena, translationKeys);
     }
 
     @GET
