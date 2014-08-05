@@ -51,9 +51,6 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             '#cancelSearching': {
                 click: this.cancelSearching
             },
-            '#globalSearch[action=search]': {
-                click: this.showSearchByHistory
-            },
             '#searchResultsBulkActionButton': {
                 click: this.showBulkAction
             }
@@ -65,10 +62,6 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             router = me.getController('Uni.controller.history.Router');
         me.saveState();
         router.getRoute('search/bulkAction').forward();
-    },
-
-    showSearchByHistory: function () {
-        location.href = '#/searchitems';
     },
 
     showSearchItems: function () {
@@ -239,7 +232,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             searchItems.down('#type').setValue(me.state.type);
             searchItems.down('#configuration').setValue(me.state.conf);
             delete me.state;
-            me.searchClick(me.getSearchButton())
+            me.searchClick(me.getSearchButton());
         }
     },
 

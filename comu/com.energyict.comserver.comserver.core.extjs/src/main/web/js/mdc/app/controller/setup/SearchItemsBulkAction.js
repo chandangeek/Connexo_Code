@@ -27,8 +27,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             selector: '#searchitems-bulk-step3 #schedule-qty-txt'
         },
         {
-            ref: 'deviceGrid',
-            selector: '#searchitems-bulk-step1 gridpanel'
+            ref: 'devicesGrid',
+            selector: '#searchitems-bulk-step1 devices-selection-grid'
         },
         {
             ref: 'schedulesGrid',
@@ -37,14 +37,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         {
             ref: 'searchItemsWizard',
             selector: '#searchitemswizard'
-        },
-        {
-            ref: 'deviseSelectionRange',
-            selector: '#deviceSelectionRange'
-        },
-        {
-            ref: 'shceduleSelectionRange',
-            selector: '#shceduleSelectionRange'
         },
         {
             ref: 'backButton',
@@ -83,22 +75,17 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             selector: 'searchitems-bulk-step1 uni-form-error-message'
         }
     ],
+
     init: function () {
         this.control({
             '#searchitems-bulk-step1 #devicesgrid': {
                 selectionchange: this.updateDeviceSelection
-            },
-            '#deviceSelectionRange': {
-                change: this.devicesSelectionRangeChange
             },
             'searchitems-bulk-step3 #schedulesgrid': {
                 selectionchange: this.updateScheduleSelection
             },
             'searchitems-bulk-step3 #schedulesgrid gridview': {
                 itemclick: this.previewCommunicationSchedule
-            },
-            '#shceduleSelectionRange': {
-                change: this.schedulesSelectionRangeChange
             },
             '#searchitems-bulk-step1 #uncheck-all': {
                 click: this.uncheckAllDevices
@@ -148,19 +135,25 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.operation = null;
             me.shedulesUnchecked = false;
             me.getApplication().fireEvent('changecontentevent', widget);
-            me.getDeviceGrid().disable();
+
             me.getStore('Mdc.store.DevicesBuffered').load();
-            me.getStore('Mdc.store.CommunicationSchedulesWithoutPaging').load(function () {
-                me.getShceduleSelectionRange().down('#allSchedules').setValue(true);
-            });
+            me.getStore('Mdc.store.CommunicationSchedulesWithoutPaging').load();
         }
     },
 
     uncheckAllSchedules: function () {
         this.getSchedulesGrid().getSelectionModel().deselectAll();
-        this.getShceduleSelectionRange().down('#selectedSchedules').setValue(true);
         this.getCommunicationSchedulePreview().hide();
         this.shedulesUnchecked = false;
+    },
+
+    onDevicesSelectionChange: function () {
+        var me = this,
+            selection = me.getDevicesGrid().getSelectionModel().getSelection(),
+            wizard = me.getSearchItemsWizard(),
+            nextBtn = wizard.down('#nextButton');
+
+        nextBtn.setDisabled(selection.length === 0);
     },
 
     updateScheduleSelection: function (selModel, selected) {
@@ -180,23 +173,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         }
     },
 
-    schedulesSelectionRangeChange: function (obj, newValue) {
-        var schedulesGrid = this.getSchedulesGrid();
-
-        switch (newValue.scheduleRange) {
-            case 'ALL':
-                schedulesGrid.hide();
-                schedulesGrid.getSelectionModel().selectAll();
-                schedulesGrid.disable();
-                schedulesGrid.show();
-                this.getCommunicationSchedulePreview().hide();
-                break;
-            case 'SELECTED':
-                schedulesGrid.enable();
-                break;
-        }
-    },
-
     previewCommunicationSchedule: function (grid, record) {
         var preview = this.getCommunicationSchedulePreview();
 
@@ -210,8 +186,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     uncheckAllDevices: function () {
-        this.getDeviseSelectionRange().down('#selectedDevices').setValue(true);
-        this.getDeviceGrid().getSelectionModel().deselectAll();
+        this.getDevicesGrid().getSelectionModel().deselectAll();
     },
 
     updateDeviceSelection: function (selModel, selected) {
@@ -222,25 +197,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         if (count > 0) {
             label.update('<span style="color: grey;">'
                 + Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devicesSelected', count, 'MDC', '{0} devices selected'), count)
-                + '</span>')
+                + '</span>');
         } else {
             label.update('<span style="color: grey;">' +
                 Uni.I18n.translate('searchItems.bulk.noDeviceSelected', 'MDC', 'No devices selected') +
-                '</span>')
-        }
-    },
-
-    devicesSelectionRangeChange: function (obj, newValue) {
-        var devicesGrid = this.getDeviceGrid();
-
-        switch (newValue.deviceRange) {
-            case 'ALL':
-                devicesGrid.disable();
-                devicesGrid.getSelectionModel().deselectAll();
-                break;
-            case 'SELECTED':
-                devicesGrid.enable();
-                break;
+                '</span>');
         }
     },
 
@@ -428,9 +389,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         switch (currentCmp.name) {
             case 'selectDevices':
                 me.devices = currentCmp.down('#devicesgrid').getSelectionModel().getSelection();
-                me.allDevices = me.getDeviseSelectionRange().getValue().deviceRange == 'ALL';
+                me.allDevices = me.getDevicesGrid().isAllSelected();
                 errorPanel = currentCmp.down('#step1-errors');
-                validation = (me.devices.length || me.allDevices) ? true : false;
+                validation = me.devices.length || me.allDevices;
                 break;
             case 'selectOperation':
                 me.operation = currentCmp.down('#searchitemsactionselect').getValue().operation;
@@ -438,7 +399,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             case 'selectSchedules':
                 me.schedules = currentCmp.down('#schedulesgrid').getSelectionModel().getSelection();
                 errorPanel = currentCmp.down('#step3-errors');
-                validation = me.schedules.length ? true : false;
+                validation = me.schedules.length;
                 break;
         }
 
@@ -608,4 +569,5 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         this.changeContent(layout.getNext(), layout.getActiveItem());
     }
-});
+})
+;
