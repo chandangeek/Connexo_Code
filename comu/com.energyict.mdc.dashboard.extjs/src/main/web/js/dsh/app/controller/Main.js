@@ -18,16 +18,6 @@ Ext.define('Dsh.controller.Main', {
         navigationController: null,
         configurationController: null
     },
-    refs: [
-        {
-            ref: 'viewport',
-            selector: 'viewport'
-        },
-        {
-            ref: 'contentPanel',
-            selector: 'viewport > #contentPanel'
-        }
-    ],
     init: function () {
         this.initNavigation();
         this.initMenu();
