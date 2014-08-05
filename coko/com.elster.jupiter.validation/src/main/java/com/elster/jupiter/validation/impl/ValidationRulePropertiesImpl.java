@@ -65,16 +65,20 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties, Pe
     @Override
     public void setValue(Object value) {
         if (BigDecimal.class.equals(propertySpec.getValueFactory().getValueType())) {
-            value = new BigDecimal(((Number) value).toString());
+            this.stringValue = toStringValue(new BigDecimal(value.toString()));
+            return;
         }
-        this.stringValue = propertySpec.getValueFactory().toStringValue(value);
+        this.stringValue = toStringValue(value);
+    }
+
+    @SuppressWarnings("unchecked")
+    private String toStringValue(Object object) {
+        return propertySpec.getValueFactory().toStringValue(object);
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(getName()).append(": ").append(getValue());
-        return builder.toString();
+        return getName() + ": " + getValue();
     }
 
     @Override
