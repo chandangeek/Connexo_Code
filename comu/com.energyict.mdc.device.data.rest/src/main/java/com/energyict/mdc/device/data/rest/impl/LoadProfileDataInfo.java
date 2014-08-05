@@ -23,7 +23,8 @@ public class LoadProfileDataInfo {
         for (LoadProfileReading loadProfileReading : channelData) {
             for (Map.Entry<Channel, BigDecimal> entry : loadProfileReading.getChannelValues()) {
                 ChannelDataInfo channelDataInfo = new ChannelDataInfo();
-                channelDataInfo.interval=loadProfileReading.getInterval();
+                channelDataInfo.intervalStart=loadProfileReading.getInterval().getStart().getTime();
+                channelDataInfo.intervalEnd=loadProfileReading.getInterval().getEnd().getTime();
                 channelDataInfo.value=entry.getValue();
                 info.channelData.get(entry.getKey().getChannelSpec().getName()).add(channelDataInfo);
             }
