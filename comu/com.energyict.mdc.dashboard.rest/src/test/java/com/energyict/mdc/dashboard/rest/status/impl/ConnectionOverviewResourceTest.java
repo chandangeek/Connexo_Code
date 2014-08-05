@@ -23,7 +23,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.tasks.history.ComSession;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -88,11 +88,10 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
     private ComSessionSuccessIndicatorOverview createComTaskCompletionOverview() {
         ComSessionSuccessIndicatorOverview overview = mock(ComSessionSuccessIndicatorOverview.class);
         when(overview.getTotalCount()).thenReturn(100L);
-        List<Counter<CompletionCode>> counters = new ArrayList<>();
-        counters.add(createCounter(CompletionCode.Ok, 101L));
-        counters.add(createCounter(CompletionCode.ProtocolError, 12L));
-        counters.add(createCounter(CompletionCode.ConnectionError, 41L));
-        counters.add(createCounter(CompletionCode.IOError, 1L));
+        List<Counter<ComSession.SuccessIndicator>> counters = new ArrayList<>();
+        counters.add(createCounter(ComSession.SuccessIndicator.Success, 101L));
+        counters.add(createCounter(ComSession.SuccessIndicator.Broken, 12L));
+        counters.add(createCounter(ComSession.SuccessIndicator.SetupError, 41L));
         when(overview.iterator()).thenReturn(counters.iterator());
         return overview;
     }

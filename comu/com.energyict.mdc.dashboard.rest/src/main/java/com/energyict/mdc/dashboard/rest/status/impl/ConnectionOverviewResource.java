@@ -3,7 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
-import com.energyict.mdc.dashboard.ComTaskCompletionOverview;
+import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
@@ -40,12 +40,12 @@ public class ConnectionOverviewResource {
         try {
             FilterOption breakdown = jsonQueryFilter.getProperty("breakdown", new FilterOptionAdapter());
             ConnectionStatusOverview connectionStatusOverview = dashboardService.getConnectionStatusOverview();
-            ComTaskCompletionOverview comTaskCompletionOverview = dashboardService.getComTaskCompletionOverview();
+            ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
             ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
             ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
             DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getDeviceTypeBreakdown();
             ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(connectionStatusOverview);
-            info = new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comTaskCompletionOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown,breakdown,thesaurus);
+            info = new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown,breakdown,thesaurus);
         } catch (Exception e) {
             e.printStackTrace();
         }

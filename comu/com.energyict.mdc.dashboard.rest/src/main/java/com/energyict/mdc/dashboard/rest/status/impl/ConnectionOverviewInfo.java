@@ -5,6 +5,7 @@ import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
+import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
@@ -12,7 +13,6 @@ import com.energyict.mdc.dashboard.DashboardCounters;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
-import com.energyict.mdc.tasks.history.CompletionCode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,7 +45,7 @@ public class ConnectionOverviewInfo {
     @JsonIgnore
     private final static TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
     @JsonIgnore
-    private final static CompletionCodeAdapter completionCodeAdapter = new CompletionCodeAdapter();
+    private final static SuccessIndicatorAdapter successIndicatorAdapter = new SuccessIndicatorAdapter();
 
     public ConnectionSummaryInfo connectionSummary;
 
@@ -58,7 +58,7 @@ public class ConnectionOverviewInfo {
     public ConnectionOverviewInfo(
             ConnectionSummaryData connectionSummaryData,
             ConnectionStatusOverview connectionStatusOverview,
-            DashboardCounters<CompletionCode> comTaskCompletionOverview,
+            ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview,
             ComPortPoolBreakdown comPortPoolBreakdown,
             ConnectionTypeBreakdown connectionTypeBreakdown,
             DeviceTypeBreakdown deviceTypeBreakdown,
@@ -70,7 +70,7 @@ public class ConnectionOverviewInfo {
 
         overviews=new ArrayList<>(2);
         overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), null), connectionStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), null), dashboardService.getComSessionSuccessIndicatorOverview(), FilterOption.latestResult, completionCodeAdapter)); // JP-4280
+        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), null), comSessionSuccessIndicatorOverview, FilterOption.latestResult, successIndicatorAdapter)); // JP-4280
 
         breakdowns=new ArrayList<>(3);
         breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), null), comPortPoolBreakdown, BreakdownOption.comPortPool)); // JP-4281
