@@ -49,7 +49,7 @@ public class ComServerResource {
         List<ComServer> allComServers = this.getSortedComServers(queryParameters);
 
         for (ComServer comServer : allComServers) {
-            comServers.add(ComServerInfoFactory.asInfo(comServer));
+            comServers.add(ComServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineModelService));
         }
 
         return PagedInfoList.asJson("data", comServers, queryParameters);
@@ -146,7 +146,7 @@ public class ComServerResource {
         updateComPorts(comServer.get(), allComPortInfos);
 
         comServer.get().save();
-        return ComServerInfoFactory.asInfo(comServer.get());
+        return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineModelService);
     }
 
     @Path("/{comServerId}/comports")

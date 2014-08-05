@@ -18,6 +18,7 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
@@ -432,14 +433,17 @@ public class ComServerResourceTest extends JerseyTest {
 
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         when(tcpBasedInboundComPort.getId()).thenReturn(tcpBasedInboundComPort_id);
+        when(tcpBasedInboundComPort.getComPortType()).thenReturn(ComPortType.TCP);
         when(engineModelService.findComPort(tcpBasedInboundComPort_id)).thenReturn(tcpBasedInboundComPort);
 
         OutboundComPort outboundComPortA = mock(OutboundComPort.class);
         when(outboundComPortA.getId()).thenReturn(outboundComPortA_id);
+        when(outboundComPortA.getComPortType()).thenReturn(ComPortType.TCP);
         when(engineModelService.findComPort(outboundComPortA_id)).thenReturn(outboundComPortA);
 
         OutboundComPort outboundComPortB = mock(OutboundComPort.class);
         when(outboundComPortB.getId()).thenReturn(outboundComPortB_id);
+        when(outboundComPortB.getComPortType()).thenReturn(ComPortType.TCP);
         when(engineModelService.findComPort(outboundComPortB_id)).thenReturn(outboundComPortB);
 
         when(engineModelService.findComPort(outboundComPortC_id)).thenReturn(null);
@@ -491,14 +495,17 @@ public class ComServerResourceTest extends JerseyTest {
 
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         when(tcpBasedInboundComPort.getId()).thenReturn(tcpBasedInboundComPort_id);
+        when(tcpBasedInboundComPort.getComPortType()).thenReturn(ComPortType.TCP);
         when(engineModelService.findComPort(tcpBasedInboundComPort_id)).thenReturn(tcpBasedInboundComPort);
 
         OutboundComPort outboundComPortA = mock(OutboundComPort.class);
         when(outboundComPortA.getId()).thenReturn(outboundComPortA_id);
+        when(outboundComPortA.getComPortType()).thenReturn(ComPortType.TCP);
         when(engineModelService.findComPort(outboundComPortA_id)).thenReturn(outboundComPortA);
 
         OutboundComPort outboundComPortB = mock(OutboundComPort.class);
         when(outboundComPortB.getId()).thenReturn(outboundComPortB_id);
+        when(outboundComPortB.getComPortType()).thenReturn(ComPortType.TCP);
         when(engineModelService.findComPort(outboundComPortB_id)).thenReturn(outboundComPortB);
 
         when(engineModelService.findComPort(outboundComPortC_id)).thenReturn(null);

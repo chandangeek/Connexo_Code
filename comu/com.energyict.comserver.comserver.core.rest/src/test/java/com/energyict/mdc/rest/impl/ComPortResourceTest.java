@@ -461,6 +461,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(engineModelService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
         when(outboundComPort.getId()).thenReturn(comPortId);
+        when(outboundComPort.getComPortType()).thenReturn(ComPortType.TCP);
         when(serverSideComServer.getComPorts()).thenReturn(Arrays.<ComPort>asList(outboundComPort));
 
         Long poolId1 = 1543621L;
