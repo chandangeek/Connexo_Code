@@ -6,36 +6,36 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 
 import javax.inject.Inject;
 
-class RegisterMappingInGroup {
+class RegisterTypeInGroup {
     private final DataModel dataModel;
 
     @IsPresent
-    private Reference<RegisterMapping> registerMapping = ValueReference.absent();
+    private Reference<RegisterType> registerType = ValueReference.absent();
     @IsPresent
     private Reference<RegisterGroup> registerGroup = ValueReference.absent();
     private UtcInstant createTime;
 
     @Inject
-    RegisterMappingInGroup(DataModel dataModel) {
+    RegisterTypeInGroup(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    RegisterMappingInGroup init(RegisterGroup group , RegisterMapping mapping) {
+    RegisterTypeInGroup init(RegisterGroup group , RegisterType registerType) {
         this.registerGroup.set(group);
-        this.registerMapping.set(mapping);
+        this.registerType.set(registerType);
         return this;
     }
 
-    static RegisterMappingInGroup from(DataModel dataModel, RegisterGroup group, RegisterMapping mapping) {
-        return dataModel.getInstance(RegisterMappingInGroup.class).init(group, mapping);
+    static RegisterTypeInGroup from(DataModel dataModel, RegisterGroup group, RegisterType registerType) {
+        return dataModel.getInstance(RegisterTypeInGroup.class).init(group, registerType);
     }
 
-    RegisterMapping getRegisterMapping() {
-        return registerMapping.get();
+    RegisterType getRegisterType() {
+        return registerType.get();
     }
 
     RegisterGroup getRegisterGroup() {
@@ -43,11 +43,11 @@ class RegisterMappingInGroup {
     }
 
     void persist() {
-        dataModel.mapper(RegisterMappingInGroup.class).persist(this);
+        dataModel.mapper(RegisterTypeInGroup.class).persist(this);
     }
 
     void delete() {
-        dataModel.mapper(RegisterMappingInGroup.class).remove(this);
+        dataModel.mapper(RegisterTypeInGroup.class).remove(this);
     }
 
 }

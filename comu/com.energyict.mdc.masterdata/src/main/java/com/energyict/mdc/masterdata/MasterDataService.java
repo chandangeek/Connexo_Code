@@ -16,7 +16,7 @@ import java.util.List;
  * <ul>
  * <li>{@link LogBookType}</li>
  * <li>{@link RegisterGroup}</li>
- * <li>{@link RegisterMapping}</li>
+ * <li>{@link MeasurementType}</li>
  * <li>{@link LoadProfileType}</li>
  * <li>{@link Phenomenon}</li>
  * </ul>
@@ -90,45 +90,60 @@ public interface MasterDataService {
 
     public Finder<RegisterGroup> findAllRegisterGroups();
 
-    public Finder<RegisterMapping> findAllRegisterMappings();
+    public Finder<MeasurementType> findAllMeasurementTypes();
+    public Finder<RegisterType> findAllRegisterTypes();
+    public Finder<ChannelType> findAllChannelTypes();
 
     /**
-     * Finds the {@link RegisterMapping} that is uniquely identified by the specified number.
+     * Finds the {@link MeasurementType} that is uniquely identified by the specified number.
      *
      * @param id The unique identifier
-     * @return The RegisterMapping or <code>null</code> if there is no such RegisterMapping
+     * @return The RegisterType or <code>null</code> if there is no such RegisterType
      */
-    public Optional<RegisterMapping> findRegisterMapping(long id);
+    public Optional<RegisterType> findRegisterType(long id);
+    public Optional<ChannelType> findChannelTypeById(long id);
+
 
     /**
-     * Finds the {@link RegisterMapping} that is uniquely identified by the name.
+     * Finds the {@link MeasurementType} that is uniquely identified by the name.
      *
      * @param name The name
-     * @return The RegisterMapping or <code>null</code> if there is no such RegisterMapping
+     * @return The RegisterType or <code>null</code> if there is no such RegisterType
      */
-    public Optional<RegisterMapping> findRegisterMappingByName(String name);
+    public Optional<MeasurementType> findMeasurementTypeByName(String name);
 
-    public Optional<RegisterMapping> findRegisterMappingByReadingType(ReadingType readingType);
+    public Optional<MeasurementType> findMeasurementTypeByReadingType(ReadingType readingType);
+    public Optional<RegisterType> findRegisterTypeByReadingType(ReadingType readingType);
+    public Optional<ChannelType> findChannelTypeByReadingType(ReadingType readingType);
 
     /**
-     * Creates a new {@link RegisterMapping} with the specified required properties.
-     * Note that {@link ObisCode} uniquely identifies the RegisterMapping,
-     * i.e. there can only be 1 RegisterMapping for every ObisCode.
+     * Creates a new {@link MeasurementType} with the specified required properties.
+     * Note that {@link ObisCode} uniquely identifies the RegisterType,
+     * i.e. there can only be 1 RegisterType for every ObisCode.
      *
-     * @param name        The RegisterMapping name
+     * @param name        The RegisterType name
      * @param obisCode    The ObisCode
      * @param unit        The unit
      * @param readingType The reading type
      * @param timeOfUse   Customer specif timeOfUse id
-     * @return The new RegisterMapping
-     * @see RegisterMapping#save()
+     * @return The new RegisterType
+     * @see MeasurementType#save()
      */
-    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse);
-
-    public Optional<RegisterMapping> findRegisterMappingByObisCodeAndUnitAndTimeOfUse(ObisCode obisCode, Unit unit, int timeOfUse);
+    public RegisterType newRegisterType(String name, ObisCode obisCode, Unit unit, ReadingType readingType, int timeOfUse);
 
     /**
-     * Finds all the {@link LoadProfileType LoadProfileTypes} in the systesm
+     * Creates a ChannelType which is a RegisterType with an interval, solely used by a LoadProfileType.
+     * The provided RegisterType will serve as a template-register
+     *
+     * @param templateMeasurementType the model for the new channelType
+     * @param interval                the interval of the channelType
+     * @param readingType             the readingType for the channelType
+     * @return the newly created ChannelType
+     */
+    public ChannelType newChannelType(RegisterType templateMeasurementType, TimeDuration interval, ReadingType readingType);
+
+    /**
+     * Finds all the {@link LoadProfileType LoadProfileTypes} in the system
      *
      * @return all LoadProfileTypes
      */
@@ -155,4 +170,8 @@ public interface MasterDataService {
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 
     void validateRegisterGroup(RegisterGroup group);
+
+    public Optional<ChannelType> findChannelTypeByTemplateRegisterAndInterval(RegisterType templateRegisterType, TimeDuration interval);
+
+    public List<ChannelType> findChannelTypeByTemplateRegister(RegisterType templateRegisterType);
 }

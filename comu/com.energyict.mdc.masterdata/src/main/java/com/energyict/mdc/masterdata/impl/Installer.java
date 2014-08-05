@@ -63,11 +63,11 @@ public class Installer {
 
     private void createDefaults() {
         this.createPhenomena();
-        this.createRegisterMappings();
+        this.createRegisterTypes();
     }
 
-    private void createRegisterMappings() {
-        MasterDataGenerator.generateRegisterMappings(meteringService, mdcReadingTypeUtilService, masterDataService);
+    private void createRegisterTypes() {
+        MasterDataGenerator.generateRegisterTypes(meteringService, mdcReadingTypeUtilService, masterDataService);
     }
 
     private void createPhenomena() {

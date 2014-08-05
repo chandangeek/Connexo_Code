@@ -9,21 +9,19 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Represents a register definition.
- *
- * @author Geert
+ * Represents the definition of a Measurement.
  */
-public interface RegisterMapping extends HasId {
+public interface MeasurementType extends HasId {
 
     /**
-     * Returns number that uniquely identifies this RegisterMapping.
+     * Returns number that uniquely identifies this MeasurementType.
      *
      * @return the id
      */
     public long getId();
 
     /**
-     * Returns the name that uniquely identifies this RegisterMapping.
+     * Returns the name that uniquely identifies this MeasurementType.
      *
      * @return the name
      */
@@ -32,7 +30,7 @@ public interface RegisterMapping extends HasId {
     public void setName (String newName);
 
     /**
-     * Returns the obis code for this mapping
+     * Returns the obis code for this MeasurementType.
      *
      * @return the obis code
      */
@@ -41,7 +39,7 @@ public interface RegisterMapping extends HasId {
     public void setObisCode(ObisCode obisCode);
 
     /**
-     * Test if this mapping represents a cumulative reading
+     * Test if this MeasurementType represents a cumulative reading.
      *
      * @return true if cumulative , false otherwise
      */
@@ -50,7 +48,7 @@ public interface RegisterMapping extends HasId {
     public void setCumulative(boolean cumulative);
 
     /**
-     * Returns the mapping's unit
+     * Returns the MeasurementType's unit.
      *
      * @return the mapping's unit
      */
@@ -67,14 +65,7 @@ public interface RegisterMapping extends HasId {
     public Phenomenon getPhenomenon();
 
     /**
-     * Returns the <code>RegisterGroup</code> the receiver belongs to
-     *
-     * @return the <code>RegisterGroup</code> the receiver belongs to
-     */
-    public List<RegisterGroup> getRegisterGroups();
-
-    /**
-     * Returns the receiver's description
+     * Returns the MeasurementType's description.
      *
      * @return the receiver's description
      */
@@ -83,7 +74,7 @@ public interface RegisterMapping extends HasId {
     public void setDescription(String newDescription);
 
     /**
-     * Returns the receiver's last modification date
+     * Returns the MeasurementType's last modification date.
      *
      * @return the last modification date
      */

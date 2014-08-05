@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 
 /**
  * Models the exceptional situation that occurs when an
@@ -20,7 +20,7 @@ public class DuplicateObisCodeException extends LocalizedException {
         super(thesaurus, messageSeed, args);
     }
 
-    public static DuplicateObisCodeException forRegisterMapping(Thesaurus thesaurus, ObisCode obisCode, Phenomenon phenomenon, int timeOfUse, RegisterMapping registerMapping) {
+    public static DuplicateObisCodeException forMeasurementType(Thesaurus thesaurus, ObisCode obisCode, Phenomenon phenomenon, int timeOfUse, MeasurementType measurementType) {
         DuplicateObisCodeException duplicateObisCodeException =
                 new DuplicateObisCodeException(
                         thesaurus,
@@ -31,7 +31,7 @@ public class DuplicateObisCodeException extends LocalizedException {
         duplicateObisCodeException.set("obisCode", obisCode.toString());
         duplicateObisCodeException.set("phenomenon", phenomenon.toString());
         duplicateObisCodeException.set("timeOfUse", timeOfUse);
-        duplicateObisCodeException.set("registerMapping", registerMapping.getName());
+        duplicateObisCodeException.set("measurementType", measurementType.getName());
         return duplicateObisCodeException;
     }
 

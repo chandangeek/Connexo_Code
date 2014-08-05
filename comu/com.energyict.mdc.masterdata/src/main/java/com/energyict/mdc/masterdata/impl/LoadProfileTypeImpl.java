@@ -2,20 +2,24 @@ package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LoadProfileTypeRegisterMappingUsage;
+import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.energyict.mdc.masterdata.exceptions.RegisterMappingAlreadyInLoadProfileTypeException;
+import com.energyict.mdc.masterdata.exceptions.RegisterTypeAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.common.base.Optional;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -26,6 +30,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Copyrights EnergyICT
@@ -36,7 +44,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
-    @Size(max= StringColumnLengthConstraints.LOAD_PROFILE_TYPE_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
 
     public String getName() {
@@ -70,18 +78,22 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     private ObisCode obisCodeCached;
     private TimeDuration interval;
     private long oldIntervalSeconds;
-    @Size(max= StringColumnLengthConstraints.LOAD_PROFILE_TYPE_DESCRIPTION, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
     private Date modificationDate;
-    private List<LoadProfileTypeRegisterMappingUsageImpl> registerMappingUsages = new ArrayList<>();
+    private List<LoadProfileTypeChannelTypeUsageImpl> channelTypeUsages = new ArrayList<>();
 
     private Clock clock;
+    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
+
+    private boolean intervalChanged = false;
 
     @Inject
-    public LoadProfileTypeImpl(DataModel dataModel, EventService eventService, MasterDataService masterDataService, Thesaurus thesaurus, Clock clock) {
+    public LoadProfileTypeImpl(DataModel dataModel, EventService eventService, MasterDataService masterDataService, Thesaurus thesaurus, Clock clock, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         super(LoadProfileType.class, dataModel, eventService, thesaurus);
         this.masterDataService = masterDataService;
         this.clock = clock;
+        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
     LoadProfileTypeImpl initialize(String name, ObisCode obisCode, TimeDuration interval) {
@@ -103,6 +115,10 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     @Override
     public void save () {
         this.modificationDate = this.clock.now();
+        if(intervalChanged){
+            updateChannelTypeUsagesAccordingToNewInterval();
+            this.intervalChanged = false;
+        }
         super.save();
         this.synchronizeOldValues();
     }
@@ -118,7 +134,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     protected void doDelete() {
-        this.registerMappingUsages.clear();
+        this.channelTypeUsages.clear();
         this.getDataMapper().remove(this);
     }
 
@@ -181,7 +197,19 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         if ((interval.getCount() <= 0)) {
             throw UnsupportedIntervalException.strictlyPositive(this.getThesaurus(), interval);
         }
+        this.intervalChanged = this.interval != null && !this.interval.equals(interval) && this.channelTypeUsages.size() != 0;
         this.interval = interval;
+    }
+
+    private void updateChannelTypeUsagesAccordingToNewInterval() {
+        List<RegisterType> templateRegisters = new ArrayList<>(channelTypeUsages.size());
+        for (LoadProfileTypeChannelTypeUsageImpl channelTypeUsage : channelTypeUsages) {
+            templateRegisters.add(channelTypeUsage.getChannelType().getTemplateRegister());
+        }
+        channelTypeUsages.clear();
+        for (RegisterType templateRegister : templateRegisters) {
+            createChannelTypeForRegisterType(templateRegister);
+        }
     }
 
     private boolean countMustBeOneFor(TimeDuration interval) {
@@ -203,34 +231,36 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.description = newDescription;
     }
 
-    public List<RegisterMapping> getRegisterMappings() {
-        List<RegisterMapping> registerMappings = new ArrayList<>(this.registerMappingUsages.size());
-        for (LoadProfileTypeRegisterMappingUsage registerMappingUsage : this.registerMappingUsages) {
-            registerMappings.add(registerMappingUsage.getRegisterMapping());
+    public List<ChannelType> getChannelTypes() {
+        List<ChannelType> channelTypes = new ArrayList<>(this.channelTypeUsages.size());
+        for (LoadProfileTypeChannelTypeUsage channelTypeUsage : this.channelTypeUsages) {
+            channelTypes.add(channelTypeUsage.getChannelType());
         }
-        return registerMappings;
+        return channelTypes;
     }
 
     @Override
-    public void addRegisterMapping(RegisterMapping registerMapping) {
-        for (LoadProfileTypeRegisterMappingUsageImpl registerMappingUsage : this.registerMappingUsages) {
-            if (registerMappingUsage.sameRegisterMapping(registerMapping)) {
-                throw new RegisterMappingAlreadyInLoadProfileTypeException(this.getThesaurus(), this, registerMapping);
+    public ChannelType createChannelTypeForRegisterType(RegisterType measurementTypeWithoutInterval) {
+        ChannelType channelType = findOrCreateCorrespondingChannelType(measurementTypeWithoutInterval);
+        for (LoadProfileTypeChannelTypeUsageImpl channelTypeUsage : this.channelTypeUsages) {
+            if (channelTypeUsage.sameChannelType(channelType)) {
+                throw new RegisterTypeAlreadyInLoadProfileTypeException(this.getThesaurus(), this, channelType);
             }
         }
-        this.registerMappingUsages.add(new LoadProfileTypeRegisterMappingUsageImpl(this, registerMapping));
+        this.channelTypeUsages.add(new LoadProfileTypeChannelTypeUsageImpl(this, channelType));
+        return channelType;
     }
 
     @Override
-    public void removeRegisterMapping(RegisterMapping registerMapping) {
-        Iterator<LoadProfileTypeRegisterMappingUsageImpl> iterator = this.registerMappingUsages.iterator();
+    public void removeChannelType(ChannelType channelType) {
+        Iterator<LoadProfileTypeChannelTypeUsageImpl> iterator = this.channelTypeUsages.iterator();
         while (iterator.hasNext()) {
-            LoadProfileTypeRegisterMappingUsageImpl registerMappingUsage = iterator.next();
-            if (registerMappingUsage.sameRegisterMapping(registerMapping)) {
+            LoadProfileTypeChannelTypeUsageImpl channelTypeUsage = iterator.next();
+            if (channelTypeUsage.sameChannelType(channelType)) {
                 /* Todo: Legacy code validated that there were no Channels that used the mapping
-                 * by calling ChannelFactory#hasChannelsForLoadProfileTypeAndMapping(this, registerMapping).
+                 * by calling ChannelFactory#hasChannelsForLoadProfileTypeAndMapping(this, channelType).
                  * This will now have to be dealt with via events. */
-                this.eventService.postEvent(EventType.REGISTERMAPPING_LOADPROFILETYPE_VALIDATEDELETE.topic(), registerMappingUsage);
+                this.eventService.postEvent(EventType.CHANNEL_TYPE_LOADPROFILETYPE_VALIDATEDELETE.topic(), channelTypeUsage);
                 iterator.remove();
             }
         }
@@ -241,4 +271,16 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.eventService.postEvent(EventType.LOADPROFILETYPE_VALIDATEDELETE.topic(), this);
     }
 
+    private ChannelType findOrCreateCorrespondingChannelType(RegisterType measurementTypeWithoutInterval){
+
+        Optional<ChannelType> channelType = this.masterDataService.findChannelTypeByTemplateRegisterAndInterval(measurementTypeWithoutInterval, getInterval());
+        if(!channelType.isPresent()){
+            ReadingType intervalAppliedReadingType = this.mdcReadingTypeUtilService.getIntervalAppliedReadingType(measurementTypeWithoutInterval.getReadingType(), getInterval(), measurementTypeWithoutInterval.getObisCode());
+            ChannelType newChannelType = masterDataService.newChannelType(measurementTypeWithoutInterval, getInterval(), intervalAppliedReadingType);
+            newChannelType.save();
+            return newChannelType;
+        } else {
+            return channelType.get();
+        }
+    }
 }
