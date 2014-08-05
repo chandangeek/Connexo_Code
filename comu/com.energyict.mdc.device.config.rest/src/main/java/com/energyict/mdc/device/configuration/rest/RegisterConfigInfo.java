@@ -2,18 +2,17 @@ package com.energyict.mdc.device.configuration.rest;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.rest.PhenomenonInfo;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-
-import org.codehaus.jackson.annotate.JsonProperty;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class RegisterConfigInfo {
     @JsonProperty("id")
@@ -60,7 +59,7 @@ public class RegisterConfigInfo {
         this.obisCode = registerSpec.getObisCode();
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        this.unitOfMeasure = PhenomenonInfo.from(registerSpec.getRegisterMapping().getPhenomenon());
+        this.unitOfMeasure = PhenomenonInfo.from(registerSpec.getRegisterType().getPhenomenon());
         this.numberOfDigits = registerSpec.getNumberOfDigits();
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         this.multiplier = registerSpec.getMultiplier();
@@ -77,7 +76,7 @@ public class RegisterConfigInfo {
         this.obisCode = registerSpec.getObisCode();
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        this.unitOfMeasure = registerSpec.getUnit();
+        this.unitOfMeasure = PhenomenonInfo.from(registerSpec.getRegisterType().getPhenomenon());
         this.numberOfDigits = null;
         this.numberOfFractionDigits = null;
         this.multiplier = null;

@@ -74,7 +74,7 @@ public class RegisterTypeResource {
     public RegisterTypeInfo createRegisterType(RegisterTypeInfo registerTypeInfo) {
         ReadingType readingType = findReadingType(registerTypeInfo);
 
-        MeasurementType measurementType = this.masterDataService.newRegisterType(registerTypeInfo.name, registerTypeInfo.obisCode, registerTypeInfo.unit, readingType, registerTypeInfo.timeOfUse);
+        MeasurementType measurementType = this.masterDataService.newRegisterType(registerTypeInfo.name, registerTypeInfo.obisCode, registerTypeInfo.unitOfMeasure.unit, readingType, registerTypeInfo.timeOfUse);
         registerTypeInfo.writeTo(measurementType, findReadingType(registerTypeInfo));
         try {
             measurementType.save();
@@ -86,8 +86,8 @@ public class RegisterTypeResource {
         return new RegisterTypeInfo(measurementType, false, false); // It's a new one so cannot be used yet in a DeviceType right
     }
 
-    private Phenomenon findPhenomenon(RegisterMappingInfo registerMappingInfo) {
-        return this.masterDataService.findPhenomenon(registerMappingInfo.unitOfMeasure.id).orNull();
+    private Phenomenon findPhenomenon(RegisterTypeInfo registerTypeInfo) {
+        return this.masterDataService.findPhenomenon(registerTypeInfo.unitOfMeasure.id).orNull();
     }
 
     @PUT
