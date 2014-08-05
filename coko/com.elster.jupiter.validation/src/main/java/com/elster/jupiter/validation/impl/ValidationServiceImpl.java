@@ -65,7 +65,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     private static final Ordering<ChannelValidation> NULLSAFE_ORDER_BY_LASTCHECKED = new Ordering<ChannelValidation>() {
         @Override
         public int compare(ChannelValidation left, ChannelValidation right) {
-            return NullSafeOrdering.NULL_IS_SMALLEST.get().compare(getLastChecked(left), getLastChecked(right));
+            return NullSafeOrdering.NULL_IS_SMALLEST.<Date>get().compare(getLastChecked(left), getLastChecked(right));
         }
 
         private Date getLastChecked(ChannelValidation validation) {

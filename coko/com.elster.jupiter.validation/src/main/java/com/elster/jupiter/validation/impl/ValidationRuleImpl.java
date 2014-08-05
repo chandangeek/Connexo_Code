@@ -2,14 +2,8 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ProcesStatus;
-import com.elster.jupiter.metering.ReadingQuality;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -22,21 +16,15 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.Ordering;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -82,7 +70,8 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     @SuppressWarnings("unused")
     private int position;
     private transient ValidationRuleSet ruleSet;
-    private transient Validator validator;
+    private transient Validator templateValidator;
+    private transient ChannelRuleValidator channelRuleValidator;
 
     private List<ValidationRuleProperties> properties = new ArrayList<>();
     private final DataModel dataModel;
@@ -208,10 +197,10 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     private Validator getValidator() {
-        if (validator == null) {
-            validator = validatorCreator.getTemplateValidator(this.implementation);
+        if (templateValidator == null) {
+            templateValidator = validatorCreator.getTemplateValidator(this.implementation);
         }
-        return validator;
+        return templateValidator;
     }
 
     @Override
@@ -302,7 +291,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     }
 
     @Override
-    public PropertySpec getPropertySpec(final String name) {
+    public PropertySpec<?> getPropertySpec(final String name) {
         return Iterables.find(getValidator().getPropertySpecs(), new Predicate<PropertySpec>() {
             @Override
             public boolean apply(PropertySpec input) {
@@ -354,7 +343,14 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         if (!active) {
             return null;
         }
-        return validateReadings(channel, interval);
+        return getChannelRuleValidator().validateReadings(channel, interval);
+    }
+
+    private ChannelRuleValidator getChannelRuleValidator() {
+        if (channelRuleValidator == null) {
+            channelRuleValidator = new ChannelRuleValidator(this);
+        }
+        return channelRuleValidator;
     }
 
     @Override
@@ -405,16 +401,12 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         this.ruleSetId = ruleSetId;
     }
 
-    private Validator createNewValidator() {
+    Validator createNewValidator() {
         Validator createdValidator = validatorCreator.getValidator(this.implementation, getProps());
         if (createdValidator == null) {
             throw new ValidatorNotFoundException(thesaurus, implementation);
         }
         return createdValidator;
-    }
-
-    private ReadingQualityType defaultReadingQualityType() {
-        return new ReadingQualityType("3.6." + getId());
     }
 
     private void doPersist() {
@@ -423,12 +415,6 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     private void doUpdate() {
         ruleFactory().update(this);
-    }
-
-    private Validator newValidator(Channel channel, Interval interval, ReadingType channelReadingType) {
-        Validator newValidator = createNewValidator();
-        newValidator.init(channel, channelReadingType, interval);
-        return newValidator;
     }
 
     private DataMapper<IValidationRule> ruleFactory() {
@@ -446,100 +432,6 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     @Override
     public String getName() {
         return name;
-    }
-
-    private Date validateReadings(Channel channel, Interval interval) {
-        Date lastChecked = null;
-        ListMultimap<Date, ReadingQuality> existingReadingQualities = getExistingReadingQualities(channel, interval);
-        for (ReadingType channelReadingType : channel.getReadingTypes()) {
-            if (getReadingTypes().contains(channelReadingType)) {
-                Validator validator = newValidator(channel, interval, channelReadingType);
-
-                ReadingQualityType readingQualityType = validator.getReadingQualityTypeCode().or(defaultReadingQualityType());
-                if (channel.isRegular()) {
-                    Interval intervalToRequest = interval.withStart(new Date(interval.getStart().getTime() - 1));
-                    for (IntervalReadingRecord intervalReading : channel.getIntervalReadings(channelReadingType, intervalToRequest)) {
-                        ValidationResult result = validator.validate(intervalReading);
-                        lastChecked = handleValidationResult(result, channel, lastChecked, existingReadingQualities, readingQualityType, intervalReading);
-                    }
-                } else {
-                    for (ReadingRecord readingRecord : channel.getRegisterReadings(channelReadingType, interval)) {
-                        ValidationResult result = validator.validate(readingRecord);
-                        lastChecked = handleValidationResult(result, channel, lastChecked, existingReadingQualities, readingQualityType, readingRecord);
-                    }
-                }
-                Map<Date, ValidationResult> finalValidationResults = validator.finish();
-                for (Map.Entry<Date, ValidationResult> entry : finalValidationResults.entrySet()) {
-                    lastChecked = handleValidationResult(entry.getValue(), channel, lastChecked, existingReadingQualities, readingQualityType, entry.getKey());
-                }
-            }
-        }
-        return lastChecked;
-    }
-
-    private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQuality> existingReadingQualities,
-                                        ReadingQualityType readingQualityType, BaseReadingRecord readingRecord) {
-        Optional<ReadingQuality> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, readingRecord.getTimeStamp());
-        if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
-            saveNewReadingQuality(channel, readingRecord, readingQualityType);
-            readingRecord.setProcessingFlags(ProcesStatus.Flag.SUSPECT);
-        }
-        if (ValidationResult.PASS.equals(result) && existingQualityForType.isPresent()) {
-            existingQualityForType.get().delete();
-            existingReadingQualities.remove(readingRecord.getTimeStamp(), existingQualityForType);
-        }
-        return determineLastChecked(result, lastChecked, readingRecord.getTimeStamp());
-    }
-
-    private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQuality> existingReadingQualities,
-                                        ReadingQualityType readingQualityType, Date timestamp) {
-        Optional<ReadingQuality> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, timestamp);
-        if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
-            saveNewReadingQuality(channel, timestamp, readingQualityType);
-        }
-        if (ValidationResult.PASS.equals(result) && existingQualityForType.isPresent()) {
-            existingQualityForType.get().delete();
-            existingReadingQualities.remove(timestamp, existingQualityForType);
-        }
-        return determineLastChecked(result, lastChecked, timestamp);
-    }
-
-    private Date determineLastChecked(ValidationResult result, Date lastChecked, Date timestamp) {
-        Date newLastChecked = lastChecked;
-        if (!ValidationResult.SKIPPED.equals(result)) {
-            newLastChecked = lastChecked == null ? timestamp : Ordering.natural().max(lastChecked, timestamp);
-        }
-        return newLastChecked;
-    }
-
-    private Optional<ReadingQuality> getExistingReadingQualitiesForType(ListMultimap<Date, ReadingQuality> existingReadingQualities, final ReadingQualityType readingQualityType, Date timeStamp) {
-        List<ReadingQuality> iterable = existingReadingQualities.get(timeStamp);
-        return iterable == null ? Optional.<ReadingQuality>absent() : Iterables.tryFind(iterable, new Predicate<ReadingQuality>() {
-            @Override
-            public boolean apply(ReadingQuality input) {
-                return readingQualityType.equals(input.getType());
-            }
-        });
-    }
-
-    private ListMultimap<Date, ReadingQuality> getExistingReadingQualities(Channel channel, Interval interval) {
-        List<ReadingQuality> readingQualities = channel.findReadingQuality(interval);
-        return ArrayListMultimap.create(Multimaps.index(readingQualities, new Function<ReadingQuality, Date>() {
-            @Override
-            public Date apply(ReadingQuality input) {
-                return input.getReadingTimestamp();
-            }
-        }));
-    }
-
-    private void saveNewReadingQuality(Channel channel, BaseReadingRecord reading, ReadingQualityType readingQualityType) {
-        ReadingQuality readingQuality = channel.createReadingQuality(readingQualityType, reading);
-        readingQuality.save();
-    }
-
-    private void saveNewReadingQuality(Channel channel, Date timestamp, ReadingQualityType readingQualityType) {
-        ReadingQuality readingQuality = channel.createReadingQuality(readingQualityType, timestamp);
-        readingQuality.save();
     }
 
     public String getDisplayName(String name) {
