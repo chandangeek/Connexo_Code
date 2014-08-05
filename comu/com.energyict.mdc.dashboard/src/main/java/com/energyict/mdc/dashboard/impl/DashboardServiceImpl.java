@@ -26,7 +26,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -149,19 +148,6 @@ public class DashboardServiceImpl implements DashboardService {
         return heatMap;
     }
 
-    private ComSessionSuccessIndicatorOverview newComSessionSuccessIndicatorOverview(List<Long> counters) {
-        Iterator<Long> successIndicatorValues = counters.iterator();
-        ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(successIndicatorValues.next());
-        for (ComSession.SuccessIndicator successIndicator : orderedSuccessIndicators()) {
-            overview.add(new CounterImpl<>(successIndicator, successIndicatorValues.next()));
-        }
-        return overview;
-    }
-
-    private List<ComSession.SuccessIndicator> orderedSuccessIndicators() {
-        return Arrays.asList(ComSession.SuccessIndicator.SetupError, ComSession.SuccessIndicator.Broken);
-    }
-
     @Override
     public DeviceTypeHeatMap getDeviceTypeHeatMap() {
         DeviceTypeHeatMapImpl heatMap = new DeviceTypeHeatMapImpl();
@@ -177,7 +163,28 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ComPortPoolHeatMap getComPortPoolHeatMap() {
-        return new ComPortPoolHeatMapImpl();
+        ComPortPoolHeatMapImpl heatMap = new ComPortPoolHeatMapImpl();
+        Map<ComPortPool, List<Long>> rawData = this.taskHistoryService.getComPortPoolHeatMap();
+        for (ComPortPool comPortPool : rawData.keySet()) {
+            List<Long> counters = rawData.get(comPortPool);
+            HeatMapRowImpl<ComPortPool> heatMapRow = new HeatMapRowImpl<>(comPortPool);
+            heatMapRow.add(this.newComSessionSuccessIndicatorOverview(counters));
+            heatMap.add(heatMapRow);
+        }
+        return heatMap;
+    }
+
+    private ComSessionSuccessIndicatorOverview newComSessionSuccessIndicatorOverview(List<Long> counters) {
+        Iterator<Long> successIndicatorValues = counters.iterator();
+        ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(successIndicatorValues.next());
+        for (ComSession.SuccessIndicator successIndicator : orderedSuccessIndicators()) {
+            overview.add(new CounterImpl<>(successIndicator, successIndicatorValues.next()));
+        }
+        return overview;
+    }
+
+    private List<ComSession.SuccessIndicator> orderedSuccessIndicators() {
+        return Arrays.asList(ComSession.SuccessIndicator.SetupError, ComSession.SuccessIndicator.Broken);
     }
 
     private List<DeviceType> availableDeviceTypes () {
