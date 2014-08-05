@@ -891,6 +891,24 @@ Ext.define('Mdc.controller.history.Setup', {
                                             route: 'overview',
                                             controller: 'Mdc.controller.setup.DeviceLoadProfileOverview',
                                             action: 'showOverview'
+                                        },
+                                        channels: {
+                                            title: 'Channels',
+                                            route: 'channels',
+                                            items: {
+                                                channel: {
+                                                    title: 'Channel',
+                                                    route: '{channelId}'
+                                                }
+                                            }
+                                        },
+                                        data: {
+                                            title: 'Load profile data',
+                                            route: 'data'
+                                        },
+                                        validation: {
+                                            title: 'Load profile validation',
+                                            route: 'validation'
                                         }
                                     }
                                 }
