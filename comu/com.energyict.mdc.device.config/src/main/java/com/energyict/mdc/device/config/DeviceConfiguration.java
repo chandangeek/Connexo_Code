@@ -1,13 +1,16 @@
 package com.energyict.mdc.device.config;
 
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
+
 import java.util.List;
 import java.util.Set;
 
@@ -51,17 +54,21 @@ public interface DeviceConfiguration extends HasId, DeviceCommunicationConfigura
 
     List<RegisterSpec> getRegisterSpecs();
 
-    RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterMapping registerMapping);
+    NumericalRegisterSpec.Builder createNumericalRegisterSpec(RegisterType registerType);
 
-    RegisterSpec.RegisterSpecUpdater getRegisterSpecUpdaterFor(RegisterSpec registerSpec);
+    NumericalRegisterSpec.Updater getRegisterSpecUpdaterFor(NumericalRegisterSpec registerSpec);
+
+    TextualRegisterSpec.Builder createTextualRegisterSpec(RegisterType registerType);
+
+    TextualRegisterSpec.Updater getRegisterSpecUpdaterFor(TextualRegisterSpec registerSpec);
 
     void deleteRegisterSpec(RegisterSpec registerSpec);
 
     List<ChannelSpec> getChannelSpecs();
 
-    ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
+    ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
 
-    ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
+    ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder);
 
     ChannelSpec.ChannelSpecUpdater getChannelSpecUpdaterFor(ChannelSpec channelSpec);
 
@@ -127,7 +134,7 @@ public interface DeviceConfiguration extends HasId, DeviceCommunicationConfigura
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages();
 
-    public List<ValidationRule> getValidationRules(List readingTypes);
+    public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes);
 
     //TODO we remove 'CreateDeviceTransaction' and 'DeviceConfigurationChanges' from the API, must be included when time comes ...
 

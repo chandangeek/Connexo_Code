@@ -596,7 +596,7 @@ public class PartialOutboundConnectiontaskCrudIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS + "}", property = "nextExecutionSpecs")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP + "}", property = "nextExecutionSpecs")
     public void testCanNotCreateConnectionTaskWithNextExecutionSpecIfAsSoonAsPossible() {
 
         try (TransactionContext context = transactionService.getContext()) {

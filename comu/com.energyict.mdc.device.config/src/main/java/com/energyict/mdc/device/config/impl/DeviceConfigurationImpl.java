@@ -1,20 +1,33 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.DeviceCommunicationFunction;
+import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
@@ -23,12 +36,32 @@ import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeExcept
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,10 +72,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
 
 /**
  *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
@@ -70,10 +99,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    @Size(max=StringColumnLengthConstraints.DEVICE_CONFIGURATION_NAME, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
-    @Size(max=StringColumnLengthConstraints.DEVICE_CONFIGURATION_DESCRIPTION, groups = {Save.Update.class, Save.Create.class}, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG +"}")
+    @Size(max= 4000, groups = {Save.Update.class, Save.Create.class}, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG +"}")
     private String description;
 
     private boolean active;
@@ -93,7 +122,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private Date modificationDate;
     private Clock clock;
     private final Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
-    private final Provider<RegisterSpecImpl> registerSpecProvider;
+    private final Provider<NumericalRegisterSpecImpl> numericalRegisterSpecProvider;
+    private final Provider<TextualRegisterSpecImpl> textualRegisterSpecProvider;
     private final Provider<LogBookSpecImpl> logBookSpecProvider;
     private final Provider<ChannelSpecImpl> channelSpecProvider;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -104,7 +134,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Inject
     protected DeviceConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock,
                                       Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
-                                      Provider<RegisterSpecImpl> registerSpecProvider,
+                                      Provider<NumericalRegisterSpecImpl> numericalRegisterSpecProvider,
+                                      Provider<TextualRegisterSpecImpl> textualRegisterSpecProvider,
                                       Provider<LogBookSpecImpl> logBookSpecProvider,
                                       Provider<ChannelSpecImpl> channelSpecProvider,
                                       Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory,
@@ -113,7 +144,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.clock = clock;
 
         this.loadProfileSpecProvider = loadProfileSpecProvider;
-        this.registerSpecProvider = registerSpecProvider;
+        this.numericalRegisterSpecProvider = numericalRegisterSpecProvider;
+        this.textualRegisterSpecProvider = textualRegisterSpecProvider;
         this.logBookSpecProvider = logBookSpecProvider;
         this.channelSpecProvider = channelSpecProvider;
         this.deviceConfValidationRuleSetUsageFactory = deviceConfValidationRuleSetUsageFactory;
@@ -274,7 +306,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public void validateUpdateRegisterMapping(RegisterMapping registerMapping) {
+    public void validateUpdateMeasurementTypes(MeasurementType measurementType) {
         this.validateAllChannelSpecsHaveUniqueObisCodes();
         this.validateAllRegisterSpecsHaveUniqueObisCodes();
     }
@@ -295,7 +327,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private void validateAllChannelSpecsHaveUniqueObisCodes() {
         Map<Long, Set<String>> loadProfileTypeObisCodes = new HashMap<>();
         for (ChannelSpec each : this.getChannelSpecs()) {
-            ObisCode obisCode = each.getRegisterMapping().getObisCode();
+            ObisCode obisCode = each.getChannelType().getObisCode();
             String obisCodeValue = obisCode.getValue();
             long loadProfileTypeId = each.getLoadProfileSpec().getLoadProfileType().getId();
             Set<String> obisCodesForLoadProfileType = loadProfileTypeObisCodes.get(loadProfileTypeId);
@@ -354,19 +386,19 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public RegisterSpec.RegisterSpecBuilder createRegisterSpec(RegisterMapping registerMapping) {
-        return new RegisterSpecBuilderForConfig(registerSpecProvider, this, registerMapping);
+    public NumericalRegisterSpec.Builder createNumericalRegisterSpec(RegisterType registerType) {
+        return new NumericalRegisterSpecBuilderForConfig(this.numericalRegisterSpecProvider, this, registerType);
     }
 
-    class RegisterSpecBuilderForConfig extends RegisterSpecImpl.RegisterSpecBuilder {
+    class NumericalRegisterSpecBuilderForConfig extends NumericalRegisterSpecImpl.AbstractBuilder {
 
-        RegisterSpecBuilderForConfig(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
-            super(registerSpecProvider, deviceConfiguration, registerMapping);
+        NumericalRegisterSpecBuilderForConfig(Provider<NumericalRegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterType registerType) {
+            super(registerSpecProvider, deviceConfiguration, registerType);
         }
 
         @Override
-        public RegisterSpec add() {
-            RegisterSpec registerSpec = super.add();
+        public NumericalRegisterSpec add() {
+            NumericalRegisterSpec registerSpec = super.add();
             validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewRegisterSpec(getThesaurus()));
             validateUniqueRegisterSpecObisCode(registerSpec);
             DeviceConfigurationImpl.this.registerSpecs.add(registerSpec);
@@ -375,19 +407,59 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public RegisterSpec.RegisterSpecUpdater getRegisterSpecUpdaterFor(RegisterSpec registerSpec) {
-        return new RegisterSpecUpdaterForConfig(registerSpec);
+    public TextualRegisterSpec.Builder createTextualRegisterSpec(RegisterType registerType) {
+        return new TextualRegisterSpecBuilderForConfig(this.textualRegisterSpecProvider, this, registerType);
     }
 
-    class RegisterSpecUpdaterForConfig extends RegisterSpecImpl.RegisterSpecUpdater {
+    class TextualRegisterSpecBuilderForConfig extends TextualRegisterSpecImpl.AbstractBuilder {
 
-        RegisterSpecUpdaterForConfig(RegisterSpec registerSpec) {
+        TextualRegisterSpecBuilderForConfig(Provider<TextualRegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterType registerType) {
+            super(registerSpecProvider, deviceConfiguration, registerType);
+        }
+
+        @Override
+        public TextualRegisterSpec add() {
+            TextualRegisterSpec registerSpec = super.add();
+            validateActiveDeviceConfiguration(CannotAddToActiveDeviceConfigurationException.aNewRegisterSpec(getThesaurus()));
+            validateUniqueRegisterSpecObisCode(registerSpec);
+            DeviceConfigurationImpl.this.registerSpecs.add(registerSpec);
+            return registerSpec;
+        }
+
+    }
+
+    @Override
+    public NumericalRegisterSpec.Updater getRegisterSpecUpdaterFor(NumericalRegisterSpec registerSpec) {
+        return new NumericalRegisterSpecUpdaterForConfig(registerSpec);
+    }
+
+    class NumericalRegisterSpecUpdaterForConfig extends NumericalRegisterSpecImpl.AbstractUpdater {
+
+        NumericalRegisterSpecUpdaterForConfig(NumericalRegisterSpec registerSpec) {
             super(registerSpec);
         }
 
         @Override
         public void update() {
-            validateUniqueRegisterSpecObisCode(registerSpec);
+            validateUniqueRegisterSpecObisCode(this.updateTarget());
+            super.update();
+        }
+    }
+
+    @Override
+    public TextualRegisterSpec.Updater getRegisterSpecUpdaterFor(TextualRegisterSpec registerSpec) {
+        return new TextualRegisterSpecUpdaterForConfig(registerSpec);
+    }
+
+    class TextualRegisterSpecUpdaterForConfig extends TextualRegisterSpecImpl.AbstractUpdater {
+
+        TextualRegisterSpecUpdaterForConfig(TextualRegisterSpec registerSpec) {
+            super(registerSpec);
+        }
+
+        @Override
+        public void update() {
+            validateUniqueRegisterSpecObisCode(this.updateTarget());
             super.update();
         }
     }
@@ -421,23 +493,23 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-        return new ChannelSpecBuilderForConfig(channelSpecProvider, this, registerMapping, phenomenon, loadProfileSpec);
+    public ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+        return new ChannelSpecBuilderForConfig(channelSpecProvider, this, channelType, phenomenon, loadProfileSpec);
     }
 
     @Override
-    public ChannelSpec.ChannelSpecBuilder createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
-        return new ChannelSpecBuilderForConfig(channelSpecProvider, this, registerMapping, phenomenon, loadProfileSpecBuilder);
+    public ChannelSpec.ChannelSpecBuilder createChannelSpec(ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+        return new ChannelSpecBuilderForConfig(channelSpecProvider, this, channelType, phenomenon, loadProfileSpecBuilder);
     }
 
     class ChannelSpecBuilderForConfig extends ChannelSpecImpl.ChannelSpecBuilder {
 
-        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-            super(channelSpecProvider, deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
+        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+            super(channelSpecProvider, deviceConfiguration, channelType, phenomenon, loadProfileSpec);
         }
 
-        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
-            super(channelSpecProvider, deviceConfiguration, registerMapping, phenomenon, loadProfileSpecBuilder);
+        ChannelSpecBuilderForConfig(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, ChannelType channelType, Phenomenon phenomenon, LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder) {
+            super(channelSpecProvider, deviceConfiguration, channelType, phenomenon, loadProfileSpecBuilder);
         }
 
         @Override
@@ -851,7 +923,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         deviceConfValidationRuleSetUsages.remove(usage);
     }
 
-    public List<ValidationRule> getValidationRules(List readingTypes) {
+    public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes) {
         List<ValidationRule> result = new ArrayList<ValidationRule>();
         List<ValidationRuleSet> ruleSets = getValidationRuleSets();
         for (ValidationRuleSet ruleSet : ruleSets) {

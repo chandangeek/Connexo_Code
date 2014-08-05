@@ -11,11 +11,11 @@ import com.energyict.mdc.common.Unit;
  *
  * @author Karel
  */
-@Deprecated // There is not really a replacement class, try Phenomenon or ReadingType on RegisterMapping
+@Deprecated // There is not really a replacement class, try Phenomenon or ReadingType on MeasurementType
 public interface ProductSpec {
 
     /**
-     * Returns number that uniquely identifies this RegisterMapping.
+     * Returns number that uniquely identifies this ProductSpec.
      *
      * @return the id
      */

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -11,9 +12,11 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.services.DefaultFinder;
@@ -35,10 +38,13 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.impl.MeasurementTypeImpl;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -53,6 +59,12 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -63,11 +75,6 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -94,6 +101,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile TaskService taskService;
     private volatile PluggableService pluggableService;
     private volatile ValidationService validationService;
+    private volatile QueryService queryService;
 
     private final Map<DeviceSecurityUserAction, Privilege> privileges = new EnumMap<>(DeviceSecurityUserAction.class);
 
@@ -159,24 +167,24 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
+    public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterType(DeviceType deviceType, RegisterType registerType) {
         Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).
-                and(where("registerMapping").isEqualTo(registerMapping)).
+                and(where("registerType").isEqualTo(registerType)).
                 and(where("deviceConfig.active").isEqualTo(Boolean.TRUE));
         return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class).select(condition);
     }
 
     @Override
-    public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping) {
+    public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterType(DeviceType deviceType, RegisterType registerType) {
         Condition condition = where("deviceConfig.deviceType").isEqualTo(deviceType).
-                and(where("registerMapping").isEqualTo(registerMapping)).
+                and(where("registerType").isEqualTo(registerType)).
                 and(where("deviceConfig.active").isEqualTo(Boolean.FALSE));
         return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class).select(condition);
     }
 
     @Override
-    public List<RegisterSpec> findRegisterSpecsByRegisterMapping(RegisterMapping registerMapping) {
-        return this.getDataModel().mapper(RegisterSpec.class).find("registerMapping", registerMapping);
+    public List<RegisterSpec> findRegisterSpecsByMeasurementType(MeasurementType measurementType) {
+        return this.getDataModel().mapper(RegisterSpec.class).find("registerType", measurementType);
     }
 
     @Override
@@ -210,8 +218,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public ChannelSpec findChannelSpecForLoadProfileSpecAndRegisterMapping(LoadProfileSpec loadProfileSpec, RegisterMapping registerMapping) {
-        return this.getDataModel().mapper(ChannelSpec.class).getUnique("loadProfileSpec", loadProfileSpec, "registerMapping", registerMapping).orNull();
+    public ChannelSpec findChannelSpecForLoadProfileSpecAndChannelType(LoadProfileSpec loadProfileSpec, ChannelType channelType) {
+        return this.getDataModel().mapper(ChannelSpec.class).getUnique("loadProfileSpec", loadProfileSpec, "channelType", channelType).orNull();
     }
 
     @Override
@@ -237,15 +245,15 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<ChannelSpec> findChannelSpecsForRegisterMapping(RegisterMapping registerMapping) {
-        return this.getDataModel().mapper(ChannelSpec.class).find("registerMapping", registerMapping);
+    public List<ChannelSpec> findChannelSpecsForMeasurementType(MeasurementType measurementType) {
+        return this.getDataModel().mapper(ChannelSpec.class).find("channelType", measurementType);
     }
 
     @Override
-    public List<ChannelSpec> findChannelSpecsForRegisterMappingInLoadProfileType(RegisterMapping registerMapping, LoadProfileType loadProfileType) {
+    public List<ChannelSpec> findChannelSpecsForChannelTypeInLoadProfileType(ChannelType channelType, LoadProfileType loadProfileType) {
         return this.getDataModel().
                 query(ChannelSpec.class, LoadProfileSpec.class).
-                select(where("registerMapping").isEqualTo(registerMapping).
+                select(where("channelType").isEqualTo(channelType).
                    and(where("loadProfileSpec.loadProfileType").isEqualTo(loadProfileType))
                 );
     }
@@ -258,10 +266,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<DeviceType> findDeviceTypesUsingRegisterMapping(RegisterMapping registerMapping) {
+    public List<DeviceType> findDeviceTypesUsingRegisterType(MeasurementType measurementType) {
         return this.getDataModel().
-                query(DeviceType.class, DeviceTypeRegisterMappingUsage.class).
-                select(where("registerMappingUsages.registerMapping").isEqualTo(registerMapping));
+                query(DeviceType.class, DeviceTypeRegisterTypeUsage.class).
+                select(where("registerTypeUsages.registerType").isEqualTo(measurementType));
     }
 
     @Override
@@ -279,17 +287,17 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<DeviceConfiguration> findDeviceConfigurationsUsingRegisterMapping(RegisterMapping registerMapping) {
+    public List<DeviceConfiguration> findDeviceConfigurationsUsingMeasurementType(MeasurementType measurementType) {
         return this.getDataModel().
                 query(DeviceConfiguration.class, ChannelSpec.class, RegisterSpec.class).
-                select(   where("channelSpecs.registerMapping").isEqualTo(registerMapping).
-                       or(where("registerSpecs.registerMapping").isEqualTo(registerMapping)));
+                select(   where("channelSpecs.channelType").isEqualTo(measurementType).
+                       or(where("registerSpecs.registerType").isEqualTo(measurementType)));
     }
 
     @Override
-    public boolean isRegisterMappingUsedByDeviceType(RegisterMapping registerMapping) {
+    public boolean isRegisterTypeUsedByDeviceType(RegisterType registerType) {
         return !this.getDataModel().
-                query(DeviceTypeRegisterMappingUsage.class).select(where("registerMapping").isEqualTo(registerMapping)).isEmpty();
+                query(DeviceTypeRegisterTypeUsage.class).select(where("registerType").isEqualTo(registerType)).isEmpty();
     }
 
     @Override
@@ -407,9 +415,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     private void initPrivileges() {
         privileges.clear();
-        for (Privilege privilege : userService.getPrivileges()) {
-            if (COMPONENTNAME.equals(privilege.getComponentName())) {
-                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forName(privilege.getName());
+        List<Resource> resources = userService.getResources(COMPONENTNAME);
+        for(Resource resource : resources){
+            for(Privilege privilege : resource.getPrivileges()){
+                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forName(privilege.getCode());
                 if (found.isPresent()) {
                     privileges.put(found.get(), privilege);
                 }
@@ -479,6 +488,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public void setPluggableService(PluggableService pluggableService) {
         // Not actively used but required for foreign keys in TableSpecs
         this.pluggableService = pluggableService;
+    }
+
+    @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
     }
 
     @Override
@@ -557,7 +571,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId) {
         return this.getDataModel().
-                query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class).
+                query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
                 select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("name"));
     }
 
@@ -565,13 +579,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration) {
         List<ReadingType> readingTypes = new ArrayList<>();
         for (LoadProfileSpec spec : configuration.getLoadProfileSpecs()) {
-            for (RegisterMapping mapping : spec.getLoadProfileType().getRegisterMappings()) {
-                readingTypes.add(mapping.getReadingType());
+            for (ChannelType channelType : spec.getLoadProfileType().getChannelTypes()) {
+                readingTypes.add(channelType.getReadingType());
             }
         }
         for (RegisterSpec spec : configuration.getRegisterSpecs()) {
-            readingTypes.add(spec.getRegisterMapping().getReadingType());
+            readingTypes.add(spec.getRegisterType().getReadingType());
         }
         return readingTypes;
+    }
+
+    @Override
+    public List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet) {
+        return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class))).getLinkableDeviceConfigurations(validationRuleSet);
     }
 }

@@ -89,8 +89,8 @@ public class LoadProfileTypeUpdateEventHandler implements TopicHandler {
         return oldIntervalSeconds != null && !((Long) oldIntervalSeconds == loadProfileType.getInterval().getSeconds());
     }
 
-    private boolean isUsed(LoadProfileType registerMapping) {
-        return this.usedByLoadProfileSpecs(registerMapping);
+    private boolean isUsed(LoadProfileType loadProfileType) {
+        return this.usedByLoadProfileSpecs(loadProfileType);
     }
 
     private boolean usedByLoadProfileSpecs(LoadProfileType loadProfileType) {

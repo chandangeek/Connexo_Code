@@ -1,12 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -17,22 +10,33 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
 import com.google.common.base.Optional;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+
+import org.junit.*;
+import org.junit.rules.*;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -241,14 +245,15 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Test(expected = CannotAddToActiveDeviceConfigurationException.class)
     @Transactional
     public void cannotAddChannelSpecToActiveDeviceConfigTest() {
-        RegisterMapping registerMapping = createDefaultRegisterMapping();
+        RegisterType registerType = createDefaultRegisterType();
         LoadProfileType loadProfileType = createDefaultLoadProfileType();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DevConfName");
 
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder1.add();
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfiguration.createLoadProfileSpec(loadProfileType);
         deviceConfiguration.activate();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfiguration.createChannelSpec(registerMapping, phenomenon, loadProfileSpecBuilder.add());
+        ChannelType channelTypeForRegisterType = loadProfileType.createChannelTypeForRegisterType(registerType);
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfiguration.createChannelSpec(channelTypeForRegisterType, phenomenon, loadProfileSpecBuilder.add());
         try {
             channelSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
@@ -260,28 +265,24 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         }
     }
 
-    private RegisterMapping createDefaultRegisterMapping() {
+    private RegisterType createDefaultRegisterType() {
         String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
         Unit unit = Unit.get("kWh");
         this.phenomenon = this.createPhenomenonIfMissing(unit);
         ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         ObisCode obisCode = ObisCode.fromString("1.0.1.8.0.255");
-        Optional<RegisterMapping> xRegisterMapping =
-                inMemoryPersistence.getMasterDataService().
-                        findRegisterMappingByObisCodeAndUnitAndTimeOfUse(
-                                obisCode,
-                                unit,
-                                readingType.getTou());
-        RegisterMapping registerMapping;
-        if (xRegisterMapping.isPresent()) {
-            registerMapping = xRegisterMapping.get();
+        Optional<RegisterType> xregisterType =
+                inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType);
+        RegisterType registerType;
+        if (xregisterType.isPresent()) {
+            registerType = xregisterType.get();
         }
         else {
-            registerMapping = inMemoryPersistence.getMasterDataService().newRegisterMapping("RMName", obisCode, unit, readingType, readingType.getTou());
-            registerMapping.save();
+            registerType = inMemoryPersistence.getMasterDataService().newRegisterType("RMName", obisCode, unit, readingType, readingType.getTou());
+            registerType.save();
         }
-        this.deviceType.addRegisterMapping(registerMapping);
-        return registerMapping;
+        this.deviceType.addRegisterType(registerType);
+        return registerType;
     }
 
     private Phenomenon createPhenomenonIfMissing(Unit unit) {
@@ -298,14 +299,35 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test(expected = CannotAddToActiveDeviceConfigurationException.class)
     @Transactional
-    public void cannotAddRegisterSpecToActiveDeviceConfigTest() {
-        RegisterMapping registerMapping = createDefaultRegisterMapping();
+    public void cannotAddNumericalRegisterSpecToActiveDeviceConfigTest() {
+        RegisterType registerType = createDefaultRegisterType();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DevConfName");
 
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder1.add();
         deviceConfiguration.activate();
 
-        RegisterSpec.RegisterSpecBuilder registerSpecBuilder = deviceConfiguration.createRegisterSpec(registerMapping).setNumberOfDigits(10).setNumberOfFractionDigits(0);
+        NumericalRegisterSpec.Builder registerSpecBuilder = deviceConfiguration.createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(0);
+        try {
+            registerSpecBuilder.add();
+        } catch (CannotAddToActiveDeviceConfigurationException e) {
+            if(!e.getMessageSeed().equals(MessageSeeds.REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG)){
+                fail("Should have gotten the exception indicating that the register configuration could not be added to an active device configuration, but was " + e.getMessage());
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    @Test(expected = CannotAddToActiveDeviceConfigurationException.class)
+    @Transactional
+    public void cannotAddTextualRegisterSpecToActiveDeviceConfigTest() {
+        RegisterType registerType = createDefaultRegisterType();
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder1 = this.deviceType.newConfiguration("DevConfName");
+
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder1.add();
+        deviceConfiguration.activate();
+
+        TextualRegisterSpec.Builder registerSpecBuilder = deviceConfiguration.createTextualRegisterSpec(registerType);
         try {
             registerSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {

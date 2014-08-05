@@ -10,9 +10,9 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -20,8 +20,9 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLinkedChannelSpecsException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -186,12 +187,17 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
 
     public List<ValidationRule> getValidationRules() {
-        List<ReadingType> readingTypes = new ArrayList<ReadingType>();
-        List<RegisterMapping> mappings = this.getLoadProfileType().getRegisterMappings();
-        for (RegisterMapping mapping : mappings) {
+        List<ReadingType> readingTypes = new ArrayList<>();
+        List<ChannelType> channelTypes = this.getLoadProfileType().getChannelTypes();
+        for (ChannelType mapping : channelTypes) {
             readingTypes.add(mapping.getReadingType());
         }
         return getDeviceConfiguration().getValidationRules(readingTypes);
+    }
+
+    @Override
+    public List<ChannelSpec> getChannelSpecs() {
+        return this.deviceConfigurationService.findChannelSpecsForLoadProfileSpec(this);
     }
 
     abstract static class LoadProfileSpecUpdater implements LoadProfileSpec.LoadProfileSpecUpdater {
