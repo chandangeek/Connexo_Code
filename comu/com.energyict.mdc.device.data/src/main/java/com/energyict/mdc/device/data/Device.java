@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
@@ -12,8 +15,6 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
-import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
@@ -39,11 +40,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.util.time.Interval;
-
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -244,6 +240,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param meterReading the meterReadings which will be stored
      */
     void store(MeterReading meterReading);
+
+    public List<LoadProfileReading> getChannelDataFor(LoadProfile loadProfile, Interval interval);
 
     /**
      * Gets a list of all device multipliers that were active for a device
