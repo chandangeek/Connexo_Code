@@ -210,6 +210,11 @@ Ext.define('Uni.view.grid.BulkSelection', {
      */
     selectedInputValue: 'selectedItems',
 
+    /**
+     * @cfg radioGroupName
+     */
+    radioGroupName: 'selectedGroupType-' + new Date().getTime() * Math.random(),
+
     initComponent: function () {
         var me = this;
 
@@ -249,14 +254,14 @@ Ext.define('Uni.view.grid.BulkSelection', {
                         },
                         items: [
                             {
-                                name: 'selectedGroupType',
+                                name: me.radioGroupName,
                                 boxLabel: '<b>' + me.allLabel + '</b><br/>' +
                                     '<span style="color: grey;">' + me.allDescription + '</span>',
                                 inputValue: me.allInputValue,
                                 checked: me.allChosenByDefault
                             },
                             {
-                                name: 'selectedGroupType',
+                                name: me.radioGroupName,
                                 boxLabel: '<b>' + me.selectedLabel + '</b><br/>' +
                                     '<span style="color: grey;">' + me.selectedDescription + '</span>',
                                 inputValue: me.selectedInputValue,
@@ -364,7 +369,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
         var me = this,
             groupType = me.getSelectionGroupType().getValue();
 
-        return groupType.selectedGroupType === me.allInputValue;
+        return groupType[me.radioGroupName] === me.allInputValue;
     },
 
     getSelectionGroupType: function () {
