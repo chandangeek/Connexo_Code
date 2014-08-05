@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -14,8 +15,9 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -117,8 +119,8 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         deviceType.setName(deviceTypeInfo.name);
         deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
-        if (deviceTypeInfo.registerMappings != null) {
-            updateRegisterMappingAssociations(deviceType, deviceTypeInfo.registerMappings);
+        if (deviceTypeInfo.registerTypes != null) {
+            updateRegisterTypeAssociations(deviceType, deviceTypeInfo.registerTypes);
         }
         deviceType.save();
         return DeviceTypeInfo.from(deviceType);
@@ -129,7 +131,7 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo findDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        return DeviceTypeInfo.from(deviceType, deviceType.getRegisterMappings());
+        return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes());
     }
 
 
@@ -224,45 +226,45 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getRegisterMappingsForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
+    public PagedInfoList getRegisterTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         String available = availableFilter.getFilterProperties().get("available");
-        final List<RegisterMapping> registerMappings = new ArrayList<>();
+        final List<RegisterType> registerTypes = new ArrayList<>();
         if (available == null || !Boolean.parseBoolean(available)) {
-            registerMappings.addAll(ListPager.of(deviceType.getRegisterMappings(), new RegisterTypeComparator()).from(queryParameters).find());
+            registerTypes.addAll(ListPager.of(deviceType.getRegisterTypes(), new RegisterTypeComparator()).from(queryParameters).find());
         } else {
             String deviceConfiguationIdString = availableFilter.getFilterProperties().get("deviceconfigurationid");
             if(deviceConfiguationIdString!=null){
-                findAllAvailableRegisterMappingsForDeviceConfiguration(deviceType, registerMappings, deviceConfiguationIdString);
+                findAllAvailableRegisterTypesForDeviceConfiguration(deviceType, registerTypes, deviceConfiguationIdString);
             } else {
-                findAllAvailableRegisterMappingsForDeviceType(queryParameters, deviceType, registerMappings);
+                findAllAvailableRegisterTypesForDeviceType(queryParameters, deviceType, registerTypes);
             }
 
         }
-        List<RegisterMappingInfo> registerMappingInfos = asInfoList(deviceType, registerMappings);
-        return PagedInfoList.asJson("registerTypes", registerMappingInfos, queryParameters);
+        List<RegisterTypeInfo> registerTypeInfos = asInfoList(deviceType, registerTypes);
+        return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters);
     }
 
-    private void findAllAvailableRegisterMappingsForDeviceType(QueryParameters queryParameters, DeviceType deviceType, List<RegisterMapping> registerMappings) {
-        Set<Long> deviceTypeRegisterMappingIds = asIds(deviceType.getRegisterMappings());
-        for (RegisterMapping registerMapping : this.masterDataService.findAllRegisterMappings().from(queryParameters).find()) {
-            if (!deviceTypeRegisterMappingIds.contains(registerMapping.getId())) {
-                registerMappings.add(registerMapping);
+    private void findAllAvailableRegisterTypesForDeviceType(QueryParameters queryParameters, DeviceType deviceType, List<RegisterType> registerTypes) {
+        Set<Long> deviceTypeRegisterTypeIds = asIds(deviceType.getRegisterTypes());
+        for (RegisterType registerType : this.masterDataService.findAllRegisterTypes().from(queryParameters).find()) {
+            if (!deviceTypeRegisterTypeIds.contains(registerType.getId())) {
+                registerTypes.add(registerType);
             }
         }
     }
 
-    private void findAllAvailableRegisterMappingsForDeviceConfiguration(DeviceType deviceType, List<RegisterMapping> registerMappings, String deviceConfiguationIdString) {
+    private void findAllAvailableRegisterTypesForDeviceConfiguration(DeviceType deviceType, List<RegisterType> registerTypes, String deviceConfiguationIdString) {
         int deviceConfigurationId = Integer.parseInt(deviceConfiguationIdString);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType ,deviceConfigurationId);
-        registerMappings.addAll(deviceType.getRegisterMappings());
-        Set<Long> unavailableRegisterMappingIds = new HashSet<>();
+        registerTypes.addAll(deviceType.getRegisterTypes());
+        Set<Long> unavailableRegisterTypeIds = new HashSet<>();
         for(RegisterSpec registerSpec: deviceConfiguration.getRegisterSpecs()){
-            unavailableRegisterMappingIds.add(registerSpec.getRegisterMapping().getId());
+            unavailableRegisterTypeIds.add(registerSpec.getRegisterType().getId());
         }
-        for (Iterator<RegisterMapping> iterator = registerMappings.iterator(); iterator.hasNext(); ) {
-            RegisterMapping next =  iterator.next();
-            if(unavailableRegisterMappingIds.contains(next.getId())){
+        for (Iterator<RegisterType> iterator = registerTypes.iterator(); iterator.hasNext(); ) {
+            MeasurementType next =  iterator.next();
+            if(unavailableRegisterTypeIds.contains(next.getId())){
                 iterator.remove();
             }
         }
@@ -272,98 +274,98 @@ public class DeviceTypeResource {
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public List<RegisterMappingInfo> linkRegisterMappingToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
+    public List<RegisterTypeInfo> linkRegisterTypesToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
 
-        linkRegisterMappingToDeviceType(deviceType, rmId);
+        linkRegisterTypeToDeviceType(deviceType, rmId);
 
         deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
 
-        return asInfoList(deviceType, deviceType.getRegisterMappings());
+        return asInfoList(deviceType, deviceType.getRegisterTypes());
     }
 
     @DELETE
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response unlinkRegisterMappingFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerMappingId) {
+    public Response unlinkRegisterTypesFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        if (getRegisterMappingById(deviceType.getRegisterMappings(), registerMappingId)==null) {
-            String message = "No register type with id " + registerMappingId + " configured on device " + id;
+        if (getRegisterTypeById(deviceType.getRegisterTypes(), registerTypeId)==null) {
+            String message = "No register type with id " + registerTypeId + " configured on device " + id;
             throw new WebApplicationException(message,
                     Response.status(Response.Status.BAD_REQUEST).entity(message).build());
         }
 
-        unlinkRegisterMappingFromDeviceType(deviceType, registerMappingId);
+        unlinkRegisterTypeFromDeviceType(deviceType, registerTypeId);
 
         return Response.ok().build();
     }
 
 
-    private void updateRegisterMappingAssociations(DeviceType deviceType, List<RegisterMappingInfo> newRegisterMappings) {
-        Set<Long> newRegisterMappingsIds = asIdz(newRegisterMappings);
-        Set<Long> existingRegisterMappingsIds = asIds(deviceType.getRegisterMappings());
+    private void updateRegisterTypeAssociations(DeviceType deviceType, List<RegisterTypeInfo> newRegisterTypeInfos) {
+        Set<Long> newRegisterTypeIds = asIdz(newRegisterTypeInfos);
+        Set<Long> existingRegisterTypeIds = asIds(deviceType.getRegisterTypes());
 
-        List<Long> toBeDeleted = new ArrayList<>(existingRegisterMappingsIds);
-        toBeDeleted.removeAll(newRegisterMappingsIds);
+        List<Long> toBeDeleted = new ArrayList<>(existingRegisterTypeIds);
+        toBeDeleted.removeAll(newRegisterTypeIds);
         for (Long toBeDeletedId : toBeDeleted) {
-            unlinkRegisterMappingFromDeviceType(deviceType, toBeDeletedId);
+            unlinkRegisterTypeFromDeviceType(deviceType, toBeDeletedId);
         }
 
-        List<Long> toBeCreated = new ArrayList<>(newRegisterMappingsIds);
-        toBeCreated.removeAll(existingRegisterMappingsIds);
+        List<Long> toBeCreated = new ArrayList<>(newRegisterTypeIds);
+        toBeCreated.removeAll(existingRegisterTypeIds);
         for (Long toBeCreatedId : toBeCreated) {
-            linkRegisterMappingToDeviceType(deviceType, toBeCreatedId);
+            linkRegisterTypeToDeviceType(deviceType, toBeCreatedId);
         }
     }
 
-    private void unlinkRegisterMappingFromDeviceType(DeviceType deviceType, long existingRegisterMappingId) {
-        deviceType.removeRegisterMapping(getRegisterMappingById(deviceType.getRegisterMappings(), existingRegisterMappingId));
+    private void unlinkRegisterTypeFromDeviceType(DeviceType deviceType, long existingRegisterTypeId) {
+        deviceType.removeRegisterType(getRegisterTypeById(deviceType.getRegisterTypes(), existingRegisterTypeId));
     }
 
-    private void linkRegisterMappingToDeviceType(DeviceType deviceType, long registerMappingId) {
-        Optional<RegisterMapping> registerMapping = this.masterDataService.findRegisterMapping(registerMappingId);
-        if (!registerMapping.isPresent()) {
-            throw new WebApplicationException("No register mapping with id " + registerMappingId,
+    private void linkRegisterTypeToDeviceType(DeviceType deviceType, long registerTypeId) {
+        Optional<RegisterType> registerType = this.masterDataService.findRegisterType(registerTypeId);
+        if (!registerType.isPresent()) {
+            throw new WebApplicationException("No register mapping with id " + registerTypeId,
                     Response.status(Response.Status.BAD_REQUEST).build());
 
         }
-        deviceType.addRegisterMapping(registerMapping.get());
+        deviceType.addRegisterType(registerType.get());
     }
 
-    private RegisterMapping getRegisterMappingById(List<RegisterMapping> registerMappingShadows, long id) {
-        for (RegisterMapping registerMappingShadow : registerMappingShadows) {
-            if (registerMappingShadow.getId() == id) {
-                return registerMappingShadow;
+    private RegisterType getRegisterTypeById(List<RegisterType> registerTypes, long id) {
+        for (RegisterType registerType : registerTypes) {
+            if (registerType.getId() == id) {
+                return registerType;
             }
         }
         return null;
     }
 
-    private Set<Long> asIdz(List<RegisterMappingInfo> registerMappingInfos) {
-        Set<Long> registerMappingIdList = new HashSet<>();
-        for (RegisterMappingInfo registerMappingInfo : registerMappingInfos) {
-            registerMappingIdList.add(registerMappingInfo.id);
+    private Set<Long> asIdz(List<RegisterTypeInfo> registerTypeInfos) {
+        Set<Long> registerTypeIds = new HashSet<>();
+        for (RegisterTypeInfo registerTypeInfo : registerTypeInfos) {
+            registerTypeIds.add(registerTypeInfo.id);
         }
-        return registerMappingIdList;
+        return registerTypeIds;
     }
 
-    private Set<Long> asIds(List<RegisterMapping> registerMappingShadows) {
-        Set<Long> registerMappingIdList = new HashSet<>();
-        for (RegisterMapping registerMappingInfo : registerMappingShadows) {
-            registerMappingIdList.add(registerMappingInfo.getId());
+    private Set<Long> asIds(List<? extends HasId> hasIdList) {
+        Set<Long> idList = new HashSet<>();
+        for (HasId hasId : hasIdList) {
+            idList.add(hasId.getId());
         }
-        return registerMappingIdList;
+        return idList;
     }
 
-    private List<RegisterMappingInfo> asInfoList(DeviceType deviceType, List<RegisterMapping> registerMappings) {
-        List<RegisterMappingInfo> registerMappingInfos = new ArrayList<>();
-        for (RegisterMapping registerMapping : registerMappings) {
-            boolean isLinkedByDeviceType = !deviceConfigurationService.findDeviceTypesUsingRegisterMapping(registerMapping).isEmpty();
-            boolean isLinkedByActiveRegisterSpec = !deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping).isEmpty();
-            boolean isLinkedByInactiveRegisterSpec = !deviceConfigurationService.findInactiveRegisterSpecsByDeviceTypeAndRegisterMapping(deviceType, registerMapping).isEmpty();
-            registerMappingInfos.add(new RegisterMappingInfo(registerMapping, isLinkedByDeviceType, isLinkedByActiveRegisterSpec, isLinkedByInactiveRegisterSpec));
+    private List<RegisterTypeInfo> asInfoList(DeviceType deviceType, List<RegisterType> registerTypes) {
+        List<RegisterTypeInfo> registerTypeInfos = new ArrayList<>();
+        for (RegisterType registerType : registerTypes) {
+            boolean isLinkedByDeviceType = !deviceConfigurationService.findDeviceTypesUsingRegisterType(registerType).isEmpty();
+            boolean isLinkedByActiveRegisterSpec = !deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType).isEmpty();
+            boolean isLinkedByInactiveRegisterSpec = !deviceConfigurationService.findInactiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType).isEmpty();
+            registerTypeInfos.add(new RegisterTypeInfo(registerType, isLinkedByDeviceType, isLinkedByActiveRegisterSpec, isLinkedByInactiveRegisterSpec));
         }
-        return registerMappingInfos;
+        return registerTypeInfos;
     }
 
 }

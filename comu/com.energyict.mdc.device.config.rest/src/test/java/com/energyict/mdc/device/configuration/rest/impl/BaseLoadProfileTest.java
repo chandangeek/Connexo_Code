@@ -1,30 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Currency;
-import java.util.List;
-import java.util.Random;
-
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
-
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.mockito.Matchers;
-
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -54,13 +29,35 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.TestProperties;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.mockito.Matchers;
+
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Currency;
+import java.util.List;
+import java.util.Random;
+
+import static org.mockito.Mockito.*;
 
 @Ignore("basic functionality for load profiles")
 public class BaseLoadProfileTest extends JerseyTest {
@@ -134,8 +131,9 @@ public class BaseLoadProfileTest extends JerseyTest {
     protected List<LoadProfileType> getLoadProfileTypes(int count) {
         List<LoadProfileType> loadProfileTypes = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
-            loadProfileTypes.add(mockLoadProfileType(1000 + i, String.format("Load Profile Type %04d", i), getRandomTimeDuration(),
-                    new ObisCode(i, i, i, i, i, i), getRegisterMappings(getRandomInt(4))));
+            TimeDuration randomTimeDuration = getRandomTimeDuration();
+            loadProfileTypes.add(mockLoadProfileType(1000 + i, String.format("Load Profile Type %04d", i), randomTimeDuration,
+                    new ObisCode(i, i, i, i, i, i), getChannelTypes(getRandomInt(4), randomTimeDuration)));
         }
         return loadProfileTypes;
     }
@@ -148,13 +146,24 @@ public class BaseLoadProfileTest extends JerseyTest {
         return loadProfileSpecs;
     }
 
-    protected List<RegisterMapping> getRegisterMappings(int count) {
-        List<RegisterMapping> mappings = new ArrayList<>(count);
+    protected List<RegisterType> getRegisterTypes(int count) {
+        List<RegisterType> registerTypes = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
-            mappings.add(mockRegisterMapping(1000 + i, String.format("Register mapping %04d", i), new ObisCode(i, i, i, i, i, i)));
+            registerTypes.add(mockRegisterType(1000 + i, String.format("Register type %04d", i), new ObisCode(i, i, i, i, i, i)));
         }
-        return mappings;
+        return registerTypes;
     }
+
+
+    protected List<ChannelType> getChannelTypes(int count, TimeDuration interval) {
+        List<ChannelType> channelTypes = new ArrayList<>(count);
+        for (int i = 1; i <= count; i++) {
+            channelTypes.add(mockChannelType(1000 + i, String.format("Channel type %04d", i), new ObisCode(i, i, i, i, i, i), interval));
+        }
+        return channelTypes;
+    }
+
+
 
     protected String getServerAnswer(Response response) {
         ByteArrayInputStream entity = (ByteArrayInputStream) response.getEntity();
@@ -199,40 +208,56 @@ public class BaseLoadProfileTest extends JerseyTest {
         when(deviceConfiguration.getName()).thenReturn(name);
         when(deviceConfiguration.getId()).thenReturn(id);
         RegisterSpec registerSpec = mock(RegisterSpec.class);
-        RegisterMapping registerMapping = mock(RegisterMapping.class);
-        when(registerSpec.getRegisterMapping()).thenReturn(registerMapping);
-        when(registerMapping.getId()).thenReturn(101L);
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerSpec.getRegisterType()).thenReturn(registerType);
+        when(registerType.getId()).thenReturn(101L);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
         return deviceConfiguration;
     }
 
-    protected LoadProfileType mockLoadProfileType(long id, String name, TimeDuration interval, ObisCode obisCode, List<RegisterMapping> mappings) {
+    protected LoadProfileType mockLoadProfileType(long id, String name, TimeDuration interval, ObisCode obisCode, List<ChannelType> channelTypes) {
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         when(loadProfileType.getId()).thenReturn(id);
         when(loadProfileType.getName()).thenReturn(name);
         when(loadProfileType.getInterval()).thenReturn(interval);
         when(loadProfileType.getObisCode()).thenReturn(obisCode);
-        when(loadProfileType.getRegisterMappings()).thenReturn(mappings);
+        when(loadProfileType.getChannelTypes()).thenReturn(channelTypes);
         return loadProfileType;
     }
 
-    protected RegisterMapping mockRegisterMapping(long id, String name, ObisCode obisCode) {
-        RegisterMapping registerMapping = mock(RegisterMapping.class);
-        when(registerMapping.getId()).thenReturn(id);
-        when(registerMapping.getName()).thenReturn(name);
-        when(registerMapping.getObisCode()).thenReturn(obisCode);
-        when(registerMapping.getTimeOfUse()).thenReturn(0);
-        when(registerMapping.getUnit()).thenReturn(Unit.get("kWh"));
+    protected RegisterType mockRegisterType(long id, String name, ObisCode obisCode) {
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerType.getId()).thenReturn(id);
+        when(registerType.getName()).thenReturn(name);
+        when(registerType.getObisCode()).thenReturn(obisCode);
+        when(registerType.getTimeOfUse()).thenReturn(0);
+        when(registerType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72." + id);
-        when(registerMapping.getReadingType()).thenReturn(readingType);
-        return registerMapping;
+        when(registerType.getReadingType()).thenReturn(readingType);
+        return registerType;
+    }
+
+    protected ChannelType mockChannelType(long id, String name, ObisCode obisCode, TimeDuration interval) {
+        ChannelType channelType = mock(ChannelType.class);
+        when(channelType.getId()).thenReturn(id);
+        when(channelType.getName()).thenReturn(name);
+        when(channelType.getObisCode()).thenReturn(obisCode);
+        when(channelType.getTimeOfUse()).thenReturn(0);
+        when(channelType.getUnit()).thenReturn(Unit.get("kWh"));
+        ReadingType readingType = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72." + id);
+        when(channelType.getReadingType()).thenReturn(readingType);
+        when(channelType.getInterval()).thenReturn(interval);
+        RegisterType templateRegister = mockRegisterType(id, name, obisCode);
+        when(channelType.getTemplateRegister()).thenReturn(templateRegister);
+        return channelType;
     }
 
     protected LoadProfileSpec mockLoadProfileSpec(long id, String name){
         LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
         ObisCode obisCode = new ObisCode(0,1,2,3,4,5);
         ObisCode overrulledObisCode = new ObisCode(200,201,202,203,204,205);
-        LoadProfileType loadProfileType = mockLoadProfileType(id, name, getRandomTimeDuration(), obisCode, getRegisterMappings(2));
+        TimeDuration randomTimeDuration = getRandomTimeDuration();
+        LoadProfileType loadProfileType = mockLoadProfileType(id, name, randomTimeDuration, obisCode, getChannelTypes(2, randomTimeDuration));
         when(loadProfileSpec.getId()).thenReturn(id);
         when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
         when(loadProfileSpec.getObisCode()).thenReturn(obisCode);

@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterMapping;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
@@ -30,13 +32,23 @@ public class ResourceHelper {
         return registerGroup.get();
     }
 
-    public RegisterMapping findRegisterMappingByIdOrThrowException(long id) {
-        Optional<RegisterMapping> registerMapping = masterDataService.findRegisterMapping(id);
-        if (!registerMapping.isPresent()) {
+    public com.energyict.mdc.masterdata.RegisterType findRegisterTypeByIdOrThrowException(long id) {
+        Optional<RegisterType> registerType = masterDataService.findRegisterType(id);
+        if (!registerType.isPresent()) {
             throw new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND);
         }
-        return registerMapping.get();
+        return registerType.get();
      }
+
+    public ChannelType findChannelTypeByIdOrThrowException(long id) {
+        Optional<ChannelType> channelType = masterDataService.findChannelTypeById(id);
+        if (!channelType.isPresent()) {
+            throw new WebApplicationException("No channel type with id " + id, Response.Status.NOT_FOUND);
+        }
+        return channelType.get();
+     }
+
+
 
     public DeviceType findDeviceTypeByIdOrThrowException(long id) {
         DeviceType deviceType = deviceConfigurationService.findDeviceType(id);

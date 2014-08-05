@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.RegisterMapping;
-import com.energyict.mdc.masterdata.rest.RegisterMappingInfo;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -28,16 +29,16 @@ public class DeviceTypeInfo {
     public String deviceProtocolPluggableClassName;
     public long deviceProtocolPluggableClassId;
     @JsonProperty("registerTypes")
-    public List<RegisterMappingInfo> registerMappings;
+    public List<RegisterTypeInfo> registerTypes;
 
     public DeviceTypeInfo() {
     }
 
-    public static DeviceTypeInfo from(DeviceType deviceType, List<RegisterMapping> registerMappings) {
+    public static DeviceTypeInfo from(DeviceType deviceType, List<RegisterType> registerTypes) {
         DeviceTypeInfo deviceTypeInfo = from(deviceType);
-        deviceTypeInfo.registerMappings = new ArrayList<>();
-        for (RegisterMapping registerMapping : registerMappings) {
-            deviceTypeInfo.registerMappings.add(new RegisterMappingInfo(registerMapping, true));
+        deviceTypeInfo.registerTypes = new ArrayList<>();
+        for (MeasurementType measurementType : registerTypes) {
+            deviceTypeInfo.registerTypes.add(new RegisterTypeInfo(measurementType, true, false));
         }
         return deviceTypeInfo;
     }
@@ -47,7 +48,7 @@ public class DeviceTypeInfo {
         deviceTypeInfo.id=deviceType.getId();
         deviceTypeInfo.name=deviceType.getName();
         deviceTypeInfo.loadProfileCount = deviceType.getLoadProfileTypes().size();
-        deviceTypeInfo.registerCount=deviceType.getRegisterMappings().size();
+        deviceTypeInfo.registerCount=deviceType.getRegisterTypes().size();
         deviceTypeInfo.logBookCount=deviceType.getLogBookTypes().size();
         deviceTypeInfo.deviceConfigurationCount=deviceType.getConfigurations().size();
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceType.getDeviceProtocolPluggableClass();
