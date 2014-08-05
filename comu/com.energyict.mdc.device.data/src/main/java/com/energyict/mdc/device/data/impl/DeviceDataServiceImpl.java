@@ -181,15 +181,16 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public void releaseInterruptedConnectionTasks(ComServer comServer) {
-        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_CONNECTIONTASK.name() + " SET comserver = NULL WHERE comserver = ?");
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_CONNECTIONTASK.name() + " SET comserver = NULL WHERE comserver = ");
         sqlBuilder.addLong(comServer.getId());
         this.executeUpdate(sqlBuilder);
     }
 
     @Override
     public void releaseInterruptedComTasks(ComServer comServer) {
-        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_COMTASKEXEC.name() + " SET comport = NULL, executionStart = null WHERE comport in (select id from mdc_comport where COMSERVERID = ?)");
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_COMTASKEXEC.name() + " SET comport = NULL, executionStart = null WHERE comport in (select id from mdc_comport where COMSERVERID = ");
         sqlBuilder.addLong(comServer.getId());
+        sqlBuilder.append(")");
         this.executeUpdate(sqlBuilder);
     }
 
