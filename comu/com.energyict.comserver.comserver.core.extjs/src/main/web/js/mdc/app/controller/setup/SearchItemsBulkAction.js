@@ -78,17 +78,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
     init: function () {
         this.control({
-            '#searchitems-bulk-step1 #devicesgrid': {
-                selectionchange: this.updateDeviceSelection
-            },
             'searchitems-bulk-step3 #schedulesgrid': {
                 selectionchange: this.updateScheduleSelection
             },
             'searchitems-bulk-step3 #schedulesgrid gridview': {
                 itemclick: this.previewCommunicationSchedule
-            },
-            '#searchitems-bulk-step1 #uncheck-all': {
-                click: this.uncheckAllDevices
             },
             '#searchitems-bulk-step3 #uncheck-all': {
                 click: this.uncheckAllSchedules
@@ -147,15 +141,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         this.shedulesUnchecked = false;
     },
 
-    onDevicesSelectionChange: function () {
-        var me = this,
-            selection = me.getDevicesGrid().getSelectionModel().getSelection(),
-            wizard = me.getSearchItemsWizard(),
-            nextBtn = wizard.down('#nextButton');
-
-        nextBtn.setDisabled(selection.length === 0);
-    },
-
     updateScheduleSelection: function (selModel, selected) {
         var label = this.getSelectedScheduleQty(),
             count = selected.length;
@@ -185,32 +170,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         }
     },
 
-    uncheckAllDevices: function () {
-        this.getDevicesGrid().getSelectionModel().deselectAll();
-    },
-
-    updateDeviceSelection: function (selModel, selected) {
-        var me = this,
-            label = me.getSelectedDevicesQty(),
-            count = selected.length;
-
-        if (count > 0) {
-            label.update('<span style="color: grey;">'
-                + Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devicesSelected', count, 'MDC', '{0} devices selected'), count)
-                + '</span>');
-        } else {
-            label.update('<span style="color: grey;">' +
-                Uni.I18n.translate('searchItems.bulk.noDeviceSelected', 'MDC', 'No devices selected') +
-                '</span>');
-        }
-    },
-
     backClick: function () {
         var layout = this.getSearchItemsWizard().getLayout(),
             currentCmp = layout.getActiveItem();
 
         this.changeContent(layout.getPrev(), currentCmp);
-        (currentCmp.name != 'statusPageViewDevices') && this.getNavigationMenu().movePrevStep();
+        (currentCmp.name !== 'statusPageViewDevices') && this.getNavigationMenu().movePrevStep();
     },
 
     nextClick: function () {
@@ -239,15 +204,19 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 method = 'DELETE';
                 break;
         }
+
         Ext.each(me.schedules, function (item) {
-            scheduleIds.push(item.getId())
+            scheduleIds.push(item.getId());
         });
+
         Ext.each(me.devices, function (item) {
-            deviceMRID.push(item.get('mRID'))
+            deviceMRID.push(item.get('mRID'));
         });
+
         request.deviceMRIDs = deviceMRID;
         request.scheduleIds = scheduleIds;
         jsonData = Ext.encode(request);
+
         Ext.Ajax.request({
             url: url,
             method: method,
@@ -283,7 +252,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
     showStatusMsg: function (msg) {
         var me = this;
-        me.getStatusPage().add(msg)
+        me.getStatusPage().add(msg);
     },
 
     buildSuccessMessage: function (successful) {
