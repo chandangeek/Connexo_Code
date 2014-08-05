@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.engine.DeviceCreator;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -27,6 +28,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
@@ -64,6 +66,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     final int intervalValueTwo = 651;
     final Unit kiloWattHours = Unit.get("kWh");
     final Unit wattHours = Unit.get("Wh");
+    private final ObisCode obisCodeActiveImport = ObisCode.fromString("1.0.1.8.0.255");
+    private final ObisCode obisCodeActiveExport = ObisCode.fromString("1.0.2.8.0.255");
 
     Date verificationTimeStamp = new DateTime(2015, 1, 1, 0, 0, 0, 0, DateTimeZone.UTC).toDate();
     Date currentTimeStamp = new DateTime(2014, 1, 13, 10, 0, 0, 0, DateTimeZone.UTC).toDate();
@@ -112,8 +116,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
             @Override
             public LoadProfileType perform() {
                 LoadProfileType loadProfileType = getInjector().getInstance(MasterDataService.class).newLoadProfileType("MyLoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15));
-                loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(ObisCode.fromString("1.0.1.8.0.255"), kiloWattHours)).get()).get());
-                loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(ObisCode.fromString("1.0.2.8.0.255"), kiloWattHours)).get()).get());
+                loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveImport, kiloWattHours)).get()).get());
+                loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours)).get()).get());
                 loadProfileType.save();
                 return loadProfileType;
             }
@@ -138,6 +142,9 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile =
                 enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithTwoChannelsAndDataInFuture(loadProfile.getInterval()));
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
         freezeClock(currentTimeStamp);
 
@@ -155,6 +162,9 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile =
                 enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithPositiveScaler(loadProfile.getInterval()));
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
         freezeClock(currentTimeStamp);
 
@@ -182,6 +192,9 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         CollectedLoadProfile collectedLoadProfile =
                 enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithNegativeScaler(loadProfile.getInterval()));
 
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
+
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
@@ -207,6 +220,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile =
                 enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithOverflowData(loadProfile.getInterval()));
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
         freezeClock(currentTimeStamp);
 
@@ -218,7 +233,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
             for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
                 IntervalReading intervalReading = localLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
-                if(i >= 2 && j == 0){ // only the third and fourth interval of channel 1 have overflowed ...
+                if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
                     assertThat(new BigDecimal(intervalValue.getNumber().toString()).subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
                             .overridingErrorMessage("Values are not the same -> %s and %s",
                                     new BigDecimal(intervalValue.getNumber().toString()).subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)),
@@ -235,13 +250,18 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         }
     }
 
+    public OfflineLoadProfile createMockedOfflineLoadProfile(Device device) {
+        return new OfflineLoadProfileImpl(device.getLoadProfiles().get(0));
+    }
+
     @Test
     public void preStoreWithPositiveScalingAndOverflowExceededTest() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithPositiveScalingAndOverflowExceededTest").loadProfileTypes(this.loadProfileType).create();
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile =
                 enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithOverflowDataAfterPositiveScaling(loadProfile.getInterval()));
-
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
@@ -253,7 +273,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
                 IntervalReading intervalReading = localLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
                 BigDecimal intervalValueBigDecimal = new BigDecimal(intervalValue.getNumber().toString()).multiply(BigDecimal.valueOf(1000));
-                if(i >= 2 && j == 0){ // only the third and fourth interval of channel 1 have overflowed ...
+                if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
                     assertThat(intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
                             .overridingErrorMessage("Values are not the same -> %s and %s",
                                     intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)),
@@ -276,7 +296,9 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile =
                 enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithOverflowDataAfterNegativeScaling(loadProfile.getInterval()));
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
 
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
@@ -288,7 +310,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
                 IntervalReading intervalReading = localLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
                 BigDecimal intervalValueBigDecimal = new BigDecimal(intervalValue.getNumber().toString()).divide(BigDecimal.valueOf(1000));
-                if(i >= 2 && j == 0){ // only the third and fourth interval of channel 1 have overflowed ...
+                if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
                     assertThat(intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
                             .overridingErrorMessage("Values are not the same -> %s and %s",
                                     intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)),
@@ -305,7 +327,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         }
     }
 
-    protected ComServerDAOImpl mockComServerDAOButCallRealMethodForMeterReadingStoring() {
+    protected ComServerDAOImpl mockComServerDAOWithOfflineLoadProfile(OfflineLoadProfile offlineLoadProfile) {
         final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
         when(comServerDAO.executeTransaction(any(Transaction.class))).thenAnswer(new Answer<Object>() {
@@ -314,6 +336,10 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 return ((Transaction<?>) invocation.getArguments()[0]).perform();
             }
         });
+        when(comServerDAO.findOfflineLoadProfile(any(LoadProfileIdentifier.class))).thenReturn(offlineLoadProfile);
+        DeviceIdentifier<Device> deviceIdentifier = (DeviceIdentifier<Device>) offlineLoadProfile.getDeviceIdentifier();
+        when(comServerDAO.getDeviceIdentifierFor(any(LoadProfileIdentifier.class))).thenReturn(deviceIdentifier);
+        doCallRealMethod().when(comServerDAO).updateLastReadingFor(any(LoadProfileIdentifier.class), any(Date.class));
         return comServerDAO;
     }
 
@@ -409,10 +435,10 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
     List<ChannelInfo> createMockedChannelInfos(TimeDuration interval) {
         List<ChannelInfo> channelInfos = new ArrayList<>();
-        ObisCode channelObisCodeOne = ObisCode.fromString("1.0.1.8.0.255");
+        ObisCode channelObisCodeOne = obisCodeActiveImport;
         channelInfos.add(ChannelInfo.ChannelInfoBuilder.fromObisCode(channelObisCodeOne).meterIdentifier(DEVICE_NAME).unit(kiloWattHours)
                 .readingTypeMRID(getMdcReadingTypeUtilService().getReadingTypeFrom(channelObisCodeOne, kiloWattHours, interval)).build());
-        ObisCode channelObisCodeTwo = ObisCode.fromString("1.0.2.8.0.255");
+        ObisCode channelObisCodeTwo = obisCodeActiveExport;
         channelInfos.add(ChannelInfo.ChannelInfoBuilder.fromObisCode(channelObisCodeTwo).meterIdentifier(DEVICE_NAME).unit(kiloWattHours)
                 .readingTypeMRID(getMdcReadingTypeUtilService().getReadingTypeFrom(channelObisCodeTwo, kiloWattHours, interval)).build());
         return channelInfos;
@@ -420,10 +446,10 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
     private List<ChannelInfo> createMockedChannelInfosWithPositiveThousandScaler(TimeDuration interval) {
         List<ChannelInfo> channelInfos = new ArrayList<>();
-        ObisCode channelObisCodeOne = ObisCode.fromString("1.0.1.8.0.255");
+        ObisCode channelObisCodeOne = obisCodeActiveImport;
         channelInfos.add(ChannelInfo.ChannelInfoBuilder.fromObisCode(channelObisCodeOne).meterIdentifier(DEVICE_NAME).unit(kiloWattHours)
                 .readingTypeMRID(getMdcReadingTypeUtilService().getReadingTypeFrom(channelObisCodeOne, wattHours, interval)).build());
-        ObisCode channelObisCodeTwo = ObisCode.fromString("1.0.2.8.0.255");
+        ObisCode channelObisCodeTwo = obisCodeActiveExport;
         channelInfos.add(ChannelInfo.ChannelInfoBuilder.fromObisCode(channelObisCodeTwo).meterIdentifier(DEVICE_NAME).unit(kiloWattHours)
                 .readingTypeMRID(getMdcReadingTypeUtilService().getReadingTypeFrom(channelObisCodeTwo, wattHours, interval)).build());
         return channelInfos;
@@ -431,10 +457,10 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
     private List<ChannelInfo> createMockedChannelInfosWithNegativeThousandScaler(TimeDuration interval) {
         List<ChannelInfo> channelInfos = new ArrayList<>();
-        ObisCode channelObisCodeOne = ObisCode.fromString("1.0.1.8.0.255");
+        ObisCode channelObisCodeOne = obisCodeActiveImport;
         channelInfos.add(ChannelInfo.ChannelInfoBuilder.fromObisCode(channelObisCodeOne).meterIdentifier(DEVICE_NAME).unit(wattHours)
                 .readingTypeMRID(getMdcReadingTypeUtilService().getReadingTypeFrom(channelObisCodeOne, kiloWattHours, interval)).build());
-        ObisCode channelObisCodeTwo = ObisCode.fromString("1.0.2.8.0.255");
+        ObisCode channelObisCodeTwo = obisCodeActiveExport;
         channelInfos.add(ChannelInfo.ChannelInfoBuilder.fromObisCode(channelObisCodeTwo).meterIdentifier(DEVICE_NAME).unit(wattHours)
                 .readingTypeMRID(getMdcReadingTypeUtilService().getReadingTypeFrom(channelObisCodeTwo, kiloWattHours, interval)).build());
         return channelInfos;

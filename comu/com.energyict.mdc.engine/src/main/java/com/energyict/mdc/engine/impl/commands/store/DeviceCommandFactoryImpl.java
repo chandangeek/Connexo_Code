@@ -29,11 +29,13 @@ public class DeviceCommandFactoryImpl implements DeviceCommandFactory {
     @Override
     public List<DeviceCommand> newForAll(List<ServerCollectedData> collectedData, IssueService issueService) {
         List<DeviceCommand> deviceCommands = new ArrayList<>(collectedData.size());
-        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand();
-        for (ServerCollectedData serverCollectedData : collectedData) {
-            deviceCommands.add(serverCollectedData.toDeviceCommand(issueService, meterDataStoreCommand));
+        if(collectedData.size() > 0){
+            MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand();
+            for (ServerCollectedData serverCollectedData : collectedData) {
+                deviceCommands.add(serverCollectedData.toDeviceCommand(issueService, meterDataStoreCommand));
+            }
+            deviceCommands.add(meterDataStoreCommand);
         }
-        deviceCommands.add(meterDataStoreCommand);
         return deviceCommands;
     }
 

@@ -3,8 +3,8 @@ package com.energyict.mdc.engine.impl.commands.offline;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
@@ -19,6 +19,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests for the {@link OfflineRegisterImpl} component
@@ -38,7 +39,7 @@ public class OfflineRtuRegisterImplTest {
 
     public static RegisterSpec getMockedRegisterSpec(RegisterGroup registerGroup) {
         RegisterType mockedMeasurementType = getMockedRegisterType(registerGroup);
-        RegisterSpec registerSpec = mock(RegisterSpec.class);
+        RegisterSpec registerSpec = mock(RegisterSpec.class, withSettings().extraInterfaces(NumericalRegisterSpec.class));
         when(registerSpec.getDeviceObisCode()).thenReturn(RTU_REGISTER_MAPPING_OBISCODE);
         when(registerSpec.getId()).thenReturn(REGISTER_SPEC_ID);
         when(registerSpec.getRegisterType()).thenReturn(mockedMeasurementType);

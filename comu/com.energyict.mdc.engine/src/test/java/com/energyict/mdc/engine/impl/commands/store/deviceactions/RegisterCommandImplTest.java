@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -107,7 +108,7 @@ public class RegisterCommandImplTest {
         RegisterCommand registerCommand = new RegisterCommandImpl(mock(RegistersTask.class), device, commandRoot, null);
 
         CollectedData noCollectedRegisterCollectedData = mock(CollectedData.class);
-        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class));
+        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
         List<CollectedData> collectedDataItems = new ArrayList<>(2);
         collectedDataItems.add(noCollectedRegisterCollectedData);
         collectedDataItems.add(collectedRegister);

@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.DeviceIdentifierById;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -61,7 +62,7 @@ public class DeviceUserFileConfigurationInformationTest {
         DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
 
         // Business method
-        DeviceCommand command = deviceIpAddress.toDeviceCommand(issueService, meterDataStoreCommand);
+        DeviceCommand command = deviceIpAddress.toDeviceCommand(issueService, new MeterDataStoreCommand());
 
         // Asserts
         assertThat(command).isNotNull();

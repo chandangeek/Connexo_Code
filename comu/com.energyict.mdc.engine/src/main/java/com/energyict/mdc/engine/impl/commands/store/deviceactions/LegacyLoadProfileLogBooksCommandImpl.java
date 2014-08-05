@@ -211,7 +211,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      */
     protected void addLoadProfileToReaderList(final OfflineLoadProfile loadProfile) {
         LoadProfileReader loadProfileReader = new LoadProfileReader(loadProfile.getObisCode(),
-                loadProfile.getLastReading(), null, loadProfile.getLoadProfileId(), new DeviceIdentifierById(loadProfile.getDeviceId(), getCommandRoot().getServiceProvider().deviceDataService()),
+                loadProfile.getLastReading(), null, loadProfile.getLoadProfileId(), loadProfile.getDeviceIdentifier(),
                 createChannelInfos(loadProfile), loadProfile.getMasterSerialNumber(), loadProfile.getLoadProfileIdentifier());
         this.loadProfileReaderMap.put(loadProfileReader, loadProfile);
     }

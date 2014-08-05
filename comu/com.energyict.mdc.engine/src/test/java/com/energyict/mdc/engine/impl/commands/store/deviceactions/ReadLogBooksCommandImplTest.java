@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
@@ -102,9 +103,9 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         when((logBookIdentifier3).getLogBook()).thenReturn(logBook3);
         when(logBook3.getId()).thenReturn(30L);
 
-        LogBookReader logBookReader1 = new LogBookReader(logBookObisCode1, lastLogBookDate1, logBookIdentifier1, SERIAL_NUMBER);
-        LogBookReader logBookReader2 = new LogBookReader(logBookObisCode2, lastLogBookDate2, logBookIdentifier2, SERIAL_NUMBER);
-        LogBookReader logBookReader3 = new LogBookReader(logBookObisCode3, lastLogBookDate3, logBookIdentifier3, SERIAL_NUMBER);
+        LogBookReader logBookReader1 = new LogBookReader(logBookObisCode1, lastLogBookDate1, logBookIdentifier1, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
+        LogBookReader logBookReader2 = new LogBookReader(logBookObisCode2, lastLogBookDate2, logBookIdentifier2, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
+        LogBookReader logBookReader3 = new LogBookReader(logBookObisCode3, lastLogBookDate3, logBookIdentifier3, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
 
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot commandRoot = new CommandRootImpl(device, AbstractComCommandExecuteTest.newTestExecutionContext(), commandRootServiceProvider);

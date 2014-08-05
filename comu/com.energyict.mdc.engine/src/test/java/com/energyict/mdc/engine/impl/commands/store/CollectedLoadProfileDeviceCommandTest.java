@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -41,6 +42,8 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
@@ -63,6 +66,8 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     private static final int CHANNEL_INFO_ID = CHANNEL1_ID + 1;
     private static final String OBIS_CODE = "1.33.1.8.0.255";
     private TimeZone toReset;
+
+    private MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand();
 
     @Before
     public void setUp() {
@@ -177,13 +182,16 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
-        final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
         freezeClock(verificationTimeStamp);
         this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
+        this.execute(meterDataStoreCommand, comServerDAO);
 
         // Business method
-        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
+        this.execute(meterDataStoreCommand, comServerDAO);
 
         // Asserts
         List<Channel> channels = getChannels(deviceId);
@@ -217,12 +225,14 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
-        final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
 
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(verificationTimeStamp);
 
         // Business method
         this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
+        this.execute(meterDataStoreCommand, comServerDAO);
 
         // Asserts
         List<Channel> channels = getChannels(deviceId);
@@ -256,12 +266,15 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfileWithDeltaData(device.getLoadProfiles().get(0));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
-        final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
         freezeClock(verificationTimeStamp);
 
         // Business method
         this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
+        this.execute(meterDataStoreCommand, comServerDAO);
 
         // Asserts
         List<Channel> channels = getChannels(deviceId);
@@ -287,12 +300,15 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         long deviceId = device.getId();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
-        final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
-        final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
+        CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
         freezeClock(verificationTimeStamp);
 
         this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
+        this.execute(meterDataStoreCommand, comServerDAO);
 
         List<IntervalData> updatedCollectedIntervalData = new ArrayList<>();
         List<IntervalValue> updatedIntervalList = new ArrayList<>();
@@ -303,8 +319,11 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         updatedCollectedIntervalData.add(new IntervalData(intervalEndTime3, 0, 0, 0, updatedIntervalList));
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(updatedCollectedIntervalData);
 
+        meterDataStoreCommand = new MeterDataStoreCommand();
+        collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
         // Business method
         this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
+        this.execute(meterDataStoreCommand, comServerDAO);
 
         // Asserts
         List<Channel> channels = getChannels(deviceId);
@@ -315,9 +334,9 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         assertThat(intervalReadingsChannel1.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne));
         assertThat(intervalReadingsChannel1.get(1).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
         assertThat(intervalReadingsChannel1.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 1));
-        assertThat(intervalReadingsChannel1.get(2).getQuantity(0).getValue()).isEqualTo(new BigDecimal(updatedIntervalChannelOne-(intervalValueOne + 1)));
+        assertThat(intervalReadingsChannel1.get(2).getQuantity(0).getValue()).isEqualTo(new BigDecimal(updatedIntervalChannelOne - (intervalValueOne + 1)));
         assertThat(intervalReadingsChannel1.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(updatedIntervalChannelOne));
-        assertThat(intervalReadingsChannel1.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal((intervalValueOne + 3)-updatedIntervalChannelOne));
+        assertThat(intervalReadingsChannel1.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal((intervalValueOne + 3) - updatedIntervalChannelOne));
         assertThat(intervalReadingsChannel1.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 3));
         List<IntervalReadingRecord> intervalReadingsChannel2 = channels.get(1).getIntervalReadings(new Interval(fromClock, verificationTimeStamp));
         assertThat(intervalReadingsChannel2).hasSize(4);
@@ -325,9 +344,9 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         assertThat(intervalReadingsChannel2.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo));
         assertThat(intervalReadingsChannel2.get(1).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
         assertThat(intervalReadingsChannel2.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 1));
-        assertThat(intervalReadingsChannel2.get(2).getQuantity(0).getValue()).isEqualTo(new BigDecimal(updatedIntervalChannelTwo-(intervalValueTwo + 1)));
+        assertThat(intervalReadingsChannel2.get(2).getQuantity(0).getValue()).isEqualTo(new BigDecimal(updatedIntervalChannelTwo - (intervalValueTwo + 1)));
         assertThat(intervalReadingsChannel2.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(updatedIntervalChannelTwo));
-        assertThat(intervalReadingsChannel2.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal((intervalValueTwo + 3)-updatedIntervalChannelTwo));
+        assertThat(intervalReadingsChannel2.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal((intervalValueTwo + 3) - updatedIntervalChannelTwo));
         assertThat(intervalReadingsChannel2.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 3));
     }
 
@@ -338,10 +357,13 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(loadProfile);
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
-        final ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
+        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
+
+        final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
         // Business method
         this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
+        this.execute(meterDataStoreCommand, comServerDAO);
 
         // Asserts
         assertThat(device.getLoadProfiles().get(0).getLastReading()).isEqualTo(intervalEndTime4);

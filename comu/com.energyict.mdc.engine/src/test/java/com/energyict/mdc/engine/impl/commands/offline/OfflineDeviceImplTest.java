@@ -8,6 +8,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -46,10 +47,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -252,8 +250,9 @@ public class OfflineDeviceImplTest {
     @Test
     public void getAllRegistersTest() {
         Device device = createMockDevice();
-        Register register1 = createMockedRegister(createMockedRegisterSpec(), device);
-        Register register2 = createMockedRegister(createMockedRegisterSpec(), device);
+        RegisterType registerType = mock(RegisterType.class);
+        Register register1 = createMockedRegister(createMockedRegisterSpec(registerType), device);
+        Register register2 = createMockedRegister(createMockedRegisterSpec(registerType), device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
 
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
@@ -269,19 +268,20 @@ public class OfflineDeviceImplTest {
         OfflineDevice mockOfflineDevice = mock(OfflineDevice.class);
 
         Device device = createMockDevice();
-        Register register1 = createMockedRegister(createMockedRegisterSpec(), device);
-        Register register2 = createMockedRegister(createMockedRegisterSpec(), device);
+        RegisterType registerType = mock(RegisterType.class);
+        Register register1 = createMockedRegister(createMockedRegisterSpec(registerType), device);
+        Register register2 = createMockedRegister(createMockedRegisterSpec(registerType), device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
 
         DeviceType slaveRtuType = mock(DeviceType.class);
         when(slaveRtuType.isLogicalSlave()).thenReturn(true);
         Device slaveWithNeedProxy = createMockDevice(132, "654654");
         when(slaveWithNeedProxy.getDeviceType()).thenReturn(slaveRtuType);
-        Register registerSlave1 = createMockedRegister(createMockedRegisterSpec(), device);
+        Register registerSlave1 = createMockedRegister(createMockedRegisterSpec(registerType), device);
         when(slaveWithNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave1));
         Device slaveWithoutNeedProxy = createMockDevice(133, "65465415");
         DeviceType notASlaveRtuType = mock(DeviceType.class);
-        Register registerSlave2 = createMockedRegister(createMockedRegisterSpec(), device);
+        Register registerSlave2 = createMockedRegister(createMockedRegisterSpec(registerType), device);
         when(slaveWithoutNeedProxy.getDeviceType()).thenReturn(notASlaveRtuType);
         when(slaveWithoutNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave2));
         when(device.getPhysicalConnectedDevices()).thenReturn(Arrays.asList(slaveWithNeedProxy, slaveWithoutNeedProxy));
@@ -318,12 +318,8 @@ public class OfflineDeviceImplTest {
         assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroup(Arrays.asList(rtuRegisterGroupId)).size());
     }
 
-    private RegisterSpec createMockedRegisterSpec() {
-        return mock(RegisterSpec.class, RETURNS_DEEP_STUBS);
-    }
-
     private RegisterSpec createMockedRegisterSpec(RegisterType registerType) {
-        RegisterSpec registerSpec = mock(RegisterSpec.class);
+        RegisterSpec registerSpec = mock(RegisterSpec.class, withSettings().extraInterfaces(NumericalRegisterSpec.class));
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         return registerSpec;
     }

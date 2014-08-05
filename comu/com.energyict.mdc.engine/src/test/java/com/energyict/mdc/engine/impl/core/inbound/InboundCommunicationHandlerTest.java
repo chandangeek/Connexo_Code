@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.BusinessException;
@@ -405,7 +406,7 @@ public class InboundCommunicationHandlerTest {
     private void testSuccessFulCommunication (InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
-        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class));
+        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);
@@ -455,7 +456,7 @@ public class InboundCommunicationHandlerTest {
     private void testComSessionShadowForSuccessFulCommunication (InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
-        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class));
+        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);
@@ -546,7 +547,7 @@ public class InboundCommunicationHandlerTest {
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
         CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
-        assertThat(compositeDeviceCommand.getChildren()).hasSize(2);
+        assertThat(compositeDeviceCommand.getChildren()).hasSize(3);
         assertThat(compositeDeviceCommand.getChildren()).haveAtLeast(1, new Condition<DeviceCommand>() {
             @Override
             public boolean matches(DeviceCommand deviceCommand) {
@@ -578,7 +579,7 @@ public class InboundCommunicationHandlerTest {
     private void testSuccessFulCommunicationWithAllCollectedDataFiltered (InboundDiscoveryContextImpl context) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
-        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class));
+        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);

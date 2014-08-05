@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.offline;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
@@ -99,7 +100,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
         }
         this.meterSerialNumber = this.register.getDevice().getSerialNumber();
         this.readingType = this.register.getRegisterSpec().getRegisterType().getReadingType();
-        this.overFlow = this.register.getRegisterSpec().getOverflowValue();
+        this.overFlow = this.register.getRegisterSpec().isTextual()?new BigDecimal(Double.MAX_VALUE): ((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue();
     }
 
     /**

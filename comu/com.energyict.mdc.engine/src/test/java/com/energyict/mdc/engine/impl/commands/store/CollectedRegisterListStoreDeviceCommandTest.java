@@ -27,6 +27,7 @@ import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.metering.impl.ObisCodeToReadingTypeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
@@ -101,12 +102,17 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
 
         DeviceRegisterList collectedRegisterList = new DeviceRegisterList(deviceIdentifier);
         collectedRegisterList.addCollectedRegister(collectedRegister);
+        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand();
         CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, meterDataStoreCommand);
 
+        OfflineRegister offlineRegister = mock(OfflineRegister.class);
+        when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(Double.MAX_VALUE));
         ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
+        when(comServerDAO.findOfflineRegister(registerIdentifier)).thenReturn(offlineRegister);
 
         // Business method
         this.execute(collectedRegisterListDeviceCommand, comServerDAO);
+        this.execute(meterDataStoreCommand, comServerDAO);
 
         // Asserts
         Optional<AmrSystem> amrSystem = getInjector().getInstance(MeteringService.class).findAmrSystem(1);
@@ -161,7 +167,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     }
 
     private CollectedRegister createCollectedRegister(RegisterIdentifier registerIdentifier) {
-        CollectedRegister collectedRegister = new DefaultDeviceRegister(registerIdentifier);
+        CollectedRegister collectedRegister = new DefaultDeviceRegister(registerIdentifier, getMdcReadingTypeUtilService().getReadingTypeFrom(registerIdentifier.getObisCode(), kiloWattHours));
         collectedRegister.setReadTime(registerEventTime1);
         collectedRegister.setCollectedData(register1Quantity);
         return collectedRegister;

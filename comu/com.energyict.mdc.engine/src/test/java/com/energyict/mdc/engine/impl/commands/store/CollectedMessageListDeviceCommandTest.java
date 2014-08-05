@@ -44,6 +44,8 @@ public class CollectedMessageListDeviceCommandTest {
     private DeviceCommand.ExecutionLogger executionLogger;
     @Mock
     private IssueService issueService;
+    @Mock
+    private MeterDataStoreCommand meterDataStoreCommand;
 
     @Before
     public void initialize(){

@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
@@ -66,6 +67,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         when(loadProfile.getObisCode()).thenReturn(FIXED_LOAD_PROFILE_OBIS_CODE);
         when(loadProfile.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
         when(loadProfile.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
+        when(loadProfile.getDeviceIdentifier()).thenReturn(new TestSerialNumberDeviceIdentifier(FIXED_DEVICE_SERIAL_NUMBER));
         return loadProfile;
     }
 
@@ -104,7 +106,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         assertEquals("Expect 1 element in the list", 1, loadProfileCommand.getLoadProfileReaders().size());
         LoadProfileReader loadProfileReader = loadProfileCommand.getLoadProfileReaders().get(0);
         Assert.assertEquals(FIXED_LOAD_PROFILE_OBIS_CODE, loadProfileReader.getProfileObisCode());
-        Assert.assertEquals(FIXED_DEVICE_SERIAL_NUMBER, loadProfileReader.getDeviceIdentifier());
+        Assert.assertEquals(FIXED_DEVICE_SERIAL_NUMBER, loadProfileReader.getDeviceIdentifier().getIdentifier());
         Assert.assertEquals(LAST_READING, loadProfileReader.getStartReadingTime());
         assertNotNull(loadProfileReader.getEndReadingTime());
     }
