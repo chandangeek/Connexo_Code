@@ -39,7 +39,7 @@ public class LogBookResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getLogbookTypes(@BeanParam QueryParameters queryParameters) {
         List<LogBookTypeInfo> logbookTypeInfos = new ArrayList<>();
-        // TODO it will be better to change the result type of masterDataService.findAllLogBookTypes() to Finder, as for masterDataService.findAllRegisterMappings
+        // TODO it will be better to change the result type of masterDataService.findAllLogBookTypes() to Finder, as for masterDataService.findAllMeasurementTypes
         List<LogBookType> logbookTypes = masterDataService.findAllLogBookTypes();
         Collections.sort(logbookTypes, new Comparator<LogBookType>() {
             @Override
