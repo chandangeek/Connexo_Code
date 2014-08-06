@@ -189,7 +189,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
      *
      * The URL to be used for the cancel button.
      */
-    cancelHref: undefined,
+    cancelHref: window.location.href,
 
     /**
      * @cfg allChosenByDefault
