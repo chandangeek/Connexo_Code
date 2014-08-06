@@ -73,6 +73,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_SECURITY_PROPERTY_SET_DELETION(2043, Keys.VETO_SECURITY_PROPERTY_SET_DELETION, "The security property set {0} of device configuration {1} cannot be deleted because at least one device of that configuration still has security property values for it", SEVERE),
     UNIQUE_ADDHOC_COMTASKS_PER_DEVICE(2044, Keys.UNIQUE_ADDHOC_COMTASKS_PER_DEVICE, "The communication task is not unique for device", SEVERE),
     DUPLICATE_COMTASK_SCHEDULING(2045, Keys.DUPLICATE_COMTASK_SCHEDULING, "There is an overlap in the scheduled communication tasks on the device", SEVERE),
+    COMTASK_CONFIGURATION_INCONSISTENT(2046, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The configuration settings (i.e. connection method, protocol dialect, security set and urgency) of all communication tasks contained in a communication schedule should be the same", SEVERE),
     ;
     private final int number;
     private final String key;
@@ -170,7 +171,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT = "connectionTaskRequiredWhenNotUsingDefault";
         public static final String PRIORITY_NOT_IN_RANGE = "priorityNotInRange";
         public static final String UNIQUE_ADDHOC_COMTASKS_PER_DEVICE = "uniqueComTasksPerDevice";
-        public static final String DUPLICATE_COMTASK_SCHEDULING = "duplicateComtaskScheduling";
+        public static final String DUPLICATE_COMTASK_SCHEDULING = "duplicateComTaskScheduling";
+        public static final String COMTASK_CONFIGURATION_INCONSISTENT = "comTaskConfigurationInconsistent";
         public static final String CONNECTION_TASK_STATUS_INCOMPLETE = "connectionTaskStatusIncomplete";
         public static final String CONNECTION_TASK_STATUS_ACTIVE = "connectionTaskStatusActive";
         public static final String CONNECTION_TASK_STATUS_INACTIVE = "connectionTaskStatusInActive";

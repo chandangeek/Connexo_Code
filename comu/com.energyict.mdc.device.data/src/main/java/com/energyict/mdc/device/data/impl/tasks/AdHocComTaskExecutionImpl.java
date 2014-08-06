@@ -12,6 +12,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -21,7 +22,7 @@ import com.google.common.base.Optional;
 import javax.inject.Inject;
 import java.util.Date;
 
-@UniqueAdHocComTaskExecutionPerDevice
+@UniqueAdHocComTaskExecutionPerDevice(groups = {Save.Create.class, Save.Update.class})
 public class AdHocComTaskExecutionImpl extends SingleComTaskExecutionImpl implements AdHocComTaskExecution {
 
     @Inject
