@@ -12,7 +12,7 @@ Ext.define('Cfg.model.ReadingType', {
         name: 'readingTypes'
     }
     ],
-    idProperty: 'mRID',
+//    idProperty: 'mRID',
     proxy: {
     type: 'rest',
         url: '/api/mtr/usagepoints/readingtypes',
