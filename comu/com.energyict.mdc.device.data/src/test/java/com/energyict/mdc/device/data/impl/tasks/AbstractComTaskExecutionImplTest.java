@@ -185,7 +185,6 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected ScheduledConnectionTaskImpl createMinimizeOneDayConnectionStandardTask(Device device) {
         PartialScheduledConnectionTask partialOutboundConnectionTask = createPartialScheduledConnectionTask();
         OutboundComPortPool outboundPool = createOutboundIpComPortPool("MyOutboundPool");
-        DeviceDataServiceImpl deviceDataService = inMemoryPersistence.getDeviceDataService();
         partialOutboundConnectionTask.setName("Minimize");
         partialOutboundConnectionTask.save();
         ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) device.getScheduledConnectionTaskBuilder(partialOutboundConnectionTask)
@@ -202,8 +201,16 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         return createComSchedule(comTask, new TemporalExpression(TimeDuration.days(1)));
     }
 
+    protected ComSchedule createComSchedule(String name, ComTask comTask) {
+        return createComSchedule(name, comTask, new TemporalExpression(TimeDuration.days(1)));
+    }
+
     protected ComSchedule createComSchedule(ComTask comTask, TemporalExpression temporalExpression) {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("MyComSchedule", temporalExpression, new UtcInstant(new Date())).build();
+        return this.createComSchedule("MyComSchedule", comTask, temporalExpression);
+    }
+
+    protected ComSchedule createComSchedule(String name, ComTask comTask, TemporalExpression temporalExpression) {
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(name, temporalExpression, new UtcInstant(new Date())).build();
         comSchedule.addComTask(comTask);
         return comSchedule;
     }

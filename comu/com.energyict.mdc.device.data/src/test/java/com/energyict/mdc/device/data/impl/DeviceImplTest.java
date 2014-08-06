@@ -204,7 +204,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED_KEY + "}")
     public void createWithoutNameTest() {
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, null, MRID);
         device.save();
@@ -213,7 +213,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED_KEY + "}")
     public void createWithEmptyNameTest() {
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "", MRID);
         device.save();
@@ -277,7 +277,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
     public void uniquenessOfExternalNameTest() {
         String mRID = "MyPublicExternalName";
         Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "First", mRID);
@@ -288,7 +288,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MRID_REQUIRED_KEY + "}")
     public void noMRIDTest() {
         Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, null);
         device1.save();
@@ -296,7 +296,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MRID_REQUIRED_KEY + "}")
     public void emptyMRIDTest() {
         Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, "");
         device1.save();
@@ -620,7 +620,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
     public void setPhysicalGatewaySameAsOriginDeviceTest() {
         Device origin = createSimpleDeviceWithName("Origin");
 
@@ -630,7 +630,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
     public void updatePhysicalGatewayWithSameAsOriginDeviceTest() {
         Device physicalGateway = createSimpleDeviceWithName("PhysicalGateway");
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Slave", "SlaveMrid");
@@ -743,7 +743,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
     public void setCommunicationGatewaySameAsOriginTest() {
         Device origin = createSimpleDeviceWithName("Origin");
 
@@ -753,7 +753,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
     public void updateCommunicationGatewayWithSameAsOriginDeviceTest() {
         Device communicationMaster = createSimpleDevice();
 
@@ -1022,7 +1022,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DEVICE_CONFIGURATION_NOT_ACTIVE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CONFIGURATION_NOT_ACTIVE + "}")
     public void createWithInActiveDeviceConfigurationTest() {
         DeviceType.DeviceConfigurationBuilder inactiveConfig = deviceType.newConfiguration("Inactie");
         DeviceConfiguration deviceConfiguration = inactiveConfig.add();

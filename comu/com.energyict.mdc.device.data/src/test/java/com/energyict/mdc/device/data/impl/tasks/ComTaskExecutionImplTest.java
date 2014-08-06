@@ -105,6 +105,25 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
+    public void scheduleTwice () {
+        ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
+        ComSchedule comSchedule1 = createComSchedule("ComSchedule1", comTaskEnablement.getComTask());
+        ComSchedule comSchedule2 = createComSchedule("ComSchedule2", comTaskEnablement.getComTask());
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule");
+        ScheduledComTaskExecutionBuilder builder1 = device.newScheduledComTaskExecution(comSchedule1);
+        builder1.add();
+        ScheduledComTaskExecutionBuilder builder2 = device.newScheduledComTaskExecution(comSchedule2);
+        builder2.add();
+
+        // Business method
+        device.save();
+
+        // Asserts: see expected ExpectedConstraintViolation
+    }
+
+    @Test
+    @Transactional
     public void comTaskExecutionDeletedWhenDeviceDeletedTest() {
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeletionTest", "DeletionTest");
@@ -326,7 +345,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT + "}")
     public void setNotToUseDefaultAndNoConnectionTaskSetTest() {
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
@@ -353,7 +372,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     public void negativePriorityOnBuilderTest() {
         int myPriority = -123;
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
@@ -366,7 +385,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     public void setPriorityOutOfRangeTest() {
         int myPriority = TaskPriorityConstants.LOWEST_PRIORITY + 1;
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
@@ -397,7 +416,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     public void negativePriorityOnUpdaterTest() {
         int myPriority = -7859;
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
@@ -413,7 +432,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PRIORITY_NOT_IN_RANGE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     public void updatePriorityOutOfRangeTest() {
         int myPriority = TaskPriorityConstants.LOWEST_PRIORITY + 1;
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
@@ -480,7 +499,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
     @Transactional
     public void setNullProtocolDialectTest() {
         deviceConfiguration.save();
@@ -722,7 +741,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.UNIQUE_COMTASKS_PER_DEVICE + "}", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNIQUE_ADDHOC_COMTASKS_PER_DEVICE + "}", strict = false)
     public void duplicateComTaskOnDeviceTest() {
         ComTaskEnablement comTaskEnablement = createMockedComTaskEnablement(true);
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Duplicate", "Duplicate");

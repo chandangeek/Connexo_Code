@@ -66,6 +66,7 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.AdHocComTaskExecutionImpl;
@@ -102,8 +103,43 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
+
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -119,15 +155,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
 
 import static com.elster.jupiter.util.Checks.is;
 
-@UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_DEVICE_MRID + "}")
+@UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
+@UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
 public class DeviceImpl implements Device {
 
     private final DataModel dataModel;
@@ -143,18 +175,18 @@ public class DeviceImpl implements Device {
     private final List<LogBook> logBooks = new ArrayList<>();
     private long id;
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_TYPE_REQUIRED_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_TYPE_REQUIRED_KEY + "}")
     private final Reference<DeviceType> deviceType = ValueReference.absent();
-    @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_CONFIGURATION_REQUIRED_KEY + "}")
+    @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_CONFIGURATION_REQUIRED_KEY + "}")
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED_KEY + "}")
+    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.MRID_REQUIRED_KEY + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MRID_REQUIRED_KEY + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MRID_REQUIRED_KEY + "}")
     private String mRID;
-    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String serialNumber;
     private String timeZoneId;
     private TimeZone timeZone;
@@ -1287,6 +1319,13 @@ public class DeviceImpl implements Device {
         this.comTaskExecutions = comTaskExecutionImpls;
     }
 
+    private void add(ComTaskExecutionImpl comTaskExecution) {
+        this.getComTaskExecutionImpls().add(comTaskExecution);
+        if (this.id != 0) {
+            Save.CREATE.validate(this.dataModel, this);  // To validate that all scheduled ComTasks are unique
+        }
+    }
+
     @Override
     public ScheduledComTaskExecutionBuilder newScheduledComTaskExecution(ComSchedule comSchedule) {
         return new ScheduledComTaskExecutionBuilderForDevice(scheduledComTaskExecutionProvider, this, comSchedule);
@@ -1524,7 +1563,7 @@ public class DeviceImpl implements Device {
         @Override
         public ScheduledComTaskExecution add() {
             ScheduledComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
+            DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
         }
     }

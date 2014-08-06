@@ -31,7 +31,7 @@ public class UniqueAdHocComTaskExecutionPerDeviceValidator implements Constraint
                 ComTaskExecutionImpl serverComTaskExecution = (ComTaskExecutionImpl) other;
                 if (serverComTaskExecution.isAdHoc() && serverComTaskExecution.executesComTask(comTask)) {
                     context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.UNIQUE_COMTASKS_PER_DEVICE + "}")
+                    context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.UNIQUE_ADDHOC_COMTASKS_PER_DEVICE + "}")
                             .addPropertyNode(ComTaskExecutionFields.COMTASK.fieldName())
                             .addPropertyNode(ComTaskExecutionFields.DEVICE.fieldName()).addConstraintViolation();
                     return false;

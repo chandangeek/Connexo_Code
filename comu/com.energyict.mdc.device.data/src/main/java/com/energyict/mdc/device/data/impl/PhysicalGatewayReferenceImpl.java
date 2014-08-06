@@ -17,13 +17,13 @@ import java.util.Date;
  * Date: 10/03/14
  * Time: 09:57
  */
-@CantBeOwnGateway(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Constants.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY +"}")
+@CantBeOwnGateway(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY +"}")
 public class PhysicalGatewayReferenceImpl implements PhysicalGatewayReference {
 
     private Reference<Device> origin = ValueReference.absent();
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.VALUE_IS_REQUIRED_KEY + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Reference<Device> gateway = ValueReference.absent();
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.VALUE_IS_REQUIRED_KEY + "}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Interval interval;
 
     @Inject

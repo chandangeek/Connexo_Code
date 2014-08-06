@@ -28,8 +28,8 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
     private final DataModel dataModel;
     private final DeviceDataService deviceDataService;
     private final Thesaurus thesaurus;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.VALUE_IS_REQUIRED_KEY + "}")
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String propertyValue;
     private long infoTypeId = 0;
     private Reference<Device> device = ValueReference.absent();

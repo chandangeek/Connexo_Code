@@ -70,7 +70,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.VALUE_IS_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     public void createWithEmptyPropertyValue() {
         String name = "MyProperty";
         String value = "";
@@ -95,7 +95,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.VALUE_IS_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     public void updateWithNullValueTest() {
         String name = "MyProperty";
         String value = "MyValueOfTheProperty";
