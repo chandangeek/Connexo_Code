@@ -28,6 +28,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -455,6 +456,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         RegisterType registerType = mock(RegisterType.class);
         ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
+        Phenomenon phenomenon = mock(Phenomenon.class);
+        when(registerType.getPhenomenon()).thenReturn(phenomenon);
         TextualRegisterSpec registerSpec = mock(TextualRegisterSpec.class);
         when(registerSpec.isTextual()).thenReturn(true);
         when(registerSpec.getId()).thenReturn(1L);
@@ -974,6 +977,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getReadingType()).thenReturn(readingType);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
+        Phenomenon phenomenon = mock(Phenomenon.class);
+        when(registerType.getPhenomenon()).thenReturn(phenomenon);
         ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
 
@@ -1004,6 +1009,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
         when(registerSpecBuilder.add()).thenReturn(registerConfig);
         when(deviceConfiguration.createNumericalRegisterSpec(Matchers.<RegisterType>any())).thenReturn(registerSpecBuilder);
+        Phenomenon phenomenon = mock(Phenomenon.class);
+        when(registerType.getPhenomenon()).thenReturn(phenomenon);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType =registerType_id;
         registerConfigInfo.multiplier= BigDecimal.TEN;
@@ -1048,6 +1055,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
         when(registerSpecBuilder.add()).thenReturn(registerConfig);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerConfig));
+        Phenomenon phenomenon = mock(Phenomenon.class);
+        when(registerType.getPhenomenon()).thenReturn(phenomenon);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType =registerType_id;
         registerConfigInfo.multiplier= BigDecimal.TEN;
