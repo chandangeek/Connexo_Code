@@ -78,7 +78,7 @@ class ChannelRuleValidator {
     }
 
     private ReadingQualityType defaultReadingQualityType() {
-        return new ReadingQualityType("3.6." + rule.getId());
+        return ReadingQualityType.defaultCodeForRuleId(rule.getId());
     }
 
     private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQuality> existingReadingQualities,
