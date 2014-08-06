@@ -45,7 +45,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SubMenuPanel', {
 
     setParams: function (mRID ,model) {
         var me = this,
-            menu = this.down('#deviceLoadProfilesSubMenu');
+            menu = this.down('#deviceLoadProfilesSubMenu'),
+            formatHref;
 
         menu.setTitle(model.get('name'));
 
