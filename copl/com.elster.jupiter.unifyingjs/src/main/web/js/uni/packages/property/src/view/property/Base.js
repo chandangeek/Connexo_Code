@@ -273,7 +273,9 @@ Ext.define('Uni.property.view.property.Base', {
                 }
             })
         }
-
+        this.on('afterrender', function(){
+            me.fireEvent('enableRestoreAll', this);
+        });
         this.getResetButton().setHandler(this.restoreDefault, this);
     },
 
