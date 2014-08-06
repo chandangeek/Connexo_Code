@@ -32,14 +32,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
             {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.lastReading', 'MDC', 'Last reading'),
-                layout: {
-                    type: 'hbox',
-                    align: 'middle'
-                },
+                layout: 'hbox',
                 items: [
                     {
                         xtype: 'displayfield',
                         name: 'lastReading_formatted',
+                        margin: '3 0 0 0',
                         renderer: function (value) {
                             this.nextSibling('button').setVisible(value ? true : false);
                             return value;
@@ -52,7 +50,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                         ui: 'blank',
                         itemId: 'lastReadingHelp',
                         shadow: false,
-                        margin: '0 0 0 10',
+                        margin: '6 0 0 10',
                         width: 16
                     }
                 ]
