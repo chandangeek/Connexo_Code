@@ -77,12 +77,9 @@ public class RegisterTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterTypeInfo createRegisterType(RegisterTypeInfo registerTypeInfo) {
         ReadingType readingType = findReadingType(registerTypeInfo);
-        Optional<Phenomenon> phenomenon = masterDataService.findPhenomenon(registerTypeInfo.unitOfMeasure.id);
-        if (!phenomenon.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_PHENOMENON);
-        }
+        Optional<Phenomenon> phenomenon = findPhenomenonOrThrowException(registerTypeInfo);
         MeasurementType measurementType = this.masterDataService.newRegisterType(registerTypeInfo.name, registerTypeInfo.obisCode, phenomenon.get().getUnit(), readingType, registerTypeInfo.timeOfUse);
-        registerTypeInfo.writeTo(measurementType, findReadingType(registerTypeInfo));
+        registerTypeInfo.writeTo(measurementType, findReadingType(registerTypeInfo), phenomenon.get().getUnit());
         try {
             measurementType.save();
         } catch (DuplicateObisCodeException e) {
@@ -93,8 +90,12 @@ public class RegisterTypeResource {
         return new RegisterTypeInfo(measurementType, false, false); // It's a new one so cannot be used yet in a DeviceType right
     }
 
-    private Phenomenon findPhenomenon(RegisterTypeInfo registerTypeInfo) {
-        return this.masterDataService.findPhenomenon(registerTypeInfo.unitOfMeasure.id).orNull();
+    private Optional<Phenomenon> findPhenomenonOrThrowException(RegisterTypeInfo registerTypeInfo) {
+        Optional<Phenomenon> phenomenon = masterDataService.findPhenomenon(registerTypeInfo.unitOfMeasure.id);
+        if (!phenomenon.isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_PHENOMENON);
+        }
+        return phenomenon;
     }
 
     @PUT
@@ -103,7 +104,8 @@ public class RegisterTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterTypeInfo updateRegisterType(@PathParam("id") long id, RegisterTypeInfo registerTypeInfo) {
         RegisterType registerType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
-        registerTypeInfo.writeTo(registerType, findReadingType(registerTypeInfo));
+        Optional<Phenomenon> phenomenon = findPhenomenonOrThrowException(registerTypeInfo);
+        registerTypeInfo.writeTo(registerType, findReadingType(registerTypeInfo), phenomenon.get().getUnit());
         try {
             registerType.save();
         } catch (DuplicateObisCodeException e) {

@@ -44,7 +44,7 @@ public class DeviceConfigFieldResource extends FieldResource{
                 throw new WebApplicationException("Failed to convert unit into JSON", Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(phenomenon).build());
             }
         }
-        return asJsonArrayObjectWithTranslation("units", "unit", allUnitsWithPhenomena, translationKeys);
+        return asJsonArrayObjectWithTranslation("units", "id", allUnitsWithPhenomena, translationKeys);
     }
 
     @GET
