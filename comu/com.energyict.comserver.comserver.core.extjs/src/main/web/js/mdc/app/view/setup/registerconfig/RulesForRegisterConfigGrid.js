@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
 
         this.columns = [
             {
-                header: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
+                header: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
                     return '<a href="#/administration/validation/rulesets/' + record.data.ruleSet.id + '/rules/' + record.getId() + '">' + value + '</a>';
