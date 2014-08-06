@@ -56,6 +56,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.base.Optional;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
@@ -74,8 +75,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *     //TODO the creation of the CommunicationConfiguration is currently skipped ...
- *
  * User: gde
  * Date: 5/11/12
  */
@@ -473,12 +472,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public void deleteRegisterSpec(RegisterSpec registerSpec) {
-        // TODO Complete!!!
-
-//        if (getActive() && !shadow.getRegisterSpecShadows().getDeletedShadows().isEmpty()) {
-//            throw new BusinessException("deleteRegisterSpecsFromActiveDeviceConfigIsNotAllowed",
-//                    "It's not allowed to delete register specifications of an active device configuration");
-//        }
         if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.canNotDeleteRegisterSpec(this.thesaurus, this, registerSpec);
         }
@@ -884,6 +877,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public List<ComTaskEnablement> getComTaskEnablements() {
         return this.getCommunicationConfiguration().getComTaskEnablements();
+    }
+
+    @Override
+    public Optional<ComTaskEnablement> getComTaskEnablementFor(ComTask comTask) {
+        return this.getCommunicationConfiguration().getComTaskEnablementFor(comTask);
     }
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages() {

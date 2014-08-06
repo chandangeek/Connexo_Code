@@ -6,6 +6,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.google.common.base.Optional;
+
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -704,6 +706,16 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
     @Override
     public List<ComTaskEnablement> getComTaskEnablements() {
         return Collections.unmodifiableList(this.comTaskEnablements);
+    }
+
+    @Override
+    public Optional<ComTaskEnablement> getComTaskEnablementFor(ComTask comTask) {
+        for (ComTaskEnablement comTaskEnablement : this.comTaskEnablements) {
+            if (comTask.getId() == comTaskEnablement.getComTask().getId()) {
+                return Optional.of(comTaskEnablement);
+            }
+        }
+        return Optional.absent();
     }
 
     @Override
