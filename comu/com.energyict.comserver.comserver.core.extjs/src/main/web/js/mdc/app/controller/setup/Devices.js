@@ -82,7 +82,13 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceCommunicationTopologyForm().loadRecord(device);
                 me.getDeviceOpenIssuesForm().loadRecord(device);
                 me.getDeviceSetupPanel().down('#floatBtn').show();
-                me.updateDataValidationStatusSection(mRID, widget);
+                Ext.Ajax.request({
+                    url: '../../api/ddr/devices/' + mRID + '/validationrulesets/devicevalidation',
+                    method: 'GET',
+                    success: function () {
+                        me.updateDataValidationStatusSection(mRID, widget);
+                    }
+                });
             }
         });
     },

@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     emptyText: 'Select a unit of measure',
                     name: 'unitOfMeasure',
                     forceSelection: true,
-                    displayField: 'name',
+                    displayField: 'localizedValue',
                     valueField: 'id',
                     queryMode: 'local'
                 },
