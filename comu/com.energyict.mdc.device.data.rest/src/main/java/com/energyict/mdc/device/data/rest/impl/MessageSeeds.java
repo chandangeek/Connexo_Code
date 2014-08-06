@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.configuration.rest.impl.DeviceConfigurationApplication;
@@ -19,6 +20,13 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_READING(21, "NoSuchReading" , "Register {0} has no reading with id {1}"),
     INVALID_DATE(22, "InvalidDate", "Date should be less or equal to {0}"),
     NO_SUCH_LOAD_PROFILE_ON_DEVICE(23, "NoSuchLoadProfile", "Device {0} has no load profile {1}"),
+    CONFIRMED(24, ProcessStatus.Flag.CONFIRMED.name(), "Confirmed"),
+    EDITED(25, ProcessStatus.Flag.EDITED.name(), "Edited"),
+    ESTIMATED(26, ProcessStatus.Flag.ESTIMATED.name(), "Estimated"),
+    QUALITY(27, ProcessStatus.Flag.QUALITY.name(), "Quality"),
+    SUSPECT(28, ProcessStatus.Flag.SUSPECT.name(), "Suspect"),
+    WARNING(29, ProcessStatus.Flag.WARNING.name(), "Warning"),
+
     ;
 
     private final int number;
