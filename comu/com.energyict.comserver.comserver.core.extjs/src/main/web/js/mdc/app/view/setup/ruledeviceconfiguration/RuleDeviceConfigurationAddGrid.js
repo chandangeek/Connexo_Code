@@ -52,11 +52,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAddGri
     initComponent: function () {
         var me = this;
 
+        me.cancelHref = '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfigurations';
         me.callParent(arguments);
-        me.getCancelButton().on('click', me.onClickCancelButton, me);
-    },
-
-    onClickCancelButton: function () {
-        window.location.href = '#/administration/validation/rulesets/' + this.ruleSetId + '/deviceconfigurations';
     }
 });

@@ -32,37 +32,14 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             'rule-device-configuration-grid': {
                 select: this.loadDetails
             },
-            'rule-device-configuration-add grid': {
-                selectionchange: this.countSelectedDeviceConfigurations
-            },
-            'rule-device-configuration-add button[action=add]': {
-                click: this.addDeviceConfigurations
-            },
-            'rule-device-configuration-add button[action=uncheck]': {
-                click: this.onUncheckAll
+            'rule-device-configuration-add rule-device-configuration-add-grid': {
+                allitemsadd: this.onAllDeviceConfigurationsAdd,
+                selecteditemsadd: this.onSelectedDeviceConfigurationsAdd
             },
             'rule-device-configuration-action-menu': {
                 click: this.chooseAction
-            },
-            'rule-device-configuration-add radiogroup': {
-                change: this.onChangeRadio
             }
         });
-    },
-
-    onChangeRadio: function () {
-        var grid = Ext.ComponentQuery.query('rule-device-configuration-add grid')[0];
-        if (grid.getSelectionModel().getSelection().length === 0) {
-            grid.down('#uncheckAll').setDisabled(true);
-            grid.down('#addDeviceConfigToRuleSet').setDisabled(true);
-        } else {
-            grid.down('#uncheckAll').setDisabled(false);
-            grid.down('#addDeviceConfigToRuleSet').setDisabled(false);
-        }
-        if (this.getRuleDeviceConfigurationAddPanel().down('#radioAll').getValue()) {
-            grid.down('#uncheckAll').setDisabled(true);
-            grid.down('#addDeviceConfigToRuleSet').setDisabled(false);
-        }
     },
 
     showDeviceConfigView: function (ruleSetId) {
@@ -70,7 +47,9 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             ruleDeviceConfigStore = me.getStore('Mdc.store.RuleDeviceConfigurations'),
             ruleSetsStore = me.getStore('Cfg.store.ValidationRuleSets');
         ruleDeviceConfigStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
+
         me.ruleSetId = ruleSetId;
+
         ruleSetsStore.load({
             params: {
                 id: ruleSetId
@@ -86,16 +65,19 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
         });
     },
 
-    showAddDeviceConfigView: function () {
+    showAddDeviceConfigView: function (ruleSetId) {
         var me = this,
             ruleDeviceConfigNotLinkedStore = me.getStore('Mdc.store.RuleDeviceConfigurationsNotLinked'),
             ruleSetsStore = me.getStore('Cfg.store.ValidationRuleSets'),
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('rule-device-configuration-add', {ruleSetId: router.routeparams.ruleSetId});
-        me.ruleSetId = router.routeparams.ruleSetId;
+
+        me.ruleSetId = ruleSetId;
+
         if (widget.down('#addDeviceConfigGrid')) {
             widget.down('#addDeviceConfigGrid').getStore().removeAll();
         }
+
         me.getApplication().fireEvent('changecontentevent', widget);
         ruleDeviceConfigNotLinkedStore.getProxy().setExtraParam('ruleSetId', router.routeparams.ruleSetId);
         ruleDeviceConfigNotLinkedStore.load(function () {
@@ -118,50 +100,16 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
         itemForm.setTitle(record.get('config_name'));
     },
 
-    countSelectedDeviceConfigurations: function (grid) {
+    onAllDeviceConfigurationsAdd: function () {
+        this.addDeviceConfigurations(true, []);
+    },
+
+    onSelectedDeviceConfigurationsAdd: function (selection) {
+        this.addDeviceConfigurations(false, selection);
+    },
+
+    addDeviceConfigurations: function (allPressed, selection) {
         var me = this,
-            textLabel = me.getRuleDeviceConfigurationAddPanel().down('#countLabel'),
-            radioSelected = me.getRuleDeviceConfigurationAddPanel().down('#radioSelected');
-
-        var gridview = Ext.ComponentQuery.query('rule-device-configuration-add grid')[0],
-            selection = gridview.getSelectionModel().getSelection(),
-            selectionText = Uni.I18n.translatePlural(
-                'validation.deviceconfiguration.selection',
-                selection.length,
-                'CFG',
-                '{0} device configurations selected'
-            );
-
-        textLabel.setText(selectionText);
-        me.changeRadioFromAllToSelected();
-        if (selection.length === 0) {
-            gridview.down('#uncheckAll').setDisabled(true);
-            gridview.down('#addDeviceConfigToRuleSet').setDisabled(true);
-        } else {
-            gridview.down('#uncheckAll').setDisabled(false);
-            gridview.down('#addDeviceConfigToRuleSet').setDisabled(false);
-        }
-    },
-
-    changeRadioFromAllToSelected: function () {
-        var radioAll = this.getRuleDeviceConfigurationAddPanel().down('#radioAll'),
-            radioSelected = this.getRuleDeviceConfigurationAddPanel().down('#radioSelected');
-
-        radioAll.setValue(false);
-        radioSelected.setValue(true);
-    },
-
-    onUncheckAll: function () {
-        var grid = this.getRuleDeviceConfigurationAddPanel().down('#addDeviceConfigGrid');
-        grid.getView().getSelectionModel().deselectAll(true);
-        grid.fireEvent('selectionchange', grid);
-    },
-
-    addDeviceConfigurations: function () {
-        var me = this,
-            allPressed = me.getRuleDeviceConfigurationAddPanel().down('#radioAll').getValue(),
-            grid = me.getRuleDeviceConfigurationAddPanel().down('#addDeviceConfigGrid'),
-            selection = grid.view.getSelectionModel().getSelection(),
             url = '/api/dtc/validationruleset/' + me.ruleSetId + '/deviceconfigurations',
             ids = [];
 
