@@ -36,6 +36,7 @@ import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ComScheduleAllowedOnDeviceConfiguration;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
@@ -131,6 +132,7 @@ import static com.elster.jupiter.util.Checks.is;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
+@ComScheduleAllowedOnDeviceConfiguration(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MISMATCH_COMTASK_SCHEDULE_WITH_DEVICE_CONFIGURATION + "}")
 public class DeviceImpl implements Device {
 
     private final DataModel dataModel;
