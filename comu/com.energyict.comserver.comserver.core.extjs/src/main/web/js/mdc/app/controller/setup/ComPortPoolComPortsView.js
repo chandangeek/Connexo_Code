@@ -122,6 +122,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             jsonValues;
 
         me.getApplication().fireEvent('changecontentevent', widget);
+        widget.updateCancelHref(id);
 
         comPortPoolModel.load(id, {
             success: function (record) {

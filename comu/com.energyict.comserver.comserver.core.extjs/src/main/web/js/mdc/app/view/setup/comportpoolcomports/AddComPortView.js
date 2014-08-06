@@ -38,5 +38,9 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortView', {
 
     initComponent: function () {
         this.callParent(arguments);
+    },
+
+    updateCancelHref: function (comPortPoolId) {
+        this.down('addComportToComportPoolGrid').updateCancelHref(comPortPoolId);
     }
 });
