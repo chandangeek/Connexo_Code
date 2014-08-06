@@ -12,6 +12,7 @@ Ext.define('Dsh.controller.Main', {
     ],
     controllers: [
         'Dsh.controller.history.Workspace',
+        'Dsh.controller.CommunicationOverview',
         'Dsh.controller.ConnectionOverview'
     ],
     config: {
@@ -29,44 +30,40 @@ Ext.define('Dsh.controller.Main', {
         this.setConfigurationController(configurationController);
     },
     initMenu: function () {
-        var me = this;
-
-        var workspaceItem = Ext.create('Uni.model.MenuItem', {
-            text: 'Workspace',
-            glyph: 'workspace',
-            portal: 'workspace',
-            index: 30
-        });
-
-        Uni.store.MenuItems.add(workspaceItem);
-
-        var router = me.getController('Uni.controller.history.Router');
-        var dataCommunication = Ext.create('Uni.model.PortalItem', {
-            title: 'Data communication',
-            portal: 'workspace',
-            route: 'datacommunication',
-            items: [
-                {
-                    text: 'Connections',
-                    href: router.getRoute('workspace/datacommunication/connections').buildUrl()
-                },
-                {
-                    text: 'Connection overview',
-                    href: router.getRoute('workspace/datacommunication/connection').buildUrl()
-                },
-                {
-                    text: 'Communications',
-                    href: router.getRoute('workspace/datacommunication/communications').buildUrl()
-                },
-                {
-                    text: 'Communication overview',
-                    href: router.getRoute('workspace/datacommunication/communication').buildUrl()
-                }
-            ]
-        });
-
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        Uni.store.MenuItems.add(
+            Ext.create('Uni.model.MenuItem', {
+                text: 'Workspace',
+                glyph: 'workspace',
+                portal: 'workspace',
+                index: 30
+            })
+        );
         Uni.store.PortalItems.add(
-            dataCommunication
+            Ext.create('Uni.model.PortalItem', {
+                title: 'Data communication',
+                portal: 'workspace',
+                route: 'datacommunication',
+                items: [
+                    {
+                        text: 'Connections',
+                        href: router.getRoute('workspace/datacommunication/connections').buildUrl()
+                    },
+                    {
+                        text: 'Connection overview',
+                        href: router.getRoute('workspace/datacommunication/connection').buildUrl()
+                    },
+                    {
+                        text: 'Communications',
+                        href: router.getRoute('workspace/datacommunication/communications').buildUrl()
+                    },
+                    {
+                        text: 'Communication overview',
+                        href: router.getRoute('workspace/datacommunication/communication').buildUrl()
+                    }
+                ]
+            })
         );
     }
 });

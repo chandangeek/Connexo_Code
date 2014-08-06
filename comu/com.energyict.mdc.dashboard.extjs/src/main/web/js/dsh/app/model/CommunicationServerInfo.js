@@ -1,4 +1,4 @@
-Ext.define('Dsh.model.ComServerInfo', {
+Ext.define('Dsh.model.CommunicationServerInfo', {
     extend: 'Ext.data.Model',
     fields: [
         { name: 'comServerName' },

@@ -1,3 +1,4 @@
+//TODO: localize all strings
 Ext.define('Dsh.controller.history.Workspace', {
     extend: 'Uni.controller.history.Converter',
     rootToken: 'workspace',
@@ -16,13 +17,13 @@ Ext.define('Dsh.controller.history.Workspace', {
                         communication: {
                             title: 'Communication overview',
                             route: 'communication',
-                            controller: 'Dsh.controller.ConnectionOverview',
+                            controller: 'Dsh.controller.CommunicationOverview',
                             action: 'showOverview'
                         },
                         communications: {
                             title: 'Communications',
                             route: 'communications',
-                            controller: 'Dsh.controller.ConnectionOverview',
+                            controller: 'Dsh.controller.CommunicationOverview',
                             action: 'showOverview'
                         },
                         connection: {
