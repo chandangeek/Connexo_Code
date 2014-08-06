@@ -45,10 +45,10 @@ Ext.define('Mdc.controller.setup.Devices', {
             '#validationFromDate': {
                 change: this.onValidationFromDateChange
             },
-            '#activate': {
+            'deviceSetup #activate': {
                 click: this.onActivate
             },
-            '#deactivate': {
+            'deviceSetup #deactivate': {
                 click: this.onDeactivate
             }
         });

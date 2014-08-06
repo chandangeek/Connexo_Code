@@ -4,6 +4,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
     itemId: 'deviceLoadProfilesSetup',
 
     mRID: null,
+    router: null,
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -40,7 +41,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'deviceLoadProfilesGrid',
-                        mRID: me.mRID
+                        mRID: me.mRID,
+                        router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
@@ -51,7 +53,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
                     },
                     previewComponent: {
                         xtype: 'deviceLoadProfilesPreview',
-                        mRID: me.mRID
+                        mRID: me.mRID,
+                        router: me.router
                     }
                 }
             ]

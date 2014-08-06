@@ -21,12 +21,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         }
     ],
 
+    mRID: null,
+
     init: function () {
         this.control({
             'deviceLoadProfilesSetup #deviceLoadProfilesGrid': {
                 select: this.showPreview
             },
-            'deviceLoadProfilesSetup #deviceLoadProfilesActionMenu': {
+            '#deviceLoadProfilesActionMenu': {
                 click: this.chooseAction
             }
         });
@@ -40,7 +42,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             widget,
             showPage = function () {
                 proxy.url = proxy.url.replace('{mRID}', mRID);
-                widget = Ext.widget('deviceLoadProfilesSetup', {mRID: mRID});
+                widget = Ext.widget('deviceLoadProfilesSetup', {
+                    mRID: mRID,
+                    router: me.getController('Uni.controller.history.Router')
+                });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 model.load(mRID, {
                     success: function (record) {
@@ -50,6 +55,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 });
             };
 
+        me.mRID = mRID;
         timeUnitsStore.getCount() ? showPage() : timeUnitsStore.on('load', showPage, me, {single: true});
     },
 
@@ -62,24 +68,24 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     },
 
     chooseAction: function (menu, item) {
-        var router = this.getController('Uni.controller.history.Router'),
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
             id = menu.record.getId(),
             route;
 
-//        todo: change routes when respective features be implemented
         switch (item.action) {
             case 'viewChannels':
-                route = '';
+                route = 'devices/device/loadprofiles/loadprofile/channels';
                 break;
             case 'viewData':
-                route = '';
+                route = 'devices/device/loadprofiles/loadprofile/data';
                 break;
             case 'viewDetails':
-                route = '';
+                route = 'devices/device/loadprofiles/loadprofile/overview';
                 break;
         }
 
         route && (route = router.getRoute(route));
-        route && route.forward({id: id});
+        route && route.forward({mRID: me.mRID, loadProfileId: id});
     }
 });

@@ -1,5 +1,8 @@
 Ext.define('Mdc.model.LoadProfileOfDevice', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Mdc.store.TimeUnits'
+    ],
     fields: [
         {name: 'id', type: 'int'},
         {name: 'name', type: 'string'},
