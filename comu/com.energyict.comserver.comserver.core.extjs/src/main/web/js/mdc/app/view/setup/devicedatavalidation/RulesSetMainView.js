@@ -74,10 +74,16 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                                     xtype: 'no-items-found-panel',
                                     title: Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.title', 'MDC', 'No validation rule sets found'),
                                     reasons: [
-                                        Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item1', 'MDC', 'No validation rule sets have been assigned to this device.'),
-                                        Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item2', 'MDC', 'Validation rule sets have been assigned, but you do not have permission to view them.')
+                                        Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item1', 'MDC', 'No validation rule sets have been defined yet.'),
+                                        Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item2', 'MDC', 'Validation rule sets exist, but you do not have permission to view them.')
                                     ],
-                                    stepItems: []
+                                    stepItems: [
+                                        {
+                                            text: Uni.I18n.translate('validation.addRuleSet', 'CFG', 'Add validation rule set'),
+                                            ui: 'action',
+                                            href: '#/administration/validation/rulesets/add'
+                                        }
+                                    ]
                                 },
                                 previewComponent: {
                                     xtype: 'container',
