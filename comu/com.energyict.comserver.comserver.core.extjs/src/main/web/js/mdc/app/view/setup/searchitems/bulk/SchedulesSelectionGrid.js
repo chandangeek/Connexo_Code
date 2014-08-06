@@ -3,9 +3,6 @@ Ext.define('Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid', {
     xtype: 'schedules-selection-grid',
     itemId: 'schedulesgrid',
 
-    requires: [
-    ],
-
     store: 'Mdc.store.CommunicationSchedulesWithoutPaging',
 
     counterTextFn: function (count) {

@@ -1,11 +1,13 @@
 Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     extend: 'Ext.app.Controller',
+
     models: [
         'Mdc.model.ComServer',
         'Mdc.model.ComPort',
         'Mdc.model.OutboundComPort',
         'Mdc.model.InboundComPort'
     ],
+
     views: [
         'Mdc.view.setup.comservercomports.Edit',
         'Mdc.view.setup.comservercomports.TCPForm',
@@ -15,6 +17,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         'Mdc.view.setup.comservercomports.ComPortPoolsGrid',
         'Mdc.view.setup.comservercomports.AddComPortPool'
     ],
+
     stores: [
         'Mdc.store.ComPorts',
         'Mdc.store.ComPortTypes',
@@ -30,7 +33,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         'Mdc.store.InboundComPortPools',
         'Mdc.store.ComPorts'
     ],
+
     defaultType: 'TCP',
+
     refs: [
         {
             ref: 'comPortEdit',
@@ -70,7 +75,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         }
     ],
 
-
     init: function () {
         this.control({
             '#comPortTypeSelect': {
@@ -88,12 +92,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             'outboundportcomportpools actioncolumn': {
                 click: this.removePool
             },
-            '#addComPortPoolsGrid': {
-                selectionchange: this.updateSelection
-            },
-            '#addComPortPoolToComPort #uncheckAllComPortPools': {
-                click: this.uncheckAll
-            },
             '#addComPortPoolToComPort #createEditButton': {
                 click: this.addComportPool
             },
@@ -103,8 +101,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             'outboundportcomportpools': {
                 afterrender: this.updatePoolCount
             },
-            '#addComPortPoolToComPort radiogroup[name=AllOrSelectedCommunicationPortPools]': {
-                change: this.selectRadioButton
+            'addComPortPool add-com-port-pools-grid': {
+                allitemsadd: this.onAllComPortPoolsAdd,
+                selecteditemsadd: this.onSelectedComPortPoolsAdd
             }
         });
 
@@ -114,8 +113,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         var store = grid.getStore(),
             countMsg = grid.down('#comPortPoolsCount'),
             count = store.getCount();
-        if (count == 1){
-            countMsg.update(count + ' ' +  Uni.I18n.translate('comServerComPorts.addPool.count', 'MDC', ' communication port pool'));
+        if (count == 1) {
+            countMsg.update(count + ' ' + Uni.I18n.translate('comServerComPorts.addPool.count', 'MDC', ' communication port pool'));
         } else {
             count ? countMsg.update(count + ' ' + Uni.I18n.translate('comServerComPorts.addPools.count', 'MDC', ' communication port pools')) :
                 countMsg.update(Uni.I18n.translate('comServerComPorts.addPools.noPools', 'MDC', 'No communication port pools'));
@@ -127,34 +126,23 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         this.updatePoolCount(grid.up('panel'))
     },
 
-    addComportPool: function () {
-        var portpools = this.getAddComPortPoolsGrid().getSelectionModel().getSelection(),
-            addStore = this.getStore('Mdc.store.AddComPortPools');
-        addStore.loadData(portpools, true);
-        this.cancelAddPool()
+    onAllComPortPoolsAdd: function () {
+        this.addComportPool(true);
     },
 
-    uncheckAll: function () {
-        this.getAddComPortPoolsGrid().getSelectionModel().deselectAll()
+    onSelectedComPortPoolsAdd: function (selection) {
+        this.addComportPool(false, selection);
     },
 
-    updateSelection: function () {
-        var grid = this.getAddComPortPoolsGrid(),
-            comPortsCountSelected = grid.getView().getSelectionModel().getSelection().length,
-            comPortsCountContainer = this.getComPortPoolsCountContainer(),
-            comPortsMsgWord;
-        if (comPortsCountSelected == 1) {
-            comPortsMsgWord = comPortsCountSelected + ' ' + Uni.I18n.translate('comServerComPorts.addPool.selectedCount', 'MDC', ' communication port pool selected')
-        } else {
-            comPortsCountSelected > 0 ?
-                comPortsMsgWord = comPortsCountSelected + ' ' + Uni.I18n.translate('comServerComPorts.addPools.selectedCount', 'MDC', ' communication port pools selected') :
-                comPortsMsgWord = Uni.I18n.translate('comServerComPorts.addPools.noSelectedCount', 'MDC', 'No communication port pools selected');
+    addComportPool: function (allPressed, selection) {
+        var addStore = this.getStore('Mdc.store.AddComPortPools');
+
+        if (allPressed) {
+            selection = this.getAddComPortPoolsGrid().store.data.items;
         }
-        var widget = Ext.widget('container', {
-            html: comPortsMsgWord
-        });
-        comPortsCountContainer.removeAll(true);
-        comPortsCountContainer.add(widget);
+
+        addStore.loadData(selection, true);
+        this.cancelAddPool();
     },
 
     changeType: function (combo, newValue) {
@@ -163,7 +151,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         this.comportEdit.showForm(this.portDirection, newValue);
 
         //SERIAL form requires some fields to have preset defaults
-        if (newValue == 'SERIAL'){
+        if (newValue == 'SERIAL') {
             var editView = this.getComPortEdit();
             this.setDefaultValuesForSerial(editView);
         }
@@ -171,7 +159,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         this.filterStore();
     },
 
-    setDefaultValuesForSerial : function (view) {
+    setDefaultValuesForSerial: function (view) {
         var connectTimeoutUnit = view.down('#addFormNest').down('#connectTimeoutUnit'),
             connectDelayUnit = view.down('#addFormNest').down('#connectDelayUnit'),
             sendDelayUnit = view.down('#addFormNest').down('#sendDelayUnit'),
@@ -199,42 +187,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         model.set(values);
         model.endEdit();
         return model;
-    },
-
-    selectRadioButton: function (radiogroup) {
-        var radioValue = radiogroup.getValue().comPortPoolsRange;
-        switch (radioValue) {
-            case 'ALL':
-                this.checkAllComPortPools();
-                break;
-            case 'SELECTED':
-                this.checkSelectedComPortPools();
-                break;
-        }
-    },
-
-
-    checkSelectedComPortPools: function () {
-        var grid = this.getAddComPortPoolsGrid(),
-            view = this.getAddComPortPoolsView(),
-            uncheckComPortPools = this.getUncheckAllButton();
-        if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
-            grid.enable();
-            uncheckComPortPools.enable();
-        }
-    },
-
-    checkAllComPortPools: function () {
-        var grid = this.getAddComPortPoolsGrid(),
-            view = this.getAddComPortPoolsView(),
-            uncheckComPortPools = this.getUncheckAllButton(),
-            selectionModel;
-        if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
-            selectionModel = grid.getView().getSelectionModel();
-            selectionModel.selectAll();
-            grid.disable();
-            uncheckComPortPools.disable();
-        }
     },
 
     cancelAddPool: function () {
@@ -312,16 +264,16 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     parseModemStringToArray: function (string) {
         var stringsArray = string.split(';'),
             returnedArray = [];
-        Ext.Array.each(stringsArray, function(str) {
+        Ext.Array.each(stringsArray, function (str) {
             returnedArray.push({'modemInitString': str});
         });
 
         return returnedArray;
     },
 
-    parseModemArrayToString: function(array) {
+    parseModemArrayToString: function (array) {
         var string = '';
-        Ext.Array.each(array, function(value){
+        Ext.Array.each(array, function (value) {
             string += value.modemInitString + ';';
         });
 
@@ -494,6 +446,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         me.comportEdit = widget;
         me.portDirection = 'outbound';
         me.portType = me.defaultType;
+
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getAddComPortForm().setTitle(Uni.I18n.translate('comServerComPorts.addOutboundPort', 'MDC', 'Add outbound communication port'));
         me.getStore('Mdc.store.ComPortTypes').load({
@@ -503,12 +456,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                 index > 0 ? me.removeAt(index, 1) : null;
             }
         });
+
         comServerModel.load(id, {
             success: function (record) {
                 widget.down('comserversubmenu').setServer(record);
                 me.getApplication().fireEvent('comServerOverviewLoad', record);
             }
         });
+
         widget.showForm('outbound', me.defaultType);
         this.restoreState();
     },
@@ -523,9 +478,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         me.comServerId = id;
         me.comportEdit = widget;
         me.portDirection = 'inbound';
+
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.showForm('inbound', me.defaultType);
         this.restoreState();
+
         me.getAddComPortForm().setTitle(Uni.I18n.translate('comServerComPorts.addInboundPort', 'MDC', 'Add inbound communication port'));
         me.getStore('Mdc.store.ComPortTypes').load();
         me.filterStore();
@@ -541,13 +498,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     showAddComPortPool: function () {
         var me = this,
             widget = Ext.widget('addComPortPool');
+
         me.saveState();
         me.getApplication().fireEvent('changecontentevent', widget);
+        widget.updateCancelHref(me.comServerId);
         me.filterStore();
-        me.on('chooseAllComPortPools', function () {
-            me.checkAllComPortPools();
-            return true;
-        }, {single: true});
     },
 
     filterStoreByType: function (store, type) {
@@ -574,9 +529,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             case 'inbound':
                 var inboundStore = me.getStore('Mdc.store.InboundComPortPools');
                 inboundStore.load({
-                    callback: function() {
+                    callback: function () {
                         me.filterStoreByType(inboundStore, me.portType);
-                        me.fireEvent('chooseAllComPortPools');
                     }
                 });
                 break;
@@ -588,7 +542,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                     callback: function () {
                         me.filterStoreByType(outboundStore, me.portType);
                         me.filterStoreByIds(outboundStore, ids);
-                        me.fireEvent('chooseAllComPortPools');
                     }
                 });
                 break;
