@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -28,11 +29,13 @@ public class LoadProfileResource {
 
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public LoadProfileResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory) {
+    public LoadProfileResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -56,11 +59,25 @@ public class LoadProfileResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         for (LoadProfile loadProfile : device.getLoadProfiles()) {
             if (loadProfile.getId()==loadProfileId) {
+                return Response.ok(LoadProfileInfo.from(loadProfile)).build();
+            }
+        }
+        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, mrid, loadProfileId);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{lpid}/data")
+    public Response getLoadProfileData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        for (LoadProfile loadProfile : device.getLoadProfiles()) {
+            if (loadProfile.getId()==loadProfileId) {
                 if (intervalStart!=null && intervalEnd!=null) {
                     List<LoadProfileReading> loadProfileData = device.getChannelDataFor(loadProfile, new Interval(new Date(intervalStart), new Date(intervalEnd)));
-                    return Response.ok(LoadProfileInfo.from(loadProfile, loadProfileData)).build();
-                } else {
-                    return Response.ok(LoadProfileInfo.from(loadProfile)).build();
+                    List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();
+                    List<ChannelIntervalInfo> infos = LoadProfileDataInfo.from(paginatedLoadProfileData, thesaurus);
+                    PagedInfoList pagedInfoList = PagedInfoList.asJson("data", infos, queryParameters);
+                    return Response.ok(pagedInfoList).build();
                 }
             }
         }

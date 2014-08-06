@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
@@ -24,7 +25,7 @@ public class LoadProfileInfo {
     public TimeDurationInfo interval; // the interval definition of the load profile
     public Date lastReading;
     public List<String> channels;
-    public LoadProfileDataInfo loadProfileData;
+    public List<ChannelIntervalInfo> loadProfileData;
 
     public static LoadProfileInfo from(LoadProfile loadProfile) {
         LoadProfileInfo info = new LoadProfileInfo();
@@ -41,9 +42,4 @@ public class LoadProfileInfo {
         return info;
     }
 
-    public static LoadProfileInfo from(LoadProfile loadProfile, List<LoadProfileReading> channelData) {
-        LoadProfileInfo info = from(loadProfile);
-        info.loadProfileData=LoadProfileDataInfo.from(info.channels, channelData);
-        return info;
-    }
 }
