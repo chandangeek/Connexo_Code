@@ -38,7 +38,6 @@ Ext.define('Dsh.controller.CommunicationOverview', {
         widget.add(Ext.widget('overview'));
         widget.add(Ext.widget('h-sep'));
         widget.add(Ext.widget('breakdown'));
-        widget.add(Ext.widget('h-sep'));
         this.getApplication().fireEvent('changecontentevent', widget);
     }
 });
