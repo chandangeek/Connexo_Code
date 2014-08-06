@@ -392,6 +392,10 @@ Ext.define('Uni.view.grid.BulkSelection', {
         return this.down('#cancelButton');
     },
 
+    getTopToolbarContainer: function () {
+        return this.down('#topToolbarContainer');
+    },
+
     getBottomToolbar: function () {
         return this.down('#bottomToolbar');
     }
