@@ -14,6 +14,10 @@ public final class ReadingQualityType {
         return code;
     }
 
+    public static ReadingQualityType defaultCodeForRuleId(long id) {
+        return new ReadingQualityType("3.6." + id);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
