@@ -42,7 +42,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                 },
                 itemmouseenter: function (view, record) {
                     Ext.create('Ext.tip.ToolTip', {
-                        itemId: 'comservers-tooltip',
+                        itemId: 'communication-servers-tooltip',
                         target: view.el,
                         delegate: view.itemSelector,
                         trackMouse: true,
@@ -51,18 +51,23 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                         html:
                             '<table>' +
                                 '<tr>' +
-                                    '<td style="text-align: right; padding-right: 10px; white-space: nowrap">Communication server</td>' +
+                                    '<td style="text-align: right; padding-right: 10px; white-space: nowrap">Communication server</td>' +  //TODO: localize
                                     '<td>' + record.get('comServerName') + '</td>' +
                                 '</tr>' +
                                 '<tr>' +
-                                    '<td style="text-align: right; padding-right: 10px; white-space: nowrap">Online/remote</td>' +
+                                    '<td style="text-align: right; padding-right: 10px; white-space: nowrap">Online/remote</td>' +  //TODO: localize
                                     '<td>' + record.get('comServerType').charAt(0).toUpperCase() + record.get('comServerType').slice(1).toLocaleLowerCase() + '</td>' +
                                 '</tr>' +
                                 '<tr>' +
-                                    '<td style="text-align: right; padding-right: 10px; white-space: nowrap">Down since</td>' +
+                                    '<td style="text-align: right; padding-right: 10px; white-space: nowrap">Down since</td>' +  //TODO: localize
                                     '<td>' + Ext.util.Format.date(new Date(), 'D M j, Y G:i') + '</td>' +
                                 '</tr>' +
-                            '</table>'
+                            '</table>',
+                        listeners: {
+                            hide: function (tooltip) {
+                                tooltip.destroy();
+                            }
+                        }
                     });
                 }
             }

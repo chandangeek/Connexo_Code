@@ -22,7 +22,6 @@ Ext.define('Dsh.view.widget.QuickLinks', {
         }
     ],
     initComponent: function () {
-        console.log(this, this.data);
         this.callParent(arguments);
         this.down('#quicklinksTplPanel').data = this.data;
     }
