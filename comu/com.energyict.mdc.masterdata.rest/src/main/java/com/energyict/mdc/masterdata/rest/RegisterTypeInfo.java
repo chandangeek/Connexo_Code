@@ -35,8 +35,10 @@ public class RegisterTypeInfo {
         this.obisCode = measurementType.getObisCode();
         this.isLinkedByDeviceType = isLinkedByDeviceType;
         this.timeOfUse = measurementType.getTimeOfUse();
-        this.unitOfMeasure = PhenomenonInfo.from(measurementType.getPhenomenon());
         this.readingType = new ReadingTypeInfo(measurementType.getReadingType());
+        if (measurementType.getPhenomenon()!=null) {
+            this.unitOfMeasure = PhenomenonInfo.from(measurementType.getPhenomenon());
+        }
     }
 
     public RegisterTypeInfo(MeasurementType measurementType, boolean isLinkedByDeviceType, boolean isLinkedByActiveRegisterSpec, boolean isLinkedByInactiveRegisterSpec) {
