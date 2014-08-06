@@ -29,7 +29,7 @@ public class UniqueComSchedulePerDeviceValidator implements ConstraintValidator<
                 ComTaskExecutionImpl serverComTaskExecution = (ComTaskExecutionImpl) other;
                 if (this.isScheduled(serverComTaskExecution) && serverComTaskExecution.executesComSchedule(scheduledComTaskExecution.getComSchedule())) {
                     context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.UNIQUE_ADDHOC_COMTASKS_PER_DEVICE + "}")
+                    context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
                             .addPropertyNode(ComTaskExecutionFields.COMTASK.fieldName())
                             .addPropertyNode(ComTaskExecutionFields.DEVICE.fieldName()).addConstraintViolation();
                     return false;

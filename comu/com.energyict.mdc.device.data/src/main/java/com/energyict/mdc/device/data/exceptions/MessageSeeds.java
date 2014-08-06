@@ -73,7 +73,8 @@ public enum MessageSeeds implements MessageSeed {
     VETO_SECURITY_PROPERTY_SET_DELETION(2043, Keys.VETO_SECURITY_PROPERTY_SET_DELETION, "The security property set {0} of device configuration {1} cannot be deleted because at least one device of that configuration still has security property values for it", SEVERE),
     UNIQUE_ADDHOC_COMTASKS_PER_DEVICE(2044, Keys.UNIQUE_ADDHOC_COMTASKS_PER_DEVICE, "The communication task is not unique for device", SEVERE),
     DUPLICATE_COMTASK_SCHEDULING(2045, Keys.DUPLICATE_COMTASK_SCHEDULING, "There is an overlap in the scheduled communication tasks on the device", SEVERE),
-    COMTASK_CONFIGURATION_INCONSISTENT(2046, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The configuration settings (i.e. connection method, protocol dialect, security set and urgency) of all communication tasks contained in a communication schedule should be the same", SEVERE),
+    MISMATCH_COMTASK_SCHEDULE_WITH_DEVICE_CONFIGURATION(2046, Keys.MISMATCH_COMTASK_SCHEDULE_WITH_DEVICE_CONFIGURATION, "Mismatch between device configuration and the communication schedule", SEVERE),
+    COMTASK_CONFIGURATION_INCONSISTENT(2047, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The configuration settings (i.e. connection method, protocol dialect, security set and urgency) of all communication tasks contained in a communication schedule should be the same", SEVERE),
     ;
     private final int number;
     private final String key;
@@ -179,6 +180,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String VETO_COM_SCHEDULE_DELETION = "comTaskExecution.comSchedule.inUse";
         public static final String CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE = "cannotDeleteComScheduleFromDevice";
         public static final String DEVICE_CONFIGURATION_NOT_ACTIVE = "device.configuration.not.active";
+        public static final String MISMATCH_COMTASK_SCHEDULE_WITH_DEVICE_CONFIGURATION = "mismatchComtaskScheduleWithDeviceConfiguration";
+
     }
 
 }
