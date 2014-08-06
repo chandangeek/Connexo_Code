@@ -24,7 +24,6 @@ Ext.define('Cfg.controller.Validation', {
         'validation.RuleSetBrowse',
         'validation.RuleSetList',
         'validation.RuleSetPreview',
-        'validation.RuleBrowse',
         'validation.RuleList',
         'validation.RulePreview',
         'validation.RuleSetOverview',
@@ -65,7 +64,6 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'removeReadingTypesButtonsContainer', selector: 'addRule #removeReadingTypesButtonsContainer'},
         {ref: 'validatorCombo', selector: 'addRule #validatorCombo'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
-        {ref: 'ruleBrowsePanel', selector: 'validationruleBrowse'},
         {ref: 'ruleSetBrowsePanel', selector: 'validationrulesetBrowse'},
         {ref: 'rulePreviewContainer', selector: 'rulePreviewContainer'},
         {ref: 'ruleOverview', selector: 'ruleOverview'},
@@ -628,7 +626,7 @@ Ext.define('Cfg.controller.Validation', {
 
     deactivateRule: function (record, active) {
         var me = this,
-            view = me.getRulePreviewContainer() || me.getRuleOverview() || me.getRuleSetBrowsePanel().down('#validationruleBrowse') || me.getRulePreviewContainerPanel(),
+            view = me.getRulePreviewContainer() || me.getRuleOverview() || me.getRulePreviewContainerPanel(),
             grid = view.down('grid'),
             isActive = record.get('active');
         if (record) {
@@ -714,44 +712,24 @@ Ext.define('Cfg.controller.Validation', {
                 if (self.getRuleSetBrowsePanel()) {
                     gridRuleSet.getStore().load({
                         callback: function () {
-                            ruleSetSelModel.select(ruleSet);
-                            self.loadRulesStore(grid);
+                            Ext.Function.defer(function(){
+                                ruleSetSelModel.select(ruleSet);
+                            }, 5000);
                         }
                     });
                 } else if (self.getRuleOverview()) {
                     location.href = '#/administration/validation/rulesets/' + self.ruleSetId + '/rules';
                 } else {
-                    self.loadRulesStore(grid);
+                    grid.getStore().load({
+                        params: {
+                            id: self.ruleSetId
+                        }
+                    });
                 }
                 self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.removeRuleSuccess.msg', 'CFG', 'Validation rule removed'));
             },
             callback: function () {
                 view.setLoading(false);
-            }
-        });
-    },
-
-    loadRulesStore: function (grid) {
-        var self = this;
-        grid.getStore().load({
-            params: {
-                id: self.ruleSetId
-            },
-            callback: function (records) {
-                var gridView = grid.getView(),
-                    selectionModel = gridView.getSelectionModel();
-                selectionModel.select(0);
-                grid.fireEvent('select', gridView, selectionModel.getLastSelected());
-                if (self.getRuleSetBrowsePanel() && Ext.isEmpty(records)) {
-                    if (self.getRuleSetBrowsePanel().down('#validationruleBrowse')) {
-                        self.getRuleSetBrowsePanel().down('#validationruleBrowse').destroy();
-                    }
-                    if (self.getRulePreview()) {
-                        self.getRulePreview().destroy();
-                    }
-                    self.createEmptyComponent();
-                    self.getRuleSetBrowsePanel().down('panel').down('#ruleBrowseTitle').update('<h2>' + self.ruleSetName + '</h2>');
-                }
             }
         });
     },

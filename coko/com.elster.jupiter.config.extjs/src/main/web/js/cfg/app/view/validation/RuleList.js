@@ -2,7 +2,7 @@ Ext.define('Cfg.view.validation.RuleList', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.validationruleList',
     itemId: 'validationruleList',
-    store: 'ValidationRules',
+    store: 'Cfg.store.ValidationRules',
     overflowY: 'auto',
     maxHeight: 300,
     requires: [
@@ -67,7 +67,7 @@ Ext.define('Cfg.view.validation.RuleList', {
 //                pageSizeParam: 'limit2',
 //                pageStartParam: 'start2',
                 dock: 'bottom',
-                itemsPerPageMsg: 'Validation rules per page',
+                itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbartop.itemsPerPage', 'CFG', 'Validation rules per page'),
                 itemId: 'rulesListBottomPagingToolbar',
                 params: {id: me.ruleSetId}
             }
