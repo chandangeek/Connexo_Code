@@ -14,7 +14,7 @@ public enum MessageSeeds implements MessageSeed {
     IS_ALREADY_OBSOLETE(7, Keys.MDC_IS_ALREADY_OBSOLETE, "Already obsolete", Level.SEVERE),
     NOT_UNIQUE(8, Keys.MDC_NOT_UNIQUE , "Expected to find at most one object that matches the SQL condition(s) but found multiple", Level.SEVERE),
     MUST_HAVE_DISCOVERY_PROTOCOL(9, Keys.DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_IS_MANDATORY_FOR_COMPORTPOOL, "Discovery protocol pluggable class is mandatory for comportpool", Level.SEVERE),
-    ACTIVE_INBOUND_PORT_MUST_HAVE_POOL(10, Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL, "An active inbound comport must have an inbound comportpool", Level.SEVERE),
+    ACTIVE_INBOUND_PORT_MUST_HAVE_POOL(10, Keys.MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL, "An active inbound communication port must have an inbound communication port pool", Level.SEVERE),
     FIELD_TOO_LONG(11, Keys.MDC_FIELD_TOO_LONG, "Field must not exceed {max} characters", Level.SEVERE),
 
     DUPLICATE_COMSERVER(101, Keys.MDC_DUPLICATE_COM_SERVER, "Name should be unique", Level.SEVERE),
