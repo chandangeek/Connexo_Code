@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -20,28 +19,16 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.google.common.base.Optional;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Calendar;
+import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -59,10 +46,9 @@ public class DeviceResource {
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
     private final Provider<DeviceValidationResource> deviceValidationResourceProvider;
     private final Provider<RegisterResource> registerResourceProvider;
+    private final Provider<BulkScheduleResource> bulkScheduleResourceProvider;
     private final ExceptionFactory exceptionFactory;
-    private final SchedulingService schedulingService;
     private final Thesaurus thesaurus;
-    private final String ALL = "all";
 
     @Inject
     public DeviceResource(
@@ -77,8 +63,8 @@ public class DeviceResource {
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileResource> loadProfileResourceProvider, Provider<RegisterResource> registerResourceProvider,
             ExceptionFactory exceptionFactory,
-            SchedulingService schedulingService,
             Provider<DeviceValidationResource> deviceValidationResourceProvider,
+            Provider<BulkScheduleResource> bulkScheduleResourceProvider,
             Thesaurus thesaurus) {
 
         this.resourceHelper = resourceHelper;
@@ -94,14 +80,14 @@ public class DeviceResource {
         this.registerResourceProvider = registerResourceProvider;
         this.deviceValidationResourceProvider = deviceValidationResourceProvider;
         this.exceptionFactory = exceptionFactory;
-        this.schedulingService = schedulingService;
+        this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
         this.thesaurus = thesaurus;
     }
 	
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params) {
-        Condition condition = getQueryCondition(params);
+        Condition condition = resourceHelper.getQueryConditionForDevice(params);
         Finder<Device> allDevicesFinder = deviceDataService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
         List<DeviceInfo> deviceInfos = DeviceInfo.from(allDevices);
@@ -237,48 +223,6 @@ public class DeviceResource {
         throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_METHOD, device.getmRID(), connectionMethodId);
     }
 
-    private Condition getQueryCondition(StandardParametersBean params) {
-        Condition condition = Condition.TRUE;
-        if(params.getQueryParameters().size() > 0) {
-            condition = condition.and(addDeviceQueryCondition(params));
-        }
-        return condition;
-    }
-
-    private Condition addDeviceQueryCondition(StandardParametersBean params) {
-        Condition conditionDevice = Condition.TRUE;
-        String mRID = params.getFirst("mRID");
-        if (mRID != null) {
-            conditionDevice =  !params.isRegExp()
-                    ? conditionDevice.and(where("mRID").isEqualTo(mRID))
-                    : conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
-        }
-        String serialNumber = params.getFirst("serialNumber");
-        if (serialNumber != null) {
-            conditionDevice =  !params.isRegExp()
-                    ? conditionDevice.and(where("serialNumber").isEqualTo(serialNumber))
-                    : conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
-        }
-        String deviceType = params.getFirst("deviceTypeName");
-        if (deviceType != null) {
-            conditionDevice = conditionDevice.and(createMultipleConditions(deviceType,"deviceConfiguration.deviceType.name"));
-        }
-        String deviceConfiguration = params.getFirst("deviceConfigurationName");
-        if (deviceConfiguration != null) {
-            conditionDevice = conditionDevice.and(createMultipleConditions(deviceConfiguration,"deviceConfiguration.name"));
-        }
-        return conditionDevice;
-    }
-
-    private Condition createMultipleConditions(String params, String conditionField) {
-        Condition condition = Condition.FALSE;
-        String[] values = params.split(",");
-        for (String value : values) {
-            condition = condition.or(where(conditionField).isEqualTo(value.trim()));
-        }
-        return condition;
-    }
-
     @Path("/{mRID}/protocoldialects")
     public ProtocolDialectResource getProtocolDialectsResource() {
         return protocolDialectResourceProvider.get();
@@ -299,97 +243,8 @@ public class DeviceResource {
         return loadProfileResourceProvider.get();
     }
 
-    @PUT
     @Path("/schedules")
-    public Response addComScheduleToDeviceSet(BulkRequestInfo request, @BeanParam QueryParameters queryParameters){
-        BulkAction action = new BulkAction() {
-            @Override
-            public void doAction(Device device, ComSchedule schedule) {
-                device.newScheduledComTaskExecution(schedule).add();
-            }
-        };
-        ComSchedulesBulkInfo response = processBulkActionsForComSchedule(request, action, queryParameters.getBoolean(ALL));
-        return Response.ok(response.build()).build();
-    }
-
-    @DELETE
-    @Path("/schedules")
-    public Response deleteComScheduleFromDeviceSet(BulkRequestInfo request, @BeanParam QueryParameters queryParameters){
-        BulkAction action = new BulkAction() {
-            @Override
-            public void doAction(Device device, ComSchedule schedule) {
-                device.removeComSchedule(schedule);
-            }
-        };
-        ComSchedulesBulkInfo response = processBulkActionsForComSchedule(request, action, queryParameters.getBoolean(ALL));
-        return Response.ok(response.build()).build();
-    }
-
-    private ComSchedulesBulkInfo processBulkActionsForComSchedule(BulkRequestInfo request, BulkAction action, boolean allDevices) {
-        ComSchedulesBulkInfo response = new ComSchedulesBulkInfo();
-        Map<String, Device> deviceMap = getDeviceMapForBulkAction(request, response, allDevices);
-        for (Long scheduleId : request.scheduleIds) {
-            Optional<ComSchedule> scheduleRef = schedulingService.findSchedule(scheduleId);
-            if (!scheduleRef.isPresent()){
-                String failMessage = MessageSeeds.NO_SUCH_COM_SCHEDULE.formate(thesaurus, scheduleId);
-                response.nextAction(failMessage).failCount = deviceMap.size();
-            } else {
-                processScheduleForBulkAction(deviceMap, scheduleRef.get(), action, response);
-            }
-        }
-        return response;
-    }
-
-    private void processScheduleForBulkAction(Map<String, Device> deviceMap, ComSchedule schedule, BulkAction action, ComSchedulesBulkInfo response) {
-        response.nextAction(schedule.getName());
-        for (Device device : deviceMap.values()) {
-            processSchedule(device, schedule, action, response);
-        }
-    }
-
-    private void processSchedule (Device device, ComSchedule schedule, BulkAction action, ComSchedulesBulkInfo response) {
-        try{
-            action.doAction(device, schedule);
-            device.save();
-            response.success();
-        } catch (LocalizedException localizedEx){
-            response.fail(DeviceInfo.from(device), localizedEx.getLocalizedMessage(), localizedEx.getClass().getSimpleName());
-        } catch (ConstraintViolationException validationException){
-            response.fail(DeviceInfo.from(device),getMessageForConstraintViolation(validationException, device, schedule),
-                    validationException.getClass().getSimpleName());
-        }
-    }
-
-    private Map<String, Device> getDeviceMapForBulkAction(BulkRequestInfo request, ComSchedulesBulkInfo response, boolean allDevices) {
-        Map<String, Device> deviceMap = new HashMap<>();
-        if(allDevices) {
-            List<Device> devices = deviceDataService.findAllDevices();
-            for(Device device : devices) {
-                deviceMap.put(device.getmRID(), device);
-            }
-        } else {
-            for (String mrid : request.deviceMRIDs) {
-                try {
-                    deviceMap.put(mrid, resourceHelper.findDeviceByMrIdOrThrowException(mrid));
-                } catch (LocalizedException ex){
-                    DeviceInfo deviceInfo = new DeviceInfo();
-                    deviceInfo.mRID = mrid;
-                    response.generalFail(deviceInfo, ex.getLocalizedMessage(), ex.getClass().getSimpleName());
-                }
-            }
-        }
-
-        return deviceMap;
-    }
-
-    private String getMessageForConstraintViolation(ConstraintViolationException ex, Device device, ComSchedule schedule) {
-        if (ex.getConstraintViolations() != null && ex.getConstraintViolations().size() > 0){
-            return ex.getConstraintViolations().iterator().next().getMessage();
-        }
-        return MessageSeeds.DEVICE_VALIDATION_BULK_MSG.formate(thesaurus, schedule.getName(), device.getName());
-    }
-
-    private static interface BulkAction {
-        public void doAction(Device device, ComSchedule schedule);
+    public BulkScheduleResource getBulkScheduleResource() {
+        return bulkScheduleResourceProvider.get();
     }
 }

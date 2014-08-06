@@ -74,7 +74,8 @@ public class DeviceApplication extends Application implements InstallService{
                 RegisterResource.class,
                 RegisterDataResource.class,
                 DeviceValidationResource.class,
-                LoadProfileResource.class
+                LoadProfileResource.class,
+                BulkScheduleResource.class
         );
     }
 

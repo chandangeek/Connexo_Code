@@ -117,6 +117,7 @@ public class DeviceResourceTest extends JerseyTest {
                 ResourceHelper.class,
                 DeviceResource.class,
                 LoadProfileResource.class,
+                BulkScheduleResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 LocalizedExceptionMapper.class);
