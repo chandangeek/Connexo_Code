@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.elster.jupiter.metering.ProcessStatus;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -14,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.metering.ProcesStatus;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -70,7 +70,7 @@ public class FilteredReadingTest {
 
     @Test
     public void testSimpleDelegationForProcessingFlags() {
-        ProcesStatus processingFlags = ProcesStatus.of(ProcesStatus.Flag.ESTIMATED,ProcesStatus.Flag.WARNING);
+        ProcessStatus processingFlags = ProcessStatus.of(ProcessStatus.Flag.ESTIMATED, ProcessStatus.Flag.WARNING);
         when(source.getProcesStatus()).thenReturn(processingFlags);
 
         assertThat(filteredReading.getProcesStatus()).isEqualTo(processingFlags);

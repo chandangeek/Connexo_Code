@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.ProcesStatus;
+import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.time.Interval;
@@ -25,12 +25,12 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
     }
 
     @Override
-    public ProcesStatus getProcesStatus() {
+    public ProcessStatus getProcesStatus() {
         return filtered.getProcesStatus();
     }
 
     @Override
-    public void setProcessingFlags(ProcesStatus.Flag... flags) {
+    public void setProcessingFlags(ProcessStatus.Flag... flags) {
         this.filtered.setProcessingFlags(flags);
     }
 

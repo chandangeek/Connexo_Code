@@ -18,7 +18,7 @@ public interface BaseReadingRecord extends BaseReading {
 
     List<? extends ReadingType> getReadingTypes();
 
-    ProcesStatus getProcesStatus();
+    ProcessStatus getProcesStatus();
 
-    void setProcessingFlags(ProcesStatus.Flag... flags);
+    void setProcessingFlags(ProcessStatus.Flag... flags);
 }

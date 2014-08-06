@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.ProcessStatus;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -9,7 +10,6 @@ import java.util.List;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ProcesStatus;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
@@ -98,14 +98,14 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     }
 
     @Override
-    public ProcesStatus getProcesStatus() {
-        return new ProcesStatus(entry.getLong(0));
+    public ProcessStatus getProcesStatus() {
+        return new ProcessStatus(entry.getLong(0));
     }
 
     @Override
-    public void setProcessingFlags(ProcesStatus.Flag... flags) {
-        ProcesStatus status = getProcesStatus();
-        ProcesStatus updatedStatus = status.with(flags);
+    public void setProcessingFlags(ProcessStatus.Flag... flags) {
+        ProcessStatus status = getProcesStatus();
+        ProcessStatus updatedStatus = status.with(flags);
 
         Object[] values = new Object[entry.size()];
         System.arraycopy(entry.getValues(), 0, values, 0, entry.size());

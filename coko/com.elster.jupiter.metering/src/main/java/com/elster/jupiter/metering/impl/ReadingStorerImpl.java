@@ -4,7 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ProcesStatus;
+import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ReadingStorerImpl implements ReadingStorer {
-    private static final ProcesStatus DEFAULTPROCESSSTATUS = ProcesStatus.of(); 
+    private static final ProcessStatus DEFAULTPROCESSSTATUS = ProcessStatus.of();
     private final TimeSeriesDataStorer storer;
 
     private final Map<Channel, Interval> scope = new HashMap<>();
