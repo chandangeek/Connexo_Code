@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.issues.IssueService;
@@ -27,6 +28,7 @@ public class LaunchComServer {
     private volatile UserService userService;
     private volatile IssueService issueService;
     private volatile EngineModelService engineModelService;
+    private volatile EngineService engineService;
 
     private boolean autoStart;
     private ComServerLauncher launcher;
@@ -112,4 +114,8 @@ public class LaunchComServer {
         this.issueService = issueService;
     }
 
+    @Reference
+    public void setEngineService(EngineService engineService) {
+        this.engineService = engineService;
+    }
 }
