@@ -21,7 +21,7 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
     private Interval interval;
     private Map<Channel, BigDecimal> map = new HashMap<>();
     private Date readingTime;
-    private List<ProcessStatus.Flag> flags;
+    private final List<ProcessStatus.Flag> flags = new ArrayList<>();
 
     @Override
     public Interval getInterval() {
@@ -55,7 +55,8 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
 
     @Override
     public void setFlags(List<ProcessStatus.Flag> flags) {
-        this.flags=new ArrayList<>(flags);
+        this.flags.clear();
+        this.flags.addAll(flags);
     }
 
     @Override
