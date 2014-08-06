@@ -3,7 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ProcesStatus;
+import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -19,7 +19,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +85,7 @@ class ChannelRuleValidator {
         Optional<ReadingQuality> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, readingRecord.getTimeStamp());
         if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
             saveNewReadingQuality(channel, readingRecord, readingQualityType);
-            readingRecord.setProcessingFlags(ProcesStatus.Flag.SUSPECT);
+            readingRecord.setProcessingFlags(ProcessStatus.Flag.SUSPECT);
         }
         if (ValidationResult.PASS.equals(result) && existingQualityForType.isPresent()) {
             existingQualityForType.get().delete();

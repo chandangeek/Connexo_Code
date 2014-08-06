@@ -5,7 +5,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ProcesStatus;
+import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -321,7 +321,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         verify(validator).init(channel, readingType2, INTERVAL);
         verify(channel).createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord);
         verify(readingQuality).save();
-        verify(intervalReadingRecord).setProcessingFlags(ProcesStatus.Flag.SUSPECT);
+        verify(intervalReadingRecord).setProcessingFlags(ProcessStatus.Flag.SUSPECT);
         verify(validator).finish();
     }
 
@@ -347,7 +347,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         verify(validator).init(channel, readingType2, INTERVAL);
         verify(channel).createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord);
         verify(readingQuality).save();
-        verify(readingRecord).setProcessingFlags(ProcesStatus.Flag.SUSPECT);
+        verify(readingRecord).setProcessingFlags(ProcessStatus.Flag.SUSPECT);
         verify(validator).finish();
     }
 
@@ -368,7 +368,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
         verify(validator, never()).init(channel, readingType2, INTERVAL);
         verify(channel, never()).createReadingQuality(new ReadingQualityType("3.6." + ID), intervalReadingRecord);
-        verify(intervalReadingRecord, never()).setProcessingFlags(any(ProcesStatus.Flag.class));
+        verify(intervalReadingRecord, never()).setProcessingFlags(any(ProcessStatus.Flag.class));
     }
 
     @Test
@@ -397,7 +397,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         // @Todo check with Karel if this is ok.
         verify(channel, times(2)).createReadingQuality(new ReadingQualityType("3.6." + ID), readingRecord);
         verify(readingQuality, times(2)).save();
-        verify(readingRecord, times(2)).setProcessingFlags(ProcesStatus.Flag.SUSPECT);
+        verify(readingRecord, times(2)).setProcessingFlags(ProcessStatus.Flag.SUSPECT);
 
         verify(validator, times(2)).finish();
     }
