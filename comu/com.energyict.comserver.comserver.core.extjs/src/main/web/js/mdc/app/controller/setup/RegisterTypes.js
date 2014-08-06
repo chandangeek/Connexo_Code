@@ -208,9 +208,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                     callback: function (store) {
                         unitOfMeasureStore.load({
                             callback: function (store) {
+                                debugger;
                                 widget.down('form').loadRecord(registerType);
                                 widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + registerType.get('name') + '</h1>');
                                 widget.down('#editMrIdField').setValue(registerType.getReadingType().get('mrid'));
+                                widget.down('#measurementUnitComboBox').setValue(registerType.getUnitOfMeasure().get('id'));
                                 if (registerType.get('isLinkedByDeviceType') === true) {
                                     widget.down('obis-field').disable();
                                     widget.down('#measurementUnitComboBox').disable();
@@ -267,8 +269,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             values = this.getRegisterTypeEditForm().getValues();
         var widget = this.getRegisterTypeEditForm();
         var mrId = widget.down('#editMrIdField').getValue();
+        var unitOfMeasure = widget.down('#measurementUnitComboBox').findRecordByDisplay(widget.down('#measurementUnitComboBox').getRawValue());
         var me = this;
-
         //delete values.mrid;
         var readingType = Ext.create(Mdc.model.ReadingType);
 
@@ -276,7 +278,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         if (record) {
             record.set(values);
             record.setReadingType(readingType);
-
+            record.setUnitOfMeasure(unitOfMeasure);
             record.save({
                 success: function (record) {
                     location.href = '#/administration/registertypes/';
@@ -300,7 +302,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
         var widget = this.getRegisterTypeEditForm();
         var mrId = widget.down('#editMrIdField').getValue();
-
+        debugger;
+        var unitOfMeasure = widget.down('#measurementUnitComboBox').findRecordByDisplay(widget.down('#measurementUnitComboBox').getRawValue());
         var readingType = Ext.create(Mdc.model.ReadingType);
 
         readingType.data.mrid = mrId;
@@ -308,6 +311,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         if (record) {
             record.set(values);
             record.setReadingType(readingType);
+            record.setUnitOfMeasure(unitOfMeasure);
             record.save({
                 success: function (record) {
                     location.href = '#/administration/registertypes/';
