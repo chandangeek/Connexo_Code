@@ -23,7 +23,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
             widget,
             showPage = function () {
                 proxy.url = proxy.url.replace('{mRID}', mRID);
-                widget = Ext.widget('deviceLoadProfilesOverview', {mRID: mRID});
+                widget = Ext.widget('deviceLoadProfilesOverview', {
+                    mRID: mRID,
+                    router: me.getController('Uni.controller.history.Router')
+                });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.setLoading(true);
                 deviceModel.load(mRID, {

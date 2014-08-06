@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
     alias: 'widget.deviceLoadProfilesGrid',
     itemId: 'deviceLoadProfilesGrid',
     store: 'Mdc.store.LoadProfilesOfDevice',
+    router: null,
     requires: [
         'Uni.grid.column.Action',
         'Uni.grid.column.Obis',
@@ -17,7 +18,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
                 header: Uni.I18n.translate('deviceloadprofiles.loadProfile', 'MDC', 'Load profile'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    return '<a href="#/devices/' + me.mRID + '/loadprofiles/' + record.get('id') + '">' + value + '</a>';
+                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofile/data').buildUrl({mRID: me.mRID, loadProfileId: record.get('id')});
+                    return '<a href="' + url + '">' + value + '</a>';
                 },
                 flex: 1
             },

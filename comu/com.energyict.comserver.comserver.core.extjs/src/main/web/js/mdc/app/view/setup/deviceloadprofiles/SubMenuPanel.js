@@ -7,6 +7,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SubMenuPanel', {
     itemId: 'deviceLoadProfilesSubMenuPanel',
     ui: 'medium',
     title: Uni.I18n.translate('deviceloadprofiles.loadProfiles', 'MDC', 'Load profiles'),
+    router: null,
+    commonRoute: 'devices/device/loadprofiles/loadprofile/',
     items: [
         {
             xtype: 'navigationSubMenu',
@@ -16,25 +18,25 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SubMenuPanel', {
                 {
                     text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                     itemId: 'loadProfileOfDeviceOverviewLink',
-                    href: '#/devices/{0}/loadprofiles/{1}/overview',
+                    href: 'overview',
                     hrefTarget: '_self'
                 },
                 {
                     text: Uni.I18n.translate('deviceloadprofiles.channels', 'MDC', 'Channels'),
                     itemId: 'loadProfileOfDeviceChannelsLink',
-                    href: '#/devices/{0}/loadprofiles/{1}/channels',
+                    href: 'channels',
                     hrefTarget: '_self'
                 },
                 {
                     text: Uni.I18n.translate('deviceloadprofiles.loadProfileData', 'MDC', 'Load profile data'),
                     itemId: 'loadProfileOfDeviceDataLink',
-                    href: '#/devices/{0}/loadprofiles/{1}/data',
+                    href: 'data',
                     hrefTarget: '_self'
                 },
                 {
                     text: Uni.I18n.translate('deviceloadprofiles.validation', 'MDC', 'Validation'),
                     itemId: 'loadProfileOfDeviceValidationLink',
-                    href: '#/devices/{0}/loadprofiles/{1}/validation',
+                    href: 'validation',
                     hrefTarget: '_self'
                 }
             ]
@@ -42,19 +44,17 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SubMenuPanel', {
     ],
 
     setParams: function (mRID ,model) {
-        var id = model.getId(),
-            name = model.get('name'),
-            currentHash = window.location.hash,
-            menu = this.down('#deviceLoadProfilesSubMenu');
+        var me = this,
+            menu = this.down('#deviceLoadProfilesSubMenu'),
+            formatHref;
 
-        menu.setTitle(name);
+        menu.setTitle(model.get('name'));
 
         Ext.Array.each(menu.query('menuitem'), function (item) {
-            var href = item.href,
-                formatHref = Ext.String.format(href, mRID, id);
+            formatHref = me.router.getRoute(me.commonRoute + item.href).buildUrl({mRID: mRID, loadProfileId: model.getId()});
 
             item.setHref(formatHref);
-            (currentHash == formatHref) && item.addCls('current');
+            (window.location.hash == formatHref) && item.addCls('current');
         });
     }
 });
