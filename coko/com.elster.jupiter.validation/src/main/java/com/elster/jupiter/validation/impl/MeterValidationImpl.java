@@ -2,16 +2,12 @@ package com.elster.jupiter.validation.impl;
 
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.MeterValidation;
 import com.google.inject.Inject;
-
-import java.util.Objects;
 
 public class MeterValidationImpl implements MeterValidation {
 
@@ -56,7 +52,4 @@ public class MeterValidationImpl implements MeterValidation {
         }
     }
 
-    private DataMapper<MeterValidation> meterValidationFactory() {
-        return dataModel.mapper(MeterValidation.class);
-    }
 }

@@ -19,5 +19,5 @@ public interface IValidationRule extends ValidationRule {
 
     void clearReadingTypes();
 
-    PropertySpec getPropertySpec(String name);
+    PropertySpec<?> getPropertySpec(String name);
 }

@@ -28,6 +28,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.MeterValidation;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -167,6 +168,8 @@ public class ValidationIT {
                 ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
                 validationService.addResource(validatorFactory);
 
+                validationService.createMeterValidation(meterActivation);
+
                 final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
                 ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSECUTIVE_ZEROES, "consecutivezeros");
                 zeroesRule.addReadingType(readingType1);
@@ -188,6 +191,15 @@ public class ValidationIT {
                     }
                 });
                 return null;
+            }
+        });
+        injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
+                MeterValidation meterValidation = validationService.getMeterValidation(meterActivation).get();
+                meterValidation.setActivationStatus(true);
+                meterValidation.save();
             }
         });
     }

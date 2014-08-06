@@ -110,6 +110,7 @@ public class ValidationServiceImplTest {
         when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);
         when(dataModel.mapper(IMeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
+        when(dataModel.mapper(MeterValidation.class)).thenReturn(meterValidationFactory);
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(validationRuleQueryExecutor);
 
@@ -178,6 +179,8 @@ public class ValidationServiceImplTest {
         when(channel2.getId()).thenReturn(1002L);
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
+        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
+        when(meterValidation.getActivationStatus()).thenReturn(true);
 
         ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME);
         validationRuleSet.save();
@@ -213,6 +216,8 @@ public class ValidationServiceImplTest {
         when(channel2.getId()).thenReturn(1002L);
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
+        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
+        when(meterValidation.getActivationStatus()).thenReturn(true);
 
         ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME);
         validationRuleSet.save();
@@ -401,7 +406,6 @@ public class ValidationServiceImplTest {
     @Test
     public void testMeterValidation() {
         when(meterActivation.getId()).thenReturn(ID);
-        when(dataModel.mapper(MeterValidation.class)).thenReturn(meterValidationFactory);
         when(dataModel.mapper(MeterValidation.class).getOptional(meterActivation.getId())).thenReturn(Optional.of(meterValidation));
         when(dataModel.getInstance(MeterValidationImpl.class)).thenAnswer(new Answer<Object>() {
             @Override

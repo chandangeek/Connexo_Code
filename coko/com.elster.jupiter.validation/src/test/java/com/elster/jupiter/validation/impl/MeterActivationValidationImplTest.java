@@ -77,6 +77,8 @@ public class MeterActivationValidationImplTest {
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
         when(validationRuleSet.getRules()).thenReturn(Arrays.asList(rule1, rule2));
+        when(rule1.isActive()).thenReturn(true);
+        when(rule2.isActive()).thenReturn(true);
 
         meterActivationValidation = new MeterActivationValidationImpl(dataModel, clock).init(meterActivation);
         meterActivationValidation.setRuleSet(validationRuleSet);
