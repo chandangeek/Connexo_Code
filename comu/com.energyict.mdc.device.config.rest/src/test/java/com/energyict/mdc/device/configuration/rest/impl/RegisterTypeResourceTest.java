@@ -13,23 +13,23 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Application;
-
-import com.energyict.mdc.masterdata.RegisterType;
-import com.google.common.base.Optional;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -37,8 +37,9 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -50,16 +51,14 @@ import static org.mockito.Mockito.when;
 
 public class RegisterTypeResourceTest extends JerseyTest {
 
-    private static MasterDataService masterDataService;
-    private static DeviceConfigurationService deviceConfigurationService;
-    private static MeteringService meteringService;
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        masterDataService = mock(MasterDataService.class);
-        deviceConfigurationService = mock(DeviceConfigurationService.class);
-        meteringService = mock(MeteringService.class);
-    }
+    @Mock
+    private MasterDataService masterDataService;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private MeteringService meteringService;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Override
     @Before
@@ -70,6 +69,7 @@ public class RegisterTypeResourceTest extends JerseyTest {
 
     @Override
     protected Application configure() {
+        MockitoAnnotations.initMocks(this);
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
         ResourceConfig resourceConfig = new ResourceConfig(RegisterTypeResource.class);
@@ -81,6 +81,8 @@ public class RegisterTypeResourceTest extends JerseyTest {
                 bind(masterDataService).to(MasterDataService.class);
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(meteringService).to(MeteringService.class);
+                bind(ExceptionFactory.class).to(ExceptionFactory.class);
+                bind(thesaurus).to(Thesaurus.class);
             }
         });
         return resourceConfig;
@@ -145,7 +147,7 @@ public class RegisterTypeResourceTest extends JerseyTest {
         .containsKey("isLinkedByActiveRegisterConfig")
         .containsKey("isLinkedByInactiveRegisterConfig")
         .containsKey("timeOfUse")
-        .containsKey("unit")
+        .containsKey("unitOfMeasure")
         .containsKey("readingType");
         assertThat((Map)map.get("readingType")).hasSize(18)
         .containsKey("mrid")
