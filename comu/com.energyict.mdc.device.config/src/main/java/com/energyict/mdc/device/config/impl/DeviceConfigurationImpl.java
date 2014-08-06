@@ -56,6 +56,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.base.Optional;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
@@ -876,6 +877,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public List<ComTaskEnablement> getComTaskEnablements() {
         return this.getCommunicationConfiguration().getComTaskEnablements();
+    }
+
+    @Override
+    public Optional<ComTaskEnablement> getComTaskEnablementFor(ComTask comTask) {
+        return this.getCommunicationConfiguration().getComTaskEnablementFor(comTask);
     }
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages() {

@@ -7,6 +7,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.google.common.base.Optional;
+
 import java.util.List;
 
 /**
@@ -59,6 +61,8 @@ public interface DeviceCommunicationConfiguration extends HasId {
     void removeSecurityPropertySet(SecurityPropertySet propertySet);
 
     public List<ComTaskEnablement> getComTaskEnablements();
+
+    public Optional<ComTaskEnablement> getComTaskEnablementFor(ComTask comTask);
 
     /**
      * Starts a {@link ComTaskEnablementBuilder} that, once complete, will enable the execution
