@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.comportpollcomports.Preview', {
+Ext.define('Mdc.view.setup.comportpoolcomports.Preview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.comPortPoolComPortPreview',
     itemId: 'comPortPoolComPortPreview',
@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.comportpollcomports.Preview', {
         'Mdc.view.setup.comservercomports.forms.UDP',
         'Mdc.view.setup.comservercomports.forms.SERIAL',
         'Mdc.view.setup.comservercomports.forms.SERVLET',
-        'Mdc.view.setup.comportpollcomports.ActionMenu'
+        'Mdc.view.setup.comportpoolcomports.ActionMenu'
     ],
     title: '',
     frame: true,

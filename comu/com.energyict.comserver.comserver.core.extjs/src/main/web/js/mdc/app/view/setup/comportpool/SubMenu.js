@@ -1,7 +1,8 @@
 Ext.define('Mdc.view.setup.comportpool.SubMenu', {
     extend: 'Uni.view.navigation.SubMenu',
-    alias: 'widget.comportpoolsubmenu',
+    xtype: 'comportpoolsubmenu',
     ui: 'side-menu',
+
     items: [
         {
             text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),

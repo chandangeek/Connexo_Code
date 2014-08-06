@@ -1,11 +1,11 @@
-Ext.define('Mdc.view.setup.comportpollcomports.View', {
+Ext.define('Mdc.view.setup.comportpoolcomports.View', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comPortPoolsComPortsView',
     itemId: 'comPortPoolsComPortsView',
 
     requires: [
-        'Mdc.view.setup.comportpollcomports.Grid',
-        'Mdc.view.setup.comportpollcomports.Preview',
+        'Mdc.view.setup.comportpoolcomports.Grid',
+        'Mdc.view.setup.comportpoolcomports.Preview',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.comportpool.SubMenu'

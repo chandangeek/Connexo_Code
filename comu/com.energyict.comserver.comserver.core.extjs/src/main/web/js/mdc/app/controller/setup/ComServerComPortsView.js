@@ -47,7 +47,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             'comServerComPortsView comServerComPortsGrid': {
                 select: this.showPreview
             },
-            'comServerComPortsView comServerComPortsAddMenu' : {
+            'comServerComPortsView comServerComPortsAddMenu': {
                 click: this.addComPortToComServer
             },
             'comServerComPortsView comServerComPortPreview [action=passwordVisibleTrigger]': {
@@ -59,7 +59,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             }
         });
     },
-
 
     configureMenu: function (menu) {
         var activate = menu.down('#activate'),
@@ -111,7 +110,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             ],
             widget,
             addMenus;
-
 
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
@@ -180,8 +178,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
     },
 
     addComPortToComServer: function (menu, item) {
-        var router = this.getController('Uni.controller.history.Router'),
-            id = menu.comServerId;
+        var router = this.getController('Uni.controller.history.Router');
 
         switch (item.action) {
             case 'addInbound':
@@ -242,12 +239,12 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                             me.getComPortsGrid().fireEvent('select', gridView, record);
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortOnComServer.changeState.msg', 'MDC', 'Communication port ' + ' ' + msg));
                         },
-                        failure:function (response) {
+                        failure: function (response) {
                             var title = Uni.I18n.translate('comServerComPorts.activation.failure', 'MDC', 'Failed to activate') + " " + record.get('name'),
                                 errorsArray = Ext.JSON.decode(response.responseText).errors,
                                 message = '';
 
-                            Ext.Array.each(errorsArray, function(obj) {
+                            Ext.Array.each(errorsArray, function (obj) {
                                 message += obj.msg + '.</br>'
                             });
 
@@ -268,6 +265,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
     editComPortOnComServer: function (record) {
         var router = this.getController('Uni.controller.history.Router'),
             id = record.getId();
+
         router.routeparams['comPortId'] = id;
         router.routeparams['direction'] = this.lowerFirstLetter(record.getData().direction);
         router.getRoute('administration/comservers/detail/comports/edit').forward(router.routeparams);

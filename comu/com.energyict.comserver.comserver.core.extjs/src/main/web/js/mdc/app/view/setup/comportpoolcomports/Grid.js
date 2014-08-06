@@ -1,10 +1,10 @@
-Ext.define('Mdc.view.setup.comportpollcomports.Grid', {
+Ext.define('Mdc.view.setup.comportpoolcomports.Grid', {
     extend: 'Ext.grid.Panel',
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.comportpollcomports.ActionMenu'
+        'Mdc.view.setup.comportpoolcomports.ActionMenu'
     ],
     alias: 'widget.comPortPoolComPortsGrid',
     itemId: 'comPortPoolsComPortsGrid',

@@ -8,10 +8,11 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
     ],
 
     views: [
-        'Mdc.view.setup.comportpollcomports.View',
-        'Mdc.view.setup.comportpollcomports.addComPortView',
-        'Mdc.view.setup.comportpollcomports.addComPortGrid'
+        'Mdc.view.setup.comportpoolcomports.View',
+        'Mdc.view.setup.comportpoolcomports.AddComPortView',
+        'Mdc.view.setup.comportpoolcomports.AddComPortGrid'
     ],
+
     stores: [
         'Mdc.store.ComPortPoolComports'
     ],
@@ -35,7 +36,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         },
         {
             ref: 'addComPortGrid',
-            selector: '#addComportToComportPoolGrid'
+            selector: 'addComportToComportPoolView addComportToComportPoolGrid'
         },
         {
             ref: 'uncheckComPortsButton',
@@ -56,23 +57,15 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             'comPortPoolsComPortsView comPortPoolComPortPreview [action=passwordVisibleTrigger]': {
                 change: this.passwordVisibleTrigger
             },
-            '#addComportToComportPoolGrid': {
-                selectionchange: this.getCountOfComPorts
-            },
             'comPortPoolsComPortsView button[action=addComPort]': {
                 click: this.addComPort
             },
             'comPortPoolComPortsActionMenu': {
                 click: this.chooseAction
             },
-            '#addComportToComportPoolView radiogroup[name=AllOrSelectedCommunicationPorts]': {
-                change: this.selectRadioButton
-            },
-            '#uncheckAllComPorts': {
-                click: this.unCheckAllComPorts
-            },
-            '#addComportToComportPoolView  button[name=addcomportstocomportpool]': {
-                click: this.addComPorts
+            'addComportToComportPoolView addComportToComportPoolGrid': {
+                allitemsadd: this.onAllComPortsAdd,
+                selecteditemsadd: this.onSelectedComPortsAdd
             }
         });
 
@@ -114,7 +107,6 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         }, storesArr);
     },
 
-
     addComPort: function () {
         var router = this.getController('Uni.controller.history.Router');
         router.getRoute('administration/comportpools/detail/comports/add').forward();
@@ -128,7 +120,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             recordData,
             existedRecordsArray,
             jsonValues;
+
         me.getApplication().fireEvent('changecontentevent', widget);
+
         comPortPoolModel.load(id, {
             success: function (record) {
                 widget.down('comportpoolsubmenu').setServer(record);
@@ -148,7 +142,6 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                     {
                         params: {filter: '[' + jsonValues + ']'},
                         callback: function () {
-                            me.checkAllComPorts();
                             me.comPortsStoreToAdd.sortByType(record.getData().type);
                             me.comPortsStoreToAdd.sortByExisted(existedRecordsArray);
                         }
@@ -157,72 +150,20 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         });
     },
 
-    checkAllComPorts: function () {
-        var grid = this.getAddComPortGrid(),
-            view = this.getAddComPortView(),
-            uncheckComPorts = this.getUncheckComPortsButton(),
-            selectionModel = grid.getView().getSelectionModel();
-        if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
-            selectionModel.selectAll();
-            grid.disable();
-            uncheckComPorts.disable();
-        }
-    },
-
-    unCheckAllComPorts: function () {
-        var grid = this.getAddComPortGrid();
-        grid.getView().getSelectionModel().deselectAll();
-    },
-
-    selectRadioButton: function (radiogroup) {
-        var radioValue = radiogroup.getValue().comPortsRange;
-        switch (radioValue) {
-            case 'ALL':
-                this.checkAllComPorts();
-                break;
-            case 'SELECTED':
-                this.checkSelectedComPorts();
-                break;
-        }
-    },
-
-    checkSelectedComPorts: function () {
-        var grid = this.getAddComPortGrid(),
-            view = this.getAddComPortView(),
-            uncheckComPorts = this.getUncheckComPortsButton();
-        if (!Ext.isEmpty(grid) && !Ext.isEmpty(view)) {
-            grid.enable();
-            uncheckComPorts.enable();
-        }
-    },
-
-    getCountOfComPorts: function () {
-        var grid = this.getAddComPortGrid(),
-            comPortsCountSelected = grid.getView().getSelectionModel().getSelection().length,
-            comPortsCountContainer = this.getComPortsCountContainer(),
-            addButton = this.getAddComPortView().down('button[name=addcomportstocomportpool]'),
-            comPortsMsgWord;
-        if (comPortsCountSelected > 0) {
-            comPortsMsgWord = comPortsCountSelected + ' ' + Uni.I18n.translate('comPortPoolComPorts.addPorts.count', 'MDC', 'communication port(s) selected');
-            addButton.enable();
-        } else {
-            comPortsMsgWord = Uni.I18n.translate('comPortPoolComPorts.addPorts.noPortsSelected', 'MDC', 'No communication ports selected');
-            addButton.disable();
-        }
-
-        var widget = Ext.widget('container', {
-            html: comPortsMsgWord
-        });
-
-        comPortsCountContainer.removeAll(true);
-        comPortsCountContainer.add(widget);
-    },
-
-    addComPorts: function () {
+    onAllComPortsAdd: function () {
         var me = this,
-            grid = me.getAddComPortGrid(),
+            allComPorts = me.getAddComPortGrid().store.data.items;
+
+        me.addComPorts(allComPorts);
+    },
+
+    onSelectedComPortsAdd: function (selection) {
+        this.addComPorts(selection);
+    },
+
+    addComPorts: function (selection) {
+        var me = this,
             view = me.getAddComPortView(),
-            selectedArray = grid.getView().getSelectionModel().getSelection(),
             router = me.getController('Uni.controller.history.Router'),
             comPortPoolModel = me.getModel('Mdc.model.ComPortPool'),
             poolId = router.routeparams['id'],
@@ -231,21 +172,19 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                 target: view
             }),
             messageText;
+
         preloader.show();
         comPortPoolModel.load(poolId, {
             success: function (record) {
                 switch (record.getData().direction) {
                     case 'Inbound':
-                        Ext.Array.each(selectedArray, function (selectedrecord) {
-                            record.inboundComPorts().add(selectedrecord);
-                        });
+                        record.inboundComPorts().add(selection);
                         break;
                     case 'Outbound':
-                        Ext.Array.each(selectedArray, function (selectedrecord) {
-                            record.outboundComPorts().add(selectedrecord);
-                        });
+                        record.outboundComPorts().add(selection);
                         break;
                 }
+
                 record.save({
                     callback: function (records, operation, success) {
                         if (success) {
@@ -255,7 +194,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                         }
                         preloader.destroy();
                     }
-                })
+                });
             }
         });
     },
@@ -273,9 +212,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
         record.destroy({
             success: function (model, operation) {
-                    gridToolbarTop.totalCount = 0;
-                    grid.getStore().loadPage(1);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServerComPorts.deleteSuccess.msg', 'MDC', 'Communication port removed'));
+                gridToolbarTop.totalCount = 0;
+                grid.getStore().loadPage(1);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServerComPorts.deleteSuccess.msg', 'MDC', 'Communication port removed'));
             },
             failure: function (model, operation) {
                 var title = Uni.I18n.translate('comPortPoolComPorts.remove.failure', 'MDC', 'Failed to remove') + " " + record.get('name'),
@@ -288,7 +227,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
 
                 me.getApplication().getController('Uni.controller.Error').showError(title, message);
             },
-            callback: function(){
+            callback: function () {
                 page.setLoading(false);
             }
 

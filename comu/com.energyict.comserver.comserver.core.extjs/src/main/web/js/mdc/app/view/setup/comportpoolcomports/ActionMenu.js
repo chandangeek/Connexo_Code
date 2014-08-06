@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.comportpollcomports.ActionMenu', {
+Ext.define('Mdc.view.setup.comportpoolcomports.ActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.comPortPoolComPortsActionMenu',
     plain: true,
