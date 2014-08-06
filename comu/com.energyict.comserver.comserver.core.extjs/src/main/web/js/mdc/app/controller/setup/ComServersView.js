@@ -63,8 +63,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             gridView = me.getComServerGrid().getView(),
             record = gridView.getSelectionModel().getLastSelected(),
             activeChange = 'notChanged',
-            form = this.getComServerPreview().down('form'),
-            formRecord = form.getRecord();
+            form = this.getComServerPreview().down('form');
 
 
         switch (item.action) {
@@ -84,8 +83,6 @@ Ext.define('Mdc.controller.setup.ComServersView', {
 
         if (activeChange != 'notChanged') {
             record.set('active', activeChange);
-            record.set('inboundComPorts', formRecord.get('inboundComPorts'));
-            record.set('outboundComPorts', formRecord.get('outboundComPorts'));
             record.save({
                 callback: function (model) {
                     var msg = activeChange ? Uni.I18n.translate('comserver.changeState.activated', 'MDC', 'activated') :
