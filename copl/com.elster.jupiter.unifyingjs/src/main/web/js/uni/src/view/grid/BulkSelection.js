@@ -354,15 +354,15 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     onSelectionChange: function () {
         var me = this,
-            selection = me.view.getSelectionModel().getSelection();
+            selection = me.view.getSelectionModel().getSelection(),
+            value = {};
 
-        me.getSelectionGroupType().setValue({
-            selectedGroupType: me.selectedInputValue
-        });
+        value[me.radioGroupName] = me.selectedInputValue;
+        me.getSelectionGroupType().setValue(value);
 
         me.getSelectionCounter().setText(me.counterTextFn(selection.length));
         me.getUncheckAllButton().setDisabled(selection.length === 0);
-        me.getAddButton().setDisabled(selection.length === 0);
+        me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
     },
 
     isAllSelected: function () {
