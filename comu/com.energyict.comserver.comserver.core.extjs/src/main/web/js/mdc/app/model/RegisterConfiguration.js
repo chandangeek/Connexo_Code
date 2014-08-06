@@ -9,7 +9,7 @@ Ext.define('Mdc.model.RegisterConfiguration', {
         {name: 'obisCode', type: 'string', useNull: true},
         {name: 'overruledObisCode', type: 'string', useNull: true},
         {name: 'obisCodeDescription', type: 'string', useNull: true},
-        {name: 'unitOfMeasure', type: 'string', useNull: true},
+      //  {name: 'unitOfMeasure', useNull: true},
         {name: 'numberOfDigits', type: 'number', useNull: true},
         {name: 'numberOfFractionDigits', type: 'number', useNull: true},
         {name: 'multiplier', type: 'number', useNull: true},
@@ -21,7 +21,9 @@ Ext.define('Mdc.model.RegisterConfiguration', {
     ],
     associations: [
         {name: 'readingType', type: 'hasOne', model: 'Mdc.model.ReadingType', associationKey: 'readingType',
-            getterName: 'getReadingType', setterName: 'setReadingType', foreignKey: 'readingType'}
+            getterName: 'getReadingType', setterName: 'setReadingType', foreignKey: 'readingType'},
+        {name: 'unitOfMeasure', type: 'hasOne', model: 'Mdc.model.UnitOfMeasure', associationKey: 'unitOfMeasure',
+            getterName: 'getUnitOfMeasure', setterName: 'setUnitOfMeasure', foreignKey: 'unitOfMeasure'}
     ],
     proxy: {
         type: 'rest',
