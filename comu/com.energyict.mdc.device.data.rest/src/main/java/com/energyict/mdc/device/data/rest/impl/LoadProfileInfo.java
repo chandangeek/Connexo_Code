@@ -42,9 +42,4 @@ public class LoadProfileInfo {
         return info;
     }
 
-    public static LoadProfileInfo from(LoadProfile loadProfile, List<LoadProfileReading> channelData, Thesaurus thesaurus) {
-        LoadProfileInfo info = from(loadProfile);
-        info.loadProfileData=LoadProfileDataInfo.from(channelData, thesaurus);
-        return info;
-    }
 }
