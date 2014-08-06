@@ -1,5 +1,34 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -1039,11 +1068,24 @@ public class DeviceImpl implements Device {
             for (Channel channel : loadProfile.getChannels()) {
                 List<? extends BaseReadingRecord> meterReadings = meter.getReadings(interval, channel.getChannelSpec().getReadingType());
                 for (BaseReadingRecord meterReading : meterReadings) {
-                    sortedLoadProfileReadingMap.get(meterReading.getTimeStamp()).setChannelData(channel, meterReading.getValue());
+                    LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
+                    loadProfileReading.setChannelData(channel, meterReading.getValue());
+                    loadProfileReading.setFlags(getFlagsFromProcessStatus(meterReading.getProcesStatus()));
+                    loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
                 }
             }
         }
         return new ArrayList<>(sortedLoadProfileReadingMap.values());
+    }
+
+    private List<ProcessStatus.Flag> getFlagsFromProcessStatus(ProcessStatus processStatus) {
+        List<ProcessStatus.Flag> flags = new ArrayList<>();
+        for (ProcessStatus.Flag flag : ProcessStatus.Flag.values()) {
+            if (processStatus.get(flag)) {
+                flags.add(flag);
+            }
+        }
+        return flags;
     }
 
     private Map<Date, LoadProfileReading> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval interval) {
