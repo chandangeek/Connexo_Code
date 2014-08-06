@@ -2,6 +2,7 @@ package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
@@ -44,11 +45,11 @@ public class RegisterTypeInfo {
         this.isLinkedByInactiveRegisterConfig = isLinkedByInactiveRegisterSpec;
     }
 
-    public void writeTo(MeasurementType measurementType, ReadingType readingType) {
+    public void writeTo(MeasurementType measurementType, ReadingType readingType, Unit unit) {
         measurementType.setName(this.name);
         measurementType.setObisCode(this.obisCode);
         measurementType.setTimeOfUse(this.timeOfUse);
-        measurementType.setUnit(this.unitOfMeasure.unit);
+        measurementType.setUnit(unit);
         measurementType.setReadingType(readingType);
     }
 

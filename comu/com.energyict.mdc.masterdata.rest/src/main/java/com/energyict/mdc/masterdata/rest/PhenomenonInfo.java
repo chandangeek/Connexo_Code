@@ -1,13 +1,12 @@
 package com.energyict.mdc.masterdata.rest;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.common.rest.UnitAdapter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @XmlRootElement
@@ -15,9 +14,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 public class PhenomenonInfo {
 
     public long id;
-    public String name;
-    @XmlJavaTypeAdapter(UnitAdapter.class)
-    public Unit unit;
+    public String localizedValue;
 
     public static List<PhenomenonInfo> from(Collection<Phenomenon> phenomenons){
         List<PhenomenonInfo> infos = new ArrayList<>(phenomenons.size());
@@ -30,8 +27,7 @@ public class PhenomenonInfo {
     public static PhenomenonInfo from(Phenomenon phenomenon){
         PhenomenonInfo info = new PhenomenonInfo();
         info.id = phenomenon.getId();
-        info.name = phenomenon.getName();
-        info.unit = phenomenon.getUnit();
+        info.localizedValue = phenomenon.getName();
         return info;
     }
 }
