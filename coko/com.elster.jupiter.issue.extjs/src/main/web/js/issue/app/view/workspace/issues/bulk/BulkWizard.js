@@ -144,16 +144,14 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
     },
 
     processValidateOnStep1: function (wizard) {
-        var issuesGrid = wizard.down('issues-list'),
-            step1ErrorPanel = wizard.down('[name=step1-errors]'),
-            step1RadioGroup = wizard.down('radiogroup');
+        var issuesGrid = wizard.down('issues-selection-grid'),
+            step1ErrorPanel = wizard.down('[name=step1-errors]');
 
-        if (Ext.isEmpty(issuesGrid.view.getSelectionModel().getSelection())) {
-            step1RadioGroup.query('[inputValue=SELECTED]')[0].setBoxLabel('<b>Selected issues<br/><span style="color: #CF4C35;">' +
-                'It is required to select one or more issues to go to the next step</b></span>');
+        if (!issuesGrid.isAllSelected() && Ext.isEmpty(issuesGrid.view.getSelectionModel().getSelection())) {
             step1ErrorPanel.setVisible(true);
             return false;
         } else {
+            step1ErrorPanel.setVisible(false);
             return true;
         }
     },
@@ -167,13 +165,13 @@ Ext.define('Isu.view.workspace.issues.bulk.BulkWizard', {
         if (!Ext.isEmpty(assignForm)) {
             formErrorsPanel = assignForm.down('[name=form-errors]');
             formErrorsPanel.hide();
-      //      formErrorsPanel.removeAll();
+            //      formErrorsPanel.removeAll();
             activeRadioButton = assignForm.down('radiogroup').down('[checked=true]')
             comboBox = wizard.down('bulk-step3').down('issues-assign-form').down('combobox[name=' + activeRadioButton.inputValue + ']');
             if (Ext.isEmpty(comboBox.getValue())) {
                 /*formErrorsPanel.add({
-                    text: 'You must choose \'' + activeRadioButton.boxLabel + '\' before you can proceed'
-                });*/
+                 text: 'You must choose \'' + activeRadioButton.boxLabel + '\' before you can proceed'
+                 });*/
                 formErrorsPanel.setText('You must choose \'' + activeRadioButton.boxLabel + '\' before you can proceed');
                 formErrorsPanel.show();
                 return false;
