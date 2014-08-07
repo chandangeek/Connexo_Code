@@ -33,7 +33,7 @@ public class LoadProfileDataInfo {
             }
 
             for (Map.Entry<Channel, BigDecimal> entry : loadProfileReading.getChannelValues()) {
-                channelIntervalInfo.channelData.put(entry.getKey().getChannelSpec().getId(), entry.getValue());
+                channelIntervalInfo.channelData.put(entry.getKey().getId(), entry.getValue());
             }
             channelData.add(channelIntervalInfo);
         }
