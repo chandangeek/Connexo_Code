@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
@@ -12,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeterValidationImplTest {
@@ -36,9 +34,9 @@ public class MeterValidationImplTest {
 
     @Test
     public void testSetActivationStatus() {
-        assertThat(meterValidation.getActivationStatus()).isEqualTo(true);
-        meterValidation.setActivationStatus(false);
         assertThat(meterValidation.getActivationStatus()).isEqualTo(false);
+        meterValidation.setActivationStatus(true);
+        assertThat(meterValidation.getActivationStatus()).isEqualTo(true);
 
     }
 }
