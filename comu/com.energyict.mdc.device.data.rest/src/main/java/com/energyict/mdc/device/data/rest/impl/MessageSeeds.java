@@ -25,7 +25,7 @@ public enum MessageSeeds implements MessageSeed {
     QUALITY(27, ProcessStatus.Flag.QUALITY.name(), "Quality"),
     SUSPECT(28, ProcessStatus.Flag.SUSPECT.name(), "Suspect"),
     WARNING(29, ProcessStatus.Flag.WARNING.name(), "Warning"),
-
+    NO_SUCH_CHANNEL_ON_LOAD_PROFILE(30, "NoSuchChannel", "Load profile {0} has no channel {1}"),
     ;
 
     private final int number;

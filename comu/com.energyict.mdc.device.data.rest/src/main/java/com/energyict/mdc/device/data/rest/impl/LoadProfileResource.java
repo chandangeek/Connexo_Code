@@ -97,14 +97,34 @@ public class LoadProfileResource {
     public Response getChannel(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = findLoadProfileOrThrowException(device, loadProfileId, mrid);
+        Channel channel = findChannelOrThrowException(loadProfile, channelId);
+        return Response.ok(ChannelInfo.from(channel)).build();
+    }
+
+    @GET
+    @Path("{lpid}/channels/{channelid}/data")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        LoadProfile loadProfile = findLoadProfileOrThrowException(device, loadProfileId, mrid);
+        Channel channel = findChannelOrThrowException(loadProfile, channelId);
+        if (intervalStart!=null && intervalEnd!=null) {
+            List<LoadProfileReading> loadProfileData = device.getChannelDataFor(channel, new Interval(new Date(intervalStart), new Date(intervalEnd)));
+            List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();
+            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(paginatedLoadProfileData, thesaurus);
+            PagedInfoList pagedInfoList = PagedInfoList.asJson("data", infos, queryParameters);
+            return Response.ok(pagedInfoList).build();
+        }
+        return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    private Channel findChannelOrThrowException(LoadProfile loadProfile, long channelId) {
         for (Channel channel : loadProfile.getChannels()) {
             if (channel.getChannelSpec().getId()==channelId) {
-                return Response.ok(ChannelInfo.from(channel)).build();
+                return channel;
             }
         }
-
-
-        return Response.status(Response.Status.NOT_FOUND).build();
+        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfile.getId(), channelId);
     }
 
     private LoadProfile findLoadProfileOrThrowException(Device device, long loadProfileId, String mrid) {
