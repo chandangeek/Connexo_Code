@@ -1,14 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.util.units.Unit;
+import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.BillingReading;
-
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.units.Unit;
-import org.codehaus.jackson.annotate.JsonProperty;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class BillingReadingInfo extends ReadingInfo<BillingReading, NumericalRegisterSpec> {
     @JsonProperty("value")
@@ -29,22 +27,7 @@ public class BillingReadingInfo extends ReadingInfo<BillingReading, NumericalReg
         this.value = reading.getQuantity().getValue();
         this.unitOfMeasure = reading.getQuantity().getUnit();
         if (reading.getInterval().isPresent()) {
-            this.interval = new IntervalInfo(reading.getInterval().get());
-        }
-    }
-
-    public static class IntervalInfo {
-        @JsonProperty("start")
-        public Long start;
-        @JsonProperty("end")
-        public Long end;
-
-        public IntervalInfo() {
-        }
-
-        public IntervalInfo(Interval interval) {
-            this.start = interval.getStart().getTime();
-            this.end = interval.getEnd().getTime();
+            this.interval = IntervalInfo.from(reading.getInterval().get());
         }
     }
 

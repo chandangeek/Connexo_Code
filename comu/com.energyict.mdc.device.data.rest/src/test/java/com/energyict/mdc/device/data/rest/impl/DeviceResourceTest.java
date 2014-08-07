@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -12,6 +13,8 @@ import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -449,7 +452,7 @@ public class DeviceResourceTest extends JerseyTest {
     @Test
     public void testGetAllLoadProfiles() throws Exception {
         Device device1 = mock(Device.class);
-        Channel channel1 = mockChannel("channel1");
+        Channel channel1 = mockChannel("channel1", "1.1.1");
         LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.MINUTES), channel1);
         LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(10, TimeDuration.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(10, TimeDuration.MINUTES));
@@ -465,8 +468,8 @@ public class DeviceResourceTest extends JerseyTest {
     @Test
     public void testGetOneLoadProfile() throws Exception {
         Device device1 = mock(Device.class);
-        Channel channel1 = mockChannel("Z-channel1");
-        Channel channel2 = mockChannel("A-channel2");
+        Channel channel1 = mockChannel("Z-channel1", "1.1");
+        Channel channel2 = mockChannel("A-channel2", "1.2");
         LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(15, TimeDuration.MINUTES), channel1, channel2);
         LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES));
@@ -476,7 +479,7 @@ public class DeviceResourceTest extends JerseyTest {
 
         Map<String, Object> response = target("/devices/mrid1/loadprofiles/1").request().get(Map.class);
         assertThat(response)
-                .hasSize(7)
+                .hasSize(6)
                 .contains(MapEntry.entry("id", 1))
                 .contains(MapEntry.entry("name", "lp1"))
                 .contains(MapEntry.entry("lastReading", 1406617200000L))
@@ -488,8 +491,10 @@ public class DeviceResourceTest extends JerseyTest {
                 .contains(MapEntry.entry("count", 15))
                 .contains(MapEntry.entry("timeUnit", "minutes"));
 
-        List<String> channels = (List<String>) response.get("channels");
-        assertThat(channels).hasSize(2).containsExactly("A-channel2", "Z-channel1");
+        List<Map<String, Object>> channels = (List<Map<String, Object>>) response.get("channels");
+        assertThat(channels).hasSize(2);
+        assertThat(channels.get(0).get("name")).isEqualTo("A-channel2");
+        assertThat(channels.get(1).get("name")).isEqualTo("Z-channel1");
     }
 
     @Test
@@ -506,11 +511,18 @@ public class DeviceResourceTest extends JerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-    private Channel mockChannel(String name) {
+    private Channel mockChannel(String name, String mrid) {
         Channel mock = mock(Channel.class);
         ChannelSpec channelSpec = mock(ChannelSpec.class);
-        when(channelSpec.getName()).thenReturn(name);
+        when(mock.getName()).thenReturn(name);
         when(mock.getChannelSpec()).thenReturn(channelSpec);
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(mrid);
+        when(mock.getReadingType()).thenReturn(readingType);
+        when(mock.getInterval()).thenReturn(new TimeDuration("15 minutes"));
+        Phenomenon phenomenon = mock(Phenomenon.class);
+        when(phenomenon.getUnit()).thenReturn(Unit.get("kWh"));
+        when(mock.getPhenomenon()).thenReturn(phenomenon);
         return mock;
     }
 
@@ -525,6 +537,7 @@ public class DeviceResourceTest extends JerseyTest {
         when(loadProfile1.getDeviceObisCode()).thenReturn(new ObisCode(1,2,3,4,5, (int) id));
         when(loadProfile1.getChannels()).thenReturn(channels==null? Collections.<Channel>emptyList() :Arrays.asList(channels));
         when(loadProfile1.getLastReading()).thenReturn(new Date(1406617200000L)); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
+        when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         return loadProfile1;
     }
