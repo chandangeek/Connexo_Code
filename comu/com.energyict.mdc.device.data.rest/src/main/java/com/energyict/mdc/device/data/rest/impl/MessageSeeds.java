@@ -68,9 +68,9 @@ public enum MessageSeeds implements MessageSeed {
         return format;
     }
 
-    public String formate(Thesaurus thesaurus, Object... args){
+    public String format(Thesaurus thesaurus, Object... args){
         if (thesaurus == null){
-            throw new IllegalArgumentException("Thesaurus cant't be null");
+            throw new IllegalArgumentException("Thesaurus can't be null");
         }
         String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
         return MessageFormat.format(translated, args);

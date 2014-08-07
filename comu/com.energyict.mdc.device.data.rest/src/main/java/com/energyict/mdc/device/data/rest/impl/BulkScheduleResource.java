@@ -70,7 +70,7 @@ public class BulkScheduleResource {
         for (Long scheduleId : request.scheduleIds) {
             Optional<ComSchedule> scheduleRef = schedulingService.findSchedule(scheduleId);
             if (!scheduleRef.isPresent()){
-                String failMessage = MessageSeeds.NO_SUCH_COM_SCHEDULE.formate(thesaurus, scheduleId);
+                String failMessage = MessageSeeds.NO_SUCH_COM_SCHEDULE.format(thesaurus, scheduleId);
                 response.nextAction(failMessage).failCount = deviceMap.size();
             } else {
                 processScheduleForBulkAction(deviceMap, scheduleRef.get(), action, response);
@@ -127,7 +127,7 @@ public class BulkScheduleResource {
         if (ex.getConstraintViolations() != null && ex.getConstraintViolations().size() > 0){
             return ex.getConstraintViolations().iterator().next().getMessage();
         }
-        return MessageSeeds.DEVICE_VALIDATION_BULK_MSG.formate(thesaurus, schedule.getName(), device.getName());
+        return MessageSeeds.DEVICE_VALIDATION_BULK_MSG.format(thesaurus, schedule.getName(), device.getName());
     }
 
     private static interface BulkAction {
