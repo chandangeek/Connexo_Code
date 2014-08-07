@@ -6,10 +6,10 @@ Ext.define('Isu.view.workspace.issues.bulk.IssuesSelectionGrid', {
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'setup.searchitems.bulk.SchedulesSelectionGrid.counterText',
+            'workspace.issues.bulk.IssuesSelectionGrid.counterText',
             count,
             'MDC',
-            '{0} communication schedules selected'
+            '{0} issues selected'
         );
     },
 
