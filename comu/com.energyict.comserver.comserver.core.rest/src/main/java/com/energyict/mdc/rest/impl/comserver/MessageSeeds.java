@@ -1,10 +1,8 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.rest.impl.MdcApplication;
-import java.text.MessageFormat;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
@@ -49,13 +47,6 @@ public enum MessageSeeds implements MessageSeed {
         return format;
     }
 
-    public String format(Thesaurus thesaurus, Object... args){
-        if (thesaurus == null){
-            throw new IllegalArgumentException("Thesaurus can't be null");
-        }
-        String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
-        return MessageFormat.format(translated, args);
-    }
     @Override
     public Level getLevel() {
         return Level.SEVERE;
