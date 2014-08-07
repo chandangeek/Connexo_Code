@@ -22,8 +22,6 @@ import java.util.Set;
  */
 public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuilder {
 
-    private static final String CONNECTION_TASK_TABLE_ALIAS_NAME = null;    // Does not generate an alias
-
     private Set<ServerConnectionTaskStatus> taskStatuses;
 
     public ConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock) {
@@ -34,13 +32,8 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
         }
     }
 
-//    @Override
-//    protected String connectionTaskTableName() {
-//        return CONNECTION_TASK_TABLE_ALIAS_NAME;
-//    }
-
     public SqlBuilder build(DataMapper<ConnectionTask> dataMapper) {
-        SqlBuilder sqlBuilder = dataMapper.builder(CONNECTION_TASK_TABLE_ALIAS_NAME);
+        SqlBuilder sqlBuilder = dataMapper.builder(null);   // Does not generate an alias
         String sqlStartClause = sqlBuilder.getText();
         this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
         Iterator<ServerConnectionTaskStatus> statusIterator = this.taskStatuses.iterator();
