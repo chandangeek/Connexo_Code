@@ -55,15 +55,15 @@ public final class ReadingTypeGenerator {
         Q4REACTIVEKVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q4).measure(ENERGY).in(KILO, VOLTAMPEREREACTIVEHOUR), "Q4 Reactive Energy (kvarh)"),
         Q4REACTIVEVARH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(Q4).measure(ENERGY).in(VOLTAMPEREREACTIVEHOUR), "Q4 Reactive Energy (varh)"),
 
-        ACTIVE_ENERGY_EXPORT_TARIF_1_KWH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).tou(1), "Active Energy Export Tariff 1 (kWh)"),
-        ACTIVE_ENERGY_EXPORT_TARIF_1_WH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(WATTHOUR).tou(1), "Active Energy Export Tariff 1 (Wh)"),
-        ACTIVE_ENERGY_EXPORT_TARIF_2_KWH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).tou(2), "Active Energy Export Tariff 2 (kWh)"),
-        ACTIVE_ENERGY_EXPORT_TARIF_2_WH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(WATTHOUR).tou(2), "Active Energy Export Tariff 2 (Wh)"),
+        ACTIVE_ENERGY_IMPORT_TARIF_1_KWH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).tou(1), "Active Energy Import Tariff 1 (kWh)"),
+        ACTIVE_ENERGY_IMPORT_TARIF_1_WH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(WATTHOUR).tou(1), "Active Energy Import Tariff 1 (Wh)"),
+        ACTIVE_ENERGY_IMPORT_TARIF_2_KWH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).tou(2), "Active Energy Import Tariff 2 (kWh)"),
+        ACTIVE_ENERGY_IMPORT_TARIF_2_WH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(WATTHOUR).tou(2), "Active Energy Import Tariff 2 (Wh)"),
 
-        ACTIVE_ENERGY_IMPORT_TARIF_1_KWH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).tou(1), "Active Energy Import Tariff 1 (kWh)"),
-        ACTIVE_ENERGY_IMPORT_TARIF_1_WH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(WATTHOUR).tou(1), "Active Energy Export Import 1 (Wh)"),
-        ACTIVE_ENERGY_IMPORT_TARIF_2_KWH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).tou(2), "Active Energy Import Tariff 2 (kWh)"),
-        ACTIVE_ENERGY_IMPORT_TARIF_2_WH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(WATTHOUR).tou(2), "Active Energy Export Import 2 (Wh)");
+        ACTIVE_ENERGY_EXPORT_TARIF_1_KWH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).tou(1), "Active Energy Export Tariff 1 (kWh)"),
+        ACTIVE_ENERGY_EXPORT_TARIF_1_WH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(WATTHOUR).tou(1), "Active Energy Export Tariff 1 (Wh)"),
+        ACTIVE_ENERGY_EXPORT_TARIF_2_KWH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).tou(2), "Active Energy Export Tariff 2 (kWh)"),
+        ACTIVE_ENERGY_EXPORT_TARIF_2_WH(ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(WATTHOUR).tou(2), "Active Energy Export Tariff 2 (Wh)");
 
 		private final ReadingTypeCodeBuilder builder;
 		private final String name;
