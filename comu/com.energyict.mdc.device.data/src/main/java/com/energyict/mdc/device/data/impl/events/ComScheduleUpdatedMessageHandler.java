@@ -52,12 +52,13 @@ public class ComScheduleUpdatedMessageHandler implements MessageHandler {
         if (TOPIC.equals(topic)) {
             long comScheduleId = this.getLong("id", messageProperties);
             try (PreparedStatement preparedStatement = this.dataModel.getConnection(true).prepareStatement("SELECT MIN(id), MAX(id) FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " WHERE comschedule = ?")){
-                ResultSet resultSet = preparedStatement.getResultSet();
-                resultSet.first();
-                long minId = resultSet.getLong(0);
-                long maxId = resultSet.getLong(1);
-                propagateRecalculation(comScheduleId, minId, maxId);
-                resultSet.close();
+                try (ResultSet resultSet = preparedStatement.getResultSet()) {
+                    resultSet.first();
+                    long minId = resultSet.getLong(0);
+                    long maxId = resultSet.getLong(1);
+                    propagateRecalculation(comScheduleId, minId, maxId);
+                    resultSet.close();
+                }
             } catch (SQLException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }

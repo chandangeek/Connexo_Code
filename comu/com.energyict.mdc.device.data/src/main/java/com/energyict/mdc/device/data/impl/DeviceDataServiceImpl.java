@@ -689,10 +689,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(" where ctn.id = ?  and cte.obsolete_date is null");
         sqlBuilder.addLong(comTaskEnablement.getId());
         try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                int count = resultSet.getInt(1);
-                return count != 0;
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    int count = resultSet.getInt(1);
+                    return count != 0;
+                }
             }
         }
         catch (SQLException e) {
