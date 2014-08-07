@@ -55,7 +55,7 @@ public class LoadProfileResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lpid}")
-    public Response getLoadProfile(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd) {
+    public Response getLoadProfile(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = findLoadProfileOrThrowException(device, loadProfileId, mrid);
         return Response.ok(LoadProfileInfo.from(loadProfile)).build();
