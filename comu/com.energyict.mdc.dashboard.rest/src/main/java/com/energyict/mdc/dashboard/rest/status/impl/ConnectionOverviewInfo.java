@@ -11,6 +11,7 @@ import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardCounters;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
+import com.energyict.mdc.dashboard.HeatMap;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
 import java.util.ArrayList;
@@ -62,7 +63,7 @@ public class ConnectionOverviewInfo {
             ComPortPoolBreakdown comPortPoolBreakdown,
             ConnectionTypeBreakdown connectionTypeBreakdown,
             DeviceTypeBreakdown deviceTypeBreakdown,
-            FilterOption breakdown,
+            HeatMap<?> heatMap,
             Thesaurus thesaurus) throws Exception {
         this.thesaurus = thesaurus;
 
@@ -75,12 +76,10 @@ public class ConnectionOverviewInfo {
         breakdowns=new ArrayList<>(3);
         breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), null), comPortPoolBreakdown, BreakdownOption.comPortPool)); // JP-4281
         breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), null), connectionTypeBreakdown, BreakdownOption.connectionType)); // JP-4283
-        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), null), deviceTypeBreakdown, BreakdownOption.deviceType)); // JP-4284
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_DEVICE_TYPE.getKey(), null), deviceTypeBreakdown, BreakdownOption.deviceType)); // JP-4284
 
         sortAllOverviews();
         sortAllBreakdowns();
-
-
 
     }
 

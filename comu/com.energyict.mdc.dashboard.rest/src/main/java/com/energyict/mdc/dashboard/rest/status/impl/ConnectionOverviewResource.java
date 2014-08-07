@@ -8,6 +8,7 @@ import com.energyict.mdc.dashboard.ConnectionStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
+import com.energyict.mdc.dashboard.HeatMap;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.tasks.history.CompletionCode;
 import java.util.HashMap;
@@ -38,14 +39,26 @@ public class ConnectionOverviewResource {
     public ConnectionOverviewInfo getConnectionOverview(@BeanParam JsonQueryFilter jsonQueryFilter) {
         ConnectionOverviewInfo info = null;
         try {
-            FilterOption breakdown = jsonQueryFilter.getProperty("breakdown", new FilterOptionAdapter());
+            BreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
             ConnectionStatusOverview connectionStatusOverview = dashboardService.getConnectionStatusOverview();
             ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
             ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
             ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
             DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getDeviceTypeBreakdown();
+            HeatMap<?> heatMap = null;
+            switch (breakdown) {
+                case comPortPool:
+                    heatMap=dashboardService.getComPortPoolHeatMap();
+                    break;
+                case connectionType:
+                    heatMap=dashboardService.getConnectionTypeHeatMap();
+                    break;
+                case deviceType:
+                    heatMap=dashboardService.getDeviceTypeHeatMap();
+                    break;
+            }
             ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(connectionStatusOverview);
-            info = new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown,breakdown,thesaurus);
+            info = new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, heatMap,thesaurus);
         } catch (Exception e) {
             e.printStackTrace();
         }

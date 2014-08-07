@@ -7,11 +7,11 @@ import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
  *
  * Created by bvn on 7/31/14.
  */
-public class FilterOptionAdapter extends MapBasedXmlAdapter<FilterOption> {
+public class BreakdownOptionAdapter extends MapBasedXmlAdapter<BreakdownOption> {
 
-    public FilterOptionAdapter() {
-        for (FilterOption filterOption : FilterOption.values()) {
-            register(filterOption.name(), filterOption);
+    public BreakdownOptionAdapter() {
+        for (BreakdownOption breakdownOption : BreakdownOption.values()) {
+            register(breakdownOption.name(), breakdownOption);
         }
         register(null,null);
     }
