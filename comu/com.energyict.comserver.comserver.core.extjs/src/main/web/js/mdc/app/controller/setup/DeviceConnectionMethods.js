@@ -189,6 +189,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 connectionMethodsStore.getProxy().extraParams = ({deviceType: device.get('deviceTypeId'), deviceConfig: device.get('deviceConfigurationId')});
                 connectionMethodsStore.getProxy().setExtraParam('available', true);
                 connectionMethodsStore.getProxy().setExtraParam('mrId', mrid);
+                connectionMethodsStore.getProxy().pageParam = null;
+                connectionMethodsStore.getProxy().limitParam = null;
+                connectionMethodsStore.getProxy().startParam = null;
                 connectionMethodsStore.clearFilter(true);
                 connectionMethodsStore.filter('direction', direction);
                 connectionMethodsStore.load({
@@ -450,6 +453,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                         connectionMethodsStore.getProxy().extraParams = ({deviceType: device.get('deviceTypeId'), deviceConfig: device.get('deviceConfigurationId')});
                         connectionMethodsStore.clearFilter(true);
                         connectionMethodsStore.filter('direction', connectionMethod.get('direction'));
+                        connectionMethodsStore.getProxy().pageParam = null;
+                        connectionMethodsStore.getProxy().limitParam = null;
+                        connectionMethodsStore.getProxy().startParam = null;
                         connectionMethodsStore.load({
                             callback: function () {
                                 me.comPortPoolStore.clearFilter(true);
