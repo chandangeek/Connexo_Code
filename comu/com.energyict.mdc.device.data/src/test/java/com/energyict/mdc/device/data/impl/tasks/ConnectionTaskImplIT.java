@@ -7,6 +7,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
@@ -378,9 +379,9 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         ComTask comTaskWithLogBooks = createComTaskWithLogBooks();
         ComTask comTaskWithRegisters = createComTaskWithRegisters();
 
-        this.comTaskEnablement1 = createMockedComTaskEnablement(true, configDialect, comTaskWithBasicCheck);
-        this.comTaskEnablement2 = createMockedComTaskEnablement(true, configDialect, comTaskWithLogBooks);
-        this.comTaskEnablement3 = createMockedComTaskEnablement(true, configDialect, comTaskWithRegisters);
+        this.comTaskEnablement1 = enableComTask(true, configDialect, comTaskWithBasicCheck);
+        this.comTaskEnablement2 = enableComTask(true, configDialect, comTaskWithLogBooks);
+        this.comTaskEnablement3 = enableComTask(true, configDialect, comTaskWithRegisters);
 
         deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
 
@@ -459,14 +460,12 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         }
     }
 
-    private ComTaskEnablement createMockedComTaskEnablement(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, ComTask comTask) {
-        Optional<ProtocolDialectConfigurationProperties> optionalConfigDialect = Optional.fromNullable(configDialect);
-        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(optionalConfigDialect);
-        when(comTaskEnablement.usesDefaultConnectionTask()).thenReturn(useDefault);
-        when(comTaskEnablement.getPriority()).thenReturn(comTaskEnablementPriority);
-        return comTaskEnablement;
+    private ComTaskEnablement enableComTask(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, ComTask comTask) {
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTask, this.securityPropertySet);
+        builder.setProtocolDialectConfigurationProperties(configDialect);
+        builder.useDefaultConnectionTask(useDefault);
+        builder.setPriority(this.comTaskEnablementPriority);
+        return builder.add();
     }
 
     private ProtocolDialectConfigurationProperties createDialectConfigProperties() {

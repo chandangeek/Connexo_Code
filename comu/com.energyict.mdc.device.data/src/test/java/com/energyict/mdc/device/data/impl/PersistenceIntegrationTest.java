@@ -7,11 +7,15 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -47,6 +51,7 @@ public abstract class PersistenceIntegrationTest {
     protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     protected DeviceType deviceType;
     protected DeviceConfiguration deviceConfiguration;
+    protected SecurityPropertySet securityPropertySet;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -86,16 +91,33 @@ public abstract class PersistenceIntegrationTest {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
-        when(authenticationAccessLevel.getId()).thenReturn(0);
+        int anySecurityLevel = 0;
+        when(authenticationAccessLevel.getId()).thenReturn(anySecurityLevel);
         when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
         EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
-        when(encryptionAccessLevel.getId()).thenReturn(0);
+        when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceType.save();
         deviceConfiguration.activate();
+        SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION2);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION3);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION4);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3);
+        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4);
+        securityPropertySetBuilder.authenticationLevel(anySecurityLevel);
+        securityPropertySetBuilder.encryptionLevel(anySecurityLevel);
+        this.securityPropertySet = securityPropertySetBuilder.build();
         this.resetClock();
     }
 
