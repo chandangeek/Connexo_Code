@@ -111,7 +111,7 @@ public class DashboardServiceImplTest {
             assertThat(successIndicatorCounter.getCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
         }
         assertThat(overview.getTotalCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE * 3);
-        assertThat(overview.getAtleastOneTaskFailedCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(overview.getAtLeastOneTaskFailedCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
     }
 
     @Test

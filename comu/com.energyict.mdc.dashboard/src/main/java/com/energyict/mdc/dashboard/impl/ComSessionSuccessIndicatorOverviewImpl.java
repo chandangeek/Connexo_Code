@@ -25,7 +25,7 @@ public class ComSessionSuccessIndicatorOverviewImpl extends DashboardCountersImp
     }
 
     @Override
-    public long getAtleastOneTaskFailedCount() {
+    public long getAtLeastOneTaskFailedCount() {
         return this.atleastOneTaskFailedCount;
     }
 

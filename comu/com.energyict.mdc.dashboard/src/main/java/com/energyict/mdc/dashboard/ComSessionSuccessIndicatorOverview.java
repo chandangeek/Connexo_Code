@@ -10,6 +10,6 @@ import com.energyict.mdc.tasks.history.ComSession;
  */
 public interface ComSessionSuccessIndicatorOverview extends DashboardCounters<ComSession.SuccessIndicator> {
 
-    public long getAtleastOneTaskFailedCount();
+    public long getAtLeastOneTaskFailedCount();
 
 }
