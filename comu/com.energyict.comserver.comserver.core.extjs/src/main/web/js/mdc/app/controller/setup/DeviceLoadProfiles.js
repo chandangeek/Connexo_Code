@@ -22,6 +22,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     ],
 
     mRID: null,
+    loadProfilesOfDeviceUrl: null,
 
     init: function () {
         this.control({
@@ -32,16 +33,16 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 click: this.chooseAction
             }
         });
+        this.loadProfilesOfDeviceUrl = this.getStore('Mdc.store.LoadProfilesOfDevice').getProxy().url;
     },
 
     showView: function (mRID) {
         var me = this,
             model = me.getModel('Mdc.model.Device'),
-            proxy = me.getStore('Mdc.store.LoadProfilesOfDevice').getProxy(),
             timeUnitsStore = me.getStore('Mdc.store.TimeUnits'),
             widget,
             showPage = function () {
-                proxy.url = proxy.url.replace('{mRID}', mRID);
+                me.getStore('Mdc.store.LoadProfilesOfDevice').getProxy().url = me.loadProfilesOfDeviceUrl.replace('{mRID}', mRID);
                 widget = Ext.widget('deviceLoadProfilesSetup', {
                     mRID: mRID,
                     router: me.getController('Uni.controller.history.Router')
