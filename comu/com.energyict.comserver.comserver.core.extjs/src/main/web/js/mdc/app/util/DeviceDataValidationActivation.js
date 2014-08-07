@@ -3,8 +3,10 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         'Mdc.view.setup.device.DeviceDataValidationPanel',
         'Mdc.view.setup.devicedatavalidation.RulesSetMainView'
     ],
+
     mRID: null,
     dataValidationLastChecked: null,
+
     updateDataValidationStatusSection: function (mRID, view) {
         var me = this;
         me.mRID = mRID;
@@ -21,21 +23,20 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 me.dataValidationLastChecked = res.lastChecked;
                 if (view.down('#dataValidationStatusPanel')) {
                     view.down('#deviceDataValidationStatusField').setValue(res.isActive ?
-                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                        Uni.I18n.translate('general.inactive', 'MDC', 'Inctive')
-
+                            Uni.I18n.translate('general.active', 'MDC', 'Active') :
+                            Uni.I18n.translate('general.inactive', 'MDC', 'Inctive')
                     );
                     view.down('#deviceDataValidationStateChangeBtn').setText((res.isActive ?
-                        Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
-                        Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
-                        ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
+                            Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
+                            Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
+                            ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
                     );
                     view.down('#deviceDataValidationStateChangeBtn').action = res.isActive ? 'deactivate' : 'activate';
                     view.down('#deviceDataValidationStateChangeBtn').setDisabled(false);
                 } else {
                     view.down('#statusField').setValue(res.isActive ?
-                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                        Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
+                            Uni.I18n.translate('general.active', 'MDC', 'Active') :
+                            Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                     );
                     if (res.isActive) {
                         view.down('#activate').hide();
@@ -48,6 +49,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             }
         });
     },
+
     showActivationConfirmation: function (view) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
@@ -63,6 +65,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 me.hasValidation = res.hasValidation;
+
                 if (res.hasValidation) {
                     confirmationWindow.add(me.getActivationConfirmationContent());
                     confirmationWindow.show({
@@ -81,6 +84,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             this.destroy();
         });
     },
+
     activateDataValidation: function (view, confWindow) {
         var me = this;
         if (me.hasValidation) {
@@ -103,11 +107,13 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             }
         });
     },
+
     validateData: function (confWindow) {
         var me = this;
+
         confWindow.down('#validationProgress').add(Ext.create('Ext.ProgressBar', {
-                margin: '5 0 15 0'
-            })).wait({
+            margin: '5 0 15 0'
+        })).wait({
             duration: 120000,
             text: Uni.I18n.translate('device.dataValidation.isInProgress', 'MDC', 'Data validation is in progress. Please wait...'),
             fn: function () {
@@ -135,7 +141,9 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 });
             }
         });
+
         Ext.Ajax.suspendEvent('requestexception');
+
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validate',
             method: 'PUT',
@@ -159,6 +167,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             }
         });
     },
+
     getActivationConfirmationContent: function () {
         var me = this;
         return Ext.create('Ext.container.Container', {
@@ -223,6 +232,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             ]
         });
     },
+
     showDeactivationConfirmation: function (view) {
         var me = this;
         Ext.create('Uni.view.window.Confirmation', {
@@ -237,6 +247,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             }
         });
     },
+
     deactivateDataValidation: function (view) {
         var me = this;
         Ext.Ajax.request({
@@ -250,24 +261,28 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             }
         });
     },
+
     destroyConfirmationWindow: function () {
         if (Ext.ComponentQuery.query('#activationConfirmationWindow')[0]) {
             Ext.ComponentQuery.query('#activationConfirmationWindow')[0].removeAll(true);
             Ext.ComponentQuery.query('#activationConfirmationWindow')[0].destroy();
         }
     },
+
     confirmationWindowButtonsDisable: function (value) {
         if (Ext.ComponentQuery.query('#activationConfirmationWindow')[0]) {
             Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('button[name=confirm]').setDisabled(value);
             Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('button[name=cancel]').setDisabled(value);
         }
     },
+
     showValidationActivationErrors: function (errors) {
         if (Ext.ComponentQuery.query('#activationConfirmationWindow')[0]) {
             Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('#validationDateErrors').update(errors);
             Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('#validationDateErrors').setVisible(true);
         }
     },
+
     onValidationFromDateChange: function () {
         if (Ext.ComponentQuery.query('#activationConfirmationWindow')[0]) {
             Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('#validationDateErrors').update('');

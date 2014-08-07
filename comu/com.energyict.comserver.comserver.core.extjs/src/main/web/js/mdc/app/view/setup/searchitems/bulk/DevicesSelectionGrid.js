@@ -22,6 +22,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.DevicesSelectionGrid', {
 
     cancelHref: '#/search',
 
+    radioGroupName: 'devices-selection-grid-step1',
+
     columns: [
         {
             itemId: 'MRID',
