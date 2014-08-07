@@ -28,12 +28,8 @@ import javax.ws.rs.core.Response;
  */
 public class LoadProfileResource {
 
-    public static final Comparator<Channel> CHANNEL_COMPARATOR_BY_NAME = new Comparator<Channel>() {
-        @Override
-        public int compare(Channel o1, Channel o2) {
-            return o1.getName().compareToIgnoreCase(o2.getName());
-        }
-    };
+    private static final Comparator<Channel> CHANNEL_COMPARATOR_BY_NAME = new ChannelComparator();
+    private static final Comparator<LoadProfile> LOAD_PROFILE_COMPARATOR_BY_NAME = new LoadProfileComparator();
 
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
@@ -51,7 +47,7 @@ public class LoadProfileResource {
     public Response getAllLoadProfiles(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<LoadProfile> allLoadProfiles = device.getLoadProfiles();
-        List<LoadProfile> loadProfilesOnPage = ListPager.of(allLoadProfiles).from(queryParameters).find();
+        List<LoadProfile> loadProfilesOnPage = ListPager.of(allLoadProfiles, LOAD_PROFILE_COMPARATOR_BY_NAME).from(queryParameters).find();
         List<LoadProfileInfo> loadProfileInfos = LoadProfileInfo.from(loadProfilesOnPage);
         return Response.ok(PagedInfoList.asJson("loadProfiles", loadProfileInfos, queryParameters)).build();
     }

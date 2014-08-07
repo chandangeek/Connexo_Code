@@ -42,6 +42,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -453,16 +454,33 @@ public class DeviceResourceTest extends JerseyTest {
     public void testGetAllLoadProfiles() throws Exception {
         Device device1 = mock(Device.class);
         Channel channel1 = mockChannel("channel1", "1.1.1");
-        LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.MINUTES), channel1);
-        LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(10, TimeDuration.MINUTES));
-        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(10, TimeDuration.MINUTES));
+        LoadProfile loadProfile1 = mockLoadProfile("lp3", 3, new TimeDuration(10, TimeDuration.MINUTES));
+        LoadProfile loadProfile2 = mockLoadProfile("Lp2", 2, new TimeDuration(10, TimeDuration.MINUTES));
+        LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.MINUTES), channel1);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceDataService.findByUniqueMrid("mrid1")).thenReturn(device1);
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
 
         Map response = target("/devices/mrid1/loadprofiles").request().get(Map.class);
         assertThat(response).containsKey("total").containsKey("loadProfiles");
+        assertThat((List)response.get("loadProfiles")).isSortedAccordingTo(new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                return ((String)o1.get("name")).compareToIgnoreCase((String) o2.get("name"));
+            }
+        });
+    }
 
+    @Test
+    public void testGetAllLoadProfilesIsSorted() throws Exception {
+        Device device1 = mock(Device.class);
+        Channel channel1 = mockChannel("channel1", "1.1.1");
+        LoadProfile loadProfile1 = mockLoadProfile("lp3", 3, new TimeDuration(10, TimeDuration.MINUTES));
+        LoadProfile loadProfile2 = mockLoadProfile("Lp2", 2, new TimeDuration(10, TimeDuration.MINUTES));
+        LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.MINUTES), channel1);
+        when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
+        when(deviceDataService.findByUniqueMrid("mrid1")).thenReturn(device1);
+        when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
     }
 
     @Test

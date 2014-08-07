@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfile;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,12 +18,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 public class LoadProfileInfo {
 
-    public static final Comparator<ChannelInfo> CHANNEL_COMPARATOR = new Comparator<ChannelInfo>() {
-        @Override
-        public int compare(ChannelInfo o1, ChannelInfo o2) {
-            return o1.name.compareToIgnoreCase(o2.name);
-        }
-    };
+    public static final Comparator<Channel> CHANNEL_COMPARATOR = new ChannelComparator();
     public long id;
     public String name;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
@@ -33,8 +29,9 @@ public class LoadProfileInfo {
 
     public static LoadProfileInfo from(LoadProfile loadProfile) {
         LoadProfileInfo info = createLoadProfileInfo(loadProfile);
-        info.channels=ChannelInfo.from(loadProfile.getChannels());
-        Collections.sort(info.channels, CHANNEL_COMPARATOR);
+        List<Channel> channels = loadProfile.getChannels();
+        Collections.sort(channels, CHANNEL_COMPARATOR);
+        info.channels=ChannelInfo.from(channels);
         return info;
     }
 
@@ -52,8 +49,9 @@ public class LoadProfileInfo {
         List<LoadProfileInfo> loadProfileInfos = new ArrayList<>(loadProfiles.size());
         for (LoadProfile loadProfile : loadProfiles) {
             LoadProfileInfo loadProfileInfo = createLoadProfileInfo(loadProfile);
-            loadProfileInfo.channels=ChannelInfo.asSimpleInfoFrom(loadProfile.getChannels());
-            Collections.sort(loadProfileInfo.channels, CHANNEL_COMPARATOR);
+            List<Channel> channels = loadProfile.getChannels();
+            Collections.sort(channels, CHANNEL_COMPARATOR);
+            loadProfileInfo.channels=ChannelInfo.asSimpleInfoFrom(channels);
             loadProfileInfos.add(loadProfileInfo);
         }
         return loadProfileInfos;
