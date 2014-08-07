@@ -56,14 +56,14 @@ public class ConnectionOverviewInfo {
     public ConnectionOverviewInfo() {
     }
 
-    public ConnectionOverviewInfo(
+    public <H extends HasName & HasId> ConnectionOverviewInfo(
             ConnectionSummaryData connectionSummaryData,
             ConnectionStatusOverview connectionStatusOverview,
             ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview,
             ComPortPoolBreakdown comPortPoolBreakdown,
             ConnectionTypeBreakdown connectionTypeBreakdown,
             DeviceTypeBreakdown deviceTypeBreakdown,
-            HeatMap<?> heatMap,
+            HeatMap<H> heatMap,
             Thesaurus thesaurus) throws Exception {
         this.thesaurus = thesaurus;
 
@@ -80,6 +80,18 @@ public class ConnectionOverviewInfo {
 
         sortAllOverviews();
         sortAllBreakdowns();
+
+        List<TaskSummaryInfo> taskSummaryInfo = new ArrayList<>();
+//        for (HeatMapRow<H> row : heatMap) {
+//            String name = row.getTarget().getName();
+//            for (ComSessionSuccessIndicatorOverview counters : row) {
+//                for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : counters) {
+//                    successIndicatorCounter.getCountTarget()
+//                }
+//
+//            }
+//
+//        }
 
     }
 
