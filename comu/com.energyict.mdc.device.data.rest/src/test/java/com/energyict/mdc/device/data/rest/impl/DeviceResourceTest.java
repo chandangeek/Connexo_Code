@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -11,6 +12,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -27,6 +29,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -40,12 +43,16 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -61,9 +68,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -77,6 +87,7 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 6/19/14.
  */
 public class DeviceResourceTest extends JerseyTest {
+
     private static final String DUMMY_THESAURUS_STRING = "";
     private static DeviceDataService deviceDataService;
     private static DeviceImportService deviceImportService;
@@ -453,7 +464,7 @@ public class DeviceResourceTest extends JerseyTest {
     @Test
     public void testGetAllLoadProfiles() throws Exception {
         Device device1 = mock(Device.class);
-        Channel channel1 = mockChannel("channel1", "1.1.1");
+        Channel channel1 = mockChannel("channel1", "1.1.1", 1);
         LoadProfile loadProfile1 = mockLoadProfile("lp3", 3, new TimeDuration(10, TimeDuration.MINUTES));
         LoadProfile loadProfile2 = mockLoadProfile("Lp2", 2, new TimeDuration(10, TimeDuration.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.MINUTES), channel1);
@@ -474,7 +485,7 @@ public class DeviceResourceTest extends JerseyTest {
     @Test
     public void testGetAllLoadProfilesIsSorted() throws Exception {
         Device device1 = mock(Device.class);
-        Channel channel1 = mockChannel("channel1", "1.1.1");
+        Channel channel1 = mockChannel("channel1", "1.1.1", 1);
         LoadProfile loadProfile1 = mockLoadProfile("lp3", 3, new TimeDuration(10, TimeDuration.MINUTES));
         LoadProfile loadProfile2 = mockLoadProfile("Lp2", 2, new TimeDuration(10, TimeDuration.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.MINUTES), channel1);
@@ -486,8 +497,8 @@ public class DeviceResourceTest extends JerseyTest {
     @Test
     public void testGetOneLoadProfile() throws Exception {
         Device device1 = mock(Device.class);
-        Channel channel1 = mockChannel("Z-channel1", "1.1");
-        Channel channel2 = mockChannel("A-channel2", "1.2");
+        Channel channel1 = mockChannel("Z-channel1", "1.1", 0);
+        Channel channel2 = mockChannel("A-channel2", "1.2", 1);
         LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(15, TimeDuration.MINUTES), channel1, channel2);
         LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES));
@@ -529,10 +540,68 @@ public class DeviceResourceTest extends JerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-    private Channel mockChannel(String name, String mrid) {
+    @Test
+    public void testLoadProfileData() throws Exception {
+        Device device1 = mock(Device.class);
+        Channel channel1 = mockChannel("channel1", "1.1", 0);
+        Channel channel2 = mockChannel("channel2", "1.2", 1);
+        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES), channel1, channel2);
+        when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
+        when(deviceDataService.findByUniqueMrid("mrid2")).thenReturn(device1);
+        List<LoadProfileReading> loadProfileReadings = new ArrayList<>();
+        final long startTime = 1388534400000L;
+        long start = startTime;
+        for (int i=0; i<2880;i++) {
+            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, new Interval(new Date(start), new Date(start + 900))));
+            start+=900;
+        }
+        when(device1.getChannelDataFor((LoadProfile) anyObject(), (com.elster.jupiter.util.time.Interval) anyObject())).thenReturn(loadProfileReadings);
+
+
+        Map response = target("/devices/mrid2/loadprofiles/3/data")
+                .queryParam("intervalStart", startTime)
+                .queryParam("intervalEnd", 1391212800000L)
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(11);
+        List data = (List) response.get("data");
+        assertThat(data).hasSize(10);
+        assertThat((Map)data.get(0))
+                .containsKey("interval")
+                .containsKey("channelData")
+                .containsKey("readingTime")
+                .containsKey("intervalFlags");
+        Map<String, Long> interval = (Map<String, Long>) ((Map) data.get(0)).get("interval");
+        assertThat(interval.get("start")).isEqualTo(startTime);
+        assertThat(interval.get("end")).isEqualTo(startTime+900);
+        Map<String, BigDecimal> channelData = (Map<String, BigDecimal>) ((Map) data.get(0)).get("channelData");
+        assertThat(channelData).hasSize(2).containsKey("0").containsKey("1");
+    }
+
+    private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Interval interval) {
+        LoadProfileReading loadProfileReading = mock(LoadProfileReading.class);
+        when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProcessStatus.Flag.CONFIRMED));
+        when(loadProfileReading.getReadingTime()).thenReturn(new Date());
+        when(loadProfileReading.getInterval()).thenReturn(interval);
+        when(loadProfileReading.getChannelValues()).thenAnswer(new Answer<Set<Map.Entry<Channel, BigDecimal>>>() {
+            @Override
+            public Set<Map.Entry<Channel, BigDecimal>> answer(InvocationOnMock invocationOnMock) throws Throwable {
+                Map<Channel, BigDecimal> map= new HashMap<>();
+                for (Channel channel : loadProfile.getChannels()) {
+                    map.put(channel, BigDecimal.TEN);
+                }
+                return map.entrySet();
+            }
+        });
+        return loadProfileReading;
+    }
+
+    private Channel mockChannel(String name, String mrid, long id) {
         Channel mock = mock(Channel.class);
         ChannelSpec channelSpec = mock(ChannelSpec.class);
         when(mock.getName()).thenReturn(name);
+        when(mock.getId()).thenReturn(id);
         when(mock.getChannelSpec()).thenReturn(channelSpec);
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn(mrid);
