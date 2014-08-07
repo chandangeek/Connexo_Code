@@ -148,7 +148,7 @@ public class DeviceImpl implements Device {
         this.deviceConfiguration.set(deviceConfiguration);
         this.setDeviceTypeFromDeviceConfiguration();
         setName(name);
-        this.mRID = mRID;
+        this.setMRID(mRID);
         createLoadProfiles();
         createLogBooks();
         return this;
