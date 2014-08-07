@@ -9,12 +9,17 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
+import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.comserver.*;
+import com.energyict.mdc.rest.impl.comserver.ComPortPoolComPortResource;
+import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
+import com.energyict.mdc.rest.impl.comserver.ComPortResource;
+import com.energyict.mdc.rest.impl.comserver.ComServerComPortResource;
+import com.energyict.mdc.rest.impl.comserver.ComServerResource;
+import com.energyict.mdc.rest.impl.comserver.MessageSeeds;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashSet;
@@ -85,7 +90,7 @@ public class MdcApplication extends Application implements InstallService {
 
     @Override
     public void install() {
-        new Installer(thesaurus).install();
+        new Installer().createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
     }
 
     class HK2Binder extends AbstractBinder {
