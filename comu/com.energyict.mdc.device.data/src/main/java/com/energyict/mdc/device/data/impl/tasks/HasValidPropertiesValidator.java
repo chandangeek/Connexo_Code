@@ -33,15 +33,15 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
 
     @Override
     public boolean isValid(ConnectionTaskImpl connectionTask, ConstraintValidatorContext context) {
-        if(!connectionTask.isObsolete()){
+        if (!connectionTask.isObsolete()) {
             PartialConnectionTask partialConnectionTask = connectionTask.getPartialConnectionTask();
             ConnectionType connectionType = partialConnectionTask.getPluggableClass().getConnectionType();
             TypedProperties properties = connectionTask.getTypedProperties();
             this.validatePropertiesAreLinkedToPropertySpecs(partialConnectionTask.getPluggableClass(), properties, context);
-            if(!ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE.equals(connectionTask.getStatus())){
-                this.validateAllRequiredPropertiesHaveValues(connectionType, properties, partialConnectionTask.getTypedProperties(), context, connectionTask);
+            if (!ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE.equals(connectionTask.getStatus())) {
+                this.validateAllRequiredPropertiesHaveValues(connectionType, properties, context, connectionTask);
             }
-            this.validatePropertyValues(connectionType, properties, context, connectionTask);
+            this.validatePropertyValues(connectionType, properties, context);
         }
         return this.valid;
     }
@@ -69,15 +69,15 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         }
     }
 
-    private void validatePropertyValues(ConnectionType connectionType, TypedProperties properties, ConstraintValidatorContext context, ConnectionTask connectionTask) {
+    private void validatePropertyValues(ConnectionType connectionType, TypedProperties properties, ConstraintValidatorContext context) {
         if (!properties.localPropertyNames().isEmpty()) {
             for (String propertyName : properties.localPropertyNames()) {
-                this.validatePropertyValue(connectionType, propertyName, properties.getProperty(propertyName), context, connectionTask);
+                this.validatePropertyValue(connectionType, propertyName, properties.getProperty(propertyName), context);
             }
         }
     }
 
-    private void validatePropertyValue(ConnectionType connectionType, String propertyName, Object propertyValue, ConstraintValidatorContext context, ConnectionTask connectionTask) {
+    private void validatePropertyValue(ConnectionType connectionType, String propertyName, Object propertyValue, ConstraintValidatorContext context) {
         PropertySpec propertySpec=null;
         try {
 
@@ -92,7 +92,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
                  * If a required property is filled in, then it should be valid.
                  * Other properties should always be valid.
                  */
-                if(!(propertySpec.isRequired() && propertyValue == null)){
+                if (!(propertySpec.isRequired() && propertyValue == null)) {
                     propertySpec.validateValue(propertyValue);
                 }
             }
@@ -106,20 +106,20 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         }
     }
 
-    private void validateAllRequiredPropertiesHaveValues(ConnectionType connectionType, TypedProperties properties, TypedProperties partialConnectionTaskProperties, ConstraintValidatorContext context, ConnectionTaskImpl connectionTask) {
+    private void validateAllRequiredPropertiesHaveValues(ConnectionType connectionType, TypedProperties properties, ConstraintValidatorContext context, ConnectionTaskImpl connectionTask) {
         boolean validConnectionTaskInIncompleteState = isValidConnectionTaskInIncompleteState(connectionTask);
         for (PropertySpec propertySpec : this.getRequiredPropertySpecs(connectionType)) {
             String propertySpecName = propertySpec.getName();
             if (validConnectionTaskInIncompleteState && ((properties.getProperty(propertySpecName) == null) && !properties.hasInheritedValueFor(propertySpecName))) {
                 context.disableDefaultConstraintViolation();
-                if(connectionTask.isAllowIncomplete()){
+                if (connectionTask.isAllowIncomplete()) {
                     context
-                            .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
-                            .addPropertyNode("status").addConstraintViolation();
+                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
+                        .addPropertyNode("status").addConstraintViolation();
                 } else {
                     context
-                            .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
-                            .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
+                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING_KEY + "}")
+                        .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation();
                 }
                 this.valid = false;
             }

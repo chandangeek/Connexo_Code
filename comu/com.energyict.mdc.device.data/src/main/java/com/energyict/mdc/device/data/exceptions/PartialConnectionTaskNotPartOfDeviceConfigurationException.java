@@ -18,15 +18,13 @@ import com.energyict.mdc.device.data.Device;
 public class PartialConnectionTaskNotPartOfDeviceConfigurationException extends LocalizedException {
 
     public PartialConnectionTaskNotPartOfDeviceConfigurationException(Thesaurus thesaurus, PartialConnectionTask partialConnectionTask, Device device) {
-        //super(thesaurus, MessageSeeds.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION, partialConnectionTask.getId(), partialConnectionTask.getConfiguration().getDeviceConfiguration().getId(), device.getConfiguration().getId());
         super(thesaurus,
                 MessageSeeds.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION,
                 partialConnectionTask.getId(),
                 partialConnectionTask.getConfiguration().getDeviceConfiguration().getId());
         this.set("partialConnectionTaskId", partialConnectionTask.getId());
         this.set("partialConnectionTaskConfigurationId", partialConnectionTask.getConfiguration().getDeviceConfiguration().getId());
-        //this.set("expectedConfigurationId", device.getConfiguration().getId());
-        this.set("expectedConfigurationId", 0);
+        this.set("expectedConfigurationId", device.getDeviceConfiguration().getId());
     }
 
 }
