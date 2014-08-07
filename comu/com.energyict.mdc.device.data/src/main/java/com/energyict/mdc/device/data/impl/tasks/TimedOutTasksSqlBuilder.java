@@ -23,11 +23,11 @@ public class TimedOutTasksSqlBuilder {
      * on a ComPort from the {@link OutboundComPortPool} for a period
      * that is longer that the timeout specified on the OutboundComPortPool.
      *  @param sqlBuilder The SqlBuilder
-     * @param ComPortPool The OutboundComPortPool
+     * @param comPortPool The OutboundComPortPool
      * @param now The current time in UTC seconds
      * @param timeOutSeconds The maximum number of seconds that tasks are expected to run
      */
-    public static void appendTimedOutComTaskExecutionSql (SqlBuilder sqlBuilder, ComPortPool ComPortPool, long now, int timeOutSeconds) {
+    public static void appendTimedOutComTaskExecutionSql (SqlBuilder sqlBuilder, ComPortPool comPortPool, long now, int timeOutSeconds) {
         sqlBuilder.append("SELECT cte.id FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " cte, ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct, " );
@@ -37,7 +37,7 @@ public class TimedOutTasksSqlBuilder {
         sqlBuilder.append("   AND ct.connectionmethod = cm.id");
         sqlBuilder.append("   AND cm.comportpool = ?");
         sqlBuilder.append("   AND cte.executionStart + ? < ?");
-        sqlBuilder.addLong(ComPortPool.getId());
+        sqlBuilder.addLong(comPortPool.getId());
         sqlBuilder.addInt(timeOutSeconds);
         sqlBuilder.addLong(now);
     }
