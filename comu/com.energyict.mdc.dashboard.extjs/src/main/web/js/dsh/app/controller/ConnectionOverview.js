@@ -20,7 +20,7 @@ Ext.define('Dsh.controller.ConnectionOverview', {
     },
     showOverview: function () {
         var widget = Ext.widget('connection-overview');
-        widget.add(Ext.widget('overview-header', { title: 'Connection overview' })); //TODO: localize
+        widget.add(Ext.widget('overview-header', { headerTitle: 'Connection overview' })); //TODO: localize
         widget.add(Ext.widget('summary', { title: 'Connection summary' }));
         widget.add(Ext.widget('communication-servers'));
         widget.add(Ext.widget('quicklinks', {

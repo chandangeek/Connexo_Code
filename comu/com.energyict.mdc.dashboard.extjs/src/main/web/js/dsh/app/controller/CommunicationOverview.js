@@ -21,7 +21,7 @@ Ext.define('Dsh.controller.CommunicationOverview', {
     showOverview: function () {
         var widget = Ext.widget('communication-overview');
         widget.add(Ext.widget('overview-header', { headerTitle: 'Communication overview' })); //TODO: localize
-        widget.add(Ext.widget('summary'));
+        widget.add(Ext.widget('summary', { title: 'Communication summary' }));
         widget.add(Ext.widget('communication-servers'));
         widget.add(Ext.widget('quicklinks', {
             data: [ //TODO: check & change

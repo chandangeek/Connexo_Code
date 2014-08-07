@@ -1,14 +1,14 @@
 Ext.define('Dsh.view.widget.Summary', {
     alias: 'widget.summary',
     extend: 'Ext.panel.Panel',
-    title: 'Summary',
-    layout: 'fit',
-    ui: 'small',
-
     requires: [
         'Dsh.view.widget.summary.Dataview'
     ],
-
+    ui: 'small',
+    colspan: 2,
+    style: {
+        paddingRight: '50px'
+    },
     initComponent: function () {
         this.items = {
             xtype: 'summary-dataview',
