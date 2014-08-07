@@ -973,6 +973,25 @@ public class DeviceImpl implements Device {
         return new ArrayList<>(sortedLoadProfileReadingMap.values());
     }
 
+    @Override
+    public List<LoadProfileReading> getChannelDataFor(Channel channel, Interval interval) {
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        Map<Date, LoadProfileReading> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap((LoadProfile) channel.getLoadProfile(), interval);
+
+        if (amrSystem.isPresent()) {
+            Meter meter = findOrCreateMeterInKore(amrSystem);
+            List<? extends BaseReadingRecord> meterReadings = meter.getReadings(interval, channel.getChannelSpec().getReadingType());
+            for (BaseReadingRecord meterReading : meterReadings) {
+                LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
+                loadProfileReading.setChannelData(channel, meterReading.getValue());
+                loadProfileReading.setFlags(getFlagsFromProcessStatus(meterReading.getProcesStatus()));
+                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+            }
+        }
+        return new ArrayList<>(sortedLoadProfileReadingMap.values());
+    }
+
+
     private List<ProcessStatus.Flag> getFlagsFromProcessStatus(ProcessStatus processStatus) {
         List<ProcessStatus.Flag> flags = new ArrayList<>();
         for (ProcessStatus.Flag flag : ProcessStatus.Flag.values()) {
