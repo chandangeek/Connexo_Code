@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.configuration.rest.impl.DeviceConfigurationApplication;
 
 import java.text.MessageFormat;
@@ -26,6 +27,14 @@ public enum MessageSeeds implements MessageSeed {
     QUALITY(27, ProcessStatus.Flag.QUALITY.name(), "Quality"),
     SUSPECT(28, ProcessStatus.Flag.SUSPECT.name(), "Suspect"),
     WARNING(29, ProcessStatus.Flag.WARNING.name(), "Warning"),
+    MILLISECONDS(30, TimeDuration.getTimeUnitDescription(TimeDuration.MILLISECONDS), "millisecond(s)"),
+    SECONDS(31, TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS), "second(s)"),
+    MINUTES(32, TimeDuration.getTimeUnitDescription(TimeDuration.MINUTES), "minute(s)"),
+    HOURS(33, TimeDuration.getTimeUnitDescription(TimeDuration.HOURS), "hour(s)"),
+    DAYS(34, TimeDuration.getTimeUnitDescription(TimeDuration.DAYS), "day(s)"),
+    WEEKS(35, TimeDuration.getTimeUnitDescription(TimeDuration.WEEKS), "week(s)"),
+    MONTHS(36, TimeDuration.getTimeUnitDescription(TimeDuration.MONTHS), "months(s)"),
+    YEARS(37, TimeDuration.getTimeUnitDescription(TimeDuration.YEARS), "year(s)"),
 
     ;
 
