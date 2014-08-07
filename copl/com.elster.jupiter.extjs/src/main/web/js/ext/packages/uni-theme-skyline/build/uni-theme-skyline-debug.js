@@ -664,6 +664,18 @@ Ext.define('ExtThemeNeptune.toolbar.Paging', {
     inputItemWidth: 40
 });
 
+Ext.define('Skyline.form.field.Date', {
+    override: 'Ext.form.field.Date',
+
+    format: 'd/m/Y',
+
+    initComponent: function () {
+        this.callParent(arguments);
+    }
+});
+
+
+
 /*
 This file is part of Ext JS 4.2
 
