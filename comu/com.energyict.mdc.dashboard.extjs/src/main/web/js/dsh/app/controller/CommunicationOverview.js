@@ -1,4 +1,4 @@
-Ext.define('Dsh.controller.ConnectionOverview', {
+Ext.define('Dsh.controller.CommunicationOverview', {
     extend: 'Ext.app.Controller',
     stores: [
         'CommunicationServerInfos'
@@ -12,21 +12,21 @@ Ext.define('Dsh.controller.ConnectionOverview', {
         'Dsh.view.widget.ReadOutsOverTime',
         'Dsh.view.widget.Overview',
         'Dsh.view.widget.Breakdown',
-        'Dsh.view.ConnectionOverview'
+        'Dsh.view.CommunicationOverview'
     ],
     refs: [],
     init: function () {
         this.callParent(arguments);
     },
     showOverview: function () {
-        var widget = Ext.widget('connection-overview');
-        widget.add(Ext.widget('overview-header', { title: 'Connection overview' })); //TODO: localize
-        widget.add(Ext.widget('summary', { title: 'Connection summary' }));
+        var widget = Ext.widget('communication-overview');
+        widget.add(Ext.widget('overview-header', { headerTitle: 'Communication overview' })); //TODO: localize
+        widget.add(Ext.widget('summary'));
         widget.add(Ext.widget('communication-servers'));
         widget.add(Ext.widget('quicklinks', {
             data: [ //TODO: check & change
-                { link: 'View all connections', href: '#/workspace/datacommunication/connections' },
-                { link: 'Communication overview', href: '#/workspace/datacommunication/communication' },
+                { link: 'View all communication tasks', href: '#/workspace/datacommunication/communications' },
+                { link: 'Connection overview', href: '#/workspace/datacommunication/connection' },
                 { link: 'Some link 1', href: '#' },
                 { link: 'Some link 2', href: '#' },
                 { link: 'Some link 3', href: '#' }

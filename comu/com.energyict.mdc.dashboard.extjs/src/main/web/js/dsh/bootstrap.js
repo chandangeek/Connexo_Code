@@ -9,6 +9,7 @@ Ext.Loader.addClassPathMappings({
   "Ext": "ext/src",
   "Ext.Msg": "ext/src/window/MessageBox.js"
 });
+
 Ext.ClassManager.addNameAlternateMappings({
   "Dsh.Application": [],
   "Dsh.controller.Main": [],

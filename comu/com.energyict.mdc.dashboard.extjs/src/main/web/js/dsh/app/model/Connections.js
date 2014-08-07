@@ -14,7 +14,7 @@ Ext.define('Dsh.model.Connections', {
         }
     ],
     proxy: {
-        type: 'rest',
+        type: 'ajax',
         url: '../../apps/dashboard/app/fakeData/ConnectionsOverviewFake.json',
         reader: {
             type: 'json',

@@ -1,0 +1,58 @@
+.x-bar {
+  $height: 10px;
+  position: relative;
+  display: inline;
+
+  .x-bar-label {
+    position: absolute;
+    right: 100%;
+    text-align: right;
+    line-height: $height;
+    margin-right: 8px;
+  }
+
+  .x-bar-container, .x-bar-fill, .x-bar-track {
+    height: $height;
+    display: block;
+    position: relative;
+  }
+  .x-bar-container {
+    background: transparent;
+    .x-bar-fill {
+      background: #d3d3d3;
+    }
+    .x-bar-track {
+      background: #a9a9a9;
+    }
+  }
+}
+
+.summary {
+  td.label {
+    min-width: 200px;
+  }
+  tr {
+    height: 29px;
+  }
+
+  .bar-success .x-bar-track{
+    background-color: #00aa00;
+  }
+  .bar-pending .x-bar-track{
+    background-color: #000000;
+  }
+  .bar-failed .x-bar-track{
+    background-color: #b03911;
+  }
+
+  .x-bar {
+    $height: 20px;
+    .x-bar-track {
+      height: $height;
+      top: - 5px;
+      border-right: 1px solid white;
+    }
+  }
+
+  min-width: 300px;
+}

@@ -1,0 +1,62 @@
+/* line 1, ../../sass/etc/all.scss */
+.x-bar {
+  position: relative;
+  display: inline;
+}
+/* line 6, ../../sass/etc/all.scss */
+.x-bar .x-bar-label {
+  position: absolute;
+  right: 100%;
+  text-align: right;
+  line-height: 10px;
+  margin-right: 8px;
+}
+/* line 14, ../../sass/etc/all.scss */
+.x-bar .x-bar-container, .x-bar .x-bar-fill, .x-bar .x-bar-track {
+  height: 10px;
+  display: block;
+  position: relative;
+}
+/* line 19, ../../sass/etc/all.scss */
+.x-bar .x-bar-container {
+  background: transparent;
+}
+/* line 21, ../../sass/etc/all.scss */
+.x-bar .x-bar-container .x-bar-fill {
+  background: #d3d3d3;
+}
+/* line 24, ../../sass/etc/all.scss */
+.x-bar .x-bar-container .x-bar-track {
+  background: #a9a9a9;
+}
+
+/* line 30, ../../sass/etc/all.scss */
+.summary {
+  min-width: 300px;
+}
+/* line 31, ../../sass/etc/all.scss */
+.summary td.label {
+  min-width: 200px;
+}
+/* line 34, ../../sass/etc/all.scss */
+.summary tr {
+  height: 29px;
+}
+/* line 38, ../../sass/etc/all.scss */
+.summary .bar-success .x-bar-track {
+  background-color: #00aa00;
+}
+/* line 41, ../../sass/etc/all.scss */
+.summary .bar-pending .x-bar-track {
+  background-color: #000000;
+}
+/* line 44, ../../sass/etc/all.scss */
+.summary .bar-failed .x-bar-track {
+  background-color: #b03911;
+}
+/* line 50, ../../sass/etc/all.scss */
+.summary .x-bar .x-bar-track {
+  height: 20px;
+  top: -5px;
+  border-right: 1px solid white;
+}
