@@ -20,7 +20,7 @@ public class LoadProfileInfo {
     public static final Comparator<ChannelInfo> CHANNEL_COMPARATOR = new Comparator<ChannelInfo>() {
         @Override
         public int compare(ChannelInfo o1, ChannelInfo o2) {
-            return o1.name.compareTo(o2.name);
+            return o1.name.compareToIgnoreCase(o2.name);
         }
     };
     public long id;

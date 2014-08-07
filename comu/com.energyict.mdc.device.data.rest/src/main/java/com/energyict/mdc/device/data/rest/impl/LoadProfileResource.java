@@ -31,7 +31,7 @@ public class LoadProfileResource {
     public static final Comparator<Channel> CHANNEL_COMPARATOR_BY_NAME = new Comparator<Channel>() {
         @Override
         public int compare(Channel o1, Channel o2) {
-            return o1.getName().compareTo(o2.getName());
+            return o1.getName().compareToIgnoreCase(o2.getName());
         }
     };
 
