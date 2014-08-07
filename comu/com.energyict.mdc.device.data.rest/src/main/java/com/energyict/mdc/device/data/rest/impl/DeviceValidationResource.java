@@ -141,10 +141,11 @@ public class DeviceValidationResource {
     @Path("/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    public Response ValidateDeviceData(@PathParam("mRID") String mrid, Date date) {
+    public Response validateDeviceData(@PathParam("mRID") String mrid, LastCheckedInfo lastCheckedInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         MeterActivation activation = getCurrentMeterActivation(device);
         Date maxDate = validationService.getLastChecked(activation);
+        Date date = lastCheckedInfo.lastChecked == null ? null : new Date(lastCheckedInfo.lastChecked);
         if(date == null || date.after(maxDate)) {
             throw exceptionFactory.newException(MessageSeeds.INVALID_DATE, maxDate);
         }
@@ -209,7 +210,8 @@ public class DeviceValidationResource {
         for (ChannelValidation channelValidation : meterActivationValidation.getChannelValidations()) {
             status.hasValidation = status.hasValidation || channelValidation.getLastChecked() != null;
             if (status.hasValidation) {
-                status.lastChecked = max(status.lastChecked, channelValidation.getLastChecked());
+                Date max = max(status.lastChecked == null ? null : new Date(status.lastChecked), channelValidation.getLastChecked());
+                status.lastChecked = max == null ? null : max.getTime();
             }
         }
     }
