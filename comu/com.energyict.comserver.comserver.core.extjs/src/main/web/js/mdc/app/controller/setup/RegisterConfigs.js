@@ -172,7 +172,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 value: this.deviceConfigId
             }
         ]));
-
+        registerTypesOfDevicetypeStore.getProxy().startParam = null;
+        registerTypesOfDevicetypeStore.getProxy().limitParam = null;
         registerTypesOfDevicetypeStore.load({
             callback: function (store) {
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
