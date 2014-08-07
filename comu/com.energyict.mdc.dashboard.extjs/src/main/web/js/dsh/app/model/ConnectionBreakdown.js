@@ -1,11 +1,16 @@
 Ext.define('Dsh.model.ConnectionBreakdown', {
-    requires: 'Dsh.model.Counter',
-    extend: 'Dsh.model.Connection',
+    extend: 'Ext.data.Model',
     fields: [
         { name: 'displayName', type: 'string' },
-        { name: 'id', type: 'int' },
-        { name: 'successCount', type: 'int' },
-        { name: 'failedCount', type: 'int' },
-        { name: 'pendingCount', type: 'int' }
-    ]
+        { name: 'alias', type: 'string' },
+        { name: 'total', type: 'int'},
+        { name: 'totalSuccessCount', type: 'int'},
+        { name: 'totalPendingCount', type: 'int'},
+        { name: 'totalFailedCount', type: 'int'}
+    ],
+
+    hasMany: {
+        model: 'Dsh.model.BreakdownCounter',
+        name: 'counters'
+    }
 });

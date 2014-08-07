@@ -1,4 +1,4 @@
-Ext.define('Dsh.model.Connections', {
+Ext.define('Dsh.model.ConnectionSummary', {
     extend: 'Ext.data.Model',
     fields: [
         { name: 'connectionSummary', usenull: true }
@@ -9,7 +9,7 @@ Ext.define('Dsh.model.Connections', {
             name: 'overviews'
         },
         {
-            model: 'Dsh.model.ConnectionBreakdowns',
+            model: 'Dsh.model.ConnectionBreakdown',
             name: 'breakdowns'
         }
     ],
