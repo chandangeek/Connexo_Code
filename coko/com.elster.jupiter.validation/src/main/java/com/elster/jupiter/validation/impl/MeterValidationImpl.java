@@ -11,7 +11,7 @@ import com.google.inject.Inject;
 
 public class MeterValidationImpl implements MeterValidation {
 
-    private boolean isActive = true;
+    private boolean isActive = false;
     private Reference<MeterActivation> meterActivation = ValueReference.absent();
 
     private transient boolean saved = true;
