@@ -1,7 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;
@@ -26,8 +25,8 @@ import javax.ws.rs.Path;
 public class ComServerFieldResource extends FieldResource {
 
     @Inject
-    public ComServerFieldResource(NlsService nlsService) {
-        super(nlsService.getThesaurus(MdcApplication.COMPONENT_NAME, Layer.UI));
+    public ComServerFieldResource(Thesaurus thesaurus) {
+        super(thesaurus);
     }
 
     @GET
