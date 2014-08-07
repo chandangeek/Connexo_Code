@@ -148,7 +148,9 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validate',
             method: 'PUT',
             timeout: 600000,
-            jsonData: confWindow.down('#validationFromDate').getValue(),
+            jsonData: {
+                lastChecked: confWindow.down('#validationFromDate').getValue().getTime()
+            },
             success: function () {
                 me.destroyConfirmationWindow();
                 me.getApplication().fireEvent('acknowledge',
