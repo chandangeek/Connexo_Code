@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Clock;
 import org.joda.time.DateTimeConstants;
 
 import java.util.Date;
@@ -35,8 +36,8 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder) {
-            super.completeFindBySqlBuilder(sqlBuilder);
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
+            super.completeFindBySqlBuilder(sqlBuilder, clock);
             sqlBuilder.append("and (not exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
             sqlBuilder.append(" cte where ");
@@ -82,8 +83,8 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder) {
-            super.completeFindBySqlBuilder(sqlBuilder);
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
+            super.completeFindBySqlBuilder(sqlBuilder, clock);
             sqlBuilder.append("and (exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
             sqlBuilder.append(" cte where ");
@@ -110,8 +111,8 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder) {
-            super.completeFindBySqlBuilder(sqlBuilder);
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
+            super.completeFindBySqlBuilder(sqlBuilder, clock);
             sqlBuilder.append("and (not exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
             sqlBuilder.append(" cte where ");
@@ -120,7 +121,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("     and " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is null) ");
             sqlBuilder.append("and status = 0 ");
             sqlBuilder.append("and nextexecutiontimestamp <=");
-            sqlBuilder.addLong(this.asSeconds(new Date()));
+            sqlBuilder.addLong(this.asSeconds(clock.now()));
         }
 
     },
@@ -140,8 +141,8 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder) {
-            super.completeFindBySqlBuilder(sqlBuilder);
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
+            super.completeFindBySqlBuilder(sqlBuilder, clock);
             sqlBuilder.append("and (not exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
             sqlBuilder.append(" cte where ");
@@ -151,7 +152,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and status = 0 ");
             sqlBuilder.append("and currentretrycount = 0 ");
             sqlBuilder.append("and nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(new Date()));
+            sqlBuilder.addLong(this.asSeconds(clock.now()));
             sqlBuilder.append("and lastsuccessfulcommunicationend is null");
         }
 
@@ -172,8 +173,8 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder) {
-            super.completeFindBySqlBuilder(sqlBuilder);
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
+            super.completeFindBySqlBuilder(sqlBuilder, clock);
             sqlBuilder.append("and (not exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
             sqlBuilder.append(" cte where ");
@@ -185,7 +186,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and status = 0 ");
             sqlBuilder.append("and currentretrycount > 0 ");
             sqlBuilder.append("and nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(new Date()));
+            sqlBuilder.addLong(this.asSeconds(clock.now()));
         }
 
     },
@@ -206,8 +207,8 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder) {
-            super.completeFindBySqlBuilder(sqlBuilder);
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
+            super.completeFindBySqlBuilder(sqlBuilder, clock);
             sqlBuilder.append("and (not exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
             sqlBuilder.append(" cte where ");
@@ -220,7 +221,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and currentretrycount = 0 ");
             sqlBuilder.append("and lastExecutionFailed = 1 ");
             sqlBuilder.append("and nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(new Date()));
+            sqlBuilder.addLong(this.asSeconds(clock.now()));
             sqlBuilder.append("and lastsuccessfulcommunicationend is not null");
         }
 
@@ -242,8 +243,8 @@ public enum ServerConnectionTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder) {
-            super.completeFindBySqlBuilder(sqlBuilder);
+        public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
+            super.completeFindBySqlBuilder(sqlBuilder, clock);
             sqlBuilder.append("and (not exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
             sqlBuilder.append(" cte where ");
@@ -256,7 +257,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and currentretrycount = 0 ");
             sqlBuilder.append("and lastExecutionFailed = 0 ");
             sqlBuilder.append("and nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(new Date()));
+            sqlBuilder.addLong(this.asSeconds(clock.now()));
             sqlBuilder.append("and lastsuccessfulcommunicationend is not null");
         }
 
@@ -278,7 +279,7 @@ public enum ServerConnectionTaskStatus {
      */
     public abstract boolean appliesTo(ScheduledConnectionTask task, Date now);
 
-    public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder) {
+    public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
         sqlBuilder.appendWhereOrAnd();
         sqlBuilder.append("obsolete_date is null ");
     }

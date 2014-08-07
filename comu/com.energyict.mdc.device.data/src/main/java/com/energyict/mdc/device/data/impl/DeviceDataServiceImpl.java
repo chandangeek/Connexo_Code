@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinde
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskFilterMatchCounterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskFilterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
@@ -349,7 +350,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
-    public List<ConnectionTask> findByStatus(TaskStatus status) {
+    public List<ConnectionTask> findConnectionTasksByStatus(TaskStatus status) {
         return this.getDataModel().mapper(ConnectionTask.class).select(ServerConnectionTaskStatus.forTaskStatus(status).condition());
     }
 
@@ -386,7 +387,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     public void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ConnectionTaskFilterSpecification filter, ServerConnectionTaskStatus taskStatus) {
-        ConnectionTaskFilterSqlBuilder countingFilter = new ConnectionTaskFilterSqlBuilder(taskStatus, filter);
+        ConnectionTaskFilterMatchCounterSqlBuilder countingFilter = new ConnectionTaskFilterMatchCounterSqlBuilder(taskStatus, filter, this.clock);
         countingFilter.appendTo(sqlBuilder);
     }
 
@@ -416,6 +417,23 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             counters.put(missing, 0L);
         }
         return counters;
+    }
+
+    @Override
+    public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter) {
+        ConnectionTaskFilterSqlBuilder sqlBuilder = new ConnectionTaskFilterSqlBuilder(filter, this.clock);
+        DataMapper<ConnectionTask> dataMapper = this.dataModel.mapper(ConnectionTask.class);
+        return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper));
+    }
+
+    private List<ConnectionTask> fetchConnectionTasks(DataMapper<ConnectionTask> dataMapper, SqlBuilder sqlBuilder) {
+        LOGGER.finest(sqlBuilder.getText());    // My impression is that ORM is not logging the sql as an event when using the fetcher
+        Iterator<ConnectionTask> connectionTaskIterator = dataMapper.fetcher(sqlBuilder).iterator();
+        List<ConnectionTask> connectionTasks = new ArrayList<>();
+        while (connectionTaskIterator.hasNext()) {
+            connectionTasks.add(connectionTaskIterator.next());
+        }
+        return connectionTasks;
     }
 
     @Override
