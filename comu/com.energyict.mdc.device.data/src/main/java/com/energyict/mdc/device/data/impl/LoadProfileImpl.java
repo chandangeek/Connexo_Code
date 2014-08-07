@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -8,6 +9,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -15,6 +17,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -212,6 +215,51 @@ public class LoadProfileImpl implements LoadProfile {
         @Override
         public ObisCode getRegisterTypeObisCode() {
             return this.channelSpec.getChannelType().getObisCode();
+        }
+
+        @Override
+        public String getName() {
+            return getChannelSpec().getName();
+        }
+
+        @Override
+        public TimeDuration getInterval() {
+            return getChannelSpec().getInterval();
+        }
+
+        @Override
+        public Phenomenon getPhenomenon() {
+            return getChannelSpec().getPhenomenon();
+        }
+
+        @Override
+        public Date getLastReading() {
+            return ((LoadProfile)getLoadProfile()).getLastReading();
+        }
+
+        @Override
+        public long getId() {
+            return getChannelSpec().getId();
+        }
+
+        @Override
+        public ObisCode getObisCode() {
+            return channelSpec.getObisCode();
+        }
+
+        @Override
+        public BigDecimal getOverflow() {
+            return channelSpec.getOverflow();
+        }
+
+        @Override
+        public BigDecimal getMultiplier() {
+            return channelSpec.getMultiplier();
+        }
+
+        @Override
+        public ReadingType getReadingType() {
+            return channelSpec.getReadingType();
         }
     }
 }
