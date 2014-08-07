@@ -695,8 +695,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     public abstract static class AbstractComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>, C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionUpdater<U, C> {
 
-        protected final CI comTaskExecution;
-        protected final U self;
+        private final CI comTaskExecution;
+        private final U self;
 
         protected AbstractComTaskExecutionUpdater(CI comTaskExecution, Class<U> clazz) {
             this.comTaskExecution = comTaskExecution;
