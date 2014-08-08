@@ -66,9 +66,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('device.dataValidation.rulesSetGrid.pgtbar.bottom.itemsPerPageRuleSet', 'MDC', 'Validation rule sets per page'),
                 dock: 'bottom',
-                deferLoading: true,
-//                pageSizeParam: 'limit',
-//                pageStartParam: 'start'
+                deferLoading: true
             }
         ];
         me.callParent(arguments);

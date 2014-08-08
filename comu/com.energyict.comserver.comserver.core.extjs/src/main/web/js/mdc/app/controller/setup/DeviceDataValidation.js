@@ -80,9 +80,9 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         var validationRuleSet = grid.lastSelected,
             rulesSetPreview = Ext.widget('deviceDataValidationRulesSetPreview', {
                 rulesSetId: validationRuleSet.get('id'),
-                title: validationRuleSet.get('name')
+                title: validationRuleSet.get('name'),
+                height: 750
             });
-        rulesSetPreview.down('#deviceDataValidationRulesGrid').updatePaginationBottom();
         this.getRulesSetPreviewCt().add(rulesSetPreview);
     },
     onRulesSetGridItemClick: function (gridView, record, el, idx, e) {

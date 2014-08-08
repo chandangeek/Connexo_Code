@@ -48,6 +48,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
+                isSecondPagination: true,
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.itemsPerPageRule', 'MDC', 'Validation rules per page'),
                 dock: 'bottom',
@@ -56,10 +57,5 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
             }
         ];
         me.callParent(arguments);
-    },
-
-    updatePaginationBottom: function () {
-        var me = this;
-        me.down('pagingtoolbarbottom').pageStartParam = 'undefined';
     }
 });
