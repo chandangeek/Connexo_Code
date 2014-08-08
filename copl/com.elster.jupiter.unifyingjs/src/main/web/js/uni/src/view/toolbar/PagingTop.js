@@ -36,6 +36,7 @@ Ext.define('Uni.view.toolbar.PagingTop', {
     ui: 'pagingtoolbartop',
 
     displayInfo: false,
+    usesExactCount: false,
 
     /**
      * @cfg {String}
@@ -82,21 +83,22 @@ Ext.define('Uni.view.toolbar.PagingTop', {
             msg;
 
         if (displayItem) {
-            me.totalCount = me.totalCount < store.getTotalCount() ? store.getTotalCount() : me.totalCount;
-
+            if (me.usesExactCount) {
+                me.totalCount = store.getTotalCount();
+            } else {
+                me.totalCount = me.totalCount < store.getTotalCount() ? store.getTotalCount() : me.totalCount;
+            }
             if (store.getCount() === 0) {
                 me.totalCount = -1;
                 msg = me.emptyMsg;
             } else {
                 totalCount = me.totalCount - 1;
                 msg = me.displayMoreMsg;
-
-                if (me.isFullTotalCount || store.pageSize * pageData.currentPage >= me.totalCount) {
+                if (me.isFullTotalCount || store.pageSize * pageData.currentPage >= me.totalCount || me.usesExactCount) {
                     me.isFullTotalCount = true;
                     totalCount = me.totalCount;
                     msg = me.displayMsg;
                 }
-
                 msg = Ext.String.format(
                     msg,
                     pageData.fromRecord,
