@@ -47,6 +47,7 @@ public class MeterValidationImpl implements MeterValidation {
     public void save() {
         if (!saved) {
             Save.CREATE.save(dataModel, this);
+            saved = true;
         } else {
             Save.UPDATE.save(dataModel, this);
         }
