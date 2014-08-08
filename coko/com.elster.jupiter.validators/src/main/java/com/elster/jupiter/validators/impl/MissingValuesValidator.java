@@ -39,6 +39,7 @@ public class MissingValuesValidator extends AbstractValidator {
     private int millisBetweenReadings;
     private BitSet bitSet;
     private int expectedReadings;
+    private boolean openEnded;
 
     MissingValuesValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
@@ -78,8 +79,13 @@ public class MissingValuesValidator extends AbstractValidator {
             long adjustedStart = (interval.getStart().getTime() / millisBetweenReadings) * millisBetweenReadings + millisBetweenReadings;
             this.interval = interval.withStart(new Date(adjustedStart));
         }
-        expectedReadings = (int) (interval.durationInMillis() / millisBetweenReadings + 1);
-        bitSet = new BitSet(expectedReadings);
+        openEnded = interval.isInfinite();
+        if (openEnded) {
+            bitSet = new BitSet();
+        } else {
+            expectedReadings = (int) (interval.durationInMillis() / millisBetweenReadings + 1);
+            bitSet = new BitSet(expectedReadings);
+        }
     }
 
     private int toIndex(Date time) {
@@ -93,7 +99,11 @@ public class MissingValuesValidator extends AbstractValidator {
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        bitSet.set(toIndex(intervalReadingRecord.getTimeStamp()));
+        int index = toIndex(intervalReadingRecord.getTimeStamp());
+        bitSet.set(index);
+        if (index + 1 > expectedReadings) {
+            expectedReadings = index + 1;
+        }
         return ValidationResult.PASS;
     }
 
