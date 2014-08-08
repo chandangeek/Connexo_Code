@@ -488,15 +488,16 @@ Ext.define('Cfg.controller.Validation', {
     previewValidationRuleSet: function (selectionModel, record) {
         this.getRuleSetBrowsePreviewCt().removeAll(true);
         var rulesPreviewContainerPanel = Ext.widget('rule-preview-container-panel', {
-                ruleSetId: record.getId(),
-                margin: '-20 0 0 0',
-                title: '<h2>' + record.get('name') + '</h2>'
-            });
+            ruleSetId: record.getId(),
+            margin: '-20 0 0 0',
+            title: '<h2>' + record.get('name') + '</h2>',
+            isSecondPagination: true,
+            height: 750
+        });
         this.ruleSetId = record.getId();
         Ext.Array.each(Ext.ComponentQuery.query('#addRuleLink'), function (item) {
             item.hide();
         });
-        rulesPreviewContainerPanel.down('#validationruleList').updatePaginationBottom();
         this.getRuleSetBrowsePreviewCt().add(rulesPreviewContainerPanel);
     },
 

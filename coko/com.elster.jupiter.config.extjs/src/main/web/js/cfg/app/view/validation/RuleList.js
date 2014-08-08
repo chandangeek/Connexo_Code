@@ -10,6 +10,7 @@ Ext.define('Cfg.view.validation.RuleList', {
         'Cfg.view.validation.RuleActionMenu'
     ],
     ruleSetId: null,
+    isSecondPagination: false,
 
     initComponent: function () {
         var me = this;
@@ -67,14 +68,10 @@ Ext.define('Cfg.view.validation.RuleList', {
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbartop.itemsPerPage', 'CFG', 'Validation rules per page'),
                 itemId: 'rulesListBottomPagingToolbar',
+                isSecondPagination: me.isSecondPagination,
                 params: {id: me.ruleSetId}
             }
         ];
-
         me.callParent(arguments);
-    },
-    updatePaginationBottom: function () {
-        var me = this;
-        me.down('pagingtoolbarbottom').pageStartParam = 'undefined';
     }
 });

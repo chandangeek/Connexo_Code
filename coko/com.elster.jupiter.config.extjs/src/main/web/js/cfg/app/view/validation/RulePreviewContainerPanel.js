@@ -4,8 +4,8 @@ Ext.define('Cfg.view.validation.RulePreviewContainerPanel', {
     itemId: 'rulePreviewContainerPanel',
     title: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
     ui: 'large',
-    overflowY: 'auto',
     ruleSetId: null,
+    isSecondPagination: false,
     requires: [
         'Cfg.view.validation.RuleList',
         'Cfg.view.validation.RulePreview',
@@ -21,7 +21,8 @@ Ext.define('Cfg.view.validation.RulePreviewContainerPanel', {
                 itemId: 'previewRuleContainer',
                 grid: {
                     xtype: 'validationruleList',
-                    ruleSetId: me.ruleSetId
+                    ruleSetId: me.ruleSetId,
+                    isSecondPagination: me.isSecondPagination
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
@@ -34,13 +35,7 @@ Ext.define('Cfg.view.validation.RulePreviewContainerPanel', {
                         {
                             text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
                             ui: 'action',
-                            listeners: {
-                                click: {
-                                    fn: function () {
-                                        window.location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/add';
-                                    }
-                                }
-                            }
+                            href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/rules/add'
                         }
                     ]
                 },
