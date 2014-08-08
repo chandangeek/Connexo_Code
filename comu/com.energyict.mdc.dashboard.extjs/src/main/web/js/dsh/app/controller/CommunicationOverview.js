@@ -1,7 +1,9 @@
 Ext.define('Dsh.controller.CommunicationOverview', {
     extend: 'Ext.app.Controller',
     stores: [
-        'CommunicationServerInfos'
+        'CommunicationServerInfos',
+        'OverviewPerCurrentStateInfos',
+        'OverviewPerLastResultInfos'
     ],
     views: [
         'Dsh.view.widget.HSeparator',

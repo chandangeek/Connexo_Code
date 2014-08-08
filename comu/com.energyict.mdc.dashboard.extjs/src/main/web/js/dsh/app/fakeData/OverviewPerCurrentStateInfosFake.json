@@ -1,0 +1,42 @@
+{
+    "displayName": "Per current state",
+    "alias": "state",
+    "total": 42,
+    "counters": [
+        {
+            "alias": "Busy",
+            "displayName": "Busy",
+            "count": 41
+        },
+        {
+            "alias": "OnHold",
+            "displayName": "On hold",
+            "count": 27
+        },
+        {
+            "alias": "Retrying",
+            "displayName": "Retrying",
+            "count": 15
+        },
+        {
+            "alias": "NeverCompleted",
+            "displayName": "Never completed",
+            "count": 15
+        },
+        {
+            "alias": "Waiting",
+            "displayName": "Waiting",
+            "count": 15
+        },
+        {
+            "alias": "Pending",
+            "displayName": "Pending",
+            "count": 42
+        },
+        {
+            "alias": "Failed",
+            "displayName": "Failed",
+            "count": 41
+        }
+    ]
+}

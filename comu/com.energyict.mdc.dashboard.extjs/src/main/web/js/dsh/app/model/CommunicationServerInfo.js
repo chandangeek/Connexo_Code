@@ -4,7 +4,8 @@ Ext.define('Dsh.model.CommunicationServerInfo', {
         { name: 'comServerName' },
         { name: 'comServerType' },
         { name: 'running', type: 'boolean' },
-        { name: 'blocked', type: 'boolean' }
+        { name: 'blocked', type: 'boolean' },
+        { name: 'blockTime' }
     ],
     associations: [
         { name: 'blockTime', type: 'hasOne', model: 'Dsh.model.TimeInfo', associationKey: 'blockTime' }

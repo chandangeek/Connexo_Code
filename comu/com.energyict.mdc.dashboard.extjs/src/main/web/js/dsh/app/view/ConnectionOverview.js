@@ -18,5 +18,7 @@ Ext.define('Dsh.view.ConnectionOverview', {
             }
         }
     },
-
+    initComponent: function () {
+        this.callParent(arguments);
+    }
 });

@@ -8,7 +8,9 @@ Ext.define('Dsh.controller.ConnectionOverview', {
         'Dsh.model.ConnectionSummary'
     ],
     stores: [
-        'CommunicationServerInfos'
+        'CommunicationServerInfos',
+        'OverviewPerCurrentStateInfos',
+        'OverviewPerLastResultInfos'
     ],
     views: [
         'Dsh.view.widget.HSeparator',

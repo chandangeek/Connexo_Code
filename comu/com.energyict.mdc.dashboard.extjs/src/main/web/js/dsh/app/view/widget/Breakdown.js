@@ -1,12 +1,17 @@
 Ext.define('Dsh.view.widget.Breakdown', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.breakdown',
     height: 450,
     itemId: 'breakdown',
+    title: 'Breakdown', // TODO: localize
+    ui: 'medium',
     colspan: 4,
     layout: {
         type: 'vbox',
         align: 'center'
+    },
+    style: {
+        paddingTop: 0
     },
     items: [
         {
