@@ -1,8 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
@@ -10,11 +8,6 @@ import com.energyict.mdc.dashboard.ConnectionStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
-import com.energyict.mdc.dashboard.HeatMap;
-import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
-import com.energyict.mdc.tasks.history.CompletionCode;
-import java.util.HashMap;
-import java.util.Map;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -38,37 +31,20 @@ public class ConnectionOverviewResource {
 
     @GET
     @Consumes("application/json")
-    public <H extends HasName & HasId> ConnectionOverviewInfo getConnectionOverview(@BeanParam JsonQueryFilter jsonQueryFilter) {
-        ConnectionOverviewInfo info = null;
-        try {
-            BreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
-            ConnectionStatusOverview connectionStatusOverview = dashboardService.getConnectionStatusOverview();
-            ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
-            ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
-            ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
-            DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getDeviceTypeBreakdown();
-            HeatMap<H> heatMap = null;
-//            switch (breakdown) {
-//                case comPortPool:
-//                    heatMap=dashboardService.getComPortPoolHeatMap();
-//                    break;
-//                case connectionType:
-//                    heatMap=dashboardService.getConnectionTypeHeatMap();
-//                    break;
-//                case deviceType:
-//                    heatMap=dashboardService.getDeviceTypeHeatMap();
-//                    break;
-//            }
-            ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(connectionStatusOverview);
-            info = new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, heatMap,thesaurus);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return info;
+    public ConnectionOverviewInfo getConnectionOverview(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
+        BreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
+        ConnectionStatusOverview connectionStatusOverview = dashboardService.getConnectionStatusOverview();
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
+        ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
+        ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
+        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getDeviceTypeBreakdown();
+        ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(connectionStatusOverview);
+
+        return new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comSessionSuccessIndicatorOverview,
+                comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown,
+                breakdown==BreakdownOption.comPortPool?dashboardService.getComPortPoolHeatMap():(breakdown==BreakdownOption.connectionType?dashboardService.getConnectionTypeHeatMap():dashboardService.getDeviceTypeHeatMap()),
+                breakdown,
+                thesaurus);
     }
 
-
-    static class HeatMapData {
-        Map<CompletionCode, TaskStatusBreakdownCounter<?>> map = new HashMap<>();
-    }
 }

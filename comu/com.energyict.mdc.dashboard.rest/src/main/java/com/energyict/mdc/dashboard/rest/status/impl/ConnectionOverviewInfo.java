@@ -12,8 +12,10 @@ import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardCounters;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.HeatMap;
+import com.energyict.mdc.dashboard.HeatMapRow;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
+import com.energyict.mdc.tasks.history.ComSession;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -52,6 +54,7 @@ public class ConnectionOverviewInfo {
 
     public List<TaskSummaryInfo> overviews;
     public List<BreakdownSummaryInfo> breakdowns;
+    public List<HeatMapRowInfo> heatMap;
 
     public ConnectionOverviewInfo() {
     }
@@ -64,6 +67,7 @@ public class ConnectionOverviewInfo {
             ConnectionTypeBreakdown connectionTypeBreakdown,
             DeviceTypeBreakdown deviceTypeBreakdown,
             HeatMap<H> heatMap,
+            BreakdownOption breakdown,
             Thesaurus thesaurus) throws Exception {
         this.thesaurus = thesaurus;
 
@@ -81,18 +85,34 @@ public class ConnectionOverviewInfo {
         sortAllOverviews();
         sortAllBreakdowns();
 
-        List<TaskSummaryInfo> taskSummaryInfo = new ArrayList<>();
-//        for (HeatMapRow<H> row : heatMap) {
-//            String name = row.getTarget().getName();
-//            for (ComSessionSuccessIndicatorOverview counters : row) {
-//                for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : counters) {
-//                    successIndicatorCounter.getCountTarget()
-//                }
-//
-//            }
-//
-//        }
+        this.heatMap=new ArrayList<>();
+        createHeatMap(heatMap, breakdown, thesaurus);
 
+    }
+
+    private <H extends HasName & HasId> void createHeatMap(HeatMap<H> heatMap, BreakdownOption breakdown, Thesaurus thesaurus) throws Exception {
+        for (HeatMapRow<H> row : heatMap) {
+            HeatMapRowInfo heatMapRowInfo = new HeatMapRowInfo();
+            heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
+            heatMapRowInfo.id = row.getTarget().getId(); // ID of the object
+            heatMapRowInfo.alias = breakdown; // Type of object
+            heatMapRowInfo.data = new ArrayList<>();
+            for (ComSessionSuccessIndicatorOverview counters : row) {
+                for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : counters) {
+                    TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
+                    taskCounterInfo.id=successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget());
+                    taskCounterInfo.displayName=thesaurus.getString(successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget()), null);
+                    taskCounterInfo.count=successIndicatorCounter.getCount();
+                    heatMapRowInfo.data.add(taskCounterInfo);
+                }
+                TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
+                taskCounterInfo.id= MessageSeeds.AT_LEAST_ONE_FAILED.getKey();
+                taskCounterInfo.displayName=thesaurus.getString(MessageSeeds.AT_LEAST_ONE_FAILED.getKey(), null);
+                taskCounterInfo.count=counters.getAtLeastOneTaskFailedCount();
+                heatMapRowInfo.data.add(taskCounterInfo);
+            }
+            this.heatMap.add(heatMapRowInfo);
+        }
     }
 
     private void sortAllBreakdowns() {
@@ -144,6 +164,13 @@ public class ConnectionOverviewInfo {
 
         return info;
     }
+}
+
+class HeatMapRowInfo {
+    public String displayValue;
+    public BreakdownOption alias;
+    public Long id;
+    public List<TaskCounterInfo> data;
 }
 
 class TaskSummaryInfo {

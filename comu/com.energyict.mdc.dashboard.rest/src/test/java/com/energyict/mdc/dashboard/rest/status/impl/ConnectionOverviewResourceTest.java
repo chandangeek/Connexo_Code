@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,7 +17,11 @@ import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
+import com.energyict.mdc.dashboard.DeviceTypeHeatMap;
+import com.energyict.mdc.dashboard.HeatMapRow;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
+import com.energyict.mdc.dashboard.impl.ComSessionSuccessIndicatorOverviewImpl;
+import com.energyict.mdc.dashboard.impl.HeatMapRowImpl;
 import com.energyict.mdc.dashboard.impl.TaskStatusBreakdownCounterImpl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -24,7 +29,9 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.history.ComSession;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -150,7 +157,7 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testGetOverview() {
+    public void testGetOverview() throws UnsupportedEncodingException {
         ConnectionStatusOverview connectionStatusOverview = createConnectionStatusOverview();
         when(dashboardService.getConnectionStatusOverview()).thenReturn(connectionStatusOverview);
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
@@ -161,7 +168,11 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
         when(dashboardService.getConnectionTypeBreakdown()).thenReturn(connectionStatusBreakdown);
         DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
         when(dashboardService.getDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
-        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").request().get(ConnectionOverviewInfo.class);
+        DeviceTypeHeatMap heatMap = createDeviceTypeHeatMap();
+        when(dashboardService.getDeviceTypeHeatMap()).thenReturn(heatMap);
+
+
+        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("filter", ExtjsFilter.filter("breakdown", BreakdownOption.deviceType.name())).request().get(ConnectionOverviewInfo.class);
 
         Comparator<TaskCounterInfo> counterInfoComparator = new Comparator<TaskCounterInfo>() {
             @Override
@@ -181,6 +192,24 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
         assertThat(connectionOverviewInfo.breakdowns.get(0).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(1).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
+    }
+
+    private DeviceTypeHeatMap createDeviceTypeHeatMap() {
+        DeviceTypeHeatMap heatMap = mock(DeviceTypeHeatMap.class);
+        List<HeatMapRow<DeviceType>> rows = new ArrayList<>();
+        ComSessionSuccessIndicatorOverviewImpl counters = new ComSessionSuccessIndicatorOverviewImpl(103L);
+        counters.add(createCounter(ComSession.SuccessIndicator.Broken, 100L));
+        counters.add(createCounter(ComSession.SuccessIndicator.SetupError, 101L));
+        counters.add(createCounter(ComSession.SuccessIndicator.Success, 102L));
+        long id=1;
+        for (String name: Arrays.asList("deviceType1", "deviceType2", "deviceType3")) {
+            DeviceType deviceType = mock(DeviceType.class);
+            when(deviceType.getName()).thenReturn(name);
+            when(deviceType.getId()).thenReturn(id++);
+            rows.add(new HeatMapRowImpl<>(deviceType, counters));
+        }
+        when(heatMap.iterator()).thenReturn(rows.iterator());
+        return heatMap;
     }
 
     private DeviceTypeBreakdown createDeviceTypeBreakdown() {

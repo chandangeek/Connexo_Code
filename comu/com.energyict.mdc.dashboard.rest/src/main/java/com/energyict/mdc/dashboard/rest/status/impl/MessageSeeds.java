@@ -35,6 +35,7 @@ public enum MessageSeeds implements MessageSeed {
     COMPORTPOOL_FILTER(26, BreakdownOption.comPortPool.name(), "communication port pool", Level.SEVERE),
     DEVICETYPE_FILTER(27, BreakdownOption.deviceType.name(), "device type", Level.SEVERE),
     CONNECTIONTYPE_FILTER(28, BreakdownOption.connectionType.name(), "connection type", Level.SEVERE),
+    AT_LEAST_ONE_FAILED(29, "AtLeastOneFailed", "at least one failed", Level.SEVERE),
     ;
 
     private final int number;

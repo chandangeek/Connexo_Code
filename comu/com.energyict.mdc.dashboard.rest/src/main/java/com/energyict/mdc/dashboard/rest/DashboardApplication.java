@@ -2,6 +2,7 @@ package com.energyict.mdc.dashboard.rest;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
@@ -9,6 +10,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
+import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
@@ -39,6 +41,8 @@ public class DashboardApplication extends Application implements InstallService 
     private volatile StatusService statusService;
     private volatile EngineModelService engineModelService;
     private volatile NlsService nlsService;
+    private volatile DashboardService dashboardService;
+    private volatile Thesaurus thesaurus;
 
     @Reference
     public void setStatusService(StatusService statusService) {
@@ -53,6 +57,12 @@ public class DashboardApplication extends Application implements InstallService 
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
+        thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setDashboardService(DashboardService dashboardService) {
+        this.dashboardService = dashboardService;
     }
 
     @Override
@@ -90,6 +100,8 @@ public class DashboardApplication extends Application implements InstallService 
             bind(statusService).to(StatusService.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(nlsService).to(NlsService.class);
+            bind(dashboardService).to(DashboardService.class);
+            bind(thesaurus).to(Thesaurus.class);
         }
     }
 
