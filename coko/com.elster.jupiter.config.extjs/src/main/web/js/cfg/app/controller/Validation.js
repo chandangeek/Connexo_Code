@@ -496,6 +496,7 @@ Ext.define('Cfg.controller.Validation', {
         Ext.Array.each(Ext.ComponentQuery.query('#addRuleLink'), function (item) {
             item.hide();
         });
+        rulesPreviewContainerPanel.down('#validationruleList').updatePaginationBottom();
         this.getRuleSetBrowsePreviewCt().add(rulesPreviewContainerPanel);
     },
 

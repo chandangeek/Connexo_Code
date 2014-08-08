@@ -4,7 +4,6 @@ Ext.define('Cfg.view.validation.RuleList', {
     itemId: 'validationruleList',
     store: 'Cfg.store.ValidationRules',
     overflowY: 'auto',
-    maxHeight: 300,
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
@@ -41,6 +40,7 @@ Ext.define('Cfg.view.validation.RuleList', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
+                usesExactCount: true,
                 store: me.store,
                 itemId: 'rulesTopPagingToolbar',
                 dock: 'top',
@@ -64,8 +64,6 @@ Ext.define('Cfg.view.validation.RuleList', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-//                pageSizeParam: 'limit2',
-//                pageStartParam: 'start2',
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbartop.itemsPerPage', 'CFG', 'Validation rules per page'),
                 itemId: 'rulesListBottomPagingToolbar',
@@ -74,5 +72,9 @@ Ext.define('Cfg.view.validation.RuleList', {
         ];
 
         me.callParent(arguments);
+    },
+    updatePaginationBottom: function () {
+        var me = this;
+        me.down('pagingtoolbarbottom').pageStartParam = 'undefined';
     }
 });
