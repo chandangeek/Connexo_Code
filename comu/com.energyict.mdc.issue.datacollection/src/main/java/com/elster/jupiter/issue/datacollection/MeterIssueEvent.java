@@ -74,7 +74,7 @@ public class MeterIssueEvent extends AbstractEvent {
     }
 
     @Override
-    protected int getNumberOfEvents(Device concentrator) {
+    protected int getNumberOfDevicesWithEvents(Device concentrator) {
         Date start = getLastSuccessfulCommunicationEnd(concentrator);
         return concentrator.countNumberOfEndDeviceEvents(Arrays.asList(eventRecord.getEventType()), Interval.startAt(start));
     }

@@ -129,7 +129,7 @@ public abstract class AbstractEvent implements IssueEvent {
         return lastSuccessfulCommTask;
     }
 
-    protected abstract int getNumberOfEvents(Device concentrator);
+    protected abstract int getNumberOfDevicesWithEvents(Device concentrator);
 
     @Override
     public String getEventType() {
@@ -160,7 +160,7 @@ public abstract class AbstractEvent implements IssueEvent {
             LOG.log(Level.WARNING, "Concentrator for device[id={0}] is not found", device.getId());
             return -1;
         }
-        int numberOfEvents = getNumberOfEvents(concentrator);
+        int numberOfEvents = getNumberOfDevicesWithEvents(concentrator);
         int numberOfConnectedDevices = concentrator.getPhysicalConnectedDevices().size();
         if (numberOfConnectedDevices == 0) {
             LOG.log(Level.WARNING, "Number of connected devices for concentrator[id={0}] equals 0", concentrator.getId());

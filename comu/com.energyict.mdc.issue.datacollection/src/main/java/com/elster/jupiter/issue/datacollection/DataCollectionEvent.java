@@ -28,15 +28,15 @@ public class DataCollectionEvent extends AbstractEvent {
     }
 
     @Override
-    protected int getNumberOfEvents(Device concentrator) {
+    protected int getNumberOfDevicesWithEvents(Device concentrator) {
         Date start = getLastSuccessfulCommunicationEnd(concentrator);
-        int numberOfEvents = 0;
+        int numberOfDevicesWithEvents = 0;
         try {
-            numberOfEvents = taskHistoryService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(getDescription().getErrorType(), concentrator, Interval.startAt(start));
+            numberOfDevicesWithEvents = taskHistoryService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(getDescription().getErrorType(), concentrator, Interval.startAt(start));
         } catch (RuntimeException ex){
             LOG.log(Level.WARNING, "Incorrect communication type for concentrator[id={0}]", concentrator.getId());
         }
-        return numberOfEvents;
+        return numberOfDevicesWithEvents;
     }
 
     @Override
