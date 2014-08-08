@@ -7,6 +7,8 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+
 /**
  * Provides an implementation for the {@link DeviceProtocolSecurityService} interface
  * and registers as a OSGi component.
@@ -19,6 +21,13 @@ import org.osgi.service.component.annotations.Reference;
 public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurityService {
 
     private volatile PropertySpecService propertySpecService;
+
+    public DeviceProtocolSecurityServiceImpl(){}
+
+    @Inject
+    public DeviceProtocolSecurityServiceImpl(PropertySpecService propertySpecService){
+        this.setPropertySpecService(propertySpecService);
+    }
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
