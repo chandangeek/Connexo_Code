@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.time.Interval;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -25,7 +25,7 @@ public interface LoadProfileReading {
 
     Date getReadingTime();
 
-    void setFlags(List<ProcessStatus.Flag> flags);
+    void setFlags(List<ProfileStatus.Flag> flags);
 
-    List<ProcessStatus.Flag> getFlags();
+    List<ProfileStatus.Flag> getFlags();
 }
