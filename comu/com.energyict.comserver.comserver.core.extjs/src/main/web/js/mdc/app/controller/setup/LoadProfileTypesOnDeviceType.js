@@ -9,7 +9,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         'setup.loadprofiletype.LoadProfileTypeGrid',
         'setup.loadprofiletype.LoadProfileTypePreview',
         'setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup',
-        'setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeDockedItems',
         'setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid'
     ],
 

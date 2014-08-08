@@ -10,7 +10,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         'setup.loadprofiletype.LoadProfileTypePreview',
         'setup.loadprofiletype.LoadProfileTypeForm',
         'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesView',
-        'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesDockedItems',
         'setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGrid'
     ],
 
