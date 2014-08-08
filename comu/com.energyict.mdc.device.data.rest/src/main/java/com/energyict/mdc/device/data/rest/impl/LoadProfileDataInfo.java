@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.Channel;
@@ -28,7 +28,7 @@ public class LoadProfileDataInfo {
             channelIntervalInfo.interval=IntervalInfo.from(loadProfileReading.getInterval());
             channelIntervalInfo.readingTime=loadProfileReading.getReadingTime();
             channelIntervalInfo.intervalFlags=new ArrayList<>();
-            for (ProcessStatus.Flag flag : loadProfileReading.getFlags()) {
+            for (ProfileStatus.Flag flag : loadProfileReading.getFlags()) {
                 channelIntervalInfo.intervalFlags.add(thesaurus.getString(flag.name(), flag.name()));
             }
 

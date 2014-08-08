@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -581,7 +581,7 @@ public class DeviceResourceTest extends JerseyTest {
 
     private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Interval interval) {
         LoadProfileReading loadProfileReading = mock(LoadProfileReading.class);
-        when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProcessStatus.Flag.CONFIRMED));
+        when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.CORRUPTED));
         when(loadProfileReading.getReadingTime()).thenReturn(new Date());
         when(loadProfileReading.getInterval()).thenReturn(interval);
         when(loadProfileReading.getChannelValues()).thenAnswer(new Answer<Set<Map.Entry<Channel, BigDecimal>>>() {

@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.configuration.rest.impl.DeviceConfigurationApplication;
@@ -19,13 +19,28 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_READING(21, "NoSuchReading" , "Register {0} has no reading with id {1}"),
     INVALID_DATE(22, "InvalidDate", "Date should be less or equal to {0}"),
     NO_SUCH_LOAD_PROFILE_ON_DEVICE(23, "NoSuchLoadProfile", "Device {0} has no load profile {1}"),
-    CONFIRMED(24, ProcessStatus.Flag.CONFIRMED.name(), "Confirmed"),
-    EDITED(25, ProcessStatus.Flag.EDITED.name(), "Edited"),
-    ESTIMATED(26, ProcessStatus.Flag.ESTIMATED.name(), "Estimated"),
-    QUALITY(27, ProcessStatus.Flag.QUALITY.name(), "Quality"),
-    SUSPECT(28, ProcessStatus.Flag.SUSPECT.name(), "Suspect"),
-    WARNING(29, ProcessStatus.Flag.WARNING.name(), "Warning"),
     NO_SUCH_CHANNEL_ON_LOAD_PROFILE(30, "NoSuchChannel", "Load profile {0} has no channel {1}"),
+    POWERDOWN(31, ProfileStatus.Flag.POWERDOWN.name(), "Power down"),
+    POWERUP(32, ProfileStatus.Flag.POWERUP.name(), "Power up"),
+    SHORTLONG(33, ProfileStatus.Flag.SHORTLONG.name(), "Short long"),
+    WATCHDOGRESET(34, ProfileStatus.Flag.WATCHDOGRESET.name(), "Watchdog reset"),
+    CONFIGURATIONCHANGE(45, ProfileStatus.Flag.CONFIGURATIONCHANGE.name(), "Configuration change"),
+    CORRUPTED(46, ProfileStatus.Flag.CORRUPTED.name(), "Corrupted"),
+    OVERFLOW(47, ProfileStatus.Flag.OVERFLOW.name(), "Overflow"),
+    RESERVED1(48, ProfileStatus.Flag.RESERVED1.name(), "Reserved 1"),
+    RESERVED4(49, ProfileStatus.Flag.RESERVED4.name(), "Reserved 4"),
+    RESERVED5(50, ProfileStatus.Flag.RESERVED5.name(), "Reserved 5"),
+    MISSING(51, ProfileStatus.Flag.MISSING.name(), "Missing"),
+    SHORT(52, ProfileStatus.Flag.SHORT.name(), "Short"),
+    LONG(53, ProfileStatus.Flag.LONG.name(), "Long"),
+    OTHER(54, ProfileStatus.Flag.OTHER.name(), "Other"),
+    REVERSERUN(55, ProfileStatus.Flag.REVERSERUN.name(), "Reverse run"),
+    PHASEFAILURE(56, ProfileStatus.Flag.PHASEFAILURE.name(), "Phase failure"),
+    BADTIME(57, ProfileStatus.Flag.BADTIME.name(), "Bad time"),
+    DEVICE_ERROR(58, ProfileStatus.Flag.DEVICE_ERROR.name(), "Device error"),
+    BATTERY_LOW(59, ProfileStatus.Flag.BATTERY_LOW.name(), "Battery low"),
+    TEST(60, ProfileStatus.Flag.TEST.name(), "Test"),
+
     ;
 
     private final int number;
