@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
     title: '',
     requires: [
         'Uni.view.toolbar.PagingBottom',
-        'Uni.view.toolbar.PagingTop'
+        'Uni.view.toolbar.PagingTop',
+        'Cfg.store.ValidationRules'
     ],
     store: 'Cfg.store.ValidationRules',
     overflowY: 'auto',
@@ -38,6 +39,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
+                usesExactCount: true,
                 store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMsgRule', 'MDC', '{0} - {1} of {2} validation rules'),
@@ -50,11 +52,14 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
                 itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.itemsPerPageRule', 'MDC', 'Validation rules per page'),
                 dock: 'bottom',
                 params: {id: me.rulesSetId},
-                deferLoading: true,
-                pageSizeParam: 'limit2',
-                pageStartParam: 'start2'
+                deferLoading: true
             }
         ];
         me.callParent(arguments);
+    },
+
+    updatePaginationBottom: function () {
+        var me = this;
+        me.down('pagingtoolbarbottom').pageStartParam = 'undefined';
     }
 });

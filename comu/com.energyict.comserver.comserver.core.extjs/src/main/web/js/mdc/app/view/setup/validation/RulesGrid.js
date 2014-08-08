@@ -50,6 +50,7 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
+                usesExactCount: true,
                 store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMsgRule', 'MDC', '{0} - {1} of {2} validation rules'),
