@@ -101,7 +101,7 @@ public class MissingValuesValidator extends AbstractValidator {
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
         int index = toIndex(intervalReadingRecord.getTimeStamp());
         bitSet.set(index);
-        if (index + 1 > expectedReadings) {
+        if (openEnded && index + 1 > expectedReadings) {
             expectedReadings = index + 1;
         }
         return ValidationResult.PASS;
