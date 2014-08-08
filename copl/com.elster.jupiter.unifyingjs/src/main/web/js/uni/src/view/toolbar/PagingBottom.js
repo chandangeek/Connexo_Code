@@ -30,6 +30,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     totalCount: 0,
     totalPages: 0,
     isFullTotalCount: false,
+    isSecondPagination: false,
 
     /**
      * @cfg {String} Limit parameter
@@ -93,9 +94,13 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             pageSize = queryStrings[this.pageSizeParam],
             pageStart = queryStrings[this.pageStartParam];
 
-        pageSize = parseInt(pageSize, this.defaultPageSize) || this.store.pageSize;
-        pageStart = parseInt(pageStart, this.defaultPageSize) || 0;
-
+        if (this.isSecondPagination) {
+            pageStart = (this.store.currentPage - 1) * this.store.pageSize;
+            pageSize = this.store.pageSize;
+        } else {
+            pageStart = parseInt(pageStart, this.defaultPageSize) || 0;
+            pageSize = parseInt(pageSize, this.defaultPageSize) || this.store.pageSize;
+        }
         this.initPageSizeAndStart(pageSize, pageStart);
     },
 
