@@ -37,13 +37,13 @@ public class DeviceCachingTest {
     @Mock
     private DeviceCacheMarshallingService deviceCacheMarshallingService;
 
+    @Before
+    public void initBefore() {
+        when(deviceCacheMarshallingService.marshall(any())).thenReturn("JustADummyCache");
+    }
+
     @Test
-    public void getCacheAlwaysChangedTest(){
-
-        /*
-        We should always get a DeviceProtocolCache with the change option to true
-         */
-
+    public void getCacheChangedTest(){
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapterImpl(meterProtocol, mock(ProtocolPluggableService.class), mock(SecuritySupportAdapterMappingFactory.class), this.dataModel, issueService, deviceCacheMarshallingService);
 
@@ -53,6 +53,26 @@ public class DeviceCachingTest {
         // assert that the content is not null and always changed so we always update it in the database
         assertNotNull(deviceProtocolCache);
         assertTrue(deviceProtocolCache.contentChanged());
+    }
+
+    @Test
+    public void getCacheNotChangedForDlmsCacheTest() {
+
+        /*
+        We should always get a DeviceProtocolCache with the change option to true
+         */
+
+        MeterProtocol meterProtocol = getMockedMeterProtocol();
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapterImpl(meterProtocol, mock(ProtocolPluggableService.class), mock(SecuritySupportAdapterMappingFactory.class), this.dataModel, issueService, deviceCacheMarshallingService);
+
+        when(deviceCacheMarshallingService.marshall(any())).thenReturn("ThisIsADummyDlmsCache<changed>false</changed>WithSomeTrailingStuff");
+
+        // business method
+        DeviceProtocolCache deviceProtocolCache = meterProtocolAdapter.getDeviceCache();
+
+        // assert that the content is not null and always changed so we always update it in the database
+        assertNotNull(deviceProtocolCache);
+        assertFalse(deviceProtocolCache.contentChanged());
     }
 
     /**
