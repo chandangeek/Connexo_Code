@@ -10,15 +10,16 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
     edit: false,
 
     setEdit: function (edit, returnLink) {
+        this.edit = edit;
+
         if (edit) {
-            this.edit = edit;
             this.down('#createEditNewRuleSet').setText(Uni.I18n.translate('general.save', 'CFG', 'Save'));
             this.down('#createEditNewRuleSet').action = 'editNewRuleSet';
         } else {
-            this.edit = edit;
             this.down('#createEditNewRuleSet').setText(Uni.I18n.translate('general.add', 'CFG', 'Add'));
             this.down('#createEditNewRuleSet').action = 'createNewRuleSet';
         }
+
         this.down('#cancelAddRuleSetLink').href = returnLink;
     },
 
@@ -66,22 +67,29 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             height: 150,
                             fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
                             enforceMaxLength: true
-                        }
-                    ],
-                    buttons: [
-                        {
-                            text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
-                            xtype: 'button',
-                            ui: 'action',
-                            action: 'createEditNewRuleSet',
-                            itemId: 'createEditNewRuleSet'
                         },
                         {
-                            text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
-                            xtype: 'button',
-                            ui: 'link',
-                            itemId: 'cancelAddRuleSetLink',
-                            href: '#/administration/validation'
+                            xtype: 'fieldcontainer',
+                            margin: '20 0 0 0',
+                            fieldLabel: '&nbsp',
+                            labelAlign: 'right',
+                            layout: 'hbox',
+                            items: [
+                                {
+                                    text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
+                                    xtype: 'button',
+                                    ui: 'action',
+                                    action: 'createEditNewRuleSet',
+                                    itemId: 'createEditNewRuleSet'
+                                },
+                                {
+                                    text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
+                                    xtype: 'button',
+                                    ui: 'link',
+                                    itemId: 'cancelAddRuleSetLink',
+                                    href: '#/administration/validation'
+                                }
+                            ]
                         }
                     ]
                 }
