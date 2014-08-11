@@ -441,8 +441,6 @@ Ext.define('Cfg.controller.Validation', {
     showRules: function (id) {
         var me = this,
             ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
-//        this.getValidationRulesStore().clearFilter();
-//        this.getValidationRulesStore().filter('ruleSetId', id);
         me.ruleSetId = id;
         me.fromRulePreview = false;
         ruleSetsStore.load({
@@ -674,7 +672,7 @@ Ext.define('Cfg.controller.Validation', {
         var self = this;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('validation.removeRule.msg', 'CFG', 'This validation rule will no longer be available on the validation rule set.'),
-            title: Ext.String.format(Uni.I18n.translate('validation.removeRule.title', 'CFG', 'Remove {0}?'), rule.get('name')),
+            title: Ext.String.format(Uni.I18n.translate('validation.removeRule.title', 'CFG', "Remove '{0}'?"), rule.get('name')),
             config: {
                 rule: rule
             },
@@ -716,6 +714,7 @@ Ext.define('Cfg.controller.Validation', {
                         callback: function () {
                             Ext.Function.defer(function(){
                                 ruleSetSelModel.select(ruleSet);
+                                self.getRuleSetBrowsePanel().setLoading(false);
                             }, 5000);
                         }
                     });
@@ -732,6 +731,9 @@ Ext.define('Cfg.controller.Validation', {
             },
             callback: function () {
                 view.setLoading(false);
+                if (self.getRuleSetBrowsePanel()) {
+                    self.getRuleSetBrowsePanel().setLoading();
+                }
             }
         });
     },
@@ -758,7 +760,7 @@ Ext.define('Cfg.controller.Validation', {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('validation.removeRuleSet.msg', 'CFG', 'This validation rule set will no longer be available.'),
-            title: Ext.String.format(Uni.I18n.translate('validation.removeRule.title', 'CFG', 'Remove {0}?'), ruleSet.get('name')),
+            title: Ext.String.format(Uni.I18n.translate('validation.removeRule.title', 'CFG', "Remove '{0}'?"), ruleSet.get('name')),
             config: {
                 rule: ruleSet
             },
