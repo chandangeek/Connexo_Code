@@ -9,25 +9,18 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.exceptions.SerializationException;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.Inject;
-import org.osgi.service.log.LogService;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Functionality to handle the {@link DeviceCache} object
@@ -38,7 +31,9 @@ import java.util.logging.Logger;
  */
 public class DeviceCacheImpl implements DeviceCache {
 
-    private static final String REGEX = ":::";
+    private final Logger logger = Logger.getLogger(DeviceCacheImpl.class.getName());
+
+    private static final String REGEX = ":-:-:";
     private static final int NUMBER_OF_ELEMENTS_IN_JSON_CACHE = 2;
     private static final int CLASS_NAME_INDEX = 0;
     private static final int JSON_PAYLOAD_INDEX = 1;
@@ -92,20 +87,20 @@ public class DeviceCacheImpl implements DeviceCache {
 
     @Override
     public DeviceProtocolCache getSimpleCacheObject() {
-        return unMarshal(this.simpleCache);
+        return unMarshal(getDeflatedContent(this.simpleCache));
     }
 
     @Override
     public void setCacheObject(DeviceProtocolCache deviceProtocolCache) {
-        this.simpleCache = marshal(deviceProtocolCache);
+        this.simpleCache = getZippedContent(marshal(deviceProtocolCache));
     }
 
     public DeviceProtocolCache unMarshal(byte[] bytes) {
         DeviceProtocolCache deviceProtocolCache = null;
-        if(bytes != null){
+        if (bytes != null) {
             String completeCache = new String(bytes);
             String[] cacheElements = completeCache.split(REGEX);
-            if(cacheElements.length == NUMBER_OF_ELEMENTS_IN_JSON_CACHE){
+            if (cacheElements.length == NUMBER_OF_ELEMENTS_IN_JSON_CACHE) {
                 deviceProtocolCache = this.protocolPluggableService.unMarshalDeviceProtocolCache(
                         cacheElements[CLASS_NAME_INDEX],
                         cacheElements[JSON_PAYLOAD_INDEX]);
@@ -116,6 +111,36 @@ public class DeviceCacheImpl implements DeviceCache {
 
     public byte[] marshal(DeviceProtocolCache deviceProtocolCache) {
         String jsonCache = this.protocolPluggableService.marshalDeviceProtocolCache(deviceProtocolCache);
-        return (deviceProtocolCache.getClass().getName()+ REGEX +jsonCache).getBytes();
+        return (deviceProtocolCache.getClass().getName() + REGEX + jsonCache).getBytes();
+    }
+
+    private byte[] getZippedContent(byte[] jsonCacheBytes) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            try (GZIPOutputStream gz = new GZIPOutputStream(byteArrayOutputStream, jsonCacheBytes.length)) {
+                gz.write(jsonCacheBytes, 0, jsonCacheBytes.length);
+            }
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return new byte[0];
+    }
+
+    private byte[] getDeflatedContent(byte[] zippedContent) {
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zippedContent)) {
+            try (GZIPInputStream gzi = new GZIPInputStream(byteArrayInputStream)) {
+                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                    int len;
+                    byte[] tempBytes = new byte[4096];
+                    while ((len = gzi.read(tempBytes, 0, tempBytes.length)) > 0) {
+                        baos.write(tempBytes, 0, len);
+                    }
+                    return baos.toByteArray();
+                }
+            }
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return new byte[0];
     }
 }
