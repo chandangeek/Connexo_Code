@@ -962,13 +962,7 @@ public class DeviceImpl implements Device {
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateMeterInKore(amrSystem);
             for (Channel channel : loadProfile.getChannels()) {
-                List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(interval, channel.getChannelSpec().getReadingType());
-                for (IntervalReadingRecord meterReading : meterReadings) {
-                    LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                    loadProfileReading.setChannelData(channel, meterReading.getValue());
-                    loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
-                    loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
-                }
+                this.getUnsortedChannelDataFor(interval, meter, channel, sortedLoadProfileReadingMap);
             }
         }
         return new ArrayList<>(sortedLoadProfileReadingMap.values());
@@ -981,17 +975,30 @@ public class DeviceImpl implements Device {
 
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateMeterInKore(amrSystem);
-            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(interval, channel.getChannelSpec().getReadingType());
-            for (IntervalReadingRecord meterReading : meterReadings) {
-                LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                loadProfileReading.setChannelData(channel, meterReading.getValue());
-                loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
-                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
-            }
+            this.getUnsortedChannelDataFor(interval, meter, channel, sortedLoadProfileReadingMap);
         }
         return new ArrayList<>(sortedLoadProfileReadingMap.values());
     }
 
+    private void getUnsortedChannelDataFor(Interval interval, Meter meter, Channel mdcChannel, Map<Date, LoadProfileReading> sortedLoadProfileReadingMap) {
+        List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, interval);
+        for (MeterActivation meterActivation : meterActivations) {
+            Interval meterActivationInterval = meterActivation.getInterval().intersection(interval);
+            ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
+            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
+            Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
+            if (koreChannel.isPresent()) {
+                // Todo: process the reading qualities, adding them somehow to the LoadProfileReading
+                this.validationService.getValidationStatus(koreChannel.get(), meterReadings);
+            }
+            for (IntervalReadingRecord meterReading : meterReadings) {
+                LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
+                loadProfileReading.setChannelData(mdcChannel, meterReading.getValue());
+                loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
+                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+            }
+        }
+    }
 
     private List<ProfileStatus.Flag> getFlagsFromProfileStatus(ProfileStatus profileStatus) {
         List<ProfileStatus.Flag> flags = new ArrayList<>();
@@ -1007,7 +1014,7 @@ public class DeviceImpl implements Device {
         Map<Date, LoadProfileReading> loadProfileReadingMap = new TreeMap<>();
         DateTime timeIndex = new DateTime(interval.getStart().getTime());
         DateTime endTime = new DateTime(interval.getEnd().getTime());
-        while (timeIndex.compareTo(endTime)<0) {
+        while (timeIndex.compareTo(endTime) <= 0) {
             DateTime intervalEnd = getIntervalEnd(loadProfile.getInterval(), timeIndex);
             LoadProfileReading value = new LoadProfileReadingImpl();
             value.setInterval(new Interval(timeIndex.toDate(), intervalEnd.toDate()));
@@ -1095,6 +1102,26 @@ public class DeviceImpl implements Device {
             }
         }
         return Optional.absent();
+    }
+
+    /**
+     * Sorts the {@link MeterActivation}s of the specified {@link Meter}
+     * that overlap with the {@link Interval}, where the most recent activations are returned first.
+     *
+     * @param meter The Meter
+     * @param interval The Interval
+     * @return The List of MeterActivation
+     */
+    private List<MeterActivation> getSortedMeterActivations(Meter meter, Interval interval) {
+        List<? extends MeterActivation> allActivations = meter.getMeterActivations();
+        List<MeterActivation> overlapping = new ArrayList<>(allActivations.size());
+        for (MeterActivation activation : allActivations) {
+            if (activation.overlaps(interval)) {
+                overlapping.add(activation);
+            }
+        }
+        Collections.reverse(overlapping);
+        return overlapping;
     }
 
     private Optional<ReadingRecord> getLast(List<ReadingRecord> readings) {
