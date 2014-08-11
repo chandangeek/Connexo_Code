@@ -35,49 +35,69 @@ import java.util.logging.Logger;
  */
 public class MasterDataGenerator {
 
+    private static final int NAME_INDEX = 0;
+    private static final int UNIT_INDEX = 1;
     private static final Logger LOGGER = Logger.getLogger(MasterDataGenerator.class.getName());
-    private static String[][] phenomenaList = new String[][] {
-            {"Active Energy","kWh"},
-            {"Active Power","kW"},
-            {"Apparent Energy","kVAh"},
-            {"Apparent Power","kVA"},
-            {"Capacitive Power","kvar"},
-            {"Capactive Energy","kvarh"},
-            {"Capactive Power","kvar"},
-            {"Current","A"},
-            {"Energy","kWh"},
-            {"Energy","Wh"},
-            {"Energy","MJ"},
-            {"Gas Consumption","kWh"},
-            {"Gas Flow","m3/h"},
-            {"Gas Normalized Flow","Nm3/h"},
-            {"Gas Normalized Volume","Nm3"},
-            {"Gas Volume","m3"},
-            {"Heat","kWh"},
-            {"Inductive Energy","kvarh"},
-            {"Inductive Power","kvar"},
-            {"Pressure","bar"},
-            {"Reactive Energy","kvarh"},
-            {"Reactive Energy","varh"},
-            {"Reactive Power","kvar"},
+    private static final String[] scalers = new String[]{"m", "", "k", "M", "G"};
+    private static final String[][] phenomenaListWithScalers = new String[][]{
+            {"Active Energy", "Wh"},
+            {"Active Power", "W"},
+            {"Apparent Energy", "VAh"},
+            {"Apparent Power", "VA"},
+            {"Capacitive Power", "var"},
+            {"Capacitive Energy", "varh"},
+            {"Capacitive Power", "var"},
+            {"Current", "A"},
+            {"Energy", "Wh"},
+            {"Energy", "J"},
+            {"Gas Consumption", "Wh"},
+            {"Heat", "Wh"},
+            {"Inductive Energy", "varh"},
+            {"Inductive Power", "var"},
+            {"Reactive Energy", "varh"},
+            {"Reactive Power", "var"},
+            {"Voltage", "V"}
+    };
+    private static final String[][] phenomenaListWithoutScalers = new String[][]{
             {"Temperature","\u00B0C"},
-            {"Temperature","K"},
-            {"Voltage","V"},
-            {"Water Volume","m3"}
+            {"Temperature", "K"},
+            {"Pressure", "bar"},
+            {"Gas Flow", "m3/h"},
+            {"Gas Normalized Flow", "Nm3/h"},
+            {"Gas Normalized Volume", "Nm3"},
+            {"Gas Volume", "m3"},
+            {"Water Volume", "m3"}
     };
 
     static List<Phenomenon> generatePhenomena(MasterDataService masterDataService) {
         List<Phenomenon> phenomena = new ArrayList<>();
         Set<Unit> unitsToKeepTrack = new HashSet<>();
-        for (String[] phenomenaEntry: phenomenaList) {
+        for (String[] phenomenaEntry : phenomenaListWithScalers) {
             try {
-                Unit unit = Unit.get(phenomenaEntry[1]);
-                if (!unitsToKeepTrack.contains(unit)) {
-                    unitsToKeepTrack.add(unit);
-                    Phenomenon phenomenon = masterDataService.newPhenomenon(phenomenaEntry[0]+" ("+phenomenaEntry[1]+")", unit);
-                    phenomenon.save();
-                    phenomena.add(phenomenon);
+                String acronym = phenomenaEntry[UNIT_INDEX];
+                for (String scaler : scalers) {
+                    Unit unit = Unit.get(scaler + acronym);
+                    if (!unitsToKeepTrack.contains(unit)) {
+                        unitsToKeepTrack.add(unit);
+                        Phenomenon phenomenon = masterDataService.newPhenomenon(phenomenaEntry[NAME_INDEX] + " (" + unit.toString() + ")", unit);
+                        phenomenon.save();
+                        phenomena.add(phenomenon);
+                    }
                 }
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
+        for (String[] phenomenaListWithoutScaler : phenomenaListWithoutScalers) {
+            try {
+                String acronym = phenomenaListWithoutScaler[UNIT_INDEX];
+                    Unit unit = Unit.get(acronym);
+                    if (!unitsToKeepTrack.contains(unit)) {
+                        unitsToKeepTrack.add(unit);
+                        Phenomenon phenomenon = masterDataService.newPhenomenon(phenomenaListWithoutScaler[NAME_INDEX] + " (" + acronym + ")", unit);
+                        phenomenon.save();
+                        phenomena.add(phenomenon);
+                    }
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
