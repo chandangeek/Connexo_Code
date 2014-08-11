@@ -10,7 +10,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         'Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid',
         'Mdc.view.setup.communicationschedule.CommunicationSchedulePreview',
         'Mdc.view.setup.communicationschedule.CommunicationScheduleEdit',
-        'Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow'
+        'Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow',
+        'Mdc.view.setup.communicationschedule.AddCommunicationTaskPreview'
     ],
 
     stores: [
@@ -19,12 +20,15 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     ],
 
     refs: [
+        {ref: 'communicationScheduleEdit', selector: '#communicationScheduleEdit'},
         {ref: 'communicationSchedulesGrid', selector: '#communicationSchedulesGrid'},
         {ref: 'communicationSchedulePreview', selector: '#communicationSchedulePreview'},
         {ref: 'communicationSchedulePreviewForm', selector: '#communicationSchedulePreviewForm'},
         {ref: 'communicationScheduleEditForm', selector: '#communicationScheduleEditForm'},
         {ref: 'communicationTaskGrid', selector: '#communicationTaskGridFromSchedule'},
-        {ref: 'comTaskPanel', selector: '#comTaskPanel'}
+        {ref: 'comTaskPanel', selector: '#comTaskPanel'},
+        {ref: 'addCommunicationTaskPreview', selector: '#addCommunicationTaskPreview'},
+        {ref: 'comTaskCommands', selector: '#comtaskCommands'}
     ],
 
     record: null,
@@ -61,9 +65,12 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             },
             '#addCommunicationTaskButtonForm button[action=addAction]': {
                 click: this.addCommunicationTasksToSchedule
+            }, '#addCommunicationTaskButtonForm button[action=cancelAction]': {
+                click: this.cancelAddCommunicationTasksToSchedule
+            },
+            '#communicationTaskGridFromSchedule': {
+                selectionchange: this.previewComTask
             }
-
-
         });
 
     },
@@ -97,6 +104,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
         });
         this.getApplication().fireEvent('changecontentevent', widget);
+        widget.down('#card').getLayout().setActiveItem(0);
         if (id === undefined) {
             this.record = Ext.create(Mdc.model.CommunicationSchedule);
             widget.down('#communicationScheduleEditCreateTitle').update('<h1>' + Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add communication schedule') + '</h1>');
@@ -150,7 +158,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         }
         this.comTaskStore.load({
             callback: function (records) {
-                if(toRemove != undefined){
+                if(this.comTaskStore!== undefined && toRemove !== undefined){
                     this.comTaskStore.remove(toRemove);
                 }
 
@@ -209,9 +217,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     addCommunicationTask: function () {
         var me = this;
-        var widget = Ext.widget('addCommunicationTaskWindow');
-        widget.show();
-        widget.down('#communicationTaskGridFromSchedule').getSelectionModel().select(me.record.comTaskUsages().data.items);
+        this.getCommunicationScheduleEdit().down('#card').getLayout().setActiveItem(1);
+        this.getAddCommunicationTaskPreview().setVisible(false);
     },
 
     deleteComTask: function (comTask) {
@@ -264,7 +271,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     addCommunicationTasksToSchedule: function () {
         var selection = this.getCommunicationTaskGrid().getSelectionModel().getSelection();
-        this.record.comTaskUsages().removeAll();
         this.record.comTaskUsages().add(selection);
         this.comTaskStore.remove(selection);
         this.getCommunicationScheduleEditForm().down('#comTasksOnForm').reconfigure(this.record.comTaskUsages());
@@ -273,6 +279,29 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         } else {
             this.getComTaskPanel().getLayout().setActiveItem(0);
         }
-        this.getCommunicationTaskGrid().up('.window').close();
+        this.getCommunicationScheduleEdit().down('#card').getLayout().setActiveItem(0);
+    },
+
+    cancelAddCommunicationTasksToSchedule: function(){
+        this.getCommunicationScheduleEdit().down('#card').getLayout().setActiveItem(0);
+    },
+
+    previewComTask: function(a,selection){
+        var me = this;
+        if(selection[selection.length-1]!= undefined){
+            Ext.Ajax.request({
+                url: '/api/cts/comtasks/' + selection[selection.length-1].data.id,
+                success: function (response) {
+                    var rec = Ext.decode(response.responseText),
+                        str = '';
+                    me.getAddCommunicationTaskPreview().setTitle(rec.name);
+                    Ext.Array.each(rec.commands, function (command) {
+                        str += command.action.charAt(0).toUpperCase() + command.action.slice(1) + ' ' + command.category.charAt(0).toUpperCase() + command.category.slice(1) + '<br/>';
+                    });
+                    me.getComTaskCommands().setValue(str);
+                    me.getAddCommunicationTaskPreview().setVisible(true);
+                }
+            });
+        }
     }
 });
