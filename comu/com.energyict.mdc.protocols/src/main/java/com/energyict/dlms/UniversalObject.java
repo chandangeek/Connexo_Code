@@ -5,12 +5,13 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.common.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.StringTokenizer;
 
-
+@XmlRootElement
 public class UniversalObject implements Serializable {
 
 	/**
@@ -42,7 +43,7 @@ public class UniversalObject implements Serializable {
 
 
     @XmlElement
-    private long[] fields;
+    private long[] fields = new long[9];
 
 	private static final int ASSOC_SN_OBJECT_LIST_STRUCTURE_SIZE=9;
 
@@ -67,9 +68,8 @@ public class UniversalObject implements Serializable {
 		this.fields[8] = ln[5];
 	}
 
-
 	public UniversalObject() {
-		this.fields=null;
+		this.fields= new long[9];
 	}
 
 	public UniversalObject(List values, int reference) { //, List frmts) {
