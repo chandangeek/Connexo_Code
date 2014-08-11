@@ -198,16 +198,20 @@ public class DemoServiceImpl implements DemoService {
 
     private void findRegisterTypes(Map<String, RegisterType> registerTypes) {
         System.out.println("==> Finding Register Types...");
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0").get()).get());
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0").get()).get());
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_2_K_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0").get()).get());
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0").get()).get());
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_1_K_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0").get()).get());
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0").get()).get());
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_2_K_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0").get()).get());
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0").get()).get());
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TOTAL_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0").get()).get());
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TOTAL_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get()).get());
+        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0"));
+        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0"));
+        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_2_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0"));
+        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0"));
+        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_1_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0"));
+        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0"));
+        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_2_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0"));
+        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0"));
+        registerTypes.put(ACTIVE_ENERGY_IMPORT_TOTAL_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"));
+        registerTypes.put(ACTIVE_ENERGY_EXPORT_TOTAL_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"));
+    }
+
+    private RegisterType findRegisterType(String mRid) {
+        return masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType(mRid).get()).get();
     }
 
     private void createLoadProfiles(Map<String, RegisterType> registerTypes, Map<String, LoadProfileType> loadProfileTypes) {
@@ -381,11 +385,7 @@ public class DemoServiceImpl implements DemoService {
                 .asDefault(true).build();
         SecurityPropertySet securityPropertySet = extendConfig.createSecurityPropertySet("No security").authenticationLevel(0).encryptionLevel(0).build();
         securityPropertySet.update();
-        ProtocolDialectConfigurationProperties configurationProperties = extendConfig.getProtocolDialectConfigurationPropertiesList().get(0);
-        if (configurationProperties.getName() == "Default") {
-            configurationProperties.setProperty("NTASimulationTool", 1);
-            configurationProperties.save();
-        }
+        ProtocolDialectConfigurationProperties configurationProperties = setProtocolDialectConfigurationProperties(extendConfig);
         extendConfig.enableComTask(comTasks.get(COM_TASK_READ_DAILY), securityPropertySet)
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .setPriority(100)
@@ -404,6 +404,13 @@ public class DemoServiceImpl implements DemoService {
         extendConfig.activate();
         extendConfig.save();
         createDevicesForDeviceConfiguration(extendConfig);
+    }
+
+    private ProtocolDialectConfigurationProperties setProtocolDialectConfigurationProperties(DeviceConfiguration devConfiguration) {
+        ProtocolDialectConfigurationProperties configurationProperties = devConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+        configurationProperties.setProperty("NTASimulationTool", "1");
+        configurationProperties.save();
+        return configurationProperties;
     }
 
     private void addRegisterSpecToDeviceConfiguration(Map<String, RegisterType> registerTypes, DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder, String registerName) {
@@ -433,11 +440,7 @@ public class DemoServiceImpl implements DemoService {
                 .asDefault(true).build();
         SecurityPropertySet securityPropertySet = simpleConfiguration.createSecurityPropertySet("No security").authenticationLevel(0).encryptionLevel(0).build();
         securityPropertySet.update();
-        ProtocolDialectConfigurationProperties configurationProperties = simpleConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
-        if (configurationProperties.getName() == "Default") {
-            configurationProperties.setProperty("NTASimulationTool", 1);
-            configurationProperties.save();
-        }
+        ProtocolDialectConfigurationProperties configurationProperties = setProtocolDialectConfigurationProperties(simpleConfiguration);
         simpleConfiguration.enableComTask(comTasks.get(COM_TASK_READ_ALL), securityPropertySet)
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .setPriority(100)

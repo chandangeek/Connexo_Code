@@ -99,7 +99,7 @@ public class DemoTest {
             Properties properties = new Properties();
             properties.setProperty("protocols", "all");
             when(license.getApplicationKey()).thenReturn("MDC");
-            when(license.getDescription()).thenReturn("ISU application license example");
+            when(license.getDescription()).thenReturn("MDC application license example");
             when(license.getStatus()).thenReturn(License.Status.ACTIVE);
             when(license.getType()).thenReturn(License.Type.EVALUATION);
             when(license.getGracePeriodInDays()).thenReturn(5);
