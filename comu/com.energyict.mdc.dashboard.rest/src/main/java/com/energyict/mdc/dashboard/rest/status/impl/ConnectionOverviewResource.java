@@ -13,6 +13,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
 /**
  * Created by bvn on 7/29/14.
@@ -31,6 +32,7 @@ public class ConnectionOverviewResource {
 
     @GET
     @Consumes("application/json")
+    @Produces("application/json")
     public ConnectionOverviewInfo getConnectionOverview(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
         BreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
         ConnectionStatusOverview connectionStatusOverview = dashboardService.getConnectionStatusOverview();
