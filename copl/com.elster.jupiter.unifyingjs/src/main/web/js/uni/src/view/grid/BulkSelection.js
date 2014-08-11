@@ -246,6 +246,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
                 items: [
                     {
                         xtype: 'radiogroup',
+                        itemId: 'itemradiogroup',
                         columns: 1,
                         vertical: true,
                         submitValue: false,
@@ -325,6 +326,12 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.getUncheckAllButton().on('click', me.onClickUncheckAllButton, me);
         me.getAddButton().on('click', me.onClickAddButton, me);
         me.on('selectionchange', me.onSelectionChange, me);
+        if(me.radioHidden){
+            me.hideRadioGroup();
+        }
+        if(me.bottomToolbarHidden){
+            me.hideBottomToolbar();
+        }
     },
 
     onChangeSelectionGroupType: function (radiogroup, value) {
@@ -398,5 +405,13 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     getBottomToolbar: function () {
         return this.down('#bottomToolbar');
+    },
+
+    hideRadioGroup: function(){
+        this.down('#itemradiogroup').setVisible(false);
+    },
+
+    hideBottomToolbar: function(){
+        this.getBottomToolbar().setVisible(false);
     }
 });
