@@ -35,10 +35,11 @@ public class TimedOutTasksSqlBuilder {
         sqlBuilder.append(" cm ");
         sqlBuilder.append(" WHERE cte.connectiontask = ct.id");
         sqlBuilder.append("   AND ct.connectionmethod = cm.id");
-        sqlBuilder.append("   AND cm.comportpool = ?");
-        sqlBuilder.append("   AND cte.executionStart + ? < ?");
+        sqlBuilder.append("   AND cm.comportpool = ");
         sqlBuilder.addLong(ComPortPool.getId());
+        sqlBuilder.append("   AND cte.executionStart + ");
         sqlBuilder.addInt(timeOutSeconds);
+        sqlBuilder.append(" < ");
         sqlBuilder.addLong(now);
     }
 
