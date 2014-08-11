@@ -21,7 +21,7 @@ public class LoadProfileDataInfo {
     public Date readingTime;
     public List<String> intervalFlags;
 
-    public static List<LoadProfileDataInfo> from(List<LoadProfileReading> loadProfileReadings, Thesaurus thesaurus) {
+    public static List<LoadProfileDataInfo> from(List<? extends LoadProfileReading> loadProfileReadings, Thesaurus thesaurus) {
         List<LoadProfileDataInfo> channelData = new ArrayList<>();
         for (LoadProfileReading loadProfileReading : loadProfileReadings) {
             LoadProfileDataInfo channelIntervalInfo = new LoadProfileDataInfo();
