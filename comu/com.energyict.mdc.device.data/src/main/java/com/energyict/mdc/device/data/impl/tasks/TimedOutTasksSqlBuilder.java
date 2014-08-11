@@ -17,26 +17,28 @@ import com.elster.jupiter.util.sql.SqlBuilder;
  * @since 2013-05-02 (16:11)
  */
 public class TimedOutTasksSqlBuilder {
+
     /**
      * Appends sql code to the {@link SqlBuilder} that returns the unique identifier
      * of all ComTaskExecutions that are currently running
      * on a ComPort from the {@link OutboundComPortPool} for a period
      * that is longer that the timeout specified on the OutboundComPortPool.
-     *  @param sqlBuilder The SqlBuilder
-     * @param comPortPool The OutboundComPortPool
-     * @param now The current time in UTC seconds
+     *
+     * @param sqlBuilder     The SqlBuilder
+     * @param comPortPool    The OutboundComPortPool
+     * @param now            The current time in UTC seconds
      * @param timeOutSeconds The maximum number of seconds that tasks are expected to run
      */
-    public static void appendTimedOutComTaskExecutionSql (SqlBuilder sqlBuilder, ComPortPool comPortPool, long now, int timeOutSeconds) {
+    public static void appendTimedOutComTaskExecutionSql(SqlBuilder sqlBuilder, ComPortPool comPortPool, long now, int timeOutSeconds) {
         sqlBuilder.append("SELECT cte.id FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " cte, ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct, " );
+        sqlBuilder.append(" ct, ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONMETHOD.name());
         sqlBuilder.append(" cm ");
         sqlBuilder.append(" WHERE cte.connectiontask = ct.id");
         sqlBuilder.append("   AND ct.connectionmethod = cm.id");
         sqlBuilder.append("   AND cm.comportpool = ");
-        sqlBuilder.addLong(ComPortPool.getId());
+        sqlBuilder.addLong(comPortPool.getId());
         sqlBuilder.append("   AND cte.executionStart + ");
         sqlBuilder.addInt(timeOutSeconds);
         sqlBuilder.append(" < ");
@@ -44,6 +46,7 @@ public class TimedOutTasksSqlBuilder {
     }
 
     // Hide utility class constructor
-    private TimedOutTasksSqlBuilder () {}
+    private TimedOutTasksSqlBuilder() {
+    }
 
 }
