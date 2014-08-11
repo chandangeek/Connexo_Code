@@ -67,7 +67,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     private static final Ordering<ChannelValidation> NULLSAFE_ORDER_BY_LASTCHECKED = new Ordering<ChannelValidation>() {
         @Override
         public int compare(ChannelValidation left, ChannelValidation right) {
-            return NullSafeOrdering.NULL_IS_GREATEST.<Date>get().compare(getLastChecked(left), getLastChecked(right));
+            return NullSafeOrdering.NULL_IS_SMALLEST.<Date>get().compare(getLastChecked(left), getLastChecked(right));
         }
 
         private Date getLastChecked(ChannelValidation validation) {
@@ -251,10 +251,10 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     public void validate(MeterActivation meterActivation, Interval interval) {
         Optional<MeterValidation> found = getMeterValidation(meterActivation);
         if (found.isPresent() && found.get().getActivationStatus()) {
-        List<MeterActivationValidation> meterActivationValidations = getMeterActivationValidations(meterActivation, interval);
+            List<MeterActivationValidation> meterActivationValidations = getMeterActivationValidations(meterActivation, interval);
             for (MeterActivationValidation meterActivationValidation : activeOnly(meterActivationValidations)) {
-            meterActivationValidation.validate(interval);
-        }
+                meterActivationValidation.validate(interval);
+            }
         }
     }
 
@@ -355,10 +355,10 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     private void addReadingQualities(Date lastChecked, BaseReading reading, ListMultimap<Date, ReadingQuality> readingQualities,
                                      ReadingQualityType validatedAndOk, Channel channel, List<List<ReadingQuality>> result) {
+        List<ReadingQuality> qualities = readingQualities.get(reading.getTimeStamp());
         if (lastChecked == null || lastChecked.before(reading.getTimeStamp())) {
-            result.add(Collections.<ReadingQuality>emptyList());
+            result.add(qualities == null ? Collections.<ReadingQuality>emptyList() : qualities);
         } else {
-            List<ReadingQuality> qualities = readingQualities.get(reading.getTimeStamp());
             if (qualities == null || qualities.isEmpty()) {
                 result.add(Arrays.asList(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp())));
             } else {

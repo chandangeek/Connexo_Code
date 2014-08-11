@@ -21,7 +21,15 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.ProgrammableClock;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.validation.MeterActivationValidation;
+import com.elster.jupiter.validation.MeterValidation;
+import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetResolver;
+import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.ValidatorFactory;
+import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -281,12 +289,6 @@ public class ValidationServiceImplTest {
         assertThat(validationStatus).hasSize(1);
         assertThat(validationStatus.get(0)).isEmpty();
 
-        ReadingQuality readingQuality = mock(ReadingQuality.class);
-        when(readingQuality.getReadingTimestamp()).thenReturn(readingDate);
-        when(channel1.findReadingQuality(any(Interval.class))).thenReturn(Arrays.asList(readingQuality));
-        validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading));
-        assertThat(validationStatus).hasSize(1);
-        assertThat(validationStatus.get(0)).isEmpty();
     }
 
     @Test
@@ -367,7 +369,8 @@ public class ValidationServiceImplTest {
         List<List<ReadingQuality>> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading2, reading1));
         assertThat(validationStatus).hasSize(2);
         assertThat(validationStatus.get(0)).isEmpty(); // reading2 has not be validated yet
-// TODO verify correctness of this assertion : Bruno        assertThat(validationStatus.get(1)).isEmpty(); // reading1 has not be validated yet for rule set 2
+        assertThat(validationStatus.get(1)).hasSize(1);
+        assertThat(validationStatus.get(1)).containsExactly(readingQuality);
 
     }
 
