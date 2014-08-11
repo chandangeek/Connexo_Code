@@ -123,7 +123,7 @@ public interface DeviceDataService {
      * @param status The TaskStatus
      * @return The ConnectionTasks with the specified TaskStatus
      */
-    public List<ConnectionTask> findByStatus(TaskStatus status);
+    public List<ConnectionTask> findConnectionTasksByStatus(TaskStatus status);
 
     /**
      * Counts all {@link ConnectionTask}s in the system,
@@ -141,6 +141,14 @@ public interface DeviceDataService {
      * @return The numbers, broken down by TaskStatus
      */
     public Map<TaskStatus, Long> getConnectionTaskStatusCount(ConnectionTaskFilterSpecification filter);
+
+    /**
+     * finds all {@link ConnectionTask}s that match the specified filter.
+     *
+     * @param filter The ConnectionTaskFilter
+     * @return The List of ConnectionTask
+     */
+    public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter);
 
     /**
      * Sets the specified {@link ConnectionTask} as the default for the Device

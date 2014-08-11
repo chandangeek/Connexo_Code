@@ -243,6 +243,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     public List<LoadProfileReading> getChannelDataFor(LoadProfile loadProfile, Interval interval);
 
+    List<LoadProfileReading> getChannelDataFor(Channel channel, Interval interval);
+
     /**
      * Gets a list of all device multipliers that were active for a device
      *

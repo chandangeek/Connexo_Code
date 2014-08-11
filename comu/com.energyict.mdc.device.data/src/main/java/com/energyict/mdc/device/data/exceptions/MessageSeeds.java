@@ -72,9 +72,9 @@ public enum MessageSeeds implements MessageSeed {
     VETO_PARTIAL_CONNECTION_TASK_DELETION(2042, Keys.VETO_PARTIAL_CONNECTION_TASK_DELETION, "The partial connection task {0} of device configuration {1} is still used by at least one connection task on a device of that configuration", SEVERE),
     VETO_SECURITY_PROPERTY_SET_DELETION(2043, Keys.VETO_SECURITY_PROPERTY_SET_DELETION, "The security property set {0} of device configuration {1} cannot be deleted because at least one device of that configuration still has security property values for it", SEVERE),
     UNIQUE_ADDHOC_COMTASKS_PER_DEVICE(2044, Keys.UNIQUE_ADDHOC_COMTASKS_PER_DEVICE, "The communication task is not unique for device", SEVERE),
-    DUPLICATE_COMTASK_SCHEDULING(2045, Keys.DUPLICATE_COMTASK_SCHEDULING, "There is an overlap in the scheduled communication tasks on the device", SEVERE),
-    MISMATCH_COMTASK_SCHEDULE_WITH_DEVICE_CONFIGURATION(2046, Keys.MISMATCH_COMTASK_SCHEDULE_WITH_DEVICE_CONFIGURATION, "Mismatch between device configuration and the communication schedule", SEVERE),
-    COMTASK_CONFIGURATION_INCONSISTENT(2047, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The configuration settings (i.e. connection method, protocol dialect, security set and urgency) of all communication tasks contained in a communication schedule should be the same", SEVERE),
+    DUPLICATE_COMTASK_SCHEDULING(2045, Keys.DUPLICATE_COMTASK_SCHEDULING, "One or more communication tasks in the communication schedule are already scheduled on the device with a master communication schedule", SEVERE),
+    COMTASK_CONFIGURATION_INCONSISTENT(2046, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The configuration settings (i.e. connection method, protocol dialect, security set and urgency) of all communication tasks contained in a communication schedule should be the same", SEVERE),
+    COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION(2047, Keys.COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION, "A mismatch between device configuration and the communication schedule (one or more communication tasks defined in the communication schedule is not available on the device configuration of the device)", SEVERE),
     ;
     private final int number;
     private final String key;
@@ -174,14 +174,13 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNIQUE_ADDHOC_COMTASKS_PER_DEVICE = "uniqueComTasksPerDevice";
         public static final String DUPLICATE_COMTASK_SCHEDULING = "duplicateComTaskScheduling";
         public static final String COMTASK_CONFIGURATION_INCONSISTENT = "comTaskConfigurationInconsistent";
+        public static final String COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION = "comTasksMustBeEnabledByConfiguration";
         public static final String CONNECTION_TASK_STATUS_INCOMPLETE = "connectionTaskStatusIncomplete";
         public static final String CONNECTION_TASK_STATUS_ACTIVE = "connectionTaskStatusActive";
         public static final String CONNECTION_TASK_STATUS_INACTIVE = "connectionTaskStatusInActive";
         public static final String VETO_COM_SCHEDULE_DELETION = "comTaskExecution.comSchedule.inUse";
         public static final String CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE = "cannotDeleteComScheduleFromDevice";
         public static final String DEVICE_CONFIGURATION_NOT_ACTIVE = "device.configuration.not.active";
-        public static final String MISMATCH_COMTASK_SCHEDULE_WITH_DEVICE_CONFIGURATION = "mismatchComtaskScheduleWithDeviceConfiguration";
-
     }
 
 }

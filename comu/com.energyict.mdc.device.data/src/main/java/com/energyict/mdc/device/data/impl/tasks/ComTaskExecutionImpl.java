@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.DeleteEventType;
 import com.energyict.mdc.device.data.impl.PersistentIdObject;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksMustBeEnabledByDeviceConfiguration;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ConnectionTaskIsRequiredWhenNotUsingDefault;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
@@ -53,7 +54,8 @@ import java.util.Map;
  * Date: 11/04/14
  * Time: 15:09
  */
-@ConnectionTaskIsRequiredWhenNotUsingDefault
+@ConnectionTaskIsRequiredWhenNotUsingDefault(groups = {Save.Create.class, Save.Update.class})
+@ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
 public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> implements ServerComTaskExecution {
     protected static final String SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR = "0";
     protected static final String AD_HOC_COM_TASK_EXECUTION_DISCRIMINATOR = "1";
@@ -693,8 +695,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     public abstract static class AbstractComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>, C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionUpdater<U, C> {
 
-        protected final CI comTaskExecution;
-        protected final U self;
+        private final CI comTaskExecution;
+        private final U self;
 
         protected AbstractComTaskExecutionUpdater(CI comTaskExecution, Class<U> clazz) {
             this.comTaskExecution = comTaskExecution;

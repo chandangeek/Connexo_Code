@@ -3,11 +3,11 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -77,21 +77,19 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         return inMemoryPersistence.getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
     }
 
-    protected ComTaskEnablement createMockedComTaskEnablement(boolean useDefault) {
+    protected ComTaskEnablement enableComTask(boolean useDefault) {
         ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
         deviceConfiguration.save();
-        return createMockedComTaskEnablement(useDefault, configDialect, COM_TASK_NAME);
+        return enableComTask(useDefault, configDialect, COM_TASK_NAME);
     }
 
-    protected ComTaskEnablement createMockedComTaskEnablement(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, String comTaskName) {
-        Optional<ProtocolDialectConfigurationProperties> optionalConfigDialect = Optional.fromNullable(configDialect);
-        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+    protected ComTaskEnablement enableComTask(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, String comTaskName) {
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck(comTaskName);
-        when(comTaskEnablement.getComTask()).thenReturn(comTaskWithBasicCheck);
-        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(optionalConfigDialect);
-        when(comTaskEnablement.usesDefaultConnectionTask()).thenReturn(useDefault);
-        when(comTaskEnablement.getPriority()).thenReturn(comTaskEnablementPriority);
-        return comTaskEnablement;
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet);
+        builder.setProtocolDialectConfigurationProperties(configDialect);
+        builder.useDefaultConnectionTask(useDefault);
+        builder.setPriority(this.comTaskEnablementPriority);
+        return builder.add();
     }
 
     protected AdHocComTaskExecution reloadAdHocComTaskExecution(Device device, AdHocComTaskExecution comTaskExecution) {

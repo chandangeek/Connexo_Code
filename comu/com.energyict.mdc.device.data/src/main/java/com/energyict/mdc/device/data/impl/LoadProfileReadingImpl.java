@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -21,7 +21,7 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
     private Interval interval;
     private Map<Channel, BigDecimal> map = new HashMap<>();
     private Date readingTime;
-    private final List<ProcessStatus.Flag> flags = new ArrayList<>();
+    private final List<ProfileStatus.Flag> flags = new ArrayList<>();
 
     @Override
     public Interval getInterval() {
@@ -54,13 +54,13 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
     }
 
     @Override
-    public void setFlags(List<ProcessStatus.Flag> flags) {
+    public void setFlags(List<ProfileStatus.Flag> flags) {
         this.flags.clear();
         this.flags.addAll(flags);
     }
 
     @Override
-    public List<ProcessStatus.Flag> getFlags() {
+    public List<ProfileStatus.Flag> getFlags() {
         return Collections.unmodifiableList(flags);
     }
 }

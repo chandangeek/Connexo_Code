@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -148,7 +149,7 @@ public class DeviceImpl implements Device {
         this.deviceConfiguration.set(deviceConfiguration);
         this.setDeviceTypeFromDeviceConfiguration();
         setName(name);
-        this.mRID = mRID;
+        this.setMRID(mRID);
         createLoadProfiles();
         createLogBooks();
         return this;
@@ -961,11 +962,11 @@ public class DeviceImpl implements Device {
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateMeterInKore(amrSystem);
             for (Channel channel : loadProfile.getChannels()) {
-                List<? extends BaseReadingRecord> meterReadings = meter.getReadings(interval, channel.getChannelSpec().getReadingType());
-                for (BaseReadingRecord meterReading : meterReadings) {
+                List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(interval, channel.getChannelSpec().getReadingType());
+                for (IntervalReadingRecord meterReading : meterReadings) {
                     LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
                     loadProfileReading.setChannelData(channel, meterReading.getValue());
-                    loadProfileReading.setFlags(getFlagsFromProcessStatus(meterReading.getProcesStatus()));
+                    loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
                     loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
                 }
             }
@@ -973,10 +974,29 @@ public class DeviceImpl implements Device {
         return new ArrayList<>(sortedLoadProfileReadingMap.values());
     }
 
-    private List<ProcessStatus.Flag> getFlagsFromProcessStatus(ProcessStatus processStatus) {
-        List<ProcessStatus.Flag> flags = new ArrayList<>();
-        for (ProcessStatus.Flag flag : ProcessStatus.Flag.values()) {
-            if (processStatus.get(flag)) {
+    @Override
+    public List<LoadProfileReading> getChannelDataFor(Channel channel, Interval interval) {
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        Map<Date, LoadProfileReading> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap((LoadProfile) channel.getLoadProfile(), interval);
+
+        if (amrSystem.isPresent()) {
+            Meter meter = findOrCreateMeterInKore(amrSystem);
+            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(interval, channel.getChannelSpec().getReadingType());
+            for (IntervalReadingRecord meterReading : meterReadings) {
+                LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
+                loadProfileReading.setChannelData(channel, meterReading.getValue());
+                loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
+                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+            }
+        }
+        return new ArrayList<>(sortedLoadProfileReadingMap.values());
+    }
+
+
+    private List<ProfileStatus.Flag> getFlagsFromProfileStatus(ProfileStatus profileStatus) {
+        List<ProfileStatus.Flag> flags = new ArrayList<>();
+        for (ProfileStatus.Flag flag : ProfileStatus.Flag.values()) {
+            if (profileStatus.get(flag)) {
                 flags.add(flag);
             }
         }
