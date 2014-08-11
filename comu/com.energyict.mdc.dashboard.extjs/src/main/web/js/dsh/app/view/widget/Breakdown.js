@@ -5,144 +5,106 @@ Ext.define('Dsh.view.widget.Breakdown', {
     itemId: 'breakdown',
     title: Uni.I18n.translate('overview.widget.breakdown.title', 'DSH', 'Breakdown'),
     ui: 'medium',
+    cls: 'breakdown',
     layout: {
-        type: 'vbox',
-        align: 'center'
-    },
-    style: {
-        paddingTop: 0
-    },
-    items: [
-        {
-            xtype: 'fieldcontainer',
-            fieldLabel: 'Combine',
-            layout: {
-                type: 'hbox',
-                align: 'middle'
-            },
-            items: {
-                xtype: 'combobox',
-                itemId: 'brakdownchartcombinecombobox',
-                margin: '0 20 0 0',
-                displayField: 'displayValue',
-                valueField: 'value'
+        type: 'table',
+        tableAttrs: {
+            style: {
+                width: '100%'
             }
         },
+        columns: 2
+    },
+    width: '100%',
+    defaults: {
+        // applied to each contained panel
+        bodyStyle: 'margin-right: 20px'
+    },
+    requires: [
+        'Ext.view.View',
+        'Dsh.view.widget.common.StackedBar',
+        'Ext.button.Button'
+    ],
+    mixins: {
+        bindable: 'Ext.util.Bindable'
+    },
+    tbar: [
+        '->',
         {
             xtype: 'container',
-            width: 800,
-            itemId: 'heatmapchart',
-            listeners: {
-                afterrender: function (container) {
-                    var me = container.up('#breakdown');
-                    $(function () {
-                        $('#' + container.getId()).highcharts({
-                            chart: {
-                                type: 'heatmap'
-                            },
-                            exporting: {
-                                enabled: false
-                            },
-                            credits: {
-                                enabled: false
-                            },
-                            title: null,
-                            xAxis: {
-                                title: {
-                                    style: {
-                                        "color": "#707070",
-                                        "fontWeight": "bold"
-                                    }
-                                }
-                            },
-                            yAxis: {
-                                title: {
-                                    style: {
-                                        "color": "#707070",
-                                        "fontWeight": "bold"
-                                    }
-                                }
-                            },
-                            colorAxis: {
-                                min: 0,
-                                minColor: '#FFFFFF',
-                                maxColor: Highcharts.getOptions().colors[0]
-                            },
-                            legend: {
-                                align: 'right',
-                                layout: 'vertical',
-                                margin: 0,
-                                verticalAlign: 'top',
-                                symbolHeight: 300
-                            },
-                            tooltip: {
-                                formatter: function () {
-                                    return '<b>' + this.series.xAxis.categories[this.point.x] + '</b><br><b>' +
-                                        this.series.yAxis.categories[this.point.y] + '</b><br><b>' + this.point.value + '</b>';
-                                }
-                            },
-                            series: [
-                                {
-                                    name: 'Latest Result',
-                                    borderWidth: 1,
-                                    dataLabels: {
-                                        enabled: true,
-                                        color: 'black',
-                                        style: {
-                                            textShadow: 'none',
-                                            HcTextStroke: null
-                                        }
-                                    }
-                                }
-                            ]
-
-                        });
-                    });
-                    me.chart = $('#' + container.getId()).highcharts();
-                }
-            }
+            html:
+                '<div class="legend"><ul>' +
+                '<li><span class="color failed"></span> Failed</li>' +
+                '<li><span class="color success"></span> Success</li>' +
+                '<li><span class="color pending"></span> Pending</li>' +
+                '</ul></div>'
         }
     ],
+    bindStore: function(store) {
+        var me = this;
+        store.each(function (item) {
+            var panel = Ext.create('Ext.panel.Panel', {
+                title: item.get('displayName'),
+                bbar: [
+                    '->',
+                    {
+                        xtype: 'button',
+                        ui: 'link',
+                        text: 'show more'
+                    }
+                ],
+                items: {
+                    xtype: 'dataview',
+                    itemId: item.get('alias') + '-dataview',
+                    itemSelector: 'tbody.item',
+                    total: item.get('total'),
+                    store: item.counters(),
+                    tpl:
+                        '<table>' +
+                            '<tpl for=".">' +
+                                '<tbody class="item">' +
+                                '<tr>' +
+                                    '<td class="label" style="min-width: 200px">' +
+                                        '<a href="#{id}">{displayName}</a>' +
+                                    '</td>' +
+                                    '<td width="100%" id="bar-{#}"></td>' +
+                                '</tr>' +
+                            '</tbody>' +
+                            '</tpl>' +
+                        '</table>',
+                    listeners: {
+                        refresh: function (view) {
+                            Ext.each(view.getNodes(), function (node, index) {
+                                var record = view.getRecord(node),
+                                    pos = index + 1;
 
-    setChartData: function (data) {
-        var me = this;
-        me.chart.series[0].setData([], true);
-        Ext.defer(me.chart.series[0].setData(data, true), 500);
-    },
-    setXAxis: function (categories, title) {
-        var me = this;
-        me.chart.series[0].xAxis.update({title: {text: title}}, false);
-        me.chart.series[0].xAxis.update({categories: categories}, false);
-    },
-    setYAxis: function (categories, title) {
-        var me = this;
-        me.chart.series[0].yAxis.update({title: {text: title}}, false);
-        me.chart.series[0].yAxis.update({categories: categories}, false);
-    },
-
-    storeToHighchartData: function (store, fields) {
-        var data = [],
-            x = 0,
-            y = 0;
-        store.each(function (rec) {
-            Ext.each(fields, function (item) {
-                var value = rec.get(item);
-                (value == 0) && (value = value.toString());
-                data.push([x, y, value]);
-                ++y;
+                                var data = {
+                                    failed: record.get('failedCount'),
+                                    pending: record.get('pendingCount'),
+                                    success: record.get('successCount')
+                                };
+                                var limit = _.reduce(data, function(memo, item) {return memo + item;}, 0);
+                                var bar = Ext.widget('stacked-bar', {
+                                    limit: limit,
+                                    total: view.total,
+                                    count: data,
+                                    label: limit
+                                });
+                                bar.render(view.getEl().down('#bar-' + pos));
+                            });
+                        }
+                    }
+                }
             });
-            y = 0;
-            ++x;
+            me.add(panel);
         });
-        return data;
-    },
 
-    initComponent: function () {
-        var me = this;
-        me.on('afterrender', function (cont) {
-            me.combineCombo = cont.down('#brakdownchartcombinecombobox')
-        });
-        me.callParent(arguments)
+        me.mixins.bindable.bindStore.apply(this, arguments);
+        // todo: place heat map
+//        me.add({
+//            xtype: 'heat-map',
+//            rowspan: 2
+//        });
     }
 })
 ;

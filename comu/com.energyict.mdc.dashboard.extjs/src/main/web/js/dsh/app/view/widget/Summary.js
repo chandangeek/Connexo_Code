@@ -55,7 +55,7 @@ Ext.define('Dsh.view.widget.Summary', {
                                 pos = index + 1;
                             if (record.get('child')) {
                                 Ext.each(record.get('child'), function (data, di) {
-                                    var bar = Ext.create('Dsh.view.widget.Bar', {
+                                    var bar = Ext.widget('bar', {
                                         limit: record.get('count'),
                                         total: view.total,
                                         count: data.count,
@@ -64,7 +64,7 @@ Ext.define('Dsh.view.widget.Summary', {
                                     bar.render(view.getEl().down('#bar-' + pos + '-' + (di + 1)));
                                 });
                             }
-                            var bar = Ext.create('Dsh.view.widget.Bar', {
+                            var bar =  Ext.widget('bar', {
                                 limit: view.total,
                                 total: view.total,
                                 count: record.get('count'),

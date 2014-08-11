@@ -17,7 +17,7 @@ Ext.define('Dsh.view.widget.Overview', {
                     callback: function () {
                         Ext.each(this.getRange(), function (item) {
                             Ext.each(item.get('counters'), function (counter, idx) {
-                                Ext.create('Dsh.view.widget.Bar', {
+                                Ext.widget('bar', {
                                     limit: counter.count,
                                     total: item.get('total'),
                                     count: counter.count,

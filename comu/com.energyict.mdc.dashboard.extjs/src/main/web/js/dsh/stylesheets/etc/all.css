@@ -30,31 +30,66 @@
   background: #a9a9a9;
 }
 
-/* line 30, ../../sass/etc/all.scss */
+/* line 32, ../../sass/etc/all.scss */
+.x-bar .x-bar-container .x-bar-track-stacked {
+  float: left;
+}
+
+/* line 39, ../../sass/etc/all.scss */
+.breakdown .failed, .breakdown .x-bar-track-stacked.failed {
+  background-color: #000000;
+}
+/* line 40, ../../sass/etc/all.scss */
+.breakdown .success, .breakdown .x-bar-track-stacked.success {
+  background-color: slategray;
+}
+/* line 41, ../../sass/etc/all.scss */
+.breakdown .pending, .breakdown .x-bar-track-stacked.pending {
+  background-color: #d3d3d3;
+}
+/* line 43, ../../sass/etc/all.scss */
+.breakdown .legend ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+/* line 48, ../../sass/etc/all.scss */
+.breakdown .legend ul li {
+  float: left;
+  margin-right: 16px;
+}
+/* line 52, ../../sass/etc/all.scss */
+.breakdown .legend ul li .color {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+
+/* line 61, ../../sass/etc/all.scss */
 .summary {
   min-width: 300px;
 }
-/* line 31, ../../sass/etc/all.scss */
+/* line 62, ../../sass/etc/all.scss */
 .summary td.label {
   min-width: 200px;
 }
-/* line 34, ../../sass/etc/all.scss */
+/* line 65, ../../sass/etc/all.scss */
 .summary tr {
   height: 29px;
 }
-/* line 38, ../../sass/etc/all.scss */
+/* line 69, ../../sass/etc/all.scss */
 .summary .bar-success .x-bar-track {
   background-color: #00aa00;
 }
-/* line 41, ../../sass/etc/all.scss */
+/* line 72, ../../sass/etc/all.scss */
 .summary .bar-pending .x-bar-track {
   background-color: #000000;
 }
-/* line 44, ../../sass/etc/all.scss */
+/* line 75, ../../sass/etc/all.scss */
 .summary .bar-failed .x-bar-track {
   background-color: #b03911;
 }
-/* line 50, ../../sass/etc/all.scss */
+/* line 81, ../../sass/etc/all.scss */
 .summary .x-bar .x-bar-track {
   height: 20px;
   top: -5px;

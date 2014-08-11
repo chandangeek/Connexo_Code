@@ -1,33 +1,46 @@
-Ext.define('Dsh.view.widget.Bar', {
+Ext.define('Dsh.view.widget.common.Bar', {
+    alias: 'widget.bar',
     extend: 'Ext.Component',
+
     requires: [
         'Ext.Template',
         'Ext.CompositeElement',
         'Ext.TaskManager',
         'Ext.layout.component.ProgressBar'
     ],
-    alias: 'widget.bar',
+
     total: 100,
     limit: 100,
     count: 0,
-    tpl: '<tpl for="."><div class="label">{displayName}</div><div class="bar"></div></tpl>',
+
     baseCls: Ext.baseCSSPrefix + 'bar',
+
+    trackTpl: '<div class="{baseCls}-track" style="width: {count}%;"></div>',
     renderTpl: [
-        '<tpl for".">',
+        '<tpl for=".">',
             '<span class="{baseCls}-label">{label}</span>',
             '<div class="{baseCls}-container" style="width: 100%;">',
-                '<div class="{baseCls}-fill" style="width: {fill}%;">',
-                    '<div class="{baseCls}-track" style="width: {bar}%;"></div>',
+                '<div class="{baseCls}-fill" style="width: {limit}%;">',
+                    '{track}',
                 '</div>',
             '<div>',
         '</tpl>'
     ],
-    initRenderData: function () {
+
+    prepareData: function(){
         var me = this;
-        return Ext.apply(me.callParent(), {
-            fill: Math.round(me.limit * 100 / me.total),
-            bar: Math.round(me.count * 100 / me.total),
-            label: me.label
-        });
+        return {
+            limit: Math.round(me.limit * 100 / me.total),
+            label: me.label,
+            count: Math.round(me.count * 100 / me.limit)
+        }
+    },
+
+    initRenderData: function() {
+        var me = this;
+
+        var track = new Ext.XTemplate(me.trackTpl);
+        var data = Ext.apply(me.callParent(), me.prepareData());
+        return Ext.apply(data, {track: track.apply(data)});
     }
 });

@@ -27,6 +27,37 @@
   }
 }
 
+.x-bar {
+  .x-bar-container {
+      .x-bar-track-stacked {
+        float: left;
+      }
+  }
+}
+
+.breakdown {
+  .failed, .x-bar-track-stacked.failed  {background-color: #000000;}
+  .success, .x-bar-track-stacked.success {background-color: slategray;}
+  .pending, .x-bar-track-stacked.pending {background-color: #d3d3d3;}
+
+  .legend ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      float: left;
+      margin-right: 16px;
+
+      .color {
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+      }
+    }
+  }
+}
+
 .summary {
   td.label {
     min-width: 200px;
