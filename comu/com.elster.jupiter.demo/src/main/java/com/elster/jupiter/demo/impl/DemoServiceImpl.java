@@ -2,14 +2,12 @@ package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.DemoService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -27,7 +25,6 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
-import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -200,32 +197,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private void findRegisterTypes(Map<String, RegisterType> registerTypes) {
-        /*
-        there is no API for creating ReadingType, SQL script for now
-        INSERT INTO "MTR_READINGTYPE" VALUES ('0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0', 'Active Energy Import Tariff 1 (kWh)', null, '1', '0', '0', 'Jupiter Installer');
-        INSERT INTO "MTR_READINGTYPE" VALUES ('0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0', 'Active Energy Import Tariff 1 (Wh)', null, '1', '0', '0', 'Jupiter Installer');
-        INSERT INTO "MTR_READINGTYPE" VALUES ('0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0', 'Active Energy Import Tariff 2 (kWh)', null, '1', '0', '0', 'Jupiter Installer');
-        INSERT INTO "MTR_READINGTYPE" VALUES ('0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0', 'Active Energy Import Tariff 2 (Wh)', null, '1', '0', '0', 'Jupiter Installer');
-        INSERT INTO "MTR_READINGTYPE" VALUES ('0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0', 'Active Energy Export Tariff 1 (kWh)', null, '1', '0', '0', 'Jupiter Installer');
-        INSERT INTO "MTR_READINGTYPE" VALUES ('0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0', 'Active Energy Export Tariff 1 (Wh)', null, '1', '0', '0', 'Jupiter Installer');
-        INSERT INTO "MTR_READINGTYPE" VALUES ('0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0', 'Active Energy Export Tariff 2 (kWh)', null, '1', '0', '0', 'Jupiter Installer');
-        INSERT INTO "MTR_READINGTYPE" VALUES ('0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0', 'Active Energy Export Tariff 2 (Wh)', null, '1', '0', '0', 'Jupiter Installer');
-        */
-
         System.out.println("==> Finding Register Types...");
-        /*
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH, createRegisterType(ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH, "1.0.1.8.1.255", "kWh", "0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH, createRegisterType(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH, "1.0.1.8.1.255", "Wh", "0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_2_K_WH, createRegisterType(ACTIVE_ENERGY_IMPORT_TARIFF_2_K_WH, "1.0.1.8.2.255", "kWh", "0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH, createRegisterType(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH, "1.0.1.8.2.255", "Wh", "0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_1_K_WH, createRegisterType(ACTIVE_ENERGY_EXPORT_TARIFF_1_K_WH, "1.0.1.8.1.255", "kWh", "0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH, createRegisterType(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH, "1.0.1.8.1.255", "Wh", "0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_2_K_WH, createRegisterType(ACTIVE_ENERGY_EXPORT_TARIFF_2_K_WH, "1.0.1.8.2.255", "kWh", "0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH, createRegisterType(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH, "1.0.1.8.2.255", "Wh", "0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TOTAL_WH, createRegisterType(ACTIVE_ENERGY_IMPORT_TOTAL_WH, "1.0.1.8.0.255", "Wh", "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TOTAL_WH, createRegisterType(ACTIVE_ENERGY_EXPORT_TOTAL_WH, "1.0.2.8.0.255", "Wh", "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"));
-        */
-
         registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0").get()).get());
         registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0").get()).get());
         registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_2_K_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0").get()).get());
@@ -236,17 +208,6 @@ public class DemoServiceImpl implements DemoService {
         registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0").get()).get());
         registerTypes.put(ACTIVE_ENERGY_IMPORT_TOTAL_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0").get()).get());
         registerTypes.put(ACTIVE_ENERGY_EXPORT_TOTAL_WH, masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get()).get());
-    }
-
-    private RegisterType createRegisterType(String name, String obisCode, String unit, String readingType) {
-        Optional<ReadingType> readingTypeRef = meteringService.getReadingType(readingType);
-        if (!readingTypeRef.isPresent()) {
-            System.out.println("==> No such reading type"); // how to create?
-        }
-        ReadingType readingTypeObj = readingTypeRef.get();
-        RegisterType registerType = masterDataService.newRegisterType(name, ObisCode.fromString(obisCode), Unit.get(unit), readingTypeObj, readingTypeObj.getTou());
-        registerType.save();
-        return registerType;
     }
 
     private void createLoadProfiles(Map<String, RegisterType> registerTypes, Map<String, LoadProfileType> loadProfileTypes) {
@@ -310,17 +271,15 @@ public class DemoServiceImpl implements DemoService {
 
     private void createLogbookTypes(Map<String, LogBookType> logBookTypes) {
         System.out.println("==> Creating Log Book Types...");
-        LogBookType defaultLogBook = masterDataService.newLogBookType(LOG_BOOK_TYPES_DEFAULT_LOGBOOK, ObisCode.fromString("0.0.99.98.0.255"));
-        defaultLogBook.save();
-        logBookTypes.put(LOG_BOOK_TYPES_DEFAULT_LOGBOOK, defaultLogBook);
+        createLogBookType(logBookTypes, LOG_BOOK_TYPES_DEFAULT_LOGBOOK, "0.0.99.98.0.255");
+        createLogBookType(logBookTypes, LOG_BOOK_TYPES_POWER_FAILURES, "1.0.99.97.0.255");
+        createLogBookType(logBookTypes, LOG_BOOK_TYPES_FRAUD_DETECTIONS, "0.0.99.98.1.255");
+    }
 
-        LogBookType powerFailures = masterDataService.newLogBookType(LOG_BOOK_TYPES_POWER_FAILURES, ObisCode.fromString("1.0.99.97.0.255"));
-        powerFailures.save();
-        logBookTypes.put(LOG_BOOK_TYPES_POWER_FAILURES, powerFailures);
-
-        LogBookType fraudDetection = masterDataService.newLogBookType(LOG_BOOK_TYPES_FRAUD_DETECTIONS, ObisCode.fromString("0.0.99.98.1.255"));
-        fraudDetection.save();
-        logBookTypes.put(LOG_BOOK_TYPES_FRAUD_DETECTIONS, fraudDetection);
+    private void createLogBookType(Map<String, LogBookType> logBookTypes, String logBookTypeName, String obisCode) {
+        LogBookType logBookType = masterDataService.newLogBookType(logBookTypeName, ObisCode.fromString(obisCode));
+        logBookType.save();
+        logBookTypes.put(logBookTypeName, logBookType);
     }
 
     private void createCommunicationTasks(Map<String, ComTask> comTasks, Map<String, RegisterGroup> registerGroups, Map<String, LoadProfileType> loadProfileTypes, Map<String, LogBookType> logBookTypes) {
@@ -427,7 +386,7 @@ public class DemoServiceImpl implements DemoService {
             configurationProperties.setProperty("NTASimulationTool", 1);
             configurationProperties.save();
         }
-        extendConfig.enableComTask(comTasks.get(COM_TASK_READ_ALL), securityPropertySet)
+        extendConfig.enableComTask(comTasks.get(COM_TASK_READ_DAILY), securityPropertySet)
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .setPriority(100)
                 .setProtocolDialectConfigurationProperties(configurationProperties)
@@ -441,6 +400,7 @@ public class DemoServiceImpl implements DemoService {
                 .setPriority(100)
                 .setProtocolDialectConfigurationProperties(configurationProperties)
                 .setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(0, TimeDuration.SECONDS))).add().save();
+        configureChannelsForLoadProfileSpec(extendConfig);
         extendConfig.activate();
         extendConfig.save();
         createDevicesForDeviceConfiguration(extendConfig);
@@ -483,9 +443,19 @@ public class DemoServiceImpl implements DemoService {
                 .setPriority(100)
                 .setProtocolDialectConfigurationProperties(configurationProperties)
                 .setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration(1, TimeDuration.DAYS), new TimeDuration(0, TimeDuration.SECONDS))).add().save();
+        configureChannelsForLoadProfileSpec(simpleConfiguration);
         simpleConfiguration.activate();
         simpleConfiguration.save();
         createDevicesForDeviceConfiguration(simpleConfiguration);
+    }
+
+    private void configureChannelsForLoadProfileSpec(DeviceConfiguration devConfiguration) {
+        for (LoadProfileSpec loadProfileSpec : devConfiguration.getLoadProfileSpecs()) {
+            List<ChannelType> availableChannelTypes = loadProfileSpec.getLoadProfileType().getChannelTypes();
+            for (ChannelType channelType : availableChannelTypes) {
+                devConfiguration.createChannelSpec(channelType, channelType.getPhenomenon(), loadProfileSpec).setMultiplier(new BigDecimal(1)).setOverflow(new BigDecimal(1)).add();
+            }
+        }
     }
 
     private void createDevicesForDeviceConfiguration(DeviceConfiguration configuration){
