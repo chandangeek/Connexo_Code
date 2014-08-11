@@ -18,6 +18,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
 
+    private static final String legacyDlmsCacheCheck = "<changed>false</changed>";
+
     @XmlElement(name = "LegacyJson")
     private String jsonCache;
 
@@ -26,11 +28,10 @@ public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
 
     @Override
     public boolean contentChanged() {
-        return true;    //always return true so the update is always performed
+        return !this.jsonCache.contains(legacyDlmsCacheCheck);
     }
 
     public String getLegacyJsonCache() {
-        // TODO fetch for the actual object ...
         return jsonCache;
     }
 
