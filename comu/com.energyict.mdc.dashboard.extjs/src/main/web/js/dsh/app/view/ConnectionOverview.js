@@ -64,7 +64,14 @@ Ext.define('Dsh.view.ConnectionOverview', {
                     flex: 1,
                     style: {
                         paddingLeft: '50px'
-                    }
+                    },
+                    data: [ //TODO: check & change
+                        { link: 'View all connections', href: '#/workspace/datacommunication/connections' },
+                        { link: 'Communication overview', href: '#/workspace/datacommunication/communication' },
+                        { link: 'Some link 1', href: '#' },
+                        { link: 'Some link 2', href: '#' },
+                        { link: 'Some link 3', href: '#' }
+                    ]
                 }
             ]
         },
