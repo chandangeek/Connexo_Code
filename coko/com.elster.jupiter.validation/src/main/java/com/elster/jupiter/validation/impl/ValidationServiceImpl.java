@@ -338,7 +338,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public List<List<ReadingQuality>> getValidationStatus(Channel channel, List<BaseReading> readings) {
+    public List<List<ReadingQuality>> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
         List<List<ReadingQuality>> result = new ArrayList<>(readings.size());
         if (!readings.isEmpty()) {
             List<ChannelValidation> channelValidations = getChannelValidations(channel);
@@ -367,7 +367,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         }
     }
 
-    private Interval getInterval(List<BaseReading> readings) {
+    private Interval getInterval(List<? extends BaseReading> readings) {
         Date min = null;
         Date max = null;
         for (BaseReading reading : readings) {
