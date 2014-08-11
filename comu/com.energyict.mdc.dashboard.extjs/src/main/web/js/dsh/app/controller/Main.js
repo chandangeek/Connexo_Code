@@ -7,8 +7,7 @@ Ext.define('Dsh.controller.Main', {
         'Uni.controller.history.EventBus',
         'Uni.model.PortalItem',
         'Uni.store.PortalItems',
-        'Uni.store.MenuItems',
-        'Dsh.view.Main'
+        'Uni.store.MenuItems'
     ],
     controllers: [
         'Dsh.controller.history.Workspace',

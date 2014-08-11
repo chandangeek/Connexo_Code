@@ -1,11 +1,7 @@
 Ext.define('Dsh.view.widget.CommunicationServers', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.communication-servers',
     itemId: 'communication-servers',
-    style: {
-        paddingRight: '50px',
-        borderRight: '3px dotted grey'
-    },
     items: [
         {
             xtype: 'dataview',

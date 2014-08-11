@@ -1,10 +1,7 @@
 Ext.define('Dsh.view.widget.QuickLinks', {
-    extend: 'Ext.container.Container',
-    alias: 'widget.quicklinks',
-    itemId: 'quicklinks',
-    style: {
-        paddingLeft: '50px'
-    },
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.quick-links',
+    itemId: 'quick-links',
     data: [],
     items: [
         {

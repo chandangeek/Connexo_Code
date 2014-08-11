@@ -5,7 +5,6 @@ Ext.define('Dsh.view.widget.Breakdown', {
     itemId: 'breakdown',
     title: 'Breakdown', // TODO: localize
     ui: 'medium',
-    colspan: 4,
     layout: {
         type: 'vbox',
         align: 'center'

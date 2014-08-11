@@ -1,23 +1,83 @@
 Ext.define('Dsh.view.CommunicationOverview', {
     extend: 'Ext.container.Container',
+    requires: [
+        'Dsh.view.widget.HeaderSection',
+        'Dsh.view.widget.Summary',
+        'Dsh.view.widget.CommunicationServers',
+        'Dsh.view.widget.QuickLinks',
+        'Dsh.view.widget.ReadOutsOverTime',
+        'Dsh.view.widget.Overview',
+        'Dsh.view.widget.Breakdown'
+    ],
     alias: 'widget.communication-overview',
     itemId: 'communication-overview',
+    autoScroll: true,
     layout: {
-        type: 'table',
-        columns: 4,
-        tableAttrs: {
-            style: {
-                width: '100%',
-                padding: '0 30px'
-            }
-        },
-        tdAttrs: {
-            style: {
-                verticalAlign: 'top',
-                paddingBottom: '30px'
-            }
+        type: 'vbox',
+        align: 'stretch'
+    },
+    style: {
+        padding: '15px'
+    },
+    defaults: {
+        style: {
+            marginTop: '30px',
+            paddingTop: '30px',
+            borderTop: '3px dotted grey'
         }
     },
+    items: [
+        {
+            xtype: 'header-section',
+            wTitle: 'Communication overview', //TODO: localize
+            style: 'none'
+        },
+        {
+            layout: 'hbox',
+            style: {
+                marginTop: '30px',
+                border: 'none'
+            },
+            defaults: {
+                style: {
+                    paddingRight: '50px'
+                }
+            },
+            items: [
+                {
+                    xtype: 'summary',
+                    flex: 3,
+                    wTitle: 'Communication summary', //TODO: localize
+                    style: {
+                        paddingRight: '150px'
+                    }
+                },
+                {
+                    xtype: 'communication-servers',
+                    flex: 1,
+                    style: {
+                        borderRight: '3px dotted grey'
+                    }
+                },
+                {
+                    xtype: 'quick-links',
+                    flex: 1,
+                    style: {
+                        paddingLeft: '50px'
+                    }
+                }
+            ]
+        },
+        {
+            xtype: 'read-outs-over-time'
+        },
+        {
+            xtype: 'overview'
+        },
+        {
+            xtype: 'breakdown'
+        }
+    ],
     initComponent: function () {
         this.callParent(arguments);
     }

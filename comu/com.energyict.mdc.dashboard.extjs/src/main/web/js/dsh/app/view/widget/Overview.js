@@ -1,16 +1,13 @@
 Ext.define('Dsh.view.widget.Overview', {
     extend: 'Ext.panel.Panel',
+    requires: [ 'Dsh.view.widget.common.Bar' ],
     alias: 'widget.overview',
     itemId: 'overview',
     title: 'Overview', // TODO: localize
     ui: 'medium',
-    requires: [
-        'Dsh.view.widget.Bar'
-    ],
     style: {
         paddingTop: 0
     },
-    colspan: 4,
     layout: 'column',
     defaults: {
         columnWidth: .5,

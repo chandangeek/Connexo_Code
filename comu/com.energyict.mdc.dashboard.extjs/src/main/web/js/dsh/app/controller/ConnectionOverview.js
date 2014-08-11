@@ -5,56 +5,32 @@ Ext.define('Dsh.controller.ConnectionOverview', {
         'Dsh.model.ConnectionCounter',
         'Dsh.model.ConnectionBreakdown',
         'Dsh.model.ConnectionOverview',
-        'Dsh.model.ConnectionSummary'
+        'Dsh.model.ConnectionSummary',
+        'Dsh.model.CommunicationServerInfo',
+        'Dsh.model.OverviewPerCurrentStateInfo',
+        'Dsh.model.OverviewPerLastResultInfo',
+        'Dsh.model.TimeInfo',
+        'Dsh.model.CounterInfo'
     ],
     stores: [
         'CommunicationServerInfos',
         'OverviewPerCurrentStateInfos',
         'OverviewPerLastResultInfos'
     ],
-    views: [
-        'Dsh.view.widget.HSeparator',
-        'Dsh.view.widget.OverviewHeader',
-        'Dsh.view.widget.Summary',
-        'Dsh.view.widget.CommunicationServers',
-        'Dsh.view.widget.QuickLinks',
-        'Dsh.view.widget.ReadOutsOverTime',
-        'Dsh.view.widget.Overview',
-        'Dsh.view.widget.Breakdown',
-        'Dsh.view.ConnectionOverview'
-    ],
+    views: [ 'Dsh.view.ConnectionOverview' ],
     refs: [
-        {ref: 'heatmapchart', selector: '#breakdown'}
+        { ref: 'heatmapchart', selector: '#breakdown' }
     ],
     init: function () {
         this.control({
-            '#brakdownchartcombinecombobox' : {
+            '#brakdownchartcombinecombobox': {
                 change: this.combineComboChanged
             }
         });
         this.callParent(arguments);
     },
     showOverview: function () {
-        var widget = Ext.widget('connection-overview');
-        widget.add(Ext.widget('overview-header', { headerTitle: 'Connection overview' })); //TODO: localize
-        widget.add(Ext.widget('summary', { title: 'Connection summary' }));
-        widget.add(Ext.widget('communication-servers'));
-        widget.add(Ext.widget('quicklinks', {
-            data: [ //TODO: check & change
-                { link: 'View all connections', href: '#/workspace/datacommunication/connections' },
-                { link: 'Communication overview', href: '#/workspace/datacommunication/communication' },
-                { link: 'Some link 1', href: '#' },
-                { link: 'Some link 2', href: '#' },
-                { link: 'Some link 3', href: '#' }
-            ]
-        }));
-        widget.add(Ext.widget('h-sep'));
-        widget.add(Ext.widget('read-outs-over-time'));
-        widget.add(Ext.widget('h-sep'));
-        widget.add(Ext.widget('overview'));
-        widget.add(Ext.widget('h-sep'));
-        widget.add(Ext.widget('breakdown'));
-        this.getApplication().fireEvent('changecontentevent', widget);
+        this.getApplication().fireEvent('changecontentevent', Ext.widget('connection-overview'));
         this.loadBreakdownData('comPortPool');
     },
 
