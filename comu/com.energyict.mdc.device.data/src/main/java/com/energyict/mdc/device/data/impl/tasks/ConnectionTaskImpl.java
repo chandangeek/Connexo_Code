@@ -526,6 +526,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         super.post();
     }
 
+    @Override
     public ConnectionMethod getConnectionMethod() {
         return connectionMethod.get();
     }
