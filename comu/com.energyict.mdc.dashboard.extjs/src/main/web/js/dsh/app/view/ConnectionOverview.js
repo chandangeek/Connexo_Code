@@ -29,7 +29,7 @@ Ext.define('Dsh.view.ConnectionOverview', {
     items: [
         {
             xtype: 'header-section',
-            wTitle: 'Connection overview', //TODO: localize
+            wTitle: Uni.I18n.translate('connection.widget.headerSection.title', 'DSH', 'Connection overview'),
             style: 'none'
         },
         {
@@ -47,7 +47,7 @@ Ext.define('Dsh.view.ConnectionOverview', {
                 {
                     xtype: 'summary',
                     flex: 3,
-                    wTitle: 'Connection summary', //TODO: localize
+                    wTitle: Uni.I18n.translate('connection.widget.summary.title', 'DSH', 'Connection summary'),
                     style: {
                         paddingRight: '150px'
                     }
@@ -65,9 +65,15 @@ Ext.define('Dsh.view.ConnectionOverview', {
                     style: {
                         paddingLeft: '50px'
                     },
-                    data: [ //TODO: check & change
-                        { link: 'View all connections', href: '#/workspace/datacommunication/connections' },
-                        { link: 'Communication overview', href: '#/workspace/datacommunication/communication' },
+                    data: [ //TODO: set real data
+                        {
+                            link: Uni.I18n.translate('connection.widget.quicklinks.viewAll', 'DSH', 'View all connections'),
+                            href: '#/workspace/datacommunication/connections'
+                        },
+                        {
+                            link: Uni.I18n.translate('communication.widget.headerSection.title', 'DSH', 'Communication overview'),
+                            href: '#/workspace/datacommunication/communication'
+                        },
                         { link: 'Some link 1', href: '#' },
                         { link: 'Some link 2', href: '#' },
                         { link: 'Some link 3', href: '#' }

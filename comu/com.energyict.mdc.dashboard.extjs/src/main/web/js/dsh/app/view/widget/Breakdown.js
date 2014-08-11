@@ -3,7 +3,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
     alias: 'widget.breakdown',
     height: 450,
     itemId: 'breakdown',
-    title: 'Breakdown', // TODO: localize
+    title: Uni.I18n.translate('overview.widget.breakdown.title', 'DSH', 'Breakdown'),
     ui: 'medium',
     layout: {
         type: 'vbox',

@@ -2,7 +2,7 @@ Ext.define('Dsh.view.widget.Summary', {
     extend: 'Ext.panel.Panel',
     requires: [ 'Dsh.view.widget.common.Bar' ],
     alias: 'widget.summary',
-    wTitle: 'Summary', //TODO: localize
+    wTitle: Uni.I18n.translate('overview.widget.summary.title', 'DSH', 'Summary'),
     initComponent: function () {
         var me = this;
         this.items = [
@@ -13,7 +13,7 @@ Ext.define('Dsh.view.widget.Summary', {
                 itemSelector: 'tbody.item',
                 cls: 'summary',
                 total: 945,
-                store: Ext.create('Ext.data.Store', {
+                store: Ext.create('Ext.data.Store', { //TODO: set real
                     fields: ['title', 'alias', 'count', 'child'],
                     data: [
                         {

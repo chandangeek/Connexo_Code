@@ -3,7 +3,7 @@ Ext.define('Dsh.view.widget.Overview', {
     requires: [ 'Dsh.view.widget.common.Bar' ],
     alias: 'widget.overview',
     itemId: 'overview',
-    title: 'Overview', // TODO: localize
+    title: Uni.I18n.translate('overview.widget.overview.title', 'DSH', 'Overview'),
     ui: 'medium',
     style: {
         paddingTop: 0
@@ -30,55 +30,43 @@ Ext.define('Dsh.view.widget.Overview', {
             }
         }
     },
-    items: [
-        {
-            xtype: 'dataview',
-            store: 'OverviewPerCurrentStateInfos',
-            itemSelector: 'table',
-            style: {
-                paddingRight: '25px'
-            },
-            tpl: new Ext.XTemplate(
-                '<div>',
-                    '<tpl for=".">',
-                        '<h3>{displayName}</h3>',
-                        '<table style="width: 100%">',
-                            '<tpl for="counters">',
-                                '<tr>',
-                                    '<td style="width: 30%"><a href="#">{displayName}</a></td>',
-                                    '<td><div id="bar-{#}"></div></td>',
-                                '</tr>',
-                            '</tpl>',
-                        '</table>',
+    commonTpl: new Ext.XTemplate(
+        '<div>',
+            '<tpl for=".">',
+                '<h3>{displayName}</h3>',
+                '<table style="width: 100%">',
+                    '<tpl for="counters">',
+                        '<tr>',
+                            '<td style="width: 30%"><a href="#">{displayName}</a></td>',
+                            '<td><div id="bar-{#}"></div></td>',
+                        '</tr>',
                     '</tpl>',
-                '</div>'
-            )
-        },
-        {
-            xtype: 'dataview',
-            store: 'OverviewPerLastResultInfos',
-            itemSelector: 'table',
-            style: {
-                paddingLeft: '25px'
-            },
-            tpl: new Ext.XTemplate(
-                '<div>',
-                    '<tpl for=".">',
-                        '<h3>{displayName}</h3>',
-                        '<table style="width: 100%">',
-                            '<tpl for="counters">',
-                                '<tr>',
-                                    '<td style="width: 30%"><a href="#">{displayName}</a></td>',
-                                    '<td><div id="bar-{#}"></div></td>',
-                                '</tr>',
-                            '</tpl>',
-                        '</table>',
-                    '</tpl>',
-                '</div>'
-            )
-        }
-    ],
+                '</table>',
+            '</tpl>',
+        '</div>'
+    ),
     initComponent: function () {
+        var me = this;
+        this.items = [
+            {
+                xtype: 'dataview',
+                store: 'OverviewPerCurrentStateInfos',
+                itemSelector: 'table',
+                tpl: me.commonTpl,
+                style: {
+                    paddingRight: '25px'
+                }
+            },
+            {
+                xtype: 'dataview',
+                store: 'OverviewPerLastResultInfos',
+                itemSelector: 'table',
+                tpl: me.commonTpl,
+                style: {
+                    paddingLeft: '25px'
+                }
+            }
+        ];
         this.callParent(arguments);
     }
 });

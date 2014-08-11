@@ -2,6 +2,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.read-outs-over-time',
     itemId: 'read-outs-over-time',
+    title: Uni.I18n.translate('overview.widget.readOutsOverTime.title', 'DSH', 'Read-outs over time'),
     title: 'Read-outs over time', // TODO: localize
     ui: 'medium',
     layout: 'fit',

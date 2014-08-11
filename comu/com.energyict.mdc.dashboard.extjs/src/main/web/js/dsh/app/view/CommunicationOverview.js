@@ -29,7 +29,7 @@ Ext.define('Dsh.view.CommunicationOverview', {
     items: [
         {
             xtype: 'header-section',
-            wTitle: 'Communication overview', //TODO: localize
+            wTitle: Uni.I18n.translate('communication.widget.headerSection.title', 'DSH', 'Communication overview'),
             style: 'none'
         },
         {
@@ -47,7 +47,7 @@ Ext.define('Dsh.view.CommunicationOverview', {
                 {
                     xtype: 'summary',
                     flex: 3,
-                    wTitle: 'Communication summary', //TODO: localize
+                    wTitle: Uni.I18n.translate('communication.widget.summary.title', 'DSH', 'Communication summary'),
                     style: {
                         paddingRight: '150px'
                     }
@@ -65,9 +65,15 @@ Ext.define('Dsh.view.CommunicationOverview', {
                     style: {
                         paddingLeft: '50px'
                     },
-                    data: [ //TODO: check & change
-                        { link: 'View all communication tasks', href: '#/workspace/datacommunication/communications' },
-                        { link: 'Connection overview', href: '#/workspace/datacommunication/connection' },
+                    data: [ //TODO: set real data
+                        {
+                            link: Uni.I18n.translate('communication.widget.quicklinks.viewAll', 'DSH', 'View all communications'),
+                            href: '#/workspace/datacommunication/communication'
+                        },
+                        {
+                            link: Uni.I18n.translate('connection.widget.headerSection.title', 'DSH', 'Connection overview'),
+                            href: '#/workspace/datacommunication/connection'
+                        },
                         { link: 'Some link 1', href: '#' },
                         { link: 'Some link 2', href: '#' },
                         { link: 'Some link 3', href: '#' }

@@ -2,7 +2,7 @@ Ext.define('Dsh.view.widget.HeaderSection', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.header-section',
     itemId: 'header-section',
-    wTitle: 'Overview', //TODO: localize
+    wTitle: Uni.I18n.translate('overview.widget.headerSection.title', 'DSH', 'Overview'),
     layout: 'column',
     initComponent: function () {
         var me = this;
@@ -18,7 +18,7 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                     float: 'left',
                     marginTop: '18px'
                 },
-                fieldLabel: 'for device group', //TODO: localize
+                fieldLabel: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'for device group'),
                 labelWidth: 150,
                 displayField: 'group',
                 valueField: 'id',
@@ -48,7 +48,7 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                     },
                     {
                         xtype: 'button',
-                        text: 'Refresh', //TODO: localize
+                        text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
                         iconCls: 'fa fa-refresh fa-lg' //TODO: set real img
                     }
                 ]
