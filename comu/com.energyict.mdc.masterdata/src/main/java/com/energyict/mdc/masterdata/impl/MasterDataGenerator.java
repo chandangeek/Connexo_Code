@@ -46,6 +46,7 @@ public class MasterDataGenerator {
             {"Capactive Power","kvar"},
             {"Current","A"},
             {"Energy","kWh"},
+            {"Energy","Wh"},
             {"Energy","MJ"},
             {"Gas Consumption","kWh"},
             {"Gas Flow","m3/h"},
@@ -57,8 +58,9 @@ public class MasterDataGenerator {
             {"Inductive Power","kvar"},
             {"Pressure","bar"},
             {"Reactive Energy","kvarh"},
+            {"Reactive Energy","varh"},
             {"Reactive Power","kvar"},
-            {"Temperature","°C"},
+            {"Temperature","\u00B0C"},
             {"Temperature","K"},
             {"Voltage","V"},
             {"Water Volume","m3"}
