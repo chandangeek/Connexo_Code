@@ -333,8 +333,11 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             pageData = me.getPageData();
             currPage = pageData.currentPage;
             pageCount = pageData.pageCount;
-
-            me.totalCount = me.totalCount < me.store.getTotalCount() ? me.store.getTotalCount() : me.totalCount;
+            if (me.isSecondPagination) {
+                me.totalCount = me.store.getTotalCount();
+            } else {
+                me.totalCount = me.totalCount < me.store.getTotalCount() ? me.store.getTotalCount() : me.totalCount;
+            }
             me.totalPages = Math.ceil(me.totalCount / me.store.pageSize);
         } else {
             currPage = 0;
@@ -460,7 +463,6 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             start = me.getPageStartValue(pageOffset);
             container.add(me.createPageNavItem(i, start, pageOffset === 0));
         }
-
         if (container.rendered) {
             Ext.resumeLayouts(true);
         }
