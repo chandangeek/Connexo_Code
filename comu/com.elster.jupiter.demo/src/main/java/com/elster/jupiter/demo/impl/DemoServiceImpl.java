@@ -263,8 +263,8 @@ public class DemoServiceImpl implements DemoService {
 
         RegisterGroup tariff2 = masterDataService.newRegisterGroup(REGISTER_GROUP_TARIFF_2);
         tariff2.save();
-        tariff1.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
-        tariff1.addRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        tariff2.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
+        tariff2.addRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
         registerGroups.put(REGISTER_GROUP_TARIFF_2, tariff2);
         return registerGroups;
     }
