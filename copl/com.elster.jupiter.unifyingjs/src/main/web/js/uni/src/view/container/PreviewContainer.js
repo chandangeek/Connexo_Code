@@ -183,12 +183,20 @@ Ext.define('Uni.view.container.PreviewContainer', {
         var me = this,
             selection = me.grid.view.getSelectionModel().getSelection();
 
+        if (me.rendered) {
+            Ext.suspendLayouts();
+        }
+
         if (me.previewComponent) {
             me.previewComponent.setVisible(selection.length === 1);
         }
 
         me.resetChildPagingTop();
         me.resetChildPagingBottom();
+
+        if (me.rendered) {
+            Ext.resumeLayouts(true);
+        }
     },
 
     getStoreListeners: function () {
