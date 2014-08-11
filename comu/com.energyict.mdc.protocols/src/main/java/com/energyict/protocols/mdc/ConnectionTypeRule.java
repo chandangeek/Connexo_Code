@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.protocols.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
 import com.energyict.protocols.mdc.channels.ip.InboundIpConnectionType;
@@ -20,6 +20,7 @@ import com.energyict.protocols.mdc.channels.serial.optical.rxtx.RxTxOpticalConne
 import com.energyict.protocols.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.protocols.mdc.channels.sms.OutboundProximusSmsConnectionType;
+import com.google.common.base.Optional;
 
 /**
  * List all existing ConnectionType pluggable classes
@@ -57,6 +58,15 @@ public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionTyp
 
     public Class<? extends ConnectionType> getProtocolTypeClass() {
         return connectionTypeClass;
+    }
+
+    public static Optional<String> getConnectionTypeName(Class<? extends ConnectionType> connectionTypeClass) {
+        for (ConnectionTypeRule connectionTypeRule : ConnectionTypeRule.values()) {
+            if (connectionTypeRule.connectionTypeClass.equals(connectionTypeClass)) {
+                return Optional.of(connectionTypeRule.name());
+            }
+        }
+        return Optional.absent();
     }
 
 
