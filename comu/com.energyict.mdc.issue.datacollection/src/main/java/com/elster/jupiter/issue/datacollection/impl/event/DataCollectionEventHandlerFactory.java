@@ -1,5 +1,7 @@
 package com.elster.jupiter.issue.datacollection.impl.event;
 
+import com.energyict.mdc.device.data.DeviceDataService;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.datacollection.impl.ModuleConstants;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -11,8 +13,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -23,12 +23,11 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     private volatile IssueService issueService;
     private volatile MeteringService meteringService;
     private volatile DeviceDataService deviceDataService;
-    private volatile TaskHistoryService taskHistoryService;
     private volatile Thesaurus thesaurus;
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new DataCollectionEventHandler(jsonService, issueService, issueCreationService, meteringService, deviceDataService, taskHistoryService, thesaurus);
+        return new DataCollectionEventHandler(jsonService, issueService, issueCreationService, meteringService, deviceDataService, thesaurus);
     }
 
     @Reference
@@ -50,15 +49,10 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
-    
+
     @Reference
     public final void setDeviceDataService(DeviceDataService deviceDataService) {
         this.deviceDataService = deviceDataService;
-    }
-    
-    @Reference
-    public void setTaskHistoryService(TaskHistoryService taskHistoryService) {
-        this.taskHistoryService = taskHistoryService;
     }
 
     @Reference

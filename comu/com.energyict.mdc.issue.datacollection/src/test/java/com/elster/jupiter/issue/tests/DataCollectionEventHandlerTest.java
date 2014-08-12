@@ -42,7 +42,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         String serializedMap = getJsonService().serialize(messageMap);
         Message message = getMockMessage(serializedMap);
         Boolean isProcessed = false;
-        DataCollectionEventHandler handler = new DataCollectionEventHandler(getJsonService(), getIssueService(), getMockIssueCreationService(), meteringService, deviceDataService, getTaskHistoryService(), getThesaurus());
+        DataCollectionEventHandler handler = new DataCollectionEventHandler(getJsonService(), getIssueService(), getMockIssueCreationService(), meteringService, deviceDataService, getThesaurus());
         try {
             handler.process(message);
         } catch (DispatchCreationEventException ex) {
@@ -59,7 +59,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         String serializedMap = getJsonService().serialize(messageMap);
         Message message = getMockMessage(serializedMap);
         Boolean isProcessed = false;
-        DataCollectionEventHandler handler = new DataCollectionEventHandler(getJsonService(), getIssueService(), getMockIssueCreationService(), getMeteringService(), getDeviceDataService(), getTaskHistoryService(), getThesaurus());
+        DataCollectionEventHandler handler = new DataCollectionEventHandler(getJsonService(), getIssueService(), getMockIssueCreationService(), getMeteringService(), getDeviceDataService(), getThesaurus());
         try {
             handler.process(message);
         } catch (DispatchCreationEventException ex) {

@@ -1,5 +1,7 @@
 package com.elster.jupiter.issue.datacollection.impl.event;
 
+import com.energyict.mdc.device.data.DeviceDataService;
+
 import com.elster.jupiter.issue.datacollection.DataCollectionEvent;
 import com.elster.jupiter.issue.datacollection.MeterIssueEvent;
 import com.elster.jupiter.issue.datacollection.impl.UnableToCreateEventException;
@@ -11,8 +13,6 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 import org.osgi.service.event.EventConstants;
 
 import java.util.Map;
@@ -26,7 +26,6 @@ public class DataCollectionEventHandler implements MessageHandler {
     private final IssueService issueService;
     private final MeteringService meteringService;
     private final DeviceDataService deviceDataService;
-    private final TaskHistoryService taskHistoryService;
     private final Thesaurus thesaurus;
 
     public DataCollectionEventHandler(
@@ -35,14 +34,12 @@ public class DataCollectionEventHandler implements MessageHandler {
             IssueCreationService issueCreationService,
             MeteringService meteringService,
             DeviceDataService deviceDataService,
-            TaskHistoryService taskHistoryService,
             Thesaurus thesaurus) {
         this.jsonService = jsonService;
         this.issueService = issueService;
         this.issueCreationService = issueCreationService;
         this.meteringService = meteringService;
         this.deviceDataService = deviceDataService;
-        this.taskHistoryService = taskHistoryService;
         this.thesaurus = thesaurus;
     }
 
@@ -66,7 +63,7 @@ public class DataCollectionEventHandler implements MessageHandler {
             if (DataCollectionEventDescription.DEVICE_EVENT.equals(eventDescription)) {
                 event = new MeterIssueEvent(issueService, meteringService, deviceDataService, thesaurus, map);
             } else {
-                event = new DataCollectionEvent(issueService, meteringService, deviceDataService, taskHistoryService, thesaurus, map);
+                event = new DataCollectionEvent(issueService, meteringService, deviceDataService, thesaurus, map);
             }
         } catch (UnableToCreateEventException e) {
             LOG.severe(e.getMessage());

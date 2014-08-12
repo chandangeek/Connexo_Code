@@ -1,7 +1,7 @@
 package com.elster.jupiter.issue.datacollection.impl.event;
 
 import com.elster.jupiter.issue.datacollection.impl.i18n.MessageSeeds;
-import com.energyict.mdc.tasks.history.CommunicationErrorType;
+import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 
 public enum DataCollectionEventDescription {
     UNKNOWN_INBOUND_DEVICE(

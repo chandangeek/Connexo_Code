@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
+
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
@@ -42,7 +42,7 @@ public class DataCollectionEventTest extends BaseTest {
         when(meteringService.getMeterQuery()).thenReturn(meterQuery);
         when(meterQuery.select(Matchers.any(Condition.class))).thenReturn(Collections.singletonList(meter));
 
-        DataCollectionEvent event = new DataCollectionEvent(getIssueService(), meteringService, deviceDataService, mock(TaskHistoryService.class), getThesaurus(), messageMap);
+        DataCollectionEvent event = new DataCollectionEvent(getIssueService(), meteringService, deviceDataService, getThesaurus(), messageMap);
 
         assertThat(event.getEventType()).isEqualTo(topic);
         assertThat(event.getDevice().getAmrId()).isEqualTo("test");
