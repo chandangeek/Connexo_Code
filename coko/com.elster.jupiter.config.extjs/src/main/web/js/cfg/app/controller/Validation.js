@@ -461,24 +461,22 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     showRuleSetOverview: function (id) {
-        var me = this,
-            ruleSetsStore = Ext.getStore('ValidationRuleSets') || Ext.create('Cfg.store.ValidationRuleSets');
-        ruleSetsStore.load({
-            params: {
-                id: id
-            },
-            callback: function () {
-                var selectedRuleSet = ruleSetsStore.getByInternalId(id),
-                    rulesContainerWidget = Ext.widget('ruleSetOverview', {ruleSetId: id});
+        var me = this;
+
+        Cfg.model.ValidationRuleSet.load(id, {
+            success: function (ruleSet) {
+                var rulesContainerWidget = Ext.widget('ruleSetOverview', {ruleSetId: id});
                 me.getApplication().fireEvent('changecontentevent', rulesContainerWidget);
-                me.getRulesetOverviewForm().loadRecord(selectedRuleSet);
-                rulesContainerWidget.down('#stepsMenu').setTitle(selectedRuleSet.get('name'));
+
+                me.getRulesetOverviewForm().loadRecord(ruleSet);
+                rulesContainerWidget.down('#stepsMenu').setTitle(ruleSet.get('name'));
                 if (me.mdcIsActive) {
                     rulesContainerWidget.down('#deviceConfigLink').show();
                 }
-                me.getApplication().fireEvent('loadRuleSet', selectedRuleSet);
+
+                me.getApplication().fireEvent('loadRuleSet', ruleSet);
                 rulesContainerWidget.down('ruleset-action-menu').down('#viewRuleSet').hide();
-                rulesContainerWidget.down('ruleset-action-menu').record = selectedRuleSet;
+                rulesContainerWidget.down('ruleset-action-menu').record = ruleSet;
             }
         });
     },
@@ -712,7 +710,7 @@ Ext.define('Cfg.controller.Validation', {
                 if (self.getRuleSetBrowsePanel()) {
                     gridRuleSet.getStore().load({
                         callback: function () {
-                            Ext.Function.defer(function(){
+                            Ext.Function.defer(function () {
                                 ruleSetSelModel.select(ruleSet);
                                 self.getRuleSetBrowsePanel().setLoading(false);
                             }, 5000);

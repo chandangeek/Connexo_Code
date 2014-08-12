@@ -1,7 +1,8 @@
 Ext.define('Cfg.view.validation.RuleSetOverview', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.ruleSetOverview',
+    xtype: 'ruleSetOverview',
     itemId: 'ruleSetOverview',
+
     requires: [
         'Cfg.model.ValidationRuleSet',
         'Cfg.view.validation.RuleSetSubMenu',
@@ -24,7 +25,6 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                             xtype: 'form',
                             border: false,
                             itemId: 'rulesetOverviewForm',
-                            name: 'rulesetOverviewForm',
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
