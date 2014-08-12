@@ -143,12 +143,14 @@ public interface DeviceDataService {
     public Map<TaskStatus, Long> getConnectionTaskStatusCount(ConnectionTaskFilterSpecification filter);
 
     /**
-     * finds all {@link ConnectionTask}s that match the specified filter.
+     * Finds all {@link ConnectionTask}s that match the specified filter.
      *
      * @param filter The ConnectionTaskFilter
+     * @param pageStart The first ConnectionTask
+     * @param pageSize The maximum number of ConnectionTasks
      * @return The List of ConnectionTask
      */
-    public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter);
+    public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter, int pageStart, int pageSize);
 
     /**
      * Sets the specified {@link ConnectionTask} as the default for the Device

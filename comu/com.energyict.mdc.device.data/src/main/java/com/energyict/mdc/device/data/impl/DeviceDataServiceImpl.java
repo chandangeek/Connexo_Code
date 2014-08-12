@@ -211,7 +211,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             this.releaseTimedOutComTasks((OutboundComPortPool) comPortPool);
             waitTime = this.minimumWaitTime(waitTime, ((OutboundComPortPool)comPortPool).getTaskExecutionTimeout().getSeconds());
         }
-        if (waitTime < 0) {
+        if (waitTime <= 0) {
             return new TimeDuration(1, TimeDuration.DAYS);
         } else {
             return new TimeDuration(waitTime, TimeDuration.SECONDS);
@@ -420,10 +420,10 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
-    public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter) {
+    public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter, int pageStart, int pageSize) {
         ConnectionTaskFilterSqlBuilder sqlBuilder = new ConnectionTaskFilterSqlBuilder(filter, this.clock);
         DataMapper<ConnectionTask> dataMapper = this.dataModel.mapper(ConnectionTask.class);
-        return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper));
+        return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper, pageStart, pageSize));
     }
 
     private List<ConnectionTask> fetchConnectionTasks(DataMapper<ConnectionTask> dataMapper, SqlBuilder sqlBuilder) {
