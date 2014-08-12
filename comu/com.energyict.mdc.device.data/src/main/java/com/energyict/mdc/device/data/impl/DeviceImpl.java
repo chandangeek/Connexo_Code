@@ -1,36 +1,67 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.*;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.common.*;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.data.exceptions.*;
+import com.energyict.mdc.device.data.CommunicationTopologyEntry;
+import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
+import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.*;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.impl.tasks.AdHocComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -44,6 +75,36 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -52,7 +113,21 @@ import org.joda.time.DateTime;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeMap;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -918,22 +993,24 @@ public class DeviceImpl implements Device {
     public void store(MeterReading meterReading) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
-            Meter meter = findOrCreateMeterInKore(amrSystem);
+            Meter meter = findOrCreateKoreMeter(amrSystem.get());
             meter.store(meterReading);
         }
     }
 
-    private Meter findOrCreateMeterInKore(Optional<AmrSystem> amrSystem) {
-        Optional<Meter> holder = amrSystem.get().findMeter(String.valueOf(getId()));
-        Meter meter;
+    private Optional<Meter> findKoreMeter(AmrSystem amrSystem) {
+        return amrSystem.findMeter(String.valueOf(getId()));
+    }
+
+    private Meter findOrCreateKoreMeter(AmrSystem amrSystem) {
+        Optional<Meter> holder = this.findKoreMeter(amrSystem);
         if (!holder.isPresent()) {
-            // create meter
-            meter = amrSystem.get().newMeter(String.valueOf(getId()), getmRID());
+            Meter meter = amrSystem.newMeter(String.valueOf(getId()), getmRID());
             meter.save();
+            return meter;
         } else {
-            meter = holder.get();
+            return holder.get();
         }
-        return meter;
     }
 
     private Optional<AmrSystem> getMdcAmrSystem() {
@@ -943,13 +1020,15 @@ public class DeviceImpl implements Device {
     List<ReadingRecord> getReadingsFor(Register<?> register, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
-            Meter meter = findOrCreateMeterInKore(amrSystem);
-            List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
-            List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
-            for (BaseReadingRecord reading : readings) {
-                readingRecords.add((ReadingRecord) reading);
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                List<? extends BaseReadingRecord> readings = meter.get().getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
+                List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
+                for (BaseReadingRecord reading : readings) {
+                    readingRecords.add((ReadingRecord) reading);
+                }
+                return readingRecords;
             }
-            return readingRecords;
         }
         return Collections.emptyList();
     }
@@ -958,16 +1037,11 @@ public class DeviceImpl implements Device {
     public List<LoadProfileReading> getChannelDataFor(LoadProfile loadProfile, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         Map<Date, LoadProfileReading> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval);
-
         if (amrSystem.isPresent()) {
-            Meter meter = findOrCreateMeterInKore(amrSystem);
-            for (Channel channel : loadProfile.getChannels()) {
-                List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(interval, channel.getChannelSpec().getReadingType());
-                for (IntervalReadingRecord meterReading : meterReadings) {
-                    LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                    loadProfileReading.setChannelData(channel, meterReading.getValue());
-                    loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
-                    loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                for (Channel channel : loadProfile.getChannels()) {
+                    this.getUnsortedChannelDataFor(interval, meter.get(), channel, sortedLoadProfileReadingMap);
                 }
             }
         }
@@ -977,21 +1051,35 @@ public class DeviceImpl implements Device {
     @Override
     public List<LoadProfileReading> getChannelDataFor(Channel channel, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        Map<Date, LoadProfileReading> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap((LoadProfile) channel.getLoadProfile(), interval);
-
+        Map<Date, LoadProfileReading> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval);
         if (amrSystem.isPresent()) {
-            Meter meter = findOrCreateMeterInKore(amrSystem);
-            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(interval, channel.getChannelSpec().getReadingType());
-            for (IntervalReadingRecord meterReading : meterReadings) {
-                LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                loadProfileReading.setChannelData(channel, meterReading.getValue());
-                loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
-                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                this.getUnsortedChannelDataFor(interval, meter.get(), channel, sortedLoadProfileReadingMap);
             }
         }
         return new ArrayList<>(sortedLoadProfileReadingMap.values());
     }
 
+    private void getUnsortedChannelDataFor(Interval interval, Meter meter, Channel mdcChannel, Map<Date, LoadProfileReading> sortedLoadProfileReadingMap) {
+        List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, interval);
+        for (MeterActivation meterActivation : meterActivations) {
+            Interval meterActivationInterval = meterActivation.getInterval().intersection(interval);
+            ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
+            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
+            Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
+            if (koreChannel.isPresent()) {
+                // Todo: process the reading qualities, adding them somehow to the LoadProfileReading
+                this.validationService.getValidationStatus(koreChannel.get(), meterReadings);
+            }
+            for (IntervalReadingRecord meterReading : meterReadings) {
+                LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
+                loadProfileReading.setChannelData(mdcChannel, meterReading.getValue());
+                loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
+                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+            }
+        }
+    }
 
     private List<ProfileStatus.Flag> getFlagsFromProfileStatus(ProfileStatus profileStatus) {
         List<ProfileStatus.Flag> flags = new ArrayList<>();
@@ -1005,14 +1093,14 @@ public class DeviceImpl implements Device {
 
     private Map<Date, LoadProfileReading> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval interval) {
         Map<Date, LoadProfileReading> loadProfileReadingMap = new TreeMap<>();
-        DateTime timeIndex = new DateTime(interval.getStart().getTime());
+        DateTime timeIndex = this.getIntervalEnd(loadProfile.getInterval(), new DateTime(interval.getStart().getTime()));
         DateTime endTime = new DateTime(interval.getEnd().getTime());
-        while (timeIndex.compareTo(endTime)<0) {
+        while (timeIndex.compareTo(endTime) <= 0) {
             DateTime intervalEnd = getIntervalEnd(loadProfile.getInterval(), timeIndex);
             LoadProfileReading value = new LoadProfileReadingImpl();
             value.setInterval(new Interval(timeIndex.toDate(), intervalEnd.toDate()));
             loadProfileReadingMap.put(timeIndex.toDate(), value);
-            timeIndex=intervalEnd;
+            timeIndex = intervalEnd;
         }
         return loadProfileReadingMap;
     }
@@ -1053,8 +1141,13 @@ public class DeviceImpl implements Device {
     Optional<ReadingRecord> getLastReadingFor(Register<?> register) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
-            Meter meter = findOrCreateMeterInKore(amrSystem);
-            return this.getLastReadingsFor(register, meter);
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                return this.getLastReadingsFor(register, meter.get());
+            }
+            else {
+                return Optional.absent();
+            }
         }
         else {
             return Optional.absent();
@@ -1095,6 +1188,26 @@ public class DeviceImpl implements Device {
             }
         }
         return Optional.absent();
+    }
+
+    /**
+     * Sorts the {@link MeterActivation}s of the specified {@link Meter}
+     * that overlap with the {@link Interval}, where the most recent activations are returned first.
+     *
+     * @param meter The Meter
+     * @param interval The Interval
+     * @return The List of MeterActivation
+     */
+    private List<MeterActivation> getSortedMeterActivations(Meter meter, Interval interval) {
+        List<? extends MeterActivation> allActivations = meter.getMeterActivations();
+        List<MeterActivation> overlapping = new ArrayList<>(allActivations.size());
+        for (MeterActivation activation : allActivations) {
+            if (activation.overlaps(interval)) {
+                overlapping.add(activation);
+            }
+        }
+        Collections.reverse(overlapping);
+        return overlapping;
     }
 
     private Optional<ReadingRecord> getLast(List<ReadingRecord> readings) {

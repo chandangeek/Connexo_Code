@@ -6,6 +6,8 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -14,10 +16,13 @@ import java.util.Date;
  * Date: 3/14/14
  * Time: 11:43 AM
  */
-public interface Channel extends BaseChannel{
+public interface Channel extends BaseChannel {
 
     @Override
     Device getDevice();
+
+    @Override
+    LoadProfile getLoadProfile();
 
     /**
      * Returns the configured interval in seconds.
