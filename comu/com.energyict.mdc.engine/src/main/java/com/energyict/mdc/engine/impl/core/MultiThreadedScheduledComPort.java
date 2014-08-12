@@ -180,20 +180,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
                 }
             }
             this.scheduleGroups(groups);
-            giveTheConsumersSomeSpace();
             return -1;
-        }
-
-        /**
-         * After we populate the queue, it is recommended to wait a couple of seconds for the workers to fetch and lock the tasks.
-         * This way the first tasks aren't fetched again and only non busy tasks are put on the queue.
-         */
-        private void giveTheConsumersSomeSpace() {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
         }
 
         /**
