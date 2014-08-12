@@ -803,42 +803,48 @@ Ext.define('Cfg.controller.Validation', {
         });
     },
 
-    showRuleOverview: function (id) {
+    showRuleOverview: function (ruleSetId, ruleId) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            params = router.routeparams,
-            rulesStore = me.getStore('Cfg.store.ValidationRules'),
             rulesContainerWidget = Ext.widget('ruleOverview',
                 {
-                    ruleSetId: id,
-                    ruleId: params.ruleId
+                    ruleSetId: ruleSetId,
+                    ruleId: ruleId
                 }
-            ),
-            rule;
+            );
+
         me.getApplication().fireEvent('changecontentevent', rulesContainerWidget);
-        rulesContainerWidget.setLoading();
-        rulesStore.load({
-            params: {
-                id: id
-            },
-            callback: function (records) {
-                var itemForm = rulesContainerWidget.down('validation-rule-preview');
-                Ext.Array.each(records, function (item) {
-                    if (params.ruleId == item.get('id')) {
-                        rule = item;
+        rulesContainerWidget.setLoading(true);
+
+        // TODO This is not performant whatsoever. Refactor when there is a REST call that filters on rule id.
+
+        Ext.Ajax.request({
+            url: '/api/val/validation/rules/' + ruleSetId,
+            params: {},
+            disableCaching: false,
+            method: 'GET',
+            success: function (response) {
+                var rules = Ext.JSON.decode(response.responseText).rules,
+                    itemForm = rulesContainerWidget.down('validation-rule-preview'),
+                    rule = {};
+
+                Ext.Array.each(rules, function (ruleJson) {
+                    if (parseInt(ruleId) === ruleJson.id) {
+                        rule = Ext.create('Cfg.model.ValidationRule', ruleJson);
+                        return;
                     }
                 });
+
                 itemForm.updateValidationRule(rule);
-                me.ruleSetId = id;
                 itemForm.down('#rulePreviewActionsButton').destroy();
                 itemForm.setTitle('');
+
                 me.getApplication().fireEvent('loadRule', rule);
                 rulesContainerWidget.down('validation-rule-action-menu').record = rule;
                 rulesContainerWidget.down('validation-rule-action-menu').down('#view').hide();
                 rulesContainerWidget.down('#stepsRuleMenu').setTitle(rule.get('name'));
-                me.getValidationRuleSetsStore().load({
-                    callback: function () {
-                        var ruleSet = this.getById(parseInt(params.ruleSetId));
+
+                Cfg.model.ValidationRuleSet.load(ruleSetId, {
+                    success: function (ruleSet) {
                         me.getApplication().fireEvent('loadRuleSet', ruleSet);
                         rulesContainerWidget.setLoading(false);
                     }
