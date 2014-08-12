@@ -6,5 +6,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class LastCheckedInfo {
 
     public Long lastChecked;
+    public boolean validate;
 
 }

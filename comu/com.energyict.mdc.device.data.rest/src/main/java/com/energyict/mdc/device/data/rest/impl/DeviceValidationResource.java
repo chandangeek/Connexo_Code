@@ -1,9 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
@@ -121,9 +118,24 @@ public class DeviceValidationResource {
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         MeterActivation activation = getCurrentMeterActivation(device);
+        /*
+         * This code should be removed probably but for now it is in use.
+         * We get lastChecked and hasValidated from "/davicevalidation" request.
+         * It creates meterActivationValidations and ChennelValidations for a newly added rulsets.
+         * "/validationstatus" doesn't use lock and should be used to get only activation status of the device.
+         */
+        // -> //
         Date minDate = validationService.getLastChecked(activation);
+
         DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo
                 (validationService.getMeterValidation(activation).get().getActivationStatus(), minDate);
+
+        if(activation.hasData()) {
+            deviceValidationStatusInfo.hasValidation = true;
+        }
+        // <- //
+        /*DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo();
+        deviceValidationStatusInfo.isActive = validationService.getMeterValidation(activation).get().getActivationStatus();*/
         return Response.status(Response.Status.OK)
                 .entity(deviceValidationStatusInfo).build();
     }
@@ -150,7 +162,9 @@ public class DeviceValidationResource {
             throw exceptionFactory.newException(MessageSeeds.INVALID_DATE, maxDate);
         }
         validationService.setLastChecked(activation, date);
-        validationService.validate(activation, Interval.startAt(date));
+        if(lastCheckedInfo.validate) {
+            validationService.validate(activation, Interval.startAt(date));
+        }
         return Response.status(Response.Status.OK).build();
     }
 
@@ -167,7 +181,15 @@ public class DeviceValidationResource {
             if(!validationService.getMeterValidation(meterActivation).isPresent()) {
                 validationService.createMeterValidation(meterActivation);
             }
-            return Response.ok(determineStatus(meterActivation, now)).build();
+            /* if a new ruleset was added to device configuration we should create
+             * a MeterActivationValidation and ChannelValidations for it also.
+             * "validationService.getMeterActivationValidationsForMeterActivation(meterActivation) result list"
+             * could be not empty and at the same time not up-to-date.
+             */
+            /*if (validationService.getMeterActivationValidationsForMeterActivation(meterActivation).isEmpty()) {*/
+            validationService.getMeterActivationValidations(meterActivation, Interval.startAt(now));
+            //}
+            return Response.ok(determineStatus(meterActivation)).build();
         } finally {
             lock.unlock();
         }
@@ -197,50 +219,12 @@ public class DeviceValidationResource {
         return meter;
     }
 
-    private DeviceValidationStatusInfo determineStatus(MeterActivation meterActivation, Date now) {
+    private DeviceValidationStatusInfo determineStatus(MeterActivation meterActivation) {
         DeviceValidationStatusInfo status = new DeviceValidationStatusInfo();
         status.isActive = status.isActive || validationService.getMeterValidation(meterActivation).get().getActivationStatus();
-        for (MeterActivationValidation meterActivationValidation : findOrCreateActivationValidation(meterActivation, now)) {
-            apply(status, meterActivationValidation);
-        }
+        status.lastChecked = validationService.getLastChecked(meterActivation).getTime();
+        status.hasValidation = status.hasValidation || meterActivation.hasData();
         return status;
-    }
-
-    private void apply(DeviceValidationStatusInfo status, MeterActivationValidation meterActivationValidation) {
-        for (ChannelValidation channelValidation : meterActivationValidation.getChannelValidations()) {
-            status.hasValidation = status.hasValidation || channelValidation.getLastChecked() != null;
-            if (status.hasValidation) {
-                Date max = max(status.lastChecked == null ? null : new Date(status.lastChecked), channelValidation.getLastChecked());
-                status.lastChecked = max == null ? null : max.getTime();
-            }
-        }
-    }
-
-    private List<? extends MeterActivationValidation> findOrCreateActivationValidation(MeterActivation meterActivation, Date now) {
-        List<? extends MeterActivationValidation> meterActivationValidations = validationService.getMeterActivationValidationsForMeterActivation(meterActivation);
-        if (meterActivationValidations.isEmpty()) {
-            meterActivationValidations = validationService.getMeterActivationValidations(meterActivation, Interval.startAt(now));
-        }
-        return meterActivationValidations;
-    }
-
-    private Date max(Date date1, Date date2) {
-        return NullSafe.DATE_COMPARATOR.compare(date1, date2) >= 0 ? date1 : date2;
-    }
-
-    private static enum NullSafe implements Comparator<Date> {
-        DATE_COMPARATOR {
-            @Override
-            public int compare(Date o1, Date o2) {
-                if (o1 == null) {
-                    return o2 == null ? 0 : -1;
-                }
-                if (o2 == null) {
-                    return 1;
-                }
-                return o1.compareTo(o2);
-            }
-        }
     }
 
     private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
