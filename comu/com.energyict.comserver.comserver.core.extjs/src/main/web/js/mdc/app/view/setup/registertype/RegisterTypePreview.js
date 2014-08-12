@@ -79,7 +79,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                                         name: 'unitOfMeasure',
                                         fieldLabel: Uni.I18n.translate('registerType.measurementUnit', 'MDC', 'Unit of measure'),
                                         valueToRaw: function(value) {
-                                            debugger;
                                             if(value != undefined){
                                                 return value.localizedValue;
                                             }
