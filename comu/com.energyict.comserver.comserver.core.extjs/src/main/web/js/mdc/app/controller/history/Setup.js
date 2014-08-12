@@ -893,12 +893,38 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showOverview'
                                         },
                                         channels: {
-                                            title: 'Channels',
+                                            title: Uni.I18n.translate('routing.channels', 'MDC', 'Channels'),
                                             route: 'channels',
+                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannels',
+                                            action: 'showOverview',
                                             items: {
                                                 channel: {
-                                                    title: 'Channel',
-                                                    route: '{channelId}'
+                                                    title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
+                                                    route: '{channelId}',
+                                                    redirect: 'devices/device/loadprofiles/loadprofile/channels/channel/overview',
+                                                    callback: function (route) {
+                                                        this.getApplication().on('channelOfLoadProfilesOfDeviceLoad', function (record) {
+                                                            route.setTitle(record.get('name'));
+                                                            return true;
+                                                        }, {single: true});
+                                                        return this;
+
+                                                    },
+                                                    items: {
+                                                        overview: {
+                                                            title: Uni.I18n.translate('routing.overview', 'MDC', 'Overview'),
+                                                            route: 'overview'
+                                                        },
+                                                        data: {
+                                                            title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
+                                                            route: 'data'
+                                                        },
+                                                        validation: {
+                                                            title: Uni.I18n.translate('routing.channelValidation', 'MDC', 'Channel validation'),
+                                                            route: 'validation'
+                                                        }
+
+                                                    }
                                                 }
                                             }
                                         },
