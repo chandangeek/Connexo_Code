@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -165,9 +166,16 @@ public class ConnectionResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testBadRequestWhenPagingIsMissing() throws Exception {
+        Response response = target("/connections").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+    }
+
+    @Test
     public void testCurrentStateAddedToFilter() throws Exception {
 
-        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("currentStates", "Busy,OnHold")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("currentStates", "Busy,OnHold")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
@@ -183,7 +191,7 @@ public class ConnectionResourceTest extends JerseyTest {
         when(comPortPool2.getId()).thenReturn(1002L);
         when(engineModelService.findAllComPortPools()).thenReturn(Arrays.asList(comPortPool1,comPortPool2));
 
-        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("comPortPools", "1001,1002")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("comPortPools", "1001,1002")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
@@ -198,7 +206,7 @@ public class ConnectionResourceTest extends JerseyTest {
         ConnectionTypePluggableClass connectionType2 = mock(ConnectionTypePluggableClass.class);
         when(protocolPluggableService.findConnectionTypePluggableClass(2002)).thenReturn(connectionType2);
 
-        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("connectionTypes", "2001,2002")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("connectionTypes", "2001,2002")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
@@ -253,7 +261,7 @@ public class ConnectionResourceTest extends JerseyTest {
         when(window.getStart()).thenReturn(PartialTime.fromHours(9));
         when(window.getEnd()).thenReturn(PartialTime.fromHours(17));
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
-        Map<String, Object> map = target("/connections").queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/connections").queryParam("start",0).queryParam("limit", 10).request().get(Map.class);
 
         assertThat(map).containsKey("total");
         assertThat(map).containsKey("connectionTasks");
