@@ -28,7 +28,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
 
     private static final String SUCCESS_INDICATOR_ALIAS_NAME = "successindicator";
     private static final int MAX_ELEMENTS_FOR_IN_CLAUSE = 1000;
-    private static final String COMSESSION_TABLENAME = "THS_COMSESSION";
+    protected static final String COMSESSION_TABLENAME = "THS_COMSESSION";
 
     private final Clock clock;
     private ClauseAwareSqlBuilder actualBuilder;

@@ -420,10 +420,10 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
-    public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter) {
+    public List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter, int pageStart, int pageSize) {
         ConnectionTaskFilterSqlBuilder sqlBuilder = new ConnectionTaskFilterSqlBuilder(filter, this.clock);
         DataMapper<ConnectionTask> dataMapper = this.dataModel.mapper(ConnectionTask.class);
-        return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper));
+        return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper, pageStart, pageSize));
     }
 
     private List<ConnectionTask> fetchConnectionTasks(DataMapper<ConnectionTask> dataMapper, SqlBuilder sqlBuilder) {
