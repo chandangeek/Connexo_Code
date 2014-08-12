@@ -58,7 +58,7 @@ public class DeviceCacheImpl implements DeviceCache {
 
     public DeviceCacheImpl initialize(Device device, DeviceProtocolCache deviceProtocolCache) {
         this.device.set(device);
-        this.simpleCache = marshal(deviceProtocolCache);
+        setCacheObject(deviceProtocolCache);
         return this;
     }
 
