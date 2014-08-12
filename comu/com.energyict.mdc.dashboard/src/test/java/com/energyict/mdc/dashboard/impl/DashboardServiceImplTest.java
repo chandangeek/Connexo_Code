@@ -12,12 +12,11 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,15 +56,13 @@ public class DashboardServiceImplTest {
     @Mock
     private DeviceDataService deviceDataService;
     @Mock
-    private TaskHistoryService taskHistoryService;
-    @Mock
     private ProtocolPluggableService protocolPluggableService;
 
     private DashboardServiceImpl dashboardService;
 
     @Before
     public void setupService () {
-        this.dashboardService = new DashboardServiceImpl(this.engineModelService, this.deviceConfigurationService, this.deviceDataService, this.taskHistoryService, this.protocolPluggableService);
+        this.dashboardService = new DashboardServiceImpl(this.engineModelService, this.deviceConfigurationService, this.deviceDataService, this.protocolPluggableService);
     }
 
     @Test
@@ -96,16 +93,16 @@ public class DashboardServiceImplTest {
         for (ComSession.SuccessIndicator successIndicator : ComSession.SuccessIndicator.values()) {
             counters.put(successIndicator, EXPECTED_STATUS_COUNT_VALUE);
         }
-        when(this.taskHistoryService.getConnectionTaskLastComSessionSuccessIndicatorCount()).thenReturn(counters);
-        when(this.taskHistoryService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask()).thenReturn(EXPECTED_STATUS_COUNT_VALUE);
+        when(this.deviceDataService.getConnectionTaskLastComSessionSuccessIndicatorCount()).thenReturn(counters);
+        when(this.deviceDataService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask()).thenReturn(EXPECTED_STATUS_COUNT_VALUE);
 
         // Business methods
         ComSessionSuccessIndicatorOverview overview = this.dashboardService.getComSessionSuccessIndicatorOverview();
 
         // Asserts
         assertThat(overview).isNotNull();
-        verify(this.taskHistoryService).countConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
-        verify(this.taskHistoryService).getConnectionTaskLastComSessionSuccessIndicatorCount();
+        verify(this.deviceDataService).countConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
+        verify(this.deviceDataService).getConnectionTaskLastComSessionSuccessIndicatorCount();
         assertThat(overview.iterator().hasNext()).isTrue();
         for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : overview) {
             assertThat(successIndicatorCounter.getCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);

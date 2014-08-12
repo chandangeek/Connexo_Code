@@ -1,6 +1,6 @@
 package com.energyict.mdc.dashboard;
 
-import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 
 /**
  * Models the overview of the execution of {@link ComSession}s.

@@ -14,12 +14,11 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -44,7 +43,6 @@ public class DashboardServiceImpl implements DashboardService {
     private volatile EngineModelService engineModelService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceDataService deviceDataService;
-    private volatile TaskHistoryService taskHistoryService;
     private volatile ProtocolPluggableService protocolPluggableService;
 
     public DashboardServiceImpl() {
@@ -52,12 +50,11 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Inject
-    public DashboardServiceImpl(EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, TaskHistoryService taskHistoryService, ProtocolPluggableService protocolPluggableService) {
+    public DashboardServiceImpl(EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setDeviceDataService(deviceDataService);
-        this.setTaskHistoryService(taskHistoryService);
         this.setProtocolPluggableService(protocolPluggableService);
     }
 
@@ -73,8 +70,8 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview() {
-        ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(this.taskHistoryService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
-        Map<ComSession.SuccessIndicator, Long> successIndicatorCount = this.taskHistoryService.getConnectionTaskLastComSessionSuccessIndicatorCount();
+        ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(this.deviceDataService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
+        Map<ComSession.SuccessIndicator, Long> successIndicatorCount = this.deviceDataService.getConnectionTaskLastComSessionSuccessIndicatorCount();
         for (ComSession.SuccessIndicator successIndicator : ComSession.SuccessIndicator.values()) {
             overview.add(new CounterImpl<>(successIndicator, successIndicatorCount.get(successIndicator)));
         }
@@ -138,7 +135,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public ConnectionTypeHeatMap getConnectionTypeHeatMap() {
         ConnectionTypeHeatMapImpl heatMap = new ConnectionTypeHeatMapImpl();
-        Map<ConnectionTypePluggableClass, List<Long>> rawData = this.taskHistoryService.getConnectionTypeHeatMap();
+        Map<ConnectionTypePluggableClass, List<Long>> rawData = this.deviceDataService.getConnectionTypeHeatMap();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : rawData.keySet()) {
             List<Long> counters = rawData.get(connectionTypePluggableClass);
             HeatMapRowImpl<ConnectionTypePluggableClass> heatMapRow = new HeatMapRowImpl<>(connectionTypePluggableClass);
@@ -151,7 +148,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public DeviceTypeHeatMap getDeviceTypeHeatMap() {
         DeviceTypeHeatMapImpl heatMap = new DeviceTypeHeatMapImpl();
-        Map<DeviceType, List<Long>> rawData = this.taskHistoryService.getDeviceTypeHeatMap();
+        Map<DeviceType, List<Long>> rawData = this.deviceDataService.getDeviceTypeHeatMap();
         for (DeviceType deviceType : rawData.keySet()) {
             List<Long> counters = rawData.get(deviceType);
             HeatMapRowImpl<DeviceType> heatMapRow = new HeatMapRowImpl<>(deviceType);
@@ -164,7 +161,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public ComPortPoolHeatMap getComPortPoolHeatMap() {
         ComPortPoolHeatMapImpl heatMap = new ComPortPoolHeatMapImpl();
-        Map<ComPortPool, List<Long>> rawData = this.taskHistoryService.getComPortPoolHeatMap();
+        Map<ComPortPool, List<Long>> rawData = this.deviceDataService.getComPortPoolHeatMap();
         for (ComPortPool comPortPool : rawData.keySet()) {
             List<Long> counters = rawData.get(comPortPool);
             HeatMapRowImpl<ComPortPool> heatMapRow = new HeatMapRowImpl<>(comPortPool);
@@ -236,11 +233,6 @@ public class DashboardServiceImpl implements DashboardService {
     @Reference
     public void setDeviceDataService(DeviceDataService deviceDataService) {
         this.deviceDataService = deviceDataService;
-    }
-
-    @Reference
-    public void setTaskHistoryService(TaskHistoryService taskHistoryService) {
-        this.taskHistoryService = taskHistoryService;
     }
 
     @Reference

@@ -2,7 +2,7 @@ package com.energyict.mdc.dashboard.impl;
 
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.Counter;
-import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 
 /**
  * Provides an implementation for the {@link ComSessionSuccessIndicatorOverview} interface.
