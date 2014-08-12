@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,9 +18,13 @@ import javax.ws.rs.Produces;
 @Path("/field")
 public class DashboardFieldResource extends FieldResource {
 
+
+    private final ProtocolPluggableService protocolPluggableService;
+
     @Inject
-    public DashboardFieldResource(NlsService nlsService) {
+    public DashboardFieldResource(NlsService nlsService, ProtocolPluggableService protocolPluggableService) {
         super(nlsService.getThesaurus(DashboardApplication.COMPONENT_NAME, Layer.REST));
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     @GET
@@ -42,4 +47,5 @@ public class DashboardFieldResource extends FieldResource {
     public Object getLatestResultValues() {
         return asJsonArrayObjectWithTranslation("latestResults", "latestResult", new SuccessIndicatorAdapter().getClientSideValues());
     }
+
 }

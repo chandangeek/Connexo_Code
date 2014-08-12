@@ -17,9 +17,11 @@ import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
@@ -48,6 +50,8 @@ public class DashboardApplication extends Application implements InstallService 
     private volatile Thesaurus thesaurus;
     private volatile TaskHistoryService taskHistoryService;
     private volatile DeviceDataService deviceDataService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile ProtocolPluggableService protocolPluggableService;
 
     @Reference
     public void setStatusService(StatusService statusService) {
@@ -80,6 +84,16 @@ public class DashboardApplication extends Application implements InstallService 
         this.deviceDataService = deviceDataService;
     }
 
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
+        this.protocolPluggableService = protocolPluggableService;
+    }
+
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -92,7 +106,8 @@ public class DashboardApplication extends Application implements InstallService 
                 ComServerStatusSummaryResource.class,
                 ConnectionOverviewResource.class,
                 DashboardFieldResource.class,
-                ConnectionResource.class
+                ConnectionResource.class,
+                DeviceConfigurationService.class
         );
     }
 
@@ -120,6 +135,8 @@ public class DashboardApplication extends Application implements InstallService 
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceDataService).to(DeviceDataService.class);
             bind(taskHistoryService).to(TaskHistoryService.class);
+            bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+            bind(protocolPluggableService).to(ProtocolPluggableService.class);
         }
     }
 

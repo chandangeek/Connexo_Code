@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.google.common.base.Optional;
@@ -40,7 +41,6 @@ public class ConnectionTaskInfo {
     private IdWithNameInfo comServer;
     private IdWithNameInfo connectionMethod;
     private String window;
-    @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
     private ConnectionStrategyInfo connectionStrategy;
     private Date nextExecution;
 
@@ -84,7 +84,10 @@ public class ConnectionTaskInfo {
         if (connectionTask.isDefault()) {
             info.connectionMethod.name+="( "+thesaurus.getString("default", "default")+" )";
         }
-        info.comServer = new IdWithNameInfo(connectionTask.getExecutingComServer().getId(), connectionTask.getExecutingComServer().getName());
+        ComServer executingComServer = connectionTask.getExecutingComServer();
+        if (executingComServer!=null) {
+            info.comServer = new IdWithNameInfo(executingComServer.getId(), executingComServer.getName());
+        }
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
             info.connectionStrategy=new ConnectionStrategyInfo();
