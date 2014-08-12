@@ -12,7 +12,8 @@ Ext.define('Dsh.controller.Main', {
     controllers: [
         'Dsh.controller.history.Workspace',
         'Dsh.controller.CommunicationOverview',
-        'Dsh.controller.ConnectionOverview'
+        'Dsh.controller.ConnectionOverview',
+        'Dsh.controller.Connections'
     ],
     config: {
         navigationController: null,

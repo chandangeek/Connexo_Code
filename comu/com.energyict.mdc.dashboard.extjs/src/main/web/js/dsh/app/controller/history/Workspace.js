@@ -35,7 +35,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                         connections: {
                             title: 'Connections',
                             route: 'connections',
-                            controller: 'Dsh.controller.ConnectionOverview',
+                            controller: 'Dsh.controller.Connections',
                             action: 'showOverview'
                         }
                     }

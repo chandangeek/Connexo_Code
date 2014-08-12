@@ -1,0 +1,54 @@
+{ "data": {
+    "id": 1,
+    "title": "Test connection",
+    "direction": "Outbound",
+    "type": "TCP",
+    "method": "Method",
+    "strategy": "Strategy",
+    "state": "On hold",
+    "startDateTime": 1406909460666,
+    "endDateTime": 1406909460666,
+    "duration": "1 day",
+    "task": [{
+        "id": 2,
+        "title": "comm taska",
+        "protocol_dialect": "Dialect",
+        "urgency": "urgency",
+        "allow_execute_on_inbound": "allow" ,
+        "startDateTime": 1406892868330,
+        "endDateTime": 1406892868330,
+        "result": "failed"
+    },{
+        "id": 3,
+        "title": "comm taski",
+        "protocol_dialect": "Dialect",
+        "urgency": "urgency",
+        "allow_execute_on_inbound": "allow" ,
+        "startDateTime": 1406892868330,
+        "endDateTime": 1406892868330,
+        "result": "success"
+    },{
+        "id": 4,
+        "title": "comm taskA",
+        "protocol_dialect": "Dialect",
+        "urgency": "urgency",
+        "allow_execute_on_inbound": "allow" ,
+        "startDateTime": 1406892868330,
+        "endDateTime": 1406892868330,
+        "result": "abort"
+    }],
+    "device": {
+        "id": "5",
+        "title": "Test deviCe",
+        "type":{
+            "id": "6",
+            "title": "test device type"
+        }
+    },
+    "schedule": {
+        "title": "Schedule test",
+        "expression": "test expression",
+        "startDateTime": 1406892868330,
+        "nextOccurence": 1406892868330
+    }
+}}
