@@ -21,7 +21,7 @@ Ext.define('Dsh.view.widget.Overview', {
                                     limit: counter.count,
                                     total: item.get('total'),
                                     count: counter.count,
-                                    label: '(' + counter.count + ')'
+                                    label: counter.count
                                 }).render(view.el.down('#bar-' + (idx + 1)));
                             });
                         });

@@ -49,6 +49,9 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
+                        style: {
+                            lineHeight: 'none'
+                        },
                         iconCls: 'fa fa-refresh fa-lg' //TODO: set real img
                     }
                 ]
