@@ -19,70 +19,25 @@ Ext.define('Dsh.controller.CommunicationOverview', {
     ],
     views: [ 'Dsh.view.CommunicationOverview' ],
     refs: [
-        { ref: 'heatmapchart', selector: '#breakdown' }
+        { ref: 'breakdown', selector: '#breakdown' }
     ],
+
     init: function () {
-        this.control({
-            '#brakdownchartcombinecombobox': {
-                change: this.combineComboChanged
-            }
-        });
         this.callParent(arguments);
     },
+
     showOverview: function () {
         this.getApplication().fireEvent('changecontentevent', Ext.widget('communication-overview'));
-        this.loadBreakdownData('comPortPool');
+        this.loadData();
     },
 
-    combineComboChanged: function (combo, newValue) {
+    loadData: function () {
         var me = this;
-        me.setNewChartData(combo.record, newValue);
-    },
-
-    setNewChartData: function (record, alias) {
-        var me = this,
-            breakDowns = record.breakdowns(),
-            perValue = breakDowns.findRecord('alias', alias),
-            ycat = ['Success count', 'Failed count', 'Pending count'],
-            chart = me.getHeatmapchart(),
-            xcat = perValue.counters().collect('displayName'),
-            yaxisTitles = {
-                comPortPool: 'Com port pool',
-                connectionType: 'Connection type'
-            };
-        chart.setXAxis(xcat, 'Latest result');
-        chart.setYAxis(ycat, yaxisTitles[alias]);
-        chart.setChartData(chart.storeToHighchartData(perValue.counters(), [
-            "successCount",
-            "failedCount",
-            "pendingCount"
-        ]))
-    },
-
-    loadBreakdownData: function (alias) {
-        var me = this;
-        model = me.getModel('Dsh.model.ConnectionSummary');
-        model.load(0, {
+        var model = me.getModel('Dsh.model.ConnectionSummary');
+        model.load(null, {
                 success: function (record) {
-                    var breakDowns = record.breakdowns(),
-                        chart = me.getHeatmapchart(),
-                        combineCategories = [],
-                        combineStore;
-                    breakDowns.each(function (item) {
-                        combineCategories.push({
-                            displayValue: item.get('displayName'),
-                            value: item.get('alias')
-                        })
-                    });
-                    combineStore = Ext.create('Ext.data.Store', {
-                        fields: [
-                            'displayValue', 'value'
-                        ],
-                        data: combineCategories
-                    });
-                    chart.combineCombo.bindStore(combineStore);
-                    chart.combineCombo.record = record;
-                    me.setNewChartData(record, alias)
+                    var breakdowns = record.breakdowns();
+                    me.getBreakdown().bindStore(breakdowns);
                 }
             }
         );

@@ -23,27 +23,17 @@ Ext.define('Dsh.controller.ConnectionOverview', {
     ],
 
     init: function () {
-        this.control({
-            '#brakdownchartcombinecombobox': {
-                change: this.combineComboChanged
-            }
-        });
         this.callParent(arguments);
     },
 
     showOverview: function () {
         this.getApplication().fireEvent('changecontentevent', Ext.widget('connection-overview'));
-        this.loadBreakdownData();
+        this.loadData();
     },
 
-    combineComboChanged: function (combo, newValue) {
+    loadData: function () {
         var me = this;
-        me.setNewChartData(combo.record, newValue);
-    },
-
-    loadBreakdownData: function () {
-        var me = this;
-        model = me.getModel('Dsh.model.ConnectionSummary');
+        var model = me.getModel('Dsh.model.ConnectionSummary');
         model.load(null, {
                 success: function (record) {
                     var breakdowns = record.breakdowns();

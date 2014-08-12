@@ -104,7 +104,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
                                 var limit = _.reduce(data, function(memo, item) {return memo + item;}, 0);
                                 var bar = Ext.widget('stacked-bar', {
                                     limit: limit,
-                                    total: view.total,
+                                    total: item.get('total'),
                                     count: data,
                                     label: limit
                                 });

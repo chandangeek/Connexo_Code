@@ -18,8 +18,8 @@ Ext.define('Dsh.view.widget.Summary', {
                     data: [
                         {
                             title: 'Success', alias: 'success', count: 245, child: [
-                            {title: 'All task successful', alias: 'sdd', count: 83},
-                            {title: 'At least one task failed', alias: 'success', count: 162}
+                            {title: 'All task successful', alias: 'success-all', count: 83},
+                            {title: 'At least one task failed', alias: 'success-one', count: 162}
                         ]
                         },
                         {title: 'Pending', alias: 'pending', count: 62},
@@ -59,7 +59,7 @@ Ext.define('Dsh.view.widget.Summary', {
                                         limit: record.get('count'),
                                         total: view.total,
                                         count: data.count,
-                                        label: '(' + data.count + ')'
+                                        label: Math.round(data.count * 100 / record.get('count')) + '% (' + data.count + ')'
                                     });
                                     bar.render(view.getEl().down('#bar-' + pos + '-' + (di + 1)));
                                 });
@@ -68,7 +68,7 @@ Ext.define('Dsh.view.widget.Summary', {
                                 limit: view.total,
                                 total: view.total,
                                 count: record.get('count'),
-                                label: '(' + record.get('count') + ')'
+                                label: Math.round(record.get('count') * 100 / view.total) + '% (' + record.get('count') + ')'
                             });
                             bar.render(view.getEl().down('#bar-' + pos));
                         });

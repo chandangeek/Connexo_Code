@@ -18,7 +18,7 @@ Ext.define('Dsh.view.widget.common.StackedBar', {
         }));
         return Ext.apply(me.callParent(), {
             count: counts,
-            tooltip: new Ext.XTemplate(me.tooltipTpl).apply(counts)
+            tooltip: new Ext.XTemplate(me.tooltipTpl).apply(me.count)
         });
     }
 });

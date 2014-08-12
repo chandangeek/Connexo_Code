@@ -1,3 +1,5 @@
+@import url("../../resources/css/font-awesome.css");
+
 .x-bar {
   $height: 10px;
   position: relative;
@@ -9,6 +11,7 @@
     text-align: right;
     line-height: $height;
     margin-right: 8px;
+    width: 80px;
   }
 
   .x-bar-container, .x-bar-fill, .x-bar-track {
@@ -36,9 +39,9 @@
 }
 
 .breakdown {
-  .failed, .x-bar-track-stacked.failed  {background-color: #000000;}
-  .success, .x-bar-track-stacked.success {background-color: slategray;}
-  .pending, .x-bar-track-stacked.pending {background-color: #d3d3d3;}
+  .failed, .x-bar-track-stacked.failed  {background-color: #393939;}
+  .success, .x-bar-track-stacked.success {background-color: #d1cfd0;}
+  .pending, .x-bar-track-stacked.pending {background-color: #8b8f92;}
 
   .legend ul {
     list-style: none;
@@ -60,24 +63,30 @@
 
 .summary {
   td.label {
-    min-width: 200px;
+    min-width: 250px;
   }
   tr {
-    height: 29px;
+    height: 25px;
   }
 
   .bar-success .x-bar-track{
-    background-color: #00aa00;
+    background-color: #41aa4c;
+  }
+  .bar-success-all .x-bar-track{
+    background-color: #2caa4b;
+  }
+  .bar-success-one .x-bar-track{
+    background-color: #71aa3b;
   }
   .bar-pending .x-bar-track{
-    background-color: #000000;
+    background-color: #2f2f2f;
   }
   .bar-failed .x-bar-track{
-    background-color: #b03911;
+    background-color: #b05044;
   }
 
   .x-bar {
-    $height: 20px;
+    $height: 18px;
     .x-bar-track {
       height: $height;
       top: - 5px;
