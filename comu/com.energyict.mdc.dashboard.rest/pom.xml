@@ -96,5 +96,10 @@
           <artifactId>devtools</artifactId>
           <scope>test</scope>
       </dependency>
+      <dependency>
+          <groupId>com.energyict</groupId>
+          <artifactId>mdc.device.config.rest</artifactId>
+          <version>1.0.0-SNAPSHOT</version>
+      </dependency>
   </dependencies>
 </project>
