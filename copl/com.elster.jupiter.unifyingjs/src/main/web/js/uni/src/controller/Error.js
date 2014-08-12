@@ -88,7 +88,7 @@ Ext.define('Uni.controller.Error', {
 
         switch (response.status) {
             case 400: // Bad request.
-                if (!Ext.isEmpty(decoded.message)) {
+                if (decoded && decoded.message) {
                     title = Uni.I18n.translate(
                         'error.requestFailed',
                         'UNI',
