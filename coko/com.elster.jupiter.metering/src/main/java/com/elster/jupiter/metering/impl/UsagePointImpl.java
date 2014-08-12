@@ -2,7 +2,15 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
@@ -17,15 +25,12 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-import javax.inject.Provider;
 import javax.inject.Inject;
-
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
-import static com.google.common.base.Objects.toStringHelper;
 
 public class UsagePointImpl implements UsagePoint {
 	// persistent fields
@@ -375,6 +380,11 @@ public class UsagePointImpl implements UsagePoint {
 	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
 		return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when,readingType,count);
 	}
+
+    @Override
+    public boolean hasData() {
+        return MeterActivationsImpl.from(meterActivations).hasData();
+    }
 
 	@Override
 	public Optional<Party> getCustomer(Date when) {

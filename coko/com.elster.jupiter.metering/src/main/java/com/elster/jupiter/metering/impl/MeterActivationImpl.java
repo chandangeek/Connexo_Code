@@ -1,14 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -25,7 +16,14 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class MeterActivationImpl implements MeterActivation {
 	//persistent fields
@@ -171,8 +169,18 @@ public class MeterActivationImpl implements MeterActivation {
 			return Collections.emptySet();
 		}
 	}
-	
-	@Override
+
+    @Override
+    public boolean hasData() {
+        for (Channel channel : getChannels()) {
+            if (channel.getTimeSeries().getFirstDateTime() != null || channel.getTimeSeries().getLastDateTime() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
 	public boolean isCurrent() {
 		return interval.isCurrent(clock);
 	}

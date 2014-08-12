@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -118,5 +117,9 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
 		return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when,readingType,count);
 	}
-    
+
+    @Override
+    public boolean hasData() {
+        return MeterActivationsImpl.from(meterActivations).hasData();
+    }
 }

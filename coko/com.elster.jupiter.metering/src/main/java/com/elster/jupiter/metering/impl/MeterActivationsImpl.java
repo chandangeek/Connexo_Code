@@ -1,16 +1,16 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.time.Interval;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.ReadingContainer;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.time.Interval;
 
 public class MeterActivationsImpl implements ReadingContainer {
 	
@@ -63,8 +63,21 @@ public class MeterActivationsImpl implements ReadingContainer {
 		}
 		return result;
 	}
-	
-	private MeterActivationImpl last() {
+
+    @Override
+    public boolean hasData() {
+        if (meterActivations.isEmpty()) {
+            return false;
+        }
+        for (MeterActivationImpl meterActivation : meterActivations) {
+            if (meterActivation.hasData()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private MeterActivationImpl last() {
 		return meterActivations.get(meterActivations.size() - 1);
 	}
 	
