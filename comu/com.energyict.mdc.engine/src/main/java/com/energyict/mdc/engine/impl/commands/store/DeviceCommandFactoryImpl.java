@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

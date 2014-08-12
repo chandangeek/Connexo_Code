@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.core.aspects.statistics;
 
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -19,8 +21,6 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
@@ -72,7 +72,7 @@ public class ComChannelReadWriteLoggerTest {
     @Mock
     private ComPort comPort;
     @Mock
-    private TaskHistoryService taskHistoryService;
+    private DeviceDataService deviceDataService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ComSessionBuilder comSessionBuilder;
 
@@ -93,8 +93,8 @@ public class ComChannelReadWriteLoggerTest {
         serviceProvider.setClock(clock);
         serviceProvider.setIssueService(new IssueServiceImpl(this.clock));
         serviceProvider.setHexService(new HexServiceImpl());
-        serviceProvider.setTaskHistoryService(taskHistoryService);
-        when(taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
+        serviceProvider.setDeviceDataService(this.deviceDataService);
+        when(this.deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
         ServiceProvider.instance.set(this.serviceProvider);
     }
 
@@ -452,8 +452,8 @@ public class ComChannelReadWriteLoggerTest {
         }
 
         @Override
-        public TaskHistoryService taskHistoryService() {
-            return serviceProvider.taskHistoryService();
+        public DeviceDataService deviceDataService() {
+            return serviceProvider.deviceDataService();
         }
 
     }

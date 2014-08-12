@@ -1,29 +1,30 @@
 package com.energyict.mdc.engine;
 
-import com.elster.jupiter.util.time.ProgrammableClock;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
-import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.util.time.ProgrammableClock;
 import org.fest.assertions.data.MapEntry;
+
+import java.util.logging.Logger;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.logging.Logger;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -53,7 +54,7 @@ public class GenericDeviceProtocolTest {
 
     private FakeServiceProvider serviceProvider;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private TaskHistoryService taskHistoryService;
+    private DeviceDataService deviceDataService;
 
     @Before
     public void initMock() {
@@ -68,7 +69,7 @@ public class GenericDeviceProtocolTest {
 
         serviceProvider = new FakeServiceProvider();
         serviceProvider.setClock(new ProgrammableClock());
-        serviceProvider.setTaskHistoryService(taskHistoryService);
+        serviceProvider.setDeviceDataService(deviceDataService);
         CommandRootImpl root = new CommandRootImpl(offlineDevice, newTestExecutionContext(this.serviceProvider), this.serviceProvider);
         root.addCommand(readRegistersCommand, null);
         root.addCommand(setClockCommand, null);

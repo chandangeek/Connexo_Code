@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -32,7 +33,6 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -85,7 +85,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     @Mock
     private Clock clock;
     @Mock
-    private TaskHistoryService taskHistoryService;
+    private DeviceDataService deviceDataService;
 
     private Clock frozenClock;
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
@@ -94,7 +94,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     @Before
     public void setup(){
         serviceProvider.setClock(clock);
-        serviceProvider.setTaskHistoryService(taskHistoryService);
+        serviceProvider.setDeviceDataService(this.deviceDataService);
         List<CollectedData> collectedDataList = new ArrayList<>();
         collectedDataList.add(deviceLoadProfile);
         when(loadProfileCommand.getCollectedData()).thenReturn(collectedDataList);
@@ -111,7 +111,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     @After
     public void initAfter() {
         serviceProvider.setClock(null);
-        serviceProvider.setTaskHistoryService(null);
+        serviceProvider.setDeviceDataService(null);
     }
 
     private void initializeDeviceLoadProfileWith(int intervalStateBit) {

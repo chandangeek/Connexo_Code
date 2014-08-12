@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -12,10 +9,14 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
@@ -47,21 +48,12 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.ProgrammableClock;
 import com.google.common.base.Optional;
-import org.assertj.core.api.Condition;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -72,13 +64,25 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.assertj.core.api.Condition;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link InboundCommunicationHandler} component.
@@ -115,8 +119,6 @@ public class InboundCommunicationHandlerTest {
     @Mock
     private ComTaskEnablement comTaskEnablement;
     @Mock
-    private TaskHistoryService taskHistoryService;
-    @Mock
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private ComSessionBuilder comSessionBuilder;
@@ -124,6 +126,8 @@ public class InboundCommunicationHandlerTest {
     private ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private DeviceDataService deviceDataService;
     @Mock
     private EngineService engineService;
 
@@ -137,8 +141,8 @@ public class InboundCommunicationHandlerTest {
         EventPublisherImpl.setInstance(mock(EventPublisherImpl.class));
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
-        serviceProvider.setTaskHistoryService(taskHistoryService);
-        when(taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
+        serviceProvider.setDeviceDataService(deviceDataService);
+        when(deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
             thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addSentBytes(anyLong())).thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addReceivedBytes(anyLong())).thenReturn(this.comSessionBuilder);
@@ -245,7 +249,7 @@ public class InboundCommunicationHandlerTest {
         this.handler.handle(inboundDeviceProtocol, context);
 
         // Asserts
-        verify(taskHistoryService).buildComSession(mock(ConnectionTask.class), comPortPool, comPort, sessionStartClock);
+        verify(deviceDataService).buildComSession(mock(ConnectionTask.class), comPortPool, comPort, sessionStartClock);
         verify(comSessionBuilder, never()).addComTaskExecutionSession(any(ComTaskExecution.class), any(Device.class), any(Date.class));
         verify(comSessionBuilder.endSession(sessionStopClock, ComSession.SuccessIndicator.Success));
         verify(comSessionBuilder, times(3)).addJournalEntry(any(Date.class), anyString(), any(Throwable.class));   // Expect three journal entries (discovery start, discovery result, device not found)
@@ -326,7 +330,7 @@ public class InboundCommunicationHandlerTest {
         this.handler.handle(inboundDeviceProtocol, context);
 
         // Asserts
-        verify(taskHistoryService).buildComSession(mock(ConnectionTask.class), comPortPool, comPort, sessionStartClock);
+        verify(deviceDataService).buildComSession(mock(ConnectionTask.class), comPortPool, comPort, sessionStartClock);
         verify(comSessionBuilder, never()).addComTaskExecutionSession(any(ComTaskExecution.class), any(Device.class), any(Date.class));
         verify(comSessionBuilder.endSession(sessionStopClock, ComSession.SuccessIndicator.SetupError));
         verify(comSessionBuilder, times(3)).addJournalEntry(any(Date.class), anyString(), any(Throwable.class));   // Expect three journal entries (discovery start, discovery result, device not found)
@@ -383,7 +387,7 @@ public class InboundCommunicationHandlerTest {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(new ArrayList<DeviceCommandExecutionToken>(0));
-        when(this.taskHistoryService.buildComSession(any(ConnectionTask.class), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
+        when(this.deviceDataService.buildComSession(any(ConnectionTask.class), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
 
         // Business method
         this.handler.handle(inboundDeviceProtocol, context);
@@ -423,7 +427,7 @@ public class InboundCommunicationHandlerTest {
         when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
         DeviceCommandExecutionToken token = mock(DeviceCommandExecutionToken.class);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(Arrays.asList(token));
-        when(this.taskHistoryService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
+        when(this.deviceDataService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
 
         // Business method
         this.handler.handle(inboundDeviceProtocol, context);
@@ -476,7 +480,7 @@ public class InboundCommunicationHandlerTest {
         when(this.comServerDAO.findExecutableInboundComTasks(offlineDevice, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
         DeviceCommandExecutionToken token = mock(DeviceCommandExecutionToken.class);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(Arrays.asList(token));
-        when(this.taskHistoryService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
+        when(this.deviceDataService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
 
         // Business method
         this.handler.handle(inboundDeviceProtocol, context);
@@ -603,7 +607,7 @@ public class InboundCommunicationHandlerTest {
         when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
         DeviceCommandExecutionToken token = mock(DeviceCommandExecutionToken.class);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(Arrays.asList(token));
-        when(this.taskHistoryService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
+        when(this.deviceDataService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
 
         // Business method
         this.handler.handle(inboundDeviceProtocol, context);
@@ -624,13 +628,13 @@ public class InboundCommunicationHandlerTest {
     }
 
     private InboundDiscoveryContextImpl newBinaryInboundDiscoveryContext () {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class)), taskHistoryService);
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class)), deviceDataService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }
 
     private InboundDiscoveryContextImpl newServletInboundDiscoveryContext () {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, mock(HttpServletRequest.class), mock(HttpServletResponse.class), taskHistoryService);
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, mock(HttpServletRequest.class), mock(HttpServletResponse.class), deviceDataService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }

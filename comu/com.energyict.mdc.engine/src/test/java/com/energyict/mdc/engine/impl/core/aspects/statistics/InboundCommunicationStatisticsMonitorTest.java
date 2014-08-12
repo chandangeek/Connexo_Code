@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.impl.core.aspects.statistics;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -24,8 +26,6 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
@@ -65,7 +65,7 @@ public class InboundCommunicationStatisticsMonitorTest {
     @Mock
     private DeviceCommandExecutionToken token;
     @Mock
-    private TaskHistoryService taskHistoryService;
+    private DeviceDataService deviceDataService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ComSessionBuilder comSessionBuilder;
     @Mock
@@ -85,8 +85,8 @@ public class InboundCommunicationStatisticsMonitorTest {
         this.serviceProvider.setClock(clock);
         this.serviceProvider.setIssueService(new IssueServiceImpl(clock));
         this.serviceProvider.setHexService(new HexServiceImpl());
-        this.serviceProvider.setTaskHistoryService(this.taskHistoryService);
-        when(this.taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
+        this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        when(this.deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
         ServiceProvider.instance.set(this.serviceProvider);
     }
 

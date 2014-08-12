@@ -4,7 +4,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 

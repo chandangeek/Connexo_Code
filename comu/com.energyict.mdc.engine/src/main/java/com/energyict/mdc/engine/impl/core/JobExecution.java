@@ -15,6 +15,8 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -43,9 +45,6 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -58,9 +57,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.energyict.mdc.tasks.history.ComSession.SuccessIndicator.Broken;
-import static com.energyict.mdc.tasks.history.ComTaskExecutionSession.SuccessIndicator.Failure;
-import static com.energyict.mdc.tasks.history.ComTaskExecutionSession.SuccessIndicator.Success;
+import static com.energyict.mdc.device.data.tasks.history.ComSession.SuccessIndicator.Broken;
+import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession.SuccessIndicator.Failure;
+import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession.SuccessIndicator.Success;
 
 /**
  * Provides code reuse for in- and outbound {@link com.energyict.mdc.engine.model.ComPort ComPorts }
@@ -531,11 +530,6 @@ public abstract class JobExecution implements ScheduledJob {
         @Override
         public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
             return JobExecution.this.serviceProvider.mdcReadingTypeUtilService();
-        }
-
-        @Override
-        public TaskHistoryService taskHistoryService() {
-            return JobExecution.this.serviceProvider.taskHistoryService();
         }
 
         @Override

@@ -1,13 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.EngineModule;
-import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -16,11 +14,10 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.tasks.history.impl.TaskHistoryModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
@@ -30,7 +27,6 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -48,12 +44,12 @@ import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -69,8 +65,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -127,7 +121,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new EngineModule(),
                 new ProtocolsModule(),
                 new PluggableModule(),
-                new TaskHistoryModule(),
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
                 new DeviceDataModule(),

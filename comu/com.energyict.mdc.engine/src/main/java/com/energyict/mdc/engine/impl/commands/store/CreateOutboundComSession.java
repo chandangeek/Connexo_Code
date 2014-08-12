@@ -7,8 +7,8 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface

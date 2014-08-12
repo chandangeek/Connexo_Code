@@ -132,7 +132,7 @@ public class ComServlet extends HttpServlet {
     }
 
     private InboundDiscoveryContextImpl newInboundDiscoveryContext (HttpServletRequest request, HttpServletResponse response) {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, request, response, serviceProvider.taskHistoryService());
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, request, response, serviceProvider.deviceDataService());
         context.setInboundDAO(this.comServerDAO);
         context.setLogger(Logger.getAnonymousLogger());
         return context;

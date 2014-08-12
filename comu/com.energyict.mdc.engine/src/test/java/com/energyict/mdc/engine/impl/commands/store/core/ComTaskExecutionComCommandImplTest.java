@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -18,19 +17,22 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ComTaskExecutionComCommandImpl} component.
@@ -53,7 +55,7 @@ public class ComTaskExecutionComCommandImplTest {
     @Mock
     private Clock clock;
     @Mock
-    private TaskHistoryService taskHistoryService;
+    private DeviceDataService deviceDataService;
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private CommandRoot.ServiceProvider commandRootServiceProvider = new CommandRootServiceProviderAdapter(serviceProvider);
     @Mock
@@ -62,7 +64,7 @@ public class ComTaskExecutionComCommandImplTest {
     @Before
     public void initializeMocks () {
         serviceProvider.setClock(clock);
-        serviceProvider.setTaskHistoryService(taskHistoryService);
+        serviceProvider.setDeviceDataService(this.deviceDataService);
         when(this.comTask.getName()).thenReturn(ComTaskExecutionComCommandImplTest.class.getSimpleName());
         when(this.comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
@@ -81,7 +83,7 @@ public class ComTaskExecutionComCommandImplTest {
     @After
     public void initAfter() {
         serviceProvider.setClock(null);
-        serviceProvider.setTaskHistoryService(null);
+        serviceProvider.setDeviceDataService(null);
     }
 
     @Test

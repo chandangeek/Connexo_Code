@@ -17,16 +17,16 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.tasks.history.CompletionCode.ConnectionError;
-import static com.energyict.mdc.tasks.history.CompletionCode.Ok;
-import static com.energyict.mdc.tasks.history.CompletionCode.UnexpectedError;
-import static com.energyict.mdc.tasks.history.CompletionCode.forResultType;
+import static com.energyict.mdc.device.data.tasks.history.CompletionCode.ConnectionError;
+import static com.energyict.mdc.device.data.tasks.history.CompletionCode.Ok;
+import static com.energyict.mdc.device.data.tasks.history.CompletionCode.UnexpectedError;
+import static com.energyict.mdc.device.data.tasks.history.CompletionCode.forResultType;
 
 /**
  * Provides an implementation for a {@link ComCommand}

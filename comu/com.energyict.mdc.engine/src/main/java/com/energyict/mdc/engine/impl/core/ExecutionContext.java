@@ -1,16 +1,18 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.util.Holder;
-import com.elster.jupiter.util.HolderBuilder;
-import com.elster.jupiter.util.time.Clock;
-
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
@@ -32,12 +34,10 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
-import com.energyict.mdc.tasks.history.CompletionCode;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
+import com.elster.jupiter.util.time.Clock;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -45,8 +45,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.tasks.history.ComSession.SuccessIndicator.Broken;
-import static com.energyict.mdc.tasks.history.ComTaskExecutionSession.SuccessIndicator.Success;
+import static com.energyict.mdc.device.data.tasks.history.ComSession.SuccessIndicator.Broken;
+import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession.SuccessIndicator.Success;
 
 /**
 * Copyrights EnergyICT
@@ -61,7 +61,7 @@ public final class ExecutionContext {
 
         public IssueService issueService();
 
-        public TaskHistoryService taskHistoryService();
+        public DeviceDataService deviceDataService();
 
     }
 
@@ -93,7 +93,7 @@ public final class ExecutionContext {
         this.comPort = comPort;
         this.connectionTask = connectionTask;
         this.serviceProvider = serviceProvider;
-        this.sessionBuilder = serviceProvider.taskHistoryService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, serviceProvider.clock().now());
+        this.sessionBuilder = serviceProvider.deviceDataService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, serviceProvider.clock().now());
         if (logConnectionProperties && this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
             this.addConnectionPropertiesAsJournalEntries(this.connectionTask);
         }

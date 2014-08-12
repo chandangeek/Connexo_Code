@@ -12,6 +12,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -19,6 +20,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
@@ -31,8 +34,8 @@ import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -50,9 +53,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
@@ -173,9 +173,9 @@ public class SingleThreadedScheduledComPortTest {
     @Mock
     private Clock clock;
     @Mock
-    private TaskHistoryService taskHistoryService;
-    @Mock
     private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private DeviceDataService deviceDataService;
     @Mock
     private EngineService engineService;
     @Mock
@@ -242,7 +242,7 @@ public class SingleThreadedScheduledComPortTest {
         this.serviceProvider.setUserService(this.userService);
         this.serviceProvider.setClock(this.clock);
         this.serviceProvider.setTransactionService(new FakeTransactionService());
-        this.serviceProvider.setTaskHistoryService(this.taskHistoryService);
+        this.serviceProvider.setDeviceDataService(this.deviceDataService);
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
         this.serviceProvider.setEngineService(engineService);
         this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
@@ -251,7 +251,7 @@ public class SingleThreadedScheduledComPortTest {
         ScheduledComPortMonitor comPortMonitor = (ScheduledComPortMonitor) this.scheduledComPortMonitor;
         when(comPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
-        when(this.taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
+        when(this.deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
             thenReturn(comSessionBuilder);
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.<ComTaskEnablement>absent());
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());

@@ -4,8 +4,8 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
-import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.Problem;

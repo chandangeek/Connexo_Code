@@ -1,9 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -14,12 +10,16 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
@@ -52,12 +52,13 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -67,7 +68,6 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
-import com.google.common.base.Optional;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
@@ -76,7 +76,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -119,7 +121,7 @@ public class ScheduledJobImplTest {
     @Mock(extraInterfaces = OfflineDeviceContext.class)
     private StatusInformationTask statusInformationTask;
     @Mock
-    private TaskHistoryService taskHistoryService;
+    private DeviceDataService deviceDataService;
     @Mock
     private ComSessionBuilder comSessionBuilder;
     @Mock
@@ -153,12 +155,12 @@ public class ScheduledJobImplTest {
         this.serviceProvider.setUserService(this.userService);
         this.serviceProvider.setClock(this.clock);
         this.serviceProvider.setTransactionService(this.transactionService);
-        this.serviceProvider.setTaskHistoryService(this.taskHistoryService);
+        this.serviceProvider.setDeviceDataService(this.deviceDataService);
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
         this.serviceProvider.setEngineService(engineService);
         this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
-        when(this.taskHistoryService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
+        when(this.deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
                 thenReturn(comSessionBuilder);
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.<ComTaskEnablement>absent());
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.<DeviceCache>absent());

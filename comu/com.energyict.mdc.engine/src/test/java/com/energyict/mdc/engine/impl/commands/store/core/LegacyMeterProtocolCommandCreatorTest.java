@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -27,7 +28,6 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
@@ -73,14 +73,14 @@ public class LegacyMeterProtocolCommandCreatorTest {
         Clock clock = mock(Clock.class);
         when(clock.now()).thenReturn(new Date());
         serviceProvider.setClock(clock);
-        TaskHistoryService taskHistoryService = mock(TaskHistoryService.class);
-        serviceProvider.setTaskHistoryService(taskHistoryService);
+        DeviceDataService deviceDataService = mock(DeviceDataService.class);
+        serviceProvider.setDeviceDataService(deviceDataService);
     }
 
     @After
     public void initAfter() {
         serviceProvider.setClock(null);
-        serviceProvider.setTaskHistoryService(null);
+        serviceProvider.setDeviceDataService(null);
     }
 
     @Test

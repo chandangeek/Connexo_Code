@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -11,8 +13,6 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  */
 public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
 
-    private final TaskHistoryService taskHistoryService;
+    private final DeviceDataService deviceDataService;
 
     private Logger logger;
     private Cryptographer cryptographer;
@@ -41,19 +41,19 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private HttpServletRequest servletRequest;
     private HttpServletResponse servletResponse;
 
-    public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, TaskHistoryService taskHistoryService) {
+    public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, DeviceDataService deviceDataService) {
         super();
         this.comPort = comPort;
         this.comChannel = comChannel;
-        this.taskHistoryService = taskHistoryService;
+        this.deviceDataService = deviceDataService;
     }
 
-    public InboundDiscoveryContextImpl(InboundComPort comPort, HttpServletRequest servletRequest, HttpServletResponse servletResponse, TaskHistoryService taskHistoryService) {
+    public InboundDiscoveryContextImpl(InboundComPort comPort, HttpServletRequest servletRequest, HttpServletResponse servletResponse, DeviceDataService deviceDataService) {
         super();
         this.comPort = comPort;
         this.servletRequest = servletRequest;
         this.servletResponse = servletResponse;
-        this.taskHistoryService = taskHistoryService;
+        this.deviceDataService = deviceDataService;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     public ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
-        sessionBuilder = taskHistoryService.buildComSession(connectionTask, comPortPool, comPort, startTime);
+        sessionBuilder = deviceDataService.buildComSession(connectionTask, comPortPool, comPort, startTime);
         this.journalEntryBacklog.createWith(sessionBuilder);
         return sessionBuilder;
     }

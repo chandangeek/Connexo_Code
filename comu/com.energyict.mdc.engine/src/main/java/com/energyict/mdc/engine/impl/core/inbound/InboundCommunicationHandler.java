@@ -35,8 +35,8 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 
 import com.google.common.base.Optional;
 
@@ -162,7 +162,7 @@ public class InboundCommunicationHandler {
      * @return the CreateInboundComSession
      */
     private CreateInboundComSession createFailedInboundComSessionForDuplicateDevice(DuplicateException e){
-        ComSessionBuilder comSessionBuilder = serviceProvider.taskHistoryService().buildComSession(connectionTask, comPort.getComPortPool(), comPort, serviceProvider.clock().now())
+        ComSessionBuilder comSessionBuilder = serviceProvider.deviceDataService().buildComSession(connectionTask, comPort.getComPortPool(), comPort, serviceProvider.clock().now())
                 .addJournalEntry(serviceProvider.clock().now(), e.getMessage(), e);
         return new CreateInboundComSession(getComPort(), this.connectionTask, comSessionBuilder, ComSession.SuccessIndicator.SetupError, serviceProvider.clock());
     }

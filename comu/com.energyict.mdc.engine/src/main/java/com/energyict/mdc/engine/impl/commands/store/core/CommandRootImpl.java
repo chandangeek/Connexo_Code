@@ -60,7 +60,7 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.util.ArrayList;
 import java.util.HashMap;

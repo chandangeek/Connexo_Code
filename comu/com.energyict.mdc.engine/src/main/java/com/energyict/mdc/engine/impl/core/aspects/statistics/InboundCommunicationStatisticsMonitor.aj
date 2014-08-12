@@ -9,7 +9,7 @@ import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.Statist
 import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletResponse;
 
 import com.elster.jupiter.util.time.StopWatch;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import org.joda.time.Duration;
 
 import javax.servlet.http.HttpServletRequest;

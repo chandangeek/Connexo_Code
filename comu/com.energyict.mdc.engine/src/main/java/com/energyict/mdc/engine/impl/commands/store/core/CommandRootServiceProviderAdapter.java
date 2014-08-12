@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
+
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Clock;
 
 /**
 * Copyrights EnergyICT
@@ -38,11 +38,6 @@ public class CommandRootServiceProviderAdapter implements CommandRoot.ServicePro
     @Override
     public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
         return delegate.mdcReadingTypeUtilService();
-    }
-
-    @Override
-    public TaskHistoryService taskHistoryService() {
-        return delegate.taskHistoryService();
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.util.List;
 

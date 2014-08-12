@@ -17,7 +17,7 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
-import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.io.IOException;
 import java.util.ArrayList;

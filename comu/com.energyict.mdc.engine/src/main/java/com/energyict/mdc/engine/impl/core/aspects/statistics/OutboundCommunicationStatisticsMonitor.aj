@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import org.joda.time.Duration;
 
 /**

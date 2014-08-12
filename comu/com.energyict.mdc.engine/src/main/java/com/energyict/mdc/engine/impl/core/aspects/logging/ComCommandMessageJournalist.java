@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;

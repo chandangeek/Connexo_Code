@@ -15,6 +15,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
@@ -47,9 +49,6 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
@@ -128,8 +127,6 @@ public class JobExecutionTest {
     @Mock
     private OfflineDevice offlineDevice;
     @Mock
-    private TaskHistoryService taskHistoryService;
-    @Mock
     private DeviceDataService deviceDataService;
     @Mock
     private EngineService engineService;
@@ -149,7 +146,6 @@ public class JobExecutionTest {
 
     public void setupServiceProvider () {
         this.serviceProvider.setIssueService(this.issueService);
-        this.serviceProvider.setTaskHistoryService(this.taskHistoryService);
         this.serviceProvider.setTransactionService(new FakeTransactionService());
         this.serviceProvider.setDeviceDataService(this.deviceDataService);
         this.serviceProvider.setEngineService(this.engineService);
@@ -198,7 +194,7 @@ public class JobExecutionTest {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         when(comSessionBuilder.addComTaskExecutionSession(eq(this.comTaskExecution), eq(this.device), any(Date.class))).
             thenReturn(mock(ComTaskExecutionSessionBuilder.class));
-        when(this.taskHistoryService.buildComSession(eq(this.connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).
+        when(this.deviceDataService.buildComSession(eq(this.connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).
             thenReturn(comSessionBuilder);
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(this.deviceConfiguration))).
             thenReturn(Optional.of(this.comTaskEnablement));

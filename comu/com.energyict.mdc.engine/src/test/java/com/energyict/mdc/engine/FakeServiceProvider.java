@@ -17,7 +17,6 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -52,7 +51,6 @@ public class FakeServiceProvider
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
     private EngineModelService engineModelService;
-    private TaskHistoryService taskHistoryService;
     private DeviceConfigurationService deviceConfigurationService;
     private ProtocolPluggableService protocolPluggableService;
     private SocketService socketService;
@@ -118,11 +116,6 @@ public class FakeServiceProvider
     }
 
     @Override
-    public TaskHistoryService taskHistoryService() {
-        return taskHistoryService;
-    }
-
-    @Override
     public DeviceConfigurationService deviceConfigurationService() {
         return deviceConfigurationService;
     }
@@ -174,10 +167,6 @@ public class FakeServiceProvider
 
     public void setEngineModelService(EngineModelService engineModelService) {
         this.engineModelService = engineModelService;
-    }
-
-    public void setTaskHistoryService(TaskHistoryService taskHistoryService) {
-        this.taskHistoryService = taskHistoryService;
     }
 
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {

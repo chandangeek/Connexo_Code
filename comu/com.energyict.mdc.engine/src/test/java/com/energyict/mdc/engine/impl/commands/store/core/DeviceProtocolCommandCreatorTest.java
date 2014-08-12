@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
@@ -28,22 +28,27 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.util.time.Clock;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Logger;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the DeviceProtocolCommandCreator
@@ -67,7 +72,7 @@ public class DeviceProtocolCommandCreatorTest {
     @Mock
     private Clock clock;
     @Mock
-    private TaskHistoryService taskHistoryService;
+    private DeviceDataService deviceDataService;
 
     private ComTaskExecutionConnectionSteps createSingleDeviceComTaskExecutionSteps() {
         return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.SIGNON, ComTaskExecutionConnectionSteps.SIGNOFF);
@@ -84,13 +89,13 @@ public class DeviceProtocolCommandCreatorTest {
     @Before
     public void initBefore() {
         serviceProvider.setClock(clock);
-        serviceProvider.setTaskHistoryService(taskHistoryService);
+        serviceProvider.setDeviceDataService(this.deviceDataService);
     }
 
     @After
     public void initAfter() {
         serviceProvider.setClock(null);
-        serviceProvider.setTaskHistoryService(null);
+        serviceProvider.setDeviceDataService(null);
     }
 
     @Test

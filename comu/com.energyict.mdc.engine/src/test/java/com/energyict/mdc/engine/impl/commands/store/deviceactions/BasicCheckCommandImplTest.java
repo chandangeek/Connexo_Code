@@ -13,7 +13,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;

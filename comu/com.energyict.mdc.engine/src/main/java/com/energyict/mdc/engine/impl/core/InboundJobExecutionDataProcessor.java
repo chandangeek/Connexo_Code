@@ -25,7 +25,6 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
@@ -184,11 +183,6 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         @Override
         public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
             return serviceProvider.mdcReadingTypeUtilService();
-        }
-
-        @Override
-        public TaskHistoryService taskHistoryService() {
-            return serviceProvider.taskHistoryService();
         }
 
         @Override

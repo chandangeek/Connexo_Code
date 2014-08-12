@@ -18,7 +18,6 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
@@ -60,7 +59,6 @@ public class EngineServiceImpl implements EngineService, InstallService {
     private volatile HexService hexService;
     private volatile EngineModelService engineModelService;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile TaskHistoryService taskHistoryService;
     private volatile IssueService issueService;
     private volatile DeviceDataService deviceDataService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
@@ -79,14 +77,14 @@ public class EngineServiceImpl implements EngineService, InstallService {
     }
 
     @Inject
-    public EngineServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, HexService hexService,
-                             EngineModelService engineModelService, ThreadPrincipalService threadPrincipalService, TaskHistoryService taskHistoryService, IssueService issueService,
-                             DeviceDataService deviceDataService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
-                             ProtocolPluggableService protocolPluggableService,
-                             StatusService statusService,
-                             ManagementBeanFactory managementBeanFactory, EmbeddedWebServerFactory embeddedWebServerFactory,
-                             WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory, WebSocketEventPublisherFactory webSocketEventPublisherFactory,
-                             SocketService socketService, SerialComponentService serialComponentService) {
+    public EngineServiceImpl(
+            OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
+            HexService hexService, EngineModelService engineModelService, IssueService issueService,
+            DeviceDataService deviceDataService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
+            ProtocolPluggableService protocolPluggableService, StatusService statusService,
+            ManagementBeanFactory managementBeanFactory, EmbeddedWebServerFactory embeddedWebServerFactory,
+            WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory, WebSocketEventPublisherFactory webSocketEventPublisherFactory,
+            SocketService socketService, SerialComponentService serialComponentService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -96,7 +94,6 @@ public class EngineServiceImpl implements EngineService, InstallService {
         setHexService(hexService);
         setEngineModelService(engineModelService);
         setThreadPrincipalService(threadPrincipalService);
-        setTaskHistoryService(taskHistoryService);
         setIssueService(issueService);
         setDeviceDataService(deviceDataService);
         setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
@@ -201,11 +198,6 @@ public class EngineServiceImpl implements EngineService, InstallService {
             tableSpecs.addTo(dataModel);
         }
         this.dataModel = dataModel;
-    }
-
-    @Reference
-    public void setTaskHistoryService(TaskHistoryService taskHistoryService) {
-        this.taskHistoryService = taskHistoryService;
     }
 
     @Reference
@@ -326,11 +318,6 @@ public class EngineServiceImpl implements EngineService, InstallService {
         @Override
         public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
             return mdcReadingTypeUtilService;
-        }
-
-        @Override
-        public TaskHistoryService taskHistoryService() {
-            return taskHistoryService;
         }
 
         @Override

@@ -6,9 +6,9 @@ import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.common.StackTracePrinter;
-import com.energyict.mdc.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.tasks.history.ComTaskExecutionSessionBuilder;
-import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.google.common.base.Optional;
 
 /**

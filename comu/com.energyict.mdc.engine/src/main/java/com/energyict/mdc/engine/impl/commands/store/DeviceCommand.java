@@ -4,7 +4,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 /**
  * Models the behavior of a command component
