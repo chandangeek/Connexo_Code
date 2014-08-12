@@ -48,7 +48,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.elster.jupiter.util.conditions.Where.*;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link ScheduledConnectionTask} interface.

@@ -28,7 +28,6 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
 
     private static final String SUCCESS_INDICATOR_ALIAS_NAME = "successindicator";
     private static final int MAX_ELEMENTS_FOR_IN_CLAUSE = 1000;
-    protected static final String COMSESSION_TABLENAME = "THS_COMSESSION";
 
     private final Clock clock;
     private ClauseAwareSqlBuilder actualBuilder;
@@ -191,11 +190,11 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
 
     private void appendLastComSessionJoinClauseForConnectionTask(String successIndicatorAliasName, String connectionTaskTableName) {
         this.append(", (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY ");
-        this.append(COMSESSION_TABLENAME);
+        this.append(TableSpecs.DDC_COMSESSION.name());
         this.append(".startdate) ");
         this.append(successIndicatorAliasName);
         this.append(" from ");
-        this.append(COMSESSION_TABLENAME);
+        this.append(TableSpecs.DDC_COMSESSION.name());
         this.append(" group by connectiontask) cs");
         this.appendWhereOrAnd();
         this.append(connectionTaskTableName);

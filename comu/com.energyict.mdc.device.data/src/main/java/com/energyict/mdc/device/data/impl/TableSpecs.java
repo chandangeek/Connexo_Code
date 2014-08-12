@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
@@ -17,18 +13,42 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionMethodImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
+import com.energyict.mdc.device.data.impl.tasks.history.ComSessionJournalEntryImpl;
+import com.energyict.mdc.device.data.impl.tasks.history.ComStatisticsImpl;
+import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionJournalEntryImpl;
+import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
+import com.energyict.mdc.device.data.tasks.history.ComStatistics;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.ColumnConversion.DATE2DATE;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2DATE;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 /**
  * Models the database tables that hold the data of the
@@ -322,7 +342,107 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_COMTASKEXEC_DEVICE").on(device).references(DDC_DEVICE.name()).map(ComTaskExecutionFields.DEVICE.fieldName()).add();
             table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
         }
-    }
+    },
+
+    DDC_COMSTATISTICS {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ComStatistics> table = dataModel.addTable(name(), ComStatistics.class);
+            table.map(ComStatisticsImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("BYTESSENT").number().conversion(NUMBER2LONG).notNull().map("nrOfBytesSent").add();
+            table.column("BYTESREAD").number().conversion(NUMBER2LONG).notNull().map("nrOfBytesReceived").add();
+            table.column("PACKETSSENT").number().conversion(NUMBER2LONG).notNull().map("nrOfPacketsSent").add();
+            table.column("PACKETSREAD").number().conversion(NUMBER2LONG).notNull().map("nrOfPacketsReceived").add();
+            table.column("MOD_DATE").type("DATE").map("modDate").add();
+            table.primaryKey("PK_DDC_COMSTATISTICS").on(id).add();
+        }
+    },
+    DDC_COMSESSION {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ComSession> table = dataModel.addTable(name(), ComSession.class);
+            table.map(ComSessionImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column connectionTask = table.column("CONNECTIONTASK").number().notNull().add();
+            Column comport = table.column("COMPORT").number().notNull().add();
+            Column comportPool = table.column("COMPORTPOOL").number().notNull().add();
+            Column statistics = table.column("COMSTATISTICS").number().notNull().add();
+            table.column("STARTDATE").number().conversion(NUMBERINUTCSECONDS2DATE).notNull().map(ComSessionImpl.Fields.START_DATE.fieldName()).add();
+            table.column("STOPDATE").number().conversion(NUMBERINUTCSECONDS2DATE).notNull().map(ComSessionImpl.Fields.STOP_DATE.fieldName()).add();
+            table.column("TOTALTIME").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TOTAL_TIME.fieldName()).add();
+            table.column("CONNECTMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.CONNECT_MILLIS.fieldName()).add();
+            table.column("TALKMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TALK_MILLIS.fieldName()).add();
+            table.column("STOREMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.STORE_MILLIS.fieldName()).add();
+            table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
+            table.column("MOD_DATE").type("DATE").map(ComSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
+            table.column("TASKSUCCESSCOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_SUCCESS_COUNT.fieldName()).add();
+            table.column("TASKFAILURECOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_FAILURE_COUNT.fieldName()).add();
+            table.column("TASKNOTEXECUTEDCOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_NOT_EXECUTED_COUNT.fieldName()).add();
+            table.column("STATUS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComSessionImpl.Fields.STATUS.fieldName()).add();
+            table.foreignKey("FK_DDC_COMSESSION_STATS").on(statistics).references(DDC_COMSTATISTICS.name()).map(ComSessionImpl.Fields.STATISTICS.fieldName()).add();
+            table.foreignKey("FK_DDC_COMSESSION_COMPORTPOOL").on(comportPool).references("MDC", "MDC_COMPORTPOOL").map(ComSessionImpl.Fields.COMPORT_POOL.fieldName()).add();
+            table.foreignKey("FK_DDC_COMSESSION_COMPORT").on(comport).references("MDC", "MDC_COMPORT").map(ComSessionImpl.Fields.COMPORT.fieldName()).add();
+            table.foreignKey("FK_DDC_COMSESSION_CONNTASK").on(connectionTask).references(DDC_CONNECTIONTASK.name()).map(ComSessionImpl.Fields.CONNECTION_TASK.fieldName()).add();
+            table.primaryKey("PK_DDC_COMSESSION").on(id).add();
+        }
+    },
+    DDC_COMTASKEXECSESSION {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ComTaskExecutionSession> table = dataModel.addTable(name(), ComTaskExecutionSession.class);
+            table.map(ComTaskExecutionSessionImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column device = table.column("DEVICE").number().notNull().add();
+            Column session = table.column("COMSESSION").number().notNull().add();
+            Column statistics = table.column("COMSTATISTICS").number().notNull().add();
+            table.column("STARTDATE").number().conversion(NUMBERINUTCSECONDS2DATE).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
+            table.column("STOPDATE").number().notNull().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionSessionImpl.Fields.STOP_DATE.fieldName()).add();
+            table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComTaskExecutionSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
+            table.column("MOD_DATE").type("DATE").map(ComTaskExecutionSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
+            Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
+            table.column("HIGHESTPRIOCOMPLETIONCODE").number().conversion(NUMBER2ENUM).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_COMPLETION_CODE.fieldName()).add();
+            table.column("HIGHESTPRIOERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_ERROR_DESCRIPTION.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTSKEXECSESSION_SESS").on(session).references(DDC_COMSESSION.name()).map("comSession").composition().reverseMap("comTaskExecutionSessions").add();
+            table.foreignKey("FK_DDC_COMTASKSESSION_COMTASK").on(comTaskExecution).references(DDC_COMTASKEXEC.name()).map(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).onDelete(CASCADE).add();
+            table.foreignKey("FK_DDC_COMTSKEXECSESSION_STATS").on(statistics).references(DDC_COMSTATISTICS.name()).map(ComTaskExecutionSessionImpl.Fields.STATISTICS.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTSKEXECSESSION_DEVIC").on(device).references(DDC_DEVICE.name()).map(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).add();
+            table.primaryKey("PK_DDC_COMTASKEXECSESSION").on(id).add();
+        }
+    },
+    DDC_COMTASKEXECJOURNALENTRY {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ComTaskExecutionJournalEntry> table = dataModel.addTable(name(), ComTaskExecutionJournalEntry.class);
+            table.map(ComTaskExecutionJournalEntryImpl.IMPLEMENTERS);
+            Column id = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "varchar(1)");
+            Column comtaskexecsession = table.column("COMTASKEXECSESSION").number().notNull().add();
+            table.column("TIMESTAMP").number().conversion(NUMBER2UTCINSTANT).notNull().map("timestamp").add();
+            table.column("ERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("errorDescription").add();
+            table.column("COMMANDDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("commandDescription").add();
+            table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
+            table.column("MOD_DATE").type("DATE").map("modDate").add();
+            table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).map("message").add();
+            table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION").on(comtaskexecsession).references(DDC_COMTASKEXECSESSION.name()).map("comTaskExecutionSession").composition().reverseMap("comTaskExecutionJournalEntries").onDelete(CASCADE).add();
+            table.primaryKey("PK_DDC_COMTASKJOURNALENTRY").on(id).add();
+        }
+    },
+    DDC_COMSESSIONJOURNALENTRY {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ComSessionJournalEntry> table = dataModel.addTable(name(), ComSessionJournalEntry.class);
+            table.map(ComSessionJournalEntryImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column comsession = table.column("COMSESSION").number().notNull().add();
+            table.column("MESSAGE").varChar(DESCRIPTION_LENGTH).notNull().map("message").add();
+            table.column("TIMESTAMP").number().conversion(NUMBER2UTCINSTANT).notNull().map("timestamp").add();
+            table.column("MOD_DATE").type("DATE").map("modDate").add();
+            table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
+            table.foreignKey("FK_DDC_COMSESSIONJENTR_SESSION").on(comsession).references(DDC_COMSESSION.name()).map("comSession").composition().reverseMap("journalEntries").add();
+            table.primaryKey("PK_DDC_COMSESSIONJOURNALENTRY").on(id).add();
+        }
+    },
     ;
 
     abstract void addTo(DataModel component);
