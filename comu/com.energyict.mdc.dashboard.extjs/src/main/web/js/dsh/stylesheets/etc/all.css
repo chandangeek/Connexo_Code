@@ -95,3 +95,6 @@
   top: -5px;
   border-right: 1px solid white;
 }
+.fa-lg {
+    line-height: 1;
+}
