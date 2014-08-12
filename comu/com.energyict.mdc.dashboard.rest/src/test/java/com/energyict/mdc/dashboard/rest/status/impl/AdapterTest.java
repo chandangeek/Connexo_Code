@@ -1,8 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.CompletionCode;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.junit.Test;
 

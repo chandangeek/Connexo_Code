@@ -1,7 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
-import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 
 /**
  * Maps TaskStatus to related REST message seed

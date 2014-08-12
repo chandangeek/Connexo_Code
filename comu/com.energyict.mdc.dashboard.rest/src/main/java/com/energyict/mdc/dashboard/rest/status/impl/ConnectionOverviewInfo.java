@@ -15,7 +15,7 @@ import com.energyict.mdc.dashboard.HeatMap;
 import com.energyict.mdc.dashboard.HeatMapRow;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
-import com.energyict.mdc.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -46,9 +46,9 @@ public class ConnectionOverviewInfo {
     @JsonIgnore
     private Thesaurus thesaurus;
     @JsonIgnore
-    private final static TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
+    private static final TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
     @JsonIgnore
-    private final static SuccessIndicatorAdapter successIndicatorAdapter = new SuccessIndicatorAdapter();
+    private static final SuccessIndicatorAdapter successIndicatorAdapter = new SuccessIndicatorAdapter();
 
     public ConnectionSummaryInfo connectionSummary;
 
