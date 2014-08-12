@@ -173,8 +173,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
                                     href: '#/administration/validation',
                                     itemId: 'cancelAddRuleLink',
-                                    ui: 'link',
-                                    margin: '0 0 0 8px'
+                                    ui: 'link'
                                 }
                             ]
                         }
