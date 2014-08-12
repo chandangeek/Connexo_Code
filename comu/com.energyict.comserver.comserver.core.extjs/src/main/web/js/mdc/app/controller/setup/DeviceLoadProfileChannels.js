@@ -23,9 +23,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
         }
     ],
 
-    mRID: null,
-    loadProfileId: null,
     channelsOfLoadProfilesOfDeviceUrl: null,
+    loadProfileOfDeviceModelUrl: null,
 
     init: function () {
         this.control({
@@ -70,8 +69,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
                 });
             };
 
-        me.mRID = mRID;
-        me.loadProfileId = loadProfileId;
         timeUnitsStore.getCount() ? showPage() : timeUnitsStore.on('load', showPage, me, {single: true});
     },
 
@@ -83,10 +80,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
         preview.down('#deviceLoadProfileChannelsActionMenu').record = record;
     },
     chooseAction: function (menu, item) {
-        var me = this,
-            router = this.getController('Uni.controller.history.Router'),
-            id = menu.record.getId(),
+        var router = this.getController('Uni.controller.history.Router'),
+            routeParams = router.routeparams,
             route;
+
+        routeParams.channelId = menu.record.getId();
 
         switch (item.action) {
             case 'viewData':
@@ -98,6 +96,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
         }
 
         route && (route = router.getRoute(route));
-        route && route.forward({mRID: me.mRID, loadProfileId: me.loadProfileId, channelId: id});
+        route && route.forward(routeParams);
     }
 });
