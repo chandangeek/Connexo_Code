@@ -470,7 +470,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceConfigurationService.findDeviceType(6)).thenReturn(deviceType);
 
         Map<String, Object> jsonRegisterConfiguration = target("/devicetypes/6/deviceconfigurations/113/registerconfigurations/1").request().get(Map.class);
-        assertThat(jsonRegisterConfiguration).hasSize(14);
+        assertThat(jsonRegisterConfiguration).hasSize(15);
         assertThat(jsonRegisterConfiguration.get("id")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("name")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("readingType")).describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -485,6 +485,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonRegisterConfiguration.get("overflowValue")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("timeOfUse")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("multiplierMode")).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonRegisterConfiguration.get("asText")).describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
     @Test
