@@ -72,8 +72,10 @@ public class ConnectionResource {
     @Consumes("application/json")
     public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
-
-        List<ConnectionTask> connectionTasksByFilter = deviceDataService.findConnectionTasksByFilter(filter);
+        if (queryParameters==null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        List<ConnectionTask> connectionTasksByFilter = deviceDataService.findConnectionTasksByFilter(filter, queryParameters.getStart(), queryParameters.getLimit());
         List<ConnectionTaskInfo> connectionTaskInfos = new ArrayList<>(connectionTasksByFilter.size());
         for (ConnectionTask<?,?> connectionTask : connectionTasksByFilter) {
             Optional<ComSession> lastComSession = taskHistoryService.getLastComSession(connectionTask);
