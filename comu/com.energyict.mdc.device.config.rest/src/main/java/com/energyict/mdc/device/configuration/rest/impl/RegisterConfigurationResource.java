@@ -63,26 +63,44 @@ public class RegisterConfigurationResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         RegisterType registerType = registerConfigInfo.registerType ==null?null: findRegisterTypeOrThrowException(registerConfigInfo.registerType);
-        RegisterSpec registerSpec = deviceConfiguration.createNumericalRegisterSpec(registerType)
-                .setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT)
-                .setMultiplier(registerConfigInfo.multiplier)
-                .setNumberOfDigits(registerConfigInfo.numberOfDigits)
-                .setNumberOfFractionDigits(registerConfigInfo.numberOfFractionDigits)
-                .setOverflowValue(registerConfigInfo.overflow)
-                .setOverruledObisCode(registerConfigInfo.overruledObisCode)
-                .add();
+        RegisterSpec registerSpec = createRegisterSpec(registerConfigInfo, deviceConfiguration, registerType);
         return Response.status(Response.Status.CREATED).entity(RegisterConfigInfo.from(registerSpec)).build();
+    }
+
+    private RegisterSpec createRegisterSpec(RegisterConfigInfo registerConfigInfo, DeviceConfiguration deviceConfiguration, RegisterType registerType) {
+        RegisterSpec registerSpec;
+        if(registerConfigInfo.asText){
+            registerSpec = deviceConfiguration.createTextualRegisterSpec(registerType)
+                    .setOverruledObisCode(registerConfigInfo.overruledObisCode)
+                    .add();
+        } else {
+            registerSpec = deviceConfiguration.createNumericalRegisterSpec(registerType)
+                    .setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT)
+                    .setMultiplier(registerConfigInfo.multiplier)
+                    .setNumberOfDigits(registerConfigInfo.numberOfDigits)
+                    .setNumberOfFractionDigits(registerConfigInfo.numberOfFractionDigits)
+                    .setOverflowValue(registerConfigInfo.overflow)
+                    .setOverruledObisCode(registerConfigInfo.overruledObisCode)
+                    .add();
+        }
+        return registerSpec;
     }
 
     @PUT
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public RegisterConfigInfo updateRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerTypeId, RegisterConfigInfo registerConfigInfo) {
-        RegisterSpec registerSpec = findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerTypeId);
+    public RegisterConfigInfo updateRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerConfigId, RegisterConfigInfo registerConfigInfo) {
+        RegisterSpec registerSpec = findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerConfigId);
         RegisterType registerType = registerConfigInfo.registerType ==null?null:resourceHelper.findRegisterTypeByIdOrThrowException(registerConfigInfo.registerType);
-        registerConfigInfo.writeTo(registerSpec, registerType);
-        registerSpec.save();
-        return RegisterConfigInfo.from(findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerTypeId));
+        if(registerConfigInfo.asText == registerSpec.isTextual()){
+            registerConfigInfo.writeTo(registerSpec, registerType);
+            registerSpec.save();
+        } else {
+            registerSpec.getDeviceConfiguration().deleteRegisterSpec(registerSpec);
+            RegisterSpec newRegisterSpec = createRegisterSpec(registerConfigInfo, registerSpec.getDeviceConfiguration(), registerType);
+            registerConfigId = newRegisterSpec.getId();
+        }
+        return RegisterConfigInfo.from(findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerConfigId));
     }
 
     @DELETE

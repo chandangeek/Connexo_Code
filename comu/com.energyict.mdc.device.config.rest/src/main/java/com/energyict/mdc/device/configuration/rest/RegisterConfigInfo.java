@@ -46,6 +46,8 @@ public class RegisterConfigInfo {
     @JsonProperty("multiplierMode")
     @XmlJavaTypeAdapter(MultiplierModeAdapter.class)
     public MultiplierMode multiplierMode;
+    @JsonProperty("asText")
+    public boolean asText;
 
     public RegisterConfigInfo() {
     }
@@ -65,6 +67,7 @@ public class RegisterConfigInfo {
         this.multiplier = registerSpec.getMultiplier();
         this.overflow = registerSpec.getOverflowValue();
         this.multiplierMode = registerSpec.getMultiplierMode();
+        this.asText = registerSpec.isTextual();
     }
 
     public RegisterConfigInfo(TextualRegisterSpec registerSpec) {
@@ -82,6 +85,7 @@ public class RegisterConfigInfo {
         this.multiplier = null;
         this.overflow = null;
         this.multiplierMode = null;
+        this.asText = registerSpec.isTextual();
     }
 
     public static RegisterConfigInfo from(RegisterSpec registerSpec) {
