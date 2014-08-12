@@ -354,8 +354,8 @@
     background-image: url('/apps/ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png');
 }
 
-.x-grid-row-selected {
+.x-grid-row-selected, .x-grid-row-over {
   .icon-info-small {
-    background-image: url('/apps/ext/packages/uni-theme-skyline/resources/images/shared/icon-info.png');
+    background-image: url('/apps/ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small-white.png');
   }
 }
