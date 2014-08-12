@@ -75,7 +75,7 @@
             "alias": "comPortPool",
             "total": 649,
             "totalSuccessCount": 411,
-            "totalPendingCount": 4,
+            "totalPendingCount": 345,
             "totalFailedCount": 234,
             "counters": [
                 {
@@ -133,9 +133,9 @@
             "displayName": "Per connection type",
             "alias": "connectionType",
             "total": 0,
-            "totalSuccessCount": 0,
-            "totalPendingCount": 0,
-            "totalFailedCount": 0,
+            "totalSuccessCount": 800,
+            "totalPendingCount": 2457,
+            "totalFailedCount": 2454,
             "counters": [
                 {
                     "displayName": "dghjfghgh",
@@ -192,11 +192,24 @@
             "displayName": "Per connection type",
             "alias": "deviceType",
             "total": 0,
-            "totalSuccessCount": 0,
-            "totalPendingCount": 0,
-            "totalFailedCount": 0,
+            "totalSuccessCount": 100,
+            "totalPendingCount": 700,
+            "totalFailedCount": 800,
             "counters": [
-
+                {
+                    "displayName": "Exampmle 1",
+                    "id": 1,
+                    "successCount": 45,
+                    "failedCount": 56,
+                    "pendingCount": 657
+                },
+                {
+                    "displayName": "Example 2",
+                    "id": 2,
+                    "successCount": 41,
+                    "failedCount": 523,
+                    "pendingCount": 5
+                }
             ]
         }
     ]

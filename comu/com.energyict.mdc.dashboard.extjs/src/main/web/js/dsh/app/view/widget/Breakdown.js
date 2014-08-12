@@ -1,34 +1,28 @@
 Ext.define('Dsh.view.widget.Breakdown', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.breakdown',
-    height: 450,
     itemId: 'breakdown',
-    title: Uni.I18n.translate('overview.widget.breakdown.title', 'DSH', 'Breakdown'),
     ui: 'medium',
     cls: 'breakdown',
     layout: {
-        type: 'table',
-        tableAttrs: {
-            style: {
-                width: '100%'
-            }
-        },
-        columns: 2
-    },
-    width: '100%',
-    defaults: {
-        // applied to each contained panel
-        bodyStyle: 'margin-right: 20px'
+        type: 'vbox',
+        align: 'stretch'
     },
     requires: [
         'Ext.view.View',
         'Dsh.view.widget.common.StackedBar',
-        'Ext.button.Button'
+        'Ext.button.Button',
+        'Dsh.view.widget.HeatMap'
     ],
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
     tbar: [
+        {
+            xtype: 'container',
+            itemId: 'title',
+            html: '<h2>' + Uni.I18n.translate('overview.widget.breakdown.title', 'DSH', 'Breakdown') + '</h2>'
+        },
         '->',
         {
             xtype: 'container',
@@ -40,11 +34,35 @@ Ext.define('Dsh.view.widget.Breakdown', {
                 '</ul></div>'
         }
     ],
+
+    items: [
+        {
+            xtype: 'panel',
+            itemId: 'summaries',
+            layout: {
+                type: 'table',
+                columns: 2
+            },
+            style: 'margin-right: -30px',
+            defaults: {
+                style: 'margin: 0 30px 30px 0'
+            }
+        },
+        {
+            xtype: 'heat-map',
+            itemId: 'heatmap'
+        }
+    ],
+
     bindStore: function(store) {
         var me = this;
         store.each(function (item) {
             var panel = Ext.create('Ext.panel.Panel', {
-                title: item.get('displayName'),
+                tbar: {
+                    xtype: 'container',
+                    itemId: 'title',
+                    html: '<h3>' + item.get('displayName') + '</h3>'
+                },
                 bbar: [
                     '->',
                     {
@@ -96,15 +114,11 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     }
                 }
             });
-            me.add(panel);
+            me.down('#summaries').add(panel);
         });
 
         me.mixins.bindable.bindStore.apply(this, arguments);
-        // todo: place heat map
-//        me.add({
-//            xtype: 'heat-map',
-//            rowspan: 2
-//        });
+        me.down('#heatmap').bindStore(store);
     }
 })
 ;

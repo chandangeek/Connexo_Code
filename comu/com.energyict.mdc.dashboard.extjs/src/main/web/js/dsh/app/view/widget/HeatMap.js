@@ -1,123 +1,43 @@
-Ext.define('Dsh.view.widget.Breakdown', {
+Ext.define('Dsh.view.widget.HeatMap', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.breakdown',
-    height: 450,
-    itemId: 'breakdown',
-    title: 'Breakdown', // TODO: localize
-    ui: 'medium',
-    layout: {
-        type: 'vbox',
-        align: 'center'
+    alias: 'widget.heat-map',
+    layout: 'fit',
+    mixins: {
+        bindable: 'Ext.util.Bindable'
     },
-    style: {
-        paddingTop: 0
-    },
-
-    mixins: [
-        'Ext.util.Bindable'
-    ],
-
-    items: [
+    minHeight: 450,
+    tbar: [
         {
             xtype: 'fieldcontainer',
             fieldLabel: 'Combine',
-            layout: {
-                type: 'hbox',
-                align: 'middle'
-            },
             items: {
                 xtype: 'combobox',
-                itemId: 'brakdownchartcombinecombobox',
-                margin: '0 20 0 0',
-                displayField: 'displayValue',
-                valueField: 'value'
-            }
-        },
-        {
-            xtype: 'container',
-            width: 800,
-            itemId: 'heatmapchart',
-            listeners: {
-                afterrender: function (container) {
-                    var chart = new Highcharts.Chart({
-                            chart: {
-                                type: 'heatmap',
-                                renderTo: container.el.dom
-                            },
-                            exporting: {
-                                enabled: false
-                            },
-                            credits: {
-                                enabled: false
-                            },
-                            title: null,
-                            xAxis: {
-                                title: {
-                                    style: {
-                                        "color": "#707070",
-                                        "fontWeight": "bold"
-                                    }
-                                }
-                            },
-                            yAxis: {
-                                title: {
-                                    style: {
-                                        "color": "#707070",
-                                        "fontWeight": "bold"
-                                    }
-                                }
-                            },
-                            colorAxis: {
-                                min: 0,
-                                minColor: '#FFFFFF',
-                                maxColor: Highcharts.getOptions().colors[0]
-                            },
-                            legend: {
-                                align: 'right',
-                                layout: 'vertical',
-                                margin: 0,
-                                verticalAlign: 'top',
-                                symbolHeight: 300
-                            },
-                            tooltip: {
-                                formatter: function () {
-                                    return '<b>' + this.series.xAxis.categories[this.point.x] + '</b><br><b>' +
-                                        this.series.yAxis.categories[this.point.y] + '</b><br><b>' + this.point.value + '</b>';
-                                }
-                            },
-                            series: [
-                                {
-                                    name: 'Latest Result',
-                                    borderWidth: 1,
-                                    dataLabels: {
-                                        enabled: true,
-                                        color: 'black',
-                                        style: {
-                                            textShadow: 'none',
-                                            HcTextStroke: null
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    );
-
-                    this.chart = chart;
-                }
+                itemId: 'combine-combo',
+                displayField: 'displayName',
+                queryMode: 'local',
+                valueField: 'alias'
             }
         }
     ],
 
+    items: {
+        xtype: 'box',
+        minHeight: 400,
+        itemId: 'heatmapchart'
+    },
+
     setChartData: function (data) {
         var me = this;
         me.chart.series[0].setData([], true);
-        Ext.defer(me.chart.series[0].setData(data, true), 500);
+        Ext.defer(me.chart.series[0].setData(data, true), 100);
     },
+
     setXAxis: function (categories, title) {
         var me = this;
         me.chart.series[0].xAxis.update({title: {text: title}}, false);
         me.chart.series[0].xAxis.update({categories: categories}, false);
     },
+
     setYAxis: function (categories, title) {
         var me = this;
         me.chart.series[0].yAxis.update({title: {text: title}}, false);
@@ -141,62 +61,126 @@ Ext.define('Dsh.view.widget.Breakdown', {
         return data;
     },
 
-    initComponent: function () {
-        var me = this;
-        me.on('afterrender', function (cont) {
-            me.combineCombo = cont.down('#brakdownchartcombinecombobox')
-        });
-        me.callParent(arguments)
+    getCombo: function() {
+        return this.down('#combine-combo');
     },
 
+    loadChart: function (record) {
+        var me = this,
+            ycat = ['Success count', 'Failed count', 'Pending count'],
+            xcat = record.counters().collect('displayName')
+        ;
 
-//    setNewChartData: function (record, alias) {
-//        var me = this,
-//            breakDowns = record.breakdowns(),
-//            perValue = breakDowns.findRecord('alias', alias),
-//            ycat = ['Success count', 'Failed count', 'Pending count'],
-//            chart = me.getHeatmapchart(),
-//            xcat = perValue.counters().collect('displayName'),
-//            yaxisTitles = {
-//                comPortPool: 'Com port pool',
-//                connectionType: 'Connection type'
-//            };
-//        chart.setXAxis(xcat, 'Latest result');
-//        chart.setYAxis(ycat, yaxisTitles[alias]);
-//        chart.setChartData(chart.storeToHighchartData(perValue.counters(), [
-//            "successCount",
-//            "failedCount",
-//            "pendingCount"
-//        ]))
-//    },
-//
-//    loadBreakdownData: function (alias) {
-//        var me = this;
-//        model = me.getModel('Dsh.model.ConnectionSummary');
-//        model.load(0, {
-//                success: function (record) {
-//                    var breakDowns = record.breakdowns(),
-//                        chart = me.getHeatmapchart(),
-//                        combineCategories = [],
-//                        combineStore;
-//                    breakDowns.each(function (item) {
-//                        combineCategories.push({
-//                            displayValue: item.get('displayName'),
-//                            value: item.get('alias')
-//                        })
-//                    });
-//                    combineStore = Ext.create('Ext.data.Store', {
-//                        fields: [
-//                            'displayValue', 'value'
-//                        ],
-//                        data: combineCategories
-//                    });
-//                    chart.combineCombo.bindStore(combineStore);
-//                    chart.combineCombo.record = record;
-//                    me.setNewChartData(record, alias)
-//                }
-//            }
-//        );
-//    }
+        me.setXAxis(xcat, 'Latest result');
+        me.setYAxis(ycat, record.get('displayName'));
+        me.setChartData(me.storeToHighchartData(record.counters(), [
+            "successCount",
+            "failedCount",
+            "pendingCount"
+        ]));
+    },
+
+    initComponent: function() {
+        var me = this;
+        this.callParent(arguments);
+
+        me.getCombo().on('select', function(combo, records) {
+            me.loadChart(records[0]);
+        });
+    },
+
+    bindStore: function(store) {
+        var me = this;
+        var combo = me.getCombo();
+        combo.bindStore(store);
+        var cmp = me.down('#heatmapchart');
+        var update = function() {
+            Ext.defer(function() {
+                me.renderChart(cmp.getEl().dom);
+                combo.select(store.getAt(0));
+                me.loadChart(store.getAt(0));
+            }, 100);
+        };
+        if (cmp.rendered) {
+            update();
+        } else {
+            cmp.on('afterrender', function() {
+                update();
+            });
+        }
+
+        me.mixins.bindable.bindStore.apply(this, arguments);
+    },
+
+    renderChart: function(container) {
+        var me = this;
+        this.chart = new Highcharts.Chart({
+            chart: {
+                type: 'heatmap',
+                renderTo: container
+            },
+            exporting: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            title: null,
+            xAxis: {
+                title: {
+                    style: {
+                        "color": "#707070",
+                        "fontWeight": "bold"
+                    }
+                }
+            },
+            yAxis: {
+                title: {
+                    style: {
+                        "color": "#707070",
+                        "fontWeight": "bold"
+                    }
+                }
+            },
+            colorAxis: {
+                min: 0,
+                minColor: '#FFFFFF',
+                maxColor: Highcharts.getOptions().colors[0]
+            },
+            options: {
+                width: '100%',
+                height: '100%'
+            },
+            legend: {
+                align: 'right',
+                layout: 'vertical',
+                margin: 0,
+                verticalAlign: 'top',
+                symbolHeight: 350
+            },
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + this.series.xAxis.categories[this.point.x] + '</b><br><b>' +
+                        this.series.yAxis.categories[this.point.y] + '</b><br><b>' + this.point.value + '</b>';
+                }
+            },
+            series: [
+                {
+                    name: 'Latest Result',
+                    borderWidth: 1,
+                    dataLabels: {
+                        enabled: true,
+                        color: 'black',
+                        style: {
+                            textShadow: 'none',
+                            HcTextStroke: null
+                        }
+                    }
+                }
+            ]
+        }, function() {
+            me.doLayout();
+        });
+    }
 })
 ;
