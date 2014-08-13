@@ -34,12 +34,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             },
             'deviceLoadProfilesData #deviceLoadProfilesDataGrid': {
                 select: this.showPreview
-            },
-            'deviceLoadProfilesData #deviceLoadProfileDataFilterApplyBtn': {
-                click: this.applyFilter
-            },
-            'deviceLoadProfilesData #deviceLoadProfileDataFilterResetBtn': {
-                click: this.resetFilter
             }
         });
         this.loadProfilesOfDeviceDataStoreUrl = this.getStore('Mdc.store.LoadProfilesOfDeviceData').getProxy().url;
@@ -66,43 +60,43 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     router: me.getController('Uni.controller.history.Router'),
                     channels: record.get('channels')
                 });
-                graphView = widget.down('#deviceLoadProfilesGraphView');
+
 
                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                 widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
-                graphView.setRecord(record);
                 me.getApplication().fireEvent('changecontentevent', widget);
 
+                graphView = widget.down('#deviceLoadProfilesGraphView');
                 graphView.setLoading(true);
                 loadProfilesOfDeviceDataStoreProxy.url = me.loadProfilesOfDeviceDataStoreUrl.replace('{mRID}', mRID).replace('{loadProfileId}', loadProfileId);
                 loadProfilesOfDeviceDataStore.on('load', function () {
-                    me.showGraphView(widget.down('#deviceLoadProfilesGraphView'));
+                    me.showGraphView(record);
                     graphView.setLoading(false);
-                    me.showReadingsCount(widget, loadProfilesOfDeviceDataStore);
+                    me.showReadingsCount(loadProfilesOfDeviceDataStore);
                 }, me);
                 loadProfilesOfDeviceDataStore.load();
             }
         });
     },
 
-    showReadingsCount: function(widget, store) {
-        var container = widget.down('#readingsCountOnLoadProfile'),
+    showReadingsCount: function (store) {
+        var container = Ext.ComponentQuery.query('#readingsCountOnLoadProfile')[0],
             readingsCount = store.getCount();
 
         if (readingsCount > 0) {
             container.removeAll();
             container.add({
-              html: readingsCount + ' ' +  Uni.I18n.translate('devicetype.readings', 'MDC', 'reading(s)')
+                html: readingsCount + ' ' + Uni.I18n.translate('devicetype.readings', 'MDC', 'reading(s)')
             })
         } else {
             container.hide();
         }
     },
 
-    showGraphView: function (container) {
+    showGraphView: function (loadProfileRecord) {
         var me = this,
+            container = Ext.ComponentQuery.query('#deviceLoadProfilesGraphView')[0],
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
-            loadProfileRecord = container.getRecord(),
             title = loadProfileRecord.get('name'),
             currentAxisTopValue = 1,
             currentLine = 0,
@@ -223,44 +217,5 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         preview.down('#deviceLoadProfilesDataPreviewForm').loadRecord(record);
 
         preview.rendered && Ext.resumeLayouts(true);
-    },
-
-    applyFilter: function () {
-        var page = this.getPage(),
-            graphView = page.down('#deviceLoadProfilesGraphView'),
-            formValues = page.down('#deviceLoadProfileDataFilterForm').getForm().getValues(),
-            store = this.getStore('Mdc.store.LoadProfilesOfDeviceData'),
-            storeProxy = store.getProxy();
-
-        storeProxy.setExtraParam('intervalStart', new Date(formValues.intervalStart).getTime());
-        storeProxy.setExtraParam('intervalEnd', new Date(formValues.intervalEnd).getTime());
-
-        graphView.setLoading(true);
-
-        store.load(function () {
-            graphView.setLoading(false);
-        });
-    },
-
-    resetFilter: function () {
-        var page = this.getPage(),
-            graphView = page.down('#deviceLoadProfilesGraphView'),
-            formFields = page.query('#deviceLoadProfileDataFilterForm [isFormField=true]'),
-            store = this.getStore('Mdc.store.LoadProfilesOfDeviceData'),
-            storeProxy = store.getProxy();
-
-        Ext.Array.each(formFields, function (field) {
-            field.reset();
-        });
-
-        delete storeProxy.extraParams.intervalStart;
-        delete storeProxy.extraParams.intervalEnd;
-
-        graphView.setLoading(true);
-
-        store.load(function (records) {
-            !records && store.removeAll();
-            graphView.setLoading(false);
-        });
     }
 });
