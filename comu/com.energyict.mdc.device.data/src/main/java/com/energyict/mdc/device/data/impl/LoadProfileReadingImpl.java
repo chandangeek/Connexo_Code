@@ -33,7 +33,6 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
         this.interval = interval;
     }
 
-    @Override
     public void setChannelData(Channel channel, BigDecimal value) {
         map.put(channel, value);
     }

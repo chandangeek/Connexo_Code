@@ -17,8 +17,6 @@ public interface LoadProfileReading {
 
     void setInterval(Interval interval);
 
-    void setChannelData(Channel channel, BigDecimal value);
-
     Set<Map.Entry<Channel, BigDecimal>> getChannelValues();
 
     void setReadingTime(Date reportedDateTime);
