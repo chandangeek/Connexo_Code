@@ -70,13 +70,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                 widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
-                graphView.setRecord(record);
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 graphView.setLoading(true);
                 loadProfilesOfDeviceDataStoreProxy.url = me.loadProfilesOfDeviceDataStoreUrl.replace('{mRID}', mRID).replace('{loadProfileId}', loadProfileId);
+                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalStart', 1407096000000);
+                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalEnd', 1407099600000);
                 loadProfilesOfDeviceDataStore.on('load', function () {
-                    me.showGraphView(widget.down('#deviceLoadProfilesGraphView'));
+                    me.showGraphView(widget.down('#deviceLoadProfilesGraphView'), record);
                     graphView.setLoading(false);
                     me.showReadingsCount(widget, loadProfilesOfDeviceDataStore);
                 }, me);
@@ -99,10 +100,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         }
     },
 
-    showGraphView: function (container) {
+    showGraphView: function (container, loadProfileRecord) {
         var me = this,
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
-            loadProfileRecord = container.getRecord(),
             title = loadProfileRecord.get('name'),
             currentAxisTopValue = 1,
             currentLine = 0,

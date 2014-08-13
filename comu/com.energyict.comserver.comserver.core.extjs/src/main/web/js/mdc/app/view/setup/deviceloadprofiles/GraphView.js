@@ -189,20 +189,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
 
     },
 
-    setRecord: function (record) {
-        this.loadProfileRecord = record;
-    },
-
     setParams: function (title, yAxis, series, channels, intervalLength) {
         this.graphTitle = title;
         this.yAxis = yAxis;
         this.series = series;
         this.channels = channels;
         this.intervalLength = intervalLength;
-    },
-
-    getRecord: function () {
-        return this.loadProfileRecord
     },
 
     initComponent: function () {

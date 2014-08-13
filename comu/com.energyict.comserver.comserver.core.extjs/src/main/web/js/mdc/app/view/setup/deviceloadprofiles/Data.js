@@ -86,66 +86,66 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
                 {
                     xtype: 'deviceLoadProfilesSubMenuPanel',
                     router: me.router
-                },
-                {
-                    xtype: 'panel',
-                    ui: 'medium',
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
-                    items: {
-                        xtype: 'form',
-                        itemId: 'deviceLoadProfileDataFilterForm',
-                        title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
-                        ui: 'filter',
-                        items: [
-                            {
-                                xtype: 'component',
-                                html: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval')
-                            },
-                            {
-                                xtype: 'datefield',
-                                name: 'intervalStart',
-                                fieldLabel: 'Between',
-                                labelAlign: 'top',
-                                format: 'd M Y',
-                                maxValue: new Date(),
-                                anchor: '100%',
-                                editable: false
-                            },
-                            {
-                                xtype: 'datefield',
-                                name: 'intervalEnd',
-                                fieldLabel: 'and',
-                                labelAlign: 'top',
-                                format: 'd M Y',
-                                maxValue: new Date(),
-                                anchor: '100%',
-                                editable: false
-                            }
-                        ],
-                        dockedItems: [
-                            {
-                                xtype: 'toolbar',
-                                dock: 'bottom',
-                                items: [
-                                    {
-                                        itemId: 'deviceLoadProfileDataFilterApplyBtn',
-                                        ui: 'action',
-                                        text: Uni.I18n.translate('general.apply', 'MDC', 'Apply'),
-                                        action: 'filter'
-                                    },
-                                    {
-                                        itemId: 'deviceLoadProfileDataFilterResetBtn',
-                                        text: Uni.I18n.translate('general.clearAll', 'MDC', 'Clear all'),
-                                        action: 'reset'
-                                    }
-                                ]
-                            }
-                        ]
-                    }
                 }
+//                {
+//                    xtype: 'panel',
+//                    ui: 'medium',
+//                    layout: {
+//                        type: 'vbox',
+//                        align: 'stretch'
+//                    },
+//                    items: {
+//                        xtype: 'form',
+//                        itemId: 'deviceLoadProfileDataFilterForm',
+//                        title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
+//                        ui: 'filter',
+//                        items: [
+//                            {
+//                                xtype: 'component',
+//                                html: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval')
+//                            },
+//                            {
+//                                xtype: 'datefield',
+//                                name: 'intervalStart',
+//                                fieldLabel: 'Between',
+//                                labelAlign: 'top',
+//                                format: 'd M Y',
+//                                maxValue: new Date(),
+//                                anchor: '100%',
+//                                editable: false
+//                            },
+//                            {
+//                                xtype: 'datefield',
+//                                name: 'intervalEnd',
+//                                fieldLabel: 'and',
+//                                labelAlign: 'top',
+//                                format: 'd M Y',
+//                                maxValue: new Date(),
+//                                anchor: '100%',
+//                                editable: false
+//                            }
+//                        ],
+//                        dockedItems: [
+//                            {
+//                                xtype: 'toolbar',
+//                                dock: 'bottom',
+//                                items: [
+//                                    {
+//                                        itemId: 'deviceLoadProfileDataFilterApplyBtn',
+//                                        ui: 'action',
+//                                        text: Uni.I18n.translate('general.apply', 'MDC', 'Apply'),
+//                                        action: 'filter'
+//                                    },
+//                                    {
+//                                        itemId: 'deviceLoadProfileDataFilterResetBtn',
+//                                        text: Uni.I18n.translate('general.clearAll', 'MDC', 'Clear all'),
+//                                        action: 'reset'
+//                                    }
+//                                ]
+//                            }
+//                        ]
+//                    }
+//                }
             ]
         };
 
