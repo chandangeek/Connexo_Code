@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
@@ -45,8 +46,15 @@ public class ConnectionTaskFilterSpecification {
 
     /**
      * The Set of {@link ConnectionTask.SuccessIndicator}s.
+     * Note that using <strong>ALL</strong> enum values is equal to using none.
      */
-    public Set<ConnectionTask.SuccessIndicator> successIndicators = EnumSet.noneOf(ConnectionTask.SuccessIndicator.class);
+    public Set<ConnectionTask.SuccessIndicator> latestStatuses = EnumSet.noneOf(ConnectionTask.SuccessIndicator.class);
+
+    /**
+     * The Set of {@link ComSession.SuccessIndicator}s.
+     * Note that using <strong>ALL</strong> enum values is equal to using none.
+     */
+    public Set<ComSession.SuccessIndicator> latestResults = EnumSet.noneOf(ComSession.SuccessIndicator.class);
 
     /**
      * The Interval in which the start time of the last session is expected
