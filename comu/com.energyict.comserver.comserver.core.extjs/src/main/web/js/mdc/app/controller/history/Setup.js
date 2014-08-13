@@ -930,7 +930,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                         },
                                         data: {
                                             title: 'Load profile data',
-                                            route: 'data'
+                                            route: 'data',
+                                            controller: 'Mdc.controller.setup.DeviceLoadProfileData',
+                                            action: 'showOverview'
                                         },
                                         validation: {
                                             title: 'Load profile validation',

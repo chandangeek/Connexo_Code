@@ -73,6 +73,21 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         hidden: true
                     },
                     {
+                        xtype: 'radiogroup',
+                        itemId: 'valueTypeRadioGroup',
+                        fieldLabel: Uni.I18n.translate('registerConfig.storeValueAs', 'MDC', 'Store value as'),
+                        columns: 1,
+                        defaults: {
+                            name: 'asText'
+                        },
+                        allowBlank: false,
+                        required: true,
+                        items: [
+                            {boxLabel: Uni.I18n.translate('registerConfig.number', 'MDC', 'Number'),itemId: 'numberRadio', inputValue: false, name: 'asText',checked: true},
+                            {boxLabel: Uni.I18n.translate('registerConfig.text', 'MDC', 'Text'),itemId: 'textRadio', inputValue: true, name: 'asText'}
+                        ]
+                    },
+                    {
                         xtype: 'numberfield',
                         name: 'numberOfDigits',
                         msgTarget: 'under',
@@ -121,6 +136,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                             type: 'hbox',
                             align: 'stretch'
                         },
+                        itemId: 'overflowMsg',
                         items: [
                             {
                                 html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.overflowValueInfo', 'MDC', 'The maximum overflow value is {0}.', ['1000000000']) + '</i></span>',
@@ -143,7 +159,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: '&nbsp',
-
+                        itemId: 'multiplierMsg',
                         layout: {
                             type: 'hbox',
                             align: 'stretch'

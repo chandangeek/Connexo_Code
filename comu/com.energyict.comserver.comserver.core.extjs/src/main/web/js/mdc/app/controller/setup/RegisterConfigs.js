@@ -83,6 +83,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             },
             'register-config-and-rules-preview-container rules-for-registerconfig-actionmenu': {
                 click: this.viewRule
+            },'#registerConfigEditForm #valueTypeRadioGroup': {
+                change: this.hideShowNumberFields
             }
         });
     },
@@ -321,7 +323,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     success: function (deviceConfiguration) {
                                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                         widget.down('form').loadRecord(registerConfiguration);
-                                        me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.editRegisterConfig', 'MDC', 'Edit register configuration'));
+                                        me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + registerConfiguration.get('name') + "'");
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerType'));
                                         if (deviceConfiguration.get('active') === true) {
                                             widget.down('#registerTypeComboBox').disable();
@@ -329,6 +331,11 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         } else {
                                             widget.down('#registerTypeComboBox').enable();
                                             widget.down('#editMultiplierField').enable();
+                                        }
+                                        if(registerConfiguration.get('asText')===true){
+                                            widget.down('#textRadio').setValue(true);
+                                        } else {
+                                            widget.down('#numberRadio').setValue(true);
                                         }
                                         widget.setLoading(false);
                                     }
@@ -368,6 +375,24 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     }
                 }
             });
+        }
+    },
+
+    hideShowNumberFields: function(radioGroup){
+        var visible = !(radioGroup.getValue().asText);
+        this.getRegisterConfigEditForm().down('#editNumberOfDigitsField').setVisible(visible);
+        this.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField').setVisible(visible);
+        this.getRegisterConfigEditForm().down('#editOverflowValueField').setVisible(visible);
+        this.getRegisterConfigEditForm().down('#editMultiplierField').setVisible(visible);
+        this.getRegisterConfigEditForm().down('#multiplierMsg').setVisible(visible);
+        this.getRegisterConfigEditForm().down('#overflowMsg').setVisible(visible);
+        if(visible){
+            var values = this.getRegisterConfigEditForm().getValues();
+            if(values.numberOfDigits===''){this.getRegisterConfigEditForm().down('#editNumberOfDigitsField').setValue(8)};
+            if(values.numberOfFractionDigits===''){this.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField').setValue(0)};
+            if(values.overflow===''){this.getRegisterConfigEditForm().down('#editMultiplierField').setValue(1)};
+            if(values.multiplier===''){this.getRegisterConfigEditForm().down('#editOverflowValueField').setValue(100000000)};
+
         }
     }
 
