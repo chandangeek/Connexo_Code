@@ -200,11 +200,12 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     location.href = '#/administration/communicationschedules';
                 },
                 failure: function (record, operation) {
+                    debugger;
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         Ext.each(json.errors, function (error) {
-                            if (error.id === 'nextExecutionSpecs.every') {
-                                error.id = 'nextExecutionSpecs';
+                            if (error.id === 'temporalExpression.every') {
+                                error.id = 'temporalExpression';
                             }
                         });
                         me.getCommunicationScheduleEditForm().getForm().markInvalid(json.errors);
