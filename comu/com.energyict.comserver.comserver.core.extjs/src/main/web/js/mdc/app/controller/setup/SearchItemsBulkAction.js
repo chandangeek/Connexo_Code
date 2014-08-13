@@ -341,7 +341,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         switch (currentCmp.name) {
             case 'selectDevices':
-                me.devices = me.getDevicesGrid().getSelectionModel().getSelection();
+                if (me.getDevicesGrid().isAllSelected()) {
+                    me.devices = me.getStore('Mdc.store.Devices').data.items;
+                } else {
+                    me.devices = me.getDevicesGrid().getSelectionModel().getSelection();
+                }
+
                 me.allDevices = me.getDevicesGrid().isAllSelected();
                 errorPanel = currentCmp.down('#step1-errors');
                 validation = me.devices.length || me.allDevices;
@@ -350,7 +355,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 me.operation = currentCmp.down('#searchitemsactionselect').getValue().operation;
                 break;
             case 'selectSchedules':
-                me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
+                if (me.getSchedulesGrid().isAllSelected()) {
+                    me.schedules = me.getSchedulesGrid().store.data.items
+                } else {
+                    me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
+                }
+
                 errorPanel = currentCmp.down('#step3-errors');
                 validation = me.schedules.length || me.getSchedulesGrid().isAllSelected();
                 break;
