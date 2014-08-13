@@ -39,7 +39,9 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                     marginBottom: '180px'
                 },
                 listeners: {
+                    scope: this,
                     afterrender: function (container) {
+                        var me = this;
                         Ext.defer(function () {
                             new Highcharts.Chart({
                                 chart: {
@@ -113,24 +115,24 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                                 series: [
                                     {
                                         name: 'Target',
-                                        data: [90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 88, 86, 84, 82, 80, 78, 76, 74, 72]
+                                        data: me.getFakeData()
                                     },
                                     {
                                         name: 'Pending',
                                         dashStyle: 'longdash',
-                                        data: [19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19]
+                                        data: me.getFakeData()
                                     },
                                     {
                                         name: 'Waiting',
-                                        data: [28, 44, 39, 35, 24, 27, 32, 41, 37, 34, 32, 30, 28, 27, 25, 23, 18, 17, 14, 8, 18, 17, 14, 8]
+                                        data: me.getFakeData()
                                     },
                                     {
                                         name: 'Failed',
-                                        data: [71, 70, 65, 57, 53, 44, 30, 84, 27, 15, 2, 6, 10, 8, 7, 12, 8, 7, 14, 31, 8, 7, 14, 31]
+                                        data: me.getFakeData()
                                     },
                                     {
                                         name: 'On hold',
-                                        data: [42, 34, 36, 38, 44, 48, 51, 56, 12, 72, 4, 64, 64, 64, 68, 62, 61, 60, 50, 41, 61, 60, 50, 41]
+                                        data: me.getFakeData()
                                     }
                                 ]
                             });
@@ -140,5 +142,12 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
             }
         ];
         this.callParent(arguments);
+    },
+    getFakeData: function () {
+        var fakeDataArray = [];
+        for (var i = 0; i < 24; i++) {
+            fakeDataArray.push(Math.floor((Math.random() * 100)));
+        }
+        return fakeDataArray;
     }
 });

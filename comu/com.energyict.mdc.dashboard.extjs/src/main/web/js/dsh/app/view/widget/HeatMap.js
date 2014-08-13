@@ -6,7 +6,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
         bindable: 'Ext.util.Bindable'
     },
     minHeight: 450,
-    tbar: [
+    tbar: [ '->',
         {
             xtype: 'fieldcontainer',
             fieldLabel: 'Combine',
@@ -17,7 +17,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 queryMode: 'local',
                 valueField: 'alias'
             }
-        }
+        }, '->'
     ],
 
     items: {
@@ -61,7 +61,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
         return data;
     },
 
-    getCombo: function() {
+    getCombo: function () {
         return this.down('#combine-combo');
     },
 
@@ -69,7 +69,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
         var me = this,
             ycat = ['Success count', 'Failed count', 'Pending count'],
             xcat = record.counters().collect('displayName')
-        ;
+            ;
 
         me.setXAxis(xcat, 'Latest result');
         me.setYAxis(ycat, record.get('displayName'));
@@ -80,22 +80,22 @@ Ext.define('Dsh.view.widget.HeatMap', {
         ]));
     },
 
-    initComponent: function() {
+    initComponent: function () {
         var me = this;
         this.callParent(arguments);
 
-        me.getCombo().on('select', function(combo, records) {
+        me.getCombo().on('select', function (combo, records) {
             me.loadChart(records[0]);
         });
     },
 
-    bindStore: function(store) {
+    bindStore: function (store) {
         var me = this;
         var combo = me.getCombo();
         combo.bindStore(store);
         var cmp = me.down('#heatmapchart');
-        var update = function() {
-            Ext.defer(function() {
+        var update = function () {
+            Ext.defer(function () {
                 me.renderChart(cmp.getEl().dom);
                 combo.select(store.getAt(0));
                 me.loadChart(store.getAt(0));
@@ -104,7 +104,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
         if (cmp.rendered) {
             update();
         } else {
-            cmp.on('afterrender', function() {
+            cmp.on('afterrender', function () {
                 update();
             });
         }
@@ -112,7 +112,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
         me.mixins.bindable.bindStore.apply(this, arguments);
     },
 
-    renderChart: function(container) {
+    renderChart: function (container) {
         var me = this;
         this.chart = new Highcharts.Chart({
             chart: {
@@ -178,7 +178,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
                     }
                 }
             ]
-        }, function() {
+        }, function () {
             me.doLayout();
         });
     }

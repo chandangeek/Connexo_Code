@@ -85,7 +85,8 @@ Ext.define('Dsh.view.ConnectionOverview', {
             xtype: 'read-outs-over-time'
         },
         {
-            xtype: 'overview'
+            xtype: 'overview',
+            category: 'Connection'
         },
         {
             xtype: 'breakdown'
