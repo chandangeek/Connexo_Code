@@ -66,28 +66,29 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     router: me.getController('Uni.controller.history.Router'),
                     channels: record.get('channels')
                 });
-                graphView = widget.down('#deviceLoadProfilesGraphView');
+
 
                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                 widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
 
+                graphView = widget.down('#deviceLoadProfilesGraphView');
                 graphView.setLoading(true);
                 loadProfilesOfDeviceDataStoreProxy.url = me.loadProfilesOfDeviceDataStoreUrl.replace('{mRID}', mRID).replace('{loadProfileId}', loadProfileId);
                 loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalStart', 1407096000000);
                 loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalEnd', 1407099600000);
                 loadProfilesOfDeviceDataStore.on('load', function () {
-                    me.showGraphView(widget.down('#deviceLoadProfilesGraphView'), record);
+                    me.showGraphView(record);
                     graphView.setLoading(false);
-                    me.showReadingsCount(widget, loadProfilesOfDeviceDataStore);
+                    me.showReadingsCount(loadProfilesOfDeviceDataStore);
                 }, me);
                 loadProfilesOfDeviceDataStore.load();
             }
         });
     },
 
-    showReadingsCount: function(widget, store) {
-        var container = widget.down('#readingsCountOnLoadProfile'),
+    showReadingsCount: function(store) {
+        var container = Ext.ComponentQuery.query('#readingsCountOnLoadProfile')[0],
             readingsCount = store.getCount();
 
         if (readingsCount > 0) {
@@ -100,8 +101,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         }
     },
 
-    showGraphView: function (container, loadProfileRecord) {
+    showGraphView: function (loadProfileRecord) {
         var me = this,
+            container = Ext.ComponentQuery.query('#deviceLoadProfilesGraphView')[0],
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
             title = loadProfileRecord.get('name'),
             currentAxisTopValue = 1,
