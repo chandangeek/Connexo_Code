@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
@@ -31,7 +30,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -76,7 +74,7 @@ public class DeviceValidationResource {
     }
 
     private void fillValidationRuleSetStatus(List<ValidationRuleSet> linkedRuleSets, MeterActivation activation, List<DeviceValidationRuleSetInfo> result) {
-        List<? extends MeterActivationValidation> validations = validationService.getMeterActivationValidationsForMeterActivation(activation);
+        List<? extends MeterActivationValidation> validations = validationService.getMeterActivationValidations(activation);
         for(ValidationRuleSet ruleset : linkedRuleSets) {
             boolean found = false;
             for (MeterActivationValidation validation : validations) {
@@ -103,7 +101,7 @@ public class DeviceValidationResource {
     }
 
     private void setValidationRuleSetActivationStatus(MeterActivation activation, ValidationRuleSet ruleset, boolean status) {
-        List<? extends MeterActivationValidation> validations = validationService.getMeterActivationValidationsForMeterActivation(activation);
+        List<? extends MeterActivationValidation> validations = validationService.getMeterActivationValidations(activation);
         for(MeterActivationValidation validation : validations) {
             if(validation.getRuleSet().equals(ruleset)) {
                 validation.setActive(status);
@@ -118,24 +116,8 @@ public class DeviceValidationResource {
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         MeterActivation activation = getCurrentMeterActivation(device);
-        /*
-         * This code should be removed probably but for now it is in use.
-         * We get lastChecked and hasValidated from "/davicevalidation" request.
-         * It creates meterActivationValidations and ChennelValidations for a newly added rulsets.
-         * "/validationstatus" doesn't use lock and should be used to get only activation status of the device.
-         */
-        // -> //
-        Date minDate = validationService.getLastChecked(activation);
-
-        DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo
-                (validationService.getMeterValidation(activation).get().getActivationStatus(), minDate);
-
-        if(activation.hasData()) {
-            deviceValidationStatusInfo.hasValidation = true;
-        }
-        // <- //
-        /*DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo();
-        deviceValidationStatusInfo.isActive = validationService.getMeterValidation(activation).get().getActivationStatus();*/
+        DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo();
+        deviceValidationStatusInfo.isActive = validationService.getMeterValidation(activation).get().getActivationStatus();
         return Response.status(Response.Status.OK)
                 .entity(deviceValidationStatusInfo).build();
     }
@@ -181,14 +163,7 @@ public class DeviceValidationResource {
             if(!validationService.getMeterValidation(meterActivation).isPresent()) {
                 validationService.createMeterValidation(meterActivation);
             }
-            /* if a new ruleset was added to device configuration we should create
-             * a MeterActivationValidation and ChannelValidations for it also.
-             * "validationService.getMeterActivationValidationsForMeterActivation(meterActivation) result list"
-             * could be not empty and at the same time not up-to-date.
-             */
-            /*if (validationService.getMeterActivationValidationsForMeterActivation(meterActivation).isEmpty()) {*/
-            validationService.getMeterActivationValidations(meterActivation, Interval.startAt(now));
-            //}
+            validationService.getOrCreateMeterActivationValidations(meterActivation);
             return Response.ok(determineStatus(meterActivation)).build();
         } finally {
             lock.unlock();
