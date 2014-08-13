@@ -1,0 +1,27 @@
+{
+    "displayName": "Per latest result",
+    "alias": "latestResult",
+    "total": 101,
+    "counters": [
+        {
+            "alias": "OK",
+            "displayName": "Ok",
+            "count": 101
+        },
+        {
+            "alias": "ProtocolError",
+            "displayName": "protocol error",
+            "count": 12
+        },
+        {
+            "alias": "ConnectionError",
+            "displayName": "connection error",
+            "count": 41
+        },
+        {
+            "alias": "IoError",
+            "displayName": "I/O error",
+            "count": 10
+        }
+    ]
+}

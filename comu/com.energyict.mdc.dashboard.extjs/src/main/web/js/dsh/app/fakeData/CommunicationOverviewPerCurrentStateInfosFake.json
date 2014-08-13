@@ -16,7 +16,7 @@
         {
             "alias": "Retrying",
             "displayName": "Retrying",
-            "count": 15
+            "count": 19
         },
         {
             "alias": "NeverCompleted",
@@ -26,7 +26,7 @@
         {
             "alias": "Waiting",
             "displayName": "Waiting",
-            "count": 15
+            "count": 8
         },
         {
             "alias": "Pending",
@@ -36,7 +36,7 @@
         {
             "alias": "Failed",
             "displayName": "Failed",
-            "count": 41
+            "count": 27
         }
     ]
 }

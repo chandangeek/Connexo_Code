@@ -12,8 +12,10 @@ Ext.define('Dsh.view.widget.Overview', {
     defaults: {
         columnWidth: .5,
         listeners: {
+            scope: this,
             afterrender: function (view) {
                 view.store.load({
+                    url: '../../../apps/dashboard/app/fakeData/' + view.ownerCt.category + view.storeName + 'Fake.json',
                     callback: function () {
                         Ext.each(this.getRange(), function (item) {
                             Ext.each(item.get('counters'), function (counter, idx) {
@@ -51,6 +53,7 @@ Ext.define('Dsh.view.widget.Overview', {
             {
                 xtype: 'dataview',
                 store: 'OverviewPerCurrentStateInfos',
+                storeName: 'OverviewPerCurrentStateInfos',
                 itemSelector: 'table',
                 tpl: me.commonTpl,
                 style: {
@@ -60,6 +63,7 @@ Ext.define('Dsh.view.widget.Overview', {
             {
                 xtype: 'dataview',
                 store: 'OverviewPerLastResultInfos',
+                storeName: 'OverviewPerLastResultInfos',
                 itemSelector: 'table',
                 tpl: me.commonTpl,
                 style: {

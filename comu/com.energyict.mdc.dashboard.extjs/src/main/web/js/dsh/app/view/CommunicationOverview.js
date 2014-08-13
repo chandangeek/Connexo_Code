@@ -68,7 +68,7 @@ Ext.define('Dsh.view.CommunicationOverview', {
                     data: [ //TODO: set real data
                         {
                             link: Uni.I18n.translate('communication.widget.quicklinks.viewAll', 'DSH', 'View all communications'),
-                            href: '#/workspace/datacommunication/communication'
+                            href: '#/workspace/datacommunication/communications'
                         },
                         {
                             link: Uni.I18n.translate('connection.widget.headerSection.title', 'DSH', 'Connection overview'),
@@ -85,7 +85,8 @@ Ext.define('Dsh.view.CommunicationOverview', {
             xtype: 'read-outs-over-time'
         },
         {
-            xtype: 'overview'
+            xtype: 'overview',
+            category: 'Communication'
         },
         {
             xtype: 'breakdown'

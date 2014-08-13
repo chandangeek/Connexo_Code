@@ -6,22 +6,22 @@
         {
             "alias": "OK",
             "displayName": "Ok",
-            "count": 101
+            "count": 109
         },
         {
             "alias": "ProtocolError",
             "displayName": "protocol error",
-            "count": 12
+            "count": 44
         },
         {
             "alias": "ConnectionError",
             "displayName": "connection error",
-            "count": 41
+            "count": 18
         },
         {
             "alias": "IoError",
             "displayName": "I/O error",
-            "count": 1
+            "count": 34
         }
     ]
 }
