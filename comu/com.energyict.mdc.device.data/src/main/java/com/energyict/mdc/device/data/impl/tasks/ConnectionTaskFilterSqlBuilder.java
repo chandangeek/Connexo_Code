@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Builds the SQL query thats finds all {@link ConnectionTask}s
+ * Builds the SQL query that finds all {@link ConnectionTask}s
  * that match a {@link ConnectionTaskFilterSpecification}.
  *
  * @author Rudi Vankeirsbilck (rudi)
