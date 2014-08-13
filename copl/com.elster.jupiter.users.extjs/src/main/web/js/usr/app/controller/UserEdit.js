@@ -40,12 +40,6 @@ Ext.define('Usr.controller.UserEdit', {
         location.href = '#usermanagement/users/' + groupId + '/edit';
     },
 
-    backUrl: null,
-
-    back: function () {
-        location.href = this.backUrl;
-    },
-
     /**
      * todo: this method should be refactored.
      * @param userId
@@ -95,7 +89,7 @@ Ext.define('Usr.controller.UserEdit', {
         form.getRecord().save({
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('user.saved', record.get('authenticationName'), 'USM', 'User \'{0}\' saved.'));
-                me.back();
+                location.href = '#/usermanagement/users';
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
