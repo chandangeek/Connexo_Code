@@ -42,10 +42,17 @@ public class DashboardFieldResource extends FieldResource {
     }
 
     @GET
-    @Path("/latestresult")
+    @Path("/successindicator")
     @Produces("application/json")
     public Object getLatestResultValues() {
-        return asJsonArrayObjectWithTranslation("latestResults", "latestResult", new SuccessIndicatorAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new SuccessIndicatorAdapter().getClientSideValues());
+    }
+
+    @GET
+    @Path("/lifecyclestatus")
+    @Produces("application/json")
+    public Object getLifecycleStatus() {
+        return asJsonArrayObjectWithTranslation("lifecycleStatuses", "lifecycleStatus", new ConnectionTaskLifecycleStatusAdaptor().getClientSideValues());
     }
 
 }

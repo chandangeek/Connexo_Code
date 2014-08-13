@@ -19,6 +19,8 @@ import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -87,7 +89,12 @@ public class ConnectionResource {
         for (ConnectionTask<?,?> connectionTask : connectionTasksByFilter) {
             Optional<ComSession> lastComSession = taskHistoryService.getLastComSession(connectionTask);
             List<ComTaskExecution> comTaskExecutions = deviceDataService.findComTaskExecutionsByConnectionTask(connectionTask);
-            // TODO Sort comTaskExecs
+            Collections.sort(comTaskExecutions, new Comparator<ComTaskExecution>() {
+                @Override
+                public int compare(ComTaskExecution o1, ComTaskExecution o2) {
+                    return 0;
+                }
+            });
             connectionTaskInfos.add(ConnectionTaskInfo.from(connectionTask, lastComSession, comTaskExecutions, thesaurus));
         }
 
