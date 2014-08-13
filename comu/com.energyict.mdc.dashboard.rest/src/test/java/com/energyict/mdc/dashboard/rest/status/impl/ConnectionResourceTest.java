@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.dashboard.DashboardService;
@@ -23,6 +24,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -32,6 +34,8 @@ import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -228,6 +232,7 @@ public class ConnectionResourceTest extends JerseyTest {
         when(connectionTask.isDefault()).thenReturn(true);
         Device device = mock(Device.class);
         when(device.getmRID()).thenReturn("1234-5678-9012");
+        when(device.getName()).thenReturn("some device");
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getId()).thenReturn(1010L);
         when(deviceType.getName()).thenReturn("device type");
@@ -237,10 +242,12 @@ public class ConnectionResourceTest extends JerseyTest {
         when(deviceConfiguration.getId()).thenReturn(123123L);
         when(deviceConfiguration.getName()).thenReturn("123123");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
+        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
         when(comTaskExecution1.getConnectionTask()).thenReturn((ConnectionTask)connectionTask);
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1));
+        when(comTaskExecution1.getDevice()).thenReturn(device);
+        when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         when(comSession.getNumberOfFailedTasks()).thenReturn(401);
         when(comSession.getNumberOfSuccessFulTasks()).thenReturn(12);
@@ -261,6 +268,15 @@ public class ConnectionResourceTest extends JerseyTest {
         when(window.getStart()).thenReturn(PartialTime.fromHours(9));
         when(window.getEnd()).thenReturn(PartialTime.fromHours(17));
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
+        ComSchedule comSchedule=mock(ComSchedule.class);
+        when(comSchedule.getName()).thenReturn("Weekly billing");
+        when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.WEEKS),new TimeDuration(12, TimeDuration.HOURS)));
+        when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
+        when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
+        when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(new Date());
+        when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(new Date());
+        when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(new Date());
+        when(deviceDataService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         Map<String, Object> map = target("/connections").queryParam("start",0).queryParam("limit", 10).request().get(Map.class);
 
         assertThat(map).containsKey("total");
@@ -278,9 +294,15 @@ public class ConnectionResourceTest extends JerseyTest {
                 .containsKey("endDateTime")
                 .containsKey("duration")
                 .containsKey("comPortPool")
+                .containsKey("comServer")
                 .containsKey("direction")
                 .containsKey("connectionType")
-                .hasSize(13);
+                .containsKey("connectionMethod")
+                .containsKey("connectionStrategy")
+                .containsKey("window")
+                .containsKey("nextExecution")
+                .containsKey("communicationTasks")
+                .hasSize(19);
 
 
     }
