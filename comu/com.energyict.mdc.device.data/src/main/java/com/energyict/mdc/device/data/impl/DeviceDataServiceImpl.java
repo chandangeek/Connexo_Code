@@ -427,10 +427,19 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     private Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters) {
-        for (TaskStatus missing : EnumSet.complementOf(EnumSet.copyOf(counters.keySet()))) {
+        for (TaskStatus missing : this.taskStatusComplement(counters.keySet())) {
             counters.put(missing, 0L);
         }
         return counters;
+    }
+
+    private EnumSet<TaskStatus> taskStatusComplement(Set<TaskStatus> taskStatuses) {
+        if (taskStatuses.isEmpty()) {
+            return EnumSet.allOf(TaskStatus.class);
+        }
+        else {
+            return EnumSet.complementOf(EnumSet.copyOf(taskStatuses));
+        }
     }
 
     @Override
@@ -1376,10 +1385,19 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     private Map<ComSession.SuccessIndicator, Long> addMissingSuccessIndicatorCounters(Map<ComSession.SuccessIndicator, Long> counters) {
-        for (ComSession.SuccessIndicator missing : EnumSet.complementOf(EnumSet.copyOf(counters.keySet()))) {
+        for (ComSession.SuccessIndicator missing : this.successIndicatorComplement(counters.keySet())) {
             counters.put(missing, 0L);
         }
         return counters;
+    }
+
+    private EnumSet<ComSession.SuccessIndicator> successIndicatorComplement(Set<ComSession.SuccessIndicator> successIndicators) {
+        if (successIndicators.isEmpty()) {
+            return EnumSet.allOf(ComSession.SuccessIndicator.class);
+        }
+        else {
+            return EnumSet.complementOf(EnumSet.copyOf(successIndicators));
+        }
     }
 
     @Override

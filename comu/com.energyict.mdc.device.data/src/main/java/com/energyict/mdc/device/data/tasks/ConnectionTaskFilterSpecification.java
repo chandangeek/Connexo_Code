@@ -41,7 +41,12 @@ public class ConnectionTaskFilterSpecification {
     /**
      * The Set of {@link TaskStatus}es.
      */
-    public Set<TaskStatus> taskStatuses = EnumSet.allOf(TaskStatus.class);
+    public Set<TaskStatus> taskStatuses = EnumSet.noneOf(TaskStatus.class);
+
+    /**
+     * The Set of {@link ConnectionTask.SuccessIndicator}s.
+     */
+    public Set<ConnectionTask.SuccessIndicator> successIndicators = EnumSet.noneOf(ConnectionTask.SuccessIndicator.class);
 
     /**
      * The Interval in which the start time of the last session is expected
@@ -61,6 +66,6 @@ public class ConnectionTaskFilterSpecification {
      * The flag that indicates if only the data from the {@link ConnectionTask}'s
      * last communication session should be used.
      */
-    public boolean useLastComSession = true;
+    public boolean useLastComSession = false;
 
 }

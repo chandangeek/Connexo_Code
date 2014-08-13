@@ -34,7 +34,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
     private Set<ConnectionTypePluggableClass> connectionTypes;
     private Set<ComPortPool> comPortPools;
     private Set<DeviceType> deviceTypes;
-    private boolean useLastComSession;
+    private boolean appendLastComSessionJoinClause;
 
     public AbstractConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock) {
         super();
@@ -42,7 +42,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
         this.comPortPools = new HashSet<>(filterSpecification.comPortPools);
         this.deviceTypes = new HashSet<>(filterSpecification.deviceTypes);
-        this.useLastComSession = filterSpecification.useLastComSession;
+        this.appendLastComSessionJoinClause = filterSpecification.useLastComSession;
     }
 
     protected void setActualBuilder(ClauseAwareSqlBuilder actualBuilder) {
@@ -179,7 +179,11 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
     }
 
     private boolean requiresLastComSessionClause() {
-        return this.useLastComSession;
+        return this.appendLastComSessionJoinClause;
+    }
+
+    protected void requiresLastComSessionClause(boolean flag) {
+        this.appendLastComSessionJoinClause = flag;
     }
 
     private void appendLastComSessionJoinClause(String connectionTaskTableName) {
