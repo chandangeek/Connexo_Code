@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -13,9 +14,15 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -459,4 +466,100 @@ public interface DeviceDataService {
     boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds);
 
     Finder<Device>  findDevicesByDeviceConfiguration(DeviceConfiguration deviceConfiguration);
+
+    List<ComSession> findAllFor(ConnectionTask<?, ?> connectionTask);
+
+    /**
+     * Gets this ConnectionTask's last {@link ComSession} or <code>null</code>
+     * if there are no ComSessions yet.
+     *
+     * @return The last ComSession or <code>null</code>
+     */
+    public Optional<ComSession> getLastComSession (ConnectionTask<?, ?> connectionTask);
+
+    Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution);
+
+    ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime);
+
+    Optional<ComSession> findComSession(long id);
+
+    List<ComSession> findComSessions(ComPort comPort);
+
+    List<ComSession> findComSessions(ComPortPool comPortPool);
+
+    List<ComTaskExecutionSession> findByComTaskExecution(ComTaskExecution comTaskExecution);
+
+    /**
+     * Counts the number of communication errors that have occurred in the specified
+     * {@link Interval} within the topology that starts from the speified Device.
+     *
+     * @param interval The Interval during which the communication errors have occurred
+     * @return The number of communication errors
+     */
+    public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, Device device, Interval interval);
+
+    /**
+     * Counts the number of {@link ConnectionTask}s whose last {@link ComSession}
+     * completed successfully but has at least one failing task.
+     *
+     * @return The count
+     */
+    public long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
+
+    /**
+     * Counts the last {@link ComSession} of all {@link ConnectionTask}s,
+     * grouping them by their respective {@link ConnectionTask.SuccessIndicator}.
+     *
+     * @return The numbers, broken down by SuccessIndicator
+     */
+    public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount();
+
+    /**
+     * Counts all {@link ConnectionTask}s grouping them by their
+     * respective {@link ConnectionTypePluggableClass} and the {@link ComSession.SuccessIndicator}
+     * of the last {@link ComSession}.
+     * The counters are returned in the following order:
+     * <ol>
+     * <li>Success but with at least one failing task</li>
+     * <li>Success</li>
+     * <li>SetupError</li>
+     * <li>Broken</li>
+     * </ol>
+     *
+     * @return The counters
+     */
+    public Map<ConnectionTypePluggableClass, List<Long>> getConnectionTypeHeatMap();
+
+    /**
+     * Counts all {@link ConnectionTask}s grouping them by their
+     * respective {@link DeviceType} and the {@link ComSession.SuccessIndicator}
+     * of the last {@link ComSession}.
+     * The counters are returned in the following order:
+     * <ol>
+     * <li>Success but with at least one failing task</li>
+     * <li>Success</li>
+     * <li>SetupError</li>
+     * <li>Broken</li>
+     * </ol>
+     *
+     * @return The counters
+     */
+    public Map<DeviceType, List<Long>> getDeviceTypeHeatMap();
+
+    /**
+     * Counts all {@link ConnectionTask}s grouping them by their
+     * respective {@link ComPortPool} and the {@link ComSession.SuccessIndicator}
+     * of the last {@link ComSession}.
+     * The counters are returned in the following order:
+     * <ol>
+     * <li>Success but with at least one failing task</li>
+     * <li>Success</li>
+     * <li>SetupError</li>
+     * <li>Broken</li>
+     * </ol>
+     *
+     * @return The counters
+     */
+    public Map<ComPortPool, List<Long>> getComPortPoolHeatMap();
+
 }

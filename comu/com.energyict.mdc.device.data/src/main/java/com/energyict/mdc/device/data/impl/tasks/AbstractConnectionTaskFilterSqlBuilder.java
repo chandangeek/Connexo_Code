@@ -28,14 +28,13 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
 
     private static final String SUCCESS_INDICATOR_ALIAS_NAME = "successindicator";
     private static final int MAX_ELEMENTS_FOR_IN_CLAUSE = 1000;
-    protected static final String COMSESSION_TABLENAME = "THS_COMSESSION";
 
     private final Clock clock;
     private ClauseAwareSqlBuilder actualBuilder;
     private Set<ConnectionTypePluggableClass> connectionTypes;
     private Set<ComPortPool> comPortPools;
     private Set<DeviceType> deviceTypes;
-    private boolean useLastComSession;
+    private boolean appendLastComSessionJoinClause;
 
     public AbstractConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock) {
         super();
@@ -43,7 +42,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
         this.comPortPools = new HashSet<>(filterSpecification.comPortPools);
         this.deviceTypes = new HashSet<>(filterSpecification.deviceTypes);
-        this.useLastComSession = filterSpecification.useLastComSession;
+        this.appendLastComSessionJoinClause = filterSpecification.useLastComSession;
     }
 
     protected void setActualBuilder(ClauseAwareSqlBuilder actualBuilder) {
@@ -180,7 +179,11 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
     }
 
     private boolean requiresLastComSessionClause() {
-        return this.useLastComSession;
+        return this.appendLastComSessionJoinClause;
+    }
+
+    protected void requiresLastComSessionClause(boolean flag) {
+        this.appendLastComSessionJoinClause = flag;
     }
 
     private void appendLastComSessionJoinClause(String connectionTaskTableName) {
@@ -191,11 +194,11 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
 
     private void appendLastComSessionJoinClauseForConnectionTask(String successIndicatorAliasName, String connectionTaskTableName) {
         this.append(", (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY ");
-        this.append(COMSESSION_TABLENAME);
+        this.append(TableSpecs.DDC_COMSESSION.name());
         this.append(".startdate) ");
         this.append(successIndicatorAliasName);
         this.append(" from ");
-        this.append(COMSESSION_TABLENAME);
+        this.append(TableSpecs.DDC_COMSESSION.name());
         this.append(" group by connectiontask) cs");
         this.appendWhereOrAnd();
         this.append(connectionTaskTableName);

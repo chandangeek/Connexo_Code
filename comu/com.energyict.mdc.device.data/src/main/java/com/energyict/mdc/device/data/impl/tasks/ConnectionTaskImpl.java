@@ -19,6 +19,8 @@ import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -372,6 +374,49 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    public Optional<ComSession> getLastComSession() {
+        return this.deviceDataService.getLastComSession(this);
+    }
+
+    @Override
+    public SuccessIndicator getSuccessIndicator() {
+        Optional<ComSession> lastComSession = this.getLastComSession();
+        if (lastComSession.isPresent()) {
+            if (lastComSession.get().wasSuccessful()) {
+                return ConnectionTask.SuccessIndicator.SUCCESS;
+            }
+            else {
+                return ConnectionTask.SuccessIndicator.FAILURE;
+            }
+        }
+        else {
+            return ConnectionTask.SuccessIndicator.NOT_APPLICABLE;
+        }
+    }
+
+    @Override
+    public Optional<ComSession.SuccessIndicator> getLastSuccessIndicator() {
+        Optional<ComSession> lastComSession = this.getLastComSession();
+        if (lastComSession.isPresent()) {
+            return Optional.of(lastComSession.get().getSuccessIndicator());
+        }
+        else {
+            return Optional.absent();
+        }
+    }
+
+    @Override
+    public Optional<TaskExecutionSummary> getLastTaskExecutionSummary() {
+        Optional<ComSession> lastComSession = this.getLastComSession();
+        if (lastComSession.isPresent()) {
+            return Optional.<TaskExecutionSummary>of(lastComSession.get());
+        }
+        else {
+            return Optional.absent();
+        }
+    }
+
+    @Override
     @XmlAttribute
     public Date getObsoleteDate() {
         return this.obsoleteDate;
@@ -526,7 +571,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         super.post();
     }
 
-    @Override
     public ConnectionMethod getConnectionMethod() {
         return connectionMethod.get();
     }

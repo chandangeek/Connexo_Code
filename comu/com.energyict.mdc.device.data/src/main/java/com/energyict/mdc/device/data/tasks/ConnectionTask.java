@@ -4,11 +4,15 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
+import com.google.common.base.Optional;
+
 import java.util.Date;
 import java.util.List;
 
@@ -34,10 +38,9 @@ import java.util.List;
  * <p/>
  * Each time a ConnectionTask is executed, a ComSession
  * is created that captures all the details of the communication with the device.
- * That communication overview is very imported and should not be deleted
+ * That communication overview is very important and should not be deleted
  * easily. Therefore, ConnectionTasks are never deleted but made obsolete.
- * Obsolete ConnectionTasks will not return from {@link DeviceDataService}
- * finder methods.
+ * Obsolete ConnectionTasks will not return from {@link DeviceDataService} finder methods.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (09:59)
@@ -61,9 +64,31 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
     }
 
     /**
+     * Indicates the overall success of a ConnectionTask,
+     * relating to the overall success of the last {@link ComSession}.
+     */
+    public enum SuccessIndicator {
+        /**
+         * Indicates that the last {@link ComSession} was successful.
+         */
+        SUCCESS,
+
+        /**
+         * Indicates that the last {@link ComSession} was <strong>NOT</strong> successful.
+         */
+        FAILURE,
+
+        /**
+         * Indicates that there is no last {@link ComSession}.
+         */
+        NOT_APPLICABLE;
+
+    }
+
+    /**
      * Represents the lifecycle state of a ConnectionTask
      */
-    enum ConnectionTaskLifecycleStatus {
+    public enum ConnectionTaskLifecycleStatus {
 
         /**
          * Active means the ConnectionTask is completely validated and ready to be used by the ComServer
@@ -93,6 +118,14 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      * @return the name
      */
     public String getName();
+
+    /**
+     * Gets the {@link ConnectionType} that knows exactly how to connect
+     * to a device and the properties it needs to do that.
+     *
+     * @return The ConnectionType
+     */
+    public ConnectionType getConnectionType();
 
     /**
      * Gets the {@link Device} that this ConnectionTask is going
@@ -230,14 +263,39 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
     public Date getLastSuccessfulCommunicationEnd();
 
     /**
-     * Gets the {@link ConnectionType} that knows exactly how to connect
-     * to a device and the properties it needs to do that.
+     * Gets this ConnectionTask's last {@link ComSession} or <code>absent</code>
+     * if there are no ComSessions yet.
      *
-     * @return The ConnectionType
+     * @return The last ComSession or <code>null</code>
      */
-    public ConnectionType getConnectionType();
+    public Optional<ComSession> getLastComSession ();
 
-    ConnectionMethod getConnectionMethod();
+    /**
+     * Gets the {@link SuccessIndicator} of this ConnectionTask.
+     *
+     * @return The SuccessIndicator
+     */
+    public SuccessIndicator getSuccessIndicator();
+
+    /**
+     * Gets the {@link ComSession.SuccessIndicator} of this ConnectionTask's
+     * last {@link ComSession} or <code>absent</code> if this ConnectionTask
+     * has never before been executed and therefore no ComSession exists.
+     *
+     * @return The SuccessIndicator of the last ComSession or <code>null</code>
+     *         if there is no ComSession yet
+     */
+    public Optional<ComSession.SuccessIndicator> getLastSuccessIndicator();
+
+    /**
+     * Gets the {@link TaskExecutionSummary} of this ConnectionTask's
+     * last {@link ComSession} or <code>absent</code> if this ConnectionTask
+     * has never before been executed and therefore no ComSession exists.
+     *
+     * @return The TaskExecutionSummary of the last ComSession or <code>null</code>
+     *         if there is no ComSession yet
+     */
+    public Optional<TaskExecutionSummary> getLastTaskExecutionSummary();
 
     /**
      * Tests if this ConnectionTask is currently executing.
