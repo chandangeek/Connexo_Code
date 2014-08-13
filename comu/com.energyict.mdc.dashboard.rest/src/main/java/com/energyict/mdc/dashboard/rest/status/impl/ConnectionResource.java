@@ -37,12 +37,8 @@ import javax.ws.rs.core.Response;
 @Path("/connections")
 public class ConnectionResource {
 
-    private static final Comparator<ComTaskExecution> COM_TASK_EXECUTION_COMPARATOR = new Comparator<ComTaskExecution>() {
-        @Override
-        public int compare(ComTaskExecution o1, ComTaskExecution o2) {
-            return o1.getDevice().getName().compareToIgnoreCase(o2.getDevice().getName());
-        }
-    };
+    private static final Comparator<ComTaskExecution> COM_TASK_EXECUTION_COMPARATOR = new ComTaskExecutionComparator();
+
     private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
 
     private static final String TASK_STATUSES = "currentStates";
