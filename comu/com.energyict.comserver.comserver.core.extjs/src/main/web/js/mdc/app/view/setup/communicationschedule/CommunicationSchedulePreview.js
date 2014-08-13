@@ -72,12 +72,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                                             ]
                                         }
                                     ]
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'schedulingStatus',
-                                    fieldLabel: Uni.I18n.translate('communicationschedule.status', 'MDC', 'Status'),
-                                    readOnly: true
                                 }
                             ]
                         },

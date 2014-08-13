@@ -200,7 +200,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     location.href = '#/administration/communicationschedules';
                 },
                 failure: function (record, operation) {
-                    debugger;
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         Ext.each(json.errors, function (error) {

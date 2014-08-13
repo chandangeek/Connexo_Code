@@ -14,11 +14,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
         var me = this;
         this.columns = [
             {
-                header: Uni.I18n.translate('communicationschedule.status', 'MDC', 'Status'),
-                dataIndex: 'schedulingStatus',
-                flex: 0.1
-            },
-            {
                 header: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 0.4

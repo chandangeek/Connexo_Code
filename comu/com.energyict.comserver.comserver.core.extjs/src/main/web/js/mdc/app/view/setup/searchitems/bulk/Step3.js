@@ -91,12 +91,6 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                                     });
                                     return result;
                                 }
-                            },
-                            {
-                                xtype: 'displayfield',
-                                name: 'schedulingStatus',
-                                fieldLabel: Uni.I18n.translate('communicationschedule.status', 'MDC', 'Status'),
-                                readOnly: true
                             }
                         ]
                     }
