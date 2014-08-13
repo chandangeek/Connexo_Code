@@ -37,6 +37,14 @@ import javax.ws.rs.core.Response;
 @Path("/connections")
 public class ConnectionResource {
 
+    private static final Comparator<ComTaskExecution> COM_TASK_EXECUTION_COMPARATOR = new Comparator<ComTaskExecution>() {
+        @Override
+        public int compare(ComTaskExecution o1, ComTaskExecution o2) {
+            return o1.getDevice().getName().compareToIgnoreCase(o2.getDevice().getName());
+        }
+    };
+    private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
+
     private static final String TASK_STATUSES = "currentStates";
     private static final String COM_PORT_POOLS = "comPortPools";
     private static final String CONNECTION_TYPES = "connectionTypes";
@@ -45,7 +53,6 @@ public class ConnectionResource {
     private static final String START_INTERVAL_TO = "startIntervalTo";
     private static final String FINISH_INTERVAL_FROM = "finishIntervalFrom";
     private static final String FINISH_INTERVAL_TO = "finishIntervalTo";
-    private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
 
     private final Thesaurus thesaurus;
     private final DeviceDataService deviceDataService;
@@ -84,17 +91,12 @@ public class ConnectionResource {
         if (queryParameters.getStart()==null || queryParameters.getLimit()==null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        List<ConnectionTask> connectionTasksByFilter = deviceDataService.findConnectionTasksByFilter(filter, queryParameters.getStart(), queryParameters.getLimit());
+        List<ConnectionTask> connectionTasksByFilter = deviceDataService.findConnectionTasksByFilter(filter, queryParameters.getStart(), queryParameters.getLimit()+1);
         List<ConnectionTaskInfo> connectionTaskInfos = new ArrayList<>(connectionTasksByFilter.size());
         for (ConnectionTask<?,?> connectionTask : connectionTasksByFilter) {
             Optional<ComSession> lastComSession = taskHistoryService.getLastComSession(connectionTask);
             List<ComTaskExecution> comTaskExecutions = deviceDataService.findComTaskExecutionsByConnectionTask(connectionTask);
-            Collections.sort(comTaskExecutions, new Comparator<ComTaskExecution>() {
-                @Override
-                public int compare(ComTaskExecution o1, ComTaskExecution o2) {
-                    return 0;
-                }
-            });
+            Collections.sort(comTaskExecutions, COM_TASK_EXECUTION_COMPARATOR);
             connectionTaskInfos.add(ConnectionTaskInfo.from(connectionTask, lastComSession, comTaskExecutions, thesaurus));
         }
 
