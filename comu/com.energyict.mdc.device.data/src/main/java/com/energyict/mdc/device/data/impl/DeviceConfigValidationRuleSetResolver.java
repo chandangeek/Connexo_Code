@@ -29,7 +29,7 @@ public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetR
     }
 
     @Override
-    public List<ValidationRuleSet> resolve(MeterActivation meterActivation, Interval interval) {
+    public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
         if (hasMdcMeter(meterActivation)) {
             Device device = deviceDataService.findDeviceById(Long.valueOf(meterActivation.getMeter().get().getAmrId()));
             if (device != null) {

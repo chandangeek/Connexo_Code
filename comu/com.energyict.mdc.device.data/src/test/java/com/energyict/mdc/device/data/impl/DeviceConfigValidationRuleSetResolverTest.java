@@ -64,7 +64,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceDataService(deviceDataService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(meterActivation, Interval.sinceEpoch());
+        List<ValidationRuleSet> setList = resolver.resolve(meterActivation);
         assertThat(setList).containsExactly(ruleSet);
     }
 
@@ -74,7 +74,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceDataService(deviceDataService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(meterActivation, Interval.sinceEpoch());
+        List<ValidationRuleSet> setList = resolver.resolve(meterActivation);
         assertThat(setList).isEmpty();
     }
 
@@ -84,7 +84,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceDataService(deviceDataService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(meterActivation, Interval.sinceEpoch());
+        List<ValidationRuleSet> setList = resolver.resolve(meterActivation);
         assertThat(setList).isEmpty();
     }
 
@@ -94,7 +94,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceDataService(deviceDataService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(meterActivation, Interval.sinceEpoch());
+        List<ValidationRuleSet> setList = resolver.resolve(meterActivation);
         assertThat(setList).isEmpty();
     }
 }
