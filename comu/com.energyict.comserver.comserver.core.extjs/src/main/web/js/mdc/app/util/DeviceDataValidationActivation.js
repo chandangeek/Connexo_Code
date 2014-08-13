@@ -20,23 +20,22 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
-                me.dataValidationLastChecked = res.lastChecked;
                 if (view.down('#dataValidationStatusPanel')) {
                     view.down('#deviceDataValidationStatusField').setValue(res.isActive ?
-                            Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                            Uni.I18n.translate('general.inactive', 'MDC', 'Inctive')
+                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
+                        Uni.I18n.translate('general.inactive', 'MDC', 'Inctive')
                     );
                     view.down('#deviceDataValidationStateChangeBtn').setText((res.isActive ?
-                            Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
-                            Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
-                            ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
+                        Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
+                        Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
+                        ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
                     );
                     view.down('#deviceDataValidationStateChangeBtn').action = res.isActive ? 'deactivate' : 'activate';
                     view.down('#deviceDataValidationStateChangeBtn').setDisabled(false);
                 } else {
                     view.down('#statusField').setValue(res.isActive ?
-                            Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                            Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
+                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
+                        Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                     );
                     if (res.isActive) {
                         view.down('#activate').hide();
@@ -65,7 +64,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 me.hasValidation = res.hasValidation;
-
+                me.dataValidationLastChecked = res.lastChecked;
                 if (res.hasValidation) {
                     confirmationWindow.add(me.getActivationConfirmationContent());
                     confirmationWindow.show({
@@ -89,6 +88,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         var me = this;
         if (me.hasValidation) {
             var isValidationRunImmediately = confWindow.down('#validationRunRg').getValue().validationRun === 'now';
+            var isWaitForNewData = confWindow.down('#validationRunRg').getValue().validationRun === 'waitForNewData';
         }
         me.confirmationWindowButtonsDisable(true);
         Ext.Ajax.request({
@@ -98,6 +98,10 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             success: function () {
                 me.updateDataValidationStatusSection(me.mRID, view);
                 if (isValidationRunImmediately) {
+                    me.isValidationRunImmediately = true;
+                    me.validateData(confWindow);
+                } else if (isWaitForNewData) {
+                    me.isValidationRunImmediately = false;
                     me.validateData(confWindow);
                 } else {
                     me.destroyConfirmationWindow();
@@ -112,8 +116,8 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         var me = this;
 
         confWindow.down('#validationProgress').add(Ext.create('Ext.ProgressBar', {
-            margin: '5 0 15 0'
-        })).wait({
+                margin: '5 0 15 0'
+            })).wait({
             duration: 120000,
             text: Uni.I18n.translate('device.dataValidation.isInProgress', 'MDC', 'Data validation is in progress. Please wait...'),
             fn: function () {
@@ -149,12 +153,18 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             method: 'PUT',
             timeout: 600000,
             jsonData: {
+                validate: me.isValidationRunImmediately,
                 lastChecked: confWindow.down('#validationFromDate').getValue().getTime()
             },
             success: function () {
                 me.destroyConfirmationWindow();
-                me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translatePlural('device.dataValidation.activation.validated', me.mRID, 'MDC', 'Data validation on device {0} was completed successfully'));
+                if (me.isValidationRunImmediately) {
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translatePlural('device.dataValidation.activation.validated', me.mRID, 'MDC', 'Data validation on device {0} was completed successfully'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translatePlural('device.dataValidation.activation.activated', me.mRID, 'MDC', 'Data validation on device {0} was activated successfully'));
+                }
             },
             failure: function (response) {
                 if (confWindow) {
