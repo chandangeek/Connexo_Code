@@ -16,16 +16,16 @@ Ext.define('Usr.controller.GroupEdit', {
     views: [
         'Usr.view.group.Edit'
     ],
-    refs: [
-        {
-            ref: 'selectApplicationsGrid',
-            selector: 'groupEdit #applicationList'
-        },
-        {
-            ref: 'selectFeaturesGrid',
-            selector: 'groupEdit #featureList'
-        }
-    ],
+//    refs: [
+//        {
+//            ref: 'selectApplicationsGrid',
+//            selector: 'groupEdit #applicationList'
+//        },
+//        {
+//            ref: 'selectFeaturesGrid',
+//            selector: 'groupEdit #featureList'
+//        }
+//    ],
 
     init: function () {
         this.control({
@@ -53,6 +53,14 @@ Ext.define('Usr.controller.GroupEdit', {
                 beforecellmousedown: this.displayPermissionsMenu
             }
         });
+    },
+
+    getSelectApplicationsGrid: function () {
+        return this.widget.down("#applicationList");
+    },
+
+    getSelectFeaturesGrid: function () {
+        return this.widget.down("#featureList");
     },
 
     backUrl: '#usermanagement/roles',
@@ -89,6 +97,7 @@ Ext.define('Usr.controller.GroupEdit', {
             widget = Ext.widget('groupEdit', {edit: (me.mode == 'edit')}),
             panel = widget.getCenterContainer().items.getAt(0);
 
+        this.widget = widget;
         widget.setLoading(true);
         panel.setTitle(title);
 
@@ -355,7 +364,7 @@ Ext.define('Usr.controller.GroupEdit', {
 
 
         if(cellIndex == lastColumn){
-            var menu = menu = grid.panel.columns[lastColumn].menu;
+            var menu = grid.panel.columns[lastColumn].menu;
             menu.removeAll();
 
             this.addPermissionMenuNoAccess(menu, (record.get('permissions') == ''));
