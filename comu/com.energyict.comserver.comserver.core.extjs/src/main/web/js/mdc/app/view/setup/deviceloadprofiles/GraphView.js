@@ -11,6 +11,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
 
     drawGraph: function () {
         var me = this;
+
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+
         new Highcharts.StockChart({
 
             title: {
@@ -25,6 +32,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
             credits: {
                 enabled: false
             },
+
 
             xAxis: {
                 type: 'datetime',
