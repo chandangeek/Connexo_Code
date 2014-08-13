@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.google.common.base.Optional;
 import java.util.Date;
+import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -22,7 +23,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 public class ConnectionTaskInfo {
     private static final ConnectionTaskLifecycleStatusAdaptor CONNECTION_TASK_LIFECYCLE_STATUS_ADAPTOR = new ConnectionTaskLifecycleStatusAdaptor();
-    private static final SuccessIndicatorAdapter SUCCESS_INDICATOR_ADAPTER = new SuccessIndicatorAdapter();
     private static final ConnectionStrategyAdapter CONNECTION_STRATEGY_ADAPTER = new ConnectionStrategyAdapter();
 
     public IdWithNameInfo device;
@@ -38,18 +38,19 @@ public class ConnectionTaskInfo {
     public IdWithNameInfo comPortPool;
     public String direction;
     public String connectionType;
-    private IdWithNameInfo comServer;
-    private IdWithNameInfo connectionMethod;
-    private String window;
-    private ConnectionStrategyInfo connectionStrategy;
-    private Date nextExecution;
+    public IdWithNameInfo comServer;
+    public IdWithNameInfo connectionMethod;
+    public String window;
+    public ConnectionStrategyInfo connectionStrategy;
+    public Date nextExecution;
+    public ComTaskListInfo communicationTasks;
 
-    public static ConnectionTaskInfo from(ConnectionTask<?, ?> connectionTask, Thesaurus thesaurus, Optional<ComSession> lastComSessionOptional) throws Exception {
+    public static ConnectionTaskInfo from(ConnectionTask<?, ?> connectionTask, Optional<ComSession> lastComSessionOptional, List<ComTaskExecution> comTaskExecutions, Thesaurus thesaurus) throws Exception {
         ConnectionTaskInfo info = new ConnectionTaskInfo();
-        info.device=new IdWithNameInfo(connectionTask.getDevice().getId(), connectionTask.getDevice().getmRID());
+        info.device=new IdWithNameInfo(connectionTask.getDevice().getmRID(), connectionTask.getDevice().getName());
         info.deviceType=new IdWithNameInfo(connectionTask.getDevice().getDeviceType().getId(), connectionTask.getDevice().getDeviceType().getName());
         info.deviceConfiguration=new IdWithNameInfo(connectionTask.getDevice().getDeviceConfiguration().getId(), connectionTask.getDevice().getDeviceConfiguration().getName());
-        info.currentState =null;
+        info.currentState = null;// TODO wait for merge
 
         info.latestStatus=new LatestStatusInfo();
         info.latestStatus.id =connectionTask.getStatus();
@@ -57,9 +58,7 @@ public class ConnectionTaskInfo {
 
         if (lastComSessionOptional.isPresent()) {
             ComSession comSession = lastComSessionOptional.get();
-            info.latestResult = new SuccessIndicatorInfo();
-            info.latestResult.id = comSession.getSuccessIndicator();
-            info.latestResult.displayValue = thesaurus.getString(SUCCESS_INDICATOR_ADAPTER.marshal(comSession.getSuccessIndicator()), null);
+            info.latestResult = new SuccessIndicatorInfo(comSession.getSuccessIndicator(), thesaurus);
             for (ComTaskExecution comTaskExecution : connectionTask.getDevice().getComTaskExecutions()) {
                 if (comTaskExecution.getConnectionTask().getId()==connectionTask.getId()) {
                     info.latestResult.retries=comTaskExecution.getCurrentTryCount();
@@ -75,6 +74,9 @@ public class ConnectionTaskInfo {
             info.endDateTime=comSession.getStopDate();
             info.duration=new TimeDurationInfo(new TimeDuration((int) comSession.getTotalTime()));
         }
+        info.communicationTasks=new ComTaskListInfo();
+        info.communicationTasks.count=comTaskExecutions.size();
+        info.communicationTasks.communicationsTasks= ComTaskExecutionInfo.from(comTaskExecutions, thesaurus);
 
         info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool().getId(), connectionTask.getComPortPool().getName());
         info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),null);
@@ -101,36 +103,10 @@ public class ConnectionTaskInfo {
     }
 }
 
-class IdWithNameInfo {
-    public Long id;
-    public String name;
-
-    IdWithNameInfo() {
-    }
-
-    IdWithNameInfo(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-}
-
-class TaskStatusInfo {
-    @XmlJavaTypeAdapter(TaskStatusAdapter.class)
-    public TaskStatus id;
-    public String displayValue;
-}
-
 class LatestStatusInfo {
     @XmlJavaTypeAdapter(ConnectionTaskLifecycleStatusAdaptor.class)
     public ConnectionTask.ConnectionTaskLifecycleStatus id;
     public String displayValue;
-}
-
-class SuccessIndicatorInfo {
-    @XmlJavaTypeAdapter(SuccessIndicatorAdapter.class)
-    public ComSession.SuccessIndicator id;
-    public String displayValue;
-    public Integer retries;
 }
 
 class ConnectionStrategyInfo {
@@ -143,4 +119,9 @@ class ComTaskCountInfo {
     public long numberOfSuccessfulTasks;
     public long numberOfFailedTasks;
     public long numberOfIncompleteTasks;
+}
+
+class ComTaskListInfo {
+    public int count;
+    public List<ComTaskExecutionInfo> communicationsTasks;
 }

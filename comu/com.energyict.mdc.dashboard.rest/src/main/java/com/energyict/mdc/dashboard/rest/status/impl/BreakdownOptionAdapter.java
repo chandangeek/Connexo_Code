@@ -13,6 +13,6 @@ public class BreakdownOptionAdapter extends MapBasedXmlAdapter<BreakdownOption> 
         for (BreakdownOption breakdownOption : BreakdownOption.values()) {
             register(breakdownOption.name(), breakdownOption);
         }
-        register(null,null);
+        register("",null);
     }
 }
