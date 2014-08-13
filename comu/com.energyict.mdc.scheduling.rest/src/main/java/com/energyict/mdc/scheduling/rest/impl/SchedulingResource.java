@@ -119,7 +119,6 @@ public class SchedulingResource {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         comSchedule.setName(comScheduleInfo.name);
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression==null?null:comScheduleInfo.temporalExpression.asTemporalExpression());
-        comSchedule.setSchedulingStatus(comScheduleInfo.schedulingStatus);
         comSchedule.setStartDate(comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate));
         comSchedule.setmRID(comScheduleInfo.mRID);
         comSchedule.save();
