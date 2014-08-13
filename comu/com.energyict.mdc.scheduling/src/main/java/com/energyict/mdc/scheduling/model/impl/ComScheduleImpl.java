@@ -169,12 +169,14 @@ public class ComScheduleImpl implements ComSchedule, HasId {
 
     @Override
     public void delete() {
+        this.comTaskUsages.clear();
         this.dataModel.remove(this);
         this.eventService.postEvent(DeleteEventType.COMSCHEDULES.topic(), this);
     }
 
     @Override
     public void makeObsolete() {
+        this.comTaskUsages.clear();
         this.eventService.postEvent(EventType.COMSCHEDULES_BEFORE_OBSOLETE.topic(), this);
         this.obsoleteDate = this.clock.now();
         Save.UPDATE.save(this.dataModel, this, Save.Update.class);
