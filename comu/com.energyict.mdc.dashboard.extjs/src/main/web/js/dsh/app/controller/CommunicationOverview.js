@@ -6,6 +6,8 @@ Ext.define('Dsh.controller.CommunicationOverview', {
         'Dsh.model.ConnectionBreakdown',
         'Dsh.model.ConnectionOverview',
         'Dsh.model.ConnectionSummary',
+        'Dsh.model.ConnectionSummaryData',
+        'Dsh.model.CommunicationOverview',
         'Dsh.model.CommunicationServerInfo',
         'Dsh.model.OverviewPerCurrentStateInfo',
         'Dsh.model.OverviewPerLastResultInfo',
@@ -19,7 +21,8 @@ Ext.define('Dsh.controller.CommunicationOverview', {
     ],
     views: [ 'Dsh.view.CommunicationOverview' ],
     refs: [
-        { ref: 'breakdown', selector: '#breakdown' }
+        { ref: 'breakdown', selector: '#breakdown' },
+        { ref: 'summary', selector: '#summary' }
     ],
 
     init: function () {
@@ -33,9 +36,10 @@ Ext.define('Dsh.controller.CommunicationOverview', {
 
     loadData: function () {
         var me = this;
-        var model = me.getModel('Dsh.model.ConnectionSummary');
+        var model = me.getModel('Dsh.model.CommunicationOverview');
         model.load(null, {
                 success: function (record) {
+                    me.getSummary().setRecord(record.getSummary());
                     var breakdowns = record.breakdowns();
                     me.getBreakdown().bindStore(breakdowns);
                 }

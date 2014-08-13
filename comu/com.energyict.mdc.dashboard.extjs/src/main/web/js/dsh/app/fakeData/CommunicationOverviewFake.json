@@ -1,5 +1,24 @@
 { "data": {
-    "connectionSummary": null,
+    "summary": {
+        "total": 945,
+        "counters": [
+            {
+                "alias": "success",
+                "displayName": "Success",
+                "count": 430
+            },
+            {
+                "alias": "pending",
+                "displayName": "Pending",
+                "count": 243
+            },
+            {
+                "alias": "failed",
+                "displayName": "Failed",
+                "count": 111
+            }
+        ]
+    },
     "overviews": [
         {
             "displayName": "Per current state",
@@ -8,37 +27,37 @@
                 {
                     "alias": "Busy",
                     "displayName": "Busy",
-                    "count": 41
+                    "count": 34
                 },
                 {
                     "alias": "OnHold",
                     "displayName": "On hold",
-                    "count": 27
+                    "count": 234
                 },
                 {
                     "alias": "Retrying",
                     "displayName": "Retrying",
-                    "count": 15
+                    "count": 235
                 },
                 {
                     "alias": "NeverCompleted",
                     "displayName": "Never completed",
-                    "count": 15
+                    "count": 136
                 },
                 {
                     "alias": "Waiting",
                     "displayName": "Waiting",
-                    "count": 15
+                    "count": 684
                 },
                 {
                     "alias": "Pending",
                     "displayName": "Pending",
-                    "count": 42
+                    "count": 247
                 },
                 {
                     "alias": "Failed",
                     "displayName": "Failed",
-                    "count": 41
+                    "count": 753
                 }
             ]
         },
@@ -49,22 +68,22 @@
                 {
                     "alias": "OK",
                     "displayName": "Ok",
-                    "count": 101
+                    "count": 364
                 },
                 {
                     "alias": "ProtocolError",
                     "displayName": "protocol error",
-                    "count": 12
+                    "count": 234
                 },
                 {
                     "alias": "ConnectionError",
                     "displayName": "connection error",
-                    "count": 41
+                    "count": 531
                 },
                 {
                     "alias": "IoError",
                     "displayName": "I/O error",
-                    "count": 1
+                    "count": 356
                 }
             ]
         }
@@ -73,59 +92,59 @@
         {
             "displayName": "Per communication pool",
             "alias": "comPortPool",
-            "total": 2000,
-            "totalSuccessCount": 411,
-            "totalPendingCount": 345,
-            "totalFailedCount": 234,
+            "total": 1000,
+            "totalSuccessCount": 425,
+            "totalPendingCount": 125,
+            "totalFailedCount": 356,
             "counters": [
                 {
                     "displayName": "Outbound IP",
                     "id": 1,
-                    "successCount": 11,
-                    "failedCount": 25,
-                    "pendingCount": 11
+                    "successCount": 433,
+                    "failedCount": 142,
+                    "pendingCount": 523
                 },
                 {
                     "displayName": "Outbound IP post dial",
                     "id": 2,
-                    "successCount": 411,
-                    "failedCount": 233,
-                    "pendingCount": 78
+                    "successCount": 234,
+                    "failedCount": 432,
+                    "pendingCount": 231
                 },
                 {
                     "displayName": "Outbound UDP",
                     "id": 3,
-                    "successCount": 300,
-                    "failedCount": 1233,
-                    "pendingCount": 200
+                    "successCount": 412,
+                    "failedCount": 123,
+                    "pendingCount": 352
                 },
                 {
                     "displayName": "Serial",
                     "id": 4,
-                    "successCount": 911,
-                    "failedCount": 0,
-                    "pendingCount": 84
+                    "successCount": 233,
+                    "failedCount": 232,
+                    "pendingCount": 0
                 },
                 {
                     "displayName": "Serial PEMP",
                     "id": 5,
-                    "successCount": 11,
-                    "failedCount": 0,
-                    "pendingCount": 80
+                    "successCount": 223,
+                    "failedCount": 234,
+                    "pendingCount": 82
                 },
                 {
                     "displayName": "Serial PTPP",
                     "id": 6,
-                    "successCount": 363,
-                    "failedCount": 355,
-                    "pendingCount": 235
+                    "successCount": 23,
+                    "failedCount": 345,
+                    "pendingCount": 23
                 },
                 {
                     "displayName": "GPRS",
                     "id": 7,
-                    "successCount": 675,
-                    "failedCount": 245,
-                    "pendingCount": 325
+                    "successCount": 235,
+                    "failedCount": 234,
+                    "pendingCount": 123
                 }
             ]
         },
@@ -133,54 +152,54 @@
             "displayName": "Per connection type",
             "alias": "connectionType",
             "total": 1500,
-            "totalSuccessCount": 800,
-            "totalPendingCount": 2457,
-            "totalFailedCount": 2454,
+            "totalSuccessCount": 235,
+            "totalPendingCount": 236,
+            "totalFailedCount": 346,
             "counters": [
                 {
-                    "displayName": "dghjfghgh",
+                    "displayName": "Connection 1",
                     "id": 1,
-                    "successCount": 45,
-                    "failedCount": 56,
-                    "pendingCount": 657
+                    "successCount": 235,
+                    "failedCount": 334,
+                    "pendingCount": 153
                 },
                 {
-                    "displayName": "erttuncvbsxds",
+                    "displayName": "Connection 2",
                     "id": 2,
-                    "successCount": 345,
-                    "failedCount": 245,
-                    "pendingCount": 5
+                    "successCount": 325,
+                    "failedCount": 0,
+                    "pendingCount": 235
                 },
                 {
-                    "displayName": "Oyuoiyuoiyu",
+                    "displayName": "Connection 3",
                     "id": 3,
-                    "successCount": 455,
-                    "failedCount": 156,
-                    "pendingCount": 3
+                    "successCount": 344,
+                    "failedCount": 423,
+                    "pendingCount": 32
                 },
                 {
-                    "displayName": "Sdfhsaerthstl",
+                    "displayName": "Connection 4",
                     "id": 4,
-                    "successCount": 7,
-                    "failedCount": 4,
-                    "pendingCount": 89
+                    "successCount": 20,
+                    "failedCount": 20,
+                    "pendingCount": 20
                 },
                 {
-                    "displayName": "Sjhil;jhk;hj",
+                    "displayName": "Connection 5",
                     "id": 5,
-                    "successCount": 34,
-                    "failedCount": 346,
-                    "pendingCount": 4
+                    "successCount": 235,
+                    "failedCount": 235,
+                    "pendingCount": 53
                 },
                 {
-                    "displayName": "Syjnsdtrjshft",
+                    "displayName": "Connection 6",
                     "id": 6,
                     "successCount": 657,
                     "failedCount": 34,
                     "pendingCount": 6
                 },
                 {
-                    "displayName": "sdgaerhaerh",
+                    "displayName": "Connection 7",
                     "id": 7,
                     "successCount": 1036,
                     "failedCount": 29,
@@ -197,18 +216,25 @@
             "totalFailedCount": 800,
             "counters": [
                 {
-                    "displayName": "Exampmle 1",
+                    "displayName": "Example type 1",
                     "id": 1,
-                    "successCount": 45,
-                    "failedCount": 56,
-                    "pendingCount": 657
+                    "successCount": 235,
+                    "failedCount": 523,
+                    "pendingCount": 344
                 },
                 {
-                    "displayName": "Example 2",
+                    "displayName": "Example type 2",
                     "id": 2,
-                    "successCount": 41,
-                    "failedCount": 523,
-                    "pendingCount": 5
+                    "successCount": 231,
+                    "failedCount": 345,
+                    "pendingCount": 100
+                },
+                {
+                    "displayName": "Example type 3",
+                    "id": 3,
+                    "successCount": 235,
+                    "failedCount": 123,
+                    "pendingCount": 10
                 }
             ]
         }

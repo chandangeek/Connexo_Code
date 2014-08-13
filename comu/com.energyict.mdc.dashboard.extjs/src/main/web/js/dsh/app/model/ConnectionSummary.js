@@ -1,8 +1,12 @@
 Ext.define('Dsh.model.ConnectionSummary', {
     extend: 'Ext.data.Model',
-    fields: [
-        { name: 'connectionSummary', usenull: true }
-    ],
+    hasOne: {
+        model: 'Dsh.model.ConnectionSummaryData',
+        associationKey: 'summary',
+        name: 'summary',
+        getterName: 'getSummary',
+        setterName: 'setSummary'
+    },
     hasMany: [
         {
             model: 'Dsh.model.ConnectionOverview',

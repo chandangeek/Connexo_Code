@@ -1,5 +1,36 @@
 { "data": {
-    "connectionSummary": null,
+    "summary": {
+        "total": 945,
+        "counters": [
+            {
+                "alias": "success",
+                "displayName": "Success",
+                "count": 245,
+                "counters": [
+                    {
+                        "alias": "success-all",
+                        "displayName": "All task successful",
+                        "count": 83
+                    },
+                    {
+                        "alias": "success-one",
+                        "displayName": "At least one task failed",
+                        "count": 162
+                    }
+                ]
+            },
+            {
+                "alias": "pending",
+                "displayName": "Pending",
+                "count": 62
+            },
+            {
+                "alias": "failed",
+                "displayName": "Failed",
+                "count": 42
+            }
+        ]
+    },
     "overviews": [
         {
             "displayName": "Per current state",

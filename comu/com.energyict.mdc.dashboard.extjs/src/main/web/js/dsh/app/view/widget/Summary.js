@@ -2,6 +2,7 @@ Ext.define('Dsh.view.widget.Summary', {
     extend: 'Ext.panel.Panel',
     requires: [ 'Dsh.view.widget.common.Bar' ],
     alias: 'widget.summary',
+    itemId: 'summary',
     wTitle: Uni.I18n.translate('overview.widget.summary.title', 'DSH', 'Summary'),
     initComponent: function () {
         var me = this;
@@ -12,20 +13,6 @@ Ext.define('Dsh.view.widget.Summary', {
                 itemId: 'summary-dataview',
                 itemSelector: 'tbody.item',
                 cls: 'summary',
-                total: 945,
-                store: Ext.create('Ext.data.Store', { //TODO: set real
-                    fields: ['title', 'alias', 'count', 'child'],
-                    data: [
-                        {
-                            title: 'Success', alias: 'success', count: 245, child: [
-                            {title: 'All task successful', alias: 'success-all', count: 83},
-                            {title: 'At least one task failed', alias: 'success-one', count: 162}
-                        ]
-                        },
-                        {title: 'Pending', alias: 'pending', count: 62},
-                        {title: 'Failed', alias: 'failed', count: 42}
-                    ]
-                }),
                 tpl:
                     '<table>' +
                         '<tpl for=".">' +
@@ -33,14 +20,14 @@ Ext.define('Dsh.view.widget.Summary', {
                                 '{% var parentIndex = xindex; %}' +
                                 '<tr>' +
                                     '<td class="label">' +
-                                        '<a href="#{alias}">{title}</a>' +
+                                        '<a href="#{alias}">{displayName}</a>' +
                                     '</td>' +
                                     '<td width="100%" id="bar-{[parentIndex]}" class="bar-{alias}"></td>' +
                                 '</tr>' +
-                                '<tpl for="child">' +
+                                '<tpl for="counters">' +
                                     '<tr class="child">' +
                                         '<td class="label">' +
-                                            '<a href="#{alias}">{title}</a>' +
+                                            '<a href="#{alias}">{displayName}</a>' +
                                         '</td>' +
                                         '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{alias}"></td>' +
                                     '</tr>' +
@@ -53,15 +40,16 @@ Ext.define('Dsh.view.widget.Summary', {
                         Ext.each(view.getNodes(), function (node, index) {
                             var record = view.getRecord(node),
                                 pos = index + 1;
-                            if (record.get('child')) {
-                                Ext.each(record.get('child'), function (data, di) {
+
+                            if (record.counters()) {
+                                record.counters().each(function (data, idx) {
                                     var bar = Ext.widget('bar', {
                                         limit: record.get('count'),
                                         total: view.total,
-                                        count: data.count,
-                                        label: Math.round(data.count * 100 / record.get('count')) + '% (' + data.count + ')'
+                                        count: data.get('count'),
+                                        label: Math.round(data.get('count') * 100 / record.get('count')) + '% (' + data.get('count') + ')'
                                     });
-                                    bar.render(view.getEl().down('#bar-' + pos + '-' + (di + 1)));
+                                    bar.render(view.getEl().down('#bar-' + pos + '-' + (idx + 1)));
                                 });
                             }
                             var bar =  Ext.widget('bar', {
@@ -77,5 +65,13 @@ Ext.define('Dsh.view.widget.Summary', {
             }
         ];
         this.callParent(arguments);
+    },
+
+    setRecord: function(record) {
+        var me = this;
+
+        var view = me.down('#summary-dataview');
+        view.total = record.get('total');
+        view.bindStore(record.counters());
     }
 });
