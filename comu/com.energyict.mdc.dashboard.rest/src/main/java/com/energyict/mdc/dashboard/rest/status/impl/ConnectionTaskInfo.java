@@ -10,8 +10,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.tasks.history.ComSession;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.google.common.base.Optional;
 import java.util.Date;
@@ -21,9 +21,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * Created by bvn on 8/11/14.
  */
 public class ConnectionTaskInfo {
-    private final static ConnectionTaskLifecycleStatusAdaptor CONNECTION_TASK_LIFECYCLE_STATUS_ADAPTOR = new ConnectionTaskLifecycleStatusAdaptor();
-    private final static SuccessIndicatorAdapter SUCCESS_INDICATOR_ADAPTER = new SuccessIndicatorAdapter();
-    private final static ConnectionStrategyAdapter CONNECTION_STRATEGY_ADAPTER = new ConnectionStrategyAdapter();
+    private static final ConnectionTaskLifecycleStatusAdaptor CONNECTION_TASK_LIFECYCLE_STATUS_ADAPTOR = new ConnectionTaskLifecycleStatusAdaptor();
+    private static final SuccessIndicatorAdapter SUCCESS_INDICATOR_ADAPTER = new SuccessIndicatorAdapter();
+    private static final ConnectionStrategyAdapter CONNECTION_STRATEGY_ADAPTER = new ConnectionStrategyAdapter();
 
     public IdWithNameInfo device;
     public IdWithNameInfo deviceConfiguration;

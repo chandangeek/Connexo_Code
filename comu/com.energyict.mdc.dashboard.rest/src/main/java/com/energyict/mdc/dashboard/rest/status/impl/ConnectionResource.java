@@ -8,15 +8,16 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,16 +42,14 @@ public class ConnectionResource {
     private final Thesaurus thesaurus;
     private final DeviceDataService deviceDataService;
     private final EngineModelService engineModelService;
-    private final TaskHistoryService taskHistoryService;
     private final ProtocolPluggableService protocolPluggableService;
     private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public ConnectionResource(Thesaurus thesaurus, DeviceDataService deviceDataService, EngineModelService engineModelService, TaskHistoryService taskHistoryService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService) {
+    public ConnectionResource(Thesaurus thesaurus, DeviceDataService deviceDataService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService) {
         this.thesaurus = thesaurus;
         this.deviceDataService = deviceDataService;
         this.engineModelService = engineModelService;
-        this.taskHistoryService = taskHistoryService;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
     }
@@ -78,7 +77,7 @@ public class ConnectionResource {
         List<ConnectionTask> connectionTasksByFilter = deviceDataService.findConnectionTasksByFilter(filter, queryParameters.getStart(), queryParameters.getLimit());
         List<ConnectionTaskInfo> connectionTaskInfos = new ArrayList<>(connectionTasksByFilter.size());
         for (ConnectionTask<?,?> connectionTask : connectionTasksByFilter) {
-            Optional<ComSession> lastComSession = taskHistoryService.getLastComSession(connectionTask);
+            Optional<ComSession> lastComSession = connectionTask.getLastComSession();
 
             connectionTaskInfos.add(ConnectionTaskInfo.from(connectionTask, thesaurus, lastComSession));
         }
@@ -88,7 +87,7 @@ public class ConnectionResource {
 
     private ConnectionTaskFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
         ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
-        filter.taskStatuses = new HashSet<>();
+        filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
         if (jsonQueryFilter.getFilterProperties().containsKey(TASK_STATUSES)) {
             String[] taskStatuses = jsonQueryFilter.getFilterProperties().get(TASK_STATUSES).split(",");
             for (String taskStatus : taskStatuses) {
