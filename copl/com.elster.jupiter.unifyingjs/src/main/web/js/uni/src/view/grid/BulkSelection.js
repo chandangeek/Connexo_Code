@@ -326,10 +326,10 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.getUncheckAllButton().on('click', me.onClickUncheckAllButton, me);
         me.getAddButton().on('click', me.onClickAddButton, me);
         me.on('selectionchange', me.onSelectionChange, me);
-        if(me.radioHidden){
+        if (me.radioHidden) {
             me.hideRadioGroup();
         }
-        if(me.bottomToolbarHidden){
+        if (me.bottomToolbarHidden) {
             me.hideBottomToolbar();
         }
     },
@@ -407,11 +407,11 @@ Ext.define('Uni.view.grid.BulkSelection', {
         return this.down('#bottomToolbar');
     },
 
-    hideRadioGroup: function(){
+    hideRadioGroup: function () {
         this.down('#itemradiogroup').setVisible(false);
     },
 
-    hideBottomToolbar: function(){
+    hideBottomToolbar: function () {
         this.getBottomToolbar().setVisible(false);
     }
 });
