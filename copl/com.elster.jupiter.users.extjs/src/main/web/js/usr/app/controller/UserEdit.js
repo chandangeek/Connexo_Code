@@ -90,7 +90,7 @@ Ext.define('Usr.controller.UserEdit', {
     updateUser: function (button) {
         var me = this;
         var form = button.up('form');
-
+        debugger;
         form.updateRecord();
         form.getRecord().save({
             success: function (record) {
