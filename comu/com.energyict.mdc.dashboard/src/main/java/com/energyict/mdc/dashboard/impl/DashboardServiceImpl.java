@@ -83,6 +83,7 @@ public class DashboardServiceImpl implements DashboardService {
         ComPortPoolBreakdownImpl breakdown = new ComPortPoolBreakdownImpl();
         for (ComPortPool comPortPool : this.availableComPortPools()) {
             ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
+            filter.useLastComSession = true;
             this.addBreakdownStatusses(filter);
             filter.comPortPools.add(comPortPool);
             Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
@@ -100,6 +101,7 @@ public class DashboardServiceImpl implements DashboardService {
         ConnectionTypeBreakdownImpl breakdown = new ConnectionTypeBreakdownImpl();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : this.availableConnectionTypes()) {
             ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
+            filter.useLastComSession = true;
             this.addBreakdownStatusses(filter);
             filter.connectionTypes.add(connectionTypePluggableClass);
             Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
@@ -117,6 +119,7 @@ public class DashboardServiceImpl implements DashboardService {
         DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
         for (DeviceType deviceType : this.availableDeviceTypes()) {
             ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
+            filter.useLastComSession = true;
             this.addBreakdownStatusses(filter);
             filter.deviceTypes.add(deviceType);
             Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);

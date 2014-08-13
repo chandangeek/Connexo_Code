@@ -29,11 +29,6 @@
       <artifactId>mdc.engine.config</artifactId>
       <version>${project.version}</version>
     </dependency>
-      <dependency>
-          <groupId>com.energyict</groupId>
-          <artifactId>mdc.tasks.history</artifactId>
-          <version>${project.version}</version>
-      </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
