@@ -326,9 +326,11 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.getUncheckAllButton().on('click', me.onClickUncheckAllButton, me);
         me.getAddButton().on('click', me.onClickAddButton, me);
         me.on('selectionchange', me.onSelectionChange, me);
+
         if (me.radioHidden) {
             me.hideRadioGroup();
         }
+
         if (me.bottomToolbarHidden) {
             me.hideBottomToolbar();
         }

@@ -40,7 +40,7 @@ Ext.define('Uni.view.form.CheckboxGroup', {
      * @private
      * Refreshes the content of the checkbox group
      */
-    refresh: function() {
+    refresh: function () {
         var me = this;
         me.removeAll();
         me.store.each(function (record) {
@@ -48,12 +48,35 @@ Ext.define('Uni.view.form.CheckboxGroup', {
                 xtype: 'checkbox',
                 boxLabel: record.get(me.displayField),
                 inputValue: record.get(me.valueField),
-                name: me.name
+                name: me.name,
+                getModelData: function () {
+                    return null;
+                }
             });
         });
     },
 
-    setValue: function(data) {
+    getModelData: function () {
+        var me = this,
+            groups = [],
+            object = {};
+
+        Ext.Array.each(me.down('checkbox'), function (checkbox) {
+            if (checkbox.getValue()) {
+                me.store.each(function (group) {
+                    if (group.get(me.valueField) === checkbox.inputValue) {
+                        groups.push(group.raw);
+                    }
+                });
+            }
+        });
+
+        object[me.name] = groups;
+
+        return object;
+    },
+
+    setValue: function (data) {
         var values = {};
         values[this.name] = data;
         this.callParent([values]);
