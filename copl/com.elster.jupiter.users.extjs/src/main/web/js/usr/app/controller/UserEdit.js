@@ -33,16 +33,16 @@ Ext.define('Usr.controller.UserEdit', {
             'userEdit button[action=cancel]': {
                 click: this.back
             }
-         });
+        });
     },
 
-    showEditOverviewWithHistory: function(groupId) {
+    showEditOverviewWithHistory: function (groupId) {
         location.href = '#usermanagement/users/' + groupId + '/edit';
     },
 
     backUrl: null,
 
-    back: function() {
+    back: function () {
         location.href = this.backUrl;
     },
 
@@ -74,7 +74,7 @@ Ext.define('Usr.controller.UserEdit', {
 
                     Ext.ModelManager.getModel('Usr.model.UserDirectory').load(user.get('domain'), {
                         callback: function (domain) {
-                            if(!domain.get('manageGroupsInternal')){
+                            if (!domain.get('manageGroupsInternal')) {
                                 panel.down('[itemId=selectRoles]').disable();
                             }
 
@@ -97,7 +97,7 @@ Ext.define('Usr.controller.UserEdit', {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('user.saved', record.get('authenticationName'), 'USM', 'User \'{0}\' saved.'));
                 me.back();
             },
-            failure: function(record,operation){
+            failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
                     form.markInvalid(json.errors);
