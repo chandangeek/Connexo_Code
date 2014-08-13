@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
@@ -36,8 +37,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.history.ComSession;
-import com.energyict.mdc.tasks.history.TaskHistoryService;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.google.common.base.Optional;
 import java.util.Arrays;
@@ -88,8 +87,6 @@ public class ConnectionResourceTest extends JerseyTest {
     @Mock
     private DeviceDataService deviceDataService;
     @Mock
-    private TaskHistoryService taskHistoryService;
-    @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
@@ -134,7 +131,6 @@ public class ConnectionResourceTest extends JerseyTest {
                 bind(thesaurus).to(Thesaurus.class);
                 bind(dashboardService).to(DashboardService.class);
                 bind(deviceDataService).to(DeviceDataService.class);
-                bind(taskHistoryService).to(TaskHistoryService.class);
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(protocolPluggableService).to(ProtocolPluggableService.class);
                 bind(engineModelService).to(EngineModelService.class);
@@ -298,7 +294,7 @@ public class ConnectionResourceTest extends JerseyTest {
         when(deviceDataService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));
         ComSession comSession = mock(ComSession.class);
         Optional<ComSession> comSessionOptional = Optional.of(comSession);
-        when(taskHistoryService.getLastComSession(connectionTask)).thenReturn(comSessionOptional);
+        when(connectionTask.getLastComSession()).thenReturn(comSessionOptional);
         when(connectionTask.getId()).thenReturn(1234L);
         when(connectionTask.getName()).thenReturn("fancy name");
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);

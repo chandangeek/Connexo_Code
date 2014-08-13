@@ -92,7 +92,7 @@ public class ConnectionResource {
             Optional<ComSession> lastComSession = connectionTask.getLastComSession();
             List<ComTaskExecution> comTaskExecutions = deviceDataService.findComTaskExecutionsByConnectionTask(connectionTask);
             Collections.sort(comTaskExecutions, COM_TASK_EXECUTION_COMPARATOR);
-            connectionTaskInfos.add(ConnectionTaskInfo.from(connectionTask, thesaurus, lastComSession));
+            connectionTaskInfos.add(ConnectionTaskInfo.from(connectionTask, lastComSession, comTaskExecutions, thesaurus));
         }
 
         return Response.ok(PagedInfoList.asJson("connectionTasks", connectionTaskInfos, queryParameters)).build();
