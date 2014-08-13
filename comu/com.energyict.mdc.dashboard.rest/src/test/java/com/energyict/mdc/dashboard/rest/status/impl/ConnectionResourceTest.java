@@ -218,6 +218,81 @@ public class ConnectionResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testStartIntervalFromAddedToFilter() throws Exception {
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("startIntervalFrom", "1407916436000")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+
+        ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionStart.getEnd()).isNull();
+        assertThat(captor.getValue().lastSessionEnd).isNull();
+    }
+
+    @Test
+    public void testStartIntervalToAddedToFilter() throws Exception {
+
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("startIntervalTo", "1407916436000")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+
+        ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionStart.getStart()).isNull();
+        assertThat(captor.getValue().lastSessionEnd).isNull();
+    }
+
+    @Test
+    public void testStartAndFinishIntervalFromAndToAddedToFilter() throws Exception {
+
+        Map<String, Object> map = target("/connections").queryParam("filter",
+                ExtjsFilter.filter()
+                        .property("startIntervalFrom", "1407916436000").property("startIntervalTo", "1407916784000")
+                        .property("finishIntervalFrom", "1407916436000").property("finishIntervalTo", "1407916784000")
+                        .create()).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+
+        ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().lastSessionStart.getStart()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionStart.getEnd()).isEqualTo(new Date(1407916784000L));
+        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(new Date(1407916784000L));
+    }
+
+    @Test
+    public void testEndIntervalFromAddedToFilter() throws Exception {
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("finishIntervalFrom", "1407916436000")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+
+        ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getEnd()).isNull();
+        assertThat(captor.getValue().lastSessionStart).isNull();
+    }
+
+    @Test
+    public void testEndIntervalToAddedToFilter() throws Exception {
+
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("finishIntervalTo", "1407916436000")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+
+        ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getStart()).isNull();
+        assertThat(captor.getValue().lastSessionStart).isNull();
+    }
+
+    @Test
+    public void testEndIntervalFromAndToAddedToFilter() throws Exception {
+
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter().property("finishIntervalFrom", "1407916436000").property("finishIntervalTo", "1407916784000").create()).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+
+        ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().lastSessionEnd.getStart()).isEqualTo(new Date(1407916436000L));
+        assertThat(captor.getValue().lastSessionEnd.getEnd()).isEqualTo(new Date(1407916784000L));
+        assertThat(captor.getValue().lastSessionStart).isNull();
+    }
+
+    @Test
     public void testConnectionTaskJsonBinding() throws Exception {
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(deviceDataService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));

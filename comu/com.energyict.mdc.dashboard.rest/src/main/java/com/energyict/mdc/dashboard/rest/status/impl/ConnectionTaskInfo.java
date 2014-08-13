@@ -49,7 +49,7 @@ public class ConnectionTaskInfo {
         info.device=new IdWithNameInfo(connectionTask.getDevice().getmRID(), connectionTask.getDevice().getName());
         info.deviceType=new IdWithNameInfo(connectionTask.getDevice().getDeviceType().getId(), connectionTask.getDevice().getDeviceType().getName());
         info.deviceConfiguration=new IdWithNameInfo(connectionTask.getDevice().getDeviceConfiguration().getId(), connectionTask.getDevice().getDeviceConfiguration().getName());
-        info.currentState =null;
+        info.currentState = null;// TODO wait for merge
 
         info.latestStatus=new LatestStatusInfo();
         info.latestStatus.id =connectionTask.getStatus();
