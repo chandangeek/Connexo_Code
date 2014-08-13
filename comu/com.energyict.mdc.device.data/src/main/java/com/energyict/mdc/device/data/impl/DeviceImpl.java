@@ -1036,7 +1036,7 @@ public class DeviceImpl implements Device {
     @Override
     public List<LoadProfileReading> getChannelDataFor(LoadProfile loadProfile, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        Map<Date, LoadProfileReading> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval);
+        Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval);
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
@@ -1045,23 +1045,23 @@ public class DeviceImpl implements Device {
                 }
             }
         }
-        return new ArrayList<>(sortedLoadProfileReadingMap.values());
+        return new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
     }
 
     @Override
     public List<LoadProfileReading> getChannelDataFor(Channel channel, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        Map<Date, LoadProfileReading> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval);
+        Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval);
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 this.getUnsortedChannelDataFor(interval, meter.get(), channel, sortedLoadProfileReadingMap);
             }
         }
-        return new ArrayList<>(sortedLoadProfileReadingMap.values());
+        return new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
     }
 
-    private void getUnsortedChannelDataFor(Interval interval, Meter meter, Channel mdcChannel, Map<Date, LoadProfileReading> sortedLoadProfileReadingMap) {
+    private void getUnsortedChannelDataFor(Interval interval, Meter meter, Channel mdcChannel, Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
         List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, interval);
         for (MeterActivation meterActivation : meterActivations) {
             Interval meterActivationInterval = meterActivation.getInterval().intersection(interval);
@@ -1073,7 +1073,7 @@ public class DeviceImpl implements Device {
                 this.validationService.getValidationStatus(koreChannel.get(), meterReadings);
             }
             for (IntervalReadingRecord meterReading : meterReadings) {
-                LoadProfileReading loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
+                LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 loadProfileReading.setChannelData(mdcChannel, meterReading.getValue());
                 loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
@@ -1091,13 +1091,13 @@ public class DeviceImpl implements Device {
         return flags;
     }
 
-    private Map<Date, LoadProfileReading> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval interval) {
-        Map<Date, LoadProfileReading> loadProfileReadingMap = new TreeMap<>();
+    private Map<Date, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval interval) {
+        Map<Date, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         DateTime timeIndex = this.getIntervalEnd(loadProfile.getInterval(), new DateTime(interval.getStart().getTime()));
         DateTime endTime = new DateTime(interval.getEnd().getTime());
         while (timeIndex.compareTo(endTime) <= 0) {
             DateTime intervalEnd = getIntervalEnd(loadProfile.getInterval(), timeIndex);
-            LoadProfileReading value = new LoadProfileReadingImpl();
+            LoadProfileReadingImpl value = new LoadProfileReadingImpl();
             value.setInterval(new Interval(timeIndex.toDate(), intervalEnd.toDate()));
             loadProfileReadingMap.put(timeIndex.toDate(), value);
             timeIndex = intervalEnd;
