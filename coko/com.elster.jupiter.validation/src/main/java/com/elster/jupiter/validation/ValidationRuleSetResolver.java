@@ -12,5 +12,5 @@ import java.util.List;
  */
 public interface ValidationRuleSetResolver {
 
-    List<ValidationRuleSet> resolve(MeterActivation meterActivation, Interval interval);
+    List<ValidationRuleSet> resolve(MeterActivation meterActivation);
 }

@@ -47,7 +47,9 @@ public interface ValidationService {
 
     List<List<ReadingQuality>> getValidationStatus(Channel channel, List<? extends BaseReading> readings);
 
-    List<? extends MeterActivationValidation> getMeterActivationValidationsForMeterActivation(MeterActivation meterActivation);
+    List<? extends MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation);
 
-    List<MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation, Interval interval);
+    List<? extends MeterActivationValidation> getActiveMeterActivationValidations(MeterActivation meterActivation);
+
+    List<MeterActivationValidation> getOrCreateMeterActivationValidations(MeterActivation meterActivation);
 }

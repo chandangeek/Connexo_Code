@@ -186,7 +186,7 @@ public class ValidationIT {
 
                 validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                     @Override
-                    public List<ValidationRuleSet> resolve(MeterActivation meterActivation, Interval interval) {
+                    public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
                         return Arrays.asList(validationRuleSet);
                     }
                 });
