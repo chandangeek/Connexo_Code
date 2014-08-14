@@ -25,8 +25,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         {ref: 'registerMappingPreview', selector: '#registerMappingPreview'},
         {ref: 'registerMappingPreviewTitle', selector: '#registerMappingPreviewTitle'},
         {ref: 'addRegisterMappingBtn', selector: '#addRegisterMappingBtn'},
-        {ref: 'registerMappingAddGrid', selector: '#registermappingaddgrid'},
-        {ref: 'previewMrId', selector: '#preview_mrid'}
+        {ref: 'registerMappingAddGrid', selector: '#registermappingaddgrid'}
     ],
 
     deviceTypeId: null,

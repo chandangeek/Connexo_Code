@@ -34,7 +34,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         {ref: 'registerGroupGridContainer', selector: '#registerGroupGridContainer'},
         {ref: 'registerGroupEmptyGrid', selector: '#registerGroupEmptyGrid'},
         {ref: 'registerTypeEmptyGrid', selector: '#registerTypeEmptyGrid'},
-        {ref: 'previewMrId', selector: '#preview_mrid'},
         {ref: 'contentPanel', selector: 'viewport > #contentPanel'}
     ],
 
@@ -116,7 +115,6 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         if (registerTypes.length == 1) {
             this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
             this.getRegisterTypePreview().setTitle(registerTypes[0].get('name'));
-            this.getPreviewMrId().setValue(registerTypes[0].getReadingType().get('mrid'));
         }
     },
 

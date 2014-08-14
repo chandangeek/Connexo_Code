@@ -33,7 +33,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'registerConfigPreview', selector: '#registerConfigPreview'},
         {ref: 'registerConfigEditForm', selector: '#registerConfigEditForm'},
         {ref: 'createRegisterConfigBtn', selector: '#createRegisterConfigBtn'},
-        {ref: 'previewMrId', selector: '#preview_mrid'},
         {ref: 'overflowValueInfo', selector: '#overflowValueInfo'},
         {ref: 'numberOfDigits', selector: '#numberOfDigits'},
         {ref: 'rulesForRegisterConfigGrid', selector: 'validation-rules-for-registerconfig-grid'},
