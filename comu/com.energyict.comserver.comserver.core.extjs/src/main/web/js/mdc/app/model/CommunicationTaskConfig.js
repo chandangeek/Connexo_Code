@@ -8,9 +8,7 @@ Ext.define('Mdc.model.CommunicationTaskConfig', {
         {name: 'protocolDialectConfigurationProperties', type: 'auto', useNull: true, defaultValue: null},
         {name: 'priority', type: 'int', useNull: true},
         {name: 'suspended', type: 'boolean', useNull: true},
-        {name: 'ignoreNextExecutionSpecsForInbound', type: 'boolean', useNull: true},
-        {name: 'nextExecutionSpecsName', type: 'string', useNull: true, defaultValue: null},
-        {name: 'nextExecutionSpecs', type: 'auto', useNull: true, defaultValue: null}
+        {name: 'ignoreNextExecutionSpecsForInbound', type: 'boolean', useNull: true}
     ],
     proxy: {
         type: 'rest',
