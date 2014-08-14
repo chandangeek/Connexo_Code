@@ -7,7 +7,8 @@ Ext.define('Cfg.view.validation.AddRule', {
     requires: [
         'Cfg.store.Validators',
         'Cfg.model.Validator',
-        'Uni.util.FormErrorMessage'
+        'Uni.util.FormErrorMessage',
+        'Uni.property.form.Property'
     ],
 
     edit: false,
@@ -140,7 +141,11 @@ Ext.define('Cfg.view.validation.AddRule', {
                                 }
                             ]
                         },
-
+                        {
+                            xtype: 'property-form',
+                            padding: '5 10 0 10',
+                            width: '100%'
+                        },
                         {
                             xtype: 'container',
                             itemId: 'propertiesContainer',
@@ -152,7 +157,6 @@ Ext.define('Cfg.view.validation.AddRule', {
 
                             items: []
                         },
-
                         {
                             xtype: 'fieldcontainer',
                             margin: '20 0 0 0',

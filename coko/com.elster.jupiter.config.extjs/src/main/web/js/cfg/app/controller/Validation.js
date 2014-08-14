@@ -4,20 +4,23 @@ Ext.define('Cfg.controller.Validation', {
     stores: [
         'ValidationRuleSets',
         'ValidationRules',
-        'ValidationPropertySpecs'
+        'ValidationPropertySpecs',
+        'Validators'
     ],
 
     requires: [
         'Uni.model.BreadcrumbItem',
         'Ext.ux.window.Notification',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Cfg.model.Validator'
     ],
 
     models: [
         'ValidationRuleSet',
         'ValidationRule',
         'ReadingType',
-        'ValidationRuleProperty'
+        'ValidationRuleProperty',
+        'Validator'
     ],
 
     views: [
@@ -61,6 +64,7 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'addRule', selector: 'addRule'},
         {ref: 'readingValuesTextFieldsContainer', selector: 'addRule #readingValuesTextFieldsContainer'},
         {ref: 'propertiesContainer', selector: 'addRule #propertiesContainer'},
+        {ref: 'propertyForm', selector: 'addRule #propertyForm'},
         {ref: 'removeReadingTypesButtonsContainer', selector: 'addRule #removeReadingTypesButtonsContainer'},
         {ref: 'validatorCombo', selector: 'addRule #validatorCombo'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
@@ -142,14 +146,15 @@ Ext.define('Cfg.controller.Validation', {
             arrReadingTypes = [],
             formErrorsPanel = form.down('[name=form-errors]');
 
+        var propertyForm = this.getAddRule().down('property-form');
+        propertyForm.updateRecord();
         if (form.isValid()) {
             var ruleSetId = this.getRuleSetIdFromHref() || me.ruleSetId,
                 record = me.ruleModel || Ext.create(Cfg.model.ValidationRule),
                 values = form.getValues(),
                 readingTypes = this.getReadingValuesTextFieldsContainer().items,
                 rule = values.implementation,
-                name = values.name,
-                properties = this.getPropertiesContainer().items;
+                name = values.name;
 
             formErrorsPanel.hide();
 
@@ -157,7 +162,7 @@ Ext.define('Cfg.controller.Validation', {
                 rule = form.down('#validatorCombo').value;
             }
 
-            record.set('implementation', rule);
+            record .set('implementation', rule);
             record.set('name', name);
             record.set('ruleSet', {
                 id: me.ruleSetId
@@ -165,8 +170,9 @@ Ext.define('Cfg.controller.Validation', {
 
             if (button.action === 'editRuleAction') {
                 record.readingTypes().removeAll();
-                record.properties().removeAll();
             }
+            var properties = propertyForm.getRecord().properties();
+
             for (var i = 0; i < readingTypes.items.length; i++) {
                 var readingTypeMRID = readingTypes.items[i].items.items[0],
                     readingType = readingTypeMRID.value,
@@ -175,14 +181,9 @@ Ext.define('Cfg.controller.Validation', {
                 readingTypeRecord.set('mRID', readingType);
                 arrReadingTypes.push(readingTypeRecord);
             }
+
             record.readingTypes().add(arrReadingTypes);
-            for (var i = 0; i < properties.items.length; i++) {
-                var propertyRecord = Ext.create(Cfg.model.ValidationRuleProperty);
-                propertyRecord.set('value', properties.items[i].value);
-                propertyRecord.set('name', properties.items[i].fieldLabel);
-                propertyRecord.set('key', properties.items[i].itemId);
-                record.properties().add(propertyRecord);
-            }
+            record.propertiesStore = properties;
 
             me.getAddRule().setLoading('Loading...');
             record.save({
@@ -218,54 +219,25 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     updateProperties: function (field, oldValue, newValue) {
-        this.getPropertiesContainer().removeAll();
-        var allPropertiesStore = this.getValidationPropertySpecsStore();
-        allPropertiesStore.clearFilter();
-        allPropertiesStore.filter('validator', field.value);
-        for (var i = 0; i < allPropertiesStore.data.items.length; i++) {
-            var property = allPropertiesStore.data.items[i];
-            var label = property.data.name;
-            var key = property.data.key;
-            var optional = property.data.optional;
-            if (optional) {
-                label = label + ' (optional)';
-            }
-            if (optional) {
-                this.getPropertiesContainer().add(
-                    {
-                        xtype: 'textfield',
-                        fieldLabel: label,
-                        labelAlign: 'right',
-                        validateOnChange: false,
-                        validateOnBlur: false,
-                        itemId: key,
-                        labelWidth: 260
-                    }
-                );
-            } else {
-                this.getPropertiesContainer().add(
-                    {
-                        xtype: 'numberfield',
-                        fieldLabel: label,
-                        width: 400,
-                        allowBlank: false,
-                        /* validator: function (text) {
-                         if (Ext.util.Format.trim(text).length == 0)
-                         return 'This field is required';
-                         else
-                         return true;
-                         },*/
-                        required: true,
-                        msgTarget: 'under',
-                        labelAlign: 'right',
-                        validateOnChange: false,
-                        validateOnBlur: false,
-                        itemId: key,
-                        labelWidth: 260
-                    }
-                );
+        var store = this.getValidatorsStore();
+        var found;
+        for ( i = 0; i < store.data.items.length; i++){
+            if ( store.data.items[i].data.implementation == field.value ){
+                found = store.data.items[i];
+                break;
             }
         }
+
+        widget = this.getAddRule();
+
+        var propertyForm = widget.down('property-form');
+        if (found.properties().count()) {
+            propertyForm.show();
+            propertyForm.loadRecord(found);
+        } else {
+            propertyForm.hide();
+        }
+        widget.setLoading(false);
     },
 
     addReadingType: function () {
@@ -558,6 +530,7 @@ Ext.define('Cfg.controller.Validation', {
             form = editRulePanel.down('#addRuleForm').getForm(),
             readingTypeField = editRulePanel.down('#readingType1'),
             validatorField = editRulePanel.down('#validatorCombo'),
+            nameField = editRulePanel.down('#addRuleName'),
             propField,
             rule;
 
@@ -571,28 +544,36 @@ Ext.define('Cfg.controller.Validation', {
                 rule = this.getById(me.ruleId);
                 me.ruleModel = rule;
 
-                form.loadRecord(rule);
                 me.getApplication().fireEvent('loadRule', rule);
                 editRulePanel.down('#addRuleTitle').setTitle("Edit '" + rule.get('name') + "'");
+
+                validatorField.setValue(rule.get('implementation'));
 
                 if (rule.data.active) {
                     validatorField.disable();
                 }
 
                 readingTypeField.setValue(rule.get('readingTypes')[0].mRID);
+                nameField.setValue(rule.get('name'));
 
                 var ruleReadingTypes = rule.get('readingTypes');
                 for (var i = 1; i < ruleReadingTypes.length; i++) {
                     var readingType = ruleReadingTypes[i],
                         field = me.addReadingType();
-
                     field.down('textfield').setValue(readingType.mRID);
                 }
 
-                Ext.Array.each(rule.get('properties'), function (item) {
-                    fieldItemId = '#' + item.key;
-                    propField = editRulePanel.down(fieldItemId).setValue(item.value);
-                });
+                widget = me.getAddRule();
+                var propertyForm = widget.down('property-form');
+                var j = rule.properties().count();
+                if (rule.properties().count()) {
+                    propertyForm.loadRecord(rule);
+                    propertyForm.show();
+                } else {
+                    propertyForm.hide();
+                }
+
+                widget.setLoading(false);
             }
         });
     },

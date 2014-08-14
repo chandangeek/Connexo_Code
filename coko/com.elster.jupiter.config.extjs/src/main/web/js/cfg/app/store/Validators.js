@@ -12,4 +12,4 @@ Ext.define('Cfg.store.Validators', {
             root: 'validators'
         }
     }
-})
+});

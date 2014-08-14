@@ -1,5 +1,8 @@
 Ext.define('Cfg.model.ValidationRule', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Uni.property.model.Property'
+    ],
     fields: [
         'id',
         'active',
@@ -35,11 +38,10 @@ Ext.define('Cfg.model.ValidationRule', {
         }
     ],
     associations: [
-        {
-            type: 'hasMany',
-            model: 'Cfg.model.ValidationRuleProperty',
-            associationKey: 'properties',
-            name: 'properties'
+        {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
+            getTypeDiscriminator: function (node) {
+                return 'Uni.property.model.Property';
+            }
         },
         {
             type: 'hasMany',

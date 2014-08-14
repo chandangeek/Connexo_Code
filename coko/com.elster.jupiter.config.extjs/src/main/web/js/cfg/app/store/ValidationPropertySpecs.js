@@ -1,6 +1,6 @@
 Ext.define('Cfg.store.ValidationPropertySpecs', {
     extend: 'Ext.data.Store',
-    autoLoad: true,
+    autoLoad: false,
     model: 'Cfg.model.ValidationPropertySpec',
     storeId: 'validationPropertySpec',
 
