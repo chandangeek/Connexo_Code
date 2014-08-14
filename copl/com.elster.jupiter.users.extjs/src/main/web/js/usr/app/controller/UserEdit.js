@@ -29,9 +29,6 @@ Ext.define('Usr.controller.UserEdit', {
         this.control({
             'userEdit button[action=save]': {
                 click: this.updateUser
-            },
-            'userEdit button[action=cancel]': {
-                click: this.back
             }
         });
     },
