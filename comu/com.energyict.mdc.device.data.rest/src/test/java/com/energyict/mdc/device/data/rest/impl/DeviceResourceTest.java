@@ -579,6 +579,47 @@ public class DeviceResourceTest extends JerseyTest {
         assertThat(channelData).hasSize(2).containsKey("0").containsKey("1");
     }
 
+    @Test
+    public void testLoadProfileChannelData() throws Exception {
+        Device device1 = mock(Device.class);
+        long channel_id = 7L;
+        Channel channel1 = mockChannel("channel1", "1.1", channel_id);
+        ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getId()).thenReturn(channel_id);
+        when(channel1.getChannelSpec()).thenReturn(channelSpec);
+        LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES), channel1);
+        when(channel1.getLoadProfile()).thenReturn(loadProfile3);
+        when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
+        when(deviceDataService.findByUniqueMrid("mrid2")).thenReturn(device1);
+        List<LoadProfileReading> loadProfileReadings = new ArrayList<>();
+        final long startTime = 1388534400000L;
+        long start = startTime;
+        for (int i=0; i<2880;i++) {
+            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, new Interval(new Date(start), new Date(start + 900))));
+            start+=900;
+        }
+        when(device1.getChannelDataFor((Channel) anyObject(), (com.elster.jupiter.util.time.Interval) anyObject())).thenReturn(loadProfileReadings);
+
+
+        Map response = target("/devices/mrid2/loadprofiles/3/channels/7/data")
+                .queryParam("intervalStart", startTime)
+                .queryParam("intervalEnd", 1391212800000L)
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(11);
+        List data = (List) response.get("data");
+        assertThat(data).hasSize(10);
+        assertThat((Map)data.get(0))
+                .containsKey("interval")
+                .containsKey("value")
+                .containsKey("readingTime")
+                .containsKey("intervalFlags");
+        Map<String, Long> interval = (Map<String, Long>) ((Map) data.get(0)).get("interval");
+        assertThat(interval.get("start")).isEqualTo(startTime);
+        assertThat(interval.get("end")).isEqualTo(startTime+900);
+    }
+
     private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Interval interval) {
         LoadProfileReading loadProfileReading = mock(LoadProfileReading.class);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.CORRUPTED));

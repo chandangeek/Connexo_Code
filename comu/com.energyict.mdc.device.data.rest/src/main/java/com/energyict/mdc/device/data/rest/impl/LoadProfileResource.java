@@ -107,7 +107,7 @@ public class LoadProfileResource {
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> loadProfileData = device.getChannelDataFor(channel, new Interval(new Date(intervalStart), new Date(intervalEnd)));
             List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();
-            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(paginatedLoadProfileData, thesaurus);
+            List<ChannelDataInfo> infos = ChannelDataInfo.from(paginatedLoadProfileData, thesaurus);
             PagedInfoList pagedInfoList = PagedInfoList.asJson("data", infos, queryParameters);
             return Response.ok(pagedInfoList).build();
         }
