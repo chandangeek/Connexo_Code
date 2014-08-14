@@ -25,11 +25,6 @@ Ext.define('Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid', {
     columns: {
         items: [
             {
-                header: Uni.I18n.translate('communicationschedule.status', 'MDC', 'Status'),
-                dataIndex: 'schedulingStatus',
-                width: 100
-            },
-            {
                 header: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 1

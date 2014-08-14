@@ -208,7 +208,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                     callback: function (store) {
                         unitOfMeasureStore.load({
                             callback: function (store) {
-                                debugger;
                                 widget.down('form').loadRecord(registerType);
                                 widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + registerType.get('name') + '</h1>');
                                 widget.down('#editMrIdField').setValue(registerType.getReadingType().get('mrid'));
@@ -302,7 +301,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
         var widget = this.getRegisterTypeEditForm();
         var mrId = widget.down('#editMrIdField').getValue();
-        debugger;
         var unitOfMeasure = widget.down('#measurementUnitComboBox').findRecordByDisplay(widget.down('#measurementUnitComboBox').getRawValue());
         var readingType = Ext.create(Mdc.model.ReadingType);
 

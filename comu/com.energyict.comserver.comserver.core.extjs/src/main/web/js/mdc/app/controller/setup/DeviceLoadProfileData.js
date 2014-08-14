@@ -34,12 +34,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             },
             'deviceLoadProfilesData #deviceLoadProfilesDataGrid': {
                 select: this.showPreview
-            },
-            'deviceLoadProfilesData #deviceLoadProfileDataFilterApplyBtn': {
-                click: this.applyFilter
-            },
-            'deviceLoadProfilesData #deviceLoadProfileDataFilterResetBtn': {
-                click: this.resetFilter
             }
         });
         this.loadProfilesOfDeviceDataStoreUrl = this.getStore('Mdc.store.LoadProfilesOfDeviceData').getProxy().url;
@@ -75,8 +69,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 graphView = widget.down('#deviceLoadProfilesGraphView');
                 graphView.setLoading(true);
                 loadProfilesOfDeviceDataStoreProxy.url = me.loadProfilesOfDeviceDataStoreUrl.replace('{mRID}', mRID).replace('{loadProfileId}', loadProfileId);
-                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalStart', 1407096000000);
-                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalEnd', 1407099600000);
                 loadProfilesOfDeviceDataStore.on('load', function () {
                     me.showGraphView(record);
                     graphView.setLoading(false);
@@ -87,14 +79,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         });
     },
 
-    showReadingsCount: function(store) {
+    showReadingsCount: function (store) {
         var container = Ext.ComponentQuery.query('#readingsCountOnLoadProfile')[0],
             readingsCount = store.getCount();
 
         if (readingsCount > 0) {
             container.removeAll();
             container.add({
-              html: readingsCount + ' ' +  Uni.I18n.translate('devicetype.readings', 'MDC', 'reading(s)')
+                html: readingsCount + ' ' + Uni.I18n.translate('devicetype.readings', 'MDC', 'reading(s)')
             })
         } else {
             container.hide();
@@ -226,44 +218,5 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         preview.down('#deviceLoadProfilesDataPreviewForm').loadRecord(record);
 
         preview.rendered && Ext.resumeLayouts(true);
-    },
-
-    applyFilter: function () {
-        var page = this.getPage(),
-            graphView = page.down('#deviceLoadProfilesGraphView'),
-            formValues = page.down('#deviceLoadProfileDataFilterForm').getForm().getValues(),
-            store = this.getStore('Mdc.store.LoadProfilesOfDeviceData'),
-            storeProxy = store.getProxy();
-
-        storeProxy.setExtraParam('intervalStart', new Date(formValues.intervalStart).getTime());
-        storeProxy.setExtraParam('intervalEnd', new Date(formValues.intervalEnd).getTime());
-
-        graphView.setLoading(true);
-
-        store.load(function () {
-            graphView.setLoading(false);
-        });
-    },
-
-    resetFilter: function () {
-        var page = this.getPage(),
-            graphView = page.down('#deviceLoadProfilesGraphView'),
-            formFields = page.query('#deviceLoadProfileDataFilterForm [isFormField=true]'),
-            store = this.getStore('Mdc.store.LoadProfilesOfDeviceData'),
-            storeProxy = store.getProxy();
-
-        Ext.Array.each(formFields, function (field) {
-            field.reset();
-        });
-
-        delete storeProxy.extraParams.intervalStart;
-        delete storeProxy.extraParams.intervalEnd;
-
-        graphView.setLoading(true);
-
-        store.load(function (records) {
-            !records && store.removeAll();
-            graphView.setLoading(false);
-        });
     }
 });
