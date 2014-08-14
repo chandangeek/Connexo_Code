@@ -27,6 +27,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import static com.elster.jupiter.validators.impl.ThresholdValidator.MIN;
+import static com.elster.jupiter.validators.impl.ThresholdValidator.MAX;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -59,7 +62,7 @@ public class ThresholdValidatorTest {
     public void setUp() {
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-        ImmutableMap<String, Object> properties = ImmutableMap.of("minimum", (Object) MINIMUM, "maximum", MAXIMUM);
+        ImmutableMap<String, Object> properties = ImmutableMap.of(MIN, (Object) MINIMUM, MAX, MAXIMUM);
         thresholdValidator = new ThresholdValidator(thesaurus, propertySpecService, properties);
         thresholdValidator.init(channel, readingType, new Interval(new Date(7000L), new Date(14000L)));
     }
@@ -125,7 +128,7 @@ public class ThresholdValidatorTest {
 
     @Test(expected = MissingRequiredProperty.class)
     public void testConstructionWithoutRequiredProperty() {
-        ImmutableMap<String, Object> properties = ImmutableMap.of("minimum", (Object) MINIMUM);
+        ImmutableMap<String, Object> properties = ImmutableMap.of(MIN, (Object) MINIMUM);
         thresholdValidator = new ThresholdValidator(thesaurus, propertySpecService, properties);
     }
 
@@ -195,7 +198,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testPropertyNlsKey() {
-        assertThat(thresholdValidator.getPropertyNlsKey("minimum")).isEqualTo(SimpleNlsKey.key(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN, ThresholdValidator.class.getName() + '.' + "minimum"));
+        assertThat(thresholdValidator.getPropertyNlsKey(MIN)).isEqualTo(SimpleNlsKey.key("UNI", Layer.REST, ThresholdValidator.MIN));
     }
 
     @Test
@@ -212,15 +215,15 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testPropertyDisplayName() {
-        when(thesaurus.getString(ThresholdValidator.class.getName() + '.' + "minimum", "Minimum")).thenReturn("Au moins");
+        when(thesaurus.getString(ThresholdValidator.MIN, "Minimum")).thenReturn("Au moins");
 
-        assertThat(thresholdValidator.getDisplayName("minimum")).isEqualTo("Au moins");
+        assertThat(thresholdValidator.getDisplayName(ThresholdValidator.MIN)).isEqualTo("Au moins");
     }
 
     @Test
     public void testGetPropertyDefaultFormat() {
-        assertThat(thresholdValidator.getPropertyDefaultFormat("minimum")).isEqualTo("Minimum");
-        assertThat(thresholdValidator.getPropertyDefaultFormat("maximum")).isEqualTo("Maximum");
+        assertThat(thresholdValidator.getPropertyDefaultFormat(MIN)).isEqualTo("Minimum");
+        assertThat(thresholdValidator.getPropertyDefaultFormat(MAX)).isEqualTo("Maximum");
         assertThat(thresholdValidator.getPropertyDefaultFormat("notAProperty")).isNull();
     }
 

@@ -1,6 +1,7 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
@@ -8,9 +9,11 @@ import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validators.MessageSeeds;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -24,6 +27,9 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
 
     public static final String THRESHOLD_VALIDATOR = ThresholdValidator.class.getName();
     public static final String MISSING_VALUES_VALIDATOR = MissingValuesValidator.class.getName();
+    public static final String REGISTER_INCREASE_VALIDATOR = RegisterIncreaseValidator.class.getName();
+    public static final String INTERVAL_STATE_VALIDATOR = IntervalStateValidator.class.getName();
+    
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
 
@@ -44,8 +50,11 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
             IValidator validator = validatorDefinition.createTemplate(thesaurus, propertySpecService);
             Translation translation = SimpleTranslation.translation(validator.getNlsKey(), Locale.ENGLISH, validator.getDefaultFormat());
             translations.add(translation);
-            for (PropertySpec key : validator.getPropertySpecs()) {
+            for (PropertySpec<?> key : validator.getPropertySpecs()) {
                 translations.add(SimpleTranslation.translation(validator.getPropertyNlsKey(key.getName()), Locale.ENGLISH, validator.getPropertyDefaultFormat(key.getName())));
+            }
+            for (Pair<? extends NlsKey, String> extraTranslation : validator.getExtraTranslations()) {
+                translations.add(SimpleTranslation.translation(extraTranslation.getFirst(), Locale.ENGLISH, extraTranslation.getLast()));
             }
         }
         thesaurus.addTranslations(translations);
@@ -72,6 +81,28 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
             @Override
             IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
                 return new MissingValuesValidator(thesaurus, propertySpecService);
+            }
+        },
+        REGISTER_INCREASE(REGISTER_INCREASE_VALIDATOR) {
+          @Override
+            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
+                return new RegisterIncreaseValidator(thesaurus, propertySpecService, props);
+            }
+          
+          @Override
+            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+                return new RegisterIncreaseValidator(thesaurus, propertySpecService);
+            }
+        },
+        INTERVAL_STATE(INTERVAL_STATE_VALIDATOR) {
+            @Override
+            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
+                return new IntervalStateValidator(thesaurus, propertySpecService, props);
+            }
+            
+            @Override
+            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+                return new IntervalStateValidator(thesaurus, propertySpecService);
             }
         };
 

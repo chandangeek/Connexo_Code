@@ -1,28 +1,26 @@
 package com.elster.jupiter.validators.impl;
 
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validators.MessageSeeds;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
-import org.joda.time.DateTimeConstants;
-
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.joda.time.DateTimeConstants;
+
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationResult;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * This Validator will interpret Intervals as being closed. i.e. start and end time are included in the interval. So when validating missing readings for a five minute interval over a period of five minutes will expect 2 readings.
@@ -34,7 +32,7 @@ import java.util.Map;
 public class MissingValuesValidator extends AbstractValidator {
 
     private static final String READING_QUALITY_TYPE_CODE = "3.5.259";
-    public static final String BASE_KEY = MissingValuesValidator.class.getName();
+    
     private Interval interval;
     private int millisBetweenReadings;
     private BitSet bitSet;
@@ -43,11 +41,6 @@ public class MissingValuesValidator extends AbstractValidator {
 
     MissingValuesValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
-    }
-
-    @Override
-    public NlsKey getNlsKey() {
-        return SimpleNlsKey.key(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN, BASE_KEY);
     }
 
     @Override
@@ -136,5 +129,9 @@ public class MissingValuesValidator extends AbstractValidator {
         }
         return builder.build();
     }
-
+    
+    @Override
+    public List<String> getRequiredProperties() {
+        return Collections.emptyList();
+    }
 }

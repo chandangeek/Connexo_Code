@@ -37,7 +37,7 @@ public class DefaultValidatorFactoryTest {
 
     @Test
     public void testCreateThresholdValidator() {
-        ImmutableMap<String, Object> properties = ImmutableMap.of("minimum", (Object) MINIMUM, "maximum", MAXIMUM);
+        ImmutableMap<String, Object> properties = ImmutableMap.of(ThresholdValidator.MIN, (Object) MINIMUM, ThresholdValidator.MAX, MAXIMUM);
 
         Validator validator = defaultValidatorFactory.create(ThresholdValidator.class.getName(), properties);
 
@@ -49,6 +49,22 @@ public class DefaultValidatorFactoryTest {
         Validator validator = defaultValidatorFactory.createTemplate(ThresholdValidator.class.getName());
 
         assertThat(validator).isNotNull().isInstanceOf(ThresholdValidator.class);
+    }
+    
+    @Test
+    public void testCreateRegisterIncreaseValidator() {
+        ImmutableMap<String, Object> properties = ImmutableMap.of(RegisterIncreaseValidator.FAIL_EQUAL_DATA, (Object) true);
+
+        Validator validator = defaultValidatorFactory.create(RegisterIncreaseValidator.class.getName(), properties);
+
+        assertThat(validator).isNotNull().isInstanceOf(RegisterIncreaseValidator.class);
+    }
+
+    @Test
+    public void testCreateRegisterIncreaseValidatorTemplate() {
+        Validator validator = defaultValidatorFactory.createTemplate(RegisterIncreaseValidator.class.getName());
+
+        assertThat(validator).isNotNull().isInstanceOf(RegisterIncreaseValidator.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -80,6 +96,7 @@ public class DefaultValidatorFactoryTest {
             expectedTranslations++;
             Validator validator = validatorFactory.createTemplate(implementation);
             expectedTranslations += validator.getPropertySpecs().size();
+            expectedTranslations += ((IValidator)validator).getExtraTranslations().size();
         }
 
         validatorFactory.install();
