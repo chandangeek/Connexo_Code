@@ -66,7 +66,7 @@ public class ComTaskResource {
             category.createProtocolTask(masterDataService, newComTask, protocolTaskInfo);
         }
         newComTask.save();
-        return Response.status(Response.Status.OK).build();
+        return Response.ok(ComTaskInfo.from(newComTask)).build();
     }
 
     @PUT
@@ -99,7 +99,7 @@ public class ComTaskResource {
             }
 
             editedComTask.save();
-            return Response.status(Response.Status.OK).build();
+            return Response.ok(ComTaskInfo.from(editedComTask)).build();
         }
         throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
