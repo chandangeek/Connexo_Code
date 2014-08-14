@@ -13,7 +13,7 @@ public class Activator {
     private volatile ServiceRegistration<HttpResource> registration;
 
     public void start(BundleContext bundleContext) throws Exception {
-        DefaultStartPage dsh = new DefaultStartPage("Dsh", "", "/index.html", "Dsh.controller.Main", null, Arrays.asList("DSH"), Arrays.asList("/resources/css/font-awesome.min.css"));
+        DefaultStartPage dsh = new DefaultStartPage("Dsh", "", "/index.html", "Dsh.controller.Main", null, Arrays.asList("DSH"), Arrays.asList("/stylesheets/css/all.css"));
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/js/dsh", new BundleResolver(bundleContext), dsh);
         registration = bundleContext.registerService(HttpResource.class, resource, null);
     }
