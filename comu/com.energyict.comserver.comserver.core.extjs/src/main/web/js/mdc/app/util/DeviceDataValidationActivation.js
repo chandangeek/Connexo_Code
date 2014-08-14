@@ -170,7 +170,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 if (confWindow) {
                     var res = Ext.JSON.decode(response.responseText);
                     confWindow.down('#validationProgress').removeAll(true);
-                    me.showValidationActivationErrors(res.message);
+                    me.showValidationActivationErrors(res.errors[0].msg);
                     me.confirmationWindowButtonsDisable(false);
                 }
             },
