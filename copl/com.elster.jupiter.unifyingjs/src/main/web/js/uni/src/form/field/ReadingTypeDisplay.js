@@ -45,6 +45,6 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         }
 
         Ext.defer(this.deferredRenderer, 1, this, [value, field]);
-        return '<span style="display: inline-block; width: 230px; float: left;">' + value.mrid + '</span>';
+        return '<span style="display: inline-block; width: 230px; float: left;">' + (value.mrid || value) + '</span>';
     }
 });
