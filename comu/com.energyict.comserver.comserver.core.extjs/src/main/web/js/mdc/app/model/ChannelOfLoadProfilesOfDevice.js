@@ -51,9 +51,13 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devices/{mRID}/loadprofiles/{loadProfileId}/channels',
+        urlTpl: '/api/ddr/devices/{mRID}/loadprofiles/{loadProfileId}/channels',
         reader: {
             type: 'json'
+        },
+
+        setUrl: function (params) {
+            this.url = this.urlTpl.replace('{mRID}', params.mRID).replace('{loadProfileId}', params.loadProfileId);
         }
     }
 });

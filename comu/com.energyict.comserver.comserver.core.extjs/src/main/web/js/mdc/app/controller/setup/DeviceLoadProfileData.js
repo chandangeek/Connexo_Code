@@ -21,9 +21,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         }
     ],
 
-    loadProfilesOfDeviceDataStoreUrl: null,
-    loadProfileOfDeviceModelUrl: null,
-
     init: function () {
         this.control({
             'deviceLoadProfilesData #deviceLoadProfilesTableViewBtn': {
@@ -36,8 +33,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 select: this.showPreview
             }
         });
-        this.loadProfilesOfDeviceDataStoreUrl = this.getStore('Mdc.store.LoadProfilesOfDeviceData').getProxy().url;
-        this.loadProfileOfDeviceModelUrl = this.getModel('Mdc.model.LoadProfileOfDevice').getProxy().url;
     },
 
     showOverview: function (mRID, loadProfileId) {
@@ -53,7 +48,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 me.getApplication().fireEvent('loadDevice', record);
             }
         });
-        loadProfileOfDeviceModel.getProxy().url = me.loadProfileOfDeviceModelUrl.replace('{mRID}', mRID);
+        loadProfileOfDeviceModel.getProxy().setUrl(mRID);
         loadProfileOfDeviceModel.load(loadProfileId, {
             success: function (record) {
                 widget = Ext.widget('deviceLoadProfilesData', {
@@ -68,7 +63,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
                 graphView = widget.down('#deviceLoadProfilesGraphView');
                 graphView.setLoading(true);
-                loadProfilesOfDeviceDataStoreProxy.url = me.loadProfilesOfDeviceDataStoreUrl.replace('{mRID}', mRID).replace('{loadProfileId}', loadProfileId);
+                loadProfilesOfDeviceDataStoreProxy.setUrl({
+                    mRID: mRID,
+                    loadProfileId: loadProfileId
+                });
                 loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalStart', 1407096000000);
                 loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalEnd', 1407099600000);
                 loadProfilesOfDeviceDataStore.on('load', function () {

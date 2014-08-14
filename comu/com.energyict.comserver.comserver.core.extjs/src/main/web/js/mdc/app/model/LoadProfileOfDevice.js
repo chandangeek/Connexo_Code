@@ -40,9 +40,13 @@ Ext.define('Mdc.model.LoadProfileOfDevice', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devices/{mRID}/loadprofiles',
+        urlTpl: '/api/ddr/devices/{mRID}/loadprofiles',
         reader: {
             type: 'json'
+        },
+
+        setUrl: function (mRID) {
+            this.url = this.urlTpl.replace('{mRID}', mRID);
         }
     }
 });
