@@ -1,4 +1,4 @@
-package main.java.com.energyict.mdc.dashboard.extjs;
+package com.energyict.mdc.dashboard.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
