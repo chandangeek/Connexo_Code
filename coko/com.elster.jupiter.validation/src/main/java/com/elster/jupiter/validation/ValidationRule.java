@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.Date;
 import java.util.List;
@@ -57,4 +58,6 @@ public interface ValidationRule {
     Date getObsoleteDate();
 
     long getVersion();
+
+    List<PropertySpec> getPropertySpecs();
 }

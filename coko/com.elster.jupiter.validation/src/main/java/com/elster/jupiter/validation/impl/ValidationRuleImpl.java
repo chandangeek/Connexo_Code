@@ -31,6 +31,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -43,6 +44,7 @@ import static com.elster.jupiter.validation.MessageSeeds.Constants;
 
 @XmlRootElement
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE + "}")
+@HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 public final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private long id;
 
@@ -289,8 +291,12 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     public boolean isActive() {
         return active;
     }
-
+    
     @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getValidator().getPropertySpecs();
+    }
+    
     public PropertySpec<?> getPropertySpec(final String name) {
         return Iterables.find(getValidator().getPropertySpecs(), new Predicate<PropertySpec>() {
             @Override

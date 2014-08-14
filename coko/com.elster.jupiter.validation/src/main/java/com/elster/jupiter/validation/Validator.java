@@ -1,21 +1,18 @@
 package com.elster.jupiter.validation;
 
+import java.util.Date;
+import java.util.Map;
+
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-public interface Validator {
-
-    List<PropertySpec> getPropertySpecs();
+public interface Validator extends HasDynamicProperties {
 
     Optional<ReadingQualityType> getReadingQualityTypeCode();
 
