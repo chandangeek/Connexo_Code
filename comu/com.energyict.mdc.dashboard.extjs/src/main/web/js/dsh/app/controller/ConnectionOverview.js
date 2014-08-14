@@ -30,7 +30,8 @@ Ext.define('Dsh.controller.ConnectionOverview', {
     },
 
     showOverview: function () {
-        this.getApplication().fireEvent('changecontentevent', Ext.widget('connection-overview'));
+        var router = this.getController('Uni.controller.history.Router');
+        this.getApplication().fireEvent('changecontentevent', Ext.widget('connection-overview', {router: router}));
         this.loadData();
     },
 

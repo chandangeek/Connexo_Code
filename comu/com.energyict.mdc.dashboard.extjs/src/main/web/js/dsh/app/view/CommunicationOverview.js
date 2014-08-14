@@ -26,73 +26,72 @@ Ext.define('Dsh.view.CommunicationOverview', {
             borderTop: '3px dotted grey'
         }
     },
-    items: [
-        {
-            xtype: 'header-section',
-            wTitle: Uni.I18n.translate('communication.widget.headerSection.title', 'DSH', 'Communication overview'),
-            style: 'none'
-        },
-        {
-            layout: 'hbox',
-            style: {
-                marginTop: '30px',
-                border: 'none'
-            },
-            defaults: {
-                style: {
-                    paddingRight: '50px'
-                }
-            },
-            items: [
-                {
-                    xtype: 'summary',
-                    flex: 3,
-                    wTitle: Uni.I18n.translate('communication.widget.summary.title', 'DSH', 'Communication summary'),
-                    style: {
-                        paddingRight: '150px'
-                    }
-                },
-                {
-                    xtype: 'communication-servers',
-                    flex: 1,
-                    style: {
-                        borderRight: '3px dotted grey'
-                    }
-                },
-                {
-                    xtype: 'quick-links',
-                    flex: 1,
-                    style: {
-                        paddingLeft: '50px'
-                    },
-                    data: [ //TODO: set real data
-                        {
-                            link: Uni.I18n.translate('communication.widget.quicklinks.viewAll', 'DSH', 'View all communications'),
-                            href: '#/workspace/datacommunication/communications'
-                        },
-                        {
-                            link: Uni.I18n.translate('connection.widget.headerSection.title', 'DSH', 'Connection overview'),
-                            href: '#/workspace/datacommunication/connection'
-                        },
-                        { link: 'Some link 1', href: '#' },
-                        { link: 'Some link 2', href: '#' },
-                        { link: 'Some link 3', href: '#' }
-                    ]
-                }
-            ]
-        },
-        {
-            xtype: 'read-outs-over-time'
-        },
-        {
-            xtype: 'overview',
-            category: 'Communication'
-        },
-        {
-            xtype: 'breakdown'
-        }
-    ],
     initComponent: function () {
+        var me = this;
+        me.items = [
+            {
+                xtype: 'header-section',
+                wTitle: Uni.I18n.translate('communication.widget.headerSection.title', 'DSH', 'Communication overview'),
+                style: 'none'
+            },
+            {
+                layout: 'hbox',
+                style: {
+                    marginTop: '30px',
+                    border: 'none'
+                },
+                defaults: {
+                    style: {
+                        paddingRight: '50px'
+                    }
+                },
+                items: [
+                    {
+                        xtype: 'summary',
+                        flex: 3,
+                        wTitle: Uni.I18n.translate('communication.widget.summary.title', 'DSH', 'Communication summary'),
+                        style: {
+                            paddingRight: '150px'
+                        }
+                    },
+                    {
+                        xtype: 'communication-servers',
+                        router: me.router,
+                        flex: 1,
+                        style: {
+                            borderRight: '3px dotted grey'
+                        }
+                    },
+                    {
+                        xtype: 'quick-links',
+                        flex: 1,
+                        style: {
+                            paddingLeft: '50px'
+                        },
+                        data: [ //TODO: set real data
+                            {
+                                link: Uni.I18n.translate('communication.widget.quicklinks.viewAll', 'DSH', 'View all communications'),
+                                href: me.router.getRoute('workspace/datacommunication/communications').buildUrl()
+                            },
+                            {
+                                link: Uni.I18n.translate('connection.widget.headerSection.title', 'DSH', 'Connection overview'),
+                                href: me.router.getRoute('workspace/datacommunication/connection').buildUrl()
+                            }
+                        ]
+                    }
+                ]
+            },
+//            {
+//                xtype: 'read-outs-over-time'
+//            },
+            {
+                xtype: 'overview',
+                category: 'Communication'
+            },
+            {
+                xtype: 'breakdown'
+            }
+        ];
         this.callParent(arguments);
     }
 });
