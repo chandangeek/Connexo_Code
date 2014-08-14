@@ -82,20 +82,16 @@ public class BasicPropertySpec<T> implements PropertySpec<T>, Serializable {
                 throw new InvalidValueException("XisNotCompatibleWithAttributeY", "The value \"{0}\" is not compatible with the attribute specification {1}.", this.getName(), value);
             }
             if (possibleValues != null && possibleValues.isExhaustive()) {
-                boolean found = false;
-                for (Object o : possibleValues.getAllValues()) {
-                    if (o.equals(value)) {
-                        found = true;
-                    }
-                }
-                if (!found) {
+                if (!isValuePossible(value)) {
                     throw new InvalidValueException("XisNotAPossibleValue", "The value \"{0}\" is not list a possible value for this property", this.getName());
                 }
             }
-
         }
-
         return true;
+    }
+    
+    protected boolean isValuePossible(T value) {
+        return possibleValues.getAllValues().contains(value);
     }
 
     private boolean isNull(T value) {

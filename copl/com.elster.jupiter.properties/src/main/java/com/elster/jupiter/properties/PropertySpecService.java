@@ -1,9 +1,5 @@
 package com.elster.jupiter.properties;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.ValueFactory;
-
 import java.math.BigDecimal;
 
 /**
@@ -87,6 +83,16 @@ public interface PropertySpecService {
      */
     public PropertySpec<BigDecimal> boundedDecimalPropertySpec (String name, boolean required, BigDecimal lowerLimit, BigDecimal upperLimit);
 
+    /**
+     * Creates a {@link PropertySpec} for ListValue values that can have single or multiple values at the same time. 
+     * @param name The name of the PropertySpec
+     * @param required The flag that indicates if the PropertySpec should be required or not
+     * @param finder The finder values by key
+     * @param values The list of possible values
+     * @return The PropertySpec
+     */
+    public <T extends ListValueEntry> PropertySpec<ListValue<T>> listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values);
+    
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of values that are managed by the

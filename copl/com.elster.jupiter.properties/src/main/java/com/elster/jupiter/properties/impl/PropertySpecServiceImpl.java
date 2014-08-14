@@ -9,6 +9,10 @@ import org.osgi.service.component.annotations.Component;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpecImpl;
+import com.elster.jupiter.properties.FindById;
+import com.elster.jupiter.properties.ListValueEntry;
+import com.elster.jupiter.properties.ListValue;
+import com.elster.jupiter.properties.ListValuePropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -94,6 +98,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         BoundedBigDecimalPropertySpecImpl propertySpec = new BoundedBigDecimalPropertySpecImpl(name, lowerLimit, upperLimit);
         propertySpec.setRequired(required);
         return propertySpec;
+    }
+
+    @Override
+    public <T extends ListValueEntry> PropertySpec<ListValue<T>> listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+        return new ListValuePropertySpec<>(name, required, finder, values);
     }
 
     @Override
