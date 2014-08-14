@@ -13,13 +13,9 @@ public class ValidationRuleSetInfos {
 
 	public int total;
 	public List<ValidationRuleSetInfo> ruleSets = new ArrayList<>();
-
-    public ValidationRuleSetInfos() {
-	}
-
-    public ValidationRuleSetInfos(ValidationRuleSet ruleSet) {
-	    add(ruleSet);
-	}
+	
+	public ValidationRuleSetInfos() {
+    }
 
     public ValidationRuleSetInfos(Iterable<? extends ValidationRuleSet> sets) {
 	    addAll(sets);
@@ -37,8 +33,6 @@ public class ValidationRuleSetInfos {
 	        add(each);
 	    }
 	}
-
-
 }
 
 

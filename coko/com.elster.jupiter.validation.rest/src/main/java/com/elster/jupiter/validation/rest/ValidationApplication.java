@@ -1,16 +1,9 @@
 package com.elster.jupiter.validation.rest;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.*;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.Bus;
-import com.elster.jupiter.validation.rest.ValidationResource;
-import com.elster.jupiter.validation.rest.impl.ServiceLocator;
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
+
+import javax.ws.rs.core.Application;
+
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
@@ -18,8 +11,20 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.ws.rs.core.Application;
-import java.util.Set;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.impl.ServiceLocator;
+import com.google.common.collect.ImmutableSet;
 
 @Component(name = "com.elster.jupiter.validation.rest" , service=Application.class , immediate = true , property = {"alias=/val"} )
 public class ValidationApplication extends Application implements ServiceLocator, BinderProvider {
@@ -31,7 +36,7 @@ public class ValidationApplication extends Application implements ServiceLocator
 
     private NlsService nlsService;
     private volatile Thesaurus thesaurus;
-
+    
 	public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
                 ValidationResource.class,
@@ -106,6 +111,7 @@ public class ValidationApplication extends Application implements ServiceLocator
                 bind(nlsService).to(NlsService.class);
                 bind(validationService).to(ValidationService.class);
                 bind(thesaurus).to(Thesaurus.class);
+                bind(PropertyUtils.class).to(PropertyUtils.class);
             }
         };
     }

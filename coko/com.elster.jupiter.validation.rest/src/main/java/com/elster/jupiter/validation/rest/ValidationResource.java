@@ -1,21 +1,14 @@
 package com.elster.jupiter.validation.rest;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.Validator;
-import com.google.common.base.Optional;
+import static com.elster.jupiter.util.conditions.Where.where;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -33,26 +26,37 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import static com.elster.jupiter.util.conditions.Where.where;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfos;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.Validator;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 @Path("/validation")
 public class ValidationResource {
 
-    private final RestQueryService queryService;
+    private RestQueryService queryService;
+    private PropertyUtils propertyUtils;
 
     @Inject
-    public ValidationResource(RestQueryService queryService) {
+    public ValidationResource(RestQueryService queryService, PropertyUtils propertyUtils) {
         this.queryService = queryService;
+        this.propertyUtils = propertyUtils;
     }
-
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -81,7 +85,7 @@ public class ValidationResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         Optional<ValidationRuleSet> optional = Bus.getValidationService().getValidationRuleSet(id);
         if (optional.isPresent()) {
-            ValidationRuleInfos infos = new ValidationRuleInfos();
+            ValidationRuleInfos infos = new ValidationRuleInfos(propertyUtils);
             ValidationRuleSet set = optional.get();
             List<ValidationRule> rules;
             if (params.size() == 0) {
@@ -153,28 +157,26 @@ public class ValidationResource {
     @Path("/rules/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ValidationRuleInfos addRule(@PathParam("id") final long id, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
-        ValidationRuleInfos result = new ValidationRuleInfos();
-        result.add(
-                Bus.getTransactionService().execute(new Transaction<ValidationRule>() {
-                    @Override
-                    public ValidationRule perform() {
-                        Optional<ValidationRuleSet> optional =
-                                Bus.getValidationService().getValidationRuleSet(id);
-                        ValidationRule rule = null;
-                        if (optional.isPresent()) {
-                            ValidationRuleSet set = optional.get();
-                            rule = set.addRule(ValidationAction.FAIL, info.implementation, info.name);
-                            for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
-                                rule.addReadingType(readingTypeInfo.mRID);
-                            }
-                            for (ValidationRulePropertyInfo propertyInfo : info.properties) {
-                                rule.addProperty(propertyInfo.key, propertyInfo.value);
-                            }
-                            set.save();
-                        }
-                        return rule;
+        ValidationRuleInfos result = new ValidationRuleInfos(propertyUtils);
+        result.add(Bus.getTransactionService().execute(new Transaction<ValidationRule>() {
+            public ValidationRule perform() {
+                Optional<ValidationRuleSet> optional = Bus.getValidationService().getValidationRuleSet(id);
+                ValidationRule rule = null;
+                if (optional.isPresent()) {
+                    ValidationRuleSet set = optional.get();
+                    rule = set.addRule(ValidationAction.FAIL, info.implementation, info.name);
+                    for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
+                        rule.addReadingType(readingTypeInfo.mRID);
                     }
-                }));
+                    for (PropertySpec<?> propertySpec : rule.getPropertySpecs()) {
+                        Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                        rule.addProperty(propertySpec.getName(), value);
+                    }
+                    set.save();
+                }
+                return rule;
+            };
+        }));
         return result;
     }
 
@@ -182,32 +184,45 @@ public class ValidationResource {
     @Path("/rules/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ValidationRuleInfos editRule(@PathParam("id") final long id, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
-        ValidationRuleInfos result = new ValidationRuleInfos();
-        result.add(
-                Bus.getTransactionService().execute(new Transaction<ValidationRule>() {
+        ValidationRuleInfos result = new ValidationRuleInfos(propertyUtils);
+        result.add(Bus.getTransactionService().execute(new Transaction<ValidationRule>() {
+            @Override
+            public ValidationRule perform() {
+                Optional<ValidationRuleSet> ruleSetOptional = Bus.getValidationService().getValidationRuleSet(id);
+                if (!ruleSetOptional.isPresent()) {
+                    throw new WebApplicationException(Response.Status.NOT_FOUND);
+                }
+                
+                ValidationRuleSet ruleSet = ruleSetOptional.get();
+                
+                Optional<? extends ValidationRule> ruleOptional = Iterables.tryFind(ruleSet.getRules(), new Predicate<ValidationRule>() {
                     @Override
-                    public ValidationRule perform() {
-                        Optional<ValidationRuleSet> optional = Bus.getValidationService().getValidationRuleSet(id);
-                        ValidationRule rule = null;
-                        if (optional.isPresent()) {
-                            ValidationRuleSet set = optional.get();
-                            List<String> mRIDs = new ArrayList<>();
-                            for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
-                                mRIDs.add(readingTypeInfo.mRID);
-                            }
-                            Map<String, Object> propertyMap = new HashMap<>();
-                            for (ValidationRulePropertyInfo propertyInfo : info.properties) {
-                                propertyMap.put(propertyInfo.key, propertyInfo.value);
-                            }
-                            rule = set.updateRule(info.id, info.name, info.implementation, info.active, mRIDs, propertyMap);
-                            if (rule == null) {
-                                throw new WebApplicationException(Response.Status.NOT_FOUND);
-                            }
-                            set.save();
-                        }
-                        return rule;
+                    public boolean apply(ValidationRule input) {
+                        return input.getId() == info.id;
                     }
-                }));
+                });
+                if (!ruleOptional.isPresent()) {
+                    throw new WebApplicationException(Response.Status.NOT_FOUND);
+                }
+                
+                ValidationRule rule = ruleOptional.get();
+
+                List<String> mRIDs = new ArrayList<>();
+                for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
+                    mRIDs.add(readingTypeInfo.mRID);
+                }
+                Map<String, Object> propertyMap = new HashMap<>();
+                for (PropertySpec propertySpec : rule.getPropertySpecs()) {
+                    Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                    if (value != null) {
+                        propertyMap.put(propertySpec.getName(), value);
+                    }
+                }
+                rule = ruleSet.updateRule(info.id, info.name, info.implementation, info.active, mRIDs, propertyMap);
+                ruleSet.save();
+                return rule;
+            }
+        }));
         return result;
     }
 
@@ -243,28 +258,12 @@ public class ValidationResource {
     }
 
     private ValidationRuleSet fetchValidationRuleSet(long id, SecurityContext securityContext) {
-        Optional<ValidationRuleSet> found =
-                Bus.getValidationService().getValidationRuleSet(id);
+        Optional<ValidationRuleSet> found = Bus.getValidationService().getValidationRuleSet(id);
         if (!found.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         ValidationRuleSet validationRuleSet = found.get();
         return validationRuleSet;
-    }
-
-
-    @GET
-    @Path("/propertyspecs")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ValidationRulePropertySpecInfos getAllAvailableProperties(@Context UriInfo uriInfo) {
-        List<Validator> validators = Bus.getValidationService().getAvailableValidators();
-        ValidationRulePropertySpecInfos infos = new ValidationRulePropertySpecInfos();
-        for (Validator validator : validators) {
-            for (PropertySpec property : validator.getPropertySpecs()) {
-                infos.add(validator.getDisplayName(property.getName()), property.getName(), !property.isRequired(), validator.getClass().getName());
-            }
-        }
-        return infos;
     }
 
     @GET
@@ -305,7 +304,7 @@ public class ValidationResource {
         List<Validator> toAdd = Bus.getValidationService().getAvailableValidators();
         Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
         for (Validator validator : toAdd) {
-            infos.add(validator.getClass().getName(), validator.getDisplayName());
+            infos.add(validator.getClass().getName(), validator.getDisplayName(), propertyUtils.convertPropertySpecsToPropertyInfos(validator.getPropertySpecs()));
         }
         infos.total = toAdd.size();
         return infos;

@@ -12,8 +12,14 @@ public class ValidationRuleInfos {
 
     public int total;
     public List<ValidationRuleInfo> rules = new ArrayList<ValidationRuleInfo>();
+    
+    private transient PropertyUtils propertyUtils;
 
     ValidationRuleInfos() {
+    }
+    
+    ValidationRuleInfos(PropertyUtils propertyUtils) {
+        this.propertyUtils = propertyUtils;
     }
 
     ValidationRuleInfos(ValidationRule validationRule) {
@@ -21,7 +27,7 @@ public class ValidationRuleInfos {
     }
 
     ValidationRuleInfo add(ValidationRule validationRule) {
-        ValidationRuleInfo result = new ValidationRuleInfo(validationRule);
+        ValidationRuleInfo result = new ValidationRuleInfo(validationRule, propertyUtils);
         rules.add(result);
         total++;
         return result;

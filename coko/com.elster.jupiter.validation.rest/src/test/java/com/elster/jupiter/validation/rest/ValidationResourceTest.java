@@ -1,0 +1,489 @@
+package com.elster.jupiter.validation.rest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.FindById;
+import com.elster.jupiter.properties.ListValueEntry;
+import com.elster.jupiter.properties.ListValue;
+import com.elster.jupiter.properties.ListValuePropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ThreeStateFactory;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.Validator;
+import com.google.common.base.Optional;
+
+@RunWith(MockitoJUnitRunner.class)
+public class ValidationResourceTest extends BaseValidationRestTest {
+
+    @Test
+    public void testGetValidationRuleSetsNoRuleSets() {
+        mockValidationRuleSets();
+
+        ValidationRuleSetInfos response = target("/validation").request().get(ValidationRuleSetInfos.class);
+
+        assertThat(response.total).isEqualTo(0);
+        assertThat(response.ruleSets).hasSize(0);
+    }
+
+    @Test
+    public void testGetValidationRuleSets() {
+        mockValidationRuleSets(mockValidationRuleSet(13, false));
+
+        ValidationRuleSetInfos response = target("/validation").request().get(ValidationRuleSetInfos.class);
+
+        assertThat(response.total).isEqualTo(1);
+
+        List<ValidationRuleSetInfo> ruleSetInfos = response.ruleSets;
+        assertThat(ruleSetInfos).hasSize(1);
+
+        ValidationRuleSetInfo ruleSetInfo = ruleSetInfos.get(0);
+        assertThat(ruleSetInfo.name).isEqualTo("MyName");
+        assertThat(ruleSetInfo.id).isEqualTo(13);
+        assertThat(ruleSetInfo.description).isEqualTo("MyDescription");
+        assertThat(ruleSetInfo.numberOfInactiveRules).isEqualTo(0);
+        assertThat(ruleSetInfo.numberOfRules).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetValidationRuleSetNotFound() {
+        Optional<ValidationRuleSet> opt = Optional.absent();
+        when(validationService.getValidationRuleSet(13)).thenReturn(opt);
+
+        Response response = target("/validation/13").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void testGetValidationRuleSet() {
+        mockValidationRuleSet(13, true);
+
+        ValidationRuleSetInfo ruleSetInfo = target("/validation/13").request().get(ValidationRuleSetInfo.class);
+
+        assertThat(ruleSetInfo.id).isEqualTo(13);
+        assertThat(ruleSetInfo.name).isEqualTo("MyName");
+        assertThat(ruleSetInfo.description).isEqualTo("MyDescription");
+        assertThat(ruleSetInfo.numberOfInactiveRules).isEqualTo(0);
+        assertThat(ruleSetInfo.numberOfRules).isEqualTo(1);
+    }
+
+    @Test
+    public void testGetValidationRulesNoRules() {
+        mockValidationRuleSets(mockValidationRuleSet(13, false));
+
+        ValidationRuleInfos ruleInfos = target("/validation/rules/13").request().get(ValidationRuleInfos.class);
+
+        assertThat(ruleInfos.total).isEqualTo(0);
+        assertThat(ruleInfos.rules).hasSize(0);
+    }
+
+    @Test
+    public void testGetValidationRules() {
+        mockValidationRuleSets(mockValidationRuleSet(13, true));
+
+        ValidationRuleInfos ruleInfos = target("/validation/rules/13").request().get(ValidationRuleInfos.class);
+
+        assertThat(ruleInfos.total).isEqualTo(1);
+
+        List<ValidationRuleInfo> rules = ruleInfos.rules;
+        assertThat(rules).hasSize(1);
+
+        ValidationRuleInfo ruleInfo = rules.get(0);
+        assertThat(ruleInfo.id).isEqualTo(1);
+        assertThat(ruleInfo.name).isEqualTo("MyRule");
+        assertThat(ruleInfo.implementation).isEqualTo("com.blablabla.Validator");
+        assertThat(ruleInfo.displayName).isEqualTo("My rule");
+        assertThat(ruleInfo.active).isEqualTo(true);
+
+        ValidationRuleSetInfo ruleSetInfo = ruleInfo.ruleSet;
+        assertThat(ruleSetInfo.id).isEqualTo(13);
+        assertThat(ruleSetInfo.name).isEqualTo("MyName");
+        assertThat(ruleSetInfo.description).isEqualTo("MyDescription");
+        assertThat(ruleSetInfo.numberOfInactiveRules).isEqualTo(0);
+        assertThat(ruleSetInfo.numberOfRules).isEqualTo(1);
+
+        List<ReadingTypeInfo> readingTypeInfos = ruleInfo.readingTypes;
+        assertThat(readingTypeInfos.get(0).mRID).isEqualTo("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+
+        List<PropertyInfo> propertyInfos = ruleInfo.properties;
+        assertThat(propertyInfos).hasSize(5);
+
+        PropertyInfo propertyNumberInfo = propertyInfos.get(0);
+        assertThat(propertyNumberInfo.key).isEqualTo("number");
+        assertThat(propertyNumberInfo.required).isEqualTo(true);
+
+        PropertyValueInfo<?> numberValueInfo = propertyNumberInfo.propertyValueInfo;
+        assertThat(numberValueInfo.value).isEqualTo(13);
+        assertThat(numberValueInfo.defaultValue).isEqualTo(null);
+
+        PropertyInfo propertyNullableBooleanInfo = propertyInfos.get(1);
+        assertThat(propertyNullableBooleanInfo.key).isEqualTo("nullableboolean");
+        assertThat(propertyNullableBooleanInfo.required).isEqualTo(true);
+
+        PropertyValueInfo<?> nullableBooleanValueInfo = propertyNullableBooleanInfo.propertyValueInfo;
+        assertThat(nullableBooleanValueInfo.value).isEqualTo(true);
+        assertThat(nullableBooleanValueInfo.defaultValue).isEqualTo(null);
+
+        PropertyInfo propertyBooleanInfo = propertyInfos.get(2);
+        assertThat(propertyBooleanInfo.key).isEqualTo("boolean");
+        assertThat(propertyBooleanInfo.required).isEqualTo(true);
+
+        PropertyValueInfo<?> booleanValueInfo = propertyBooleanInfo.propertyValueInfo;
+        assertThat(booleanValueInfo.value).isEqualTo(false);
+        assertThat(booleanValueInfo.defaultValue).isEqualTo(null);
+
+        PropertyInfo propertyTextInfo = propertyInfos.get(3);
+        assertThat(propertyTextInfo.key).isEqualTo("text");
+        assertThat(propertyTextInfo.required).isEqualTo(true);
+
+        PropertyValueInfo<?> textValueInfo = propertyTextInfo.propertyValueInfo;
+        assertThat(textValueInfo.value).isEqualTo("string");
+        assertThat(textValueInfo.defaultValue).isEqualTo(null);
+
+        PropertyInfo propertyListValueInfo = propertyInfos.get(4);
+        assertThat(propertyListValueInfo.key).isEqualTo("listvalue");
+        assertThat(propertyListValueInfo.required).isEqualTo(true);
+
+        PropertyValueInfo<?> listValueInfo = propertyListValueInfo.propertyValueInfo;
+        assertThat(listValueInfo.defaultValue).isEqualTo(null);
+
+        List<?> listValue = (List<?>) listValueInfo.value;
+        assertThat(listValue).hasSize(2);
+
+        Map<?, ?> value = (Map<?, ?>) listValue.get(0);
+        assertThat(value.get("id")).isEqualTo("1");
+        assertThat(value.get("name")).isEqualTo("first");
+
+        value = (Map<?, ?>) listValue.get(1);
+        assertThat(value.get("id")).isEqualTo("2");
+        assertThat(value.get("name")).isEqualTo("second");
+    }
+
+    @Test
+    public void testGetValidatorsNoValidators() {
+        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
+
+        assertThat(validatorInfos.total).isEqualTo(0);
+        assertThat(validatorInfos.validators).hasSize(0);
+    }
+
+    @Test
+    public void testGetValidators() {
+        List<Validator> mockValidator = Arrays.asList(mockValidator("B Validator"), mockValidator("A Validator"));
+        when(validationService.getAvailableValidators()).thenReturn(mockValidator);
+
+        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
+
+        assertThat(validatorInfos.total).isEqualTo(2);
+        List<ValidatorInfo> validators = validatorInfos.validators;
+        assertThat(validators).hasSize(2);
+
+        ValidatorInfo validatorAInfo = validators.get(0);
+        assertThat(validatorAInfo.displayName).isEqualTo("A Validator");
+        assertThat(validatorAInfo.implementation).isNotNull();
+
+        ValidatorInfo validatorBInfo = validators.get(1);
+        assertThat(validatorBInfo.displayName).isEqualTo("B Validator");
+        assertThat(validatorBInfo.implementation).isNotNull();
+
+        List<PropertyInfo> propertyInfos = validatorAInfo.properties;
+        assertThat(propertyInfos).hasSize(1);
+
+        PropertyInfo propertyInfo = propertyInfos.get(0);
+        assertThat(propertyInfo.key).isEqualTo("listvalue");
+        assertThat(propertyInfo.required).isEqualTo(false);
+
+        PropertyTypeInfo typeInfo = propertyInfo.propertyTypeInfo;
+        PredefinedPropertyValuesInfo<?> predefinedValuesInfo = typeInfo.predefinedPropertyValuesInfo;
+        assertThat(predefinedValuesInfo.selectionMode).isEqualTo(PropertySelectionMode.LIST);
+
+        Object[] possibleValuesInfo = predefinedValuesInfo.possibleValues;
+        assertThat(possibleValuesInfo).hasSize(2);
+
+        Map<?, ?> possibleValue1 = (Map<?, ?>) possibleValuesInfo[0];
+        assertThat(possibleValue1.get("id")).isEqualTo("1");
+        assertThat(possibleValue1.get("name")).isEqualTo("first");
+
+        Map<?, ?> possibleValue2 = (Map<?, ?>) possibleValuesInfo[1];
+        assertThat(possibleValue2.get("id")).isEqualTo("2");
+        assertThat(possibleValue2.get("name")).isEqualTo("second");
+    }
+
+    @Test
+    public void testAddValidationRule() {
+        final ValidationRuleInfo info = new ValidationRuleInfo();
+        info.name = "MyRule";
+        info.implementation = "com.blablabla.Validator";
+        info.properties = createPropertyInfos();
+        
+        Entity<ValidationRuleInfo> entity = Entity.json(info);
+        
+        ValidationRuleSet ruleSet = mockValidationRuleSet(13, false);
+        ValidationRule rule = mockValidationRuleInRuleSet(ruleSet);
+        when(ruleSet.addRule(Matchers.eq(ValidationAction.FAIL), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
+        
+        Response response = target("/validation/rules/13").request().post(entity);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        ValidationRuleInfos resultInfos = response.readEntity(ValidationRuleInfos.class);
+        assertThat(resultInfos.total).isEqualTo(1);
+        assertThat(resultInfos.rules).hasSize(1);
+        assertThat(resultInfos.rules.get(0).name).isEqualTo("MyRule");
+        
+        verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
+        verify(rule).addProperty("nullableboolean", false);
+        verify(rule).addProperty("boolean", true);
+        verify(rule).addProperty("text", "string");
+        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(ListValue.class));
+    }
+
+    @Test
+    public void testEditValidationRule() {
+        final ValidationRuleInfo info = new ValidationRuleInfo();
+        info.id = 1;
+        info.name = "MyRuleUpdated";
+        info.implementation = "com.blablabla.Validator";
+        info.properties = new ArrayList<>();
+        
+        ValidationRuleSet ruleSet = mockValidationRuleSet(13, true);
+        ValidationRule rule = ruleSet.getRules().get(0);
+        when(rule.getName()).thenReturn("MyRuleUpdated");
+        when(ruleSet.updateRule(
+                Matchers.eq(1L),
+                Matchers.eq("MyRuleUpdated"),
+                Matchers.eq("com.blablabla.Validator"),
+                Matchers.eq(false),
+                Matchers.eq(new ArrayList<String>()),
+                Matchers.eq(new HashMap<String, Object>()))).
+                thenReturn(rule);
+        
+        Entity<ValidationRuleInfo> entity = Entity.json(info);
+        Response response = target("/validation/rules/13").request().put(entity);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        
+        ValidationRuleInfos resultInfos = response.readEntity(ValidationRuleInfos.class);
+        assertThat(resultInfos.total).isEqualTo(1);
+        assertThat(resultInfos.rules).hasSize(1);
+        assertThat(resultInfos.rules.get(0).name).isEqualTo("MyRuleUpdated");
+    }
+
+    @Test
+    public void testDeleteValidationRule() {
+        mockValidationRuleSet(13, true);
+        Response response = target("/validation/rules/13").queryParam("id", "1").request().delete();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+    }
+    
+    @Test
+    public void testDeleteValidationRuleNoRuleSet() {
+        when(validationService.getValidationRuleSet(13)).thenReturn(Optional.<ValidationRuleSet>absent());
+        
+        Response response = target("/validation/rules/13").queryParam("id", "1").request().delete();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+    
+    @Test
+    public void testDeleteValidationRuleNoRule() {
+        mockValidationRuleSet(13, false);
+        when(validationService.getValidationRule(1)).thenReturn(Optional.<ValidationRule>absent());
+        
+        Response response = target("/validation/rules/13").queryParam("id", "1").request().delete();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    private void mockValidationRuleSets(ValidationRuleSet... validationRuleSets) {
+        Query<ValidationRuleSet> query = mock(Query.class);
+        when(validationService.getRuleSetQuery()).thenReturn(query);
+        RestQuery<ValidationRuleSet> restQuery = mock(RestQuery.class);
+        when(restQueryService.wrap(query)).thenReturn(restQuery);
+        when(restQuery.select(any(QueryParameters.class), any(Order.class))).thenReturn(Arrays.asList(validationRuleSets));
+    }
+
+    private ValidationRuleSet mockValidationRuleSet(int id, boolean addRules) {
+        ValidationRuleSet ruleSet = mock(ValidationRuleSet.class);
+        when(ruleSet.getId()).thenReturn(Long.valueOf(id));
+        when(ruleSet.getName()).thenReturn("MyName");
+        when(ruleSet.getDescription()).thenReturn("MyDescription");
+
+        if (addRules) {
+            List rules = Arrays.asList(mockValidationRuleInRuleSet(ruleSet));
+            when(ruleSet.getRules()).thenReturn(rules);
+        }
+
+        Optional<ValidationRuleSet> opt = Optional.of(ruleSet);
+        when(validationService.getValidationRuleSet(id)).thenReturn(opt);
+
+        return ruleSet;
+    }
+
+    private ValidationRule mockValidationRuleInRuleSet(ValidationRuleSet ruleSet) {
+        ValidationRule rule = mock(ValidationRule.class);
+        when(rule.getName()).thenReturn("MyRule");
+        when(rule.getId()).thenReturn(1L);
+        when(rule.getImplementation()).thenReturn("com.blablabla.Validator");
+        when(rule.getDisplayName()).thenReturn("My rule");
+        when(rule.isActive()).thenReturn(true);
+        when(rule.getRuleSet()).thenReturn(ruleSet);
+
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        Set<ReadingType> readingTypes = new HashSet<>();
+        readingTypes.add(readingType);
+        when(rule.getReadingTypes()).thenReturn(readingTypes);
+
+        List<PropertySpec> propertySpes = Arrays.asList(
+                mockPropertySpec(PropertyType.NUMBER, "number", true),
+                mockPropertySpec(PropertyType.NULLABLE_BOOLEAN, "nullableboolean", true),
+                mockPropertySpec(PropertyType.BOOLEAN, "boolean", true),
+                mockPropertySpec(PropertyType.TEXT, "text", true),
+                mockPropertySpec(PropertyType.LISTVALUE, "listvalue", true));
+        when(rule.getPropertySpecs()).thenReturn(propertySpes);
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("number", 13);
+        props.put("nullableboolean", true);
+        props.put("boolean", false);
+        props.put("text", "string");
+        ListValue<ListValueBean> listValue = new ListValue<>();
+        listValue.addValue(Finder.bean1);
+        listValue.addValue(Finder.bean2);
+        props.put("listvalue", listValue);
+        when(rule.getProps()).thenReturn(props);
+
+        when(validationService.getValidationRule(1)).thenReturn(Optional.of(rule));
+        return rule;
+    }
+    
+    private List<PropertyInfo> createPropertyInfos() {
+        List<PropertyInfo> infos = new ArrayList<>();
+        PropertyInfo numberInfo = new PropertyInfo("number", new PropertyValueInfo<Double>(Double.valueOf(10), null), null, true);
+        PropertyInfo nullableInfo = new PropertyInfo("nullableboolean", new PropertyValueInfo<Boolean>(false, null), null, true);
+        PropertyInfo booleanInfo = new PropertyInfo("boolean", new PropertyValueInfo<Boolean>(true, null), null, true);
+        PropertyInfo textInfo = new PropertyInfo("text", new PropertyValueInfo<String>("string", null), null, true);
+        PropertyInfo listValueInfo = new PropertyInfo();
+        listValueInfo.key = "listvalue";
+        listValueInfo.propertyValueInfo = new PropertyValueInfo<ListValueEntry[]>(new ListValueEntry[]{Finder.bean1, Finder.bean2}, null);
+        
+        infos.add(numberInfo);
+        infos.add(nullableInfo);
+        infos.add(booleanInfo);
+        infos.add(textInfo);
+        infos.add(listValueInfo);
+        return infos;
+    }
+
+    private PropertySpec mockPropertySpec(PropertyType propertyType, String name, boolean isRequired) {
+        PropertySpec propertySpec = null;
+        switch (propertyType) {
+        case NUMBER:
+            propertySpec = new BasicPropertySpec<>(name, isRequired, new BigDecimalFactory());
+            break;
+        case NULLABLE_BOOLEAN:
+            propertySpec = new BasicPropertySpec<>(name, isRequired, new ThreeStateFactory());
+            break;
+        case BOOLEAN:
+            propertySpec = new BasicPropertySpec<>(name, isRequired, new BooleanFactory());
+            break;
+        case TEXT:
+            propertySpec = new BasicPropertySpec<>(name, isRequired, new StringFactory());
+            break;
+        case LISTVALUE:
+            propertySpec = new ListValuePropertySpec<>(name, isRequired, new Finder(), Finder.bean1, Finder.bean2);
+            break;
+        default:
+            break;
+        }
+        return propertySpec;
+    }
+
+    private Validator mockValidator(String displayName) {
+        Validator validator = mock(Validator.class);
+        when(validator.getDisplayName()).thenReturn(displayName);
+
+        List<PropertySpec> propertySpecs = Arrays.asList(mockPropertySpec(PropertyType.LISTVALUE, "listvalue", false));
+        when(validator.getPropertySpecs()).thenReturn(propertySpecs);
+
+        return validator;
+    }
+
+    private static class ListValueBean implements ListValueEntry {
+
+        private String id;
+        private String name;
+
+        public ListValueBean(String id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @Override
+        public String getId() {
+            return id;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+    }
+
+    private static class Finder implements FindById<ListValueBean> {
+
+        static ListValueBean bean1 = new ListValueBean("1", "first");
+        static ListValueBean bean2 = new ListValueBean("2", "second");
+
+        @Override
+        public Optional<ListValueBean> findById(final String id) {
+            switch (id) {
+            case "1":
+                return Optional.of(bean1);
+            case "2":
+                return Optional.of(bean2);
+            default:
+                return Optional.absent();
+            }
+        }
+    }
+}
