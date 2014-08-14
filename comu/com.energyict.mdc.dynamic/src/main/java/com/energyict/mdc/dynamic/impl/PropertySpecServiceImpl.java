@@ -1,21 +1,23 @@
 package com.energyict.mdc.dynamic.impl;
 
 import java.math.BigDecimal;
-import java.util.EnumSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import com.elster.jupiter.properties.FindById;
+import com.elster.jupiter.properties.ListValue;
+import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.ValueFactory;
@@ -149,5 +151,9 @@ public class PropertySpecServiceImpl implements PropertySpecService {
             this.finders.remove(finder);
         }
     }
-
+    
+    @Override
+    public <T extends ListValueEntry> PropertySpec<ListValue<T>> listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
+        return basicPropertySpecService.listValuePropertySpec(name, required, finder, values);
+    }
 }
