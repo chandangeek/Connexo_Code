@@ -4,10 +4,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
     itemId: 'communicationTaskEdit',
     edit: false,
 
-    requires: [
-        'Mdc.widget.ScheduleField'
-    ],
-
     isEdit: function () {
         return this.edit
     },
@@ -55,10 +51,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
         }
         if (!Ext.isEmpty(record.get('priority'))) {
             me.down('#priorityNumberField').setValue(record.get('priority'));
-        }
-        if (!Ext.isEmpty(record.get('nextExecutionSpecs'))) {
-            me.down('#enableScheduleFieldItem').setValue(true);
-            me.down('#scheduleFieldItem').setValue(record.get('nextExecutionSpecs'));
         }
         if (!Ext.isEmpty(record.get('ignoreNextExecutionSpecsForInbound'))) {
             me.down('#ignoreNextExecutionSpecsForInboundRadioGroup').setValue({
@@ -186,40 +178,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                             }
                         },
                         afterSubTpl: '<div class="x-form-display-field"><i>' + Uni.I18n.translate('communicationtasks.form.priorityMessage', 'MDC', '(Low=999 - High=0)') + '</i></div>'
-                    },
-                    {
-                        xtype: 'fieldcontainer',
-                        itemId: 'scheduleField',
-                        fieldLabel: Uni.I18n.translate('communicationtasks.form.nextExecutionSpecs', 'MDC', 'Default schedule'),
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
-                        },
-                        items: [
-                            {
-                                xtype: 'checkbox',
-                                name: 'nextExecutionSpecsEnable',
-                                itemId: 'enableScheduleFieldItem',
-                                uncheckedValue: false,
-                                boxLabel: Uni.I18n.translate('communicationtasks.form.repeat', 'MDC', 'Repeat every'),
-                                boxLabelAlign: 'after'
-                            },
-                            {
-                                xtype: 'scheduleField',
-                                name: 'nextExecutionSpecs',
-                                margin: '0 0 0 5',
-                                itemId: 'scheduleFieldItem',
-                                hourCfg: {
-                                    width: 60
-                                },
-                                minuteCfg: {
-                                    width: 60
-                                },
-                                secondCfg: {
-                                    width: 60
-                                }
-                            }
-                        ]
                     },
                     {
                         xtype: 'radiogroup',

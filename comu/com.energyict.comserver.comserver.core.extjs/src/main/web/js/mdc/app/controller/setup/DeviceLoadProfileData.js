@@ -69,6 +69,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 graphView = widget.down('#deviceLoadProfilesGraphView');
                 graphView.setLoading(true);
                 loadProfilesOfDeviceDataStoreProxy.url = me.loadProfilesOfDeviceDataStoreUrl.replace('{mRID}', mRID).replace('{loadProfileId}', loadProfileId);
+                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalStart', 1407096000000);
+                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalEnd', 1407099600000);
                 loadProfilesOfDeviceDataStore.on('load', function () {
                     me.showGraphView(record);
                     graphView.setLoading(false);
@@ -154,7 +156,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         Ext.Array.each(measurementTypeOrder, function (type, index) {
             var yAxisObject = {
                 opposite: false,
-                gridLineDashStyle: 'Dot'
+                gridLineDashStyle: 'Dot',
+                showEmpty: false
             };
 
             if (index == 0) {

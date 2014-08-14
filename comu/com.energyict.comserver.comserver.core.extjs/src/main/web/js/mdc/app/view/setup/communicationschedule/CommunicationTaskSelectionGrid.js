@@ -12,6 +12,14 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
     radioHidden: true,
     bottomToolbarHidden: true,
     height: 300,
+    counterTextFn: function (count) {
+        return Uni.I18n.translatePlural(
+            'communicationtask.communicationTask',
+            count,
+            'MDC',
+            '{0} communication tasks selected'
+        );
+    },
     columns: [
         {
             header: Uni.I18n.translate('communicationtask.name', 'MDC', 'Name'),

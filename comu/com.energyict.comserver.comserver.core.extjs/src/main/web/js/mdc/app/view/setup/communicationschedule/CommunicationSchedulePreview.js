@@ -88,7 +88,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                             items: [
                                 {
                                     xtype: 'displayfield',
-                                    name: 'nextExecutionSpecs',
+                                    name: 'temporalExpression',
                                     fieldLabel: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
                                     renderer: function(value){
                                         return Mdc.util.ScheduleToStringConverter.convert(value);

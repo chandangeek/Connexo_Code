@@ -93,11 +93,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
                                 }
                                 return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
                             }
-                        },
-                        {
-                            xtype: 'displayfield',
-                            fieldLabel: Uni.I18n.translate('communicationtasks.task.nextExecutionSpecs', 'MDC', 'Schedule'),
-                            name: 'nextExecutionSpecsName'
                         }
                     ]
                 }

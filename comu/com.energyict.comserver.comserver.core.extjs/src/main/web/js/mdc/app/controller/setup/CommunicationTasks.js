@@ -235,7 +235,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                         })
                                                         var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task');
                                                         widget.down('#communicationTaskEditForm').setTitle(title);
-                                                        widget.down('#enableScheduleFieldItem').fireEvent('change', null, false, false);
                                                         widget.setValues(communicationTask);
                                                         widget.setLoading(false);
                                                     }
@@ -426,12 +425,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         if (btn === 'confirm') {
             var me = cfg.config.me,
                 communicationTaskToDelete = cfg.config.communicationTaskToDelete;
-
-                me.setPreLoader(me.getCommunicationTaskSetupPanel(), Uni.I18n.translate('communicationtasks.removing', 'MDC', 'Removing communication task'));
                 communicationTaskToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
                 communicationTaskToDelete.destroy({
                     callback: function (record, operation) {
-                        me.clearPreLoader();
                         if(operation.wasSuccessful()) {
                             location.href = '#/administration/devicetypes/'+me.deviceTypeId+'/deviceconfigurations/'+me.deviceConfigurationId+'/comtaskenablements';
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'));
@@ -477,11 +473,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         if(!Ext.isEmpty(operation.response.responseText)) {
                             var json = Ext.decode(operation.response.responseText, true);
                             if (json && json.errors) {
-                                Ext.each(json.errors, function(error, index, errors) {
-                                    if(!Ext.isEmpty(error.id) && Ext.String.startsWith(error.id, 'nextExecutionSpecs')) {
-                                        error.id = 'nextExecutionSpecs';
-                                    }
-                                });
                                 me.showErrorPanel();
                                 me.getCommunicationTaskEditForm().getForm().markInvalid(json.errors);
                                 return;
@@ -514,11 +505,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             record.set("protocolDialectConfigurationProperties", {id: values.protocolDialectConfigurationPropertiesId});
         }
         record.set("priority", values.priority);
-        if(values.nextExecutionSpecsEnable == true) {
-            record.set("nextExecutionSpecs", values.nextExecutionSpecs);
-        } else {
-            record.set("nextExecutionSpecs", null);
-        }
         record.set("ignoreNextExecutionSpecsForInbound", values.ignoreNextExecutionSpecsForInbound);
     },
 

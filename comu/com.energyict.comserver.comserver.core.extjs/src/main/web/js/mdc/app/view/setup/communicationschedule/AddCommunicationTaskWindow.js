@@ -53,10 +53,6 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow', {
                             width: '100%',
                             items: [
                                 {
-                                    xtype: 'component',
-                                    flex: 1
-                                },
-                                {
                                     text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                     xtype: 'button',
                                     action: 'addAction',
