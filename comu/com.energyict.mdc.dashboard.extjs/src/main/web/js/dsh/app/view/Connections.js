@@ -1,12 +1,13 @@
 Ext.define('Dsh.view.Connections', {
-//    extend: 'Uni.view.container.ContentContainer',
-    extend: 'Ext.container.Container',
+    extend: 'Uni.view.container.ContentContainer',
+ //   extend: 'Ext.container.Container',
     alias: 'widget.connections-details',
     itemId: 'connectionsdetails',
     requires: [
-        'Dsh.view.widget.ConnectionsList'
+        'Dsh.view.widget.ConnectionsList',
+        'Dsh.view.widget.PreviewConnection'
     ],
-    items: [
+    content: [
         {
             xtype: 'panel',
             ui: 'large',
@@ -15,7 +16,8 @@ Ext.define('Dsh.view.Connections', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'connections-list'
+                        xtype: 'connections-list',
+                        itemId: 'connectionsdetails'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
@@ -25,7 +27,10 @@ Ext.define('Dsh.view.Connections', {
                             Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item2', 'DSH', 'No connections found due to applied filters.')
                         ]
                     },
-                    previewComponent: {}
+                    previewComponent: {
+                        xtype: 'preview_connection',
+                        itemId: 'connectionpreview'
+                    }
                 }
             ]
         }

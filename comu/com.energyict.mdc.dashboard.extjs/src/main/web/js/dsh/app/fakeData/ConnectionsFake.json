@@ -17,7 +17,13 @@
         "allow_execute_on_inbound": "allow" ,
         "startDateTime": 1406892868330,
         "endDateTime": 1406892868330,
-        "result": "failed"
+        "result": "failed",
+        "schedule": {
+            "title": "Schedule test",
+            "expression": "test expression",
+            "startDateTime": 1406892868330,
+            "nextOccurence": 1406892868330
+        }
     },{
         "id": 3,
         "title": "comm taski",
@@ -26,7 +32,13 @@
         "allow_execute_on_inbound": "allow" ,
         "startDateTime": 1406892868330,
         "endDateTime": 1406892868330,
-        "result": "success"
+        "result": "success",
+        "schedule": {
+            "title": "Schedule test",
+            "expression": "test expression",
+            "startDateTime": 1406892868330,
+            "nextOccurence": 1406892868330
+        }
     },{
         "id": 4,
         "title": "comm taskA",
@@ -35,7 +47,13 @@
         "allow_execute_on_inbound": "allow" ,
         "startDateTime": 1406892868330,
         "endDateTime": 1406892868330,
-        "result": "abort"
+        "result": "abort",
+        "schedule": {
+            "title": "Schedule test",
+            "expression": "test expression",
+            "startDateTime": 1406892868330,
+            "nextOccurence": 1406892868330
+        }
     }],
     "device": {
         "id": "5",
@@ -45,10 +63,9 @@
             "title": "test device type"
         }
     },
-    "schedule": {
-        "title": "Schedule test",
-        "expression": "test expression",
-        "startDateTime": 1406892868330,
-        "nextOccurence": 1406892868330
+    "server": {
+        "id": 6,
+        "title": "test server",
+        "port": "test port"
     }
 }}
