@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.MeterActivationValidation;
@@ -28,10 +29,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -141,7 +139,7 @@ public class DeviceValidationResource {
         Date maxDate = validationService.getLastChecked(activation);
         Date date = lastCheckedInfo.lastChecked == null ? null : new Date(lastCheckedInfo.lastChecked);
         if(date == null || date.after(maxDate)) {
-            throw exceptionFactory.newException(MessageSeeds.INVALID_DATE, maxDate);
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastCkecked", maxDate);
         }
         validationService.setLastChecked(activation, date);
         if(lastCheckedInfo.validate) {
