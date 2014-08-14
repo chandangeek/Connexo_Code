@@ -107,14 +107,14 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                     s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + me.intervalLength) + '<br>';
                     s += '<table style="margin-top: 10px"><tbody>';
                     $.each(this.points, function (i, points) {
+                        var series = points.point.series;
                         s += '<tr>'
-                        s += '<td style="padding-right: 10px; text-align: right"><b>' + me.channels[i].name + '</b></td>';
+                        s += '<td style="padding-right: 10px; text-align: right"><b>' + me.channels[series.index].name + '</b></td>';
                         s += '<td style="padding-right: 1px; text-align: right">' + points.y + '</td>';
-                        s += '<td style="padding-left: 1px; text-align: left">' + me.channels[i].unitOfMeasure + '</td>';
+                        s += '<td style="padding-left: 1px; text-align: left">' + me.channels[series.index].unitOfMeasure + '</td>';
                         s += '</tr>'
                     });
                     s += '</tbody></table>';
-
                     return s;
                 }
             },
@@ -124,6 +124,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
             },
 
             plotOptions: {
+                column: {
+                    borderColor: 'black',
+                    borderWidth: 0.5,
+                    pointPadding: -0.31,
+                    turboThreshold: 10000
+                },
                 series: {
                     events: {
                         hide: function (event) {

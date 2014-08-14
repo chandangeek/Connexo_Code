@@ -162,7 +162,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         Ext.Array.each(measurementTypeOrder, function (type, index) {
             var yAxisObject = {
                 opposite: false,
-                gridLineDashStyle: 'Dot'
+                gridLineDashStyle: 'Dot',
+                showEmpty: false
             };
 
             if (index == 0) {
