@@ -29,10 +29,6 @@ public class ComTaskEnablementInfo {
     public Boolean suspended;
     @JsonProperty("ignoreNextExecutionSpecsForInbound")
     public Boolean ignoreNextExecutionSpecsForInbound;
-    @JsonProperty("nextExecutionSpecs")
-    public TemporalExpressionInfo nextExecutionSpecs;
-    @JsonProperty("nextExecutionSpecsName")
-    public String nextExecutionSpecsName;
 
     public ComTaskEnablementInfo() {}
 
@@ -46,13 +42,6 @@ public class ComTaskEnablementInfo {
         comTaskEnablementInfo.priority = comTaskEnablement.getPriority();
         comTaskEnablementInfo.suspended = comTaskEnablement.isSuspended();
         comTaskEnablementInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
-        if (comTaskEnablement.getNextExecutionSpecs() != null) {
-            comTaskEnablementInfo.nextExecutionSpecs = TemporalExpressionInfo.from(comTaskEnablement.getNextExecutionSpecs().getTemporalExpression());
-            comTaskEnablementInfo.nextExecutionSpecsName = comTaskEnablement.getNextExecutionSpecs().getTemporalExpression().toString();
-        } else {
-            comTaskEnablementInfo.nextExecutionSpecsName = thesaurus.getString(NextExecutionSpecsInfo.DEFAULT_NEXT_EXECUTION_SPECS_NAME_KEY, NextExecutionSpecsInfo.DEFAULT_NEXT_EXECUTION_SPECS_NAME_KEY);
-        }
-
         return comTaskEnablementInfo;
     }
 
@@ -67,11 +56,6 @@ public class ComTaskEnablementInfo {
     public void writeTo(ComTaskEnablement comTaskEnablement) {
         comTaskEnablement.setPriority(this.priority);
         comTaskEnablement.setIgnoreNextExecutionSpecsForInbound(this.ignoreNextExecutionSpecsForInbound);
-        if(this.nextExecutionSpecs != null) {
-            comTaskEnablement.setNextExecutionSpecsFrom(this.nextExecutionSpecs.asTemporalExpression());
-        } else {
-            comTaskEnablement.removeNextExecutionSpecs();
-        }
     }
 
     public static class ComTaskInfo {

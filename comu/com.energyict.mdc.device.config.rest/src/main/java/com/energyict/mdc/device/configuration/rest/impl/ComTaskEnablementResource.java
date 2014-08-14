@@ -66,7 +66,6 @@ public class ComTaskEnablementResource {
 
         Optional<ComTaskEnablementInfo.PartialConnectionTaskInfo> partialConnectionTaskInfoParameter = Optional.fromNullable(comTaskEnablementInfo.partialConnectionTask);
         Optional<ComTaskEnablementInfo.ProtocolDialectConfigurationPropertiesInfo> protocolDialectConfigurationPropertiesInfoParameter = Optional.fromNullable(comTaskEnablementInfo.protocolDialectConfigurationProperties);
-        Optional<TemporalExpressionInfo> nextExecutionSpecsParameter = Optional.fromNullable(comTaskEnablementInfo.nextExecutionSpecs);
 
         ComTaskEnablementBuilder comTaskEnablementBuilder = deviceConfiguration.enableComTask(comTask, securityPropertySet)
                 .setPriority(comTaskEnablementInfo.priority)
@@ -80,10 +79,6 @@ public class ComTaskEnablementResource {
         if(protocolDialectConfigurationPropertiesInfoParameter.isPresent() && comTaskEnablementInfo.protocolDialectConfigurationProperties.id != ComTaskEnablementInfo.ProtocolDialectConfigurationPropertiesInfo.DEFAULT_PROTOCOL_DIALECT_ID) {
             ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = findProtocolDialectOrThrowException(deviceConfiguration, comTaskEnablementInfo.protocolDialectConfigurationProperties.id);
             comTaskEnablementBuilder.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
-        }
-
-        if(nextExecutionSpecsParameter.isPresent()) {
-            comTaskEnablementBuilder.setNextExecutionSpecsFrom(comTaskEnablementInfo.nextExecutionSpecs.asTemporalExpression());
         }
 
         comTaskEnablementBuilder.add();
