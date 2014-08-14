@@ -806,13 +806,6 @@ public class DeviceCommunicationConfigurationImpl extends PersistentIdObject<Dev
         }
 
         @Override
-        public ComTaskEnablementBuilder setNextExecutionSpecsFrom(TemporalExpression temporalExpression) {
-            this.mode.verify();
-            this.underConstruction.setNextExecutionSpecsFrom(temporalExpression);
-            return this;
-        }
-
-        @Override
         public ComTaskEnablementBuilder setIgnoreNextExecutionSpecsForInbound(boolean flag) {
             this.mode.verify();
             this.underConstruction.setIgnoreNextExecutionSpecsForInbound(flag);
