@@ -122,9 +122,9 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                                 flex: 1
                                                             },
                                                             {
-                                                                xtype: 'uni-actioncolumn',
+                                                                xtype: 'actioncolumn',
                                                                 iconCls: 'icon-delete',
-                                                                flex: 0.05,
+                                                                flex: 0.1,
                                                                 columnWidth: 32,
                                                                 fixed: true,
                                                                 sortable: false,
@@ -133,6 +133,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                                     {
                                                                         tooltip: 'Remove',
                                                                         handler: function(grid, rowIndex, colIndex, item, e, record, row) {
+                                                                            debugger;
                                                                             this.fireEvent('deleteComTask', record);
                                                                         }
                                                                     }
