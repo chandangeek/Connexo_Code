@@ -1,0 +1,91 @@
+{
+    "total": 1,
+    "connectionTasks": [
+        {
+            "device": {
+                "id": "1234-5678-9012",
+                "name": "some device"
+            },
+            "deviceConfiguration": {
+                "id": 123123,
+                "name": "dev config"
+            },
+            "deviceType": {
+                "id": 1010,
+                "name": "device type"
+            },
+            "currentState": "Inactive",
+            "latestStatus": {
+                "id": "incomplete",
+                "displayValue": "incomplete"
+            },
+            "latestResult": {
+                "id": "Success",
+                "displayValue": "Success",
+                "retries": 999
+            },
+            "taskCount": {
+                "numberOfSuccessfulTasks": 12,
+                "numberOfFailedTasks": 401,
+                "numberOfIncompleteTasks": 3
+            },
+            "startDateTime": 1407851711314,
+            "endDateTime": 1407851711314,
+            "duration": {
+                "count": 4,
+                "timeUnit": "seconds"
+            },
+            "comPortPool": {
+                "id": 1111,
+                "name": "comPortPool"
+            },
+            "direction": "outbound",
+            "connectionType": "Some connection type",
+            "comServer":{
+                "id": 114,
+                "name": "Comm Server"
+            },
+            "connectionMethod": {
+                "id": null,
+                "name": "partial connection task name( default )"
+            },
+            "window": "09:00 - 17:00",
+            "connectionStrategy": {
+                "id": "asSoonAsPossible",
+                "displayValue": "As soon a possible"
+            },
+            "nextExecution": 1407851711314,
+            "communicationTasks": {
+                "count": 1,
+                "communicationsTasks": [
+                    {
+                        "name": null,
+                        "device": {
+                            "id": "1234-5678-9012",
+                            "name": "some device"
+                        },
+                        "deviceConfiguration": {
+                            "id": 123123,
+                            "name": "123123"
+                        },
+                        "deviceType": {
+                            "id": 1010,
+                            "name": "device type"
+                        },
+                        "comScheduleName": "Weekly billing",
+                        "comScheduleFrequency": "every 1 weeks (offset: 12 hours)",
+                        "urgency": 100,
+                        "currentState": {
+                            "id": "Busy",
+                            "displayValue": "Busy"
+                        },
+                        "startTime": 1407851711348,
+                        "successfulFinishTime": 1407851711348,
+                        "nextCommunication": 1407851711348
+                    }
+                ]
+            }
+        }
+    ]
+}
+

@@ -36,17 +36,35 @@ Ext.define('Dsh.model.ConnectionDetails', {
             }
         },
         {
-            name: 'deviceTitle',
+            name: 'deviceType',
             persist: false,
             mapping: function (data) {
-                return data.device.title
+                return data.device.type
+            }
+        },
+        {
+            name: 'serverData',
+            persist: false,
+            mapping: function (data) {
+                return data.server
+            }
+        },
+        {
+            name: 'nextOccurence',
+            persist: false,
+            mapping: function (data) {
+                var next = 0;
+                Ext.each(data.task, function (task) {
+                    (task.schedule.nextOccurence > next) ? (next = task.schedule.nextOccurence) : null
+                });
+                return new Date(next)
             }
         }
     ],
     hasMany: [
         {
             model: 'Dsh.model.Task',
-            name: 'tasks'
+            name: 'task'
         }
     ],
     hasOne: [
