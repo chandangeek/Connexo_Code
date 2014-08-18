@@ -118,12 +118,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
             },
 
             plotOptions: {
-                column: {
-                    borderColor: 'black',
-                    borderWidth: 0.5,
-                    pointPadding: -0.31,
-                    turboThreshold: 10000
-                },
                 series: {
                     events: {
                         showEmpty: false,
@@ -164,8 +158,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                 column: {
                     borderColor: 'black',
                     borderWidth: 0.5,
-                    pointPadding: -0.1,
-                    groupPadding: 0.1
+                    pointPadding: 0,
+                    groupPadding: 0
                 }
             },
 
