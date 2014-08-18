@@ -48,8 +48,16 @@ public class UniqueInboundComPortPoolPerDeviceValidator implements ConstraintVal
     }
     private boolean onlyOneForComPortPool(InboundConnectionTaskImpl connectionTask) {
         InboundComPortPool comPortPool = connectionTask.getComPortPool();
-        Set<Long> comportPoolIds = this.getOtherComPortPoolIds(connectionTask);
-        return !comportPoolIds.contains(comPortPool.getId());
+        if (comPortPool != null) {
+            Set<Long> comportPoolIds = this.getOtherComPortPoolIds(connectionTask);
+            return !comportPoolIds.contains(comPortPool.getId());
+        }
+        else {
+            /* Although ComPortPool is a required attribute,
+             * it is not the responsibility of this component
+             * to validate that. */
+            return true;
+        }
     }
 
     private Set<Long> getOtherComPortPoolIds(InboundConnectionTaskImpl connectionTask) {

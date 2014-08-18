@@ -81,6 +81,16 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+    public void createCreateWithoutPool() {
+        // Business method
+        this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask, null);
+
+        // Asserts: see ExpectedConstraintViolation
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE_KEY + "}")
     public void createTwoTasksWithTheSamePool() {
         this.createSimpleInboundConnectionTask();
