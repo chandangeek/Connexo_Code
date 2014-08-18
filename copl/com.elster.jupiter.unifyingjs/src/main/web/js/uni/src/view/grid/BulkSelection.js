@@ -81,6 +81,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     height: 620,
     minHeight: 280,
+    bottomToolbarHeight: 27,
 
     selType: 'checkboxmodel',
     selModel: {
@@ -341,7 +342,15 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.store.on('remove', me.onLoad, me);
         me.store.on('clear', me.onLoad, me);
         me.store.on('load', me.onLoad, me);
-        me.on('afterrender', me.onLoad, me);
+
+        me.on('afterlayout', me.onLoad, me, {
+            single: true
+        });
+
+        me.on('afterrender', me.onLoad, me, {
+            single: true
+        });
+
         me.onLoad(me.store);
     },
 
@@ -396,8 +405,15 @@ Ext.define('Uni.view.grid.BulkSelection', {
                 var rowHeight = rowElement.getComputedHeight();
 
                 newHeight += count > 10 ? 10 * rowHeight : count * rowHeight;
+
+                if (!me.getBottomToolbar().isVisible()) {
+                    newHeight -= me.bottomToolbarHeight;
+                }
+
                 me.setHeight(newHeight);
             }
+
+            // TODO Hide the grid when 'all items' is selected.
         }
     },
 
