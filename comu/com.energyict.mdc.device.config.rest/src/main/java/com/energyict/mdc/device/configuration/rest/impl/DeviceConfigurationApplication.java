@@ -14,6 +14,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
@@ -218,6 +219,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(validationService).to(ValidationService.class);
             bind(deviceDataService).to(DeviceDataService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(PropertyUtils.class).to(PropertyUtils.class);
         }
     }
 
