@@ -6,6 +6,8 @@ import com.elster.jupiter.users.User;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @XmlRootElement
@@ -36,6 +38,12 @@ public class UserInfo {
         for (Group group : user.getGroups()) {
             groups.add(new GroupInfo(group));
         }
+
+        Collections.sort(groups, new Comparator<GroupInfo>() {
+            public int compare(GroupInfo g1, GroupInfo g2) {
+                return g1.name.compareTo(g2.name);
+            }
+        });
     }
 
     public boolean update(User user) {
