@@ -29,21 +29,12 @@ Ext.define('Usr.controller.UserEdit', {
         this.control({
             'userEdit button[action=save]': {
                 click: this.updateUser
-            },
-            'userEdit button[action=cancel]': {
-                click: this.back
             }
         });
     },
 
     showEditOverviewWithHistory: function (groupId) {
         location.href = '#usermanagement/users/' + groupId + '/edit';
-    },
-
-    backUrl: null,
-
-    back: function () {
-        location.href = this.backUrl;
     },
 
     /**
@@ -95,7 +86,7 @@ Ext.define('Usr.controller.UserEdit', {
         form.getRecord().save({
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('user.saved', record.get('authenticationName'), 'USM', 'User \'{0}\' saved.'));
-                me.back();
+                location.href = '#/usermanagement/users';
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
