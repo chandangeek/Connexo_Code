@@ -390,7 +390,7 @@ public class DemoServiceImpl implements DemoService {
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .setPriority(100)
                 .setProtocolDialectConfigurationProperties(configurationProperties)
-                .setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration(1, TimeDuration.DAYS), new TimeDuration(0, TimeDuration.SECONDS))).add().save();
+                /*.setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration(1, TimeDuration.DAYS), new TimeDuration(0, TimeDuration.SECONDS)))*/.add().save();
         extendConfig.enableComTask(comTasks.get(COM_TASK_TOPOLOGY), securityPropertySet)
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .setPriority(100)
@@ -399,7 +399,7 @@ public class DemoServiceImpl implements DemoService {
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .setPriority(100)
                 .setProtocolDialectConfigurationProperties(configurationProperties)
-                .setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(0, TimeDuration.SECONDS))).add().save();
+                /*.setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(0, TimeDuration.SECONDS)))*/.add().save();
         configureChannelsForLoadProfileSpec(extendConfig);
         extendConfig.activate();
         extendConfig.save();
@@ -445,7 +445,7 @@ public class DemoServiceImpl implements DemoService {
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .setPriority(100)
                 .setProtocolDialectConfigurationProperties(configurationProperties)
-                .setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration(1, TimeDuration.DAYS), new TimeDuration(0, TimeDuration.SECONDS))).add().save();
+                /*.setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration(1, TimeDuration.DAYS), new TimeDuration(0, TimeDuration.SECONDS)))*/.add().save();
         configureChannelsForLoadProfileSpec(simpleConfiguration);
         simpleConfiguration.activate();
         simpleConfiguration.save();
