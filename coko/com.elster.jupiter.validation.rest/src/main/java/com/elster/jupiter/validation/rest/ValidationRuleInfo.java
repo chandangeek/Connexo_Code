@@ -33,6 +33,14 @@ public class ValidationRuleInfo {
         }
     }
 
+    public static List<ValidationRuleInfo> from(List<ValidationRule> validationRules, PropertyUtils propertyUtils) {
+        List<ValidationRuleInfo> infos = new ArrayList<>(validationRules.size());
+        for (ValidationRule validationRule : validationRules) {
+            infos.add(new ValidationRuleInfo(validationRule, propertyUtils));
+        }
+        return infos;
+    }
+
 
     public ValidationRuleInfo() {
     }
