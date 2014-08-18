@@ -17,7 +17,7 @@ import com.elster.jupiter.nls.Thesaurus;
 public class CannotDeleteComScheduleFromDevice extends LocalizedException {
 
     public CannotDeleteComScheduleFromDevice(Thesaurus thesaurus, ComSchedule comTaskExecution, Device device) {
-        super(thesaurus, MessageSeeds.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, comTaskExecution.getId(), device.getName());
+        super(thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, comTaskExecution.getName());
         this.set("comTask", comTaskExecution.getId());
         this.set("device", device.getName());
     }
