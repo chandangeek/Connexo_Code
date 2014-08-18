@@ -2,16 +2,10 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
     extend: 'Ext.container.Container',
     alias: 'widget.deviceLoadProfilesGraphView',
     itemId: 'deviceLoadProfilesGraphView',
-    loadProfileRecord: null,
-    graphTitle: null,
-    yAxis: null,
-    series: null,
-    channels: null,
-    intervalLength: null,
 
-    drawGraph: function () {
+
+    drawGraph: function (title, yAxis, series, channels, seriesToYAxisMap, intervalLength) {
         var me = this;
-
         Highcharts.setOptions({
             global: {
                 useUTC: false
@@ -21,11 +15,11 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
         new Highcharts.StockChart({
 
             title: {
-                text: me.graphTitle
+                text: title
             },
 
             chart: {
-                height: 600,
+                height: 320 + 150 * yAxis.length ,
                 renderTo: me.el.dom
             },
 
@@ -49,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                 }
             },
 
-            yAxis: me.yAxis,
+            yAxis: yAxis,
 
             navigation: {
                 buttonOptions: {
@@ -104,14 +98,14 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                 formatter: function () {
                     var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</b>';
                     s += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', this.x);
-                    s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + me.intervalLength) + '<br>';
+                    s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength) + '<br>';
                     s += '<table style="margin-top: 10px"><tbody>';
                     $.each(this.points, function (i, points) {
                         var series = points.point.series;
                         s += '<tr>'
-                        s += '<td style="padding-right: 10px; text-align: right"><b>' + me.channels[series.index].name + '</b></td>';
+                        s += '<td style="padding-right: 10px; text-align: right"><b>' + channels[series.index].name + '</b></td>';
                         s += '<td style="padding-right: 1px; text-align: right">' + points.y + '</td>';
-                        s += '<td style="padding-left: 1px; text-align: left">' + me.channels[series.index].unitOfMeasure + '</td>';
+                        s += '<td style="padding-left: 1px; text-align: left">' + channels[series.index].unitOfMeasure + '</td>';
                         s += '</tr>'
                     });
                     s += '</tbody></table>';
@@ -132,63 +126,80 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                 },
                 series: {
                     events: {
+                        showEmpty: false,
                         hide: function (event) {
-
                             var chart = this.chart,
                                 index = this.index,
-                                legend = $('.highcharts-legend')[0],
-                                visible_count = 0;
+                                visibleYAxises = [],
+                                yAxis;
 
                             $.each(chart.series, function (i, serie) {
-                                if ((serie.visible) && (serie.index != index) && (serie.name != 'Navigator')) {
-                                    visible_count += 1;
+                                if ((serie.visible) && (serie.index != index)) {
+                                    yAxis = seriesToYAxisMap[serie.index];
+                                    if (!isNaN(yAxis) && !Ext.Array.contains(visibleYAxises, yAxis)) {
+                                        visibleYAxises.push(yAxis);
+                                    }
                                 }
                             });
-
-                            if (visible_count < 1) {
-                                $('.highcharts-grid').hide();
-                                $('.highcharts-input-group').hide();
-                                $('.highcharts-axis').hide();
-                                $('.highcharts-navigator').hide();
-                                $('.highcharts-axis-labels').hide();
-                                $('.highcharts-series-group').hide();
-                                $('.highcharts-navigator-handle-right').hide();
-                                $('.highcharts-navigator-handle-left').hide();
-                                $('.highcharts-scrollbar').hide();
-                                $('.highcharts-button').hide();
-                                $('.highcharts-background').hide();
-                                $('.highcharts-tooltip').hide();
-                                $( "text:contains('Zoom')").hide();
-                            }
+                            me.redrawChart(chart, visibleYAxises);
                         },
                         show: function (event) {
-                            $('.highcharts-grid').show();
-                            $('.highcharts-input-group').show();
-                            $('.highcharts-axis').show();
-                            $('.highcharts-navigator').show();
-                            $('.highcharts-axis-labels').show();
-                            $('.highcharts-series-group').show();
-                            $('.highcharts-navigator-handle-right').show();
-                            $('.highcharts-navigator-handle-left').show();
-                            $('.highcharts-scrollbar').show();
-                            $('.highcharts-button').show();
-                            $('.highcharts-background').show();
-                            $('.highcharts-tooltip').show();
-                            $('text').show();
+                            var chart = this.chart,
+                                index = this.index,
+                                visibleYAxises = [],
+                            yAxis;;
+
+                            $.each(chart.series, function (i, serie) {
+                                if ((serie.visible) || (serie.index == index)) {
+                                    yAxis = seriesToYAxisMap[serie.index];
+                                    if (!isNaN(yAxis) && !Ext.Array.contains(visibleYAxises, yAxis)) {
+                                        visibleYAxises.push(yAxis);
+                                    }
+                                }
+                            });
+                            me.redrawChart(chart, visibleYAxises);
                         }
                     }
                 },
                 column: {
                     borderColor: 'black',
                     borderWidth: 0.5,
-                    pointPadding: 0,
+                    pointPadding: -0.1,
                     groupPadding: 0.1
                 }
             },
 
-            series: me.series
+            series: series
         });
 
+    },
+
+    redrawChart: function (chart, visibleYAxises) {
+        var step,
+            lineCount,
+            currentAxisTopValue = 0;
+
+        visibleYAxises.sort();
+
+        lineCount = visibleYAxises.length;
+        step = (100 / lineCount | 0) -1;
+
+        Ext.Array.each(chart.yAxis, function (yAxis, index) {
+            var yAxisObjectUpdate = {};
+            if (Ext.Array.contains(visibleYAxises, index)) {
+                if (index == visibleYAxises[lineCount - 1]) {
+                    yAxisObjectUpdate['height'] = (100 - currentAxisTopValue) + '%';
+                } else {
+                    yAxisObjectUpdate['height'] = step + '%';
+                }
+                yAxisObjectUpdate['top'] = currentAxisTopValue + '%';
+                currentAxisTopValue += step + 2;
+                yAxis.update(yAxisObjectUpdate);
+            }
+
+        });
+
+        chart.setSize(chart.chartWidth, 320 + 150 * visibleYAxises.length );
     },
 
     drawEmptyList: function () {
@@ -201,14 +212,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                     Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.') ]
             });
 
-    },
-
-    setParams: function (title, yAxis, series, channels, intervalLength) {
-        this.graphTitle = title;
-        this.yAxis = yAxis;
-        this.series = series;
-        this.channels = channels;
-        this.intervalLength = intervalLength;
     },
 
     initComponent: function () {

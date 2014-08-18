@@ -40,6 +40,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             loadProfilesOfDeviceDataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
             loadProfilesOfDeviceDataStoreProxy = loadProfilesOfDeviceDataStore.getProxy(),
+            checkBoxesContainer,
             widget,
             graphView;
 
@@ -56,12 +57,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     channels: record.get('channels')
                 });
 
-
                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                 widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 graphView = widget.down('#deviceLoadProfilesGraphView');
+                checkBoxesContainer = widget.down('#channelsCheckBoxesContainer');
                 graphView.setLoading(true);
                 loadProfilesOfDeviceDataStoreProxy.setUrl({
                     mRID: mRID,
@@ -106,12 +107,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             measurementTypeOrder = [],
             channelDataArrays = {},
             flowMeasuresNumbers = {},
+            seriesToYAxisMap = {},
             intervalLength,
             lineCount,
             step;
 
 
-        Ext.Array.each(loadProfileRecord.get('channels'), function (channel) {
+        Ext.Array.each(loadProfileRecord.get('channels'), function (channel, index) {
             var seriesObject = {marker: {
                     enabled: false
                 }},
@@ -119,6 +121,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             seriesObject['name'] = channel.name;
             channelDataArrays[channel.id] = [];
             seriesObject['data'] = channelDataArrays[channel.id];
+            if (channel.id == 1 || channel.id == 2) {
+               channel.flowUnit = 'flow';
+            }
+            if (channel.id == 4 || channel.id == 5) {
+                channel.flowUnit = 'flow';
+                channel.unitOfMeasure.id = 100;
+            }
             switch (channel.flowUnit) {
                 case 'flow':
                     seriesObject['type'] = 'line';
@@ -132,8 +141,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     } else {
                         seriesObject['yAxis'] = flowLineNumber;
                     }
-                    channels.push({name: channel.name, unitOfMeasure: channel.unitOfMeasure.localizedValue });
-                    series.push(seriesObject);
                     break;
                 case 'volume':
                     seriesObject['type'] = 'column';
@@ -141,15 +148,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     seriesObject['yAxis'] = currentLine;
                     measurementTypeOrder.push(channel.unitOfMeasure.localizedValue);
                     currentLine += 1;
-                    channels.push({name: channel.name, unitOfMeasure: channel.unitOfMeasure.localizedValue });
-                    series.push(seriesObject);
                     break;
             }
+            channels.push({name: channel.name, unitOfMeasure: channel.unitOfMeasure.localizedValue });
+            seriesToYAxisMap[index] = seriesObject['yAxis'];
+            series.push(seriesObject);
         });
 
-
         lineCount = measurementTypeOrder.length;
-        step = 100 / lineCount | 0;
+        step = (100 / lineCount | 0) - 1;
 
         Ext.Array.each(measurementTypeOrder, function (type, index) {
             var yAxisObject = {
@@ -169,7 +176,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 yAxisObject['top'] = currentAxisTopValue + '%';
                 yAxisObject['offset'] = 0;
             }
-            currentAxisTopValue += step;
+            currentAxisTopValue += step + 2;
             yAxisObject['title'] = {
                 rotation: 270,
                 text: type
@@ -183,11 +190,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     intervalLength = record.get('interval').end - record.get('interval').start;
                 }
                 Ext.iterate(record.get('channelData'), function (key, value) {
-                    channelDataArrays[key].push([record.get('interval').end, value])
+                    if (channelDataArrays[key]) {
+                        channelDataArrays[key].push([record.get('interval').end, value])
+                    }
                 });
             });
-            container.setParams(title, yAxis, series, channels, intervalLength);
-            container.drawGraph();
+            container.drawGraph(title, yAxis, series, channels, seriesToYAxisMap, intervalLength);
         } else {
             container.drawEmptyList();
         }
