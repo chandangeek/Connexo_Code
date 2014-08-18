@@ -121,13 +121,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             seriesObject['name'] = channel.name;
             channelDataArrays[channel.id] = [];
             seriesObject['data'] = channelDataArrays[channel.id];
-            if (channel.id == 1 || channel.id == 2) {
-               channel.flowUnit = 'flow';
-            }
-            if (channel.id == 4 || channel.id == 5) {
-                channel.flowUnit = 'flow';
-                channel.unitOfMeasure.id = 100;
-            }
             switch (channel.flowUnit) {
                 case 'flow':
                     seriesObject['type'] = 'line';
