@@ -1080,6 +1080,26 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(readings.get(1).getInterval().getStart()).isEqualTo(new Date(1406853000000L)); // Fri, 01 Aug 2014 00:30:00 GMT
     }
 
+    @Test
+    @Transactional
+    public void testGetLoadProfileDataDST() {
+        BigDecimal readingValue = new BigDecimal(5432.32);
+        Date readingTimeStamp = new Date(1406884422000L); // 8/1/2014, 09:13:42 AM
+        Date dayStart = new Date(1396137600000L); // 3/30/2014, 1:00:00 AM
+        Date dayEnd = new Date(1396159200000L); // 3/30/2014, 8:00:00 AM !! 6 hours later!!
+        com.elster.jupiter.metering.readings.Reading reading = new com.elster.jupiter.metering.readings.beans.ReadingImpl(forwardEnergyReadingType.getMRID(), readingValue, readingTimeStamp);
+        MeterReadingImpl meterReading = new MeterReadingImpl();
+        meterReading.addReading(reading);
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        device.store(meterReading);
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<LoadProfileReading> readings = reloadedDevice.getChannelDataFor(device.getLoadProfiles().get(0), new Interval(dayStart, dayEnd));
+        assertThat(readings).hasSize(4*6);  // 4 per hour, during 6 hours
+    }
+
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
         RegisterType registerType1 = this.createRegisterTypeIfMissing("RegisterType1", forwardEnergyObisCode, unit1, forwardEnergyReadingType, 0);
         RegisterType registerType2 = this.createRegisterTypeIfMissing("RegisterType2", reverseEnergyObisCode, unit2, reverseEnergyReadingType, 0);
