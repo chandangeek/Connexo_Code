@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.util.units.Unit;
+
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.NumericalReading;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -14,7 +16,7 @@ public class NumericalReadingInfo extends ReadingInfo<NumericalReading, Numerica
     @JsonProperty("rawValue")
     public BigDecimal rawValue;
     @JsonProperty("unitOfMeasure")
-    @XmlJavaTypeAdapter(ReadingUnitAdapter.class)
+    @XmlJavaTypeAdapter(UnitAdapter.class)
     public Unit unitOfMeasure;
     @JsonProperty("multiplier")
     public BigDecimal multiplier;
@@ -25,7 +27,7 @@ public class NumericalReadingInfo extends ReadingInfo<NumericalReading, Numerica
         super(reading, registerSpec);
         this.value = reading.getQuantity().getValue();
         this.rawValue = reading.getQuantity().getValue();
-        this.unitOfMeasure = reading.getQuantity().getUnit();
+        this.unitOfMeasure = registerSpec.getUnit();
         this.multiplier = registerSpec.getMultiplier();
     }
 }
