@@ -123,28 +123,29 @@ public class DeviceValidationResource {
     @Path("/validationstatus")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    public Response setValidationFeatureStatus(@PathParam("mRID") String mrid, boolean status) {
+    public Response setValidationFeatureStatus(@PathParam("mRID") String mrid, DeviceValidationStatusInfo deviceValidationStatusInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         MeterActivation activation = getCurrentMeterActivation(device);
-        validationService.setMeterValidationStatus(activation, status);
+        Date maxDate = validationService.getLastChecked(activation);
+        if(deviceValidationStatusInfo.isActive) {
+            Date date = deviceValidationStatusInfo.lastChecked == null ? null : new Date(deviceValidationStatusInfo.lastChecked);
+            if(date == null || date.after(maxDate)) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastCkecked", maxDate);
+            }
+            validationService.setLastChecked(activation, date);
+        }
+        validationService.setMeterValidationStatus(activation, deviceValidationStatusInfo.isActive);
         return Response.status(Response.Status.OK).build();
     }
 
     @Path("/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    public Response validateDeviceData(@PathParam("mRID") String mrid, LastCheckedInfo lastCheckedInfo) {
+    public Response validateDeviceData(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         MeterActivation activation = getCurrentMeterActivation(device);
-        Date maxDate = validationService.getLastChecked(activation);
-        Date date = lastCheckedInfo.lastChecked == null ? null : new Date(lastCheckedInfo.lastChecked);
-        if(date == null || date.after(maxDate)) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastCkecked", maxDate);
-        }
-        validationService.setLastChecked(activation, date);
-        if(lastCheckedInfo.validate) {
-            validationService.validate(activation, Interval.startAt(date));
-        }
+        Date date = validationService.getLastChecked(activation);
+        validationService.validate(activation, Interval.startAt(date));
         return Response.status(Response.Status.OK).build();
     }
 
