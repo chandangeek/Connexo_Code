@@ -38,14 +38,6 @@ import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Currency;
-import java.util.List;
-import java.util.Random;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -58,9 +50,16 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Currency;
+import java.util.List;
+import java.util.Random;
+
+import static org.mockito.Mockito.*;
 
 @Ignore("basic functionality for load profiles")
 public class BaseLoadProfileTest extends JerseyTest {
@@ -114,7 +113,6 @@ public class BaseLoadProfileTest extends JerseyTest {
                 bind(ResourceHelper.class).to(ResourceHelper.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(thesaurus).to(Thesaurus.class);
-                bind(PropertyUtils.class).to(PropertyUtils.class);
                 bind(protocolPluggableService).to(ProtocolPluggableService.class);
             }
         });

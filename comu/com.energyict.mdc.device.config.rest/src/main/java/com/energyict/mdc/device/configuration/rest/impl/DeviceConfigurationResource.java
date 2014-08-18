@@ -5,7 +5,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
@@ -23,9 +22,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -44,6 +41,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class DeviceConfigurationResource {
 
@@ -56,7 +56,6 @@ public class DeviceConfigurationResource {
     private final Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider;
     private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
     private final Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider;
-    private final PropertyUtils propertyUtils;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -69,7 +68,7 @@ public class DeviceConfigurationResource {
                                        Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider,
                                        Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
                                        Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider,
-                                       PropertyUtils propertyUtils, Thesaurus thesaurus) {
+                                       Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.validationService = validationService;
@@ -79,7 +78,6 @@ public class DeviceConfigurationResource {
         this.loadProfileConfigurationResourceProvider = loadProfileConfigurationResourceProvider;
         this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
         this.comTaskEnablementResourceProvider = comTaskEnablementResourceProvider;
-        this.propertyUtils = propertyUtils;
         this.thesaurus = thesaurus;
     }
 
@@ -307,7 +305,7 @@ public class DeviceConfigurationResource {
 
         List<ValidationRule> rules = resourceHelper.findRegisterSpec(registerId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
-        List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage, propertyUtils);
+        List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage);
         return Response.ok(PagedInfoList.asJson("validationRules", infos, queryParameters)).build();
     }
 
@@ -322,7 +320,7 @@ public class DeviceConfigurationResource {
 
         List<ValidationRule> rules = resourceHelper.findChannelSpec(channelId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
-        List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage, propertyUtils);
+        List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage);
         return Response.ok(PagedInfoList.asJson("validationRules", infos, queryParameters)).build();
     }
 
@@ -337,7 +335,7 @@ public class DeviceConfigurationResource {
 
         List<ValidationRule> rules = resourceHelper.findLoadProfileSpec(loadProfileId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
-        List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage, propertyUtils);
+        List<ValidationRuleInfo> infos = ValidationRuleInfo.from(rulesPage);
         return Response.ok(PagedInfoList.asJson("validationRules", infos, queryParameters)).build();
     }
 

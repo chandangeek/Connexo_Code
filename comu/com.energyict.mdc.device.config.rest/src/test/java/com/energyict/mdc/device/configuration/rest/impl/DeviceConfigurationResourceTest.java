@@ -11,12 +11,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.google.common.base.Optional;
-import java.util.Arrays;
-import java.util.Collections;
-import javax.inject.Provider;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,11 +18,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.inject.Provider;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
+import java.util.Collections;
+
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyMap;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigurationResourceTest {
@@ -81,7 +80,7 @@ public class DeviceConfigurationResourceTest {
         deviceConfigurationResource = new DeviceConfigurationResource(resourceHelper, deviceConfigurationService, validationService,
                 registerConfigurationResourceProvider, conectionMethodResourceProvider, protocoolDialectResourceProvider,
                 loadProfileConfigurationResourceProvider, securitySetResourceProvider, comTaskEnablementResourceProvider,
-                propertyUtils, thesaurus);
+                thesaurus);
         when(uriInfo.getQueryParameters()).thenReturn(map);
         when(validationService.getValidationRuleSet(RULESET_ID_1)).thenReturn(Optional.of(validationRuleSet1));
         when(validationService.getValidationRuleSet(RULESET_ID_2)).thenReturn(Optional.of(validationRuleSet2));
