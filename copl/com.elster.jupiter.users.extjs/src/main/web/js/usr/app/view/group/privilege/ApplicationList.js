@@ -32,7 +32,7 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                                 break;
                             }
                             case 1:{
-                                text = '<img src="../ext/packages/uni-theme-skyline/build/resources/images/tree/drop-above.png"/>&nbsp;' + record.get('componentName');
+                                text = '<img src="../ext/packages/uni-theme-skyline/build/resources/images/tree/drop-above.png" style="visibility:hidden"/>&nbsp;' + record.get('componentName');
                                 break;
                             }
                             case 2:{
@@ -65,10 +65,12 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                     '->',
                     {
                         text: Uni.I18n.translate('privilege.no.access', 'USM', 'No access'),
+                        icon: '../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-no.png',
                         action: 'privilegesNoAccess'
                     },
                     {
                         text: Uni.I18n.translate('privilege.full.control', 'USM', 'Full control'),
+                        icon: '../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-yes.png',
                         action: 'privilegesFullControl'
                     }
                 ]

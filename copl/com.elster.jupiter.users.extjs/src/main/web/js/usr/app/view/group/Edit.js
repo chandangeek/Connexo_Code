@@ -57,16 +57,27 @@ Ext.define('Usr.view.group.Edit', {
                                 maxWidth: 650
                             },
                             {
-                                xtype: 'applicationList',
-                                itemId: 'applicationList',
-                                height: 300,
-                                margin: '10 0 0 265'
+                                xtype: 'label',
+                                itemId: 'separator',
+                                margin: '0 0 0 265',
+                                html: '<hr>'
                             },
                             {
-                                xtype: 'featureList',
-                                itemId: 'featureList',
-                                height: 300,
-                                margin: '10 0 0 265'
+                                xtype: 'fieldcontainer',
+                                fieldLabel: Uni.I18n.translate('privilege.permissions', 'USM', 'Privileges'),
+                                items: [
+                                    {
+                                        xtype: 'applicationList',
+                                        itemId: 'applicationList',
+                                        maxHeight: 300,
+                                        margin: '-8 0 0 0'
+                                    },
+                                    {
+                                        xtype: 'featureList',
+                                        itemId: 'featureList',
+                                        maxHeight: 300
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'fieldcontainer',

@@ -8,11 +8,13 @@ Ext.define('Usr.view.group.privilege.ApplicationActionMenu', {
     items: [
         {
             text: Uni.I18n.translate('privilege.no.access', 'USM', 'No access'),
+            icon: '../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-no.png',
             itemId: 'privilegeNoAccess',
             action: 'privilegeNoAccess'
         },
         {
             text: Uni.I18n.translate('privilege.full.control', 'USM', 'Full control'),
+            icon: '../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-yes.png',
             itemId: 'privilegeFullControl',
             action: 'privilegeFullControl'
         }

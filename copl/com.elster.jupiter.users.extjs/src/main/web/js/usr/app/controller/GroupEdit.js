@@ -303,6 +303,7 @@ Ext.define('Usr.controller.GroupEdit', {
         menu.add({
             xtype: 'menucheckitem',
             text: Uni.I18n.translate('privilege.noAccess', 'USM', 'No access'),
+            icon: '../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-no.png',
             checked: selected,
             listeners:{
                 checkchange: function(item, checked){
@@ -321,6 +322,7 @@ Ext.define('Usr.controller.GroupEdit', {
         menu.add({
             xtype: 'menucheckitem',
             text: Uni.I18n.translate('privilege.fullControl', 'USM', 'Full control'),
+            icon: '../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-yes.png',
             checked: selected,
             listeners:{
                 checkchange: function(item, checked){
@@ -346,11 +348,22 @@ Ext.define('Usr.controller.GroupEdit', {
                 listeners:{
                     checkchange: function(item, checked){
                         var panel = item.up('menu');
+                        var allChecked = true, allUnchecked = true;
+                        for(var i=1; i<menu.items.length-1; i++){
+                            allChecked &= menu.items.items[i].checked;
+                            allUnchecked &= !menu.items.items[i].checked;
+                        }
                         if(checked){
                             panel.items.items[0].setChecked(false);
+                            if(allChecked){
+                                panel.items.items[panel.items.length-1].setChecked(true);
+                            }
                         }
                         else{
                             panel.items.items[panel.items.length-1].setChecked(false);
+                            if(allUnchecked){
+                                panel.items.items[0].setChecked(true);
+                            }
                         }
                     }
                 }

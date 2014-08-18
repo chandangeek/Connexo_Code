@@ -33,7 +33,7 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                                 return '<img src="../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-yes.png"/>&nbsp;' + name;
                             }
                             else{
-                                return '<img src="../ext/packages/uni-theme-skyline/build/resources/images/tree/drop-above.png"/>&nbsp;' + name;
+                                return '<img src="../ext/packages/uni-theme-skyline/build/resources/images/tree/drop-above.png" style="visibility:hidden"/>&nbsp;' + name;
                             }
                         }
                     }
