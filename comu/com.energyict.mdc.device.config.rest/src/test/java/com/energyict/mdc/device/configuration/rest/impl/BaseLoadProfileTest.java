@@ -20,6 +20,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -37,6 +38,14 @@ import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Currency;
+import java.util.List;
+import java.util.Random;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -44,44 +53,35 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Currency;
-import java.util.List;
-import java.util.Random;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 @Ignore("basic functionality for load profiles")
 public class BaseLoadProfileTest extends JerseyTest {
 
-    protected static MasterDataService masterDataService;
-    protected static DeviceConfigurationService deviceConfigurationService;
-    protected static NlsService nlsService;
-    protected static Thesaurus thesaurus;
+    @Mock
+    protected MasterDataService masterDataService;
+    @Mock
+    protected DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    protected NlsService nlsService;
+    @Mock
+    protected Thesaurus thesaurus;
 
-    private static ProtocolPluggableService protocolPluggableService;
-    private static EngineModelService engineModelService;
-    private static ValidationService validationService;
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        masterDataService = mock(MasterDataService.class);
-        deviceConfigurationService = mock(DeviceConfigurationService.class);
-        nlsService = mock(NlsService.class);
-        thesaurus = mock(Thesaurus.class);
-
-        protocolPluggableService = mock(ProtocolPluggableService.class);
-        engineModelService = mock(EngineModelService.class);
-        validationService = mock(ValidationService.class);
-    }
+    @Mock
+    private ProtocolPluggableService protocolPluggableService;
+    @Mock
+    private EngineModelService engineModelService;
+    @Mock
+    private ValidationService validationService;
+    @Mock
+    private PropertyUtils propertyUtils;
 
     @Override
     @Before
@@ -92,6 +92,7 @@ public class BaseLoadProfileTest extends JerseyTest {
 
     @Override
     protected Application configure() {
+        MockitoAnnotations.initMocks(this);
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
         ResourceConfig resourceConfig = new ResourceConfig(
@@ -113,8 +114,8 @@ public class BaseLoadProfileTest extends JerseyTest {
                 bind(ResourceHelper.class).to(ResourceHelper.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(thesaurus).to(Thesaurus.class);
-
-                bind( protocolPluggableService).to(ProtocolPluggableService.class);
+                bind(PropertyUtils.class).to(PropertyUtils.class);
+                bind(protocolPluggableService).to(ProtocolPluggableService.class);
             }
         });
         return resourceConfig;

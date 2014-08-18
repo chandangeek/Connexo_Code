@@ -26,6 +26,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.Phenomenon;
@@ -59,7 +60,6 @@ import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
-
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -68,12 +68,10 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
-
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
-
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientResponse;
@@ -82,11 +80,12 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -103,29 +102,27 @@ import static org.mockito.Mockito.when;
 
 public class DeviceTypeResourceTest extends JerseyTest {
 
-    private static final String DUMMY_THESAURUS_STRING = "";
-    private static MasterDataService masterDataService;
-    private static DeviceConfigurationService deviceConfigurationService;
-    private static ValidationService validationService;
-    private static ProtocolPluggableService protocolPluggableService;
-    private static NlsService nlsService;
-    private static Thesaurus thesaurus;
-    private static EngineModelService engineModelService;
-    private static DeviceDataService deviceDataService;
-    private static MdcPropertyUtils mdcPropertyUtils;
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        masterDataService = mock(MasterDataService.class);
-        deviceConfigurationService = mock(DeviceConfigurationService.class);
-        validationService = mock(ValidationService.class);
-        protocolPluggableService = mock(ProtocolPluggableService.class);
-        engineModelService = mock(EngineModelService.class);
-        deviceDataService = mock(DeviceDataService.class);
-        nlsService = mock(NlsService.class);
-        thesaurus = mock(Thesaurus.class);
-        mdcPropertyUtils = mock(MdcPropertyUtils.class);
-    }
+    private final String DUMMY_THESAURUS_STRING = "";
+    @Mock
+    private MasterDataService masterDataService;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private ValidationService validationService;
+    @Mock
+    private ProtocolPluggableService protocolPluggableService;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private EngineModelService engineModelService;
+    @Mock
+    private DeviceDataService deviceDataService;
+    @Mock
+    private MdcPropertyUtils mdcPropertyUtils;
+    @Mock
+    private PropertyUtils propertyUtils;
 
     @Override
     @Before
@@ -137,6 +134,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Override
     protected Application configure() {
+        MockitoAnnotations.initMocks(this);
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
         ResourceConfig resourceConfig = new ResourceConfig(
@@ -165,6 +163,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
                 bind(deviceDataService).to(DeviceDataService.class);
                 bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
+                bind(PropertyUtils.class).to(PropertyUtils.class);
             }
         });
         return resourceConfig;

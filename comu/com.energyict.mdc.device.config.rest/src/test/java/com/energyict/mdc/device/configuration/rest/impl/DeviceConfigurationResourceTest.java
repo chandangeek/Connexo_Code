@@ -2,13 +2,21 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.google.common.base.Optional;
+import java.util.Arrays;
+import java.util.Collections;
+import javax.inject.Provider;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,13 +24,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.inject.Provider;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
-import java.util.Arrays;
-import java.util.Collections;
-
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -70,18 +73,21 @@ public class DeviceConfigurationResourceTest {
     private ReadingType readingType1, readingType2;
     @Mock
     private ValidationRule rule1, rule2;
+    @Mock
+    private PropertyUtils propertyUtils;
 
     @Before
     public void setUp() {
         deviceConfigurationResource = new DeviceConfigurationResource(resourceHelper, deviceConfigurationService, validationService,
                 registerConfigurationResourceProvider, conectionMethodResourceProvider, protocoolDialectResourceProvider,
                 loadProfileConfigurationResourceProvider, securitySetResourceProvider, comTaskEnablementResourceProvider,
-                thesaurus);
+                propertyUtils, thesaurus);
         when(uriInfo.getQueryParameters()).thenReturn(map);
         when(validationService.getValidationRuleSet(RULESET_ID_1)).thenReturn(Optional.of(validationRuleSet1));
         when(validationService.getValidationRuleSet(RULESET_ID_2)).thenReturn(Optional.of(validationRuleSet2));
         when(resourceHelper.findDeviceTypeByIdOrThrowException(DEVICE_TYPE_ID)).thenReturn(deviceType);
         when(resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, DEVICE_CONFIGURATION_ID)).thenReturn(deviceConfiguration);
+        when(propertyUtils.convertPropertySpecsToPropertyInfos(anyList(), anyMap())).thenReturn(Collections.<PropertyInfo>emptyList());
     }
 
     @After
