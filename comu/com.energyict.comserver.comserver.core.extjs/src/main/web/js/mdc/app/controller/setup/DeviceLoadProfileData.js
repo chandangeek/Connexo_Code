@@ -69,7 +69,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     loadProfileId: loadProfileId
                 });
                 loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalStart', 1407096000000);
-                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalEnd', 1407099600000);
+                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalEnd', 1407182400000);
                 loadProfilesOfDeviceDataStore.on('load', function () {
                     me.showGraphView(record);
                     graphView.setLoading(false);
