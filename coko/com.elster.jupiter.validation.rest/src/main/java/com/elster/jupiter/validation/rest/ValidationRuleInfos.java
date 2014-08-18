@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -12,14 +11,8 @@ public class ValidationRuleInfos {
 
     public int total;
     public List<ValidationRuleInfo> rules = new ArrayList<ValidationRuleInfo>();
-    
-    private transient PropertyUtils propertyUtils;
 
     ValidationRuleInfos() {
-    }
-    
-    ValidationRuleInfos(PropertyUtils propertyUtils) {
-        this.propertyUtils = propertyUtils;
     }
 
     ValidationRuleInfos(ValidationRule validationRule) {
@@ -27,7 +20,7 @@ public class ValidationRuleInfos {
     }
 
     ValidationRuleInfo add(ValidationRule validationRule) {
-        ValidationRuleInfo result = new ValidationRuleInfo(validationRule, propertyUtils);
+        ValidationRuleInfo result = new ValidationRuleInfo(validationRule);
         rules.add(result);
         total++;
         return result;

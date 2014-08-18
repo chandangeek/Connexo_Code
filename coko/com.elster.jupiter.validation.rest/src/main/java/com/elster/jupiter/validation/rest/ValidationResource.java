@@ -1,32 +1,5 @@
 package com.elster.jupiter.validation.rest;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
@@ -46,16 +19,40 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+
 @Path("/validation")
 public class ValidationResource {
 
     private RestQueryService queryService;
-    private PropertyUtils propertyUtils;
 
     @Inject
-    public ValidationResource(RestQueryService queryService, PropertyUtils propertyUtils) {
+    public ValidationResource(RestQueryService queryService) {
         this.queryService = queryService;
-        this.propertyUtils = propertyUtils;
     }
 
     @GET
@@ -85,7 +82,7 @@ public class ValidationResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         Optional<ValidationRuleSet> optional = Bus.getValidationService().getValidationRuleSet(id);
         if (optional.isPresent()) {
-            ValidationRuleInfos infos = new ValidationRuleInfos(propertyUtils);
+            ValidationRuleInfos infos = new ValidationRuleInfos();
             ValidationRuleSet set = optional.get();
             List<ValidationRule> rules;
             if (params.size() == 0) {
@@ -157,7 +154,7 @@ public class ValidationResource {
     @Path("/rules/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ValidationRuleInfos addRule(@PathParam("id") final long id, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
-        ValidationRuleInfos result = new ValidationRuleInfos(propertyUtils);
+        ValidationRuleInfos result = new ValidationRuleInfos();
         result.add(Bus.getTransactionService().execute(new Transaction<ValidationRule>() {
             public ValidationRule perform() {
                 Optional<ValidationRuleSet> optional = Bus.getValidationService().getValidationRuleSet(id);
@@ -168,6 +165,7 @@ public class ValidationResource {
                     for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
                         rule.addReadingType(readingTypeInfo.mRID);
                     }
+                    PropertyUtils propertyUtils = new PropertyUtils();
                     for (PropertySpec<?> propertySpec : rule.getPropertySpecs()) {
                         Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
                         rule.addProperty(propertySpec.getName(), value);
@@ -184,7 +182,7 @@ public class ValidationResource {
     @Path("/rules/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ValidationRuleInfos editRule(@PathParam("id") final long id, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
-        ValidationRuleInfos result = new ValidationRuleInfos(propertyUtils);
+        ValidationRuleInfos result = new ValidationRuleInfos();
         result.add(Bus.getTransactionService().execute(new Transaction<ValidationRule>() {
             @Override
             public ValidationRule perform() {
@@ -192,9 +190,9 @@ public class ValidationResource {
                 if (!ruleSetOptional.isPresent()) {
                     throw new WebApplicationException(Response.Status.NOT_FOUND);
                 }
-                
+
                 ValidationRuleSet ruleSet = ruleSetOptional.get();
-                
+
                 Optional<? extends ValidationRule> ruleOptional = Iterables.tryFind(ruleSet.getRules(), new Predicate<ValidationRule>() {
                     @Override
                     public boolean apply(ValidationRule input) {
@@ -204,7 +202,7 @@ public class ValidationResource {
                 if (!ruleOptional.isPresent()) {
                     throw new WebApplicationException(Response.Status.NOT_FOUND);
                 }
-                
+
                 ValidationRule rule = ruleOptional.get();
 
                 List<String> mRIDs = new ArrayList<>();
@@ -212,6 +210,7 @@ public class ValidationResource {
                     mRIDs.add(readingTypeInfo.mRID);
                 }
                 Map<String, Object> propertyMap = new HashMap<>();
+                PropertyUtils propertyUtils = new PropertyUtils();
                 for (PropertySpec propertySpec : rule.getPropertySpecs()) {
                     Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
                     if (value != null) {
@@ -303,6 +302,7 @@ public class ValidationResource {
         ValidatorInfos infos = new ValidatorInfos();
         List<Validator> toAdd = Bus.getValidationService().getAvailableValidators();
         Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
+        PropertyUtils propertyUtils = new PropertyUtils();
         for (Validator validator : toAdd) {
             infos.add(validator.getClass().getName(), validator.getDisplayName(), propertyUtils.convertPropertySpecsToPropertyInfos(validator.getPropertySpecs()));
         }
