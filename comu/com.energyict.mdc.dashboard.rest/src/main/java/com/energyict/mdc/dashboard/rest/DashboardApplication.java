@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.dashboard.DashboardService;
