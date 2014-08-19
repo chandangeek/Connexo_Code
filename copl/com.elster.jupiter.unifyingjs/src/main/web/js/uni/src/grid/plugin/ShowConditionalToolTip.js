@@ -13,16 +13,19 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
      * @private
      */
     init: function (grid) {
-        grid.on('refresh', this.setTooltip);
-        grid.on('resize', this.setTooltip);
-        grid.on('beforedestroy', this.destroyTooltips, this, {single: true});
+        var gridView = grid.getView();
+
+        gridView.on('refresh', this.setTooltip);
+        gridView.on('resize', this.setTooltip);
+        gridView.on('beforerefresh', this.destroyTooltips);
+        gridView.on('beforedestroy', this.destroyTooltips, this, {single: true});
     },
 
     /**
      * @private
      */
     setTooltip: function (grid) {
-        Ext.Array.each(grid.columns, function (column) {
+        Ext.Array.each(grid.up('gridpanel').columns, function (column) {
             if (column.$className === 'Ext.grid.column.Column') {
                 Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + column.id), function (item) {
                     var cell = Ext.get(item),
@@ -46,8 +49,6 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
      * @private
      */
     destroyTooltips: function (grid) {
-        grid.un('refresh', this.setTooltip);
-        grid.un('resize', this.setTooltip);
         Ext.Array.each(grid.getEl().query('.x-grid-cell'), function (item) {
             var cell = Ext.get(item);
 
