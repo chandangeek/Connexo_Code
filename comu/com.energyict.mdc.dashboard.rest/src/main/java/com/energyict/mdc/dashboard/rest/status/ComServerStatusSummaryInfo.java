@@ -14,8 +14,4 @@ public class ComServerStatusSummaryInfo {
 
     public List<ComServerStatusInfo> comServerStatusInfos = new ArrayList<>();
 
-    public void add(ComServerStatusInfo comServerStatusInfo) {
-        this.comServerStatusInfos.add(comServerStatusInfo);
-    }
-
 }

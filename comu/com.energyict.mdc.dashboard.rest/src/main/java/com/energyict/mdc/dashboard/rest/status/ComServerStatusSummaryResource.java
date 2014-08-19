@@ -87,7 +87,7 @@ public class ComServerStatusSummaryResource {
 //                    property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_USERNAME, "admin").
 //                    property(HttpAuthenticationFeature.HTTP_AUTHENTICATION_BASIC_PASSWORD, "admin").
                     get(ComServerStatusInfo.class);
-            statusSummaryInfo.add(comServerStatusInfo);
+            statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfo);
         }
         catch (ClientErrorException | ProcessingException e) {
             /* Occurrence of ProcessingException was established when debugging the situation
@@ -102,8 +102,8 @@ public class ComServerStatusSummaryResource {
             statusInfo.comServerType = comServerType;
             statusInfo.blocked = false;
             statusInfo.running = false;
-            statusSummaryInfo.add(statusInfo);
-         }
+            statusSummaryInfo.comServerStatusInfos.add(statusInfo);
+        }
     }
 
     private List<OnlineComServer> findAllOnlineComServers() {

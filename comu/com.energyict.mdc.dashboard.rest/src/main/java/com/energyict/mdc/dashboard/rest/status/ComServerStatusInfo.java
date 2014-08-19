@@ -4,10 +4,6 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * Represents the status of a ComServer in the REST layer.
  *
@@ -17,6 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ComServerStatusInfo {
 
     public String comServerName;
+    public long comServerId;
     public ComServerType comServerType;
     public boolean running;
     public boolean blocked;
@@ -29,6 +26,7 @@ public class ComServerStatusInfo {
     public ComServerStatusInfo(ComServerStatus status) {
         super();
         this.comServerName = status.getComServerName();
+        this.comServerId=status.getComServerId();
         this.comServerType = status.getComServerType();
         this.running = status.isRunning();
         this.blocked = status.isBlocked();
