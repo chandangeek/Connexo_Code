@@ -8,12 +8,12 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * Validates the {@link ComPortPoolIsCompatibleWithConnectionType} constraint against a {@link ConnectionMethodImpl}.
+ * Validates the {@link ComPortPoolIsCompatibleWithConnectionType} constraint against a {@link ConnectionTaskImpl}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-10 (16:14)
  */
-public class ComPortPoolIsCompatibleWithConnectionTypeValidator implements ConstraintValidator<ComPortPoolIsCompatibleWithConnectionType, ConnectionMethodImpl> {
+public class ComPortPoolIsCompatibleWithConnectionTypeValidator implements ConstraintValidator<ComPortPoolIsCompatibleWithConnectionType, ConnectionTaskImpl> {
 
     @Override
     public void initialize(ComPortPoolIsCompatibleWithConnectionType constraintAnnotation) {
@@ -21,11 +21,11 @@ public class ComPortPoolIsCompatibleWithConnectionTypeValidator implements Const
     }
 
     @Override
-    public boolean isValid(ConnectionMethodImpl connectionMethod, ConstraintValidatorContext context) {
-        ConnectionType connectionType = connectionMethod.getPluggableClass().getConnectionType();
+    public boolean isValid(ConnectionTaskImpl connectionTask, ConstraintValidatorContext context) {
+        ConnectionType connectionType = connectionTask.getPluggableClass().getConnectionType();
         // No ComPortPool is validated by another annotation but not sure in which order they are executed
-        if (connectionMethod.hasComPortPool()) {
-            ComPortPool comPortPool = connectionMethod.getComPortPool();
+        if (connectionTask.hasComPortPool()) {
+            ComPortPool comPortPool = connectionTask.getComPortPool();
             if (!connectionType.getSupportedComPortTypes().contains(comPortPool.getComPortType())) {
                 context.disableDefaultConstraintViolation();
                 context

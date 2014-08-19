@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -16,20 +13,21 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.util.time.Interval;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Ignore;
-import org.junit.Test;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -81,7 +79,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED_KEY + "}")
     public void createCreateWithoutPool() {
         // Business method
         this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask, null);
@@ -592,7 +590,6 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testDeleteWithProperties() {
         InboundConnectionTaskImpl connectionTask = this.createInboundWithIpPropertiesWithoutViolations();
         long id = connectionTask.getId();
-        RelationParticipant ipConnectionMethod = (RelationParticipant) connectionTask.getConnectionMethod();
 
         // Business method
         connectionTask.delete();
@@ -600,8 +597,8 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertFalse(inMemoryPersistence.getDeviceDataService().findConnectionTask(id).isPresent());
         RelationAttributeType connectionMethodAttributeType = inboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
-        assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete
     }
 
     @Test
@@ -620,8 +617,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsoleteAlsoMakesRelationsObsolete() {
-        InboundConnectionTaskImpl connectionTask = (InboundConnectionTaskImpl) this.createInboundWithIpPropertiesWithoutViolations();
-        RelationParticipant ipConnectionMethod = (RelationParticipant) connectionTask.getConnectionMethod();
+        InboundConnectionTaskImpl connectionTask = this.createInboundWithIpPropertiesWithoutViolations();
 
         // Business method
         connectionTask.makeObsolete();
@@ -629,10 +625,9 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertTrue(connectionTask.isObsolete());
         assertNotNull(connectionTask.getObsoleteDate());
-        assertNotNull(connectionTask.getConnectionMethod());
         RelationAttributeType connectionMethodAttributeType = inboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
-        assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).hasSize(1);
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).hasSize(1);
     }
 
     @Test

@@ -3,10 +3,10 @@ package com.energyict.mdc.device.data.tasks;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.TemporalExpression;
+
 import java.util.Date;
 import java.util.List;
 
@@ -30,9 +30,6 @@ import java.util.List;
  * then the frequency of establishing the connection is not used
  * but the frequency settings will be taken from the {@link ComTaskExecution}s
  * that are found on the related devices.
- * <p/>
- * It supports only one {@link ConnectionMethod}s and will keep track
- * of the values of the related {@link ConnectionTaskProperty ConnectionTaskProperties}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (16:40)

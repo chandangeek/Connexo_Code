@@ -32,12 +32,9 @@ public class TimedOutTasksSqlBuilder {
     public static void appendTimedOutComTaskExecutionSql(SqlBuilder sqlBuilder, ComPortPool comPortPool, long now, int timeOutSeconds) {
         sqlBuilder.append("SELECT cte.id FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " cte, ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct, ");
-        sqlBuilder.append(TableSpecs.DDC_CONNECTIONMETHOD.name());
-        sqlBuilder.append(" cm ");
+        sqlBuilder.append(" ct ");
         sqlBuilder.append(" WHERE cte.connectiontask = ct.id");
-        sqlBuilder.append("   AND ct.connectionmethod = cm.id");
-        sqlBuilder.append("   AND cm.comportpool = ");
+        sqlBuilder.append("   AND ct.comportpool = ");
         sqlBuilder.addLong(comPortPool.getId());
         sqlBuilder.append("   AND cte.executionStart + ");
         sqlBuilder.addInt(timeOutSeconds);

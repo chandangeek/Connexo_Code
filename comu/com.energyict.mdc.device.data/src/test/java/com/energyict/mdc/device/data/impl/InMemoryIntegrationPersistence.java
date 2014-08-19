@@ -41,12 +41,11 @@ import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.impl.finders.ConnectionMethodFinder;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
@@ -214,7 +213,7 @@ public class InMemoryIntegrationPersistence {
             @Override
             public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
                 List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-                finders.add(new ConnectionMethodFinder(dataModel));
+                finders.add(new ConnectionTaskFinder(dataModel));
                 finders.add(new ProtocolDialectPropertiesFinder(dataModel));
                 return finders;
             }

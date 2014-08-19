@@ -7,10 +7,12 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -30,8 +32,8 @@ import java.util.List;
 public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<PartialConnectionInitiationTask> implements ConnectionInitiationTask {
 
     @Inject
-    protected ConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
-        super(dataModel, eventService, thesaurus, clock, deviceDataService, connectionMethodProvider);
+    protected ConnectionInitiationTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService, RelationService relationService) {
+        super(dataModel, eventService, thesaurus, clock, deviceDataService, protocolPluggableService, relationService);
     }
 
     @Override

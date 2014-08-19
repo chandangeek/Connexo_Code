@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
@@ -11,21 +12,36 @@ import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCann
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
+import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.DeleteEventType;
 import com.energyict.mdc.device.data.impl.PersistentIdObject;
+import com.energyict.mdc.device.data.impl.PropertyCache;
+import com.energyict.mdc.device.data.impl.PropertyFactory;
+import com.energyict.mdc.device.data.impl.RelationTransactionExecutor;
+import com.energyict.mdc.device.data.impl.SimpleRelationTransactionExecutor;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
+import com.energyict.mdc.dynamic.relation.CanLock;
+import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
 import com.energyict.mdc.dynamic.relation.Relation;
+import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -35,16 +51,17 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
-import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,6 +70,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static com.elster.jupiter.util.Checks.is;
+import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_TASK_ATTRIBUTE_NAME;
 
 /**
  * Provides an implementation for the {@link ConnectionTask} interface.
@@ -62,9 +80,16 @@ import static com.elster.jupiter.util.Checks.is;
  */
 @XmlRootElement
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
+@ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
         extends PersistentIdObject<ConnectionTask>
-        implements ConnectionTask<CPPT, PCTT>, PersistenceAware {
+        implements
+            ConnectionTask<CPPT, PCTT>,
+            ConnectionTaskPropertyProvider,
+            CanLock,
+            DefaultRelationParticipant,
+            PropertyFactory<ConnectionType, ConnectionTaskProperty>,
+            PersistenceAware {
 
     public static final String INITIATOR_DISCRIMINATOR = "0";
     public static final String INBOUND_DISCRIMINATOR = "1";
@@ -85,25 +110,29 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Date obsoleteDate;
     private Date lastCommunicationStart;
     private Date lastSuccessfulCommunicationEnd;
-    private Reference<ConnectionMethod> connectionMethod = ValueReference.absent();
-    // Redundant copy of the ConnectionMethod's com port pool for query purposes to avoid extra join
-    // Need the validator to combine the validations for the frontend
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+    private transient PropertyCache<ConnectionType, ConnectionTaskProperty> cache;
+    private long pluggableClassId;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
+    private ConnectionTypePluggableClass pluggableClass;
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED_KEY + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Date modificationDate;
 
     private final Clock clock;
     private final DeviceDataService deviceDataService;
+    private final ProtocolPluggableService protocolPluggableService;
+    private final RelationService relationService;
 
-    private Provider<ConnectionMethodImpl> connectionMethodProvider;
     private boolean allowIncomplete = true;
 
-    protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
+    protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService, RelationService relationService) {
         super(ConnectionTask.class, dataModel, eventService, thesaurus);
+        this.cache = new PropertyCache<>(this);
         this.clock = clock;
         this.deviceDataService = deviceDataService;
-        this.connectionMethodProvider = connectionMethodProvider;
+        this.protocolPluggableService = protocolPluggableService;
+        this.relationService = relationService;
     }
 
     public void initialize(Device device, PCTT partialConnectionTask, CPPT comPortPool) {
@@ -114,15 +143,18 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.validateConstraint(partialConnectionTask, device);
         this.validateSameConfiguration(partialConnectionTask, device);
         this.partialConnectionTask.set(partialConnectionTask);
+        this.pluggableClass = partialConnectionTask.getPluggableClass();
+        this.pluggableClassId = this.pluggableClass.getId();
         this.comPortPool.set(comPortPool);
-        this.connectionMethod.set(this.connectionMethodProvider.get().initialize(this, partialConnectionTask.getPluggableClass(), comPortPool));
+    }
+
+    @Override
+    public void lock() {
+        this.getDataMapper().lock(this.getId());
     }
 
     @Override
     public void postLoad() {
-        if (this.connectionMethod.isPresent()) {
-            ((ConnectionMethodImpl) getConnectionMethod()).postLoaded(this);
-        }
         this.allowIncomplete = this.status.equals(ConnectionTaskLifecycleStatus.INCOMPLETE);
     }
 
@@ -185,11 +217,17 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     protected void doDelete() {
-        if (this.getConnectionMethod() != null) {
-            this.getConnectionMethod().delete(); // this will delete all the relationProperties as well
-        }
+        this.deleteAllProperties();
         this.deleteDependents();
         this.getDataMapper().remove(this);
+    }
+
+    /**
+     * Deletes the {@link Relation}s that hold the values of
+     * all the {@link com.energyict.mdc.pluggable.PluggableClass properties}.
+     */
+    private void deleteAllProperties() {
+        this.obsoleteAllProperties();
     }
 
     protected void deleteDependents() {
@@ -215,18 +253,49 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.validateNotObsolete();
         this.modificationDate = this.now();
 
-        /**
-         * Need to validate the ConnectionTask FIRST, then save the ConnectionMethod, then save the ConnectionTask ...
-         */
-        if(getId() == 0){
-            Save.CREATE.validate(this.getDataModel(), this);
-        } else {
-            Save.UPDATE.validate(this.getDataModel(), this);
-        }
-
-        this.getConnectionMethod().save();
         super.save();
-        this.getConnectionMethod().saveAllProperties();
+        this.saveAllProperties();
+    }
+
+    protected void saveAllProperties () {
+        if (this.cache.isDirty()) {
+            if (this.getTypedProperties().localSize() == 0) {
+                this.removeAllProperties();
+            }
+            else {
+                this.saveAllProperties(
+                        this.getAllProperties(),
+                        new SimpleRelationTransactionExecutor<ConnectionType>(
+                                this,
+                                this.clock.now(),
+                                this.findRelationType(),
+                                this.getThesaurus()));
+            }
+        }
+    }
+
+    protected void removeAllProperties() {
+        Relation relation = getDefaultRelation();
+        if (relation != null) {
+            try {
+                relation.makeObsolete();
+            }
+            catch (BusinessException e) {
+                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName());
+            }
+            // Cannot collapse catch blocks because of the constructor
+            catch (SQLException e) {
+                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName());
+            }
+        }
+    }
+
+    private void saveAllProperties(List<ConnectionTaskProperty> properties, RelationTransactionExecutor<ConnectionType> transactionExecutor) {
+        for (ConnectionTaskProperty property : properties) {
+            transactionExecutor.add(property);
+        }
+        transactionExecutor.execute();
+        this.clearPropertyCache();
     }
 
     protected Date now() {
@@ -268,9 +337,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      * all the {@link ConnectionTaskProperty ConnectionTaskProperties} obsolete.
      */
     protected void obsoleteAllProperties() {
-        // The ConnectionTaskProperties are actually stored on the ConnectionMethod
-        if (getConnectionMethod() != null) {
-            getConnectionMethod().makeObsolete();
+        List<Relation> relations = this.getPluggableClass().getRelations(this, new Interval(null, null));
+        for (Relation relation : relations) {
+            try {
+                relation.makeObsolete();
+            }
+            catch (BusinessException | SQLException e) {
+                throw new RelationIsAlreadyObsoleteException(this.getThesaurus(), relation.getRelationType().getName());
+            }
         }
     }
 
@@ -347,6 +421,216 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.device = this.findDevice(this.deviceId);
     }
 
+    public ConnectionTypePluggableClass getPluggableClass() {
+        if (this.pluggableClass == null) {
+            this.loadPluggableClass();
+        }
+        return pluggableClass;
+    }
+
+    private void loadPluggableClass() {
+        this.pluggableClass = this.findConnectionTypePluggableClass(this.pluggableClassId);
+    }
+
+    private RelationType findRelationType() {
+        return this.getPluggableClass().findRelationType();
+    }
+
+    private ConnectionTypePluggableClass findConnectionTypePluggableClass(long connectionTypePluggableClassId) {
+        return this.protocolPluggableService.findConnectionTypePluggableClass(connectionTypePluggableClassId);
+    }
+
+    private List<PropertySpec> getPluggablePropetySpecs() {
+        return this.getPluggableClass().getConnectionType().getPropertySpecs();
+    }
+
+    @Override
+    public Relation getDefaultRelation() {
+        return this.getDefaultRelation(this.clock.now());
+    }
+
+    @Override
+    public Relation getDefaultRelation(Date date) {
+        return this.getPluggableClass().getRelation(this, date);
+    }
+
+    @Override
+    public RelationAttributeType getDefaultAttributeType() {
+        return this.getPluggableClass().getDefaultAttributeType();
+    }
+
+    @Override
+    public RelationType getDefaultRelationType() {
+        return this.getPluggableClass().findRelationType();
+    }
+
+    private void clearPropertyCache() {
+        this.cache.clear();
+    }
+
+    public List<ConnectionTaskProperty> getAllProperties() {
+        return this.getAllProperties(this.clock.now());
+    }
+
+    public List<ConnectionTaskProperty> getAllProperties(Date date) {
+        return this.getAllLocalProperties(date);
+    }
+
+    private List<ConnectionTaskProperty> getAllLocalProperties(Date date) {
+        return this.cache.get(date);
+    }
+
+    @Override
+    public List<ConnectionTaskProperty> loadProperties(Date date) {
+        Relation defaultRelation = this.getDefaultRelation(date);
+        /* defaultRelation is null when the pluggable class has no properties.
+         * In that case, no relation type was created. */
+        if (defaultRelation != null) {
+            return this.toProperties(defaultRelation);
+        }
+        else {
+            return new ArrayList<>(0);
+        }
+    }
+
+    @Override
+    public List<ConnectionTaskProperty> loadProperties(Interval interval) {
+        List<ConnectionTaskProperty> properties = new ArrayList<>();
+        RelationAttributeType defaultAttributeType = this.getDefaultAttributeType();
+        /* defaultAttributeType is null when the pluggable class has no properties.
+         * In that case, no relation type was created. */
+        if (defaultAttributeType != null) {
+            List<Relation> relations = this.getRelations(defaultAttributeType, interval, false);
+            for (Relation relation : relations) {
+                properties.addAll(this.toProperties(relation));
+            }
+        }
+        return properties;
+    }
+
+    public ConnectionTaskProperty getProperty(String propertyName) {
+        for (ConnectionTaskProperty property : this.getAllProperties()) {
+            if (property.getName().equals(propertyName)) {
+                return property;
+            }
+        }
+        return null;
+    }
+
+    protected List<ConnectionTaskProperty> toProperties(Relation relation) {
+        List<ConnectionTaskProperty> properties = new ArrayList<>();
+        for (RelationAttributeType attributeType : relation.getRelationType().getAttributeTypes()) {
+            if (!isDefaultAttribute(attributeType) && this.attributeHasValue(relation, attributeType)) {
+                properties.add(this.newPropertyFor(relation, attributeType));
+            }
+        }
+        return properties;
+    }
+
+    private boolean attributeHasValue(Relation relation, RelationAttributeType attributeType) {
+        return relation.get(attributeType) != null;
+    }
+
+    private boolean isDefaultAttribute(RelationAttributeType attributeType) {
+        return this.getDefaultAttributeName().equals(attributeType.getName());
+    }
+
+    private String getDefaultAttributeName() {
+        return CONNECTION_TASK_ATTRIBUTE_NAME;
+    }
+
+    private ConnectionTaskProperty newPropertyFor(Relation relation, RelationAttributeType attributeType) {
+        return new ConnectionTaskPropertyImpl(relation, attributeType.getName(), this.getPluggableClass());
+    }
+
+    private ConnectionTaskProperty newInheritedPropertyFor(String propertyName, Object propertyValue) {
+        return new ConnectionTaskPropertyImpl(propertyName, propertyValue, this.always(), this.getPluggableClass());
+    }
+
+    @Override
+    public ConnectionTaskProperty newProperty(String name, Object value, Date activeDate) {
+        ConnectionTaskPropertyImpl property = new ConnectionTaskPropertyImpl(name);
+        property.setValue(value);
+        property.setActivePeriod(new Interval(activeDate, null));
+        return property;
+    }
+
+    @Override
+    public void setProperty(String propertyName, Object value) {
+        Date now = this.clock.now();
+        this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
+        this.cache.put(now, propertyName, value);
+    }
+
+    @Override
+    public void removeProperty(String propertyName) {
+        Date now = this.clock.now();
+        this.getAllProperties(now); // Make sure the cache is loaded to avoid that writing to the cache is reverted when the client will call getTypedProperties right after this call
+        this.cache.remove(now, propertyName);
+    }
+
+    @Override
+    public Object get(String propertyName, Date date) {
+        PluggableClassWithRelationSupport pluggableClass = this.getPluggableClass();
+        if (pluggableClass.findRelationType().hasAttribute(propertyName)) {
+            // Should in fact be at most one since this is the default relation
+            Relation relation = this.getDefaultRelation(date);
+            if (relation == null) {
+                // No relation active on the specified Date, therefore no value
+                return null;
+            } else {
+                return relation.get(propertyName);
+            }
+        }
+        // Either no properties configured on the PluggableClass or not one of my properties
+        return null;
+    }
+
+    @Override
+    public Object get(String attributeName) {
+        return this.get(attributeName, this.clock.now());
+    }
+
+    @Override
+    public Object get(RelationAttributeType attributeType, Date date) {
+        return this.get(attributeType.getName(), date);
+    }
+
+    @Override
+    public Object get(RelationAttributeType attributeType) {
+        return this.get(attributeType, this.clock.now());
+    }
+
+    @Override
+    public List<RelationType> getAvailableRelationTypes() {
+        return this.relationService.findRelationTypesByParticipant(this);
+    }
+
+    @Override
+    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete) {
+        return attrib.getRelations(this, date, includeObsolete, 0, 0);
+    }
+
+    @Override
+    public List<Relation> getRelations(RelationAttributeType attrib, Date date, boolean includeObsolete, int fromRow, int toRow) {
+        return attrib.getRelations(this, date, includeObsolete, fromRow, toRow);
+    }
+
+    @Override
+    public List<Relation> getAllRelations(RelationAttributeType attrib) {
+        return attrib.getAllRelations(this);
+    }
+
+    @Override
+    public List<Relation> getRelations(RelationAttributeType defaultAttribute, Interval period, boolean includeObsolete) {
+        return defaultAttribute.getRelations(this, period, includeObsolete);
+    }
+
+    @Override
+    public boolean allowsSimultaneousConnections() {
+        return this.getPluggableClass().getConnectionType().allowsSimultaneousConnections();
+    }
+
     @Override
     public CPPT getComPortPool() {
         return this.comPortPool.orNull();
@@ -355,7 +639,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public void setComPortPool(CPPT comPortPool) {
         this.comPortPool.set(comPortPool);
-        this.getConnectionMethod().setComPortPool(comPortPool);
+    }
+
+    @Override
+    public boolean hasComPortPool() {
+        return this.comPortPool.isPresent();
     }
 
     @Override
@@ -485,11 +773,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                             this.getPartialConnectionTask().getPluggableClass())
             );
         }
-        if (this.getConnectionMethod() != null) {
-            return this.merge(allProperties, this.getConnectionMethod().getAllProperties(date));
-        } else {
-            return allProperties;
-        }
+        return this.merge(allProperties, this.getAllProperties(date));
     }
 
     private List<ConnectionTaskProperty> merge(List<ConnectionTaskProperty> inheritedProperties, List<ConnectionTaskProperty> localProperties) {
@@ -515,7 +799,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public TypedProperties getTypedProperties() {
         TypedProperties inheritedProperties = this.getPartialConnectionTask().getTypedProperties();
         TypedProperties typedProperties = TypedProperties.inheritingFrom(inheritedProperties);
-        for (ConnectionTaskProperty property : this.getConnectionMethod().getAllProperties(this.now())) {
+        for (ConnectionTaskProperty property : this.getAllProperties(this.now())) {
             if (property.isInherited()) {
                 if (!inheritedProperties.hasValueFor(property.getName())) {
                     inheritedProperties.setProperty(property.getName(), property.getValue());
@@ -533,18 +817,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             connectionProperties.add(property);
         }
         return connectionProperties;
-    }
-
-    @Override
-    public void setProperty(String propertyName, Object value) {
-        // Properties are acutally persisted on the ConnectionMethod
-        this.getConnectionMethod().setProperty(propertyName, value);
-    }
-
-    @Override
-    public void removeProperty(String propertyName) {
-        // Properties are acutally persisted on the ConnectionMethod
-        this.getConnectionMethod().removeProperty(propertyName);
     }
 
     @Override
@@ -568,11 +840,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         if (device == null) {
             loadDevice();
         }
+        if (this.pluggableClass == null) {
+            this.loadPluggableClass();
+        }
         super.post();
-    }
-
-    public ConnectionMethod getConnectionMethod() {
-        return connectionMethod.get();
     }
 
     @Override
@@ -601,7 +872,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     @XmlElement
     public ConnectionType getConnectionType() {
-        return getConnectionMethod().getPluggableClass().getConnectionType();
+        return this.getPluggableClass().getConnectionType();
     }
 
     @Override
@@ -631,4 +902,5 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     void setStatus(ConnectionTaskLifecycleStatus status) {
         this.status = status;
     }
+
 }

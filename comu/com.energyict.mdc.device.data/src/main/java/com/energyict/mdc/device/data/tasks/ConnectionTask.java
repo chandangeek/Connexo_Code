@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.pluggable.PluggableClassUsage;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
@@ -46,7 +47,11 @@ import java.util.List;
  * @since 2012-04-11 (09:59)
  */
 public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialConnectionTask>
-       extends ConnectionTaskPropertyProvider, ConnectionTaskExecutionAspects, HasId {
+       extends
+            ConnectionTaskPropertyProvider,
+            PluggableClassUsage<ConnectionType, ConnectionTypePluggableClass, ConnectionTaskProperty>,
+            ConnectionTaskExecutionAspects,
+            HasId {
 
     public enum Type {
         /**
@@ -236,6 +241,15 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
     public boolean isDefault ();
 
     /**
+     * Returns if the {@link ConnectionType} allows simultaneous
+     * connections to be created or not.
+     *
+     * @return <code>true</code> iff the ConnectionType allows simultaneous connections
+     * @see ConnectionType#allowsSimultaneousConnections()
+     */
+    public boolean allowsSimultaneousConnections ();
+
+    /**
      * Gets the ComPortPool from which a {@link com.energyict.mdc.engine.model.ComPort} will
      * be pulled when a connection needs to be established for an outbound task
      * or the ComPortPool that contains the ComPorts that will be used by
@@ -246,6 +260,13 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
     public CPPT getComPortPool ();
 
     public void setComPortPool (CPPT comPortPool);
+
+    /**
+     * Tests if this ConnectionTask has a {@link ComPortPool}.
+     *
+     * @return A flag that indicates if this ConnectionTask has a ComPortPool
+     */
+    public boolean hasComPortPool();
 
     /**
      * Keeps track of the last time a connection was started for this ConnectionTask.

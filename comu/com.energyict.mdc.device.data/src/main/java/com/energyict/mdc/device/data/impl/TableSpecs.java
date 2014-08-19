@@ -10,8 +10,6 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionMethodImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionJournalEntryImpl;
@@ -197,20 +195,6 @@ public enum TableSpecs {
         }
     },
 
-    DDC_CONNECTIONMETHOD {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<ConnectionMethod> table = dataModel.addTable(name(), ConnectionMethod.class);
-            table.map(ConnectionMethodImpl.class);
-            Column id = table.addAutoIdColumn();
-            Column connectionTypePluggableClass = table.column("CONNECTIONTYPEPLUGGABLECLASS").number().conversion(NUMBER2LONG).map("pluggableClassId").notNull().add();
-            Column comPortPool = table.column("COMPORTPOOL").number().notNull().add();
-            table.foreignKey("FK_DDC_CONNECTIONMETHOD_CLASS").on(connectionTypePluggableClass).references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").map("pluggableClass").add();
-            table.foreignKey("FK_DDC_CONNECTIONMETHOD_CPP").on(comPortPool).references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").map("comPortPool").add();
-            table.primaryKey("PK_DDC_CONNECTIONMETHOD").on(id).add();
-        }
-    },
-
     DDC_CONNECTIONTASK {
         @Override
         public void addTo(DataModel dataModel) {
@@ -220,7 +204,7 @@ public enum TableSpecs {
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             // Common columns
             table.column("DEVICE").number().conversion(NUMBER2LONG).map(ConnectionTaskFields.DEVICE.fieldName()).add();
-            Column connectionMethod = table.column("CONNECTIONMETHOD").number().add();
+            Column connectionTypePluggableClass = table.column("CONNECTIONTYPEPLUGGABLECLASS").number().conversion(NUMBER2LONG).map("pluggableClassId").notNull().add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map(ConnectionTaskFields.MODIFICATION_DATE.fieldName()).add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).add();
             table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.IS_DEFAULT.fieldName()).add();
@@ -246,11 +230,10 @@ public enum TableSpecs {
             // InboundConnectionTaskImpl columns: none at this moment
             // ConnectionInitiationTaskImpl columns: none at this moment
             table.primaryKey("PK_DDC_CONNECTIONTASK").on(id).add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_METHOD").
-                    on(connectionMethod).
-                    references(DDC_CONNECTIONMETHOD.name()).
-                    map("connectionMethod").
-                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_CLASS").
+                    on(connectionTypePluggableClass).
+                    references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").
+                    map("pluggableClass").add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_CPP").
                     on(comPortPool).
                     references(EngineModelService.COMPONENT_NAME, "MDC_COMPORTPOOL").

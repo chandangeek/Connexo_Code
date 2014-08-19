@@ -20,9 +20,8 @@ public enum MessageSeeds implements MessageSeed {
     CODING_NO_PROPERTIES_EXPECTED(1002, "noAttributesExpected", "Was not expecting a value to be added for property ''{0}'' because the pluggable does not have any properties", Level.SEVERE),
     UNEXPECTED_RELATION_TRANSACTION_ERROR(1003, "unExpectedRelationTransactionError", "Unexpected problem occurred in the relation transaction framework", Level.SEVERE),
     COMPORT_TYPE_NOT_SUPPORTED(1004, Keys.COMPORT_TYPE_NOT_SUPPORTED_KEY, "The communication port type of the communication port pool must be supported by the connection type", Level.SEVERE),
-    CONNECTION_METHOD_ALREADY_EXISTS(1005, "connectionMethod.duplicateNameX", "A connection method with name '{0}' already exists", Level.SEVERE),
-    CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED(1006, Keys.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY, "A connection method requires a connection type pluggable class", Level.SEVERE),
-    CONNECTION_METHOD_COMPORT_POOL_REQUIRED(1007, Keys.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY, "A connection method requires a communication port pool", Level.SEVERE),
+    CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED(1006, Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED_KEY, "A connection task requires a connection type pluggable class", Level.SEVERE),
+    CONNECTION_TASK_COMPORT_POOL_REQUIRED(1007, Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED_KEY, "A connection task requires a communication port pool", Level.SEVERE),
     MRID_IS_REQUIRED(1008, Keys.MRID_REQUIRED_KEY, "The MRID is required", Level.SEVERE),
     DEVICE_TYPE_IS_REQUIRED(1009, Keys.DEVICE_TYPE_REQUIRED_KEY, "The device type is required", Level.SEVERE),
     DEVICE_CONFIGURATION_IS_REQUIRED(1010, Keys.DEVICE_CONFIGURATION_REQUIRED_KEY, "The device configuration is required", Level.SEVERE),
@@ -129,8 +128,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE_KEY = "connectionTask.isExecutingAndCannotObsolete";
         public static final String DEFAULT_CONNECTION_TASK_IS_IN_USE_AND_CANNOT_OBSOLETE_KEY = "defaultConnectionTask.isInUseAndCannotObsolete";
         public static final String CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE_KEY = "connectionTask.isObsoleteAndCannotUpdate";
-        public static final String CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY = "connectionMethod.pluggableClass.required";
-        public static final String CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY = "connectionMethod.comPortPool.required";
+        public static final String CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED_KEY = "connectionTask.pluggableClass.required";
+        public static final String CONNECTION_TASK_COMPORT_POOL_REQUIRED_KEY = "connectionTask.comPortPool.required";
         public static final String CONNECTION_TASK_INVALID_PROPERTY_KEY = "connectionTask.property.invalid";
         public static final String CONNECTION_TASK_PROPERTY_NOT_IN_SPEC_KEY = "connectionTaskPropertyXIsNotInConnectionTypeSpec";
         public static final String CONNECTION_TASK_PROPERTY_INVALID_VALUE_KEY = "connectionTaskProperty.value.invalid";

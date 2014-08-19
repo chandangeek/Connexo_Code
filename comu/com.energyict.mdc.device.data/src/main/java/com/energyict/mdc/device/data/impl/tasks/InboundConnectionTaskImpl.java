@@ -6,7 +6,9 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -15,7 +17,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 /**
  * Provides an implementation for the {@link InboundConnectionTask} interface.
@@ -28,8 +29,8 @@ import javax.inject.Provider;
 public class InboundConnectionTaskImpl extends ConnectionTaskImpl<PartialInboundConnectionTask, InboundComPortPool> implements InboundConnectionTask {
 
     @Inject
-    protected InboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
-        super(dataModel, eventService, thesaurus, clock, deviceDataService, connectionMethodProvider);
+    protected InboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService, RelationService relationService) {
+        super(dataModel, eventService, thesaurus, clock, deviceDataService, protocolPluggableService, relationService);
     }
 
     @Override

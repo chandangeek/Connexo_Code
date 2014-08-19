@@ -56,7 +56,7 @@ public class ProtocolDialectPropertiesImpl
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY + "}")
     private Reference<ProtocolDialectConfigurationProperties> configurationProperties = ValueReference.absent();
     private DeviceProtocolDialectUsagePluggableClass deviceProtocolDialectUsagePluggableClass;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_METHOD_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private Map<String,String> relationAttributeNamePropertyMap;
     private Date modificationDate;

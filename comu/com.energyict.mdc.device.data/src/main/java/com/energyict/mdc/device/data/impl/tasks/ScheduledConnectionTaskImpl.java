@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -24,6 +25,7 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
@@ -40,7 +42,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Clock;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import java.util.Calendar;
 import java.util.Date;
@@ -76,11 +77,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private final DeviceDataService deviceDataService;
 
     @Inject
-    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, Provider<ConnectionMethodImpl> connectionMethodProvider, DeviceDataService deviceDataService1, SchedulingService schedulingService) {
-        super(dataModel, eventService, thesaurus, clock, deviceDataService, connectionMethodProvider);
+    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService, RelationService relationService, SchedulingService schedulingService) {
+        super(dataModel, eventService, thesaurus, clock, deviceDataService, protocolPluggableService, relationService);
         this.schedulingService = schedulingService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.deviceDataService = deviceDataService1;
+        this.deviceDataService = deviceDataService;
     }
 
     public void initializeWithAsapStrategy(Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool comPortPool) {
@@ -341,11 +342,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private boolean needToSynchronizePriorityChanges () {
-        return !this.connectionMethodAllowsSimultaneousConnections();
-    }
-
-    private boolean connectionMethodAllowsSimultaneousConnections () {
-        return this.getConnectionMethod().allowsSimultaneousConnections();
+        return !this.allowsSimultaneousConnections();
     }
 
     @Override

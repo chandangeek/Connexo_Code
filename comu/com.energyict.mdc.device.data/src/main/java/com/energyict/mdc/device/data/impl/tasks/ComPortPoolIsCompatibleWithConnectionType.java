@@ -12,7 +12,8 @@ import java.lang.annotation.Target;
 /**
  * Models the contraint that the type of the {@link com.energyict.mdc.engine.model.ComPort}s
  * that are contained in the {@link com.energyict.mdc.engine.model.ComPortPool}
- * of a {@link ConnectionMethod} is supported by the ConnectionMethod's {@link com.energyict.mdc.protocol.api.ConnectionType}.
+ * of a {@link com.energyict.mdc.device.data.tasks.ConnectionTask} is supported
+ * by the ConnectionTask's {@link com.energyict.mdc.protocol.api.ConnectionType}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-10 (16:12)

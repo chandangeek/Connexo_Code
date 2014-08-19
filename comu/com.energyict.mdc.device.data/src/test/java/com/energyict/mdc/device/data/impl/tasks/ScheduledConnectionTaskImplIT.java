@@ -213,14 +213,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Business method
         secondTask.save();
 
-        // Both tasks should be successfully created with each a separate ConnectionMethod
+        // Both tasks should be successfully created
         assertThat(firstTask).isNotNull();
         assertThat(secondTask).isNotNull();
-        ConnectionMethod firstTaskConnectionMethod = firstTask.getConnectionMethod();
-        ConnectionMethod secondTaskConnectionMethod = secondTask.getConnectionMethod();
-        assertThat(firstTaskConnectionMethod).isNotNull();
-        assertThat(secondTaskConnectionMethod).isNotNull();
-        assertThat(firstTaskConnectionMethod.getId()).isNotEqualTo(secondTaskConnectionMethod.getId());
     }
 
     @Test
@@ -271,12 +266,10 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertThat(connectionTask).isNotNull();
-        ConnectionMethod connectionMethod = connectionTask.getConnectionMethod();
-        assertThat(connectionMethod).isNotNull();
         ComPortPool comPortPool = connectionTask.getComPortPool();
         assertThat(comPortPool).isNotNull();
         assertThat(comPortPool.getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -307,10 +300,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertThat(connectionTask).isNotNull();
-        ConnectionMethod connectionMethod = connectionTask.getConnectionMethod();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(1);   // Only 1 property is locally defined and higher levels do not specify any property values
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(1);
@@ -337,10 +329,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertThat(connectionTask).isNotNull();
-        ConnectionMethod connectionMethod = connectionTask.getConnectionMethod();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // 1 property is locally defined, 1 is inherited and the third is not specified at any level
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -368,10 +359,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertThat(connectionTask).isNotNull();
-        ConnectionMethod connectionMethod = connectionTask.getConnectionMethod();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // no properties are locally defined, all 2 are inherited from the connection type pluggable class
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -401,10 +391,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertThat(connectionTask).isNotNull();
-        ConnectionMethod connectionMethod = connectionTask.getConnectionMethod();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // 2 properties are inherited from the partial connection task and 1 is inherited from the connection type pluggable class
         assertThat(connectionTask.getTypedProperties().getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isEqualTo(UPDATED_IP_ADDRESS_PROPERTY_VALUE);
         assertThat(connectionTask.getTypedProperties().hasInheritedValueFor(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isTrue();
@@ -427,10 +416,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         assertThat(connectionTask).isNotNull();
-        ConnectionMethod connectionMethod = connectionTask.getConnectionMethod();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionMethod.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
+        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // no properties are locally defined, all 2 are inherited from the partial connection task
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -842,7 +830,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED_KEY + "}")
     @Transactional
     public void testCreateWithoutComPortPoolButIncompleteStatus() {
         ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
@@ -858,7 +846,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED_KEY + "}")
     @Transactional
     public void testCreateWithoutComPortPool() {
         ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
@@ -875,7 +863,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_METHOD_COMPORT_POOL_REQUIRED_KEY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED_KEY + "}")
     public void testUpdateWithoutPoolTest() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("ShouldFailWithUpdate");
         connectionTask.save();
@@ -1148,7 +1136,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createOutboundWithIpPropertiesWithoutViolations("testDeleteWithProperties");
         connectionTask.save();
         long id = connectionTask.getId();
-        RelationParticipant ipConnectionMethod = (RelationParticipant) connectionTask.getConnectionMethod();
 
         // Business method
         connectionTask.delete();
@@ -1156,8 +1143,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertThat(inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(id).isPresent()).isFalse();
         RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
-        assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).isNotEmpty();    // The relations should have been made obsolete
     }
 
     @Test(expected = ConnectionTaskIsExecutingAndCannotBecomeObsoleteException.class)
@@ -1189,7 +1176,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testMakeObsoleteAlsoMakesRelationsObsolete() {
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createOutboundWithIpPropertiesWithoutViolations("testMakeObsoleteAlsoMakesRelationsObsolete");
-        RelationParticipant ipConnectionMethod = (RelationParticipant) connectionTask.getConnectionMethod();
 
         // Business method
         connectionTask.makeObsolete();
@@ -1197,10 +1183,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertThat(connectionTask.isObsolete()).isTrue();
         assertThat(connectionTask.getObsoleteDate()).isNotNull();
-        assertThat(connectionTask.getConnectionMethod()).isNotNull();
         RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
-        assertThat(ipConnectionMethod.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).hasSize(1);
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), false)).isEmpty();
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, new Interval(null, null), true)).hasSize(1);
     }
 
     @Test

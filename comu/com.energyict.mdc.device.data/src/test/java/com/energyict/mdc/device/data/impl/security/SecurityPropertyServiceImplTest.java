@@ -60,7 +60,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.finders.ConnectionMethodFinder;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -283,7 +283,7 @@ public class SecurityPropertyServiceImplTest {
                 @Override
                 public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
                     List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-                    finders.add(new ConnectionMethodFinder(ormService.getDataModels().get(0)));
+                    finders.add(new ConnectionTaskFinder(ormService.getDataModels().get(0)));
                     finders.add(new DeviceFinder(ormService.getDataModels().get(0)));
                     finders.add(new SecuritySetFinder(ormService.getDataModels().get(0)));
                     return finders;

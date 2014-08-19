@@ -67,22 +67,12 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
 
     protected void appendWhereClause(ServerConnectionTaskStatus taskStatus) {
         taskStatus.completeFindBySqlBuilder(this.actualBuilder, clock);
+        this.appendConnectionTypeSql();
         this.appendComPortPoolSql();
         this.appendDeviceTypeSql();
     }
 
     protected void appendJoinedTables() {
-        if (!this.connectionTypes.isEmpty()) {
-            this.append(" inner join ");
-            this.append(TableSpecs.DDC_CONNECTIONMETHOD.name());
-            this.append(" on ");
-            this.append(TableSpecs.DDC_CONNECTIONMETHOD.name());
-            this.append(".id = ");
-            this.append(this.connectionTaskTableName());
-            this.append(".connectionmethod and (");
-            this.appendInClause(TableSpecs.DDC_CONNECTIONMETHOD.name() + ".connectiontypepluggableClass", this.connectionTypes);
-            this.append(")");
-        }
         if (this.requiresLastComSessionClause()) {
             this.appendLastComSessionJoinClause(this.connectionTaskTableName());
         }
@@ -90,6 +80,13 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder {
 
     protected String connectionTaskTableName() {
         return TableSpecs.DDC_CONNECTIONTASK.name();
+    }
+
+    private void appendConnectionTypeSql() {
+        if (!this.connectionTypes.isEmpty()) {
+            this.appendWhereOrAnd();
+            this.appendInClause("connectiontypepluggableClass", this.connectionTypes);
+        }
     }
 
     private void appendComPortPoolSql() {

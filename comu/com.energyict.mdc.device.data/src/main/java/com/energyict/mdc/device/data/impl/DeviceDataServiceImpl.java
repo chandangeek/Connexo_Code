@@ -19,7 +19,7 @@ import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
-import com.energyict.mdc.device.data.impl.finders.ConnectionMethodFinder;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.LoadProfileFinder;
 import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
@@ -177,7 +177,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         finders.add(new DeviceFinder(this.dataModel));
         finders.add(new LoadProfileFinder(this.dataModel));
         finders.add(new LogBookFinder(this.dataModel));
-        finders.add(new ConnectionMethodFinder(this.dataModel));
+        finders.add(new ConnectionTaskFinder(this.dataModel));
         finders.add(new ProtocolDialectPropertiesFinder(this.dataModel));
         finders.add(new SecuritySetFinder(this.dataModel));
         return finders;
@@ -1404,38 +1404,36 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     @Override
     public Map<ConnectionTypePluggableClass, List<Long>> getConnectionTypeHeatMap() {
         /* For clarity's sake, here is the formatted SQL:
-         * select cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*)
+         * select ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*)
          *   from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator
          *           from DDC_COMSESSION cs
          *          where not exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0)
          *          group by connectiontask) cst,
-         *         DDC_CONNECTIONMETHOD cm, DDC_CONNECTIONTASK ct
+         *         DDC_CONNECTIONTASK ct
          *  where ct.id = cst.connectiontask
-         *    and ct.CONNECTIONMETHOD = cm.id
          *  group by cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator
          */
-        SqlBuilder sqlBuilder = new SqlBuilder("select cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator from ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs where not exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, DDC_CONNECTIONMETHOD cm, DDC_CONNECTIONTASK ct where ct.id = cst.connectiontask and ct.CONNECTIONMETHOD = cm.id group by cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
+        sqlBuilder.append(" cs where not exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, DDC_CONNECTIONTASK ct where ct.id = cst.connectiontask group by cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
         Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.fetchHeatMapCounters(sqlBuilder);
         /* Need another similar query that selects the successful last com sessions that have at least one failing task.
          * Again for clarity's sake, the formatted SQL
-         * select cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*)
+         * select ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*)
          *   from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator
          *           from DDC_COMSESSION cs
          *          where cs.successIndicator = 0
           *           and exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0)
          *          group by connectiontask) cst,
-         *         DDC_CONNECTIONMETHOD cm, DDC_CONNECTIONTASK ct
+         *         DDC_CONNECTIONTASK ct
          *  where ct.id = cst.connectiontask
-         *    and ct.CONNECTIONMETHOD = cm.id
          *  group by cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator
          * Stricto sensu, we do not need to select 'cst.successIndicator' because it will always be 0
          * but that allows us to reuse the fetchConnectionTypeHeatMapCounters method.
          */
-        SqlBuilder failingComTasksSqlBuilder = new SqlBuilder("select cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator from ");
+        SqlBuilder failingComTasksSqlBuilder = new SqlBuilder("select ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator from ");
         failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        failingComTasksSqlBuilder.append(" cs where cs.successIndicator = 0 and exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, DDC_CONNECTIONMETHOD cm, DDC_CONNECTIONTASK ct where ct.id = cst.connectiontask and ct.CONNECTIONMETHOD = cm.id group by cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
+        failingComTasksSqlBuilder.append(" cs where cs.successIndicator = 0 and exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, DDC_CONNECTIONTASK ct where ct.id = cst.connectiontask group by cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
         Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters = this.fetchHeatMapCounters(failingComTasksSqlBuilder);
         return this.buildConnectionTypeHeatMap(partialCounters, remainingCounters);
     }

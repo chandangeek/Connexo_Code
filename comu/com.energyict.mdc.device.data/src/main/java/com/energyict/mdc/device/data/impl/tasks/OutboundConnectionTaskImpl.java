@@ -4,8 +4,10 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -36,8 +38,8 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     private int currentRetryCount;
     private boolean lastExecutionFailed;
 
-    protected OutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, Provider<ConnectionMethodImpl> connectionMethodProvider) {
-        super(dataModel, eventService, thesaurus, clock, deviceDataService, connectionMethodProvider);
+    protected OutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService, RelationService relationService) {
+        super(dataModel, eventService, thesaurus, clock, deviceDataService, protocolPluggableService, relationService);
     }
 
     @Override
