@@ -26,7 +26,7 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
      */
     setTooltip: function (grid) {
         Ext.Array.each(grid.up('gridpanel').columns, function (column) {
-            if (column.$className === 'Ext.grid.column.Column') {
+            if (column.$className === 'Ext.grid.column.Column' || column.$className === 'Ext.grid.column.Date') {
                 Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + column.id), function (item) {
                     var cell = Ext.get(item),
                         inner = cell.down('.x-grid-cell-inner'),
