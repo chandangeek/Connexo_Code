@@ -372,6 +372,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     public Map<TaskStatus, Long> getConnectionTaskStatusCount() {
         ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
         filter.useLastComSession = false;
+        filter.taskStatuses=EnumSet.allOf(TaskStatus.class);
         return this.getConnectionTaskStatusCount(filter);
     }
 
