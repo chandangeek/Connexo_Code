@@ -29,19 +29,19 @@ public class ConnectionSummaryInfo {
 
         successfulConnections=new SubTaskCounterInfo();
         successfulConnections.count=connectionSummaryData.getSuccess();
-        successfulConnections.id=null; // TODO
+        successfulConnections.id="TBD"; // TODO
         successfulConnections.displayName=thesaurus.getString(MessageSeeds.SUCCESS.getKey(),"Success");
         info.counters.add(successfulConnections);
 
         connectionsWithAllTasksSuccessful=new TaskCounterInfo();
         connectionsWithAllTasksSuccessful.count=connectionSummaryData.getAllTasksSuccessful();
-        connectionsWithAllTasksSuccessful.id=null; // TODO
+        connectionsWithAllTasksSuccessful.id="TBD"; // TODO
         connectionsWithAllTasksSuccessful.displayName=thesaurus.getString(MessageSeeds.ALL_TASKS_SUCCESSFUL.getKey(),"All tasks successful");
         successfulConnections.counters.add(connectionsWithAllTasksSuccessful);
 
         connectionsWithFailingTasks=new TaskCounterInfo();
         connectionsWithFailingTasks.count=connectionSummaryData.getAtLeastOneTaskFailed();
-        connectionsWithFailingTasks.id=null; // TODO
+        connectionsWithFailingTasks.id="TBD"; // TODO
         connectionsWithFailingTasks.displayName=thesaurus.getString(MessageSeeds.AT_LEAST_ONE_FAILED.getKey(),"At least one task failed");
         successfulConnections.counters.add(connectionsWithFailingTasks);
 
