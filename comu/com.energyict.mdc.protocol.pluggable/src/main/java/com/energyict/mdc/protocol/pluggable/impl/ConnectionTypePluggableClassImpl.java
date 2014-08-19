@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_METHOD_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_TASK_ATTRIBUTE_NAME;
 
 /**
  * Provides an implementation for the {@link ConnectionTypePluggableClass} interface.
@@ -134,7 +134,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
             return null;
         }
         else {
-            return this.findRelationType().getAttributeType(CONNECTION_METHOD_ATTRIBUTE_NAME);
+            return this.findRelationType().getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME);
         }
     }
 
@@ -144,7 +144,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
             return null;
         }
         else {
-            List<Relation> relations = relationParticipant.getRelations(this.findRelationType().getAttributeType(CONNECTION_METHOD_ATTRIBUTE_NAME), date, false);
+            List<Relation> relations = relationParticipant.getRelations(this.findRelationType().getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME), date, false);
             if (relations.isEmpty()) {
                 return null;
             }
@@ -163,7 +163,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
             return new ArrayList<>(0);
         }
         else {
-            return relationParticipant.getRelations(this.findRelationType().getAttributeType(CONNECTION_METHOD_ATTRIBUTE_NAME), period, false);
+            return relationParticipant.getRelations(this.findRelationType().getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME), period, false);
         }
     }
 
@@ -227,7 +227,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
      */
     private void registerRelationType(RelationType relationType) {
         PluggableClassRelationAttributeTypeRegistry typeRegistry = this.getPluggableClassRelationAttributeTypeRegistry();
-        RelationAttributeType attributeType = relationType.getAttributeType(CONNECTION_METHOD_ATTRIBUTE_NAME);
+        RelationAttributeType attributeType = relationType.getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME);
         if (!typeRegistry.isRegistered(this, attributeType)) {
             typeRegistry.register(this, attributeType);
         }
@@ -256,7 +256,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
 
     private boolean isUsedByAnotherPluggableClass (RelationType relationType) {
         PluggableClassRelationAttributeTypeRegistry registry = this.getPluggableClassRelationAttributeTypeRegistry();
-        return registry.isDefaultAttribute(relationType.getAttributeType(CONNECTION_METHOD_ATTRIBUTE_NAME));
+        return registry.isDefaultAttribute(relationType.getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME));
     }
 
     /**
@@ -266,7 +266,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     private void unregisterRelationType () {
         if (this.connectionTypeHasProperties()) {
             RelationType relationType = this.findRelationType();
-            this.getPluggableClassRelationAttributeTypeRegistry().unRegister(this, relationType.getAttributeType(CONNECTION_METHOD_ATTRIBUTE_NAME));
+            this.getPluggableClassRelationAttributeTypeRegistry().unRegister(this, relationType.getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME));
         }
     }
 
@@ -295,10 +295,10 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
 
     private RelationAttributeTypeShadow defaultAttributeTypeShadow () {
         RelationAttributeTypeShadow shadow = new RelationAttributeTypeShadow();
-        shadow.setName(CONNECTION_METHOD_ATTRIBUTE_NAME);
+        shadow.setName(CONNECTION_TASK_ATTRIBUTE_NAME);
         shadow.setRequired(true);
         shadow.setIsDefault(true);
-        shadow.setObjectFactoryId(FactoryIds.CONNECTION_METHOD.id());
+        shadow.setObjectFactoryId(FactoryIds.CONNECTION_TASK.id());
         shadow.setValueFactoryClass(JupiterReferenceFactory.class);
         return shadow;
     }

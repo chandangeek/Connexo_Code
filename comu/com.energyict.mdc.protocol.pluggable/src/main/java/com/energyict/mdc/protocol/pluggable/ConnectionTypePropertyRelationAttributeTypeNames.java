@@ -12,8 +12,8 @@ public interface ConnectionTypePropertyRelationAttributeTypeNames {
 
     /**
      * The name of the attribute that references the
-     * connection method that owns the properties.
+     * connection task that owns the properties.
      */
-    public static final String CONNECTION_METHOD_ATTRIBUTE_NAME = "connectionMethod";
+    public static final String CONNECTION_TASK_ATTRIBUTE_NAME = "connectionTask";
 
 }
