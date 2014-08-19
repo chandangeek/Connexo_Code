@@ -76,6 +76,7 @@ public class UserServiceImpl implements UserService, InstallService {
         if (!found.isPresent()) {
             throw new NoDomainFoundException(thesaurus, domain);
         }
+
         return found.get();
     }
 
@@ -229,8 +230,8 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public Optional<Privilege> getPrivilege(String privilegeCode) {
-        return privilegeFactory().getOptional(privilegeCode);
+    public Optional<Privilege> getPrivilege(String privilegeName) {
+        return privilegeFactory().getOptional(privilegeName);
     }
 
     public Optional<Resource> getResource(String resourceName){
@@ -299,7 +300,7 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     public void install() {
-        new InstallerImpl(dataModel).install(getRealm());
+        new InstallerImpl(dataModel).install(this, getRealm());
     }
 
     @Override

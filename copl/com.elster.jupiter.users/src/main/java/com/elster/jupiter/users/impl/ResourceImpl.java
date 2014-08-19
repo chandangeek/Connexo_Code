@@ -52,8 +52,8 @@ public class ResourceImpl implements Resource {
     }
 
     @Override
-    public Privilege createPrivilege(String code, String name) {
-        PrivilegeImpl result = PrivilegeImpl.from(dataModel, code, name, this);
+    public Privilege createPrivilege(String name) {
+        PrivilegeImpl result = PrivilegeImpl.from(dataModel, name, this);
         result.persist();
 
         return result;

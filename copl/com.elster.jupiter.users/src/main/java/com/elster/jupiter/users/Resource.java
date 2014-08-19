@@ -11,6 +11,6 @@ public interface Resource extends HasName {
 
     void delete();
 
-    Privilege createPrivilege(String code, String name);
+    Privilege createPrivilege(String name);
     List<Privilege> getPrivileges();
 }

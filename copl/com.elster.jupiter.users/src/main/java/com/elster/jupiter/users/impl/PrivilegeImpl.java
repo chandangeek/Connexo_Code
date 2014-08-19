@@ -12,7 +12,6 @@ import javax.inject.Inject;
 
 class PrivilegeImpl implements Privilege {
 	// persistent fields
-	private String code;
 	private String name;
     private Reference<Resource> resource = ValueReference.absent();
 	@SuppressWarnings("unused")
@@ -23,23 +22,17 @@ class PrivilegeImpl implements Privilege {
         this.dataModel = dataModel;
 	}
 
-    static PrivilegeImpl from(DataModel dataModel, String code , String name, Resource resource) {
-        return new PrivilegeImpl(dataModel).init(code, name, resource);
+    static PrivilegeImpl from(DataModel dataModel, String name, Resource resource) {
+        return new PrivilegeImpl(dataModel).init(name, resource);
     }
 
-	PrivilegeImpl init(String code , String name, Resource resource) {
-		this.code = code;
+	PrivilegeImpl init(String name, Resource resource) {
 		this.name = name;
         this.resource.set(resource);
 		return this;
 	}
 
-    @Override
-    public String getCode() {
-        return code;
-    }
-
-	@Override 
+  	@Override
 	public String getName() {
 		return name;
 	}
@@ -64,7 +57,7 @@ class PrivilegeImpl implements Privilege {
 
         Privilege privilege = (Privilege) o;
 
-        return (code.equals(privilege.getCode()));
+        return (name.equals(privilege.getName()));
 
     }
 
@@ -76,8 +69,7 @@ class PrivilegeImpl implements Privilege {
     @Override
     public String toString() {
         return "PrivilegeImpl{" +
-                "code='" + code + '\'' +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 '}';
     }
 }

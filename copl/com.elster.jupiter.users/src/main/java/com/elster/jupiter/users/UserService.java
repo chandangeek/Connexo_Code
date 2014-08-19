@@ -29,7 +29,7 @@ public interface UserService {
 
     Optional<User> getUser(long id);
 
-    Optional<Privilege> getPrivilege(String privilegeCode);
+    Optional<Privilege> getPrivilege(String privilegeName);
 
     Optional<Resource> getResource(String resourceName);
 

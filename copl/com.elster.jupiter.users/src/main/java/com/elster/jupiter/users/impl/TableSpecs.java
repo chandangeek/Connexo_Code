@@ -28,8 +28,7 @@ public enum TableSpecs {
 		void addTo(DataModel dataModel) {
 			Table<Privilege> table = dataModel.addTable(name(), Privilege.class);
 			table.map(PrivilegeImpl.class);
-            Column idColumn = table.column("CODE").type("varchar(80)").notNull().map("code").add();
-			table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column idColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column resourceColumn = table.column("RESOURCEID").type("number").notNull().add();
 			table.primaryKey("USR_PK_PRIVILEGES").on(idColumn).add();
             table.foreignKey("USR_FK_PRIVILEGES_RESOURCE").references(USR_RESOURCE.name()).onDelete(CASCADE).map("resource").on(resourceColumn).add();
@@ -90,7 +89,7 @@ public enum TableSpecs {
 			Table<PrivilegeInGroup> table = dataModel.addTable(name(), PrivilegeInGroup.class);
 			table.map(PrivilegeInGroup.class);
 			Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
-			Column privilegeIdColumn = table.column("PRIVILEGEID").type("varchar(8)").notNull().map("privilegeCode").add();
+			Column privilegeIdColumn = table.column("PRIVILEGENAME").varChar(NAME_LENGTH).notNull().map("privilegeName").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.primaryKey("USR_PK_PRIVILEGEINGROUP").on(groupIdColumn , privilegeIdColumn).add();
 			table.foreignKey("FK_PRIVINGROUP2GROUP").references(USR_GROUP.name()).onDelete(CASCADE).map("group").reverseMap("privilegeInGroups").on(groupIdColumn).add();

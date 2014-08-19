@@ -1,11 +1,16 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.security.Resources;
+import com.google.common.base.Optional;
 
-import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class InstallerImpl {
+    private final Logger logger = Logger.getLogger(InstallerImpl.class.getName());
 
     private DataModel dataModel;
     private String defaultDomain;
@@ -14,17 +19,28 @@ public class InstallerImpl {
         this.dataModel = dataModel;
     }
 
-    public void install(String defaultDomain) {
-		dataModel.install(true, true);
+    public void install(UserService userService, String defaultDomain) {
+        try{
+		    dataModel.install(true, true);
+        }
+        catch (Exception e) {
+            this.logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+
         this.defaultDomain = defaultDomain;
-		createMasterData();
+        createPrivileges(userService);
+        createMasterData();
 	}
 	
 	private void createMasterData() {
-		createPrivileges();
-        InternalDirectoryImpl directory = createDirectory();
-        GroupImpl administrators = createAdministrators();
-		createAdmin(directory, administrators);
+        try{
+            InternalDirectoryImpl directory = createDirectory();
+            GroupImpl administrators = createAdministrators();
+            createAdmin(directory, administrators);
+        }
+        catch (Exception e) {
+            this.logger.log(Level.SEVERE, e.getMessage(), e);
+        }
 	}
 
     private InternalDirectoryImpl createDirectory() {
@@ -50,21 +66,33 @@ public class InstallerImpl {
 		user.join(administrators);
 	}
 	
-	private void createPrivileges() {
+	private void createPrivileges(UserService userService) {
+        Resource resource;
+        Optional<Resource> found;
         for(Resources item : Resources.values()){
-            ResourceImpl resource = ResourceImpl.from(dataModel, dataModel.getName(), item.getValue(), item.getDescription());
-            resource.persist();
+            found = userService.findResource(item.getName());
+            if(found.isPresent()){
+                resource = found.get();
+            }
+            else {
+                resource = userService.createResource(dataModel.getName(), item.getName(), item.getDescription());
+            }
 
-            for(Map.Entry<Long, String> entry : item.getPrivilegeValues().entrySet()){
-                resource.createPrivilege(dataModel.getName() + entry.getKey(), entry.getValue());
+            for(String privilege : item.getPrivileges()){
+                try{
+                    resource.createPrivilege(privilege);
+                }
+                catch (Exception e) {
+                    this.logger.log(Level.SEVERE, e.getMessage(), e);
+                }
             }
         }
-	}
+    }
 
     private void grantAllPrivileges(GroupImpl group){
         for(Resources item : Resources.values()){
-            for(Map.Entry<Long, String> entry : item.getPrivilegeValues().entrySet()){
-                group.grant(dataModel.getName() + entry.getKey());
+            for(String privilege : item.getPrivileges()){
+                group.grant(privilege);
             }
         }
     }
