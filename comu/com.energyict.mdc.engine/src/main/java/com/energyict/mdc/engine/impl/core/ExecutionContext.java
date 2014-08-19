@@ -41,6 +41,7 @@ import com.elster.jupiter.util.time.Clock;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -114,7 +115,16 @@ public final class ExecutionContext {
         }
         currentTaskExecutionBuilder.add(now(), successIndicator);
         this.currentTaskExecutionBuilder = null;
-        this.getStoreCommand().addAll(this.toDeviceCommands(this.getCommandRoot().getComTaskRoot(this.comTaskExecution)));
+        this.getStoreCommand().addAll(this.deviceCommandsForCurrentComTaskExecution());
+    }
+
+    private List<DeviceCommand> deviceCommandsForCurrentComTaskExecution() {
+        if (this.getCommandRoot() != null) {
+            return this.toDeviceCommands(this.getCommandRoot().getComTaskRoot(this.comTaskExecution));
+        }
+        else {
+            return Collections.emptyList();
+        }
     }
 
     public void complete() {

@@ -14,7 +14,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionMethod;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -164,8 +163,6 @@ public class MultiThreadedScheduledComPortTest {
     private ScheduledConnectionTask serialConnectionTask2;
     @Mock
     private ScheduledConnectionTask serialConnectionTask3;
-    @Mock
-    private ConnectionMethod connectionMethod;
     @Mock
     private ComTask comTask;
     @Mock

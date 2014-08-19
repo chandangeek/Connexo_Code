@@ -3,6 +3,9 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+
 import java.util.List;
 
 /**
@@ -123,4 +126,5 @@ public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implem
     private ScheduledConnectionTask getScheduledConnectionTask() {
         return (ScheduledConnectionTask) getConnectionTask();
     }
+
 }
