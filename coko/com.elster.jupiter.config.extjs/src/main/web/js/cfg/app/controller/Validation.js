@@ -171,7 +171,10 @@ Ext.define('Cfg.controller.Validation', {
             if (button.action === 'editRuleAction') {
                 record.readingTypes().removeAll();
             }
-            var properties = propertyForm.getRecord().properties();
+            
+            if (propertyForm.getRecord() !== undefined) {
+            	record.propertiesStore = propertyForm.getRecord().properties();
+            }
 
             for (var i = 0; i < readingTypes.items.length; i++) {
                 var readingTypeMRID = readingTypes.items[i].items.items[0],
@@ -183,7 +186,6 @@ Ext.define('Cfg.controller.Validation', {
             }
 
             record.readingTypes().add(arrReadingTypes);
-            record.propertiesStore = properties;
 
             me.getAddRule().setLoading('Loading...');
             record.save({
