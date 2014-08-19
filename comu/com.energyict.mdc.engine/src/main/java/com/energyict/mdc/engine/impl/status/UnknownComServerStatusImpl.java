@@ -40,4 +40,8 @@ public class UnknownComServerStatusImpl implements ComServerStatus {
         return null;
     }
 
+    @Override
+    public long getComServerId() {
+        return 0;
+    }
 }

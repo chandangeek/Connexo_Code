@@ -16,11 +16,13 @@ import org.joda.time.Duration;
 public class NotRunningComServerStatusImpl implements ComServerStatus {
 
     private final String comServerName;
+    private final long id;
     private final ComServerType type;
 
     public NotRunningComServerStatusImpl(ComServer comServer) {
         super();
         this.comServerName = comServer.getName();
+        this.id=comServer.getId();
         this.type = ComServerType.typeFor(comServer);
     }
 
@@ -49,4 +51,8 @@ public class NotRunningComServerStatusImpl implements ComServerStatus {
         return null;
     }
 
+    @Override
+    public long getComServerId() {
+        return this.id;
+    }
 }
