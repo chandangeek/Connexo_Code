@@ -27,7 +27,7 @@ public class ConnectionHeatMapInfo {
 
     public <H extends HasName & HasId> ConnectionHeatMapInfo(HeatMap<H> heatMap, BreakdownOption breakdown, Thesaurus thesaurus)
             throws Exception {
-        this.breakdownOption=breakdownOption;
+        this.breakdownOption=breakdown;
         this.heatMap=new ArrayList<>();
         createHeatMap(heatMap, breakdown, thesaurus);
     }
