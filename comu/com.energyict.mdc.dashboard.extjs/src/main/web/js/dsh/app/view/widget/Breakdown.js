@@ -26,12 +26,12 @@ Ext.define('Dsh.view.widget.Breakdown', {
         '->',
         {
             xtype: 'container',
-            html:
-                '<div class="legend"><ul>' +
-                '<li><span class="color failed"></span> Failed</li>' +
-                '<li><span class="color success"></span> Success</li>' +
-                '<li><span class="color pending"></span> Pending</li>' +
-                '</ul></div>'
+            html: '<div class="legend"><ul>' +
+                    '<li><span class="color failed"></span> Failed</li>' +
+                    '<li><span class="color success"></span> Success</li>' +
+                    '<li><span class="color pending"></span> Pending</li>' +
+                    '</ul>' +
+                '</div>'
         }
     ],
 
@@ -54,10 +54,13 @@ Ext.define('Dsh.view.widget.Breakdown', {
         }
     ],
 
-    bindStore: function(store) {
+    bindStore: function (store) {
         var me = this;
         store.each(function (item) {
             var panel = Ext.create('Ext.panel.Panel', {
+                expanded: item.counters().count() <= 5,
+                expandedHeight: item.counters().count() * 30,
+                collapsedHeight: 170,
                 tbar: {
                     xtype: 'container',
                     itemId: 'title',
@@ -68,26 +71,30 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     {
                         xtype: 'button',
                         ui: 'link',
-                        text: 'show more'
+                        text: 'show more',
+                        hidden: item.counters().count() <= 5,
+                        handler: function () {
+                            me.summaryMoreLess(panel);
+                        }
                     }
                 ],
                 items: {
                     xtype: 'dataview',
                     itemId: item.get('alias') + '-dataview',
                     itemSelector: 'tbody.item',
+                    itemsInCollapsedMode: 5,
                     total: item.get('total'),
                     store: item.counters(),
-                    tpl:
-                        '<table>' +
+                    tpl: '<table>' +
                             '<tpl for=".">' +
                                 '<tbody class="item">' +
-                                '<tr>' +
-                                    '<td class="label" style="min-width: 200px">' +
-                                        '<a href="#{id}">{displayName}</a>' +
-                                    '</td>' +
-                                    '<td width="100%" id="bar-{#}"></td>' +
-                                '</tr>' +
-                            '</tbody>' +
+                                    '<tr>' +
+                                        '<td class="label" style="min-width: 200px">' +
+                                            '<a href="#{id}">{displayName}</a>' +
+                                        '</td>' +
+                                        '<td width="100%" id="bar-{#}"></td>' +
+                                    '</tr>' +
+                                '</tbody>' +
                             '</tpl>' +
                         '</table>',
                     listeners: {
@@ -101,7 +108,9 @@ Ext.define('Dsh.view.widget.Breakdown', {
                                     pending: record.get('pendingCount'),
                                     success: record.get('successCount')
                                 };
-                                var limit = _.reduce(data, function(memo, item) {return memo + item;}, 0);
+                                var limit = _.reduce(data, function (memo, item) {
+                                    return memo + item;
+                                }, 0);
                                 var bar = Ext.widget('stacked-bar', {
                                     limit: limit,
                                     total: item.get('total'),
@@ -110,15 +119,23 @@ Ext.define('Dsh.view.widget.Breakdown', {
                                 });
                                 bar.render(view.getEl().down('#bar-' + pos));
                             });
+                            view.collapsed = item.counters().count() > this.itemsInCollapsedMode;
+                            view.expandedHeight = view.getHeight();
+                            view.collapsedHeight = view.expandedHeight / item.counters().count() * view.itemsInCollapsedMode;
+                            if (view.collapsed) view.setHeight(view.collapsedHeight);
                         }
                     }
                 }
             });
             me.down('#summaries').add(panel);
         });
-
         me.mixins.bindable.bindStore.apply(this, arguments);
         me.down('#heatmap').bindStore(store);
+    },
+    summaryMoreLess: function (panel) {
+        var view = panel.down('dataview');
+        view.setHeight(view.collapsed ? view.expandedHeight : view.collapsedHeight);
+        panel.down('button').setText(view.collapsed ? 'show less' : 'show more');
+        view.collapsed = !view.collapsed;
     }
-})
-;
+});
