@@ -14,6 +14,7 @@ import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
+import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
@@ -101,7 +102,7 @@ public class DashboardApplication extends Application implements InstallService 
                 ConnectionOverviewResource.class,
                 DashboardFieldResource.class,
                 ConnectionResource.class,
-                DeviceConfigurationService.class
+                ConnectionHeatMapResource.class
         );
     }
 

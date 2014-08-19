@@ -11,11 +11,8 @@ import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardCounters;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
-import com.energyict.mdc.dashboard.HeatMap;
-import com.energyict.mdc.dashboard.HeatMapRow;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -54,7 +51,6 @@ public class ConnectionOverviewInfo {
 
     public List<TaskSummaryInfo> overviews;
     public List<BreakdownSummaryInfo> breakdowns;
-    public List<HeatMapRowInfo> heatMap;
 
     public ConnectionOverviewInfo() {
     }
@@ -66,54 +62,25 @@ public class ConnectionOverviewInfo {
             ComPortPoolBreakdown comPortPoolBreakdown,
             ConnectionTypeBreakdown connectionTypeBreakdown,
             DeviceTypeBreakdown deviceTypeBreakdown,
-            HeatMap<H> heatMap,
-            BreakdownOption breakdown,
             Thesaurus thesaurus) throws Exception {
         this.thesaurus = thesaurus;
 
         connectionSummary = ConnectionSummaryInfo.from(connectionSummaryData, thesaurus);
 
         overviews=new ArrayList<>(2);
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), null), connectionStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), null), comSessionSuccessIndicatorOverview, FilterOption.latestResult, successIndicatorAdapter)); // JP-4280
+        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), connectionStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
+        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResult, successIndicatorAdapter)); // JP-4280
 
         breakdowns=new ArrayList<>(3);
-        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), null), comPortPoolBreakdown, BreakdownOption.comPortPool)); // JP-4281
-        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), null), connectionTypeBreakdown, BreakdownOption.connectionType)); // JP-4283
-        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_DEVICE_TYPE.getKey(), null), deviceTypeBreakdown, BreakdownOption.deviceType)); // JP-4284
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), MessageSeeds.PER_COMMUNICATION_POOL.getDefaultFormat()), comPortPoolBreakdown, BreakdownOption.comPortPool)); // JP-4281
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), MessageSeeds.PER_CONNECTION_TYPE.getDefaultFormat()), connectionTypeBreakdown, BreakdownOption.connectionType)); // JP-4283
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_DEVICE_TYPE.getKey(), MessageSeeds.PER_DEVICE_TYPE.getDefaultFormat()), deviceTypeBreakdown, BreakdownOption.deviceType)); // JP-4284
 
         sortAllOverviews();
         sortAllBreakdowns();
 
-        this.heatMap=new ArrayList<>();
-        createHeatMap(heatMap, breakdown, thesaurus);
-
     }
 
-    private <H extends HasName & HasId> void createHeatMap(HeatMap<H> heatMap, BreakdownOption breakdown, Thesaurus thesaurus) throws Exception {
-        for (HeatMapRow<H> row : heatMap) {
-            HeatMapRowInfo heatMapRowInfo = new HeatMapRowInfo();
-            heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
-            heatMapRowInfo.id = row.getTarget().getId(); // ID of the object
-            heatMapRowInfo.alias = breakdown; // Type of object
-            heatMapRowInfo.data = new ArrayList<>();
-            for (ComSessionSuccessIndicatorOverview counters : row) {
-                for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : counters) {
-                    TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-                    taskCounterInfo.id=successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget());
-                    taskCounterInfo.displayName=thesaurus.getString(successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget()), null);
-                    taskCounterInfo.count=successIndicatorCounter.getCount();
-                    heatMapRowInfo.data.add(taskCounterInfo);
-                }
-                TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-                taskCounterInfo.id= MessageSeeds.AT_LEAST_ONE_FAILED.getKey();
-                taskCounterInfo.displayName=thesaurus.getString(MessageSeeds.AT_LEAST_ONE_FAILED.getKey(), null);
-                taskCounterInfo.count=counters.getAtLeastOneTaskFailedCount();
-                heatMapRowInfo.data.add(taskCounterInfo);
-            }
-            this.heatMap.add(heatMapRowInfo);
-        }
-    }
 
     private void sortAllBreakdowns() {
         for (BreakdownSummaryInfo breakdown : breakdowns) {

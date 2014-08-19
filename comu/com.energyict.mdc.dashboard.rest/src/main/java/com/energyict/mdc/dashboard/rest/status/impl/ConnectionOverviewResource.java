@@ -35,10 +35,6 @@ public class ConnectionOverviewResource {
     @Consumes("application/json")
     @Produces("application/json")
     public Response getConnectionOverview(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
-        if (!jsonQueryFilter.getFilterProperties().containsKey("breakdown")) {
-            Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        BreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
         ConnectionStatusOverview connectionStatusOverview = dashboardService.getConnectionStatusOverview();
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
         ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
@@ -48,8 +44,6 @@ public class ConnectionOverviewResource {
 
         return Response.ok(new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comSessionSuccessIndicatorOverview,
                 comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown,
-                breakdown==BreakdownOption.comPortPool?dashboardService.getComPortPoolHeatMap():(breakdown==BreakdownOption.connectionType?dashboardService.getConnectionTypeHeatMap():dashboardService.getDeviceTypeHeatMap()),
-                breakdown,
                 thesaurus)).build();
     }
 
