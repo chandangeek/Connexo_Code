@@ -1,7 +1,6 @@
 Ext.define('Usr.model.Privilege', {
     extend: 'Ext.data.Model',
     fields: [
-        'id',
         'name',
         {
             name: 'selected',
@@ -9,5 +8,5 @@ Ext.define('Usr.model.Privilege', {
             defaultValue: false
         }
     ],
-    idProperty: 'id'
+    idProperty: 'name'
 });
