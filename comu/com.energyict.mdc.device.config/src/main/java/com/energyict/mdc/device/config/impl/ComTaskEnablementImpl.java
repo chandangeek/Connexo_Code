@@ -71,8 +71,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_REQUIRED + "}")
     private Reference<SecurityPropertySet> securityPropertySet = ValueReference.absent();
     private SaveStrategy saveStrategy = new NoopAtCreationTime();
-    @Valid
-    private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
     private boolean ignoreNextExecutionSpecsForInbound;
     @Range(min = HIGHEST_PRIORITY, max = LOWEST_PRIORITY, message = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_PRIORITY_RANGE + "}")
     private int priority = DEFAULT_PRIORITY;
@@ -151,9 +149,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
     @Override
     protected void doDelete() {
-        if (this.hasNextExecutionSpecs()) {
-            this.getNextExecutionSpecs().delete();
-        }
         this.dataModel.remove(this);
     }
 
@@ -209,35 +204,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     @Override
     public void setSecurityPropertySet(SecurityPropertySet securityPropertySet) {
         this.securityPropertySet.set(securityPropertySet);
-    }
-
-    @Override
-    public boolean hasNextExecutionSpecs() {
-        return this.nextExecutionSpecs.isPresent();
-    }
-
-    @Override
-    public NextExecutionSpecs getNextExecutionSpecs () {
-        return this.nextExecutionSpecs.orNull();
-    }
-
-    @Override
-    public void setNextExecutionSpecsFrom(TemporalExpression temporalExpression) {
-        this.saveStrategy = this.saveStrategy.schedulingChanged(temporalExpression);
-    }
-
-    private void setNextExecutionSpecs(NextExecutionSpecs nextExecutionSpecs) {
-        this.nextExecutionSpecs.set(nextExecutionSpecs);
-    }
-
-    @Override
-    public void removeNextExecutionSpecs() {
-        NextExecutionSpecs obsolete = this.getNextExecutionSpecs();
-        if (obsolete != null) {
-            this.setNextExecutionSpecs(null);
-            this.save();
-            obsolete.delete();
-        }
     }
 
     @Override
@@ -308,8 +274,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
         void complete();
 
-        SaveStrategy schedulingChanged(TemporalExpression temporalExpression);
-
         SaveStrategy setPartialConnectionTask(PartialConnectionTask partialConnectionTask);
 
         SaveStrategy useDefaultConnectionTask(boolean flagValue);
@@ -356,10 +320,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
      */
     private class NoopAtCreationTime extends Noop {
 
-        @Override
-        public SaveStrategy schedulingChanged(TemporalExpression temporalExpression) {
-            return new CreateNextExecutionSpecs(temporalExpression);
-        }
     }
 
     /**
@@ -368,104 +328,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
      */
     private class NoopAtUpdateTime extends Noop {
 
-        @Override
-        public SaveStrategy schedulingChanged(TemporalExpression temporalExpression) {
-            if (ComTaskEnablementImpl.this.hasNextExecutionSpecs()) {
-                return new UpdateNextExecutionSpecs(temporalExpression);
-            }
-            else {
-                return new CreateNextExecutionSpecs(temporalExpression);
-            }
-        }
-    }
-
-    private class CreateNextExecutionSpecs implements SaveStrategy {
-        private NextExecutionSpecs nextExecutionSpecs;
-
-        private CreateNextExecutionSpecs(TemporalExpression temporalExpression) {
-            this(schedulingService.newNextExecutionSpecs(temporalExpression));
-        }
-
-        private CreateNextExecutionSpecs(NextExecutionSpecs nextExecutionSpecs) {
-            super();
-            this.nextExecutionSpecs = nextExecutionSpecs;
-        }
-
-        protected NextExecutionSpecs getNextExecutionSpecs() {
-            return nextExecutionSpecs;
-        }
-
-        @Override
-        public void prepare() {
-            this.nextExecutionSpecs.save();
-            setNextExecutionSpecs(this.nextExecutionSpecs);
-        }
-
-        @Override
-        public void complete() {
-            // No completion required by this strategy
-        }
-
-        @Override
-        public SaveStrategy schedulingChanged(TemporalExpression temporalExpression) {
-            return new CreateNextExecutionSpecs(temporalExpression);
-        }
-
-        @Override
-        public SaveStrategy setPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
-            return new ChangeConnectionStrategy(partialConnectionTask, this);
-        }
-
-        @Override
-        public SaveStrategy useDefaultConnectionTask(boolean flagValue) {
-            return new ChangeConnectionStrategy(flagValue, this);
-        }
-
-        @Override
-        public SaveStrategy setPriority(int priority) {
-            return new ChangePriorityStrategy(priority, this);
-        }
-    }
-
-    private class UpdateNextExecutionSpecs extends CreateNextExecutionSpecs {
-        private TemporalExpression temporalExpression;
-        private NextExecutionSpecs obsolete;
-
-        private UpdateNextExecutionSpecs(TemporalExpression temporalExpression) {
-            this(ComTaskEnablementImpl.this.getNextExecutionSpecs());
-            this.temporalExpression = temporalExpression;
-        }
-
-        private UpdateNextExecutionSpecs(NextExecutionSpecs nextExecutionSpecs) {
-            super(nextExecutionSpecs);
-        }
-
-        @Override
-        public void prepare() {
-            if (this.temporalExpression != null) {
-                this.getNextExecutionSpecs().setTemporalExpression(this.temporalExpression);
-                super.prepare();
-            }
-            else {
-                // Temporal expression is being removed, must delete the NextExecutionSpecs in the completion step
-                this.obsolete = this.getNextExecutionSpecs();
-                ComTaskEnablementImpl.this.setNextExecutionSpecs(null);
-            }
-        }
-
-        @Override
-        public void complete() {
-            if (this.obsolete != null) {
-                this.obsolete.delete();
-            }
-            super.complete();
-        }
-
-        @Override
-        public SaveStrategy schedulingChanged(TemporalExpression temporalExpression) {
-            this.getNextExecutionSpecs().setTemporalExpression(temporalExpression);
-            return this;
-        }
     }
 
     private class ChangePriorityStrategy implements SaveStrategy {
@@ -477,12 +339,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
             this.remainder = remainder;
             this.oldPriority = ComTaskEnablementImpl.this.getPriority();
             this.newPriority = newPriority;
-        }
-
-        @Override
-        public SaveStrategy schedulingChanged(TemporalExpression temporalExpression) {
-            this.remainder = this.remainder.schedulingChanged(temporalExpression);
-            return this;
         }
 
         @Override
@@ -548,12 +404,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
             this.usedDefaultPreviously = ComTaskEnablementImpl.this.usesDefaultConnectionTask();
             this.previousPartialConnectionTask = ComTaskEnablementImpl.this.partialConnectionTask.getOptional();
             this.newPartialConnectionTask = Optional.fromNullable(partialConnectionTask);
-        }
-
-        @Override
-        public SaveStrategy schedulingChanged(TemporalExpression temporalExpression) {
-            this.remainder = this.remainder.schedulingChanged(temporalExpression);
-            return this;
         }
 
         @Override

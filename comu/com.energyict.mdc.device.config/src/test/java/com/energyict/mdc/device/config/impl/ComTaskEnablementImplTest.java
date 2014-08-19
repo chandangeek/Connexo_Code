@@ -179,7 +179,6 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.setIgnoreNextExecutionSpecsForInbound(true).add();
 
         // Asserts
-        assertThat(comTaskEnablement.getNextExecutionSpecs()).isNull();
         assertThat(comTaskEnablement.isIgnoreNextExecutionSpecsForInbound()).isTrue();
         assertThat(comTaskEnablement.getComTask()).isNotNull();
         assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
@@ -194,14 +193,11 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Transactional
     public void testCreateWithNextExecutionSpecs () {
         ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
-        comTaskEnablementBuilder.setNextExecutionSpecsFrom(EVERY_HOUR);
 
         // Business method
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.setIgnoreNextExecutionSpecsForInbound(true).add();
 
         // Asserts
-        assertThat(comTaskEnablement.getNextExecutionSpecs()).isNotNull();
-        assertThat(comTaskEnablement.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(EVERY_HOUR);
         assertThat(comTaskEnablement.isIgnoreNextExecutionSpecsForInbound()).isTrue();
         assertThat(comTaskEnablement.getComTask()).isNotNull();
         assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
@@ -219,14 +215,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
         // Business method
-        comTaskEnablement.setNextExecutionSpecsFrom(EVERY_DAY_AT_3AM);
         comTaskEnablement.save();
-
-        // Asserts
-        assertThat(comTaskEnablement.getNextExecutionSpecs()).isNotNull();
-        assertThat(comTaskEnablement.getNextExecutionSpecs().getTemporalExpression()).isNotNull();
-        assertThat(comTaskEnablement.getNextExecutionSpecs().getTemporalExpression().getEvery()).isEqualTo(EVERY_DAY_AT_3AM.getEvery());
-        assertThat(comTaskEnablement.getNextExecutionSpecs().getTemporalExpression().getOffset()).isEqualTo(EVERY_DAY_AT_3AM.getOffset());
 
         // Assert that none of the other attributes have changed
         assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
@@ -239,14 +228,8 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Transactional
     public void testRemoveNextExecutionSpecs() {
         ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
-        comTaskEnablementBuilder.setNextExecutionSpecsFrom(EVERY_DAY_AT_3AM);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
-        // Business method
-        comTaskEnablement.removeNextExecutionSpecs();
-
-        // Asserts
-        assertThat(comTaskEnablement.getNextExecutionSpecs()).isNull();
 
         // Assert that none of the other attributes have changed
         assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
@@ -267,7 +250,6 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
         // Asserts
         assertThat(comTaskEnablement.getPriority()).isEqualTo(expectedPriority);
-        assertThat(comTaskEnablement.getNextExecutionSpecs()).isNull();
         assertThat(comTaskEnablement.getComTask()).isNotNull();
         assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
         assertThat(comTaskEnablement.getDeviceConfiguration()).isNotNull();
@@ -303,7 +285,6 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
         // Asserts
         assertThat(comTaskEnablement.getPriority()).isEqualTo(updatedPriority);
-        assertThat(comTaskEnablement.getNextExecutionSpecs()).isNull();
         assertThat(comTaskEnablement.getComTask()).isNotNull();
         assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
         assertThat(comTaskEnablement.getDeviceConfiguration()).isNotNull();
@@ -371,15 +352,9 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Transactional
     public void testRemoveScheduling() {
         ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
-        comTaskEnablementBuilder.setNextExecutionSpecsFrom(EVERY_HOUR);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
-        // Business method
-        comTaskEnablement.setNextExecutionSpecsFrom(null);
         comTaskEnablement.save();
-
-        // Asserts
-        assertThat(comTaskEnablement.getNextExecutionSpecs()).isNull();
 
         // Assert that none of the other attributes have changed
         assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());

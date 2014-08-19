@@ -132,7 +132,7 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOL_INVALID_NAME(13027,"deviceType.no.such.protocol", "A protocol with name {0} does not exist", SEVERE),
     PROTOCOLDIALECT_CONF_PROPS_CANT_DROP_REQUIRED(13028, "protocolDialectConfigurationProperties.cannotDropRequired", "ProtocolDialectConfigurationProperties {0} cannot drop property {1} since it is required.", SEVERE),
     PROTOCOLDIALECT_CONF_PROPS_IN_USE(13029, "protocolDialectConfigurationProperties.inUse", "ProtocolDialectConfigurationProperties ''{0}'' of device configuration ''{1}'' cannot be deleted because they are still in use", SEVERE),
-    UNSUPPORTED_SECUIRY_LEVEL(13030, Keys.UNSUPPORTED_SECURITY_LEVEL, "Security level {0} is not supported", SEVERE),
+    UNSUPPORTED_SECURITY_LEVEL(13030, Keys.UNSUPPORTED_SECURITY_LEVEL, "Security level is not supported", SEVERE),
     SECURITY_PROPERTY_SET_IN_USE(13031, Keys.SECURITY_PROPERTY_SET_IN_USE, "Security property set ''{0}'' of device configuration ''{1}'' is still in use", SEVERE),
     INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD(13032, Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD, "The connection type has an incorrect direction.", SEVERE),
     NEXT_EXECUTION_SPEC_FORBIDDEN_FOR_ASAP(13033, Keys.NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP, "Next execution spec is not allowed for connection strategy ''as soon as possible''.", SEVERE),

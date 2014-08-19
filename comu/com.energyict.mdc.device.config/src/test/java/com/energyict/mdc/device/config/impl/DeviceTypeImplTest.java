@@ -923,7 +923,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     private String longUnicodeString(int size) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i=0; i<size; i++) {
-            stringBuilder.append("я");
+            stringBuilder.append("\u8fd1");
         }
         return stringBuilder.toString();
     }

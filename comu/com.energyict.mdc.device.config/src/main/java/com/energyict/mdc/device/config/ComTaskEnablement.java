@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
 
@@ -34,40 +32,8 @@ public interface ComTaskEnablement extends HasId {
     public void  setSecurityPropertySet (SecurityPropertySet securityPropertySet);
 
     /**
-     * Tests if this ComTaskEnablement has preferred specifications
-     * for the calculation of the next execution timestamp.
-     *
-     * @return A flag that indicates if there are NextExecutionSpecs
-     * @see #getNextExecutionSpecs()
-     */
-    public boolean hasNextExecutionSpecs();
-
-    /**
-     * Gets the preferred specifications for the calculation of the next
-     * execution timestamp of ComTaskExecution.
-     *
-     * @return The NextExecutionSpecs
-     */
-    public NextExecutionSpecs getNextExecutionSpecs ();
-
-    /**
-     * Sets the specifications for the calculation of the next
-     * execution timestamp from the {@link TemporalExpression}.
-     *
-     * @param temporalExpression The TemporalExpression
-     */
-    public void setNextExecutionSpecsFrom (TemporalExpression temporalExpression);
-
-    /**
-     * Removes the {@link NextExecutionSpecs} from this ComTaskEnablement
-     * in a single business transaction. This does not behave like a normal
-     * setter and therefore does not need an additional call to the save method.
-     */
-    public void removeNextExecutionSpecs ();
-
-    /**
      * Gets the flag that indicates if the ComTaskExecution
-     * should ignore the {@link NextExecutionSpecs} and therefore
+     * should ignore the {@link com.energyict.mdc.scheduling.NextExecutionSpecs} and therefore
      * always execute in an inbound context.
      *
      * @return The flag that indicates if the NextExecutionSpecs should be ignored in an inbound context

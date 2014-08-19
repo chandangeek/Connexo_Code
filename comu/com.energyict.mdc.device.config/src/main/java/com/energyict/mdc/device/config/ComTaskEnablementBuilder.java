@@ -14,16 +14,6 @@ import com.energyict.mdc.tasks.ComTask;
  */
 public interface ComTaskEnablementBuilder {
 
-    /**
-     * Sets the specifications for the calculation of the next
-     * execution timestamp from the {@link TemporalExpression}.
-     *
-     * @param temporalExpression The TemporalExpression
-     * @return The ComTaskEnablementBuilder
-     * @see ComTaskEnablement#setNextExecutionSpecsFrom(TemporalExpression)
-     */
-    public ComTaskEnablementBuilder setNextExecutionSpecsFrom (TemporalExpression temporalExpression);
-
     public ComTaskEnablementBuilder setIgnoreNextExecutionSpecsForInbound (boolean flag);
 
     /**

@@ -452,7 +452,7 @@ public enum TableSpecs {
             Column comtask = table.column("COMTASK").number().notNull().add();
             Column deviceCommunicationConfigation = table.column("DEVICECOMCONFIG").number().notNull().add();
             Column securityPropertySet = table.column("SECURITYPROPERTYSET").number().notNull().add();
-            Column nextExecutionSpecs = table.column("NEXTEXECUTIONSPECS").number().add();
+
             table.column("SUSPENDED").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.SUSPENDED.fieldName()).add();
             Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
             table.column("USEDEFAULTCONNECTIONTASK").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.USE_DEFAULT_CONNECTION_TASK.fieldName()).add();
@@ -480,11 +480,6 @@ public enum TableSpecs {
                 references(DTC_DEVICECOMMCONFIG.name()).
                 map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName()).
                 reverseMap(DeviceCommunicationConfigurationImpl.Fields.COM_TASK_ENABLEMENTS.fieldName()).onDelete(CASCADE).composition().add();
-            table.
-                foreignKey("FK_DTC_COMTASKENABLMNT_NEXTEXC").
-                on(nextExecutionSpecs).
-                references(SchedulingService.COMPONENT_NAME, "SCH_NEXTEXECUTIONSPEC").
-                map(ComTaskEnablementImpl.Fields.NEXT_EXECUTION_SPECS.fieldName()).add();
             table.
                 foreignKey("FK_DTC_COMTASKENABLMNT_PDCP").
                 on(dialectConfigurationProperties).
