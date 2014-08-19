@@ -71,7 +71,7 @@ public class ConnectionOverviewInfo {
             Thesaurus thesaurus) throws Exception {
         this.thesaurus = thesaurus;
 
-        connectionSummary = ConnectionSummaryInfo.from(connectionSummaryData);
+        connectionSummary = ConnectionSummaryInfo.from(connectionSummaryData, thesaurus);
 
         overviews=new ArrayList<>(2);
         overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), null), connectionStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
@@ -195,12 +195,6 @@ class TaskBreakdownInfo {
     public long successCount;
     public long failedCount;
     public long pendingCount;
-}
-
-class TaskCounterInfo {
-    public String id;
-    public String displayName;
-    public long count;
 }
 
 enum FilterOption {

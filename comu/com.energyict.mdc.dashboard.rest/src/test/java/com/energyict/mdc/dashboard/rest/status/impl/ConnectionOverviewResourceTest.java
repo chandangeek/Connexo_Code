@@ -180,6 +180,7 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
                 return Long.valueOf(o2.count).compareTo(o1.count);
             }
         };
+        assertThat(connectionOverviewInfo.connectionSummary.counters).hasSize(3);
         assertThat(connectionOverviewInfo.overviews.get(0).counters).isSortedAccordingTo(counterInfoComparator);
         assertThat(connectionOverviewInfo.overviews.get(1).counters).isSortedAccordingTo(counterInfoComparator);
 
