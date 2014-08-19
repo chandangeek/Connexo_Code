@@ -18,10 +18,6 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 /**
  * Provides an implementation for the {@link LoggingEvent} interface
  * for events that relate to communication for a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
@@ -36,15 +32,8 @@ public class CommunicationLoggingEvent extends AbstractComServerEventImpl implem
     private LogLevel logLevel;
     private String logMessage;
 
-    /**
-     * For the externalization process only.
-     */
-    public CommunicationLoggingEvent() {
-        super();
-    }
-
-    public CommunicationLoggingEvent(ConnectionTask connectionTask, ComPort comPort, LogLevel logLevel, String logMessage) {
-        super();
+    public CommunicationLoggingEvent(ServiceProvider serviceProvider, ConnectionTask connectionTask, ComPort comPort, LogLevel logLevel, String logMessage) {
+        super(serviceProvider);
         this.logLevel = logLevel;
         this.logMessage = logMessage;
         this.connectionTask = connectionTask;
@@ -112,48 +101,12 @@ public class CommunicationLoggingEvent extends AbstractComServerEventImpl implem
         return this.connectionTask;
     }
 
-    @Override
-    public void writeExternal (ObjectOutput out) throws IOException {
-        super.writeExternal(out);
-        LoggingEventExternalizationAssistant.writeExternal(this, out);
-        out.writeLong(this.extractId(this.getComPort()));
-        out.writeLong(this.extractId(this.getConnectionTask()));
-    }
-
     private long extractId(HasId hasId) {
         if (hasId == null) {
             return 0;
         }
         else {
             return hasId.getId();
-        }
-    }
-
-    @Override
-    public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
-        super.readExternal(in);
-        LoggingEventExternalizationAssistant.LoggingEventPojo pojo = LoggingEventExternalizationAssistant.readExternal(in);
-        this.logLevel = pojo.getLogLevel();
-        this.logMessage = pojo.getLogMessage();
-        this.comPort = this.findComPort(in.readLong());
-        this.connectionTask = this.findConnectionTask(in.readLong());
-    }
-
-    private ComPort findComPort (long comPortId) {
-        if (comPortId != 0) {
-            return this.getEngineModelService().findComPort(comPortId);
-        }
-        else {
-            return null;
-        }
-    }
-
-    private ConnectionTask findConnectionTask (long connectionTaskId) {
-        if (connectionTaskId != 0) {
-            return this.getDeviceDataService().findConnectionTask(connectionTaskId).orNull();
-        }
-        else {
-            return null;
         }
     }
 

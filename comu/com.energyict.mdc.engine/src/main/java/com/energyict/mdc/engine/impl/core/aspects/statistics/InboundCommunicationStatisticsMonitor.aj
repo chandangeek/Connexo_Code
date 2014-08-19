@@ -80,28 +80,31 @@ public privileged aspect InboundCommunicationStatisticsMonitor extends AbstractC
 
     after (InboundCommunicationHandler handler): closeContext(handler) {
         InboundDiscoveryContextImpl context = handler.getContext();
-        if (this.inWebContext(handler)) {
-            ComSessionBuilder comSessionBuilder = context.getComSessionBuilder();
+        ComSessionBuilder comSessionBuilder = context.getComSessionBuilder();
+        if (comSessionBuilder != null) {
             comSessionBuilder.connectDuration(new Duration(0));
-            StatisticsMonitoringHttpServletRequest request = this.getMonitoringRequest(handler);
-            StatisticsMonitoringHttpServletResponse response = this.getMonitoringResponse(handler);
-            long talkMillis = handler.discovering.getElapsed() + request.getTalkTime() + response.getTalkTime();
-            comSessionBuilder.talkDuration(Duration.millis(talkMillis));
-            comSessionBuilder.addReceivedBytes(request.getBytesRead()).addSentBytes(response.getBytesSent());
-            comSessionBuilder.addReceivedPackets(1).addSentPackets(1);
+            if (this.inWebContext(handler)) {
+                StatisticsMonitoringHttpServletRequest request = this.getMonitoringRequest(handler);
+                StatisticsMonitoringHttpServletResponse response = this.getMonitoringResponse(handler);
+                long talkMillis = handler.discovering.getElapsed() + request.getTalkTime() + response.getTalkTime();
+                comSessionBuilder.talkDuration(Duration.millis(talkMillis));
+                comSessionBuilder.addReceivedBytes(request.getBytesRead()).addSentBytes(response.getBytesSent());
+                comSessionBuilder.addReceivedPackets(1).addSentPackets(1);
+            }
+            else {
+                ComPortRelatedComChannelImpl comChannel = this.getComChannel(handler);
+                long talkMillis = handler.discovering.getElapsed() + comChannel.talking.getElapsed();
+                comSessionBuilder.talkDuration(Duration.millis(talkMillis));
+                Counters sessionCounters = this.getComChannelSessionCounters(comChannel);
+                Counters taskSessionCounters = this.getComChannelTaskSessionCounters(comChannel);
+                comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead() + taskSessionCounters.getBytesRead());
+                comSessionBuilder.addSentBytes(sessionCounters.getBytesSent() + taskSessionCounters.getBytesSent());
+                comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead() + taskSessionCounters.getPacketsRead());
+                comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent() + taskSessionCounters.getPacketsSent());
+            }
         }
         else {
-            ComSessionBuilder comSessionBuilder = context.getComSessionBuilder();
-            comSessionBuilder.connectDuration(new Duration(0));
-            ComPortRelatedComChannelImpl comChannel = this.getComChannel(handler);
-            long talkMillis = handler.discovering.getElapsed() + comChannel.talking.getElapsed();
-            comSessionBuilder.talkDuration(Duration.millis(talkMillis));
-            Counters sessionCounters = this.getComChannelSessionCounters(comChannel);
-            Counters taskSessionCounters = this.getComChannelTaskSessionCounters(comChannel);
-            comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead() + taskSessionCounters.getBytesRead());
-            comSessionBuilder.addSentBytes(sessionCounters.getBytesSent() + taskSessionCounters.getBytesSent());
-            comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead() + taskSessionCounters.getPacketsRead());
-            comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent() + taskSessionCounters.getPacketsSent());
+            // Todo: deal with the unknown device situation
         }
     }
 

@@ -14,10 +14,6 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 /**
  * Provides code reuse opportunities for classes
  * that represent a {@link ConnectionEvent}.
@@ -31,21 +27,14 @@ public abstract class AbstractConnectionEventImpl extends AbstractComServerEvent
     private ComPort comPort;
     private ConnectionTask connectionTask;
 
-    /**
-     * For the externalization process only.
-     */
-    protected AbstractConnectionEventImpl() {
-        super();
-    }
-
-    protected AbstractConnectionEventImpl(ConnectionTask connectionTask, ComPort comPort) {
-        super();
+    protected AbstractConnectionEventImpl(ServiceProvider serviceProvider, ConnectionTask connectionTask, ComPort comPort) {
+        super(serviceProvider);
         this.connectionTask = connectionTask;
         this.comPort = comPort;
     }
 
-    protected AbstractConnectionEventImpl(ComPort comPort) {
-        this();
+    protected AbstractConnectionEventImpl(ServiceProvider serviceProvider, ComPort comPort) {
+        super(serviceProvider);
         this.comPort = comPort;
     }
 
@@ -115,44 +104,12 @@ public abstract class AbstractConnectionEventImpl extends AbstractComServerEvent
         return this.connectionTask;
     }
 
-    @Override
-    public void writeExternal (ObjectOutput out) throws IOException {
-        super.writeExternal(out);
-        out.writeLong(this.extractId(this.getComPort()));
-        out.writeLong(this.extractId(this.getConnectionTask()));
-    }
-
     private long extractId(HasId hasId) {
         if (hasId == null) {
             return NULL_INDICATOR;
         }
         else {
             return hasId.getId();
-        }
-    }
-
-    @Override
-    public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
-        super.readExternal(in);
-        this.comPort = this.findComPort(in.readLong());
-        this.connectionTask = this.findConnectionTask(in.readLong());
-    }
-
-    private ComPort findComPort (long comPortId) {
-        if (NULL_INDICATOR == comPortId) {
-            return null;
-        }
-        else {
-            return getEngineModelService().findComPort(comPortId);
-        }
-    }
-
-    private ConnectionTask findConnectionTask (long connectionTaskId) {
-        if (NULL_INDICATOR == connectionTaskId) {
-            return null;
-        }
-        else {
-            return getDeviceDataService().findConnectionTask(connectionTaskId).orNull();
         }
     }
 

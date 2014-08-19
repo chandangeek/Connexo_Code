@@ -1,23 +1,15 @@
 package com.energyict.mdc.engine.impl.events.connection;
 
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
-import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Date;
 
 import org.junit.*;
@@ -26,8 +18,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,25 +36,17 @@ public class UndiscoveredEstablishConnectionEventTest {
     @Mock
     public Clock clock;
     @Mock
-    public DeviceDataService deviceDataService;
-    @Mock
-    public EngineModelService engineModelService;
-    @Mock
-    private ServiceProvider serviceProvider;
+    private AbstractComServerEventImpl.ServiceProvider serviceProvider;
 
     @Before
     public void setupServiceProvider () {
         when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
-        when(this.serviceProvider.engineModelService()).thenReturn(this.engineModelService);
-        when(this.serviceProvider.deviceDataService()).thenReturn(this.deviceDataService);
-        ServiceProvider.instance.set(this.serviceProvider);
     }
-
 
     @Test
     public void testCategory () {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, null);
 
         // Business method
         Category category = event.getCategory();
@@ -80,7 +62,7 @@ public class UndiscoveredEstablishConnectionEventTest {
         when(this.clock.now()).thenReturn(now);
 
         InboundComPort comPort = mock(InboundComPort.class);
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(comPort);
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, comPort);
 
         // Business method
         Date timestamp = event.getOccurrenceTimestamp();
@@ -91,7 +73,7 @@ public class UndiscoveredEstablishConnectionEventTest {
 
     @Test
     public void testIsEstablishd () {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, null);
 
         // Business method & asserts
         assertThat(event.isEstablishing()).isTrue();
@@ -99,7 +81,7 @@ public class UndiscoveredEstablishConnectionEventTest {
 
     @Test
     public void testIsNotClosed () {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, null);
 
         // Business method & asserts
         assertThat(event.isClosed()).isFalse();
@@ -107,7 +89,7 @@ public class UndiscoveredEstablishConnectionEventTest {
 
     @Test
     public void testIsNotFailure () {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, null);
 
         // Business method & asserts
         assertThat(event.isFailure()).isFalse();
@@ -115,48 +97,40 @@ public class UndiscoveredEstablishConnectionEventTest {
     }
 
     @Test
-    public void testIsNotLoggingRelatedByDefault () {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
+    public void testIsNotLoggingRelated () {
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, null);
 
         // Business method & asserts
         assertThat(event.isLoggingRelated()).isFalse();
     }
 
     @Test
-    public void testIsNotComTaskRelatedByDefault () {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
+    public void testIsNotComTaskRelated () {
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, null);
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
     }
 
     @Test
-    public void testIsNotComPortRelatedByDefault () {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
+    public void testIsNotComPortRelated () {
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, null);
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isFalse();
     }
 
     @Test
-    public void testIsNotComPortPoolRelatedByDefault () {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
+    public void testIsNotComPortPoolRelated () {
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, null);
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
     }
 
     @Test
-    public void testIsNotConnectionTaskRelatedByDefault () {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
-
-        // Business method & asserts
-        assertThat(event.isConnectionTaskRelated()).isFalse();
-    }
-
-    @Test
-    public void testIsNotDeviceRelatedByDefault () {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
+    public void testIsNotDeviceRelatedWithoutComPort () {
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, null);
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -165,7 +139,7 @@ public class UndiscoveredEstablishConnectionEventTest {
     @Test
     public void testIsComPortRelated () {
         InboundComPort comPort = mock(InboundComPort.class);
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(comPort);
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, comPort);
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isTrue();
@@ -178,7 +152,7 @@ public class UndiscoveredEstablishConnectionEventTest {
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.isInbound()).thenReturn(true);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(comPort);
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, comPort);
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isTrue();
@@ -188,7 +162,7 @@ public class UndiscoveredEstablishConnectionEventTest {
     @Test
     public void testIsNotComTaskExecutionRelated () {
         InboundComPort comPort = mock(InboundComPort.class);
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(comPort);
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, comPort);
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -197,7 +171,7 @@ public class UndiscoveredEstablishConnectionEventTest {
     @Test
     public void testIsNotConnectionTaskRelated () {
         InboundComPort comPort = mock(InboundComPort.class);
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(comPort);
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, comPort);
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
@@ -205,9 +179,17 @@ public class UndiscoveredEstablishConnectionEventTest {
     }
 
     @Test
+    public void testIsNotConnectionTaskRelatedWithoutComPort () {
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, null);
+
+        // Business method & asserts
+        assertThat(event.isConnectionTaskRelated()).isFalse();
+    }
+
+    @Test
     public void testIsNotDeviceRelated () {
         InboundComPort comPort = mock(InboundComPort.class);
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(comPort);
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, comPort);
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -215,88 +197,10 @@ public class UndiscoveredEstablishConnectionEventTest {
     }
 
     @Test
-    public void testSerializationDoesNotFailForDefaultObject () throws IOException {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-        // Business method
-        oos.writeObject(event);
-
-        // Intend is to test that there are not failures
-    }
-
-    @Test
-    public void testRestoreAfterSerializationForDefaultObject () throws IOException, ClassNotFoundException {
-        when(this.deviceDataService.findConnectionTask(anyInt())).thenReturn(Optional.<ConnectionTask>absent());
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(event);
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        ObjectInputStream ois = new ObjectInputStream(bais);
-
-        // Business method
-        UndiscoveredEstablishConnectionEvent restored = (UndiscoveredEstablishConnectionEvent) ois.readObject();
-
-        // Asserts
-        assertThat(restored).isNotNull();
-    }
-
-    @Test
-    public void testSerializationDoesNotFail () throws IOException {
-        InboundComPort comPort = mock(InboundComPort.class);
-        when(comPort.getId()).thenReturn(COMPORT_ID);
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(comPort);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-        // Business method
-        oos.writeObject(event);
-
-        // Intend is to test that there are not failures
-    }
-
-    @Test
-    public void testRestoreAfterSerialization () throws IOException, ClassNotFoundException {
-        InboundComPort comPort = mock(InboundComPort.class);
-        when(comPort.getId()).thenReturn(COMPORT_ID);
-        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(comPort);
-        when(this.deviceDataService.findConnectionTask(anyLong())).thenReturn(Optional.<ConnectionTask>absent());
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(comPort);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(event);
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        ObjectInputStream ois = new ObjectInputStream(bais);
-
-        // Business method
-        UndiscoveredEstablishConnectionEvent restored = (UndiscoveredEstablishConnectionEvent) ois.readObject();
-
-        // Asserts
-        assertThat(restored.getComPort()).isEqualTo(comPort);
-    }
-
-    @Test
-    public void testToStringDoesNotFailForDefaultObject () throws IOException {
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent();
-
-        // Business method
-        String eventString = event.toString();
-
-        // Asserts
-        assertThat(eventString).doesNotMatch(UndiscoveredEstablishConnectionEvent.class.getName() + "@\\d*");
-    }
-
-    @Test
     public void testToStringDoesNotFail () throws IOException {
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(comPort);
+        UndiscoveredEstablishConnectionEvent event = new UndiscoveredEstablishConnectionEvent(this.serviceProvider, comPort);
 
         // Business method
         String eventString = event.toString();

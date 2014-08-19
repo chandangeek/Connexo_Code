@@ -12,7 +12,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:58)
  */
-public abstract class IdBusinessObjectRequest extends RequestImpl {
+public abstract class IdBusinessObjectRequest implements Request {
 
     private Set<Long> businessObjectIds;
 

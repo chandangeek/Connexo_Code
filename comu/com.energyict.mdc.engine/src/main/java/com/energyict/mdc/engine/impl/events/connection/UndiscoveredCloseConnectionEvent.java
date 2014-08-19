@@ -16,15 +16,8 @@ import org.json.JSONWriter;
  */
 public class UndiscoveredCloseConnectionEvent extends UndiscoveredConnectionEvent {
 
-    /**
-     * For the externalization process only.
-     */
-    public UndiscoveredCloseConnectionEvent() {
-        super();
-    }
-
-    public UndiscoveredCloseConnectionEvent(InboundComPort comPort) {
-        super(comPort);
+    public UndiscoveredCloseConnectionEvent(ServiceProvider serviceProvider, InboundComPort comPort) {
+        super(serviceProvider, comPort);
     }
 
     @Override

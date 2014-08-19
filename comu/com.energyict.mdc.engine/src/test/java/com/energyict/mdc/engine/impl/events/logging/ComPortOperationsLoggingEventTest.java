@@ -1,12 +1,9 @@
 package com.energyict.mdc.engine.impl.events.logging;
 
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.events.Category;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
@@ -14,11 +11,7 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.elster.jupiter.util.time.Clock;
 import org.joda.time.DateTime;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -45,24 +38,17 @@ public class ComPortOperationsLoggingEventTest {
     @Mock
     public Clock clock;
     @Mock
-    public DeviceDataService deviceDataService;
-    @Mock
-    public EngineModelService engineModelService;
-    @Mock
-    private ServiceProvider serviceProvider;
+    private AbstractComServerEventImpl.ServiceProvider serviceProvider;
 
     @Before
     public void setupServiceProvider () {
         when(this.clock.now()).thenReturn(new DateTime(2014, 5, 2, 1, 40, 0).toDate()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
-        when(this.serviceProvider.engineModelService()).thenReturn(this.engineModelService);
-        when(this.serviceProvider.deviceDataService()).thenReturn(this.deviceDataService);
-        ServiceProvider.instance.set(this.serviceProvider);
     }
 
     @Test
     public void testCategory () {
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent();
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, mock(ComPort.class), LogLevel.DEBUG, "testCategory");
 
         // Business method
         Category category = event.getCategory();
@@ -76,7 +62,7 @@ public class ComPortOperationsLoggingEventTest {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0).toDate();  // Random pick
         when(this.clock.now()).thenReturn(now);
 
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent();
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, mock(ComPort.class), LogLevel.DEBUG, "testOccurrenceTimestampForDefaultConstructor");
 
         // Business method
         Date timestamp = event.getOccurrenceTimestamp();
@@ -90,7 +76,7 @@ public class ComPortOperationsLoggingEventTest {
         Date now = new DateTime(2012, Calendar.NOVEMBER, 15, 14, 10, 01, 0).toDate();  // Random pick
         when(this.clock.now()).thenReturn(now);
 
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(null, LogLevel.INFO, "testOccurrenceTimestamp");
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, null, LogLevel.INFO, "testOccurrenceTimestamp");
 
         // Business method
         Date timestamp = event.getOccurrenceTimestamp();
@@ -102,7 +88,7 @@ public class ComPortOperationsLoggingEventTest {
     @Test
     public void testIsLoggingRelated () {
         // Business method
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(null, LogLevel.DEBUG, "testLogLevel");
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, null, LogLevel.DEBUG, "testLogLevel");
 
         // Asserts
         assertThat(event.isLoggingRelated()).isTrue();
@@ -111,7 +97,7 @@ public class ComPortOperationsLoggingEventTest {
     @Test
     public void testLogLevel () {
         LogLevel expectedLogLevel = LogLevel.DEBUG;
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(null, expectedLogLevel, "testLogLevel");
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, null, expectedLogLevel, "testLogLevel");
 
         // Business method
         LogLevel logLevel = event.getLogLevel();
@@ -123,7 +109,7 @@ public class ComPortOperationsLoggingEventTest {
     @Test
     public void testLogMessage () {
         String expectedLogMessage = "testLogMessage";
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(null, LogLevel.DEBUG, expectedLogMessage);
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, null, LogLevel.DEBUG, expectedLogMessage);
 
         // Business method
         String logMessage = event.getLogMessage();
@@ -136,7 +122,7 @@ public class ComPortOperationsLoggingEventTest {
     public void testIsNotDeviceRelated () {
         ComPort comPort = mock(ComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(comPort, LogLevel.INFO, "testIsDeviceRelatedBy");
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, comPort, LogLevel.INFO, "testIsDeviceRelatedBy");
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -144,7 +130,7 @@ public class ComPortOperationsLoggingEventTest {
 
     @Test
     public void testIsNotConnectionTaskRelatedByDefault () {
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent();
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, mock(ComPort.class), LogLevel.DEBUG, "testIsNotConnectionTaskRelatedByDefault");
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
@@ -152,19 +138,10 @@ public class ComPortOperationsLoggingEventTest {
     }
 
     @Test
-    public void testIsNotComPortRelatedByDefault () {
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent();
-
-        // Business method & asserts
-        assertThat(event.isComPortRelated()).isFalse();
-
-    }
-
-    @Test
     public void testIsComPortRelated () {
         ComPort comPort = mock(ComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(comPort, LogLevel.INFO, "testIsDeviceRelatedBy");
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, comPort, LogLevel.INFO, "testIsDeviceRelatedBy");
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isTrue();
@@ -173,7 +150,7 @@ public class ComPortOperationsLoggingEventTest {
 
     @Test
     public void testIsNotComPortPoolRelatedByDefault () {
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent();
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, mock(ComPort.class), LogLevel.DEBUG, "testIsNotComPortPoolRelatedByDefault");
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -185,7 +162,7 @@ public class ComPortOperationsLoggingEventTest {
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
         when(comPort.isInbound()).thenReturn(false);
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(comPort, LogLevel.INFO, "testIsDeviceRelatedBy");
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, comPort, LogLevel.INFO, "testIsDeviceRelatedBy");
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -198,7 +175,7 @@ public class ComPortOperationsLoggingEventTest {
         when(comPort.getId()).thenReturn(COMPORT_ID);
         when(comPort.isInbound()).thenReturn(true);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(comPort, LogLevel.INFO, "testIsDeviceRelatedBy");
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, comPort, LogLevel.INFO, "testIsDeviceRelatedBy");
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isTrue();
@@ -207,7 +184,7 @@ public class ComPortOperationsLoggingEventTest {
 
     @Test
     public void testIsNotComTaskExecutionRelated () {
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent();
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, mock(ComPort.class), LogLevel.DEBUG, "testIsNotComTaskExecutionRelated");
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -215,95 +192,16 @@ public class ComPortOperationsLoggingEventTest {
     }
 
     @Test
-    public void testToStringDoesNotFailForDefaultObject () throws IOException {
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent();
-
-        // Business method
-        String eventString = event.toString();
-
-        // Asserts
-        assertThat(eventString).doesNotMatch(ComPortOperationsLoggingEvent.class.getName() + "@\\d*");
-    }
-
-    @Test
     public void testToStringDoesNotFail () throws IOException {
         ComPort comPort = mock(ComPort.class);
         when(comPort.getId()).thenReturn(COMPORT_ID);
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(comPort, LogLevel.INFO, "testSerializationDoesNotFail");
+        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(this.serviceProvider, comPort, LogLevel.INFO, "testSerializationDoesNotFail");
 
         // Business method
         String eventString = event.toString();
 
         // Asserts
         assertThat(eventString).matches("\\{.*\\}");
-    }
-
-    @Test
-    public void testSerializationDoesNotFailForDefaultObject () throws IOException {
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-        // Business method
-        oos.writeObject(event);
-
-        // Intend is to test that there are not failures
-    }
-
-    @Test
-    public void testRestoreAfterSerializationForDefaultObject () throws IOException, ClassNotFoundException {
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(event);
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        ObjectInputStream ois = new ObjectInputStream(bais);
-
-        // Business method
-        ComPortOperationsLoggingEvent restored = (ComPortOperationsLoggingEvent) ois.readObject();
-
-        // Asserts
-        assertThat(restored).isNotNull();
-    }
-
-    @Test
-    public void testSerializationDoesNotFail () throws IOException {
-        ComPort comPort = mock(ComPort.class);
-        when(comPort.getId()).thenReturn(COMPORT_ID);
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(comPort, LogLevel.INFO, "testSerializationDoesNotFail");
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-        // Business method
-        oos.writeObject(event);
-
-        // Intend is to test that there are not failures
-    }
-
-    @Test
-    public void testRestoreAfterSerialization () throws IOException, ClassNotFoundException {
-        ComPort comPort = mock(ComPort.class);
-        when(comPort.getId()).thenReturn(COMPORT_ID);
-        LogLevel expectedLogLevel = LogLevel.INFO;
-        String expectedLogMessage = "testRestoreAfterSerialization";
-        ComPortOperationsLoggingEvent event = new ComPortOperationsLoggingEvent(comPort, expectedLogLevel, expectedLogMessage);
-        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(comPort);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(event);
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        ObjectInputStream ois = new ObjectInputStream(bais);
-
-        // Business method
-        ComPortOperationsLoggingEvent restored = (ComPortOperationsLoggingEvent) ois.readObject();
-
-        // Asserts
-        assertThat(restored.getLogLevel()).isEqualTo(expectedLogLevel);
-        assertThat(restored.getLogMessage()).isEqualTo(expectedLogMessage);
     }
 
 }

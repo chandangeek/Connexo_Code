@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.io.ReadEvent;
 import com.energyict.mdc.engine.impl.events.io.WriteEvent;
@@ -169,11 +170,11 @@ public aspect ComChannelReadWriteEventPublisher {
     }
 
     private void logBytesWritten (ComPortRelatedComChannel comChannel, ByteArrayOutputStream bytes) {
-        this.publish(new WriteEvent(comChannel.getComPort(), bytes.toByteArray()));
+        this.publish(new WriteEvent(new ComServerEventServiceProviderAdapter(), comChannel.getComPort(), bytes.toByteArray()));
     }
 
     private void logBytesRead (ComPortRelatedComChannel comChannel, ByteArrayOutputStream bytes) {
-        this.publish(new ReadEvent(comChannel.getComPort(), bytes.toByteArray()));
+        this.publish(new ReadEvent(new ComServerEventServiceProviderAdapter(), comChannel.getComPort(), bytes.toByteArray()));
     }
 
     private void publish (ComServerEvent event) {

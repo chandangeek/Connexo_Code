@@ -17,15 +17,8 @@ import org.json.JSONWriter;
  */
 public class ComTaskExecutionCompletionEvent extends AbstractComTaskExecutionEventImpl {
 
-    /**
-     * For the externalization process only.
-     */
-    public ComTaskExecutionCompletionEvent() {
-        super();
-    }
-
-    public ComTaskExecutionCompletionEvent(ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask) {
-        super(comTask, comPort, connectionTask);
+    public ComTaskExecutionCompletionEvent(ServiceProvider serviceProvider, ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask) {
+        super(serviceProvider, comTask, comPort, connectionTask);
     }
 
     @Override

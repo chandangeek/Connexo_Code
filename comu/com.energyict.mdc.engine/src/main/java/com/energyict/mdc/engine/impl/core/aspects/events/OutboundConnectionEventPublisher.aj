@@ -4,12 +4,16 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.connection.CannotEstablishConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ConnectionException;
+
+import com.elster.jupiter.util.time.Clock;
 
 /**
  * Defines pointcuts and advice that will publish events
@@ -27,7 +31,7 @@ public aspect OutboundConnectionEventPublisher {
 
     after (ComPort comPort, ScheduledJobImpl scheduledJob) returning (boolean succes) : establishConnectionFor(comPort, scheduledJob) {
         if (succes) {
-            this.publish(new EstablishConnectionEvent(comPort, scheduledJob.getConnectionTask()));
+            this.publish(new EstablishConnectionEvent(new ServiceProviderAdapter(), comPort, scheduledJob.getConnectionTask()));
          }
     }
 
@@ -37,7 +41,7 @@ public aspect OutboundConnectionEventPublisher {
          && args(e, connectionTask);
 
     after (ExecutionContext context, ConnectionException e, ConnectionTask connectionTask) : connectionFailed(context, e, connectionTask) {
-        this.publish(new CannotEstablishConnectionEvent(context.getComPort(), connectionTask, e));
+        this.publish(new CannotEstablishConnectionEvent(new ServiceProviderAdapter(), context.getComPort(), connectionTask, e));
     }
 
     private pointcut closeConnection (ExecutionContext executionContext):
@@ -49,7 +53,7 @@ public aspect OutboundConnectionEventPublisher {
          * even when the connection was never established.
          * So first test if there was a connection. */
         if (this.isConnected(executionContext)) {
-            this.publish(new CloseConnectionEvent(executionContext.getComPort(), executionContext.getConnectionTask()));
+            this.publish(new CloseConnectionEvent(new ServiceProviderAdapter(), executionContext.getComPort(), executionContext.getConnectionTask()));
         }
     }
 
@@ -59,6 +63,21 @@ public aspect OutboundConnectionEventPublisher {
 
     private boolean isConnected (ExecutionContext executionContext) {
         return executionContext.getComPortRelatedComChannel() != null;
+    }
+
+    public static class ServiceProviderAdapter implements AbstractComServerEventImpl.ServiceProvider {
+
+        private final com.energyict.mdc.engine.impl.core.ServiceProvider delegate;
+
+        public ServiceProviderAdapter() {
+            this.delegate = ServiceProvider.instance.get();
+        }
+
+        @Override
+        public Clock clock() {
+            return delegate.clock();
+        }
+
     }
 
 }

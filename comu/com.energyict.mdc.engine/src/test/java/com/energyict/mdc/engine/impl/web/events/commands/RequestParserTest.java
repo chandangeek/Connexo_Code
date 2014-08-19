@@ -203,7 +203,7 @@ public class RequestParserTest {
     }
 
     @Test
-    public void testErrorCategoryWithDefaultMarker () throws RequestParseException {
+    public void testErrorCategory() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
@@ -211,84 +211,27 @@ public class RequestParserTest {
 
         // Asserts
         assertThat(request).isInstanceOf(LoggingRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
         LoggingRequest loggingRequest = (LoggingRequest) request;
         assertThat(loggingRequest.getCategories()).containsOnly(Category.CONNECTION);
         assertThat(loggingRequest.getLevel()).isEqualTo(LogLevel.ERROR);
     }
 
     @Test
-    public void testErrorCategoryWithBinaryMarker () throws RequestParseException {
+    public void testNoDebuggingCategories() throws RequestParseException {
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
-        Request request = parser.parse("Register request for binary events for errors: CONNECTION");
+        Request request = parser.parse("Register request for events for debugging:");
 
         // Asserts
         assertThat(request).isInstanceOf(LoggingRequest.class);
-        assertThat(request.useBinaryEvents()).isTrue();
-        LoggingRequest loggingRequest = (LoggingRequest) request;
-        assertThat(loggingRequest.getCategories()).containsOnly(Category.CONNECTION);
-        assertThat(loggingRequest.getLevel()).isEqualTo(LogLevel.ERROR);
-    }
-
-    @Test
-    public void testTracingCategoryWithTextMarker () throws RequestParseException {
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        Request request = parser.parse("Register request for text events for tracing: CONNECTION");
-
-        // Asserts
-        assertThat(request).isInstanceOf(LoggingRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
-        LoggingRequest loggingRequest = (LoggingRequest) request;
-        assertThat(loggingRequest.getCategories()).containsOnly(Category.CONNECTION);
-        assertThat(loggingRequest.getLevel()).isEqualTo(LogLevel.TRACE);
-    }
-
-    @Test
-    public void testNoDebuggingCategoriesWithBinaryMarker () throws RequestParseException {
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        Request request = parser.parse("Register request for binary events for debugging:");
-
-        // Asserts
-        assertThat(request).isInstanceOf(LoggingRequest.class);
-        assertThat(request.useBinaryEvents()).isTrue();
         LoggingRequest loggingRequest = (LoggingRequest) request;
         assertThat(loggingRequest.getCategories()).containsOnly(Category.CONNECTION, Category.COMTASK, Category.COLLECTED_DATA_PROCESSING, Category.LOGGING);
         assertThat(loggingRequest.getLevel()).isEqualTo(LogLevel.DEBUG);
     }
 
     @Test
-    public void testNoInfoCategoriesWithTextMarker () throws RequestParseException {
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        Request request = parser.parse("Register request for text events for info:");
-
-        // Asserts
-        assertThat(request).isInstanceOf(LoggingRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
-        LoggingRequest loggingRequest = (LoggingRequest) request;
-        assertThat(loggingRequest.getCategories()).containsOnly(Category.CONNECTION, Category.COMTASK, Category.COLLECTED_DATA_PROCESSING, Category.LOGGING);
-        assertThat(loggingRequest.getLevel()).isEqualTo(LogLevel.INFO);
-    }
-
-    @Test(expected = RequestTypeParseException.class)
-    public void testNoCategoriesWithUnknownMarker () throws RequestParseException {
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        parser.parse("Register request for encrypted events for warning:");
-
-        // Expected RequestTypeParseException because the request does not match with the expected request pattern
-    }
-
-    @Test
-    public void testNoDevicesWihtoutMarker () throws RequestParseException {
+    public void testNoDevices() throws RequestParseException {
         this.mockDevices();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -297,37 +240,10 @@ public class RequestParserTest {
 
         // Asserts
         assertThat(request).isInstanceOf(AllDevicesRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
     }
 
     @Test
-    public void testNoDevicesWithBinaryMarker () throws RequestParseException {
-        this.mockDevices();
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        Request request = parser.parse("Register request for binary events for device:");
-
-        // Asserts
-        assertThat(request).isInstanceOf(AllDevicesRequest.class);
-        assertThat(request.useBinaryEvents()).isTrue();
-    }
-
-    @Test
-    public void testNoDevicesWithTextMarker () throws RequestParseException {
-        this.mockDevices();
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        Request request = parser.parse("Register request for text events for device:");
-
-        // Asserts
-        assertThat(request).isInstanceOf(AllDevicesRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
-    }
-
-    @Test
-    public void testOneDeviceWithoutMarker () throws RequestParseException {
+    public void testOneDevice() throws RequestParseException {
         this.mockDevices();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -336,43 +252,12 @@ public class RequestParserTest {
 
         // Asserts
         assertThat(request).isInstanceOf(DeviceRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
         DeviceRequest deviceRequest = (DeviceRequest) request;
         assertThat(deviceRequest.getBusinessObjectIds()).containsOnly(DEVICE1_ID);
     }
 
     @Test
-    public void testOneDeviceWithBinaryMarker () throws RequestParseException {
-        this.mockDevices();
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        Request request = parser.parse("Register request for binary events for device: " + DEVICE1_ID);
-
-        // Asserts
-        assertThat(request).isInstanceOf(DeviceRequest.class);
-        assertThat(request.useBinaryEvents()).isTrue();
-        DeviceRequest deviceRequest = (DeviceRequest) request;
-        assertThat(deviceRequest.getBusinessObjectIds()).containsOnly(DEVICE1_ID);
-    }
-
-    @Test
-    public void testOneDeviceWithTextMarker () throws RequestParseException {
-        this.mockDevices();
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        Request request = parser.parse("Register request for text events for device: " + DEVICE1_ID);
-
-        // Asserts
-        assertThat(request).isInstanceOf(DeviceRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
-        DeviceRequest deviceRequest = (DeviceRequest) request;
-        assertThat(deviceRequest.getBusinessObjectIds()).containsOnly(DEVICE1_ID);
-    }
-
-    @Test
-    public void testMultipleDeviceIdsWithoutMarker () throws RequestParseException {
+    public void testMultipleDeviceIds() throws RequestParseException {
         this.mockDevices();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -381,43 +266,12 @@ public class RequestParserTest {
 
         // Asserts
         assertThat(request).isInstanceOf(DeviceRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
-        DeviceRequest deviceRequest = (DeviceRequest) request;
-        assertThat(deviceRequest.getBusinessObjectIds()).containsOnly(DEVICE1_ID, DEVICE2_ID);
-    }
-
-    @Test
-    public void testMultipleDeviceIdsWithBinaryMarker () throws RequestParseException {
-        this.mockDevices();
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        Request request = parser.parse("Register request for binary events for device: " + DEVICE1_ID + "," + DEVICE2_ID);
-
-        // Asserts
-        assertThat(request).isInstanceOf(DeviceRequest.class);
-        assertThat(request.useBinaryEvents()).isTrue();
-        DeviceRequest deviceRequest = (DeviceRequest) request;
-        assertThat(deviceRequest.getBusinessObjectIds()).containsOnly(DEVICE1_ID, DEVICE2_ID);
-    }
-
-    @Test
-    public void testMultipleDeviceIdsWithTextMarker () throws RequestParseException {
-        this.mockDevices();
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        Request request = parser.parse("Register request for text events for device: " + DEVICE1_ID + "," + DEVICE2_ID);
-
-        // Asserts
-        assertThat(request).isInstanceOf(DeviceRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
         DeviceRequest deviceRequest = (DeviceRequest) request;
         assertThat(deviceRequest.getBusinessObjectIds()).containsOnly(DEVICE1_ID, DEVICE2_ID);
     }
 
     @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonExistingDeviceWithoutMarker () throws RequestParseException {
+    public void testNonExistingDevice() throws RequestParseException {
         this.mockDevices();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -428,56 +282,12 @@ public class RequestParserTest {
     }
 
     @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonExistingDeviceWithBinaryMarker () throws RequestParseException {
-        this.mockDevices();
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        parser.parse("Register request for binary events for device: " + NON_EXISTING_DEVICE_ID);
-
-        // Expected BusinessObjectIdParseException because the device request does not exist
-    }
-
-    @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonExistingDeviceWithTextMarker () throws RequestParseException {
-        this.mockDevices();
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        parser.parse("Register request for text events for device: " + NON_EXISTING_DEVICE_ID);
-
-        // Expected BusinessObjectIdParseException because the device request does not exist
-    }
-
-    @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonNumericalDeviceIdWithoutMarker () throws RequestParseException {
+    public void testNonNumericalDeviceId() throws RequestParseException {
         this.mockDevices();
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
         parser.parse("Register request for device: notAnumber");
-
-        // Expected BusinessObjectIdParseException because the device id is not a number
-    }
-
-    @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonNumericalDeviceIdWithBinaryMarker () throws RequestParseException {
-        this.mockDevices();
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        parser.parse("Register request for binary events for device: notAnumber");
-
-        // Expected BusinessObjectIdParseException because the device id is not a number
-    }
-
-    @Test(expected = BusinessObjectIdParseException.class)
-    public void testNonNumericalDeviceIdWithTextMarker () throws RequestParseException {
-        this.mockDevices();
-        RequestParser parser = new RequestParser(serviceProvider);
-
-        //Business method
-        parser.parse("Register request for text events for device: notAnumber");
 
         // Expected BusinessObjectIdParseException because the device id is not a number
     }
@@ -506,7 +316,6 @@ public class RequestParserTest {
 
         // Asserts
         assertThat(request).isInstanceOf(AllConnectionTasksRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
     }
 
     @Test
@@ -584,7 +393,6 @@ public class RequestParserTest {
 
         // Asserts
         assertThat(request).isInstanceOf(AllComTaskExecutionsRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
     }
 
     @Test
@@ -661,7 +469,6 @@ public class RequestParserTest {
 
         // Asserts
         assertThat(request).isInstanceOf(AllComPortsRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
     }
 
     @Test
@@ -738,7 +545,6 @@ public class RequestParserTest {
 
         // Asserts
         assertThat(request).isInstanceOf(AllComPortPoolsRequest.class);
-        assertThat(request.useBinaryEvents()).isFalse();
     }
 
     @Test

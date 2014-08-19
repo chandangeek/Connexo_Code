@@ -11,15 +11,8 @@ import com.energyict.mdc.engine.model.ComPort;
  */
 public class ReadEvent extends CommunicationEventImpl {
 
-    /**
-     * For the externalization process only.
-     */
-    public ReadEvent() {
-        super();
-    }
-
-    public ReadEvent(ComPort comPort, byte[] bytes) {
-        super(comPort, bytes);
+    public ReadEvent(ServiceProvider serviceProvider, ComPort comPort, byte[] bytes) {
+        super(serviceProvider, comPort, bytes);
     }
 
     @Override

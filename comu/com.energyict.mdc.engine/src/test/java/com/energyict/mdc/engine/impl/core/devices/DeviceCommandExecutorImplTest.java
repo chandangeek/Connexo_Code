@@ -12,6 +12,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ComServerThreadFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComServer;
 
@@ -85,7 +86,8 @@ public class DeviceCommandExecutorImplTest {
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
         when(userService.findUser(anyString())).thenReturn(Optional.of(user));
-        EventPublisherImpl.setInstance(mock(EventPublisherImpl.class));
+        EventPublisherImpl.setInstance(this.eventPublisher);
+        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
         when(this.comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
     }
 

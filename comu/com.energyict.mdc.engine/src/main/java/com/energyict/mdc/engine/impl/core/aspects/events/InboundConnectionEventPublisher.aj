@@ -1,8 +1,11 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.aspects.statistics.AbstractCommunicationStatisticsMonitor;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionCompletionEvent;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionStartedEvent;
@@ -10,11 +13,9 @@ import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.UndiscoveredCloseConnectionEvent;
 import com.energyict.mdc.engine.impl.events.connection.UndiscoveredEstablishConnectionEvent;
-import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 /**
  * Defines pointcuts and advice that will publish events
@@ -32,7 +33,7 @@ public privileged aspect InboundConnectionEventPublisher extends AbstractCommuni
          && args(inboundDeviceProtocol, context);
 
     before (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContext context) : handle(handler, inboundDeviceProtocol, context) {
-        this.publish(new UndiscoveredEstablishConnectionEvent(handler.getComPort()));
+        this.publish(new UndiscoveredEstablishConnectionEvent(new ComServerEventServiceProviderAdapter(), handler.getComPort()));
     }
 
     private pointcut startDeviceSessionInContext (InboundCommunicationHandler handler):
@@ -40,7 +41,7 @@ public privileged aspect InboundConnectionEventPublisher extends AbstractCommuni
         && target(handler);
 
     before (InboundCommunicationHandler handler): startDeviceSessionInContext(handler) {
-        this.publish(new EstablishConnectionEvent(handler.getComPort(), handler.getConnectionTask()));
+        this.publish(new EstablishConnectionEvent(new ComServerEventServiceProviderAdapter(), handler.getComPort(), handler.getConnectionTask()));
     }
 
     private pointcut processCollectedData (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice):
@@ -50,13 +51,13 @@ public privileged aspect InboundConnectionEventPublisher extends AbstractCommuni
 
     before (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice): processCollectedData(handler, inboundDeviceProtocol, token, offlineDevice) {
         for (ComTaskExecution comTaskExecution : handler.getDeviceComTaskExecutions()) {
-            this.publish(new ComTaskExecutionStartedEvent(comTaskExecution, handler.getComPort(), handler.getConnectionTask()));
+            this.publish(new ComTaskExecutionStartedEvent(new ComServerEventServiceProviderAdapter(), comTaskExecution, handler.getComPort(), handler.getConnectionTask()));
         }
     }
 
     after (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice): processCollectedData(handler, inboundDeviceProtocol, token, offlineDevice) {
         for (ComTaskExecution comTaskExecution : handler.getDeviceComTaskExecutions()) {
-            this.publish(new ComTaskExecutionCompletionEvent(comTaskExecution, handler.getComPort(), handler.getConnectionTask()));
+            this.publish(new ComTaskExecutionCompletionEvent(new ComServerEventServiceProviderAdapter(), comTaskExecution, handler.getComPort(), handler.getConnectionTask()));
         }
     }
 
@@ -66,10 +67,10 @@ public privileged aspect InboundConnectionEventPublisher extends AbstractCommuni
 
     after (InboundCommunicationHandler handler): closeContext(handler) {
         if (handler.getConnectionTask() != null) {
-            this.publish(new CloseConnectionEvent(handler.getComPort(), handler.getConnectionTask()));
+            this.publish(new CloseConnectionEvent(new ComServerEventServiceProviderAdapter(), handler.getComPort(), handler.getConnectionTask()));
         }
         else {
-            this.publish(new UndiscoveredCloseConnectionEvent(handler.getComPort()));
+            this.publish(new UndiscoveredCloseConnectionEvent(new ComServerEventServiceProviderAdapter(), handler.getComPort()));
         }
     }
 

@@ -14,10 +14,6 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 /**
  * Represents a {@link com.energyict.mdc.engine.events.ConnectionEvent}
  * but it is yet undiscovered which device
@@ -30,16 +26,8 @@ public abstract class UndiscoveredConnectionEvent extends AbstractComServerEvent
 
     private InboundComPort comPort;
 
-    /**
-     * For the externalization process only.
-     *
-     */
-    protected UndiscoveredConnectionEvent() {
-        super();
-    }
-
-    public UndiscoveredConnectionEvent(InboundComPort comPort) {
-        this();
+    public UndiscoveredConnectionEvent(ServiceProvider serviceProvider, InboundComPort comPort) {
+        super(serviceProvider);
         this.comPort = comPort;
     }
 
@@ -88,33 +76,12 @@ public abstract class UndiscoveredConnectionEvent extends AbstractComServerEvent
         return this.comPort.getComPortPool();
     }
 
-    @Override
-    public void writeExternal (ObjectOutput out) throws IOException {
-        super.writeExternal(out);
-        out.writeLong(this.extractId(this.getComPort()));
-    }
-
     private long extractId(HasId hasId) {
         if (hasId == null) {
             return 0;
         }
         else {
             return hasId.getId();
-        }
-    }
-
-    @Override
-    public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
-        super.readExternal(in);
-        this.comPort = this.findComPort(in.readLong());
-    }
-
-    private InboundComPort findComPort (long comPortId) {
-        if (comPortId != 0) {
-            return (InboundComPort) getEngineModelService().findComPort(comPortId);
-        }
-        else {
-            return null;
         }
     }
 

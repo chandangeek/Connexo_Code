@@ -5,13 +5,14 @@ import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTes
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Common methods for ComCommand tests
@@ -27,11 +28,14 @@ public abstract class CommonCommandImplTests extends AbstractComCommandExecuteTe
 
     @Before
     public void setupEventPublisher () {
+        super.setupEventPublisher();
         EventPublisherImpl.setInstance(this.eventPublisher);
+        when(this.eventPublisher.serviceProvider()).thenReturn(comServerEventServiceProviderAdapter());
     }
 
     @After
     public void resetEventPublisher () {
+        super.resetEventPublisher();
         EventPublisherImpl.setInstance(null);
     }
 
@@ -42,4 +46,5 @@ public abstract class CommonCommandImplTests extends AbstractComCommandExecuteTe
     public static CommandRoot createCommandRoot(final OfflineDevice offlineDevice){
         return new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), serviceProvider);
     }
+
 }

@@ -242,15 +242,6 @@ public class EventPublisherImpl implements EventPublisher {
             return clock;
         }
 
-        @Override
-        public DeviceDataService deviceDataService() {
-            return deviceDataService;
-        }
-
-        @Override
-        public EngineModelService engineModelService() {
-            return engineModelService;
-        }
     }
 
 }

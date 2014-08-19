@@ -1,8 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.model.EngineModelService;
 
 import com.elster.jupiter.util.time.Clock;
 import org.joda.time.format.DateTimeFormat;
@@ -11,9 +9,6 @@ import org.json.JSONException;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Date;
 
 /**
@@ -35,60 +30,22 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
 
         public Clock clock();
 
-        public DeviceDataService deviceDataService ();
-
-        public EngineModelService engineModelService();
-
-    }
-
-    public static class ServiceProviderAdapter implements ServiceProvider {
-
-        private final com.energyict.mdc.engine.impl.core.ServiceProvider delegate;
-
-        public ServiceProviderAdapter(com.energyict.mdc.engine.impl.core.ServiceProvider delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public Clock clock() {
-            return delegate.clock();
-        }
-
-        @Override
-        public DeviceDataService deviceDataService() {
-            return delegate.deviceDataService();
-        }
-
-        @Override
-        public EngineModelService engineModelService() {
-            return delegate.engineModelService();
-        }
     }
 
     private Date occurrenceTimestamp;
+    private final ServiceProvider serviceProvider;
 
-    /**
-     * For the externalization process only.
-     */
-    protected AbstractComServerEventImpl() {
-        super();
-        this.occurrenceTimestamp = this.getServiceProvider().clock().now();
+    protected AbstractComServerEventImpl(ServiceProvider serviceProvider) {
+        this.serviceProvider = serviceProvider;
+        this.occurrenceTimestamp = serviceProvider.clock().now();
     }
 
     private ServiceProvider getServiceProvider () {
-        return new ServiceProviderAdapter(com.energyict.mdc.engine.impl.core.ServiceProvider.instance.get());
+        return this.serviceProvider;
     }
 
     protected Clock getClock() {
         return this.getServiceProvider().clock();
-    }
-
-    protected DeviceDataService getDeviceDataService() {
-        return this.getServiceProvider().deviceDataService();
-    }
-
-    protected EngineModelService getEngineModelService() {
-        return this.getServiceProvider().engineModelService();
     }
 
     @Override
@@ -137,16 +94,6 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
     @Override
     public boolean isLoggingRelated () {
         return false;
-    }
-
-    @Override
-    public void writeExternal (ObjectOutput out) throws IOException {
-        out.writeLong(this.occurrenceTimestamp.getTime());
-    }
-
-    @Override
-    public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
-        this.occurrenceTimestamp = new Date(in.readLong());
     }
 
     @Override

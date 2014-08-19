@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComServer;
@@ -58,26 +59,19 @@ public class ComServletTest {
     private EventPublisherImpl eventPublisher;
 
     @Before
-    public void initBefore() {
+    public void setupEventPublisher () {
         serviceProvider = new FakeServiceProvider();
         serviceProvider.setClock(new DefaultClock());
         serviceProvider.setProtocolPluggableService(protocolPluggableService);
         when(protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
         ServiceProvider.instance.set(serviceProvider);
-    }
-
-    @After
-    public void initAfter() {
-        ServiceProvider.instance.set(null);
-    }
-
-    @Before
-    public void setupEventPublisher () {
         EventPublisherImpl.setInstance(this.eventPublisher);
+        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
     }
 
     @After
     public void resetEventPublisher () {
+        ServiceProvider.instance.set(null);
         EventPublisherImpl.setInstance(null);
     }
 

@@ -15,15 +15,8 @@ import org.json.JSONWriter;
  */
 public class CloseConnectionEvent extends AbstractConnectionEventImpl {
 
-    /**
-     * For the externalization process only.
-     */
-    public CloseConnectionEvent() {
-        super();
-    }
-
-    public CloseConnectionEvent(ComPort comPort, ConnectionTask connectionTask) {
-        super(connectionTask, comPort);
+    public CloseConnectionEvent(ServiceProvider serviceProvider, ComPort comPort, ConnectionTask connectionTask) {
+        super(serviceProvider, connectionTask, comPort);
     }
 
     @Override

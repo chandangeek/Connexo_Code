@@ -8,10 +8,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
 /**
  * Provides an implementation for the {@link LoggingEvent} interface
  * that does not relate to any other ComServer object.
@@ -24,15 +20,8 @@ public class UnrelatedLoggingEvent extends AbstractComServerEventImpl implements
     private LogLevel logLevel;
     private String logMessage;
 
-    /**
-     * For the externalization process only.
-     */
-    public UnrelatedLoggingEvent() {
-        super();
-    }
-
-    public UnrelatedLoggingEvent(LogLevel logLevel, String logMessage) {
-        super();
+    public UnrelatedLoggingEvent(ServiceProvider serviceProvider, LogLevel logLevel, String logMessage) {
+        super(serviceProvider);
         this.logLevel = logLevel;
         this.logMessage = logMessage;
     }
@@ -55,20 +44,6 @@ public class UnrelatedLoggingEvent extends AbstractComServerEventImpl implements
     @Override
     public Category getCategory () {
         return Category.LOGGING;
-    }
-
-    @Override
-    public void writeExternal (ObjectOutput out) throws IOException {
-        super.writeExternal(out);
-        LoggingEventExternalizationAssistant.writeExternal(this, out);
-    }
-
-    @Override
-    public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
-        super.readExternal(in);
-        LoggingEventExternalizationAssistant.LoggingEventPojo pojo = LoggingEventExternalizationAssistant.readExternal(in);
-        this.logLevel = pojo.getLogLevel();
-        this.logMessage = pojo.getLogMessage();
     }
 
     @Override

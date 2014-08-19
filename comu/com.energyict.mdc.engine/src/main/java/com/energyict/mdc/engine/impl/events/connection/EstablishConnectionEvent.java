@@ -15,15 +15,8 @@ import org.json.JSONWriter;
  */
 public class EstablishConnectionEvent extends AbstractConnectionEventImpl {
 
-    /**
-     * For the externalization process only.
-     */
-    public EstablishConnectionEvent() {
-        super();
-    }
-
-    public EstablishConnectionEvent(ComPort comPort, ConnectionTask connectionTask) {
-        super(connectionTask, comPort);
+    public EstablishConnectionEvent(ServiceProvider serviceProvider, ComPort comPort, ConnectionTask connectionTask) {
+        super(serviceProvider, connectionTask, comPort);
     }
 
     @Override

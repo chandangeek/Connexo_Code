@@ -17,10 +17,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import org.eclipse.jetty.websocket.WebSocket;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -37,7 +34,6 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     private EventPublisher systemWideEventPublisher;
     private Connection connection;
     private RequestParser parser;
-    private boolean sendBinary = false;
 
     public WebSocketEventPublisher(RequestParser.ServiceProvider serviceProvider, WebSocketCloseEventListener closeEventListener) {
         this(serviceProvider, EventPublisherImpl.getInstance(), closeEventListener);
@@ -63,12 +59,7 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     private void sendMessage (String message) {
         try {
             if (this.isConnected()) {
-                if (this.sendBinary) {
-                    this.sendBinary(message);
-                }
-                else {
-                    this.connection.sendMessage(message);
-                }
+                this.connection.sendMessage(message);
             }
         }
         catch (IOException e) {
@@ -79,28 +70,8 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     private void sendEvent (ComServerEvent event) {
         try {
             if (this.isConnected()) {
-                if (this.sendBinary) {
-                    this.sendBinary(event);
-                }
-                else {
-                    this.connection.sendMessage(event.toString());
-                }
+                this.connection.sendMessage(event.toString());
             }
-        }
-        catch (IOException e) {
-            e.printStackTrace(System.err);
-        }
-    }
-
-    private void sendBinary (Serializable object) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(object);
-            oos.flush();
-            oos.close();
-            byte[] bytes = baos.toByteArray();
-            this.connection.sendMessage(bytes, 0, bytes.length);
         }
         catch (IOException e) {
             e.printStackTrace(System.err);
@@ -116,7 +87,6 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
         try {
             Request request = this.parser.parse(message);
             request.applyTo(this);
-            this.sendBinary = request.useBinaryEvents();
             this.sendMessage("Copy " + message);
         }
         catch (RequestParseException e) {

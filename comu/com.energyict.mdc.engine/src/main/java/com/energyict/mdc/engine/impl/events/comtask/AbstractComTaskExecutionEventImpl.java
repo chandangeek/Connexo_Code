@@ -14,9 +14,6 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Date;
 
 /**
@@ -32,15 +29,8 @@ public abstract class AbstractComTaskExecutionEventImpl extends AbstractComServe
     private ComPort comPort;
     private ConnectionTask connectionTask;
 
-    /**
-     * For the externalization process only.
-     */
-    protected AbstractComTaskExecutionEventImpl() {
-        super();
-    }
-
-    protected AbstractComTaskExecutionEventImpl(ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask) {
-        super();
+    protected AbstractComTaskExecutionEventImpl(ServiceProvider serviceProvider, ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask) {
+        super(serviceProvider);
         this.comTaskExecution = comTaskExecution;
         this.comPort = comPort;
         this.connectionTask = connectionTask;
@@ -132,55 +122,12 @@ public abstract class AbstractComTaskExecutionEventImpl extends AbstractComServe
         return false;
     }
 
-    @Override
-    public void writeExternal (ObjectOutput out) throws IOException {
-        super.writeExternal(out);
-        out.writeLong(this.extractId(this.getComTaskExecution()));
-        out.writeLong(this.extractId(this.getComPort()));
-        out.writeLong(this.extractId(this.getConnectionTask()));
-    }
-
     private long extractId(HasId hasId) {
         if (hasId == null) {
             return 0;
         }
         else {
             return hasId.getId();
-        }
-    }
-
-    @Override
-    public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
-        super.readExternal(in);
-        this.comTaskExecution = this.findComTaskExecution(in.readLong());
-        this.comPort = this.findComPort(in.readLong());
-        this.connectionTask = this.findConnectionTask(in.readLong());
-    }
-
-    private ComTaskExecution findComTaskExecution (long comTaskExecutionId) {
-        if (comTaskExecutionId != 0) {
-            return this.getDeviceDataService().findComTaskExecution(comTaskExecutionId);
-        }
-        else {
-            return null;
-        }
-    }
-
-    private ComPort findComPort (long comPortId) {
-        if (comPortId != 0) {
-            return this.getEngineModelService().findComPort(comPortId);
-        }
-        else {
-            return null;
-        }
-    }
-
-    private ConnectionTask findConnectionTask (long connectionTaskId) {
-        if (connectionTaskId != 0) {
-            return this.getDeviceDataService().findConnectionTask(connectionTaskId).orNull();
-        }
-        else {
-            return null;
         }
     }
 

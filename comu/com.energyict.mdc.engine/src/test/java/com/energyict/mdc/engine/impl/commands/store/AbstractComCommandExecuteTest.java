@@ -12,6 +12,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.CommandRootServiceProvi
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -57,28 +58,17 @@ public abstract class AbstractComCommandExecuteTest {
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
-
     @Mock
     private EventPublisherImpl eventPublisher;
 
     @Before
     public void setupEventPublisher () {
+        this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
+        when(this.eventPublisher.serviceProvider()).thenReturn(this.comServerEventServiceProviderAdapter());
     }
 
-    @After
-    public void resetEventPublisher () {
-        EventPublisherImpl.setInstance(null);
-    }
-    @Before
-    public void setUpManager() throws Exception {
-        setupServiceProvider();
-        when(this.protocolDialectConfigurationProperties.getId()).thenReturn(PROTOCOL_DIALECT_CONFIG_PROPS_ID);
-        when(deviceConfigurationService.getProtocolDialectConfigurationProperties(PROTOCOL_DIALECT_CONFIG_PROPS_ID)).thenReturn(Optional.of(protocolDialectConfigurationProperties));
-    }
-
-    @Before
-    public void setupServiceProvider() {
+    private void setupServiceProvider() {
         serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
         ProgrammableClock clock = new ProgrammableClock();
         serviceProvider.setClock(clock);
@@ -87,10 +77,25 @@ public abstract class AbstractComCommandExecuteTest {
         ServiceProvider.instance.set(serviceProvider);
     }
 
+    protected ComServerEventServiceProviderAdapter comServerEventServiceProviderAdapter() {
+        return new ComServerEventServiceProviderAdapter();
+    }
+
     @After
-    public void resetServiceProvider () {
+    public void resetEventPublisher () {
+        this.resetServiceProvider();
+        EventPublisherImpl.setInstance(null);
+    }
+
+    private void resetServiceProvider () {
         serviceProvider.setClock(new DefaultClock());
         ServiceProvider.instance.set(null);
+    }
+
+    @Before
+    public void setUpManager() throws Exception {
+        when(this.protocolDialectConfigurationProperties.getId()).thenReturn(PROTOCOL_DIALECT_CONFIG_PROPS_ID);
+        when(deviceConfigurationService.getProtocolDialectConfigurationProperties(PROTOCOL_DIALECT_CONFIG_PROPS_ID)).thenReturn(Optional.of(protocolDialectConfigurationProperties));
     }
 
     protected static ExecutionContext newTestExecutionContext () {
@@ -125,4 +130,5 @@ public abstract class AbstractComCommandExecuteTest {
         executionContext.start(comTaskExecution);
         return executionContext;
     }
+
 }

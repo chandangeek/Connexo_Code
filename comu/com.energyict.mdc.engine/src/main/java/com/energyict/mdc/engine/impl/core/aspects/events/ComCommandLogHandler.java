@@ -32,7 +32,7 @@ public class ComCommandLogHandler extends EventPublishingLogHandler {
 
     @Override
     protected ComServerEvent toEvent(AbstractComServerEventImpl.ServiceProvider serviceProvider, LogLevel level, String logMessage) {
-        return new ComCommandLoggingEvent(this.comPort, this.connectionTask, this.comTaskExecution, level, logMessage);
+        return new ComCommandLoggingEvent(serviceProvider, this.comPort, this.connectionTask, this.comTaskExecution, level, logMessage);
     }
 
 }

@@ -29,6 +29,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.DeviceProtocolCommandCreator;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -161,7 +162,9 @@ public class JobExecutionTest {
 
     @Before
     public void setupEventPublisher () {
+        this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
+        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
     }
 
     @After
@@ -171,7 +174,6 @@ public class JobExecutionTest {
 
     @Before
     public void initMocks() throws ConnectionException {
-        this.setupServiceProvider();
         when(device.getId()).thenReturn(DEVICE_ID);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());

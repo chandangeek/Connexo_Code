@@ -1,7 +1,12 @@
 package com.energyict.mdc.engine.impl.core.aspects.statistics;
 
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.model.EngineModelService;
 
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.StopWatch;
 
 /**

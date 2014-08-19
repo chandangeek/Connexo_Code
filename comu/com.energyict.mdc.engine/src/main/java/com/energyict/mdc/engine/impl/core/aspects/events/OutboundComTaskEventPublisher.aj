@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core.aspects.events;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionCompletionEvent;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionFailureEvent;
@@ -25,6 +26,7 @@ public aspect OutboundComTaskEventPublisher {
     after (JobExecution job, ComTaskExecution comTaskExecution): startTask(job, comTaskExecution) {
         this.publish(
                 new ComTaskExecutionStartedEvent(
+                        new ComServerEventServiceProviderAdapter(),
                         comTaskExecution,
                         job.getExecutionContext().getComPort(),
                         job.getExecutionContext().getConnectionTask()
@@ -39,6 +41,7 @@ public aspect OutboundComTaskEventPublisher {
     after (JobExecution job, ComTaskExecution comTaskExecution): completeTask(job, comTaskExecution) {
         this.publish(
                 new ComTaskExecutionCompletionEvent(
+                        new ComServerEventServiceProviderAdapter(),
                         comTaskExecution,
                         job.getExecutionContext().getComPort(),
                         job.getExecutionContext().getConnectionTask()
@@ -53,6 +56,7 @@ public aspect OutboundComTaskEventPublisher {
     before (JobExecution job, ComTaskExecution comTaskExecution, Throwable cause): taskFailure(job, comTaskExecution, cause) {
         this.publish(
                 new ComTaskExecutionFailureEvent(
+                        new ComServerEventServiceProviderAdapter(),
                         comTaskExecution,
                         job.getExecutionContext().getComPort(),
                         job.getExecutionContext().getConnectionTask(),
@@ -69,6 +73,7 @@ public aspect OutboundComTaskEventPublisher {
         if (!success) {
             this.publish(
                     new ComTaskExecutionFailureEvent(
+                            new ComServerEventServiceProviderAdapter(),
                             preparedComTaskExecution.getComTaskExecution(),
                             job.getExecutionContext().getComPort(),
                             job.getExecutionContext().getConnectionTask()
@@ -79,6 +84,7 @@ public aspect OutboundComTaskEventPublisher {
     after (JobExecution job, JobExecution.PreparedComTaskExecution preparedComTaskExecution) throwing (Throwable cause) : executeTask(job, preparedComTaskExecution) {
         this.publish(
                 new ComTaskExecutionFailureEvent(
+                        new ComServerEventServiceProviderAdapter(),
                         preparedComTaskExecution.getComTaskExecution(),
                         job.getExecutionContext().getComPort(),
                         job.getExecutionContext().getConnectionTask(),

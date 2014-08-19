@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.ComPortOperationsLoggingEvent;
@@ -25,7 +26,7 @@ public class ComPortLogHandler extends EventPublishingLogHandler {
 
     @Override
     protected ComServerEvent toEvent (AbstractComServerEventImpl.ServiceProvider serviceProvider, LogLevel level, String logMessage) {
-        return new ComPortOperationsLoggingEvent(this.comPort, level, logMessage);
+        return new ComPortOperationsLoggingEvent(new ComServerEventServiceProviderAdapter(), this.comPort, level, logMessage);
     }
 
 }

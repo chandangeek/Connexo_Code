@@ -24,6 +24,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link InitializeLoggerCommand} component.
@@ -40,11 +41,14 @@ public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
 
     @Before
     public void setupEventPublisher () {
+        super.setupEventPublisher();
         EventPublisherImpl.setInstance(this.eventPublisher);
+        when(this.eventPublisher.serviceProvider()).thenReturn(this.comServerEventServiceProviderAdapter());
     }
 
     @After
     public void resetEventPublisher () {
+        super.resetEventPublisher();
         EventPublisherImpl.setInstance(null);
     }
 

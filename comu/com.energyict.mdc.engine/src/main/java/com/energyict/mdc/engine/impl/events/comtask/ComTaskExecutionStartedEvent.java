@@ -20,19 +20,12 @@ public class ComTaskExecutionStartedEvent extends AbstractComTaskExecutionEventI
 
     private Date executionStartedTimestamp;
 
-    /**
-     * For the externalization process only.
-     */
-    public ComTaskExecutionStartedEvent() {
-        super();
+    public ComTaskExecutionStartedEvent(ServiceProvider serviceProvider, ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask) {
+        this(serviceProvider, comTaskExecution, comTaskExecution.getExecutionStartedTimestamp(), comPort, connectionTask);
     }
 
-    public ComTaskExecutionStartedEvent(ComTaskExecution comTaskExecution, ComPort comPort, ConnectionTask connectionTask) {
-        this(comTaskExecution, comTaskExecution.getExecutionStartedTimestamp(), comPort, connectionTask);
-    }
-
-    public ComTaskExecutionStartedEvent(ComTaskExecution comTask, Date executionStartedTimestamp, ComPort comPort, ConnectionTask connectionTask) {
-        super(comTask, comPort, connectionTask);
+    public ComTaskExecutionStartedEvent(ServiceProvider serviceProvider, ComTaskExecution comTask, Date executionStartedTimestamp, ComPort comPort, ConnectionTask connectionTask) {
+        super(serviceProvider, comTask, comPort, connectionTask);
         this.executionStartedTimestamp = executionStartedTimestamp;
     }
 

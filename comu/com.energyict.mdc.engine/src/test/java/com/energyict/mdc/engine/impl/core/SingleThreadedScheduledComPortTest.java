@@ -29,6 +29,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
@@ -235,7 +236,6 @@ public class SingleThreadedScheduledComPortTest {
         PropertyConfigurator.configureAndWatch(configFilename);
     }
 
-    @Before
     public void setupServiceProvider () {
         ServiceProvider.instance.set(this.serviceProvider);
         this.serviceProvider.setIssueService(this.issueService);
@@ -258,19 +258,21 @@ public class SingleThreadedScheduledComPortTest {
         when(comSessionBuilder.addComTaskExecutionSession(Matchers.<ComTaskExecution>any(), any(Device.class), Matchers.<Date>any())).thenReturn(comTaskExecutionSessionBuilder);
     }
 
-    @After
-    public void resetServiceProvider () {
-        ServiceProvider.instance.set(null);
-    }
-
     @Before
     public void setupEventPublisher () {
+        this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
+        when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
     }
 
     @After
     public void resetEventPublisher () {
+        this.resetServiceProvider();
         EventPublisherImpl.setInstance(null);
+    }
+
+    public void resetServiceProvider () {
+        ServiceProvider.instance.set(null);
     }
 
     @Before

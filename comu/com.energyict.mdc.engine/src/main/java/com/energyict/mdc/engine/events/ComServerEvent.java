@@ -30,7 +30,7 @@ import java.util.Date;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-30 (17:01)
  */
-public interface ComServerEvent extends Externalizable {
+public interface ComServerEvent {
 
     /**
      * Gets the timestamp on which this event occurred.

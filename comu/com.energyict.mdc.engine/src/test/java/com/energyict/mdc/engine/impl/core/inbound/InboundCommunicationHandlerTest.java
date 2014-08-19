@@ -28,6 +28,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.model.ComPort;
@@ -138,10 +139,12 @@ public class InboundCommunicationHandlerTest {
 
     @Before
     public void setup () {
-        EventPublisherImpl.setInstance(mock(EventPublisherImpl.class));
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
         serviceProvider.setDeviceDataService(deviceDataService);
+        EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);
+        when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
+        EventPublisherImpl.setInstance(eventPublisher);
         when(deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).
             thenReturn(this.comSessionBuilder);
         when(this.comSessionBuilder.addSentBytes(anyLong())).thenReturn(this.comSessionBuilder);

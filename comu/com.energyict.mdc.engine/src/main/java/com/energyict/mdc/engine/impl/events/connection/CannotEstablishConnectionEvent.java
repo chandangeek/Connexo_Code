@@ -7,9 +7,6 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -24,15 +21,8 @@ public class CannotEstablishConnectionEvent extends AbstractConnectionEventImpl 
 
     private String failureMessage;
 
-    /**
-     * For the externalization process only.
-     */
-    public CannotEstablishConnectionEvent() {
-        super();
-    }
-
-    public CannotEstablishConnectionEvent(ComPort comPort, ConnectionTask connectionTask, ConnectionException cause) {
-        super(connectionTask, comPort);
+    public CannotEstablishConnectionEvent(ServiceProvider serviceProvider, ComPort comPort, ConnectionTask connectionTask, ConnectionException cause) {
+        super(serviceProvider, connectionTask, comPort);
         this.copyFailureMessageFromException(cause);
     }
 
@@ -52,30 +42,6 @@ public class CannotEstablishConnectionEvent extends AbstractConnectionEventImpl 
     @Override
     public String getFailureMessage () {
         return this.failureMessage;
-    }
-
-    @Override
-    public void writeExternal (ObjectOutput out) throws IOException {
-        super.writeExternal(out);
-        if (this.failureMessage == null) {
-            out.writeInt(-1);
-        }
-        else {
-            out.writeInt(this.failureMessage.length());
-            out.writeUTF(this.failureMessage);
-        }
-    }
-
-    @Override
-    public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
-        super.readExternal(in);
-        int length = in.readInt();
-        if (length < 0) {
-            this.failureMessage = null;
-        }
-        else {
-            this.failureMessage = in.readUTF();
-        }
     }
 
     @Override

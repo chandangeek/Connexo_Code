@@ -9,6 +9,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link DaisyChainedLogOnCommand}
@@ -34,7 +36,9 @@ public class DaisyChainedLogOnCommandTest extends AbstractComCommandExecuteTest 
 
     @Before
     public void setUp() {
-        EventPublisherImpl.setInstance(mock(EventPublisherImpl.class));
+        EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);
+        when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
+        EventPublisherImpl.setInstance(eventPublisher);
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(new ProgrammableClock());
     }

@@ -1,25 +1,18 @@
 package com.energyict.mdc.engine.impl.events.connection;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
 import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -48,24 +41,17 @@ public class CloseConnectionEventTest {
     @Mock
     public Clock clock;
     @Mock
-    public DeviceDataService deviceDataService;
-    @Mock
-    public EngineModelService engineModelService;
-    @Mock
-    private ServiceProvider serviceProvider;
+    private AbstractComServerEventImpl.ServiceProvider serviceProvider;
 
     @Before
     public void setupServiceProvider () {
         when(this.clock.now()).thenReturn(new DateTime(1969, 5, 2, 1, 40, 0).toDate()); // Set some default
         when(this.serviceProvider.clock()).thenReturn(this.clock);
-        when(this.serviceProvider.engineModelService()).thenReturn(this.engineModelService);
-        when(this.serviceProvider.deviceDataService()).thenReturn(this.deviceDataService);
-        ServiceProvider.instance.set(this.serviceProvider);
     }
 
     @Test
     public void testCategory () {
-        CloseConnectionEvent event = new CloseConnectionEvent();
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, null, null);
 
         // Business method
         Category category = event.getCategory();
@@ -81,7 +67,7 @@ public class CloseConnectionEventTest {
 
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CloseConnectionEvent event = new CloseConnectionEvent(comPort, connectionTask);
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, comPort, connectionTask);
 
         // Business method
         Date timestamp = event.getOccurrenceTimestamp();
@@ -92,7 +78,7 @@ public class CloseConnectionEventTest {
 
     @Test
     public void testIsNotEstablishing () {
-        CloseConnectionEvent event = new CloseConnectionEvent();
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, null, null);
 
         // Business method & asserts
         assertThat(event.isEstablishing()).isFalse();
@@ -100,7 +86,7 @@ public class CloseConnectionEventTest {
 
     @Test
     public void testIsNotFailure () {
-        CloseConnectionEvent event = new CloseConnectionEvent();
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, null, null);
 
         // Business method & asserts
         assertThat(event.isFailure()).isFalse();
@@ -109,55 +95,47 @@ public class CloseConnectionEventTest {
 
     @Test
     public void testIsClosed () {
-        CloseConnectionEvent event = new CloseConnectionEvent();
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, null, null);
 
         // Business method & asserts
         assertThat(event.isClosed()).isTrue();
     }
 
     @Test
-    public void testIsNotLoggingRelatedByDefault () {
-        CloseConnectionEvent event = new CloseConnectionEvent();
+    public void testIsNotLoggingRelated () {
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, null, null);
 
         // Business method & asserts
         assertThat(event.isLoggingRelated()).isFalse();
     }
 
     @Test
-    public void testIsNotComTaskRelatedByDefault () {
-        CloseConnectionEvent event = new CloseConnectionEvent();
-
-        // Business method & asserts
-        assertThat(event.isComTaskExecutionRelated()).isFalse();
-    }
-
-    @Test
-    public void testIsNotComPortRelatedByDefault () {
-        CloseConnectionEvent event = new CloseConnectionEvent();
+    public void testIsNotComPortRelated () {
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, null, null);
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isFalse();
     }
 
     @Test
-    public void testIsNotComPortPoolRelatedByDefault () {
-        CloseConnectionEvent event = new CloseConnectionEvent();
+    public void testIsNotComPortPoolRelated () {
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, null, null);
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
     }
 
     @Test
-    public void testIsNotConnectionTaskRelatedByDefault () {
-        CloseConnectionEvent event = new CloseConnectionEvent();
+    public void testIsNotConnectionTaskRelated () {
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, null, null);
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isFalse();
     }
 
     @Test
-    public void testIsNotDeviceRelatedByDefault () {
-        CloseConnectionEvent event = new CloseConnectionEvent();
+    public void testIsNotDeviceRelated () {
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, null, null);
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isFalse();
@@ -167,7 +145,7 @@ public class CloseConnectionEventTest {
     public void testIsComPortRelated () {
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CloseConnectionEvent event = new CloseConnectionEvent(comPort, connectionTask);
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, comPort, connectionTask);
 
         // Business method & asserts
         assertThat(event.isComPortRelated()).isTrue();
@@ -178,7 +156,7 @@ public class CloseConnectionEventTest {
     public void testIsNotComPortPoolRelatedForOutboundComPorts () {
         OutboundComPort comPort = mock(OutboundComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CloseConnectionEvent event = new CloseConnectionEvent(comPort, connectionTask);
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, comPort, connectionTask);
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isFalse();
@@ -191,7 +169,7 @@ public class CloseConnectionEventTest {
         when(comPort.isInbound()).thenReturn(true);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CloseConnectionEvent event = new CloseConnectionEvent(comPort, connectionTask);
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, comPort, connectionTask);
 
         // Business method & asserts
         assertThat(event.isComPortPoolRelated()).isTrue();
@@ -202,7 +180,7 @@ public class CloseConnectionEventTest {
     public void testIsNotComTaskRelated () {
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CloseConnectionEvent event = new CloseConnectionEvent(comPort, connectionTask);
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, comPort, connectionTask);
 
         // Business method & asserts
         assertThat(event.isComTaskExecutionRelated()).isFalse();
@@ -212,7 +190,7 @@ public class CloseConnectionEventTest {
     public void testIsConnectionTaskRelated () {
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        CloseConnectionEvent event = new CloseConnectionEvent(comPort, connectionTask);
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, comPort, connectionTask);
 
         // Business method & asserts
         assertThat(event.isConnectionTaskRelated()).isTrue();
@@ -225,99 +203,11 @@ public class CloseConnectionEventTest {
         ComPort comPort = mock(ComPort.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getDevice()).thenReturn(device);
-        CloseConnectionEvent event = new CloseConnectionEvent(comPort, connectionTask);
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, comPort, connectionTask);
 
         // Business method & asserts
         assertThat(event.isDeviceRelated()).isTrue();
         assertThat(event.getDevice()).isEqualTo(device);
-    }
-
-    @Test
-    public void testSerializationDoesNotFailForDefaultObject () throws IOException {
-        CloseConnectionEvent event = new CloseConnectionEvent();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-        // Business method
-        oos.writeObject(event);
-
-        // Intend is to test that there are not failures
-    }
-
-    @Test
-    public void testRestoreAfterSerializationForDefaultObject () throws IOException, ClassNotFoundException {
-        CloseConnectionEvent event = new CloseConnectionEvent();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(event);
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        ObjectInputStream ois = new ObjectInputStream(bais);
-
-        // Business method
-        CloseConnectionEvent restored = (CloseConnectionEvent) ois.readObject();
-
-        // Asserts
-        assertThat(restored).isNotNull();
-    }
-
-    @Test
-    public void testSerializationDoesNotFail () throws IOException {
-        Device device = mock(Device.class);
-        when(device.getId()).thenReturn(DEVICE_ID);
-        ComPort comPort = mock(ComPort.class);
-        when(comPort.getId()).thenReturn(COMPORT_ID);
-        ConnectionTask connectionTask = mock(ConnectionTask.class);
-        when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
-        when(connectionTask.getDevice()).thenReturn(device);
-        CloseConnectionEvent event = new CloseConnectionEvent(comPort, connectionTask);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-        // Business method
-        oos.writeObject(event);
-
-        // Intend is to test that there are not failures
-    }
-
-    @Test
-    public void testRestoreAfterSerialization () throws IOException, ClassNotFoundException {
-        Device device = mock(Device.class);
-        when(device.getId()).thenReturn(DEVICE_ID);
-        ComPort comPort = mock(ComPort.class);
-        when(comPort.getId()).thenReturn(COMPORT_ID);
-        ConnectionTask connectionTask = mock(ConnectionTask.class);
-        when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
-        when(connectionTask.getDevice()).thenReturn(device);
-        when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(comPort);
-        when(this.deviceDataService.findConnectionTask(CONNECTION_TASK_ID)).thenReturn(Optional.of(connectionTask));
-        CloseConnectionEvent event = new CloseConnectionEvent(comPort, connectionTask);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(event);
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        ObjectInputStream ois = new ObjectInputStream(bais);
-
-        // Business method
-        CloseConnectionEvent restored = (CloseConnectionEvent) ois.readObject();
-
-        // Asserts
-        assertThat(restored.getComPort()).isEqualTo(comPort);
-        assertThat(restored.getConnectionTask()).isEqualTo(connectionTask);
-    }
-
-    @Test
-    public void testToStringDoesNotFailForDefaultObject () throws IOException {
-        CloseConnectionEvent event = new CloseConnectionEvent();
-
-        // Business method
-        String eventString = event.toString();
-
-        //Asserts
-        assertThat(eventString).doesNotMatch(CloseConnectionEvent.class.getName() + "@\\d*");
     }
 
     @Test
@@ -329,7 +219,7 @@ public class CloseConnectionEventTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getDevice()).thenReturn(device);
-        CloseConnectionEvent event = new CloseConnectionEvent(comPort, connectionTask);
+        CloseConnectionEvent event = new CloseConnectionEvent(this.serviceProvider, comPort, connectionTask);
 
         // Business method
         String eventString = event.toString();

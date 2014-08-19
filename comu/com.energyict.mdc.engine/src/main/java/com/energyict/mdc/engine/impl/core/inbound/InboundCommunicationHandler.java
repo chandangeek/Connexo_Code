@@ -257,7 +257,10 @@ public class InboundCommunicationHandler {
                 return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.SetupError);
             }
             case DEVICE_NOT_FOUND: {
+                /* Todo: deal with unknown device situation in which no ComSession is built yet
                 return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.Success);
+                */
+                return null;
             }
             case ENCRYPTION_REQUIRED: {
                 return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.SetupError);

@@ -7,9 +7,6 @@ import com.energyict.mdc.engine.model.ComPort;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -24,20 +21,13 @@ public class ComTaskExecutionFailureEvent extends AbstractComTaskExecutionEventI
 
     private String failureMessage;
 
-    /**
-     * For the externalization process only.
-     */
-    public ComTaskExecutionFailureEvent() {
-        super();
-    }
-
-    public ComTaskExecutionFailureEvent(ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask) {
-        super(comTask, comPort, connectionTask);
+    public ComTaskExecutionFailureEvent(ServiceProvider serviceProvider, ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask) {
+        super(serviceProvider, comTask, comPort, connectionTask);
         this.failureMessage = "Failure due to problems reported during execution";
     }
 
-    public ComTaskExecutionFailureEvent(ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, Throwable cause) {
-        super(comTask, comPort, connectionTask);
+    public ComTaskExecutionFailureEvent(ServiceProvider serviceProvider, ComTaskExecution comTask, ComPort comPort, ConnectionTask connectionTask, Throwable cause) {
+        super(serviceProvider, comTask, comPort, connectionTask);
         this.copyFailureMessageFromException(cause);
     }
 
@@ -57,30 +47,6 @@ public class ComTaskExecutionFailureEvent extends AbstractComTaskExecutionEventI
     @Override
     public String getFailureMessage () {
         return failureMessage;
-    }
-
-    @Override
-    public void writeExternal (ObjectOutput out) throws IOException {
-        super.writeExternal(out);
-        if (this.failureMessage == null) {
-            out.writeInt(-1);
-        }
-        else {
-            out.writeInt(this.failureMessage.length());
-            out.writeUTF(this.failureMessage);
-        }
-    }
-
-    @Override
-    public void readExternal (ObjectInput in) throws IOException, ClassNotFoundException {
-        super.readExternal(in);
-        int length = in.readInt();
-        if (length < 0) {
-            this.failureMessage = null;
-        }
-        else {
-            this.failureMessage = in.readUTF();
-        }
     }
 
     @Override
