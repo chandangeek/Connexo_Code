@@ -162,7 +162,7 @@ Ext.define('Cfg.controller.Validation', {
                 rule = form.down('#validatorCombo').value;
             }
 
-            record .set('implementation', rule);
+            record.set('implementation', rule);
             record.set('name', name);
             record.set('ruleSet', {
                 id: me.ruleSetId
@@ -171,9 +171,9 @@ Ext.define('Cfg.controller.Validation', {
             if (button.action === 'editRuleAction') {
                 record.readingTypes().removeAll();
             }
-            
+
             if (propertyForm.getRecord() !== undefined) {
-            	record.propertiesStore = propertyForm.getRecord().properties();
+                record.propertiesStore = propertyForm.getRecord().properties();
             }
 
             for (var i = 0; i < readingTypes.items.length; i++) {
@@ -220,26 +220,16 @@ Ext.define('Cfg.controller.Validation', {
         }
     },
 
-    updateProperties: function (field, oldValue, newValue) {
-        var store = this.getValidatorsStore();
-        var found;
-        for ( i = 0; i < store.data.items.length; i++){
-            if ( store.data.items[i].data.implementation == field.value ){
-                found = store.data.items[i];
-                break;
-            }
-        }
+    updateProperties: function (field, newValue) {
+        var record = this.getValidatorsStore().getById(newValue),
+            propertyForm = this.getAddRule().down('property-form');
 
-        widget = this.getAddRule();
-
-        var propertyForm = widget.down('property-form');
-        if (found.properties().count()) {
+        if (record && record.properties() && record.properties().count()) {
+            propertyForm.loadRecord(record);
             propertyForm.show();
-            propertyForm.loadRecord(found);
         } else {
             propertyForm.hide();
         }
-        widget.setLoading(false);
     },
 
     addReadingType: function () {
