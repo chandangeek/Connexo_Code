@@ -242,7 +242,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             @Override
             public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
                 List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-                finders.add(new ConnectionMethodFinder());
+                finders.add(new ConnectionTaskFinder());
                 return finders;
             }
         });
@@ -977,11 +977,11 @@ public class PartialOutboundConnectiontaskCrudIT {
 
     }
 
-    public class ConnectionMethodFinder implements CanFindByLongPrimaryKey {
+    public class ConnectionTaskFinder implements CanFindByLongPrimaryKey {
 
         @Override
         public FactoryIds factoryId() {
-            return FactoryIds.CONNECTION_METHOD;
+            return FactoryIds.CONNECTION_TASK;
         }
 
         @Override
