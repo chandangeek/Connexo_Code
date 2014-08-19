@@ -28,6 +28,7 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     private final Clock clock;
     private final String comServerName;
+    private final long id;
     private final ComServerType comServerType;
     private final ComServerMonitor monitor;
     private final List<ScheduledComPortMonitor> comPortMonitors;
@@ -36,6 +37,7 @@ public class RunningComServerStatusImpl implements ComServerStatus {
         super();
         this.clock = clock;
         this.comServerName = comServer.getName();
+        this.id = comServer.getId();
         this.comServerType = ComServerType.typeFor(comServer);
         this.monitor = monitor;
         this.comPortMonitors = Collections.unmodifiableList(comPortMonitors);
@@ -54,6 +56,11 @@ public class RunningComServerStatusImpl implements ComServerStatus {
     @Override
     public boolean isRunning() {
         return true;
+    }
+
+    @Override
+    public long getComServerId() {
+        return this.id;
     }
 
     @Override

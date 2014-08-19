@@ -51,4 +51,9 @@ public interface ComServerStatus {
      */
     public Duration getBlockTime ();
 
+    /**
+     * id of the comserver, used to access the REST resource to the comserver
+     * @return comserver id
+     */
+    public long getComServerId();
 }
