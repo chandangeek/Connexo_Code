@@ -72,45 +72,16 @@
  *     }
  */
 Ext.define('Uni.view.grid.BulkSelection', {
-    extend: 'Ext.grid.Panel',
+    extend: 'Ext.container.Container',
     xtype: 'bulk-selection-grid',
 
     requires: [
         'Ext.grid.plugin.BufferedRenderer'
     ],
 
-    height: 620,
-    minHeight: 280,
-    bottomToolbarHeight: 27,
-
-    selType: 'checkboxmodel',
-    selModel: {
-        mode: 'MULTI',
-        showHeaderCheckbox: false
+    layout: {
+        type: 'vbox'
     },
-
-    plugins: [
-        {
-            ptype: 'bufferedrenderer',
-            trailingBufferZone: 5,
-            leadingBufferZone: 5,
-            scrollToLoadBuffer: 10,
-            onViewResize: function (view, width, height, oldWidth, oldHeight) {
-                if (!oldHeight || height !== oldHeight) {
-                    var me = this,
-                        newViewSize,
-                        scrollRange;
-                    if (view.all.getCount()) {
-                        delete me.rowHeight;
-                    }
-                    scrollRange = me.getScrollHeight();
-                    newViewSize = 18;
-                    me.viewSize = me.setViewSize(newViewSize);
-                    me.stretchView(view, scrollRange);
-                }
-            }
-        }
-    ],
 
     /**
      * @cfg counterTextFn
@@ -218,6 +189,16 @@ Ext.define('Uni.view.grid.BulkSelection', {
      */
     radioGroupName: 'selectedGroupType-' + new Date().getTime() * Math.random(),
 
+    /**
+     * @cfg radioHidden
+     */
+    radioHidden: false,
+
+    /**
+     * @cfg bottomToolbarHidden
+     */
+    bottomToolbarHidden: false,
+
     initComponent: function () {
         var me = this;
 
@@ -238,70 +219,94 @@ Ext.define('Uni.view.grid.BulkSelection', {
             'selecteditemsadd'
         );
 
-        me.dockedItems = [
+        me.items = [
             {
-                xtype: 'toolbar',
-                dock: 'top',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
+                xtype: 'radiogroup',
+                itemId: 'itemradiogroup',
+                columns: 1,
+                vertical: true,
+                submitValue: false,
+                defaults: {
+                    padding: '0 0 16 0'
                 },
                 items: [
                     {
-                        xtype: 'radiogroup',
-                        itemId: 'itemradiogroup',
-                        columns: 1,
-                        vertical: true,
-                        submitValue: false,
-                        defaults: {
-                            padding: '0 0 32 0'
-                        },
-                        items: [
-                            {
-                                name: me.radioGroupName,
-                                boxLabel: '<b>' + me.allLabel + '</b><br/>' +
-                                    '<span style="color: grey;">' + me.allDescription + '</span>',
-                                inputValue: me.allInputValue,
-                                checked: me.allChosenByDefault
-                            },
-                            {
-                                name: me.radioGroupName,
-                                boxLabel: '<b>' + me.selectedLabel + '</b><br/>' +
-                                    '<span style="color: grey;">' + me.selectedDescription + '</span>',
-                                inputValue: me.selectedInputValue,
-                                checked: !me.allChosenByDefault
-                            }
-                        ]
+                        name: me.radioGroupName,
+                        boxLabel: '<b>' + me.allLabel + '</b><br/>' +
+                            '<span style="color: grey;">' + me.allDescription + '</span>',
+                        inputValue: me.allInputValue,
+                        checked: me.allChosenByDefault
                     },
                     {
-                        xtype: 'container',
-                        itemId: 'topToolbarContainer',
-                        layout: {
-                            type: 'hbox',
-                            align: 'middle'
-                        },
-                        items: [
-                            {
-                                xtype: 'text',
-                                itemId: 'selectionCounter',
-                                text: me.counterTextFn(0),
-                                margin: '0 8 0 0'
-                            },
-                            {
-                                xtype: 'button',
-                                itemId: 'uncheckAllButton',
-                                text: me.uncheckText,
-                                action: 'uncheckAll',
-                                margin: '0 0 0 8',
-                                disabled: true
-                            }
-                        ]
+                        name: me.radioGroupName,
+                        boxLabel: '<b>' + me.selectedLabel + '</b><br/>' +
+                            '<span style="color: grey;">' + me.selectedDescription + '</span>',
+                        inputValue: me.selectedInputValue,
+                        checked: !me.allChosenByDefault
                     }
                 ]
             },
             {
-                xtype: 'toolbar',
-                dock: 'bottom',
+                xtype: 'container',
+                itemId: 'topToolbarContainer',
+                layout: {
+                    type: 'hbox',
+                    align: 'middle'
+                },
+                margin: '0 0 8 0',
+                items: [
+                    {
+                        xtype: 'text',
+                        itemId: 'selectionCounter',
+                        text: me.counterTextFn(0),
+                        margin: '0 8 0 0'
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'uncheckAllButton',
+                        text: me.uncheckText,
+                        action: 'uncheckAll',
+                        margin: '0 0 0 8',
+                        disabled: true
+                    }
+                ]
+            },
+            {
+                xtype: 'grid',
+                store: me.store,
+                columns: me.columns,
+                selType: 'checkboxmodel',
+                maxHeight: 356,
+                margin: '0 0 0 0',
+                selModel: {
+                    mode: 'MULTI',
+                    showHeaderCheckbox: false
+                },
+                plugins: [
+                    {
+                        ptype: 'bufferedrenderer',
+                        trailingBufferZone: 5,
+                        leadingBufferZone: 5,
+                        scrollToLoadBuffer: 10,
+                        onViewResize: function (view, width, height, oldWidth, oldHeight) {
+                            if (!oldHeight || height !== oldHeight) {
+                                var grid = this,
+                                    newViewSize,
+                                    scrollRange;
+                                if (view.all.getCount()) {
+                                    delete grid.rowHeight;
+                                }
+                                scrollRange = grid.getScrollHeight();
+                                newViewSize = 18;
+                                grid.viewSize = grid.setViewSize(newViewSize);
+                                grid.stretchView(view, scrollRange);
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                xtype: 'container',
                 itemId: 'bottomToolbar',
                 items: [
                     {
@@ -325,10 +330,13 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
         me.callParent(arguments);
 
+        me.grid = me.down('grid');
+        me.store = me.grid.store;
+
         me.getSelectionGroupType().on('change', me.onChangeSelectionGroupType, me);
         me.getUncheckAllButton().on('click', me.onClickUncheckAllButton, me);
         me.getAddButton().on('click', me.onClickAddButton, me);
-        me.on('selectionchange', me.onSelectionChange, me);
+        me.grid.on('selectionchange', me.onSelectionChange, me);
 
         if (me.radioHidden) {
             me.hideRadioGroup();
@@ -338,39 +346,34 @@ Ext.define('Uni.view.grid.BulkSelection', {
             me.hideBottomToolbar();
         }
 
-        me.store.on('bulkremove', me.onLoad, me);
-        me.store.on('remove', me.onLoad, me);
-        me.store.on('clear', me.onLoad, me);
-        me.store.on('load', me.onLoad, me);
-
-        me.on('afterlayout', me.onLoad, me, {
-            single: true
-        });
-
-        me.on('afterrender', me.onLoad, me, {
-            single: true
-        });
-
-        me.onLoad(me.store);
+        me.onChangeSelectionGroupType();
     },
 
     onChangeSelectionGroupType: function (radiogroup, value) {
         var me = this,
-            selection = me.view.getSelectionModel().getSelection();
+            selection = me.grid.view.getSelectionModel().getSelection();
 
         me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
+        me.setGridVisible(!me.isAllSelected());
+    },
+
+    setGridVisible: function (visible) {
+        var me = this;
+
+        me.grid.setVisible(visible);
+        me.getTopToolbarContainer().setVisible(visible);
     },
 
     onClickUncheckAllButton: function (button) {
         var me = this;
 
-        me.view.getSelectionModel().deselectAll();
+        me.grid.view.getSelectionModel().deselectAll();
         button.setDisabled(true);
     },
 
     onClickAddButton: function () {
         var me = this,
-            selection = me.view.getSelectionModel().getSelection();
+            selection = me.grid.view.getSelectionModel().getSelection();
 
         if (me.isAllSelected()) {
             me.fireEvent('allitemsadd');
@@ -381,7 +384,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     onSelectionChange: function () {
         var me = this,
-            selection = me.view.getSelectionModel().getSelection(),
+            selection = me.grid.view.getSelectionModel().getSelection(),
             value = {};
 
         value[me.radioGroupName] = me.selectedInputValue;
@@ -392,31 +395,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
     },
 
-    onLoad: function () {
-        var me = this,
-            count = me.store.getCount(),
-            newHeight = me.minHeight;
-
-        if (me.rendered) {
-            var row = me.getView().getNode(0),
-                rowElement = Ext.get(row);
-
-            if (rowElement !== null && typeof rowElement !== 'undefined') {
-                var rowHeight = rowElement.getComputedHeight();
-
-                newHeight += count > 10 ? 10 * rowHeight : count * rowHeight;
-
-                if (!me.getBottomToolbar().isVisible()) {
-                    newHeight -= me.bottomToolbarHeight;
-                }
-
-                me.setHeight(newHeight);
-            }
-
-            // TODO Hide the grid when 'all items' is selected.
-        }
-    },
-
     isAllSelected: function () {
         var me = this,
             groupType = me.getSelectionGroupType().getValue();
@@ -425,7 +403,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
     },
 
     getSelectionGroupType: function () {
-        return this.down('radiogroup');
+        return this.down('#itemradiogroup');
     },
 
     getSelectionCounter: function () {
@@ -458,5 +436,9 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     hideBottomToolbar: function () {
         this.getBottomToolbar().setVisible(false);
+    },
+
+    getStore: function () {
+        return this.store;
     }
 });
