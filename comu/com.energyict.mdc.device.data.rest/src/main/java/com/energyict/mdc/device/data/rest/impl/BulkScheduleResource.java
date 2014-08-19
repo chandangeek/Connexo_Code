@@ -2,7 +2,10 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.dynamicattributes.BooleanAdapter;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -40,7 +43,7 @@ public class BulkScheduleResource {
 
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addComScheduleToDeviceSet(BulkRequestInfo request, @BeanParam QueryParameters queryParameters){
+    public Response addComScheduleToDeviceSet(BulkRequestInfo request, @BeanParam StandardParametersBean queryParameters){
         BulkAction action = new BulkAction() {
             @Override
             public void doAction(Device device, ComSchedule schedule) {
@@ -53,7 +56,7 @@ public class BulkScheduleResource {
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteComScheduleFromDeviceSet(BulkRequestInfo request, @BeanParam QueryParameters queryParameters){
+    public Response deleteComScheduleFromDeviceSet(BulkRequestInfo request, @BeanParam StandardParametersBean queryParameters){
         BulkAction action = new BulkAction() {
             @Override
             public void doAction(Device device, ComSchedule schedule) {
@@ -64,7 +67,7 @@ public class BulkScheduleResource {
         return Response.ok(response.build()).build();
     }
 
-    private ComSchedulesBulkInfo processBulkAction(BulkRequestInfo request, BulkAction action, QueryParameters queryParameters) {
+    private ComSchedulesBulkInfo processBulkAction(BulkRequestInfo request, BulkAction action, StandardParametersBean queryParameters) {
         ComSchedulesBulkInfo response = new ComSchedulesBulkInfo();
         Map<String, DeviceHolder> deviceMap = getDeviceMapForBulkAction(request, response, queryParameters);
         for (Long scheduleId : request.scheduleIds) {
@@ -101,12 +104,14 @@ public class BulkScheduleResource {
         }
     }
 
-    private Map<String, DeviceHolder> getDeviceMapForBulkAction(BulkRequestInfo request, ComSchedulesBulkInfo response, QueryParameters queryParameters) {
+    private Map<String, DeviceHolder> getDeviceMapForBulkAction(BulkRequestInfo request, ComSchedulesBulkInfo response, StandardParametersBean queryParameters) {
         Map<String, DeviceHolder> deviceMap = new HashMap<>();
-        if(queryParameters.getBoolean(LOAD_ALL_DEVICES)) {
-
-            List<Device> devices = deviceDataService.findAllDevices();
-            for(Device device : devices) {
+        String loadAllDevicesAsStr = queryParameters.getFirst(LOAD_ALL_DEVICES);
+        if(Boolean.parseBoolean(loadAllDevicesAsStr)) {
+            Condition condition = resourceHelper.getQueryConditionForDevice(queryParameters);
+            Finder<Device> allDevicesFinder = deviceDataService.findAllDevices(condition);
+            List<Device> allDevices = allDevicesFinder.find();
+            for(Device device : allDevices) {
                 deviceMap.put(device.getmRID(), new DeviceHolder(device));
             }
         } else {
