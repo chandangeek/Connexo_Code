@@ -82,7 +82,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     {
                         xtype: 'button',
                         ui: 'link',
-                        text: 'show more',
+                        text: Uni.I18n.translate('overview.widget.breakdown.showMore', 'DSH', 'show more'),
                         hidden: item.counters().count() <= me.itemsInCollapsedMode,
                         handler: function () {
                             me.summaryMoreLess(panel);
