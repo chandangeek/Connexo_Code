@@ -418,7 +418,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         List<Resource> resources = userService.getResources(COMPONENTNAME);
         for(Resource resource : resources){
             for(Privilege privilege : resource.getPrivileges()){
-                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forName(privilege.getCode());
+                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forName(privilege.getName());
                 if (found.isPresent()) {
                     privileges.put(found.get(), privilege);
                 }

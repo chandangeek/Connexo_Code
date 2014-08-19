@@ -63,7 +63,7 @@ public class Installer {
         if(resource != null){
             for (DeviceSecurityUserAction userAction : DeviceSecurityUserAction.values()) {
                 try {
-                    resource.createPrivilege(userAction.name(), userAction.name());
+                    resource.createPrivilege(userAction.name());
                 } catch (Exception e) {
                     logger.severe(e.getMessage());
                 }
