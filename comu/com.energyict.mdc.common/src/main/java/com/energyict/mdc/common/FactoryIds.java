@@ -19,7 +19,7 @@ public enum FactoryIds {
     TIMEZONE_IN_USE(Constants.TIMEZONE_IN_USE_FACTORYID),
     USERFILE(Constants.USERFILE_FACTORY_ID),
     DEVICE_PROTOCOL_DIALECT(Constants.DEVICE_PROTOCOL_DIALECT),
-    CONNECTION_METHOD(Constants.CONNECTION_METHOD_FACTORYID),
+    CONNECTION_TASK(Constants.CONNECTION_TASK_FACTORYID),
     SECURITY_SET(Constants.SECURITY_SET_FACTORYID),
     LOGBOOK(Constants.LOGBOOK_FACTORYID);
 
@@ -55,7 +55,7 @@ public enum FactoryIds {
         public static final int LOADPROFILE_FACTORYID = 185;
         public static final int TIMEZONE_IN_USE_FACTORYID = 207;
         public static final int DEVICE_PROTOCOL_DIALECT = 5010;
-        public static final int CONNECTION_METHOD_FACTORYID = 5011;
+        public static final int CONNECTION_TASK_FACTORYID = 5004;
         public static final int SECURITY_SET_FACTORYID = 5012;
         public static final int LOGBOOK_FACTORYID = 206;
     }
