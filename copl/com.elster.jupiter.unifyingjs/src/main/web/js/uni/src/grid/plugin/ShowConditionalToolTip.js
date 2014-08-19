@@ -1,47 +1,57 @@
 /**
- * Created by joshuamcdonald69124 on 1/7/14.
- * https://github.com/jmcdonald69124/smartExtjsGridTooltipPlugin
+ * @class Uni.grid.plugin.ShowConditionalToolTip
  */
 Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
     extend: 'Ext.AbstractPlugin',
+    requires: [
+        'Ext.util.Format',
+        'Ext.tip.ToolTip'
+    ],
     alias: 'plugin.showConditionalToolTip',
+
+    /**
+     * @private
+     */
     init: function (grid) {
-        grid.on('columnresize', function () {
-            grid.getView().refresh();
-        });
-        grid.on('render', function () {
-            var tm = new Ext.util.TextMetrics();
-            Ext.Array.each(grid.columns, function (column) {
-                if (column.hasCustomRenderer == true) {
-                    // This column already has a renderer applied to it
-                    // so we will be adding only the tooltip after the
-                    // custom renderer has formatted the data.
-                    column.renderer = Ext.Function.createSequence(column.renderer, function (a, b, c, d, e, f, g) {
-                        // There could be instances where the column actually has no value, such as
-                        // row expander, etc.. check for that and only apply the tooltip if the column
-                        // has data.
-                        if (a) {
+        grid.on('refresh', this.setTooltip);
+        grid.on('resize', this.setTooltip);
+        grid.on('beforedestroy', this.destroyTooltips, this, {single: true});
+    },
 
-                            // Check to see if the entire data string is visible in the cell, if it is then disregard
-                            // otherwise add the tooltip
-                            if ((g.ownerCt.columns[e].getEl().getWidth() || 10) <= (((tm.getSize(a).width + 15) || 0))) {
-                                b.tdAttr += 'data-qtip="' + a + '"';
-                            }
-                        }
-                    });
+    /**
+     * @private
+     */
+    setTooltip: function (grid) {
+        Ext.Array.each(grid.columns, function (column) {
+            if (column.$className === 'Ext.grid.column.Column') {
+                Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + column.id), function (item) {
+                    var cell = Ext.get(item),
+                        inner = cell.down('.x-grid-cell-inner'),
+                        text = inner ? Ext.util.Format.stripTags(inner.getHTML()) : false;
 
-                } else {
-                    // Here we do the same as above, just w/o the sequence as there is no existing renderer
-                    column.renderer = function (a, b, c, d, e, f, g) {
-                        if (a) {
-                            if ((g.ownerCt.columns[e].getEl().getWidth() || 10) <= (((tm.getSize(a).width + 15) || 0))) {
-                                b.tdAttr += 'data-qtip="' + a + '"';
-                            }
-                            return a;
-                        }
+                    cell.tooltip && cell.tooltip.destroy();
+
+                    if (text && (cell.getWidth(true) < cell.getTextWidth())) {
+                        cell.tooltip = Ext.create('Ext.tip.ToolTip', {
+                            target: cell,
+                            html: text
+                        });
                     }
-                }
-            });
+                });
+            }
+        });
+    },
+
+    /**
+     * @private
+     */
+    destroyTooltips: function (grid) {
+        grid.un('refresh', this.setTooltip);
+        grid.un('resize', this.setTooltip);
+        Ext.Array.each(grid.getEl().query('.x-grid-cell'), function (item) {
+            var cell = Ext.get(item);
+
+            cell.tooltip && cell.tooltip.destroy();
         });
     }
 });
