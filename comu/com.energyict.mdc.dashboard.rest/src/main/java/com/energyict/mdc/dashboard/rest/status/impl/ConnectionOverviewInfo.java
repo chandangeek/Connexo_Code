@@ -124,7 +124,7 @@ public class ConnectionOverviewInfo {
         for (Counter<C> taskStatusCounter : dashboardCounters) {
             TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
             taskCounterInfo.id=adapter.marshal(taskStatusCounter.getCountTarget());
-            taskCounterInfo.displayName=thesaurus.getString(adapter.marshal(taskStatusCounter.getCountTarget()), null);
+            taskCounterInfo.displayName=thesaurus.getString(adapter.marshal(taskStatusCounter.getCountTarget()), adapter.marshal(taskStatusCounter.getCountTarget()));
             taskCounterInfo.count=taskStatusCounter.getCount();
             info.counters.add(taskCounterInfo);
         }

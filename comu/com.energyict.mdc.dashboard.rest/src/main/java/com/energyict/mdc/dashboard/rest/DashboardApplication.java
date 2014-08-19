@@ -9,8 +9,10 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
+import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
@@ -52,6 +54,7 @@ public class DashboardApplication extends Application implements InstallService 
     private volatile DeviceDataService deviceDataService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile TransactionService transactionService;
 
     @Reference
     public void setStatusService(StatusService statusService) {
@@ -89,9 +92,15 @@ public class DashboardApplication extends Application implements InstallService 
         this.protocolPluggableService = protocolPluggableService;
     }
 
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
+                TransactionWrapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 ConstraintViolationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
@@ -102,7 +111,8 @@ public class DashboardApplication extends Application implements InstallService 
                 ConnectionOverviewResource.class,
                 DashboardFieldResource.class,
                 ConnectionResource.class,
-                ConnectionHeatMapResource.class
+                ConnectionHeatMapResource.class,
+                DeviceConfigurationService.class
         );
     }
 
@@ -132,6 +142,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(transactionService).to(TransactionService.class);
         }
     }
 
