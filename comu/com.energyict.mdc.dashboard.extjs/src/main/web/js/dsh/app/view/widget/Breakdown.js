@@ -17,6 +17,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
+    itemsInCollapsedMode: 5,
     tbar: [
         {
             xtype: 'container',
@@ -27,40 +28,50 @@ Ext.define('Dsh.view.widget.Breakdown', {
         {
             xtype: 'container',
             html: '<div class="legend"><ul>' +
-                    '<li><span class="color failed"></span> Failed</li>' +
-                    '<li><span class="color success"></span> Success</li>' +
-                    '<li><span class="color pending"></span> Pending</li>' +
-                    '</ul>' +
+                '<li><span class="color failed"></span> Failed</li>' +
+                '<li><span class="color success"></span> Success</li>' +
+                '<li><span class="color pending"></span> Pending</li>' +
+                '</ul>' +
                 '</div>'
         }
     ],
-
     items: [
         {
             xtype: 'panel',
-            itemId: 'summaries',
             layout: {
-                type: 'table',
-                columns: 2
+                type: 'hbox',
+                align: 'stretch'
             },
-            style: 'margin-right: -30px',
             defaults: {
-                style: 'margin: 0 30px 30px 0'
-            }
+                flex: 1
+            },
+            items: [
+                {
+                    xtype: 'panel',
+                    itemId: 'summaries-0',
+                    style: {
+                        marginRight: '10px'
+                    }
+                },
+                {
+                    xtype: 'panel',
+                    itemId: 'summaries-1',
+                    style: {
+                        marginLeft: '10px'
+                    }
+                }
+            ]
         },
         {
             xtype: 'heat-map',
             itemId: 'heatmap'
         }
     ],
-
     bindStore: function (store) {
         var me = this;
-        store.each(function (item) {
+        store.each(function (item, idx) {
             var panel = Ext.create('Ext.panel.Panel', {
-                expanded: item.counters().count() <= 5,
-                expandedHeight: item.counters().count() * 30,
-                collapsedHeight: 170,
+
                 tbar: {
                     xtype: 'container',
                     itemId: 'title',
@@ -72,7 +83,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
                         xtype: 'button',
                         ui: 'link',
                         text: 'show more',
-                        hidden: item.counters().count() <= 5,
+                        hidden: item.counters().count() <= me.itemsInCollapsedMode,
                         handler: function () {
                             me.summaryMoreLess(panel);
                         }
@@ -82,20 +93,19 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     xtype: 'dataview',
                     itemId: item.get('alias') + '-dataview',
                     itemSelector: 'tbody.item',
-                    itemsInCollapsedMode: 5,
                     total: item.get('total'),
                     store: item.counters(),
                     tpl: '<table>' +
-                            '<tpl for=".">' +
-                                '<tbody class="item">' +
-                                    '<tr>' +
-                                        '<td class="label" style="min-width: 200px">' +
-                                            '<a href="#{id}">{displayName}</a>' +
-                                        '</td>' +
-                                        '<td width="100%" id="bar-{#}"></td>' +
-                                    '</tr>' +
-                                '</tbody>' +
-                            '</tpl>' +
+                        '<tpl for=".">' +
+                        '<tbody class="item">' +
+                        '<tr>' +
+                        '<td class="label" style="min-width: 200px">' +
+                        '<a href="#{id}">{displayName}</a>' +
+                        '</td>' +
+                        '<td width="100%" id="bar-{#}"></td>' +
+                        '</tr>' +
+                        '</tbody>' +
+                        '</tpl>' +
                         '</table>',
                     listeners: {
                         refresh: function (view) {
@@ -119,23 +129,30 @@ Ext.define('Dsh.view.widget.Breakdown', {
                                 });
                                 bar.render(view.getEl().down('#bar-' + pos));
                             });
-                            view.collapsed = item.counters().count() > this.itemsInCollapsedMode;
+                            view.collapsed = item.counters().count() > me.itemsInCollapsedMode;
                             view.expandedHeight = view.getHeight();
-                            view.collapsedHeight = view.expandedHeight / item.counters().count() * view.itemsInCollapsedMode;
+                            view.collapsedHeight = view.expandedHeight / item.counters().count() * me.itemsInCollapsedMode;
                             if (view.collapsed) view.setHeight(view.collapsedHeight);
                         }
                     }
                 }
             });
-            me.down('#summaries').add(panel);
+            me.down('#summaries-' + idx % 2).add(panel);
         });
         me.mixins.bindable.bindStore.apply(this, arguments);
         me.down('#heatmap').bindStore(store);
     },
     summaryMoreLess: function (panel) {
         var view = panel.down('dataview');
-        view.setHeight(view.collapsed ? view.expandedHeight : view.collapsedHeight);
-        panel.down('button').setText(view.collapsed ? 'show less' : 'show more');
+        panel.down('button').setText(view.collapsed ?
+            Uni.I18n.translate('overview.widget.breakdown.showLess', 'DSH', 'show less') :
+            Uni.I18n.translate('overview.widget.breakdown.showMore', 'DSH', 'show more'));
+        view.animate({
+            duration: 300,
+            to: {
+                height: (view.collapsed ? view.expandedHeight : view.collapsedHeight)
+            }
+        });
         view.collapsed = !view.collapsed;
     }
 });
