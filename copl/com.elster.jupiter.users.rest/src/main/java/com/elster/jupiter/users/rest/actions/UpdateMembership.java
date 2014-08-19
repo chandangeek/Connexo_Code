@@ -60,7 +60,7 @@ public class UpdateMembership {
     private Set<Privilege> targetGrants() {
         Set<Privilege> target = new LinkedHashSet<>();
         for (PrivilegeInfo privilegeInfo : info.privileges) {
-            Optional<Privilege> privilege = userService.getPrivilege(privilegeInfo.id);
+            Optional<Privilege> privilege = userService.getPrivilege(privilegeInfo.name);
             if (privilege.isPresent()) {
                 target.add(privilege.get());
             } else {

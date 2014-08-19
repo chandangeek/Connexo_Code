@@ -8,8 +8,10 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfos;
 import com.elster.jupiter.users.rest.PrivilegeInfos;
+import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Order;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +35,7 @@ public class PrivilegeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_GROUP)
     public PrivilegeInfos getPrivileges(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Privilege> list = getPrivilegeRestQuery().select(queryParameters, Order.ascending("name"));

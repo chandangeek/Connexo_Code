@@ -12,9 +12,11 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.PrivilegeInfos;
 import com.elster.jupiter.users.rest.ResourceInfos;
 import com.elster.jupiter.users.rest.UserInfos;
+import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Order;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -36,6 +38,7 @@ public class ResourceResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_GROUP)
     public ResourceInfos getResources(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Resource> list = getResourceRestQuery().select(queryParameters, Order.ascending("name"));

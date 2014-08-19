@@ -13,9 +13,11 @@ import com.elster.jupiter.users.rest.UserInfos;
 import com.elster.jupiter.users.rest.actions.CreateUserTransaction;
 import com.elster.jupiter.users.rest.actions.DeleteUserTransaction;
 import com.elster.jupiter.users.rest.actions.UpdateUserTransaction;
+import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Order;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -46,31 +48,33 @@ public class UserResource {
         this.restQueryService = restQueryService;
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public UserInfos createUser(UserInfo info) {
-        User user = transactionService.execute(new CreateUserTransaction(info, userService));
-        try (TransactionContext context = transactionService.getContext()) {
-            UserInfos result = new UserInfos();
-            result.add(user);
-            context.commit();
-            return result;
-        }
-    }
+// - To be added in the future?
+//    @POST
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public UserInfos createUser(UserInfo info) {
+//        User user = transactionService.execute(new CreateUserTransaction(info, userService));
+//        try (TransactionContext context = transactionService.getContext()) {
+//            UserInfos result = new UserInfos();
+//            result.add(user);
+//            context.commit();
+//            return result;
+//        }
+//    }
 
-    @DELETE
-    @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public UserInfos deleteUser(UserInfo info, @PathParam("id") long id) {
-        info.id = id;
-        transactionService.execute(new DeleteUserTransaction(info, userService));
-        return new UserInfos();
-    }
+//    @DELETE
+//    @Path("/{id}")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public UserInfos deleteUser(UserInfo info, @PathParam("id") long id) {
+//        info.id = id;
+//        transactionService.execute(new DeleteUserTransaction(info, userService));
+//        return new UserInfos();
+//    }
 
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_USER)
     public UserInfos getUser(@PathParam("id") long id) {
         try (TransactionContext context = transactionService.getContext()) {
             Optional<User> party = userService.getUser(id);
@@ -87,6 +91,7 @@ public class UserResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_USER)
     public UserInfos getUsers(@Context UriInfo uriInfo) {
         try (TransactionContext context = transactionService.getContext()) {
             QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -105,6 +110,7 @@ public class UserResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_USER)
     public UserInfos updateUser(UserInfo info, @PathParam("id") long id) {
         info.id = id;
         transactionService.execute(new UpdateUserTransaction(info, userService));
