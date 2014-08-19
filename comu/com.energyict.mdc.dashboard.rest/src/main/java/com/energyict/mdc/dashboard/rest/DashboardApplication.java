@@ -5,11 +5,12 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.Installer;
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
@@ -90,11 +91,11 @@ public class DashboardApplication extends Application implements InstallService 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                TransactionWrapper.class,
-                ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
+                ConstraintViolationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
                 LocalizedExceptionMapper.class,
+                ExceptionLogger.class,
                 ComServerStatusResource.class,
                 ComServerStatusSummaryResource.class,
                 ConnectionOverviewResource.class,
@@ -129,6 +130,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(deviceDataService).to(DeviceDataService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
         }
     }
 
