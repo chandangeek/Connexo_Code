@@ -173,7 +173,7 @@ Ext.define('Uni.controller.history.Router', {
                     '#' + this.crossroad.interpolate(arguments) :
                     '#' + this.path
                 ;
-                return url + '?' + Ext.Object.toQueryString(queryParams);
+                return _.isEmpty(queryParams) ? url : url + '?' + Ext.Object.toQueryString(queryParams);
             },
 
             /**
