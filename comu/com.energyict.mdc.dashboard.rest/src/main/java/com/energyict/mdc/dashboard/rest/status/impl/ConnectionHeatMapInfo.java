@@ -23,11 +23,11 @@ public class ConnectionHeatMapInfo {
 
     public List<HeatMapRowInfo> heatMap;
     @XmlJavaTypeAdapter(BreakdownOptionAdapter.class)
-    public BreakdownOption breakdownOption;
+    public BreakdownOption breakdown;
 
     public <H extends HasName & HasId> ConnectionHeatMapInfo(HeatMap<H> heatMap, BreakdownOption breakdown, Thesaurus thesaurus)
             throws Exception {
-        this.breakdownOption=breakdown;
+        this.breakdown = breakdown;
         this.heatMap=new ArrayList<>();
         createHeatMap(heatMap, breakdown, thesaurus);
     }
