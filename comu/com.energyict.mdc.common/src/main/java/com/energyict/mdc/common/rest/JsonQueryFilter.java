@@ -1,16 +1,17 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.impl.MessageSeeds;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.QueryParam;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+@XmlRootElement
 public class JsonQueryFilter {
     private static final String PROPERTY = "property";
     private static final String VALUE = "value";
