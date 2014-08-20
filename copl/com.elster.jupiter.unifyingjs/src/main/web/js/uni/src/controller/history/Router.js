@@ -96,6 +96,16 @@ Ext.define('Uni.controller.history.Router', {
     currentRoute: null,
 
     /**
+     * List of route arguments
+     */
+    arguments: {},
+
+    /**
+     * List of query params
+     */
+    queryParams: {},
+
+    /**
      * Add router configuration
      * @param config
      */
@@ -106,6 +116,12 @@ Ext.define('Uni.controller.history.Router', {
         _.each(config, function (item, key) {
             me.initRoute(key, item);
         });
+    },
+
+    getQueryString: function () {
+        var token = Ext.util.History.getToken(),
+            queryStringIndex = token.indexOf('?');
+        return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
 
     /**
@@ -143,19 +159,29 @@ Ext.define('Uni.controller.history.Router', {
             },
 
             /**
-             * returns URL builded with provided parameters
-             * @param params
+             * returns URL builded with provided arguments and query string parameters
+             *
+             * @param arguments
+             * @param queryParams
+             *
              * @returns {string}
              */
-            buildUrl: function (params) {
-                params = typeof params !== 'undefined' ? params : me.routeparams;
-                return this.crossroad ?
-                    '#' + this.crossroad.interpolate(params) :
-                    '#' + this.path;
+            buildUrl: function (arguments, queryParams) {
+                arguments = Ext.applyIf(arguments || {}, me.arguments);
+                queryParams = Ext.applyIf(queryParams || {}, me.queryParams);
+                var url = this.crossroad ?
+                    '#' + this.crossroad.interpolate(arguments) :
+                    '#' + this.path
+                ;
+                return url + '?' + Ext.Object.toQueryString(queryParams);
             },
 
-            forward: function (params) {
-                window.location.href = this.buildUrl(params);
+            /**
+             * @param arguments
+             * @param queryParams
+             */
+            forward: function (arguments, queryParams) {
+                window.location.href = this.buildUrl(arguments, queryParams);
             }
         });
 
@@ -169,20 +195,20 @@ Ext.define('Uni.controller.history.Router', {
                 me.currentRoute = key;
 
                 // todo: this will not work with optional params
-                me.routeparams = _.object(
+                me.queryParams = Ext.Object.fromQueryString(me.getQueryString());
+                me.arguments = _.object(
                     me.routes[key].crossroad._paramsIds,
                     arguments
                 );
 
-                var arguments = _.values(_.extend(me.routeparams, params));
-
+                var arguments = _.values(_.extend(me.arguments, params));
                 if (Ext.isDefined(config.redirect)) {
                     // perform redirect on route match
                     if (Ext.isObject(config.redirect)) {
-                        var redirectParams = _.extend(me.routeparams, config.redirect.params);
+                        var redirectParams = _.extend(me.arguments, config.redirect.params);
                         me.getRoute(config.redirect.route).forward(redirectParams);
                     } else if (Ext.isString(config.redirect)) {
-                        me.getRoute(config.redirect).forward(me.routeparams);
+                        me.getRoute(config.redirect).forward(me.arguments);
                     } else {
                         throw 'config redirect must be a string or an object';
                     }

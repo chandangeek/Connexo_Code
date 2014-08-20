@@ -1,5 +1,6 @@
 /**
  * @class Uni.util.QueryString
+ * @deprecated Use Uni.controller.history.Router instead
  */
 Ext.define('Uni.util.QueryString', {
     singleton: true,
