@@ -77,7 +77,7 @@ public class PropertyUtils {
         }
         Object[] possibleObjects = new Object[possibleValues.getAllValues().size()];
         for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
-            possibleObjects[i] = propertyInfoFactory.asInfoObject(possibleValues.getAllValues().get(i));
+            possibleObjects[i] = propertyInfoFactory.asInfoObjectForPredifinedValues(possibleValues.getAllValues().get(i));
         }
 
         PropertySelectionMode selectionMode = PropertySelectionMode.UNSPECIFIED;
@@ -109,9 +109,6 @@ public class PropertyUtils {
     private Object convertPropertyInfoValueToPropertyValue(PropertySpec<?> propertySpec, Object value) {
         if (propertySpec.getValueFactory().getValueType() == ListValue.class) {
             ListValue<ListValueEntry> listValue = new ListValue<>();
-            if (value instanceof Map) {
-                return parseListValueInfo(propertySpec, value);
-            }
             if (value instanceof List) {
                 List<?> list = (List<?>) value;
                 for (Object listItem : list) {
@@ -129,8 +126,7 @@ public class PropertyUtils {
     }
 
     private ListValue<ListValueEntry> parseListValueInfo(PropertySpec<?> propertySpec, Object value) {
-        Map<String, Object> map = (Map<String, Object>) value;
-        String stringValue = (String) map.get("id");//Expected ListValueInfo
+        String stringValue = (String) value;
         Object obj = propertySpec.getValueFactory().fromStringValue(stringValue);
         return (ListValue<ListValueEntry>) obj;
     }
