@@ -1031,8 +1031,7 @@ public class DeviceImpl implements Device {
         return Collections.emptyList();
     }
 
-    @Override
-    public List<LoadProfileReading> getChannelDataFor(LoadProfile loadProfile, Interval interval) {
+    List<LoadProfileReading> getChannelData(LoadProfile loadProfile, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval);
         if (amrSystem.isPresent()) {
@@ -1046,8 +1045,7 @@ public class DeviceImpl implements Device {
         return new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
     }
 
-    @Override
-    public List<LoadProfileReading> getChannelDataFor(Channel channel, Interval interval) {
+    List<LoadProfileReading> getChannelData(Channel channel, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval);
         if (amrSystem.isPresent()) {

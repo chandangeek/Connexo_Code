@@ -1054,7 +1054,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        Collection<LoadProfileReading> readings = reloadedDevice.getChannelDataFor(device.getLoadProfiles().get(0), new Interval(dayStart, dayEnd));
+        Collection<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
         assertThat(readings).hasSize(24 * 4);
     }
 
@@ -1074,7 +1074,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<LoadProfileReading> readings = reloadedDevice.getChannelDataFor(device.getLoadProfiles().get(0), new Interval(dayStart, dayEnd));
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
         assertThat(readings).hasSize(3);
         assertThat(readings.get(0).getInterval().getStart()).isEqualTo(new Date(1406852100000L)); // Fri, 01 Aug 2014 00:15:00 GMT
         assertThat(readings.get(1).getInterval().getStart()).isEqualTo(new Date(1406853000000L)); // Fri, 01 Aug 2014 00:30:00 GMT
@@ -1096,7 +1096,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<LoadProfileReading> readings = reloadedDevice.getChannelDataFor(device.getLoadProfiles().get(0), new Interval(dayStart, dayEnd));
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
         assertThat(readings).hasSize(4*6);  // 4 per hour, during 6 hours
     }
 
