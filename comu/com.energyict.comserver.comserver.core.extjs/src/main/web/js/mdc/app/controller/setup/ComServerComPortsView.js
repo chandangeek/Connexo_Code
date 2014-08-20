@@ -266,9 +266,10 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         var router = this.getController('Uni.controller.history.Router'),
             id = record.getId();
 
-        router.routeparams['comPortId'] = id;
-        router.routeparams['direction'] = this.lowerFirstLetter(record.getData().direction);
-        router.getRoute('administration/comservers/detail/comports/edit').forward(router.routeparams);
+        // todo: do not set route params
+        router.arguments['comPortId'] = id;
+        router.arguments['direction'] = this.lowerFirstLetter(record.getData().direction);
+        router.getRoute('administration/comservers/detail/comports/edit').forward(router.arguments);
     },
 
     lowerFirstLetter: function (string) {

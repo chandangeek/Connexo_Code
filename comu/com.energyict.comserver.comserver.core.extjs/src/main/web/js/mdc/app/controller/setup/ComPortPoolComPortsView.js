@@ -167,7 +167,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             view = me.getAddComPortView(),
             router = me.getController('Uni.controller.history.Router'),
             comPortPoolModel = me.getModel('Mdc.model.ComPortPool'),
-            poolId = router.routeparams['id'],
+            poolId = router.arguments['id'],
             preloader = Ext.create('Ext.LoadMask', {
                 msg: "Loading...",
                 target: view

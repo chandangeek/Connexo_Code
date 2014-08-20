@@ -176,7 +176,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             url = '/api/ddr/devices/schedules',
             request = {},
             jsonData,
-            method;
+            method,
+            params;
 
         finishBtn.disable();
 
@@ -201,12 +202,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         request.scheduleIds = scheduleIds;
         jsonData = Ext.encode(request);
 
+        params = me.getStore('Mdc.store.DevicesBuffered').getProxy().extraParams;
+        params.all = me.allDevices;
         Ext.Ajax.request({
             url: url,
             method: method,
-            params: {
-                all: me.allDevices
-            },
+            params: params,
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {

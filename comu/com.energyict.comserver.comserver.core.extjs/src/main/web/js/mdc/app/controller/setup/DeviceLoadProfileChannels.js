@@ -79,10 +79,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
     },
     chooseAction: function (menu, item) {
         var router = this.getController('Uni.controller.history.Router'),
-            routeParams = router.routeparams,
             route;
-
-        routeParams.channelId = menu.record.getId();
 
         switch (item.action) {
             case 'viewData':
@@ -94,6 +91,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
         }
 
         route && (route = router.getRoute(route));
-        route && route.forward(routeParams);
+        route && route.forward({
+            channelId: menu.record.getId()
+        });
     }
 });

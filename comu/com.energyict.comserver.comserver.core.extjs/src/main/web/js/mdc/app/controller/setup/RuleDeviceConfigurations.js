@@ -70,7 +70,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             ruleDeviceConfigNotLinkedStore = me.getStore('Mdc.store.RuleDeviceConfigurationsNotLinked'),
             ruleSetsStore = me.getStore('Cfg.store.ValidationRuleSets'),
             router = me.getController('Uni.controller.history.Router'),
-            widget = Ext.widget('rule-device-configuration-add', {ruleSetId: router.routeparams.ruleSetId});
+            widget = Ext.widget('rule-device-configuration-add', {ruleSetId: router.arguments.ruleSetId});
 
         me.ruleSetId = ruleSetId;
 
@@ -79,14 +79,14 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
         }
 
         me.getApplication().fireEvent('changecontentevent', widget);
-        ruleDeviceConfigNotLinkedStore.getProxy().setExtraParam('ruleSetId', router.routeparams.ruleSetId);
+        ruleDeviceConfigNotLinkedStore.getProxy().setExtraParam('ruleSetId', router.arguments.ruleSetId);
         ruleDeviceConfigNotLinkedStore.load(function () {
             ruleSetsStore.load({
                 params: {
-                    id: router.routeparams.ruleSetId
+                    id: router.arguments.ruleSetId
                 },
                 callback: function () {
-                    var ruleSet = ruleSetsStore.getById(parseInt(router.routeparams.ruleSetId));
+                    var ruleSet = ruleSetsStore.getById(parseInt(router.arguments.ruleSetId));
                     me.getApplication().fireEvent('loadRuleSet', ruleSet);
                 }
             });
