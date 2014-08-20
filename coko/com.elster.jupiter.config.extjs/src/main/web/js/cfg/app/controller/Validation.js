@@ -18,7 +18,6 @@ Ext.define('Cfg.controller.Validation', {
         'ValidationRuleSet',
         'ValidationRule',
         'ReadingType',
-        'ValidationRuleProperty',
         'Validator'
     ],
 
