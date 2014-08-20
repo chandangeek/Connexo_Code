@@ -12,7 +12,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
 
 /**
  * Created by bvn on 7/29/14.
@@ -32,7 +31,7 @@ public class ConnectionOverviewResource {
     @GET
     @Consumes("application/json")
     @Produces("application/json")
-    public Response getConnectionOverview() throws Exception {
+    public ConnectionOverviewInfo getConnectionOverview() throws Exception {
         ConnectionStatusOverview connectionStatusOverview = dashboardService.getConnectionStatusOverview();
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
         ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
@@ -40,9 +39,9 @@ public class ConnectionOverviewResource {
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getDeviceTypeBreakdown();
         ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(connectionStatusOverview);
 
-        return Response.ok(new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comSessionSuccessIndicatorOverview,
+        return new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comSessionSuccessIndicatorOverview,
                 comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown,
-                thesaurus)).build();
+                thesaurus);
     }
 
 }

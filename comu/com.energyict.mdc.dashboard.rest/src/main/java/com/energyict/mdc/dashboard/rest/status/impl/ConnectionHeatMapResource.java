@@ -23,19 +23,26 @@ public class ConnectionHeatMapResource {
         this.dashboardService = dashboardService;
     }
 
+    /**
+     * Generates data in heatmap format according to the requested breakdown
+     *
+     * @param jsonQueryFilter QueryFilter for breakdown attribute (mandatory)
+     * @return HeatMap data
+     * @throws Exception
+     */
     @GET
     @Consumes("application/json")
     @Produces("application/json")
-    public Response getConnectionHeatMap(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
+    public ConnectionHeatMapInfo getConnectionHeatMap(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
         if (!jsonQueryFilter.getFilterProperties().containsKey("breakdown")) {
             Response.status(Response.Status.BAD_REQUEST).build();
         }
         BreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
 
-        return Response.ok(new ConnectionHeatMapInfo(
+        return new ConnectionHeatMapInfo(
                 breakdown==BreakdownOption.comPortPool?dashboardService.getComPortPoolHeatMap():(breakdown==BreakdownOption.connectionType?dashboardService.getConnectionTypeHeatMap():dashboardService.getDeviceTypeHeatMap()),
                 breakdown,
-                thesaurus)).build();
+                thesaurus);
     }
 
 }
