@@ -3,7 +3,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
     alias: 'widget.deviceLoadProfileChannelsPreviewForm',
     itemId: 'deviceLoadProfileChannelsPreviewForm',
     requires: [
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.ObisDisplay',
+        'Uni.form.field.ReadingTypeDisplay'
     ],
 
     defaults: {
@@ -50,6 +51,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
             ]
         },
         {
+            xtype: 'reading-type-displayfield',
             fieldLabel: Uni.I18n.translate('deviceloadprofiles.cimReadingType', 'MDC', 'CIM reading type'),
             name: 'cimReadingType'
         },

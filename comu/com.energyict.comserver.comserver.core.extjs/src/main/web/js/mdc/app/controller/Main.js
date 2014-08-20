@@ -73,7 +73,11 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.ValidationRuleSets',
         'Mdc.controller.setup.SearchItemsBulkAction',
         'Mdc.controller.setup.ValidationRuleSets',
-        'Mdc.controller.setup.RuleDeviceConfigurations'
+        'Mdc.controller.setup.RuleDeviceConfigurations',
+        'Mdc.controller.setup.DeviceLoadProfileChannels',
+        'Mdc.controller.setup.DeviceLoadProfileOverview',
+        'Mdc.controller.setup.DeviceLoadProfileData',
+        'Mdc.controller.setup.DeviceLoadProfiles'
     ],
 
     config: {

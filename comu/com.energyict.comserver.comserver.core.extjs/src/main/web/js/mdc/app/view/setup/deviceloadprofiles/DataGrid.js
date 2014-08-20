@@ -7,12 +7,14 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.deviceloadprofiles.DataActionMenu'
+        'Mdc.view.setup.deviceloadprofiles.DataActionMenu',
+        'Uni.grid.plugin.ShowConditionalToolTip'
     ],
     height: 395,
-    plugins: {
-        ptype: 'bufferedrenderer'
-    },
+    plugins: [
+        'bufferedrenderer',
+        'showConditionalToolTip'
+    ],
     channels: null,
     initComponent: function () {
         var me = this;

@@ -913,7 +913,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     items: {
                                                         overview: {
                                                             title: Uni.I18n.translate('routing.overview', 'MDC', 'Overview'),
-                                                            route: 'overview'
+                                                            route: 'overview',
+                                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannelOverview',
+                                                            action: 'showOverview'
                                                         },
                                                         data: {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),

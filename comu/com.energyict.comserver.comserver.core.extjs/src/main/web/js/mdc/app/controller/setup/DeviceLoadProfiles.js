@@ -21,9 +21,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         }
     ],
 
-    mRID: null,
-    loadProfilesOfDeviceUrl: null,
-
     init: function () {
         this.control({
             'deviceLoadProfilesSetup #deviceLoadProfilesGrid': {
@@ -33,7 +30,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 click: this.chooseAction
             }
         });
-        this.loadProfilesOfDeviceUrl = this.getStore('Mdc.store.LoadProfilesOfDevice').getProxy().url;
     },
 
     showView: function (mRID) {
@@ -42,7 +38,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             timeUnitsStore = me.getStore('Mdc.store.TimeUnits'),
             widget,
             showPage = function () {
-                me.getStore('Mdc.store.LoadProfilesOfDevice').getProxy().url = me.loadProfilesOfDeviceUrl.replace('{mRID}', mRID);
+                me.getStore('Mdc.store.LoadProfilesOfDevice').getProxy().setUrl(mRID);
                 widget = Ext.widget('deviceLoadProfilesSetup', {
                     mRID: mRID,
                     router: me.getController('Uni.controller.history.Router')
@@ -56,7 +52,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 });
             };
 
-        me.mRID = mRID;
         timeUnitsStore.getCount() ? showPage() : timeUnitsStore.on('load', showPage, me, {single: true});
     },
 
@@ -71,8 +66,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     chooseAction: function (menu, item) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            id = menu.record.getId(),
+            routeParams = router.routeparams,
             route;
+
+        routeParams.loadProfileId = menu.record.getId();
 
         switch (item.action) {
             case 'viewChannels':
@@ -87,6 +84,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         }
 
         route && (route = router.getRoute(route));
-        route && route.forward({mRID: me.mRID, loadProfileId: id});
+        route && route.forward(routeParams);
     }
 });

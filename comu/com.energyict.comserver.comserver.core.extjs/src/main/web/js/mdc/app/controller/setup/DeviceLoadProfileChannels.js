@@ -23,9 +23,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
         }
     ],
 
-    channelsOfLoadProfilesOfDeviceUrl: null,
-    loadProfileOfDeviceModelUrl: null,
-
     init: function () {
         this.control({
             'deviceLoadProfileChannelsSetup #deviceLoadProfileChannelsGrid': {
@@ -35,8 +32,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
                 click: this.chooseAction
             }
         });
-        this.channelsOfLoadProfilesOfDeviceUrl = this.getStore('Mdc.store.ChannelsOfLoadProfilesOfDevice').getProxy().url;
-        this.loadProfileOfDeviceModelUrl = this.getModel('Mdc.model.LoadProfileOfDevice').getProxy().url;
     },
 
     showOverview: function (mRID, loadProfileId) {
@@ -47,7 +42,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
             timeUnitsStore = me.getStore('Mdc.store.TimeUnits'),
             widget,
             showPage = function () {
-                channelsOfLoadProfilesOfDeviceStore.getProxy().url = me.channelsOfLoadProfilesOfDeviceUrl.replace('{mRID}', mRID).replace('{loadProfileId}', loadProfileId);
+                channelsOfLoadProfilesOfDeviceStore.getProxy().setUrl({
+                    mRID: mRID,
+                    loadProfileId: loadProfileId
+                });
                 channelsOfLoadProfilesOfDeviceStore.load();
                 widget = Ext.widget('deviceLoadProfileChannelsSetup', {
                     mRID: mRID,
@@ -60,7 +58,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
                         me.getApplication().fireEvent('loadDevice', record);
                     }
                 });
-                loadProfileOfDeviceModel.getProxy().url = me.loadProfileOfDeviceModelUrl.replace('{mRID}', mRID);
+                loadProfileOfDeviceModel.getProxy().setUrl(mRID);
                 loadProfileOfDeviceModel.load(loadProfileId, {
                     success: function (record) {
                         me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);

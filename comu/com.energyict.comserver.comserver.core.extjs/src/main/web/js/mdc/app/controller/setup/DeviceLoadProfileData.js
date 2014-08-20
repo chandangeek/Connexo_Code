@@ -21,9 +21,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         }
     ],
 
-    loadProfilesOfDeviceDataStoreUrl: null,
-    loadProfileOfDeviceModelUrl: null,
-
     init: function () {
         this.control({
             'deviceLoadProfilesData #deviceLoadProfilesTableViewBtn': {
@@ -36,8 +33,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 select: this.showPreview
             }
         });
-        this.loadProfilesOfDeviceDataStoreUrl = this.getStore('Mdc.store.LoadProfilesOfDeviceData').getProxy().url;
-        this.loadProfileOfDeviceModelUrl = this.getModel('Mdc.model.LoadProfileOfDevice').getProxy().url;
     },
 
     showOverview: function (mRID, loadProfileId) {
@@ -45,6 +40,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             loadProfilesOfDeviceDataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
             loadProfilesOfDeviceDataStoreProxy = loadProfilesOfDeviceDataStore.getProxy(),
+            checkBoxesContainer,
             widget,
             graphView;
 
@@ -53,7 +49,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 me.getApplication().fireEvent('loadDevice', record);
             }
         });
-        loadProfileOfDeviceModel.getProxy().url = me.loadProfileOfDeviceModelUrl.replace('{mRID}', mRID);
+        loadProfileOfDeviceModel.getProxy().setUrl(mRID);
         loadProfileOfDeviceModel.load(loadProfileId, {
             success: function (record) {
                 widget = Ext.widget('deviceLoadProfilesData', {
@@ -61,16 +57,19 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     channels: record.get('channels')
                 });
 
-
                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                 widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 graphView = widget.down('#deviceLoadProfilesGraphView');
+                checkBoxesContainer = widget.down('#channelsCheckBoxesContainer');
                 graphView.setLoading(true);
-                loadProfilesOfDeviceDataStoreProxy.url = me.loadProfilesOfDeviceDataStoreUrl.replace('{mRID}', mRID).replace('{loadProfileId}', loadProfileId);
+                loadProfilesOfDeviceDataStoreProxy.setUrl({
+                    mRID: mRID,
+                    loadProfileId: loadProfileId
+                });
                 loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalStart', 1407096000000);
-                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalEnd', 1407099600000);
+                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalEnd', 1407182400000);
                 loadProfilesOfDeviceDataStore.on('load', function () {
                     me.showGraphView(record);
                     graphView.setLoading(false);
@@ -108,12 +107,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             measurementTypeOrder = [],
             channelDataArrays = {},
             flowMeasuresNumbers = {},
+            seriesToYAxisMap = {},
             intervalLength,
             lineCount,
             step;
 
 
-        Ext.Array.each(loadProfileRecord.get('channels'), function (channel) {
+        Ext.Array.each(loadProfileRecord.get('channels'), function (channel, index) {
             var seriesObject = {marker: {
                     enabled: false
                 }},
@@ -134,8 +134,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     } else {
                         seriesObject['yAxis'] = flowLineNumber;
                     }
-                    channels.push({name: channel.name, unitOfMeasure: channel.unitOfMeasure.localizedValue });
-                    series.push(seriesObject);
                     break;
                 case 'volume':
                     seriesObject['type'] = 'column';
@@ -143,15 +141,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     seriesObject['yAxis'] = currentLine;
                     measurementTypeOrder.push(channel.unitOfMeasure.localizedValue);
                     currentLine += 1;
-                    channels.push({name: channel.name, unitOfMeasure: channel.unitOfMeasure.localizedValue });
-                    series.push(seriesObject);
                     break;
             }
+            channels.push({name: channel.name, unitOfMeasure: channel.unitOfMeasure.localizedValue });
+            seriesToYAxisMap[index] = seriesObject['yAxis'];
+            series.push(seriesObject);
         });
 
-
         lineCount = measurementTypeOrder.length;
-        step = 100 / lineCount | 0;
+        step = (100 / lineCount | 0) - 1;
 
         Ext.Array.each(measurementTypeOrder, function (type, index) {
             var yAxisObject = {
@@ -171,7 +169,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 yAxisObject['top'] = currentAxisTopValue + '%';
                 yAxisObject['offset'] = 0;
             }
-            currentAxisTopValue += step;
+            currentAxisTopValue += step + 2;
             yAxisObject['title'] = {
                 rotation: 270,
                 text: type
@@ -185,11 +183,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     intervalLength = record.get('interval').end - record.get('interval').start;
                 }
                 Ext.iterate(record.get('channelData'), function (key, value) {
-                    channelDataArrays[key].push([record.get('interval').end, value])
+                    if (channelDataArrays[key]) {
+                        channelDataArrays[key].push([record.get('interval').end, value])
+                    }
                 });
             });
-            container.setParams(title, yAxis, series, channels, intervalLength);
-            container.drawGraph();
+            container.drawGraph(title, yAxis, series, channels, seriesToYAxisMap, intervalLength);
         } else {
             container.drawEmptyList();
         }

@@ -14,12 +14,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
         'Mdc.store.TimeUnits'
     ],
 
-    loadProfileOfDeviceModelUrl: null,
-
-    init: function () {
-        this.loadProfileOfDeviceModelUrl = this.getModel('Mdc.model.LoadProfileOfDevice').getProxy().url;
-    },
-
     showOverview: function (mRID, loadProfileId) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
@@ -27,7 +21,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
             timeUnitsStore = me.getStore('Mdc.store.TimeUnits'),
             widget,
             showPage = function () {
-                loadProfileOfDeviceModel.getProxy().url = me.loadProfileOfDeviceModelUrl.replace('{mRID}', mRID);
+                loadProfileOfDeviceModel.getProxy().setUrl(mRID);
                 widget = Ext.widget('deviceLoadProfilesOverview', {
                     mRID: mRID,
                     router: me.getController('Uni.controller.history.Router')
