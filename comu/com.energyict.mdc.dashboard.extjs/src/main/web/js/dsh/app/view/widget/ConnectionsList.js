@@ -20,22 +20,22 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
         items: [
             {
                 itemId: 'Device',
-                text: Uni.I18n.translate('workspace.dataCommunication.connections.device', 'DSH', 'Device'),
+                text: Uni.I18n.translate('connection.widget.details.device', 'DSH', 'Device'),
                 dataIndex: 'device',
-                flex: 1,
+                flex: 2,
                 renderer: function (val) {
-                    return val.name
+                    return '<a href="#/devices/"' + val.id + '">' + val.name + '</a>'
                 }
             },
             {
                 itemId: 'currentState',
-                text: Uni.I18n.translate('workspace.dataCommunication.connections.currentState', 'DSH', 'Current state'),
+                text: Uni.I18n.translate('connection.widget.details.currentState', 'DSH', 'Current state'),
                 dataIndex: 'currentState',
                 flex: 1
             },
             {
                 itemId: 'latestStatus',
-                text: Uni.I18n.translate('workspace.dataCommunication.connections.latestStatus', 'DSH', 'Latest status'),
+                text: Uni.I18n.translate('connection.widget.details.latestStatus', 'DSH', 'Latest status'),
                 dataIndex: 'latestStatus',
                 flex: 1,
                 renderer: function (val) {
@@ -44,7 +44,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             },
             {
                 itemId: 'latestResult',
-                text: Uni.I18n.translate('workspace.dataCommunication.connections.latestResult', 'DSH', 'Latest result'),
+                text: Uni.I18n.translate('connection.widget.details.latestResult', 'DSH', 'Latest result'),
                 dataIndex: 'latestResult',
                 flex: 1,
                 renderer: function (val) {
@@ -55,16 +55,18 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 dataIndex: 'taskCount',
                 itemId: 'taskCount',
                 renderer: function (val) {
-                    return '<tpl><span class="fa fa-check fa-lg"></span>' + val.numberOfSuccessfulTasks + '</tpl>' +
-                        '<tpl><span class="fa fa-times fa-lg"></span>' + val.numberOfFailedTasks + '</tpl>' +
-                        '<tpl><span class="fa fa-ban fa-lg"></span>' + val.numberOfIncompleteTasks + '</tpl>'
+                    var success = val.numberOfSuccessfulTasks ? '<tpl><span class="fa fa-check fa-lg" style="color: green; position: relative; vertical-align: 0% !important;"></span><span style="position: relative; left: 4px">' + val.numberOfSuccessfulTasks + '</span></tpl>' : '',
+                        failed = val.numberOfFailedTasks ? '<tpl><span class="fa fa-times fa-lg" style="color: red; position: relative; left: 26px; vertical-align: 0% !important;"></span><span style="position: relative; left: 30px">' + val.numberOfFailedTasks + '</span></tpl>' : '',
+                        notCompleted = val.numberOfIncompleteTasks ? '<tpl><span class="fa fa-ban fa-lg" style="color: #333333; position: relative; left: 52px; vertical-align: 0% !important"></span><span  style="position: relative; left: 56px">' + val.numberOfIncompleteTasks + '</span></tpl>' : ''
+                        ;
+                    return success + failed + notCompleted
                 },
-                header: Uni.I18n.translate('workspace.dataCommunication.connections.commTasks', 'DSH', 'Communication tasks'),
-                flex: 1
+                header: Uni.I18n.translate('connection.widget.details.commTasks', 'DSH', 'Communication tasks'),
+                flex: 2
             },
             {
                 itemId: 'startDateTime',
-                text: Uni.I18n.translate('workspace.dataCommunication.connections.latestResult', 'DSH', 'Started on'),
+                text: Uni.I18n.translate('connection.widget.details.startedOn', 'DSH', 'Started on'),
                 dataIndex: 'startDateTime',
                 xtype: 'datecolumn',
                 format: 'm/d/Y h:i:s',
@@ -72,7 +74,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             },
             {
                 itemId: 'endDateTime',
-                text: Uni.I18n.translate('workspace.dataCommunication.connections.latestResult', 'DSH', 'Finished on'),
+                text: Uni.I18n.translate('connection.widget.details.finishedOn', 'DSH', 'Finished on'),
                 dataIndex: 'endDateTime',
                 xtype: 'datecolumn',
                 format: 'm/d/Y h:i:s',
@@ -91,9 +93,9 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             xtype: 'pagingtoolbartop',
             dock: 'top',
             store: 'Dsh.store.ConnectionTasks',
-            displayMsg: Uni.I18n.translate('workspace.dataCommunication.connections.displayMsg', 'DDSH', '{0} - {1} of {2} connections'),
-            displayMoreMsg: Uni.I18n.translate('workspace.dataCommunication.connections.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} connections'),
-            emptyMsg: Uni.I18n.translate('workspace.dataCommunication.connections.emptyMsg', 'DSH', 'There are no connections to display'),
+            displayMsg: Uni.I18n.translate('connection.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} connections'),
+            displayMoreMsg: Uni.I18n.translate('connection.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} connections'),
+            emptyMsg: Uni.I18n.translate('connection.widget.details.emptyMsg', 'DSH', 'There are no connections to display'),
             items: [
                 '->',
                 {
@@ -113,7 +115,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             xtype: 'pagingtoolbarbottom',
             store: 'Dsh.store.ConnectionTasks',
             dock: 'bottom',
-            itemsPerPageMsg: Uni.I18n.translate('workspace.dataCommunication.connections.itemsPerPage', 'DSH', 'Connections per page')
+            itemsPerPageMsg: Uni.I18n.translate('connection.widget.details.itemsPerPage', 'DSH', 'Connections per page')
         }
     ],
 
@@ -122,15 +124,25 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             view = me.getView(),
             tip = Ext.create('Ext.tip.ToolTip', {
                 target: view.el,
-                delegate: view.itemSelector,
+                delegate: 'span.fa',
                 trackMouse: true,
                 renderTo: Ext.getBody(),
                 listeners: {
                     beforeshow: function updateTipBody(tip) {
-                        tip.update('Failed"' + view.getRecord(tip.triggerElement).get('title') + '"');
+                        var res,
+                            rowEl = Ext.get(tip.triggerElement).up('tr'),
+                            taskCount = view.getRecord(rowEl).get('taskCount'),
+                            failed = taskCount.numberOfFailedTasks + ' ' + Uni.I18n.translate('connection.widget.details.comTasksFailed', 'DSH', 'communication tasks failed'),
+                            success = taskCount.numberOfSuccessfulTasks + ' ' + Uni.I18n.translate('connection.widget.details.comTasksSuccessful', 'DSH', 'communication tasks successful'),
+                            notCompleted = taskCount.numberOfIncompleteTasks + ' ' + Uni.I18n.translate('connection.widget.details.comTasksNotCompleted', 'DSH', 'communication tasks not completed');
+                        (tip.triggerElement.className.search('fa-ban') !== -1) && (res = notCompleted);
+                        (tip.triggerElement.className.search('fa-check') !== -1) && (res = success);
+                        (tip.triggerElement.className.search('fa-time') !== -1) && (res = failed);
+                        tip.update(res);
                     }
                 }
-            })
+            });
+
     },
 
     initComponent: function () {
