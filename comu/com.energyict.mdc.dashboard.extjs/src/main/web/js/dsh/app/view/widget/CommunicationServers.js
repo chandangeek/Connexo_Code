@@ -18,7 +18,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                                 '<tpl if="xindex &lt; 4">',
                                     '<tr class="comserver" >',
                                         '<td>',
-                                            '<a href="' + router.getRoute('administration/comservers/detail').buildUrl({id: '{comServerName}'}) + '">{comServerName}</a>',
+                                            '<a href="' + router.getRoute('administration/comservers/detail/overview').buildUrl({id: '{comServerName}'}) + '">{comServerName}</a>',
                                         '</td>',
                                         '<td style="padding-left: 15px;">',
                                             '<tpl if="running">',
