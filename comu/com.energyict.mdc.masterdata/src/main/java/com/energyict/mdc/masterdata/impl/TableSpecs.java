@@ -29,6 +29,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<Phenomenon> table = dataModel.addTable(name(), Phenomenon.class);
             table.map(PhenomenonImpl.class);
+            table.cache();
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar().notNull().map(PhenomenonImpl.Fields.NAME.fieldName()).add();
             Column unit = table.column("UNIT").varChar(StringColumnLengthConstraints.PHENOMENON_UNIT).notNull().map(PhenomenonImpl.Fields.UNIT.fieldName()).add();
@@ -61,6 +62,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<RegisterGroup> table = dataModel.addTable(this.name(), RegisterGroup.class);
             table.map(RegisterGroupImpl.class);
+            table.cache();
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
@@ -74,6 +76,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<MeasurementType> table = dataModel.addTable(this.name(), MeasurementType.class);
             table.map(MeasurementTypeImpl.IMPLEMENTERS);
+            table.cache();
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
