@@ -147,17 +147,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                             width: '100%'
                         },
                         {
-                            xtype: 'container',
-                            itemId: 'propertiesContainer',
-                            layout: {
-                                type: 'vbox',
-                                align: 'stretch'
-                            },
-                            margin: '20 0 0 0',
-
-                            items: []
-                        },
-                        {
                             xtype: 'fieldcontainer',
                             margin: '20 0 0 0',
                             fieldLabel: '&nbsp',
