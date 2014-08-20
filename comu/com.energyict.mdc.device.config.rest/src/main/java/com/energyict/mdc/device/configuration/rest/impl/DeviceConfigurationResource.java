@@ -310,7 +310,7 @@ public class DeviceConfigurationResource {
     }
 
     @GET
-    @Path("/{deviceConfigurationId}/channels/{channelId}/valdationrules")
+    @Path("/{deviceConfigurationId}/channels/{channelId}/validationrules")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getValidationRulesForChannel(
             @PathParam("deviceTypeId") long deviceTypeId,
