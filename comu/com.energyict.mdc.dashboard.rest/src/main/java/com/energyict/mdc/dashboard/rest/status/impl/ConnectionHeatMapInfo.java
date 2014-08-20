@@ -33,29 +33,29 @@ public class ConnectionHeatMapInfo {
     }
 
     private <H extends HasName & HasId> void createHeatMap(HeatMap<H> heatMap, BreakdownOption breakdown, Thesaurus thesaurus) throws Exception {
-        for (HeatMapRow<H> row : heatMap) {
-            HeatMapRowInfo heatMapRowInfo = new HeatMapRowInfo();
-            heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
-            heatMapRowInfo.id = row.getTarget().getId(); // ID of the object
-            heatMapRowInfo.alias = breakdown; // Type of object
-            heatMapRowInfo.data = new ArrayList<>();
-            for (ComSessionSuccessIndicatorOverview counters : row) {
-                for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : counters) {
+        if (heatMap!=null) {
+            for (HeatMapRow<H> row : heatMap) {
+                HeatMapRowInfo heatMapRowInfo = new HeatMapRowInfo();
+                heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
+                heatMapRowInfo.id = row.getTarget().getId(); // ID of the object
+                heatMapRowInfo.alias = breakdown; // Type of object
+                heatMapRowInfo.data = new ArrayList<>();
+                for (ComSessionSuccessIndicatorOverview counters : row) {
+                    for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : counters) {
+                        TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
+                        taskCounterInfo.id = successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget());
+                        taskCounterInfo.displayName = thesaurus.getString(successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget()), null);
+                        taskCounterInfo.count = successIndicatorCounter.getCount();
+                        heatMapRowInfo.data.add(taskCounterInfo);
+                    }
                     TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-                    taskCounterInfo.id=successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget());
-                    taskCounterInfo.displayName=thesaurus.getString(successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget()), null);
-                    taskCounterInfo.count=successIndicatorCounter.getCount();
+                    taskCounterInfo.id = MessageSeeds.AT_LEAST_ONE_FAILED.getKey();
+                    taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.AT_LEAST_ONE_FAILED.getKey(), null);
+                    taskCounterInfo.count = counters.getAtLeastOneTaskFailedCount();
                     heatMapRowInfo.data.add(taskCounterInfo);
                 }
-                TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-                taskCounterInfo.id= MessageSeeds.AT_LEAST_ONE_FAILED.getKey();
-                taskCounterInfo.displayName=thesaurus.getString(MessageSeeds.AT_LEAST_ONE_FAILED.getKey(), null);
-                taskCounterInfo.count=counters.getAtLeastOneTaskFailedCount();
-                heatMapRowInfo.data.add(taskCounterInfo);
+                this.heatMap.add(heatMapRowInfo);
             }
-            this.heatMap.add(heatMapRowInfo);
         }
     }
-
-
 }
