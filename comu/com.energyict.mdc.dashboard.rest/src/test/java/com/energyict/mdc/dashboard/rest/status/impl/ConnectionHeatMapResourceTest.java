@@ -126,13 +126,6 @@ public class ConnectionHeatMapResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testHeatMapByDeviceType() throws Exception {
-
-        Map<String, Object> map = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter("breakdown", "deviceType")).request().get(Map.class);
-
-    }
-
-    @Test
     public void testConnectionHeatMapJsonBinding() throws Exception {
         Map<String, Object> map = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter("breakdown", "deviceType")).request().get(Map.class);
 
