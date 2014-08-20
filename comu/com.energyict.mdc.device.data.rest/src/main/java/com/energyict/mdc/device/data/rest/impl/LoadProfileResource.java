@@ -68,7 +68,7 @@ public class LoadProfileResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = findLoadProfileOrThrowException(device, loadProfileId, mrid);
         if (intervalStart!=null && intervalEnd!=null) {
-            List<LoadProfileReading> loadProfileData = device.getChannelDataFor(loadProfile, new Interval(new Date(intervalStart), new Date(intervalEnd)));
+            List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
             List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();
             List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(paginatedLoadProfileData, thesaurus);
             PagedInfoList pagedInfoList = PagedInfoList.asJson("data", infos, queryParameters);
@@ -105,7 +105,7 @@ public class LoadProfileResource {
         LoadProfile loadProfile = findLoadProfileOrThrowException(device, loadProfileId, mrid);
         Channel channel = findChannelOrThrowException(loadProfile, channelId);
         if (intervalStart!=null && intervalEnd!=null) {
-            List<LoadProfileReading> loadProfileData = device.getChannelDataFor(channel, new Interval(new Date(intervalStart), new Date(intervalEnd)));
+            List<LoadProfileReading> loadProfileData = channel.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
             List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();
             List<ChannelDataInfo> infos = ChannelDataInfo.from(paginatedLoadProfileData, thesaurus);
             PagedInfoList pagedInfoList = PagedInfoList.asJson("data", infos, queryParameters);

@@ -555,7 +555,7 @@ public class DeviceResourceTest extends JerseyTest {
             loadProfileReadings.add(mockLoadProfileReading(loadProfile3, new Interval(new Date(start), new Date(start + 900))));
             start+=900;
         }
-        when(device1.getChannelDataFor((LoadProfile) anyObject(), (com.elster.jupiter.util.time.Interval) anyObject())).thenReturn(loadProfileReadings);
+        when(loadProfile3.getChannelData((com.elster.jupiter.util.time.Interval) anyObject())).thenReturn(loadProfileReadings);
 
 
         Map response = target("/devices/mrid2/loadprofiles/3/data")
@@ -598,7 +598,7 @@ public class DeviceResourceTest extends JerseyTest {
             loadProfileReadings.add(mockLoadProfileReading(loadProfile3, new Interval(new Date(start), new Date(start + 900))));
             start+=900;
         }
-        when(device1.getChannelDataFor((Channel) anyObject(), (com.elster.jupiter.util.time.Interval) anyObject())).thenReturn(loadProfileReadings);
+        when(channel1.getChannelData((com.elster.jupiter.util.time.Interval) anyObject())).thenReturn(loadProfileReadings);
 
 
         Map response = target("/devices/mrid2/loadprofiles/3/channels/7/data")
