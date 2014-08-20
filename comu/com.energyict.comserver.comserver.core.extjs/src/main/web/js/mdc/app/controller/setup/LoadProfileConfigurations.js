@@ -85,7 +85,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
 
     renderAddPage: function () {
         var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/add').forward(router.routeparams);
+        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/add').forward();
     },
 
     editRecord: function () {

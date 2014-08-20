@@ -59,7 +59,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
             method: 'POST',
             jsonData: jsonIds,
             success: function () {
-                router.getRoute('administration/devicetypes/view/logbooktypes').forward(router.routeparams);
+                router.getRoute('administration/devicetypes/view/logbooktypes').forward();
                 self.getApplication().fireEvent('acknowledge', 'Successfully added');
             },
             failure: function (response) {
