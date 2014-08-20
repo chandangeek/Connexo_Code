@@ -79,7 +79,9 @@ Ext.define('Uni.view.grid.BulkSelection', {
         'Ext.grid.plugin.BufferedRenderer'
     ],
 
-    height: 600,
+    height: 620,
+    minHeight: 280,
+
     selType: 'checkboxmodel',
     selModel: {
         mode: 'MULTI',
@@ -334,6 +336,13 @@ Ext.define('Uni.view.grid.BulkSelection', {
         if (me.bottomToolbarHidden) {
             me.hideBottomToolbar();
         }
+
+        me.store.on('bulkremove', me.onLoad, me);
+        me.store.on('remove', me.onLoad, me);
+        me.store.on('clear', me.onLoad, me);
+        me.store.on('load', me.onLoad, me);
+        me.on('afterrender', me.onLoad, me);
+        me.onLoad(me.store);
     },
 
     onChangeSelectionGroupType: function (radiogroup, value) {
@@ -372,6 +381,24 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.getSelectionCounter().setText(me.counterTextFn(selection.length));
         me.getUncheckAllButton().setDisabled(selection.length === 0);
         me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
+    },
+
+    onLoad: function () {
+        var me = this,
+            count = me.store.getCount(),
+            newHeight = me.minHeight;
+
+        if (me.rendered) {
+            var row = me.getView().getNode(0),
+                rowElement = Ext.get(row);
+
+            if (rowElement !== null && typeof rowElement !== 'undefined') {
+                var rowHeight = rowElement.getComputedHeight();
+
+                newHeight += count > 10 ? 10 * rowHeight : count * rowHeight;
+                me.setHeight(newHeight);
+            }
+        }
     },
 
     isAllSelected: function () {

@@ -61,7 +61,7 @@ Ext.define('Uni.view.form.CheckboxGroup', {
             groups = [],
             object = {};
 
-        Ext.Array.each(me.down('checkbox'), function (checkbox) {
+        Ext.Array.each(me.query('checkbox'), function (checkbox) {
             if (checkbox.getValue()) {
                 me.store.each(function (group) {
                     if (group.get(me.valueField) === checkbox.inputValue) {
