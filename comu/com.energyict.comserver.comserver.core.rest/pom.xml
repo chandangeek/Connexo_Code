@@ -19,12 +19,28 @@
         Contains Rest implementations to interface between the FrontEnd and BackEnd
     </description>
 
+    <!--<build>-->
+        <!--<plugins>-->
+            <!--<plugin>-->
+                <!--<groupId>com.qmino</groupId>-->
+                <!--<artifactId>miredot-maven-plugin</artifactId>-->
+                <!--<version>1.4.1</version>-->
+                <!--<executions>-->
+                   <!--<execution>-->
+                      <!--<goals>-->
+                         <!--<goal>restdoc</goal>-->
+                      <!--</goals>-->
+                   <!--</execution>-->
+                <!--</executions>-->
+                <!--<configuration>-->
+                    <!--<licence>UHJvamVjdHxjb20uZW5lcmd5aWN0LmNvbXNlcnZlci5jb3JlLnJlc3R8MjAxNi0wOC0yMHxmYWxzZSNNQ3dDRkVBM1AzMTExSGM1NGxDU3FTaHljcStkeU5WeUFoUXVEQ2VyRkFFVlFSSXoyV0N1Vm1VOWh6eGgwZz09</licence>-->
+                    <!--&lt;!&ndash; insert other configuration here (optional) &ndash;&gt;-->
+                <!--</configuration>-->
+             <!--</plugin>-->
+        <!--</plugins>-->
+    <!--</build>-->
+
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>com.energyict</groupId>-->
-            <!--<artifactId>mdc-all</artifactId>-->
-            <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.engine.config</artifactId>
