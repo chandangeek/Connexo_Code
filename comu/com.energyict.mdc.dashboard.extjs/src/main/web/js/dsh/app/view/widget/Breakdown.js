@@ -27,13 +27,12 @@ Ext.define('Dsh.view.widget.Breakdown', {
         '->',
         {
             xtype: 'container',
-            html:
-                '<div class="legend">' +
-                    '<ul>' +
-                        '<li><span class="color failed"></span> ' + Uni.I18n.translate('overview.widget.breakdown.failed', 'DSH', 'Failed') + '</li>' +
-                        '<li><span class="color success"></span> ' + Uni.I18n.translate('overview.widget.breakdown.success', 'DSH', 'Success') + '</li>' +
-                        '<li><span class="color pending"></span> ' + Uni.I18n.translate('overview.widget.breakdown.pending', 'DSH', 'Pending') + '</li>' +
-                    '</ul>' +
+            html: '<div class="legend">' +
+                '<ul>' +
+                '<li><span class="color failed"></span> ' + Uni.I18n.translate('overview.widget.breakdown.failed', 'DSH', 'Failed') + '</li>' +
+                '<li><span class="color success"></span> ' + Uni.I18n.translate('overview.widget.breakdown.success', 'DSH', 'Success') + '</li>' +
+                '<li><span class="color pending"></span> ' + Uni.I18n.translate('overview.widget.breakdown.pending', 'DSH', 'Pending') + '</li>' +
+                '</ul>' +
                 '</div>'
         }
     ],
@@ -73,7 +72,6 @@ Ext.define('Dsh.view.widget.Breakdown', {
         var me = this;
         store.each(function (item, idx) {
             var panel = Ext.create('Ext.panel.Panel', {
-
                 tbar: {
                     xtype: 'container',
                     itemId: 'title',
@@ -97,18 +95,17 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     itemSelector: 'tbody.item',
                     total: item.get('total'),
                     store: item.counters(),
-                    tpl:
-                        '<table>' +
-                            '<tpl for=".">' +
-                                '<tbody class="item">' +
-                                    '<tr>' +
-                                        '<td class="label" style="min-width: 200px">' +
-                                            '<a href="#{id}">{displayName}</a>' +
-                                        '</td>' +
-                                        '<td width="100%" id="bar-{#}"></td>' +
-                                    '</tr>' +
-                                '</tbody>' +
-                            '</tpl>' +
+                    tpl: '<table>' +
+                        '<tpl for=".">' +
+                        '<tbody class="item item-{#}">' +
+                        '<tr>' +
+                        '<td class="label" style="min-width: 200px">' +
+                        '<a>{displayName}</a>' +
+                        '</td>' +
+                        '<td width="100%" id="bar-{#}"></td>' +
+                        '</tr>' +
+                        '</tbody>' +
+                        '</tpl>' +
                         '</table>',
                     listeners: {
                         refresh: function (view) {
@@ -131,6 +128,10 @@ Ext.define('Dsh.view.widget.Breakdown', {
                                     label: limit
                                 });
                                 bar.render(view.getEl().down('#bar-' + pos));
+                                var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
+                                    { property: item.get('alias'), value: record.get('id') }
+                                ]});
+                                view.getEl().down('.item-' + pos + ' a').set({ href: href });
                             });
                             view.collapsed = item.counters().count() > me.itemsInCollapsedMode;
                             view.expandedHeight = view.getHeight();
