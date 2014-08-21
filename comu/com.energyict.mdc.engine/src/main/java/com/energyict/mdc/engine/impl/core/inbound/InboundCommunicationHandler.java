@@ -77,6 +77,8 @@ public class InboundCommunicationHandler {
 
     }
 
+    private static final long NANOS_IN_MILLI = 1000000L;
+
     private final ServiceProvider serviceProvider;
 
     private InboundComPort comPort;
@@ -278,14 +280,16 @@ public class InboundCommunicationHandler {
             if (this.inWebContext()) {
                 StatisticsMonitoringHttpServletRequest request = this.getMonitoringRequest();
                 StatisticsMonitoringHttpServletResponse response = this.getMonitoringResponse();
-                long talkMillis = this.discovering.getElapsed() + request.getTalkTime() + response.getTalkTime();
+                long discoverMillis = this.discovering.getElapsed() / NANOS_IN_MILLI;
+                long talkMillis = discoverMillis + request.getTalkTime() + response.getTalkTime();
                 comSessionBuilder.talkDuration(Duration.millis(talkMillis));
                 comSessionBuilder.addReceivedBytes(request.getBytesRead()).addSentBytes(response.getBytesSent());
                 comSessionBuilder.addReceivedPackets(1).addSentPackets(1);
             }
             else {
                 ComPortRelatedComChannel comChannel = this.getComChannel();
-                comSessionBuilder.talkDuration(Duration.millis(this.discovering.getElapsed()).withDurationAdded(comChannel.talkTime(), 1));
+                long discoverMillis = this.discovering.getElapsed() / NANOS_IN_MILLI;
+                comSessionBuilder.talkDuration(Duration.millis(discoverMillis).withDurationAdded(comChannel.talkTime(), 1));
                 Counters sessionCounters = comChannel.getSessionCounters();
                 Counters taskSessionCounters = comChannel.getTaskSessionCounters();
                 comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead() + taskSessionCounters.getBytesRead());

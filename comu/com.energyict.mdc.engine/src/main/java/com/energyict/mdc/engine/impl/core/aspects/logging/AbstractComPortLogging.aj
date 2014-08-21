@@ -35,9 +35,9 @@ public abstract aspect AbstractComPortLogging {
             ComPortLogging,
             com.energyict.mdc.engine.impl.core.aspects.events.ComPortLogEventPublisher;
 
-    CompositeComPortConnectionLogger ExecutionContext.connectionLogger;
-    ComPortOperationsLogger ComPortServerProcess.normalOperationsLogger;
-    ComPortOperationsLogger ComPortServerProcess.eventOperationsLogger;
+    private CompositeComPortConnectionLogger ExecutionContext.connectionLogger;
+    private ComPortOperationsLogger ComPortServerProcess.normalOperationsLogger;
+    private ComPortOperationsLogger ComPortServerProcess.eventOperationsLogger;
 
     private pointcut initializeExecutionContext (JobExecution jobExecution, ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties):
             execution(ExecutionContext newExecutionContext(ConnectionTask, ComPort, boolean))

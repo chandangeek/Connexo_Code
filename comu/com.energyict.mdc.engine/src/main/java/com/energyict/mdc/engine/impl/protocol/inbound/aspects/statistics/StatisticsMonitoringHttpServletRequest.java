@@ -30,6 +30,8 @@ import java.util.Map;
  */
 public class StatisticsMonitoringHttpServletRequest implements HttpServletRequest {
 
+    private static final long NANOS_IN_MILLI = 1000000L;
+
     private HttpServletRequest request;
     private StopWatch talking;
     private Counter bytesRead = Counters.newStrictCounter();
@@ -37,7 +39,7 @@ public class StatisticsMonitoringHttpServletRequest implements HttpServletReques
     public StatisticsMonitoringHttpServletRequest (HttpServletRequest request) {
         super();
         this.talking = new StopWatch(false);    // No need to measure cpu
-        this.talking.stop();
+        this.talking.stop();    // Do not start the StopWatch until we really start talking
         this.request = request;
     }
 
@@ -48,7 +50,7 @@ public class StatisticsMonitoringHttpServletRequest implements HttpServletReques
      * @return The total number of milli seconds
      */
     public long getTalkTime () {
-        return this.talking.getElapsed();
+        return this.talking.getElapsed() / NANOS_IN_MILLI ;
     }
 
     /**

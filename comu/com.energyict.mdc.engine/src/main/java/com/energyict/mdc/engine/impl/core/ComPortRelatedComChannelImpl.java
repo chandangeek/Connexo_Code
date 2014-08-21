@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.elster.jupiter.util.time.StopWatch;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.Duration;
 
 import java.io.ByteArrayOutputStream;
@@ -24,13 +25,15 @@ import java.io.IOException;
  */
 public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
 
+    private static final long NANOS_IN_MILLI = 1000000L;
+
     private final HexService hexService;
     private ComChannel comChannel;
     private ComChannelLogger logger;
     private ComPort comPort;
     private ByteArrayOutputStream bytesReadForLogging;
     private ByteArrayOutputStream bytesWrittenForLogging;
-    private StopWatch talking = new StopWatch(false);  // No cpu required;
+    private StopWatch talking;
     private Counters sessionCounters = new Counters();
     private Counters taskSessionCounters = new Counters();
 
@@ -38,6 +41,8 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
         super();
         this.comChannel = comChannel;
         this.hexService = hexService;
+        this.talking = new StopWatch(false);  // No cpu required;
+        this.talking.stop();
     }
 
     public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, HexService hexService) {
@@ -272,7 +277,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
 
     @Override
     public Duration talkTime() {
-        return Duration.millis(this.talking.getElapsed());
+        return Duration.millis(this.talking.getElapsed() / NANOS_IN_MILLI);
     }
 
     @Override

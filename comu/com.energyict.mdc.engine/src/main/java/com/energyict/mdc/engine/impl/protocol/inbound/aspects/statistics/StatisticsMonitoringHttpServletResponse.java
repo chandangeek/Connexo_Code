@@ -26,6 +26,8 @@ public class StatisticsMonitoringHttpServletResponse implements HttpServletRespo
 
     private static final int NUMBER_OF_BYTES_IN_LONG = 8;
     private static final int NUMBER_OF_BYTES_IN_INT = 4;
+    private static final long NANOS_IN_MILLI = 1000000L;
+
     private HttpServletResponse response;
     private StopWatch talking;
     private Counter bytesSent = Counters.newStrictCounter();
@@ -33,7 +35,7 @@ public class StatisticsMonitoringHttpServletResponse implements HttpServletRespo
     public StatisticsMonitoringHttpServletResponse (HttpServletResponse response) {
         super();
         this.talking = new StopWatch(false);    // No need to measure cpu
-        this.talking.stop();
+        this.talking.stop();    // Do not start the StopWatch until we really start talking
         this.response = response;
     }
 
@@ -44,7 +46,7 @@ public class StatisticsMonitoringHttpServletResponse implements HttpServletRespo
      * @return The total number of milli seconds
      */
     public long getTalkTime () {
-        return this.talking.getElapsed();
+        return this.talking.getElapsed() / NANOS_IN_MILLI;
     }
 
     /**

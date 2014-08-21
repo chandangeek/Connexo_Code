@@ -56,6 +56,8 @@ import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessio
 */
 public final class ExecutionContext implements JournalEntryFactory {
 
+    private static final long NANOS_IN_MILLI = 1000000L;
+
     public interface ServiceProvider {
 
         public Clock clock();
@@ -116,7 +118,7 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     private void addStatisticalInformationToComSession () {
         ComSessionBuilder comSessionBuilder = this.getComSessionBuilder();
-        comSessionBuilder.connectDuration(Duration.millis(this.connecting.getElapsed()));
+        comSessionBuilder.connectDuration(Duration.millis(this.connecting.getElapsed() / NANOS_IN_MILLI));
         comSessionBuilder.talkDuration(this.comPortRelatedComChannel.talkTime());
         Counters sessionCounters = this.comPortRelatedComChannel.getSessionCounters();
         comSessionBuilder.addSentBytes(sessionCounters.getBytesSent());
@@ -181,7 +183,8 @@ public final class ExecutionContext implements JournalEntryFactory {
     public boolean connect() {
         try {
             this.connecting = new StopWatch();
-            this.executing = new StopWatch(false);  // Do not auto start but start it manually as soon as execution starts.
+            this.executing = new StopWatch();
+            this.executing.stop();  // Do not auto start but start it manually as soon as execution starts.
             this.setComPortRelatedComChannel(this.jobExecution.findOrCreateComChannel());
             this.getComServerDAO().executionStarted(this.connectionTask, this.comPort.getComServer());
             return this.jobExecution.isConnected();

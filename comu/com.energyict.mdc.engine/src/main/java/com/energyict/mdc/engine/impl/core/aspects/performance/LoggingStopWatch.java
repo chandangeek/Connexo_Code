@@ -14,6 +14,8 @@ import java.util.logging.Logger;
  */
 public class LoggingStopWatch {
 
+    private static final long NANOS_IN_MILLI = 1000000L;
+
     private com.elster.jupiter.util.time.StopWatch actualStopWatch;
     private long startTime;
     private String tag;
@@ -36,7 +38,7 @@ public class LoggingStopWatch {
         StringBuilder builder = new StringBuilder();
         builder.
             append("start[").append(this.startTime).append("] ").
-            append("time[").append(this.actualStopWatch.getElapsed()).append("] ").
+            append("time[").append(this.actualStopWatch.getElapsed() / NANOS_IN_MILLI).append("] ").
             append("tag[").append(this.tag).append("]");
         return builder.toString();
     }
