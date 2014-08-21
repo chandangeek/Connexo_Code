@@ -1,11 +1,13 @@
-Ext.define('Dsh.model.ConnectionSummaryData', {
+Ext.define('Dsh.model.Summary', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Dsh.model.Counter'
+    ],
     fields: [
         { name: 'total', type: 'int'}
     ],
-
     hasMany: {
-        model: 'Dsh.model.ConnectionCounter',
+        model: 'Dsh.model.Counter',
         name: 'counters'
     }
 });
