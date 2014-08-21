@@ -33,9 +33,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             'loadProfileTypeOnDeviceTypeSetup loadProfileTypeGrid': {
                 itemclick: this.loadGridItemDetail
             },
-            'loadProfileTypesAddToDeviceTypeSetup radiogroup[name=allOrSelectedLoadProfileTypes]': {
-                change: this.selectRadioButton
-            },
             'loadProfileTypesAddToDeviceTypeSetup loadProfileTypesAddToDeviceTypeGrid': {
                 allitemsadd: this.onAllLoadProfileTypesAdd,
                 selecteditemsadd: this.onSelectedLoadProfileTypesAdd
@@ -193,40 +190,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         });
     },
 
-    selectRadioButton: function (radiogroup) {
-        var radioValue = radiogroup.getValue().loadProfileTypeRange;
-        switch (radioValue) {
-            case 'ALL':
-                this.checkAllLoadProfileTypes();
-                break;
-            case 'SELECTED':
-                this.checkSelectedLoadProfileTypes();
-                break;
-        }
-    },
-
-    checkAllLoadProfileTypes: function () {
-        var grid = this.getAddLoadProfileTypesGrid(),
-            uncheckMeasurement = this.getUncheckLoadProfileButton(),
-            selectionModel = grid.getView().getSelectionModel();
-
-        selectionModel.selectAll();
-        grid.disable();
-        uncheckMeasurement.disable();
-    },
-
-
-    checkSelectedLoadProfileTypes: function () {
-        var grid = this.getAddLoadProfileTypesGrid(),
-            setup = this.getAddLoadProfileTypesSetup(),
-            uncheckMeasurement = this.getUncheckLoadProfileButton();
-
-        if (!Ext.isEmpty(grid) && !Ext.isEmpty(setup)) {
-            grid.enable();
-            uncheckMeasurement.enable();
-        }
-    },
-
     loadGridItemDetail: function (grid, record) {
         var form = Ext.ComponentQuery.query('loadProfileTypeOnDeviceTypeSetup loadProfileTypePreview form')[0],
             recordData = record.getData(),
@@ -338,14 +301,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                                     success: function (response) {
                                         if (!me.arrayComparator(Ext.Array.pluck(me.store.data.items, 'data'), Ext.decode(response.responseText, true).data)) {
                                             if (addGrid) {
-                                                var radioValue = radiogroup.getValue().loadProfileTypeRange;
-                                                me.store.load({ params: { available: true }, callback: function () {
-                                                    switch (radioValue) {
-                                                        case 'ALL':
-                                                            grid.getView().getSelectionModel().selectAll();
-                                                            break;
-                                                    }
-                                                }});
+                                                me.store.load({ params: { available: true }});
                                             } else {
                                                 Ext.TaskManager.stop(autoRefresherTask);
                                             }
