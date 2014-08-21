@@ -51,6 +51,8 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.joda.time.Duration;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -326,7 +328,7 @@ public class ConnectionResourceTest extends JerseyTest {
         when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
         when(comSession.getStartDate()).thenReturn(new Date());
         when(comSession.getStopDate()).thenReturn(new Date());
-        when(comSession.getTotalTime()).thenReturn(4L);
+        when(comSession.getTotalDuration()).thenReturn(Duration.standardSeconds(4L));
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getName()).thenReturn("comPortPool");
         when(comPortPool.getId()).thenReturn(1111L);

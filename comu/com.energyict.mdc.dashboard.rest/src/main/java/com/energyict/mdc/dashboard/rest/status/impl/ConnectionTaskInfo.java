@@ -9,7 +9,6 @@ import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
@@ -72,7 +71,7 @@ public class ConnectionTaskInfo {
 
             info.startDateTime=comSession.getStartDate();
             info.endDateTime=comSession.getStopDate();
-            info.duration=new TimeDurationInfo(new TimeDuration((int) comSession.getTotalTime()));
+            info.duration=new TimeDurationInfo(new TimeDuration(comSession.getTotalDuration().toStandardSeconds().getSeconds()));
         }
         info.communicationTasks=new ComTaskListInfo();
         info.communicationTasks.count=comTaskExecutions.size();
