@@ -343,9 +343,9 @@ public enum TableSpecs {
             Column comport = table.column("COMPORT").number().notNull().add();
             Column comportPool = table.column("COMPORTPOOL").number().notNull().add();
             Column statistics = table.column("COMSTATISTICS").number().notNull().add();
-            table.column("STARTDATE").number().conversion(NUMBERINUTCSECONDS2DATE).notNull().map(ComSessionImpl.Fields.START_DATE.fieldName()).add();
-            table.column("STOPDATE").number().conversion(NUMBERINUTCSECONDS2DATE).notNull().map(ComSessionImpl.Fields.STOP_DATE.fieldName()).add();
-            table.column("TOTALTIME").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TOTAL_TIME.fieldName()).add();
+            table.column("STARTDATE").number().conversion(NUMBER2UTCINSTANT).notNull().map(ComSessionImpl.Fields.START_DATE.fieldName()).add();
+            table.column("STOPDATE").number().conversion(NUMBER2UTCINSTANT).notNull().map(ComSessionImpl.Fields.STOP_DATE.fieldName()).add();
+            table.column("TOTALMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TOTAL_TIME.fieldName()).add();
             table.column("CONNECTMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.CONNECT_MILLIS.fieldName()).add();
             table.column("TALKMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TALK_MILLIS.fieldName()).add();
             table.column("STOREMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.STORE_MILLIS.fieldName()).add();
@@ -371,8 +371,8 @@ public enum TableSpecs {
             Column device = table.column("DEVICE").number().notNull().add();
             Column session = table.column("COMSESSION").number().notNull().add();
             Column statistics = table.column("COMSTATISTICS").number().notNull().add();
-            table.column("STARTDATE").number().conversion(NUMBERINUTCSECONDS2DATE).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
-            table.column("STOPDATE").number().notNull().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionSessionImpl.Fields.STOP_DATE.fieldName()).add();
+            table.column("STARTDATE").number().conversion(NUMBER2UTCINSTANT).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
+            table.column("STOPDATE").number().notNull().conversion(NUMBER2UTCINSTANT).map(ComTaskExecutionSessionImpl.Fields.STOP_DATE.fieldName()).add();
             table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComTaskExecutionSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
             table.column("MOD_DATE").type("DATE").map(ComTaskExecutionSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
