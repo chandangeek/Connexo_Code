@@ -1192,7 +1192,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         if (!comPortPools.isEmpty()) {
             long nowInSeconds = this.clock.now().getTime() / DateTimeConstants.MILLIS_PER_SECOND;
             DataMapper<ComTaskExecution> mapper = this.dataModel.mapper(ComTaskExecution.class);
-            com.elster.jupiter.util.sql.SqlBuilder sqlBuilder = mapper.builder("cte", "LEADING(mdccomtaskexec) USE_NL(ct)");
+            com.elster.jupiter.util.sql.SqlBuilder sqlBuilder = mapper.builder("cte", "LEADING(cte) USE_NL(ct)");
             sqlBuilder.append(", ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(" ct");
