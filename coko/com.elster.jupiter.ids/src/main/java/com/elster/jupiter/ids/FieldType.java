@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Date;
 
 public enum FieldType {
@@ -29,7 +30,11 @@ public enum FieldType {
 		@Override
 		public void bind(PreparedStatement statement, int offset, Object object) throws SQLException {
 			assert(object == null || object instanceof Date);
-			statement.setLong(offset , ((Date) object).getTime());								
+			if (object == null) {
+				statement.setNull(offset, Types.NUMERIC);
+			} else {
+				statement.setLong(offset , ((Date) object).getTime());
+			}
 		}
 	},
 	LONGINTEGER {
