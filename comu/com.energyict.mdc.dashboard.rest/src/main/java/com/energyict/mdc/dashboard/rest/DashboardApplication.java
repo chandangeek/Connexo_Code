@@ -112,7 +112,7 @@ public class DashboardApplication extends Application implements InstallService 
                 DashboardFieldResource.class,
                 ConnectionResource.class,
                 ConnectionHeatMapResource.class,
-                DeviceConfigurationService.class
+                DeviceConfigurationService.class // This service is here intentionally: needed for the ComServerStatusResource apparently: this will create an osgi warning: A provider com.energyict.mdc.device.config.DeviceConfigurationService registered in SERVER runtime does not implement any provider interfaces applicable in the SERVER runtime. Due to constraint configuration problems the provider com.energyict.mdc.device.config.DeviceConfigurationService will be ignored.
         );
     }
 
