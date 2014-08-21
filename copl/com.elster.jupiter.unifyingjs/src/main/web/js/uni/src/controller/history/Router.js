@@ -124,6 +124,12 @@ Ext.define('Uni.controller.history.Router', {
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
 
+    queryParamsToString: function (obj) {
+        return Ext.urlEncode(_.object(_.keys(obj), _.map(obj, function (i) {
+            return _.isString(i) ? i : Ext.JSON.encodeValue(i)
+        })))
+    },
+
     /**
      * @private
      * @param key string
@@ -171,9 +177,8 @@ Ext.define('Uni.controller.history.Router', {
                 queryParams = Ext.applyIf(queryParams || {}, me.queryParams);
                 var url = this.crossroad ?
                     '#' + this.crossroad.interpolate(arguments) :
-                    '#' + this.path
-                ;
-                return _.isEmpty(queryParams) ? url : url + '?' + Ext.Object.toQueryString(queryParams);
+                    '#' + this.path;
+                return _.isEmpty(queryParams) ? url : url + '?' + me.queryParamsToString(queryParams);
             },
 
             /**
