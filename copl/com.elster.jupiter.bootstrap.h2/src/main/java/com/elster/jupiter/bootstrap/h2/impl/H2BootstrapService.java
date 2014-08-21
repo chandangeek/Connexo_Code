@@ -46,6 +46,9 @@ public class H2BootstrapService implements BootstrapService {
 
     @Deactivate
     public void deactivate() {
+    	if (decoratedDataSource == null) {
+    		return;
+    	}
         try {
             if (!decoratedDataSource.getOpenConnections().isEmpty()) {
                 StringBuilder builder = new StringBuilder("Still open connections\n");
