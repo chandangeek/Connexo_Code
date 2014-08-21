@@ -13,9 +13,10 @@ Ext.define('Dsh.view.widget.HeatMap', {
             items: {
                 xtype: 'combobox',
                 itemId: 'combine-combo',
-                displayField: 'displayName',
+                displayField: 'localizedValue',
                 queryMode: 'local',
-                valueField: 'alias'
+                valueField: 'breakdown',
+                store: 'Dsh.store.CombineStore'
             }
         }, '->'
     ],
@@ -53,10 +54,10 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 var value = rec.get(item);
                 (value == 0) && (value = value.toString());
                 data.push([x, y, value]);
-                ++y;
+                ++x;
             });
-            y = 0;
-            ++x;
+            x = 0;
+            ++y;
         });
         return data;
     },
@@ -71,8 +72,8 @@ Ext.define('Dsh.view.widget.HeatMap', {
             xcat = record.counters().collect('displayName')
             ;
 
-        me.setXAxis(xcat, 'Latest result');
-        me.setYAxis(ycat, record.get('displayName'));
+        me.setYAxis(xcat, 'Latest result');
+        me.setXAxis(ycat, record.get('displayName'));
         me.setChartData(me.storeToHighchartData(record.counters(), [
             "successCount",
             "failedCount",
@@ -83,7 +84,6 @@ Ext.define('Dsh.view.widget.HeatMap', {
     initComponent: function () {
         var me = this;
         this.callParent(arguments);
-
         me.getCombo().on('select', function (combo, records) {
             me.loadChart(records[0]);
         });
@@ -92,12 +92,12 @@ Ext.define('Dsh.view.widget.HeatMap', {
     bindStore: function (store) {
         var me = this;
         var combo = me.getCombo();
-        combo.bindStore(store);
+      // console.log(combo, combo.getStore());
         var cmp = me.down('#heatmapchart');
         var update = function () {
             Ext.defer(function () {
                 me.renderChart(cmp.getEl().dom);
-                combo.select(store.getAt(0));
+    //            combo.select(store.getAt(0));
                 me.loadChart(store.getAt(0));
             }, 100);
         };

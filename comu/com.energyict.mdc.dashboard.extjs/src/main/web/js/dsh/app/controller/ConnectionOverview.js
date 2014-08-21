@@ -12,12 +12,14 @@ Ext.define('Dsh.controller.ConnectionOverview', {
         'Dsh.model.OverviewPerCurrentStateInfo',
         'Dsh.model.OverviewPerLastResultInfo',
         'Dsh.model.TimeInfo',
-        'Dsh.model.CounterInfo'
+        'Dsh.model.CounterInfo',
+        'Dsh.model.Combine'
     ],
     stores: [
         'CommunicationServerInfos',
         'OverviewPerCurrentStateInfos',
-        'OverviewPerLastResultInfos'
+        'OverviewPerLastResultInfos',
+        'Dsh.store.CombineStore'
     ],
     views: [ 'Dsh.view.ConnectionOverview' ],
     refs: [
