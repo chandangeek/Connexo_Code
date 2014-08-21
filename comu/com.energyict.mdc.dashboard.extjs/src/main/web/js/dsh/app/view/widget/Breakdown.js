@@ -144,7 +144,6 @@ Ext.define('Dsh.view.widget.Breakdown', {
             me.down('#summaries-' + idx % 2).add(panel);
         });
         me.mixins.bindable.bindStore.apply(this, arguments);
-        me.down('#heatmap').bindStore(store);
     },
 
     summaryMoreLess: function (panel) {

@@ -2,9 +2,6 @@ Ext.define('Dsh.view.widget.HeatMap', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.heat-map',
     layout: 'fit',
-    mixins: {
-        bindable: 'Ext.util.Bindable'
-    },
     minHeight: 450,
     tbar: [ '->',
         {
@@ -87,32 +84,22 @@ Ext.define('Dsh.view.widget.HeatMap', {
         var me = this,
             store = Ext.getStore('Dsh.store.ConnectionResultsStore');
         this.callParent(arguments);
+
         store.on('load', function (store, records) {
-            console.log(records)
+            records && ()
         });
+
         me.getCombo().on('change', function (combo, newValue) {
-            property
-
+            store.proxy.extraparams = {filters: '[{"property":"breakdown","value":"deviceType"}]'}
         });
-    },
 
-    bindStore: function (store) {
-        var me = this;
         var cmp = me.down('#heatmapchart');
-        var update = function () {
+        cmp.on('afterrender', function () {
             Ext.defer(function () {
-                me.renderChart(cmp.getEl().dom)
+                me.renderChart(cmp.getEl().dom);
             }, 100);
-        };
+        });
 
-        if (cmp.rendered) {
-            update();
-        } else {
-            cmp.on('afterrender', function () {
-                update();
-            });
-        }
-        me.mixins.bindable.bindStore.apply(this, arguments);
     },
 
     renderChart: function (container) {
