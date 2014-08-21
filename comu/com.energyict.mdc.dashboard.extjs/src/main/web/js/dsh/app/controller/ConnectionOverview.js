@@ -5,7 +5,8 @@ Ext.define('Dsh.controller.ConnectionOverview', {
     ],
     stores: [
         'CommunicationServerInfos',
-        'Dsh.store.CombineStore'
+        'Dsh.store.CombineStore',
+        'Dsh.store.ConnectionResultsStore'
     ],
     views: [ 'Dsh.view.ConnectionOverview' ],
     refs: [
