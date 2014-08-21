@@ -220,25 +220,8 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> find(String[] fieldNames, Object[] values, Order... orders) {
-		if (fieldNames == null) {
-			List<? super T> candidates = getCache().find();
-			if (candidates != null) {
-				if (needsRestriction()) {
-					List<T> result = new ArrayList<>();
-					for (Object candidate : candidates) {
-						if (api.isInstance(candidate)) {
-							result.add(api.cast(candidate));
-						}
-					}
-					return result;
-				} else {
-					return (List<T>) candidates;
-				}
-			}
-		}
 		try {
 			return reader.find(fieldNames,values,orders);
 		} catch(SQLException ex) {
@@ -268,12 +251,9 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	@Override
 	public void persist(T object)  {
 		preventIfChild();
-		// initialize cache if needed
-		TableCache<? super T> cache = getCache();
-		cache.start();
+		// do not cache object at this time, as tx may rollback
 		try {
 			writer.persist(object);
-			cache.cache(object);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -283,14 +263,9 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	// note that this will not fill back auto increment columns.
 	public void persist(List<T> objects)  {
 		preventIfChild();
-		// initialize cache if needed
-		TableCache<? super T> cache = getCache();
-		cache.start();		
+		// do not cache object at this time, as tx may rollback
 		try {
 			writer.persist(objects);
-			for (T each : objects) {
-				cache.cache(each);
-			}
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -326,6 +301,8 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	private void update(T object,List<ColumnImpl> columns) {
+		//  remove object from cache, as we do not know if tx will commit or rollback
+		getCache().remove(object);
 		try {
 			writer.update(object,columns);
 		} catch (SQLException ex) {
@@ -340,6 +317,10 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	
 
 	private void update(List<T> objects,List<ColumnImpl> columns){
+		//remove objects from cache, as we do not know if tx will commit or rollback
+		for (T each : objects) {
+			getCache().remove(each);
+		}
 		try {
 			writer.update(objects,columns);
 		} catch (SQLException ex) {

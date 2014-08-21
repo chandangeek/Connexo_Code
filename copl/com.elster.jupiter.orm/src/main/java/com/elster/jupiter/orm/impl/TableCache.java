@@ -10,7 +10,6 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.conditions.Condition;
 
 public interface TableCache<T> {
-	List<T> find();
 	T get(KeyValue key);
 	void put(KeyValue key , T value);
 	void cache(T value);
@@ -19,11 +18,7 @@ public interface TableCache<T> {
 	void start();
 	 
 	class NoCache<T> implements TableCache<T> {
-		@Override
-		public List<T> find() {
-			return null;
-		}
-
+	
 		@Override
 		public T get(KeyValue key) {
 			return null;
@@ -79,12 +74,7 @@ public interface TableCache<T> {
 			return table.getPrimaryKey(entity);
 		}
 		
-		@Override
-        public synchronized List<T> find() {
-			start();
-			return new ArrayList<>(cache.values());
-		}
-
+	
 		@Override
         public synchronized T get(KeyValue key) {
 			start();
