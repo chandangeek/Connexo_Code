@@ -8,69 +8,61 @@ Ext.define('Dsh.view.widget.Overview', {
     style: {
         paddingTop: 0
     },
-    layout: 'column',
-    defaults: {
-        columnWidth: .5,
-        listeners: {
-            scope: this,
-            afterrender: function (view) {
-                view.store.load({
-                    url: '../../../apps/dashboard/app/fakeData/' + view.ownerCt.category + view.storeName + 'Fake.json',
-                    callback: function () {
-                        Ext.each(this.getRange(), function (item) {
-                            Ext.each(item.get('counters'), function (counter, idx) {
-                                Ext.widget('bar', {
-                                    limit: counter.count,
-                                    total: item.get('total'),
-                                    count: counter.count,
-                                    label: counter.count
-                                }).render(view.el.down('#bar-' + (idx + 1)));
-                            });
-                        });
-                    }
-                });
-            }
-        }
+    mixins: {
+        bindable: 'Ext.util.Bindable'
     },
-    commonTpl: new Ext.XTemplate(
-        '<div>',
-            '<tpl for=".">',
-                '<h3>{displayName}</h3>',
-                '<table style="width: 100%">',
-                    '<tpl for="counters">',
-                        '<tr>',
-                            '<td style="width: 30%"><a href="#">{displayName}</a></td>',
-                            '<td><div id="bar-{#}"></div></td>',
-                        '</tr>',
-                    '</tpl>',
-                '</table>',
-            '</tpl>',
-        '</div>'
-    ),
-    initComponent: function () {
+    layout: {
+        type: 'hbox',
+        align: 'stretch'
+    },
+
+    bindStore: function (store) {
         var me = this;
-        this.items = [
-            {
-                xtype: 'dataview',
-                store: 'OverviewPerCurrentStateInfos',
-                storeName: 'OverviewPerCurrentStateInfos',
-                itemSelector: 'table',
-                tpl: me.commonTpl,
-                style: {
-                    paddingRight: '25px'
+        store.each(function (item, idx) {
+            var panel = Ext.create('Ext.panel.Panel', {
+                tbar: {
+                    xtype: 'container',
+                    itemId: 'title',
+                    html: '<h3>' + item.get('displayName') + '</h3>'
+                },
+                items: {
+                    xtype: 'dataview',
+                    itemId: item.get('alias') + '-dataview',
+                    itemSelector: 'tbody.item',
+                    total: item.get('total'),
+                    store: item.counters(),
+                    tpl:
+                        '<table>' +
+                        '<tpl for=".">' +
+                        '<tbody class="item">' +
+                        '<tr>' +
+                        '<td class="label" style="min-width: 200px">' +
+                        '<a href="#{id}">{displayName}</a>' +
+                        '</td>' +
+                        '<td width="100%" id="bar-{#}"></td>' +
+                        '</tr>' +
+                        '</tbody>' +
+                        '</tpl>' +
+                        '</table>',
+                    listeners: {
+                        refresh: function (view) {
+                            Ext.each(view.getNodes(), function (node, index) {
+                                var record = view.getRecord(node),
+                                    pos = index + 1;
+
+                                var bar = Ext.widget('bar', {
+                                    limit: record.get('count'),
+                                    total: item.get('total'),
+                                    count: record.get('count'),
+                                    label: record.get('count')
+                                }).render(view.getEl().down('#bar-' + pos));
+                            });
+                        }
+                    }
                 }
-            },
-            {
-                xtype: 'dataview',
-                store: 'OverviewPerLastResultInfos',
-                storeName: 'OverviewPerLastResultInfos',
-                itemSelector: 'table',
-                tpl: me.commonTpl,
-                style: {
-                    paddingLeft: '25px'
-                }
-            }
-        ];
-        this.callParent(arguments);
+            });
+            me.add(panel);
+        });
+        me.mixins.bindable.bindStore.apply(this, arguments);
     }
 });
