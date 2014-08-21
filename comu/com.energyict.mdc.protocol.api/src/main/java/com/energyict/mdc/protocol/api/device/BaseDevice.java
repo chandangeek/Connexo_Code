@@ -1,9 +1,6 @@
 package com.energyict.mdc.protocol.api.device;
 
 import com.energyict.mdc.common.ObisCode;
-
-import com.google.common.base.Optional;
-
 import java.util.List;
 
 /**
@@ -93,6 +90,6 @@ public interface BaseDevice<C extends BaseChannel, LP extends BaseLoadProfile<C>
      *
      * @return the LogBooks
      */
-    List<BaseLogBook> getLogBooks();
+    List<? extends BaseLogBook> getLogBooks();
 
 }
