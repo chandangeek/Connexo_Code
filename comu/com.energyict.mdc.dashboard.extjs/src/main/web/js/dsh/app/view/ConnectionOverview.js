@@ -89,7 +89,9 @@ Ext.define('Dsh.view.ConnectionOverview', {
                 category: 'Connection'
             },
             {
-                xtype: 'breakdown'
+                xtype: 'breakdown',
+                parent: 'connections',
+                router: me.router
             }
         ];
         this.callParent(arguments);
