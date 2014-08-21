@@ -1,33 +1,20 @@
 Ext.define('Dsh.controller.CommunicationOverview', {
     extend: 'Ext.app.Controller',
     models: [
-        'Dsh.model.BreakdownCounter',
-        'Dsh.model.ConnectionCounter',
-        'Dsh.model.ConnectionBreakdown',
-        'Dsh.model.ConnectionOverview',
-        'Dsh.model.ConnectionSummary',
-        'Dsh.model.ConnectionSummaryData',
-        'Dsh.model.CommunicationOverview',
-        'Dsh.model.CommunicationServerInfo',
-        'Dsh.model.OverviewPerCurrentStateInfo',
-        'Dsh.model.OverviewPerLastResultInfo',
-        'Dsh.model.TimeInfo',
-        'Dsh.model.CounterInfo'
+        'Dsh.model.communication.Overview'
     ],
     stores: [
-        'CommunicationServerInfos',
-        'OverviewPerCurrentStateInfos',
-        'OverviewPerLastResultInfos'
+        'CommunicationServerInfos'
     ],
-    views: [ 'Dsh.view.CommunicationOverview' ],
+    views: [
+        'Dsh.view.CommunicationOverview'
+    ],
     refs: [
         { ref: 'breakdown', selector: '#breakdown' },
+        { ref: 'breakdown', selector: '#breakdown' },
+        { ref: 'overview', selector: '#overview' },
         { ref: 'summary', selector: '#summary' }
     ],
-
-    init: function () {
-        this.callParent(arguments);
-    },
 
     showOverview: function () {
         var router = this.getController('Uni.controller.history.Router');
@@ -37,12 +24,12 @@ Ext.define('Dsh.controller.CommunicationOverview', {
 
     loadData: function () {
         var me = this;
-        var model = me.getModel('Dsh.model.CommunicationOverview');
+        var model = me.getModel('Dsh.model.communication.Overview');
         model.load(null, {
                 success: function (record) {
                     me.getSummary().setRecord(record.getSummary());
-                    var breakdowns = record.breakdowns();
-                    me.getBreakdown().bindStore(breakdowns);
+                    me.getOverview().bindStore(record.overviews());
+                    me.getBreakdown().bindStore(record.breakdowns());
                 }
             }
         );
