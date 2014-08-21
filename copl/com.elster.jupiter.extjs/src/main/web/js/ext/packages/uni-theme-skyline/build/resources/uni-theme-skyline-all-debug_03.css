@@ -8013,6 +8013,11 @@ div.x-form-spinner-down {
   padding: 10px 0px 10px 0px;
 }
 
+/* line 19, ../../sass/src/form/field/Base.scss */
+.x-form-invalid-field {
+  border-color: #eb5642;
+}
+
 /* line 4, ../../sass/src/window/MessageBox.scss */
 .x-message-box .x-window-body .x-header .x-header-text {
   font-weight: bold;
