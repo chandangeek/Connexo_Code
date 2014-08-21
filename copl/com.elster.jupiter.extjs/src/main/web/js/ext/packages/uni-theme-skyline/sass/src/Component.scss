@@ -1,21 +1,23 @@
 @import "Arrow_legacy";
 @import "Fonts";
 @import "Headings";
-
 @import "breadcrumb/BreadcrumbLink";
 @import "breadcrumb/BreadcrumbLinkSeparator";
 @import "grid/ActionColumn";
 @import "grid/DefaultColumn";
 
 .icon-delete {
-  background-image: url('images/button/ico_delete.png') !important;
-  width: 16px !important;
-  height: 16px !important;
+    background-image: url('images/button/ico_delete.png') !important;
+    width: 16px !important;
+    height: 16px !important;
 }
 
 .icon-delete:hover {
-  background-image: url('images/button/ico_deleteA.png') !important;
-  width: 16px !important;
-  height: 16px !important;
+    background-image: url('images/button/ico_deleteA.png') !important;
+    width: 16px !important;
+    height: 16px !important;
 }
 
+.force-no-border *[class*='#{$prefix}grid-'] {
+    border: none !important;
+}
