@@ -315,7 +315,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_COMTASKEXEC_DIALECT").on(protocolDialectConfigurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES").map(ComTaskExecutionFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName()).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_DEVICE").on(device).references(DDC_DEVICE.name()).map(ComTaskExecutionFields.DEVICE.fieldName()).add();
             table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
-            table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextexecutiontimestamp, priority, connectionTask, obsoleteDate).add();
+            table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextexecutiontimestamp, priority, connectionTask, obsoleteDate, comport).add();
         }
     },
 
