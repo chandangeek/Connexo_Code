@@ -69,6 +69,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
             itemId: 'heatmap'
         }
     ],
+
     bindStore: function (store) {
         var me = this;
         store.each(function (item, idx) {
@@ -145,6 +146,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
         me.mixins.bindable.bindStore.apply(this, arguments);
         me.down('#heatmap').bindStore(store);
     },
+
     summaryMoreLess: function (panel) {
         var view = panel.down('dataview');
         panel.down('button').setText(view.collapsed ?

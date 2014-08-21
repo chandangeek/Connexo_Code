@@ -1,4 +1,4 @@
-Ext.define('Dsh.model.ConnectionCounter', {
+Ext.define('Dsh.model.Counter', {
     extend: 'Ext.data.Model',
     fields: [
         { name: 'count', type: 'int' },
@@ -7,7 +7,7 @@ Ext.define('Dsh.model.ConnectionCounter', {
     ],
 
     hasMany: {
-        model: 'Dsh.model.ConnectionCounter',
+        model: 'Dsh.model.Counter',
         name: 'counters'
     }
 });
