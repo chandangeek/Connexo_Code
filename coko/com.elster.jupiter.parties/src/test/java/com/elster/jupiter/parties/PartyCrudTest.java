@@ -138,11 +138,6 @@ public class PartyCrudTest {
         	context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
-        	getPartyService().getPartyRoles();
-        	context.commit();
-        	assertThat(context.getStats().getSqlCount()).isEqualTo(0);
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
         	Optional<Party> party = getPartyService().getParty(1);
         	party.get().getCurrentDelegates().size();
         	for (PartyInRole each : party.get().getPartyInRoles(new Date())) {
@@ -198,15 +193,16 @@ public class PartyCrudTest {
     		for (int i = 10 ; i < 20 ; i++) {
     			String name = "M" + i;
     			getPartyService().createRole("XAZ", name , name , name , name);
+    			getPartyService().getRole(name); // load in cache
     		}
     		context.commit();
     	}
     	try (TransactionContext context = getTransactionService().getContext()) {
-    		assertThat(getPartyService().getPartyRoles().size()).isGreaterThanOrEqualTo(10);
-    		assertThat(getPartyService().getRole("M15")).isPresent();
-    		assertThat(getPartyService().getRole("M1599")).isAbsent();
+    		assertThat(getPartyService().getPartyRoles().size()).isGreaterThanOrEqualTo(10); // will do sql
+    		assertThat(getPartyService().getRole("M15")).isPresent(); // should not do sql
+    		assertThat(getPartyService().getRole("M1599")).isAbsent(); // will do sql
     		context.commit();
-    		assertThat(context.getStats().getSqlCount()).isEqualTo(1);
+    		assertThat(context.getStats().getSqlCount()).isEqualTo(2);
     	}
 
     }
