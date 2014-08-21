@@ -79,14 +79,15 @@ Ext.define('Uni.view.grid.BulkSelection', {
         'Ext.grid.plugin.BufferedRenderer'
     ],
 
-    height: 620,
-    minHeight: 280,
+    bottomToolbarHeight: 27,
 
     selType: 'checkboxmodel',
     selModel: {
         mode: 'MULTI',
         showHeaderCheckbox: false
     },
+
+    maxHeight: 600,
 
     plugins: [
         {
@@ -95,17 +96,18 @@ Ext.define('Uni.view.grid.BulkSelection', {
             leadingBufferZone: 5,
             scrollToLoadBuffer: 10,
             onViewResize: function (view, width, height, oldWidth, oldHeight) {
-                if (!oldHeight || height !== oldHeight) {
+                if (height === 0 || oldHeight === 0) {
                     var me = this,
-                        newViewSize,
-                        scrollRange;
-                    if (view.all.getCount()) {
-                        delete me.rowHeight;
+                        count = view.all.getCount(),
+                        newHeight = count * me.rowHeight;
+
+                    if (count > 10) {
+                        newHeight = 10 * me.rowHeight;
                     }
-                    scrollRange = me.getScrollHeight();
-                    newViewSize = 18;
-                    me.viewSize = me.setViewSize(newViewSize);
-                    me.stretchView(view, scrollRange);
+
+                    if (view.getHeight() !== 0 && view.getHeight() !== newHeight) {
+                        view.setHeight(newHeight);
+                    }
                 }
             }
         }
@@ -217,6 +219,9 @@ Ext.define('Uni.view.grid.BulkSelection', {
      */
     radioGroupName: 'selectedGroupType-' + new Date().getTime() * Math.random(),
 
+    gridHeight: 0,
+    gridHeaderHeight: 0,
+
     initComponent: function () {
         var me = this;
 
@@ -253,7 +258,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
                         vertical: true,
                         submitValue: false,
                         defaults: {
-                            padding: '0 0 32 0'
+                            padding: '0 0 16 0'
                         },
                         items: [
                             {
@@ -337,12 +342,12 @@ Ext.define('Uni.view.grid.BulkSelection', {
             me.hideBottomToolbar();
         }
 
-        me.store.on('bulkremove', me.onLoad, me);
-        me.store.on('remove', me.onLoad, me);
-        me.store.on('clear', me.onLoad, me);
-        me.store.on('load', me.onLoad, me);
-        me.on('afterrender', me.onLoad, me);
-        me.onLoad(me.store);
+        me.on('afterrender', me.onChangeSelectionGroupType, me, {
+            single: true
+        });
+
+        // Forces the view to update itself, the height value is not important.
+        me.getView().setHeight(16);
     },
 
     onChangeSelectionGroupType: function (radiogroup, value) {
@@ -350,6 +355,40 @@ Ext.define('Uni.view.grid.BulkSelection', {
             selection = me.view.getSelectionModel().getSelection();
 
         me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
+        me.setGridVisible(!me.isAllSelected());
+    },
+
+    setGridVisible: function (visible) {
+        var me = this,
+            gridHeight = me.gridHeight,
+            gridHeaderHeight = me.gridHeaderHeight,
+            currentGridHeight,
+            currentGridHeaderHeight,
+            noBorderCls = 'force-no-border';
+
+        if (me.rendered) {
+            currentGridHeight = me.getView().height;
+            currentGridHeaderHeight = me.headerCt.height;
+
+            if (!visible) {
+                gridHeight = 0;
+                gridHeaderHeight = 0;
+
+                me.addCls(noBorderCls);
+            } else {
+                me.removeCls(noBorderCls);
+            }
+
+            if (currentGridHeight !== 0 && currentGridHeaderHeight !== 0) {
+                me.gridHeight = currentGridHeight;
+                me.gridHeaderHeight = currentGridHeaderHeight;
+            }
+
+            me.getTopToolbarContainer().setVisible(visible);
+            me.getView().height = gridHeight;
+            me.headerCt.height = gridHeaderHeight;
+            me.doLayout();
+        }
     },
 
     onClickUncheckAllButton: function (button) {
@@ -381,24 +420,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.getSelectionCounter().setText(me.counterTextFn(selection.length));
         me.getUncheckAllButton().setDisabled(selection.length === 0);
         me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
-    },
-
-    onLoad: function () {
-        var me = this,
-            count = me.store.getCount(),
-            newHeight = me.minHeight;
-
-        if (me.rendered) {
-            var row = me.getView().getNode(0),
-                rowElement = Ext.get(row);
-
-            if (rowElement !== null && typeof rowElement !== 'undefined') {
-                var rowHeight = rowElement.getComputedHeight();
-
-                newHeight += count > 10 ? 10 * rowHeight : count * rowHeight;
-                me.setHeight(newHeight);
-            }
-        }
     },
 
     isAllSelected: function () {
