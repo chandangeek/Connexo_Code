@@ -74,7 +74,6 @@ Ext.define('Dsh.view.widget.Breakdown', {
         var me = this;
         store.each(function (item, idx) {
             var panel = Ext.create('Ext.panel.Panel', {
-
                 tbar: {
                     xtype: 'container',
                     itemId: 'title',
@@ -101,10 +100,10 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     tpl:
                         '<table>' +
                             '<tpl for=".">' +
-                                '<tbody class="item">' +
+                                '<tbody class="item item-{#}">' +
                                     '<tr>' +
                                         '<td class="label" style="min-width: 200px">' +
-                                            '<a href="#{id}">{displayName}</a>' +
+                                            '<a>{displayName}</a>' +
                                         '</td>' +
                                         '<td width="100%" id="bar-{#}"></td>' +
                                     '</tr>' +
@@ -132,6 +131,10 @@ Ext.define('Dsh.view.widget.Breakdown', {
                                     label: limit
                                 });
                                 bar.render(view.getEl().down('#bar-' + pos));
+                                var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
+                                    { property: item.get('alias'), value: record.get('id') }
+                                ]});
+                                view.getEl().down('.item-' + pos + ' a').set({ href: href });
                             });
                             view.collapsed = item.counters().count() > me.itemsInCollapsedMode;
                             view.expandedHeight = view.getHeight();
