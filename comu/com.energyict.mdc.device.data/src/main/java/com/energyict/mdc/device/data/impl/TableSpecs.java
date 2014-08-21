@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
@@ -28,22 +32,9 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
-import static com.elster.jupiter.orm.ColumnConversion.DATE2DATE;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2DATE;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -292,11 +283,11 @@ public enum TableSpecs {
             Column comSchedule = table.column("COMSCHEDULE").number().add();
             Column nextExecutionSpecs = table.column("NEXTEXECUTIONSPECS").number().add();
             table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName()).add();
-            table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).add();
+            Column nextexecutiontimestamp = table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).add();
             Column comport = table.column("COMPORT").number().add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map(ComTaskExecutionFields.MODIFICATIONDATE.fieldName()).add();
-            table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).add();
-            table.column("PRIORITY").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()).add();
+            Column obsoleteDate = table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).add();
+            Column priority = table.column("PRIORITY").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()).add();
             table.column("USEDEFAULTCONNECTIONTASK").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).add();
             table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName()).add();
             table.column("PLANNEDNEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2DATE).map(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).add();
@@ -324,6 +315,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_COMTASKEXEC_DIALECT").on(protocolDialectConfigurationProperties).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES").map(ComTaskExecutionFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName()).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_DEVICE").on(device).references(DDC_DEVICE.name()).map(ComTaskExecutionFields.DEVICE.fieldName()).add();
             table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
+            table.index("IX_MDCCOMTASKEXEC_NXTEXEC").on(nextexecutiontimestamp, priority, connectionTask, obsoleteDate).add();
         }
     },
 
