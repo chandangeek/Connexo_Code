@@ -16,6 +16,8 @@ public class ReadingInfoFactory {
             return new NumericalReadingInfo((NumericalReading)reading, (NumericalRegisterSpec)registerSpec);
         } else if(reading instanceof TextReading) {
             return new TextReadingInfo((TextReading)reading, (TextualRegisterSpec)registerSpec);
+        } else if(reading instanceof FlagsReading) {
+            return new FlagsReadingInfo((FlagsReading)reading, (NumericalRegisterSpec)registerSpec);
         }
 
         throw new IllegalArgumentException("Unsupported reading type: " + reading.getClass().getSimpleName());

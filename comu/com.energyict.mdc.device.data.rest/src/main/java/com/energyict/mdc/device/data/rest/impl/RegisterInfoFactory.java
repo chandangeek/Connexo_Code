@@ -1,9 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.data.BillingRegister;
-import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.TextRegister;
+import com.energyict.mdc.device.data.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +11,10 @@ public class RegisterInfoFactory {
             return new BillingRegisterInfo((BillingRegister)register);
         } else if (register instanceof NumericalRegister) {
             return new NumericalRegisterInfo((NumericalRegister)register);
-        } else if (TextRegister.class.isAssignableFrom(register.getClass())) {
+        } else if (register instanceof TextRegister) {
             return new TextRegisterInfo((TextRegister)register);
+        } else if (register instanceof FlagsRegister) {
+            return new FlagsRegisterInfo((FlagsRegister)register);
         }
 
         throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());

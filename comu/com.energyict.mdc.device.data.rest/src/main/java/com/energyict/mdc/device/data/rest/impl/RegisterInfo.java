@@ -7,6 +7,7 @@ import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.configuration.rest.MultiplierModeAdapter;
 import com.energyict.mdc.device.configuration.rest.ReadingTypeInfo;
+import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.google.common.base.Optional;
@@ -21,11 +22,12 @@ import java.util.Date;
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = BillingRegisterInfo.class, name = "event"),
+        @JsonSubTypes.Type(value = BillingRegisterInfo.class, name = "billing"),
         @JsonSubTypes.Type(value = NumericalRegisterInfo.class, name = "numerical"),
-        @JsonSubTypes.Type(value = TextRegisterInfo.class, name = "text")
+        @JsonSubTypes.Type(value = TextRegisterInfo.class, name = "text"),
+        @JsonSubTypes.Type(value = FlagsRegisterInfo.class, name = "flags")
 })
-public abstract class RegisterInfo<R extends Register> {
+public abstract class RegisterInfo<R extends Register, RE extends Reading> {
     @JsonProperty("id")
     public Long id;
     @JsonProperty("name")
@@ -51,7 +53,7 @@ public abstract class RegisterInfo<R extends Register> {
     @XmlJavaTypeAdapter(MultiplierModeAdapter.class)
     public MultiplierMode multiplierMode;
     @JsonProperty("lastReading")
-    public Long lastReading;
+    public ReadingInfo lastReading;
     @JsonProperty("validationStatus")
     public Boolean validationStatus;
 
@@ -70,9 +72,9 @@ public abstract class RegisterInfo<R extends Register> {
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
         this.unitOfMeasure = registerSpec.getUnit();
 
-        Optional<Date> lastReading = register.getLastReadingDate();
+        Optional<RE> lastReading = register.getLastReading();
         if(lastReading.isPresent()) {
-            this.lastReading = lastReading.get().getTime();
+            this.lastReading = ReadingInfoFactory.asInfo(lastReading.get(), registerSpec);
         }
         this.validationStatus = Boolean.TRUE;
         // TODO Uncomment when it was done in device.data bundle
