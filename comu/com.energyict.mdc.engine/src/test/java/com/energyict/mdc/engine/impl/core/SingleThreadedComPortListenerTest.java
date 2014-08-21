@@ -6,14 +6,13 @@ import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
@@ -60,6 +59,8 @@ public class SingleThreadedComPortListenerTest {
     private IssueService issueService;
     @Mock
     private SocketService socketService;
+    @Mock
+    private HexService hexService;
     @Mock
     private EventPublisherImpl eventPublisher;
 
@@ -237,7 +238,7 @@ public class SingleThreadedComPortListenerTest {
         protected ComPortRelatedComChannel doAccept() {
             // Unit testing commands typically don't do anything useful
             System.out.println(this.toString() + " is now executing, creating Mock ComChannel ...");
-            return new ComPortRelatedComChannelImpl(new VoidComChannel());
+            return new ComPortRelatedComChannelImpl(new VoidComChannel(), hexService);
         }
     }
 
@@ -265,7 +266,7 @@ public class SingleThreadedComPortListenerTest {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                return new ComPortRelatedComChannelImpl(new VoidComChannel());
+                return new ComPortRelatedComChannelImpl(new VoidComChannel(), hexService);
             }
         }
 

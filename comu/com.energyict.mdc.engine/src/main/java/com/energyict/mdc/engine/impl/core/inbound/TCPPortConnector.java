@@ -1,9 +1,12 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.exceptions.InboundCommunicationException;
+import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.energyict.protocols.mdc.services.SocketService;
 
@@ -25,8 +28,10 @@ public class TCPPortConnector implements InboundComPortConnector {
      */
     private final ServerSocket serverSocket;
     private final SocketService socketService;
+    private final HexService hexService;
 
-    public TCPPortConnector(TCPBasedInboundComPort comPort, SocketService socketService) {
+    public TCPPortConnector(TCPBasedInboundComPort comPort, SocketService socketService, HexService hexService) {
+        this.hexService = hexService;
         this.socketService = socketService;
         try {
             this.serverSocket = socketService.newTCPSocket(comPort.getPortNumber());
@@ -40,7 +45,7 @@ public class TCPPortConnector implements InboundComPortConnector {
     public ComPortRelatedComChannel accept() {
         try {
             final Socket socket = this.serverSocket.accept();
-            return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket));
+            return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket), this.hexService);
         }
         catch (IOException e) {
             throw new InboundCommunicationException(e);

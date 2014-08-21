@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.statistics;
+package com.energyict.mdc.engine.impl.core;
 
 import org.junit.*;
 

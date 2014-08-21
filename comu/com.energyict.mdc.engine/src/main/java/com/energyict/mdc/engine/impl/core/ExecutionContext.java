@@ -22,9 +22,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.aspects.journaling.ComCommandJournalist;
-import com.energyict.mdc.engine.impl.core.aspects.logging.ComChannelLogger;
 import com.energyict.mdc.engine.impl.core.aspects.logging.ComCommandLogger;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -38,6 +36,8 @@ import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.StopWatch;
+import org.joda.time.Duration;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessio
 * Date: 19/05/2014
 * Time: 16:12
 */
-public final class ExecutionContext {
+public final class ExecutionContext implements JournalEntryFactory {
 
     public interface ServiceProvider {
 
@@ -74,7 +74,6 @@ public final class ExecutionContext {
     private ComTaskExecutionSessionBuilder currentTaskExecutionBuilder;
     private ComCommandJournalist journalist;
     private ComCommandLogger comCommandLogger;
-    private ComChannelLogger comChannelLogger;
     private ComPort comPort;
     private ConnectionTask<?, ?> connectionTask;
     private ComTaskExecution comTaskExecution;
@@ -83,6 +82,8 @@ public final class ExecutionContext {
     private CommandRoot commandRoot;
     private CompositeDeviceCommand storeCommand;
     private boolean basicCheckFailed = false;
+    private StopWatch connecting;
+    private StopWatch executing;
 
     public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, ServiceProvider serviceProvider) {
         this(jobExecution, connectionTask, comPort, true, serviceProvider);
@@ -103,12 +104,48 @@ public final class ExecutionContext {
 
     public void close() {
         // Check if establishing the connection succeeded
-        if (this.comPortRelatedComChannel != null) {
+        if (this.isConnected()) {
             this.comPortRelatedComChannel.close();
+            this.addStatisticalInformationToComSession();
         }
     }
 
+    private boolean isConnected() {
+        return this.comPortRelatedComChannel != null;
+    }
+
+    private void addStatisticalInformationToComSession () {
+        ComSessionBuilder comSessionBuilder = this.getComSessionBuilder();
+        comSessionBuilder.connectDuration(Duration.millis(this.connecting.getElapsed()));
+        comSessionBuilder.talkDuration(this.comPortRelatedComChannel.talkTime());
+        Counters sessionCounters = this.comPortRelatedComChannel.getSessionCounters();
+        comSessionBuilder.addSentBytes(sessionCounters.getBytesSent());
+        comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead());
+        comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent());
+        comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead());
+    }
+
+    private void addStatisticalInformationForTaskSession() {
+        if (this.isConnected() && this.getComSessionBuilder() != null) {
+            ComSessionBuilder comSessionBuilder = this.getComSessionBuilder();
+            Counters taskSessionCounters = this.comPortRelatedComChannel.getTaskSessionCounters();
+            comSessionBuilder.addSentBytes(taskSessionCounters.getBytesSent());
+            comSessionBuilder.addReceivedBytes(taskSessionCounters.getBytesRead());
+            comSessionBuilder.addSentPackets(taskSessionCounters.getPacketsSent());
+            comSessionBuilder.addReceivedPackets(taskSessionCounters.getPacketsRead());
+        }
+    }
+
+    public void comTaskExecutionCompleted(ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator) {
+        this.executing.stop();
+        this.addStatisticalInformationForTaskSession();
+        this.comTaskExecutionCompleted(successIndicator);
+    }
+
     public void comTaskExecutionCompleted(ComTaskExecutionSession.SuccessIndicator successIndicator) {
+        if (this.isConnected()) {
+            this.comPortRelatedComChannel.logRemainingBytes();
+        }
         if (hasBasicCheckFailed()) {
             String commandDescription = "ComTask will be rescheduled due to the failure of the BasicCheck task.";
             this.currentTaskExecutionBuilder.addComCommandJournalEntry(now(), CompletionCode.Rescheduled, "", commandDescription);
@@ -143,13 +180,19 @@ public final class ExecutionContext {
      */
     public boolean connect() {
         try {
+            this.connecting = new StopWatch();
+            this.executing = new StopWatch(false);  // Do not auto start but start it manually as soon as execution starts.
             this.setComPortRelatedComChannel(this.jobExecution.findOrCreateComChannel());
             this.getComServerDAO().executionStarted(this.connectionTask, this.comPort.getComServer());
             return this.jobExecution.isConnected();
-        } catch (ConnectionException e) {
+        }
+        catch (ConnectionException e) {
             this.comPortRelatedComChannel = null;
             this.connectionFailed(e, this.connectionTask);
             throw new ConnectionSetupException(e);
+        }
+        finally {
+            this.connecting.stop();
         }
     }
 
@@ -173,10 +216,6 @@ public final class ExecutionContext {
 
     public ComPortRelatedComChannel getComPortRelatedComChannel() {
         return comPortRelatedComChannel;
-    }
-
-    public ComChannelLogger getComChannelLogger() {
-        return comChannelLogger;
     }
 
     public ComCommandLogger getComCommandLogger() {
@@ -244,10 +283,6 @@ public final class ExecutionContext {
         this.basicCheckFailed = basicCheckFailed;
     }
 
-    public void setComChannelLogger(ComChannelLogger comChannelLogger) {
-        this.comChannelLogger = comChannelLogger;
-    }
-
     public void setComCommandLogger(ComCommandLogger comCommandLogger) {
         this.comCommandLogger = comCommandLogger;
     }
@@ -262,6 +297,17 @@ public final class ExecutionContext {
 
     public void setLogger(Logger logger) {
         this.logger = logger;
+    }
+
+    public void prepareStart(ComTaskExecution comTaskExecution) {
+        this.executing.start();
+        if (this.isConnected()) {
+            Counters taskSessionCounters = this.comPortRelatedComChannel.getTaskSessionCounters();
+            taskSessionCounters.resetBytesRead();
+            taskSessionCounters.resetBytesSent();
+            taskSessionCounters.resetPacketsRead();
+            taskSessionCounters.resetPacketsSent();
+        }
     }
 
     public void start(ComTaskExecution comTaskExecution) {
@@ -357,7 +403,16 @@ public final class ExecutionContext {
         getCurrentTaskExecutionBuilder().addComTaskExecutionMessageJournalEntry(now(), "", message);
     }
 
+    void comTaskExecutionFailure(ComTaskExecution comTaskExecution, Throwable t) {
+        this.fail(comTaskExecution, t);
+        this.executing.stop();
+        this.addStatisticalInformationForTaskSession();
+    }
+
     void fail(ComTaskExecution comTaskExecution, Throwable t) {
+        if (this.isConnected()) {
+            this.comPortRelatedComChannel.logRemainingBytes();
+        }
         if (this.currentTaskExecutionBuilder != null) { // Check if the failure occurred in the context of an executing ComTask
             if (!ComServerRuntimeException.class.isAssignableFrom(t.getClass())) {
                 currentTaskExecutionBuilder.addComCommandJournalEntry(now(), CompletionCode.UnexpectedError, t.getLocalizedMessage(), "General");
@@ -394,6 +449,7 @@ public final class ExecutionContext {
     }
 
     private void setComPortRelatedComChannel(ComPortRelatedComChannel comPortRelatedComChannel) {
+        comPortRelatedComChannel.setJournalEntryFactory(this);
         this.comPortRelatedComChannel = comPortRelatedComChannel;
         this.jobExecution.connected(comPortRelatedComChannel);
     }

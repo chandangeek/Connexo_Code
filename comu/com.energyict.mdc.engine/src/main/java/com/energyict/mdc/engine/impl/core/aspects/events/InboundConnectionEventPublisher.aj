@@ -4,7 +4,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
-import com.energyict.mdc.engine.impl.core.aspects.statistics.AbstractCommunicationStatisticsMonitor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionCompletionEvent;
@@ -24,9 +23,8 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-07 (08:52)
  */
-public privileged aspect InboundConnectionEventPublisher extends AbstractCommunicationStatisticsMonitor {
+public aspect InboundConnectionEventPublisher {
 
-    /* Similar comment as in com.energyict.mdc.engine.impl.core.aspects.statistics.InboundCommunicationStatisticsMonitor. */
     private pointcut handle (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContext context):
             execution(void handle (InboundDeviceProtocol, InboundDiscoveryContext))
          && target(handler)

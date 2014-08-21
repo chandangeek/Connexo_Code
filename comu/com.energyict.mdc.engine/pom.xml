@@ -139,7 +139,7 @@
               <source>${maven.compiler.source}</source>
               <target>${maven.compiler.target}</target>
               <complianceLevel>${maven.compiler.target}</complianceLevel>
-              <showWeaveInfo>true</showWeaveInfo>
+              <showWeaveInfo>false</showWeaveInfo>
               <verbose>false</verbose>
               <proceedOnError>false</proceedOnError>
               <Xlint>error</Xlint>

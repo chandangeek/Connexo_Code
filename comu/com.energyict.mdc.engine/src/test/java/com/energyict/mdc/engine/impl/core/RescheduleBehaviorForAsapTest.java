@@ -23,6 +23,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.ConnectionException;
 
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
@@ -102,13 +103,14 @@ public class RescheduleBehaviorForAsapTest {
     }
 
     @Test
-    public void rescheduleSingleSuccessTest() {
+    public void rescheduleSingleSuccessTest() throws ConnectionException {
         ComTaskExecution successfulComTaskExecution = getMockedComTaskExecution();
 
         RescheduleBehaviorForAsap rescheduleBehavior = new RescheduleBehaviorForAsap(
                 comServerDAO, Arrays.<ComTaskExecution>asList(successfulComTaskExecution),
                 Collections.<ComTaskExecution>emptyList(), Collections.<ComTaskExecution>emptyList(),
-                connectionTask, newTestExecutionContext());
+                connectionTask,
+                newTestExecutionContext());
 
         rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.COMTASKS);
 
@@ -119,13 +121,14 @@ public class RescheduleBehaviorForAsapTest {
     }
 
     @Test
-    public void rescheduleSuccessFulConnectionTaskTest() {
+    public void rescheduleSuccessFulConnectionTaskTest() throws ConnectionException {
         ComTaskExecution successfulComTaskExecution = getMockedComTaskExecution();
 
         RescheduleBehaviorForAsap rescheduleBehavior = new RescheduleBehaviorForAsap(
                 comServerDAO, Arrays.<ComTaskExecution>asList(successfulComTaskExecution),
                 Collections.<ComTaskExecution>emptyList(), Collections.<ComTaskExecution>emptyList(),
-                connectionTask, newTestExecutionContext());
+                connectionTask,
+                newTestExecutionContext());
 
         rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.COMTASKS);
 
@@ -135,13 +138,14 @@ public class RescheduleBehaviorForAsapTest {
     }
 
     @Test
-    public void rescheduleSingleFailedComTaskTest() throws SQLException, BusinessException {
+    public void rescheduleSingleFailedComTaskTest() throws SQLException, BusinessException, ConnectionException {
         ComTaskExecution failedComTaskExecution = getMockedComTaskExecution();
 
         RescheduleBehaviorForAsap rescheduleBehavior = new RescheduleBehaviorForAsap(
                 comServerDAO, Collections.<ComTaskExecution>emptyList(),
                 Arrays.<ComTaskExecution>asList(failedComTaskExecution), Collections.<ComTaskExecution>emptyList(),
-                connectionTask, newTestExecutionContext());
+                connectionTask,
+                newTestExecutionContext());
 
         rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.COMTASKS);
 
@@ -153,7 +157,7 @@ public class RescheduleBehaviorForAsapTest {
     }
 
     @Test
-    public void rescheduleDueToConnectionSetupErrorTest() {
+    public void rescheduleDueToConnectionSetupErrorTest() throws ConnectionException {
         ComTaskExecution notExecutedComTaskExecution = getMockedComTaskExecution();
 
         final ExecutionContext executionContext = newTestExecutionContext();
@@ -176,7 +180,7 @@ public class RescheduleBehaviorForAsapTest {
     }
 
     @Test
-    public void rescheduleDueToConnectionBrokenDuringExecutionTest() {
+    public void rescheduleDueToConnectionBrokenDuringExecutionTest() throws ConnectionException {
         ComTaskExecution notExecutedComTaskExecution = getMockedComTaskExecution();
         ComTaskExecution failedComTaskExecution = getMockedComTaskExecution();
         ComTaskExecution successfulComTaskExecution1 = getMockedComTaskExecution();
@@ -212,11 +216,11 @@ public class RescheduleBehaviorForAsapTest {
         return comTaskExecution;
     }
 
-    private ExecutionContext newTestExecutionContext() {
+    private ExecutionContext newTestExecutionContext() throws ConnectionException {
         return newTestExecutionContext(Logger.getAnonymousLogger());
     }
 
-    private ExecutionContext newTestExecutionContext(Logger logger) {
+    private ExecutionContext newTestExecutionContext(Logger logger) throws ConnectionException {
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
@@ -226,13 +230,18 @@ public class RescheduleBehaviorForAsapTest {
         when(comPort.getComServer()).thenReturn(comServer);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
+        JobExecution jobExecution = mock(JobExecution.class);
+        ComPortRelatedComChannel comPortRelatedComChannel = mock(ComPortRelatedComChannel.class);
+        when(jobExecution.findOrCreateComChannel()).thenReturn(comPortRelatedComChannel);
+        when(jobExecution.getComServerDAO()).thenReturn(this.comServerDAO);
         ExecutionContext executionContext =
                 new ExecutionContext(
-                        mock(JobExecution.class),
+                        jobExecution,
                         connectionTask,
                         comPort,
                         this.serviceProvider);
         executionContext.setLogger(logger);
+        executionContext.connect();
         return executionContext;
     }
 

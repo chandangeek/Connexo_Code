@@ -1,7 +1,7 @@
-package com.energyict.mdc.engine.impl.core.aspects.logging;
+package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.JournalEntryFactory;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
@@ -11,8 +11,8 @@ import java.util.logging.LogRecord;
 
 /**
  * Provides an implementation for the Handler class
- * that creates {@link com.energyict.mdc.journal.ComSessionJournalEntry ComSessionJournalEntries}
- * or {@link com.energyict.mdc.journal.ComTaskExecutionMessageJournalEntry ComTaskExecutionMessageJournalEntries}
+ * that creates {@link com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry ComSessionJournalEntries}
+ * or {@link com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry ComTaskExecutionMessageJournalEntries}
  * each time bytes have been read or written to a {@link ComPortRelatedComChannel}.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -20,16 +20,16 @@ import java.util.logging.LogRecord;
  */
 public class ComChannelLogHandler extends Handler {
 
-    private ExecutionContext executionContext;
+    private JournalEntryFactory journalEntryFactory;
 
-    public ComChannelLogHandler (ExecutionContext executionContext) {
+    public ComChannelLogHandler (JournalEntryFactory journalEntryFactory) {
         super();
-        this.executionContext = executionContext;
+        this.journalEntryFactory = journalEntryFactory;
     }
 
     @Override
     public void publish (LogRecord record) {
-        this.executionContext.createJournalEntry(this.extractInfo(record));
+        this.journalEntryFactory.createJournalEntry(this.extractInfo(record));
     }
 
     private String extractInfo (LogRecord record) {

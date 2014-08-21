@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
@@ -14,6 +16,7 @@ import com.energyict.mdc.protocol.api.exceptions.SerialPortException;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.services.HexService;
 
 import java.io.IOException;
 
@@ -30,16 +33,18 @@ public class SerialPortConnector implements InboundComPortConnector {
 
     private final ModemBasedInboundComPort comPort;
     private final SerialComponentService serialComponentService;
+    private final HexService hexService;
 
     /**
      * The number of consecutive rings already received.
      */
     private int currentRingCount;
 
-    public SerialPortConnector(ModemBasedInboundComPort comPort, SerialComponentService serialComponentService) {
+    public SerialPortConnector(ModemBasedInboundComPort comPort, SerialComponentService serialComponentService, HexService hexService) {
         super();
         this.comPort = comPort;
         this.serialComponentService = serialComponentService;
+        this.hexService = hexService;
     }
 
     @Override
@@ -50,7 +55,7 @@ public class SerialPortConnector implements InboundComPortConnector {
         waitForNumberOfRings(comChannel, modemComponent);
         acceptCallAndConnect(comChannel, modemComponent);
 
-        return new ComPortRelatedComChannelImpl(comChannel);
+        return new ComPortRelatedComChannelImpl(comChannel, this.hexService);
     }
 
 

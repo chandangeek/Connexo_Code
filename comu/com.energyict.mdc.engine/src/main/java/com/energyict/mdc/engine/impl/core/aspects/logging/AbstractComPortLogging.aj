@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.RescheduleBehavior;
@@ -27,8 +28,6 @@ import java.util.logging.Logger;
  */
 public abstract aspect AbstractComPortLogging {
     declare precedence :
-            com.energyict.mdc.engine.impl.core.aspects.statistics.OutboundCommunicationStatisticsMonitor,
-            ComChannelReadWriteLogger,
             com.energyict.mdc.engine.impl.core.aspects.journaling.ComCommandJournaling,
             com.energyict.mdc.engine.impl.core.aspects.events.OutboundConnectionEventPublisher,
             com.energyict.mdc.engine.impl.core.aspects.events.OutboundComTaskEventPublisher,
@@ -161,12 +160,12 @@ public abstract aspect AbstractComPortLogging {
         this.getOperationsLogger(comPort).unscheduled(comPort.getThreadName(), comTaskExecution);
     }
 
-    private pointcut completeTask (JobExecution job, ComTaskExecution comTaskExecution):
-            execution(void JobExecution.completeExecutedComTask(ComTaskExecution))
+    private pointcut completeTask (JobExecution job, ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator):
+            execution(void JobExecution.completeExecutedComTask(ComTaskExecution, ComTaskExecutionSession.SuccessIndicator))
          && target(job)
-         && args(comTaskExecution);
+         && args(comTaskExecution, successIndicator);
 
-    before (JobExecution job, ComTaskExecution comTaskExecution): completeTask(job, comTaskExecution) {
+    before (JobExecution job, ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator): completeTask(job, comTaskExecution, successIndicator) {
         ExecutionContext executionContext = job.getExecutionContext();
         this.completingTask(executionContext.connectionLogger, job, comTaskExecution);
     }

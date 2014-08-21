@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
-
 /**
  * Performs the execution of an inbound call.
  * <p/>

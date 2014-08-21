@@ -20,7 +20,6 @@ import java.util.logging.Logger;
  */
 public abstract aspect AbstractComPortDiscoveryLogging {
     declare precedence:
-            com.energyict.mdc.engine.impl.core.aspects.statistics.InboundCommunicationStatisticsMonitor,
             ComPortDiscoveryLogging,
             com.energyict.mdc.engine.impl.core.inbound.aspects.events.ComPortDiscoveryEventPublisher;
 

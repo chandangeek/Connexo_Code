@@ -13,11 +13,16 @@ import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.Counters;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
+import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletRequest;
+import com.energyict.mdc.engine.impl.protocol.inbound.aspects.statistics.StatisticsMonitoringHttpServletResponse;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -38,8 +43,12 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 
+import com.elster.jupiter.util.time.StopWatch;
 import com.google.common.base.Optional;
+import org.joda.time.Duration;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -77,6 +86,7 @@ public class InboundCommunicationHandler {
     private InboundConnectionTask connectionTask;
     private InboundDiscoveryContextImpl context;
     private InboundDeviceProtocol.DiscoverResponseType responseType;
+    private StopWatch discovering;
 
     public InboundCommunicationHandler(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super();
@@ -227,20 +237,78 @@ public class InboundCommunicationHandler {
     }
 
     private InboundDeviceProtocol.DiscoverResultType doDiscovery(InboundDeviceProtocol inboundDeviceProtocol) {
-        return inboundDeviceProtocol.doDiscovery();
+        this.discovering = new StopWatch();
+        try {
+            return inboundDeviceProtocol.doDiscovery();
+        }
+        finally {
+            this.discovering.stop();
+        }
     }
 
     private void initializeContext(InboundDiscoveryContextImpl context) {
         this.context = context;
+        if (this.inWebContext()) {
+            HttpServletRequest request = context.getServletRequest();
+            HttpServletResponse response = context.getServletResponse();
+            context.setServletRequest(new StatisticsMonitoringHttpServletRequest(request));
+            context.setServletResponse(new StatisticsMonitoringHttpServletResponse(response));
+        }
+    }
+
+    private boolean inWebContext () {
+        return this.context.getServletRequest() != null;
     }
 
     private void closeContext() {
         ComSessionBuilder sessionBuilder = context.getComSessionBuilder();
+        this.appendStatisticalInformationToComSession();
         if (InboundDeviceProtocol.DiscoverResponseType.SUCCESS.equals(this.responseType)) {
             this.markSuccessful(sessionBuilder);
-        } else {
+        }
+        else {
             this.markFailed(sessionBuilder, this.responseType);
         }
+    }
+
+    private void appendStatisticalInformationToComSession() {
+        ComSessionBuilder comSessionBuilder = this.context.getComSessionBuilder();
+        if (comSessionBuilder != null) {
+            comSessionBuilder.connectDuration(new Duration(0));
+            if (this.inWebContext()) {
+                StatisticsMonitoringHttpServletRequest request = this.getMonitoringRequest();
+                StatisticsMonitoringHttpServletResponse response = this.getMonitoringResponse();
+                long talkMillis = this.discovering.getElapsed() + request.getTalkTime() + response.getTalkTime();
+                comSessionBuilder.talkDuration(Duration.millis(talkMillis));
+                comSessionBuilder.addReceivedBytes(request.getBytesRead()).addSentBytes(response.getBytesSent());
+                comSessionBuilder.addReceivedPackets(1).addSentPackets(1);
+            }
+            else {
+                ComPortRelatedComChannel comChannel = this.getComChannel();
+                comSessionBuilder.talkDuration(Duration.millis(this.discovering.getElapsed()).withDurationAdded(comChannel.talkTime(), 1));
+                Counters sessionCounters = comChannel.getSessionCounters();
+                Counters taskSessionCounters = comChannel.getTaskSessionCounters();
+                comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead() + taskSessionCounters.getBytesRead());
+                comSessionBuilder.addSentBytes(sessionCounters.getBytesSent() + taskSessionCounters.getBytesSent());
+                comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead() + taskSessionCounters.getPacketsRead());
+                comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent() + taskSessionCounters.getPacketsSent());
+            }
+        }
+        else {
+            // Todo: deal with the unknown device situation
+        }
+    }
+
+    private StatisticsMonitoringHttpServletRequest getMonitoringRequest () {
+        return (StatisticsMonitoringHttpServletRequest) this.context.getServletRequest();
+    }
+
+    private StatisticsMonitoringHttpServletResponse getMonitoringResponse () {
+        return (StatisticsMonitoringHttpServletResponse) this.context.getServletResponse();
+    }
+
+    private ComPortRelatedComChannel getComChannel () {
+        return this.context.getComChannel();
     }
 
     private ComSessionBuilder.EndedComSessionBuilder markSuccessful(ComSessionBuilder comSessionBuilder) {

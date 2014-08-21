@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events.io;
 
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.ComPort;
 
 /**

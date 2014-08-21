@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.mdc.protocol.api.dialer.core.DialerException;
 import com.energyict.mdc.protocol.api.exceptions.ModemException;
+import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
@@ -16,6 +17,7 @@ import com.energyict.protocols.mdc.channels.serial.SerialComponentServiceImpl;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
 import com.energyict.protocols.mdc.channels.serial.modem.AtModemComponent;
+import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
 import org.joda.time.DateTimeConstants;
 
 import java.io.IOException;
@@ -52,6 +54,7 @@ public class SerialPortConnectorTest {
     private ModemBasedInboundComPort comPort;
 
     private SerialComponentService serialComponentService;
+    private HexService hexService;
 
     @Before
     public void initializeMocks() throws IOException {
@@ -75,12 +78,13 @@ public class SerialPortConnectorTest {
         when(comPort.getPostDialCommands()).thenReturn("");
 
         this.serialComponentService = new SerialComponentServiceImpl();
+        this.hexService = new HexServiceImpl();
     }
 
     @Test
     public void testProperAccept() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -118,7 +122,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptWithAdditionalRubbish() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -157,7 +161,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptWithDelayBeforeSend() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
         when(comPort.getDelayBeforeSend()).thenReturn(new TimeDuration(500, TimeDuration.MILLISECONDS));
 
@@ -196,7 +200,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptMultipleInitStrings() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
         when(comPort.getModemInitStrings()).thenReturn(Arrays.asList("FIRST INIT", "2TH INIT"));
 
@@ -237,7 +241,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptWithLongConnectDelay() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -275,7 +279,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptButTimeoutBetweenRings() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -318,7 +322,7 @@ public class SerialPortConnectorTest {
     @Test(expected = ModemException.class)
     public void testNoConnectDueToTimeout() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -360,7 +364,7 @@ public class SerialPortConnectorTest {
     @Test(expected = ModemException.class)
     public void testTimeoutAtModemCommandWithRetries() throws IOException, DialerException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
 //        serialComChannel.setResponses(Arrays.asList("RUBBISH - RUBBISH", "RUBBISH - RUBBISH", "RUBBISH - RUBBISH"));      // Answer at modem hang up command (first try)
@@ -397,7 +401,7 @@ public class SerialPortConnectorTest {
         when(comPort.getAddressSelector()).thenReturn("");
 
         // Business methods
-        SerialPortConnector portConnector = new SerialPortConnector(comPort, serialComponentService);
+        SerialPortConnector portConnector = new SerialPortConnector(comPort, serialComponentService, this.hexService);
         portConnector.accept();
 
         // Asserts

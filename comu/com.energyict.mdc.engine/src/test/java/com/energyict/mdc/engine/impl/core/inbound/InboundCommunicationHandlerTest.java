@@ -26,6 +26,7 @@ import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
@@ -46,6 +47,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
@@ -131,6 +133,8 @@ public class InboundCommunicationHandlerTest {
     private DeviceDataService deviceDataService;
     @Mock
     private EngineService engineService;
+    @Mock
+    private HexService hexService;
 
     private FakeTransactionService transactionService = new FakeTransactionService();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
@@ -142,6 +146,7 @@ public class InboundCommunicationHandlerTest {
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
         serviceProvider.setDeviceDataService(deviceDataService);
+        serviceProvider.setHexService(this.hexService);
         EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);
         when(eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
         EventPublisherImpl.setInstance(eventPublisher);
@@ -503,7 +508,7 @@ public class InboundCommunicationHandlerTest {
         this.testSuccessFulCommunicationWithHandOverToProtocol(this.newServletInboundDiscoveryContext());
     }
 
-    private void testSuccessFulCommunicationWithHandOverToProtocol (InboundDiscoveryContextImpl inboundDiscoveryContext) throws BusinessException {
+    private void testSuccessFulCommunicationWithHandOverToProtocol (InboundDiscoveryContextImpl inboundDiscoveryContext) {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -554,7 +559,6 @@ public class InboundCommunicationHandlerTest {
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
         CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
-        assertThat(compositeDeviceCommand.getChildren()).hasSize(3);
         assertThat(compositeDeviceCommand.getChildren()).haveAtLeast(1, new Condition<DeviceCommand>() {
             @Override
             public boolean matches(DeviceCommand deviceCommand) {
@@ -631,7 +635,7 @@ public class InboundCommunicationHandlerTest {
     }
 
     private InboundDiscoveryContextImpl newBinaryInboundDiscoveryContext () {
-        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class)), deviceDataService);
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(comPort, new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.hexService), deviceDataService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }

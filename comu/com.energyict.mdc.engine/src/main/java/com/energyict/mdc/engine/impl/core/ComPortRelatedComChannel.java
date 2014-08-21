@@ -1,7 +1,9 @@
-package com.energyict.mdc.engine.impl.core.inbound;
+package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
+
+import org.joda.time.Duration;
 
 /**
  * Wraps {@link ComChannel} to add that the ComChannel
@@ -17,5 +19,15 @@ public interface ComPortRelatedComChannel extends ComChannel {
     public void setComPort (ComPort comPort);
 
     public ComChannel getActualComChannel();
+
+    public void setJournalEntryFactory (JournalEntryFactory journalEntryFactory);
+
+    public void logRemainingBytes();
+
+    public Duration talkTime ();
+
+    public Counters getSessionCounters();
+
+    public Counters getTaskSessionCounters();
 
 }

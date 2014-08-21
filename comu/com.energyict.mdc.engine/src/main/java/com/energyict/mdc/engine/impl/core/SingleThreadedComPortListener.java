@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.InboundComPort;
 
 import com.energyict.protocols.mdc.channels.VoidComChannel;
@@ -39,7 +38,10 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
                 threadFactory,
                 deviceCommandExecutor,
                 inboundComPortExecutorFactory,
-                new InboundComPortConnectorFactoryImpl(serviceProvider.serialComponentService(), serviceProvider.socketService())
+                new InboundComPortConnectorFactoryImpl(
+                        serviceProvider.serialComponentService(),
+                        serviceProvider.socketService(),
+                        serviceProvider.hexService())
         );
     }
 

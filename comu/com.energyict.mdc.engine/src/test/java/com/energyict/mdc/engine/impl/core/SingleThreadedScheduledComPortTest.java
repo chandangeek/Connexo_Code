@@ -31,8 +31,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
@@ -53,6 +51,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -180,6 +179,8 @@ public class SingleThreadedScheduledComPortTest {
     @Mock
     private EngineService engineService;
     @Mock
+    private HexService hexService;
+    @Mock
     private EventPublisherImpl eventPublisher;
     @Mock
     private ComSessionBuilder comSessionBuilder;
@@ -193,7 +194,7 @@ public class SingleThreadedScheduledComPortTest {
     private ScheduledComPortOperationalStatistics operationalStatistics;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
-    private ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class));
+    private ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.hexService);
     private ConnectionStrategy connectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE;
 
     @BeforeClass
@@ -238,6 +239,7 @@ public class SingleThreadedScheduledComPortTest {
 
     public void setupServiceProvider () {
         ServiceProvider.instance.set(this.serviceProvider);
+        this.serviceProvider.setHexService(this.hexService);
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setUserService(this.userService);
         this.serviceProvider.setClock(this.clock);

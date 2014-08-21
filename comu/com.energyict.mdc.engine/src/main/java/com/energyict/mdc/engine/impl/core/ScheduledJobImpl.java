@@ -5,8 +5,6 @@ import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
@@ -46,7 +44,10 @@ public abstract class ScheduledJobImpl extends JobExecution {
 
     @Override
     protected ComPortRelatedComChannel findOrCreateComChannel() throws ConnectionException {
-        return new ComPortRelatedComChannelImpl(getConnectionTask().connect(getComPort()));
+        return new ComPortRelatedComChannelImpl(
+                        this.getConnectionTask().connect(this.getComPort()),
+                        this.getComPort(),
+                        this.getServiceProvider().hexService());
     }
 
     @Override

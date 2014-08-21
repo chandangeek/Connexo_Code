@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.impl.core.aspects.statistics;
+package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -16,6 +16,7 @@ import com.energyict.mdc.engine.impl.core.ScheduledComTaskExecutionJob;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -48,13 +49,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link InboundCommunicationStatisticsMonitor} aspects.
+ * Tests the statistical monitoring aspects of the {@link InboundCommunicationHandler} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-19 (09:42)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class InboundCommunicationStatisticsMonitorTest {
+public class InboundCommunicationHandlerStatisticsTest {
 
     private static final long COM_PORT_POOL_ID = 1;
 

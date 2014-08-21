@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
+
 /**
  * Acts as a place holder for a {@link ComPortRelatedComChannel} that
  * does not actually exists yet. As such a ComChannelPlaceHolder

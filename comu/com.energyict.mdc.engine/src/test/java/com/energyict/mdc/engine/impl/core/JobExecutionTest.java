@@ -446,6 +446,7 @@ public class JobExecutionTest {
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getCommunicationConfiguration()).thenReturn(deviceCommunicationConfiguration);
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
+        when(outboundComPort.getComServer()).thenReturn(this.comServer);
         return new ScheduledComTaskExecutionGroup(outboundComPort, this.comServerDAO, this.deviceCommandExecutor, connectionTask, this.serviceProvider);
     }
 

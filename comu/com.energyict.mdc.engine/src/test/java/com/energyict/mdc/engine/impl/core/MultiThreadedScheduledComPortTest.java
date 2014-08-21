@@ -29,8 +29,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifierFactory;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
@@ -52,6 +50,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -205,6 +204,8 @@ public class MultiThreadedScheduledComPortTest {
     @Mock
     private EngineService engineService;
     @Mock
+    private HexService hexService;
+    @Mock
     private EventPublisherImpl eventPublisher;
     @Mock
     private ComSessionBuilder comSessionBuilder;
@@ -218,7 +219,7 @@ public class MultiThreadedScheduledComPortTest {
     private ScheduledComPortOperationalStatistics operationalStatistics;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
-    private ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class));
+    private ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), this.hexService);
     private CounterVerifierFactory counterVerifierFactory;
 
     @BeforeClass
@@ -613,7 +614,7 @@ public class MultiThreadedScheduledComPortTest {
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
             comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort);
-            verify(this.deviceCommandExecutor, times(1)).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
+            verify(this.deviceCommandExecutor).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {
             this.shutdown(scheduledComPort);
         }

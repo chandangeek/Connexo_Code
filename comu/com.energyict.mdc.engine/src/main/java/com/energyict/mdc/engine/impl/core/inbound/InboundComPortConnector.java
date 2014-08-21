@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
+
 /**
  * Provides functionality to allow {@link com.energyict.mdc.engine.model.InboundComPort}s
  * to accept incoming <i>calls</i>.

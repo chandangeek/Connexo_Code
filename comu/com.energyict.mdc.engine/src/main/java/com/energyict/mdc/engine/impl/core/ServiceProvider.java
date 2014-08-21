@@ -19,6 +19,4 @@ public interface ServiceProvider
 
     public final AtomicReference<ServiceProvider> instance = new AtomicReference<>();
 
-    public HexService hexService();
-
 }

@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
+
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;

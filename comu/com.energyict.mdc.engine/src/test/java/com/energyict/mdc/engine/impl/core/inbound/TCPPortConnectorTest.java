@@ -1,10 +1,11 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.InboundCommunicationException;
+import com.energyict.mdc.protocol.api.services.HexService;
 
-import com.energyict.protocols.mdc.channels.ip.socket.SocketComChannel;
 import com.energyict.protocols.mdc.services.SocketService;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doThrow;
@@ -39,6 +40,8 @@ public class TCPPortConnectorTest {
 
     @Mock
     private ComChannel comChannel;
+    @Mock
+    private HexService hexService;
     @Mock
     private SocketService socketService;
     @Mock
@@ -65,7 +68,7 @@ public class TCPPortConnectorTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = createTCPBasedInboundComPort();
 
         // creating a Connector with a ServerSocket with a backLog of 2 sessions
-        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService);
+        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService);
 
         // business method
         ComChannel accept = connector.accept();
@@ -85,7 +88,7 @@ public class TCPPortConnectorTest {
 
         try {
             // Business method
-            new TCPPortConnector(tcpBasedInboundComPort, socketService);
+            new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService);
         }
         catch (InboundCommunicationException e) {
             if (!e.getMessageId().equalsIgnoreCase("CSC-COM-403")) {
@@ -104,7 +107,7 @@ public class TCPPortConnectorTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = createTCPBasedInboundComPort();
 
         // creating a Connector with a ServerSocket with a backLog of 2 sessions
-        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService);
+        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService);
 
         try {
             // Business method

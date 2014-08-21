@@ -22,7 +22,6 @@ public aspect ComCommandJournaling {
 
     declare precedence:
             com.energyict.mdc.engine.impl.core.aspects.performance.ComCommandPerformance ,
-            com.energyict.mdc.engine.impl.core.aspects.statistics.OutboundCommunicationStatisticsMonitor,
             ComCommandJournaling,
             com.energyict.mdc.engine.impl.core.aspects.logging.ComCommandLogging,
             com.energyict.mdc.engine.impl.core.aspects.events.ComCommandLogEventPublisher;

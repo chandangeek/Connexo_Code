@@ -28,7 +28,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
-import com.energyict.mdc.engine.impl.core.inbound.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -42,6 +41,7 @@ import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -81,6 +81,8 @@ public abstract class JobExecution implements ScheduledJob {
         public EngineService engineService();
 
         public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+
+        public HexService hexService();
 
         public TransactionService transactionService();
 
@@ -282,7 +284,7 @@ public abstract class JobExecution implements ScheduledJob {
         }
     }
 
-    final ComServerDAO getComServerDAO() {
+    ComServerDAO getComServerDAO() {
         return comServerDAO;
     }
 
@@ -311,10 +313,10 @@ public abstract class JobExecution implements ScheduledJob {
      * <i>Need to keep the comTaskExecution to properly AOP the statistics</i>
      *
      * @param comTaskExecution The ComTaskExecution
-     * @param successIndicator
+     * @param successIndicator The SuccessIndicator
      */
     private void completeExecutedComTask(ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator) {
-        this.getExecutionContext().comTaskExecutionCompleted(successIndicator);
+        this.getExecutionContext().comTaskExecutionCompleted(comTaskExecution, successIndicator);
     }
 
     void connected(ComPortRelatedComChannel comChannel) {
@@ -329,7 +331,7 @@ public abstract class JobExecution implements ScheduledJob {
      * @param t                The failure
      */
     private void failure(ComTaskExecution comTaskExecution, Throwable t) {
-        this.getExecutionContext().fail(comTaskExecution, t);
+        this.getExecutionContext().comTaskExecutionFailure(comTaskExecution, t);
     }
 
     private CommandRoot.ServiceProvider getComCommandServiceProvider() {
@@ -454,8 +456,9 @@ public abstract class JobExecution implements ScheduledJob {
      * @param comTaskExecution The ComTaskExecution
      */
     private void start(ComTaskExecution comTaskExecution) {
+        this.getExecutionContext().prepareStart(comTaskExecution);
         this.getComServerDAO().executionStarted(comTaskExecution, this.getComPort());
-        getExecutionContext().start(comTaskExecution);
+        this.getExecutionContext().start(comTaskExecution);
     }
 
     enum BasicCheckTasks implements Comparator<ProtocolTask> {
