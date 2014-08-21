@@ -11366,6 +11366,11 @@ div.x-form-spinner-down {
   padding: 10px 0px 10px 0px;
 }
 
+/* line 19, ../../sass/src/form/field/Base.scss */
+.x-form-invalid-field {
+  border-color: #eb5642;
+}
+
 /* line 4, ../../sass/src/window/MessageBox.scss */
 .x-message-box .x-window-body .x-header .x-header-text {
   font-weight: bold;
@@ -17251,9 +17256,4 @@ div.x-form-spinner-down {
 .x-window-message-error-bl,
 .x-window-message-error-ml {
   padding-left: 10px;
-}
-
-/* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-message-error-tc {
-  height: 10px;
 }

@@ -16,3 +16,6 @@
     padding: $form-error-msg-padding;
 }
 
+.#{$prefix}form-invalid-field {
+	border-color: #eb5642;
+}
