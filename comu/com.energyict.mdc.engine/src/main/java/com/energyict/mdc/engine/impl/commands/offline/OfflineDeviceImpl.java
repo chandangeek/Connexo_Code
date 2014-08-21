@@ -8,7 +8,6 @@ import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -27,9 +26,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-
 import com.google.common.base.Optional;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -154,7 +151,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setAllLoadProfiles(convertToOfflineLoadProfiles((List)getAllLoadProfilesIncludingDownStreams(this.device)));
         }
         if (context.needsLogBooks()) {
-            setAllLogBooks(convertToOfflineLogBooks((List)this.device.getLogBooks()));
+            setAllLogBooks(convertToOfflineLogBooks(this.device.getLogBooks()));
         }
         if (context.needsRegisters()) {
             setAllRegisters(convertToOfflineRegister((List)createCompleteRegisterList()));
