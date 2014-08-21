@@ -28,11 +28,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
         ];
         Ext.Array.each(me.channels, function (channel) {
             me.columns.push({
-                header: channel.name + ' ' + channel.unitOfMeasure.localizedValue,
+                header: channel.name,
                 dataIndex: 'channelData',
                 flex: 1,
+                minWidth: 100,
                 renderer: function (data) {
-                    return data[channel.id];
+                    return data[channel.id] + ' ' + channel.unitOfMeasure.localizedValue;
                 }
             });
         });
