@@ -363,9 +363,8 @@ Ext.define('Uni.view.grid.BulkSelection', {
             gridHeight = me.gridHeight,
             gridHeaderHeight = me.gridHeaderHeight,
             currentGridHeight,
-            currentGridHeaderHeight;
-
-        // TODO Add CSS to hide the border of the grid.
+            currentGridHeaderHeight,
+            noBorderCls = 'force-no-border';
 
         if (me.rendered) {
             currentGridHeight = me.getView().height;
@@ -374,6 +373,10 @@ Ext.define('Uni.view.grid.BulkSelection', {
             if (!visible) {
                 gridHeight = 0;
                 gridHeaderHeight = 0;
+
+                me.addCls(noBorderCls);
+            } else {
+                me.removeCls(noBorderCls);
             }
 
             if (currentGridHeight !== 0 && currentGridHeaderHeight !== 0) {
