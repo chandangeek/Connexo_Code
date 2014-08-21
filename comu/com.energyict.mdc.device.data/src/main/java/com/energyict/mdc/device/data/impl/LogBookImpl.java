@@ -1,16 +1,20 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.masterdata.LogBookType;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import javax.inject.Inject;
 
 /**
@@ -75,6 +79,11 @@ public class LogBookImpl implements LogBook {
     @Override
     public LogBookType getLogBookType() {
         return getLogBookSpec().getLogBookType();
+    }
+
+    @Override
+    public List<EndDeviceEvent> getEndDeviceEvents(Interval interval) {
+        return Collections.emptyList();
     }
 
     abstract static class LogBookUpdater implements LogBook.LogBookUpdater {
