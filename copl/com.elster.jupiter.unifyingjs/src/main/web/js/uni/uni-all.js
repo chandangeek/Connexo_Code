@@ -8,6 +8,7 @@
         disableCaching: false,
         paths: {
             'Ext.ux.window': '../uni/packages/Ext.ux.window.Notification',
+            'Ext.ux': '../uni/packages/ux',
             'Uni': '../uni/src',
             'Uni.property': '../uni/packages/property/src'
         }

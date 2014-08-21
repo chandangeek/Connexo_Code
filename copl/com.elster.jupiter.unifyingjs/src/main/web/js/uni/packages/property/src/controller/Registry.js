@@ -43,7 +43,8 @@ Ext.define('Uni.property.controller.Registry', {
         EAN13: 'Uni.property.view.property.Text',
         EAN18: 'Uni.property.view.property.Text',
         ENCRYPTED_STRING: 'Uni.property.view.property.Text',
-        UNKNOWN: 'Uni.property.view.property.Text'
+        UNKNOWN: 'Uni.property.view.property.Text',
+        LISTVALUE: 'Uni.property.view.property.Multiselect'
     },
 
     // store must be registered on some ctrl (not in the responsibility of this class: move later?)
