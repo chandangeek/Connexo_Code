@@ -903,7 +903,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     route: '{channelId}',
                                                     redirect: 'devices/device/loadprofiles/loadprofile/channels/channel/overview',
                                                     callback: function (route) {
-                                                        this.getApplication().on('channelOfLoadProfilesOfDeviceLoad', function (record) {
+                                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
                                                             route.setTitle(record.get('name'));
                                                             return true;
                                                         }, {single: true});
@@ -919,7 +919,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                                         },
                                                         data: {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                                            route: 'data'
+                                                            route: 'data',
+                                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
+                                                            action: 'showOverview'
                                                         },
                                                         validation: {
                                                             title: Uni.I18n.translate('routing.channelValidation', 'MDC', 'Channel validation'),

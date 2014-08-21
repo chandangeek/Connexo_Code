@@ -11,13 +11,22 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     ],
 
     stores: [
-        'Mdc.store.LoadProfilesOfDeviceData'
+        'Mdc.store.LoadProfilesOfDeviceData',
+        'DataIntervalAndZoomLevels'
     ],
 
     refs: [
         {
             ref: 'page',
             selector: 'deviceLoadProfilesData'
+        },
+        {
+            ref: 'deviceLoadProfilesGraphView',
+            selector: '#deviceLoadProfilesGraphView'
+        },
+        {
+            ref: 'readingsCountOnLoadProfile',
+            selector: '#readingsCountOnLoadProfile'
         }
     ],
 
@@ -40,7 +49,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             loadProfilesOfDeviceDataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
             loadProfilesOfDeviceDataStoreProxy = loadProfilesOfDeviceDataStore.getProxy(),
-            checkBoxesContainer,
             widget,
             graphView;
 
@@ -62,14 +70,17 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 graphView = widget.down('#deviceLoadProfilesGraphView');
-                checkBoxesContainer = widget.down('#channelsCheckBoxesContainer');
                 graphView.setLoading(true);
                 loadProfilesOfDeviceDataStoreProxy.setUrl({
                     mRID: mRID,
                     loadProfileId: loadProfileId
                 });
-                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalStart', 1407096000000);
-                loadProfilesOfDeviceDataStoreProxy.setExtraParam('intervalEnd', 1407182400000);
+
+                //TODO remove hardcoded value
+                record.set('lastReading', 1407096000000 + 86400000);
+
+                record.get('lastReading') && me.setDefaults(record, loadProfilesOfDeviceDataStoreProxy);
+
                 loadProfilesOfDeviceDataStore.on('load', function () {
                     me.showGraphView(record);
                     graphView.setLoading(false);
@@ -81,7 +92,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     },
 
     showReadingsCount: function (store) {
-        var container = Ext.ComponentQuery.query('#readingsCountOnLoadProfile')[0],
+        var container = this.getReadingsCountOnLoadProfile(),
             readingsCount = store.getCount();
 
         if (readingsCount > 0) {
@@ -96,9 +107,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
     showGraphView: function (loadProfileRecord) {
         var me = this,
-            container = Ext.ComponentQuery.query('#deviceLoadProfilesGraphView')[0],
+            container = this.getDeviceLoadProfilesGraphView(),
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
+            zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
             title = loadProfileRecord.get('name'),
+            interval = loadProfileRecord.get('interval').count + loadProfileRecord.get('interval').timeUnit,
             currentAxisTopValue = 1,
             currentLine = 0,
             series = [],
@@ -108,10 +121,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             channelDataArrays = {},
             flowMeasuresNumbers = {},
             seriesToYAxisMap = {},
-            intervalLength,
+            intervalLengthInMs,
             lineCount,
+            intervalRecord,
+            zoomLevels,
             step;
 
+        intervalRecord = zoomLevelsStore.findRecord('interval', interval);
+        intervalLengthInMs = intervalRecord.get('intervalInMs');
+        zoomLevels = intervalRecord.get('zoomLevels');
 
         Ext.Array.each(loadProfileRecord.get('channels'), function (channel, index) {
             var seriesObject = {marker: {
@@ -179,16 +197,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
         if (dataStore.getTotalCount() > 1) {
             dataStore.each(function (record) {
-                if (!intervalLength) {
-                    intervalLength = record.get('interval').end - record.get('interval').start;
-                }
                 Ext.iterate(record.get('channelData'), function (key, value) {
                     if (channelDataArrays[key]) {
                         channelDataArrays[key].push([record.get('interval').end, value])
                     }
                 });
             });
-            container.drawGraph(title, yAxis, series, channels, seriesToYAxisMap, intervalLength);
+            container.drawGraph(title, yAxis, series, channels, seriesToYAxisMap, intervalLengthInMs, zoomLevels);
         } else {
             container.drawEmptyList();
         }
@@ -219,5 +234,18 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         preview.down('#deviceLoadProfilesDataPreviewForm').loadRecord(record);
 
         preview.rendered && Ext.resumeLayouts(true);
+    },
+
+    setDefaults: function (record, proxy) {
+        var me = this,
+            interval = record.get('interval'),
+            lastReading = record.get('lastReading'),
+            zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+            all = zoomLevelsStore.getById(interval.count + interval.timeUnit).get('all'),
+            intervalStart = zoomLevelsStore.getIntervalStart(all.count, all.timeUnit, lastReading),
+            intervalEnd = lastReading.getTime();
+
+        proxy.setExtraParam('intervalStart', intervalStart);
+        proxy.setExtraParam('intervalEnd', intervalEnd);
     }
 });

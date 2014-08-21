@@ -13,7 +13,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         {name: 'multiplier', type: 'int'},
         {name: 'overflowValue', type: 'int'},
         {name: 'flowUnit', type: 'string'},
-        {name: 'lastReading', dateFormat: 'timestamp', type: 'date'},
+        {name: 'lastReading', dateFormat: 'time', type: 'date'},
         {
             name: 'interval_formatted',
             persist: false,

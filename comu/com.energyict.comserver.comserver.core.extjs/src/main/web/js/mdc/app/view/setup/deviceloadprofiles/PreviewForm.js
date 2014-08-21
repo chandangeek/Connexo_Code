@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                     if (value) {
                         id = form.getRecord().getId();
                         Ext.isArray(value) && Ext.Array.each(value, function (channel) {
-                            url =  me.router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel').buildUrl({mRID: me.mRID, loadProfileId: id, channelId: channel.id});
+                            url =  me.router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data').buildUrl({mRID: me.mRID, loadProfileId: id, channelId: channel.id});
                             result += '<a href="' + url + '"> ' + channel.name + '</a><br>';
                         });
                     }

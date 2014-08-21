@@ -4,8 +4,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
     itemId: 'deviceLoadProfilesGraphView',
 
 
-    drawGraph: function (title, yAxis, series, channels, seriesToYAxisMap, intervalLength) {
+    drawGraph: function (title, yAxis, series, channels, seriesToYAxisMap, intervalLength, zoomLevels) {
         var me = this;
+
         Highcharts.setOptions({
             global: {
                 useUTC: false
@@ -69,36 +70,19 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
             rangeSelector: {
                 selected: 0,
                 inputEnabled: true,
-                buttons: [
-                    {
-                        type: 'hour',
-                        count: 4,
-                        text: '4h'
-                    },
-                    {
-                        type: 'day',
-                        count: 1,
-                        text: '1d'
-                    },
-                    {
-                        type: 'day',
-                        count: 2,
-                        text: '2d'
-                    },
-                    {
-                        type: 'week',
-                        count: 1,
-                        text: '1w'
-                    }
-                ]
+                buttons: zoomLevels
             },
 
             tooltip: {
                 useHTML: true,
                 formatter: function () {
                     var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</b>';
-                    s += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', this.x);
-                    s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength) + '<br>';
+                    if (intervalLength < 86400000) {
+                        s += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', this.x);
+                        s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength) + '<br>';
+                    } else {
+                        s += '<b>' + ' - ' + Highcharts.dateFormat('%A, %e %B %Y', this.x + intervalLength) + '</b>' + '<br>';
+                    }
                     s += '<table style="margin-top: 10px"><tbody>';
                     $.each(this.points, function (i, points) {
                         var series = points.point.series;
