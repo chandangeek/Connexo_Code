@@ -96,7 +96,6 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -790,8 +789,8 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public List<BaseLogBook> getLogBooks() {
-        return Collections.<BaseLogBook>unmodifiableList(this.logBooks);
+    public List<LogBook> getLogBooks() {
+        return Collections.unmodifiableList(this.logBooks);
     }
 
     @Override
