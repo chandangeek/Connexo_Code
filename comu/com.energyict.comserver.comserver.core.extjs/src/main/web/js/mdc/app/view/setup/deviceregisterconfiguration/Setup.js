@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationSetup', {
+Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceRegisterConfigurationSetup',
     itemId: 'deviceRegisterConfigurationSetup',
@@ -6,10 +6,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
     mRID: null,
 
     requires: [
-        'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationGrid',
-        'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationPreview',
-        'Uni.view.container.PreviewContainer',
         'Mdc.view.setup.device.DeviceMenu',
+        'Mdc.view.setup.deviceregisterconfiguration.Grid',
+        'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
@@ -52,7 +51,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                             ]
                         },
                         previewComponent: {
-                            xtype: 'deviceRegisterConfigurationPreview'
+                            xtype: 'container',
+                            itemId: 'previewComponentContainer'
                         }
                     }
                 ]

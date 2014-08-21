@@ -2,10 +2,16 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'setup.deviceregisterconfiguration.DeviceRegisterConfigurationSetup',
-        'setup.deviceregisterconfiguration.DeviceRegisterConfigurationGrid',
-        'setup.deviceregisterconfiguration.DeviceRegisterConfigurationPreview',
-        'setup.deviceregisterconfiguration.DeviceRegisterConfigurationDetail'
+        'setup.deviceregisterconfiguration.numerical.Preview',
+        'setup.deviceregisterconfiguration.numerical.Detail',
+        'setup.deviceregisterconfiguration.text.Preview',
+        'setup.deviceregisterconfiguration.text.Detail',
+        'setup.deviceregisterconfiguration.flags.Preview',
+        'setup.deviceregisterconfiguration.flags.Detail',
+        'setup.deviceregisterconfiguration.billing.Preview',
+        'setup.deviceregisterconfiguration.billing.Detail',
+        'setup.deviceregisterconfiguration.Setup',
+        'setup.deviceregisterconfiguration.Grid'
     ],
 
     stores: [
@@ -14,10 +20,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     refs: [
         {ref: 'deviceRegisterConfigurationGrid', selector: '#deviceRegisterConfigurationGrid'},
-        {ref: 'deviceRegisterConfigurationPreviewForm', selector: '#deviceRegisterConfigurationPreviewForm'},
-        {ref: 'deviceRegisterConfigurationDetailForm', selector: '#deviceRegisterConfigurationDetailForm'},
-        {ref: 'deviceRegisterConfigurationPreview', selector: '#deviceRegisterConfigurationPreview'},
-        {ref: 'deviceRegisterConfigurationMenu', selector: '#deviceRegisterConfigurationMenu'}
+        {ref: 'deviceRegisterConfigurationSetup', selector: '#deviceRegisterConfigurationSetup'}
     ],
 
     init: function () {
@@ -50,18 +53,23 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     previewRegisterConfiguration: function (record) {
         var me = this,
-            form = me.getDeviceRegisterConfigurationPreviewForm();
+            type = record.get('type'),
+            widget = Ext.widget('deviceRegisterConfigurationPreview-' + type),
+            form = widget.down('#deviceRegisterConfigurationPreviewForm'),
+            previewContainer = me.getDeviceRegisterConfigurationSetup().down('#previewComponentContainer');
 
         form.loadRecord(record);
-        me.getDeviceRegisterConfigurationPreview().setTitle(record.get('name'));
+        widget.setTitle(record.get('name'));
+
+        previewContainer.removeAll();
+        previewContainer.add(widget);
     },
 
     showDeviceRegisterConfigurationDetailsView: function(mRID, registerId) {
         var me = this,
-            widget = Ext.widget('deviceRegisterConfigurationDetail', {mRID:mRID, registerId:registerId});
+            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
-        me.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
+        contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
@@ -69,12 +77,16 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 model.getProxy().setExtraParam('mRID', mRID);
                 model.load(registerId, {
                     success: function (register) {
+                        var type = register.get('type');
+                        var widget = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID:mRID, registerId:registerId});
+                        var form = widget.down('#deviceRegisterConfigurationDetailForm');
+                        me.getApplication().fireEvent('changecontentevent', widget);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
-                        me.getDeviceRegisterConfigurationDetailForm().loadRecord(register);
+                        form.loadRecord(register);
                         widget.down('#stepsMenu').setTitle(register.get('name'));
                     },
                     callback: function () {
-                        widget.setLoading(false);
+                        contentPanel.setLoading(false);
                     }
                 });
             }

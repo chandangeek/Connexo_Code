@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationMenu', {
+Ext.define('Mdc.view.setup.deviceregisterconfiguration.Menu', {
     extend: 'Uni.view.navigation.SubMenu',
     alias: 'widget.deviceRegisterConfigurationMenu',
     itemId: 'deviceRegisterConfigurationMenu',

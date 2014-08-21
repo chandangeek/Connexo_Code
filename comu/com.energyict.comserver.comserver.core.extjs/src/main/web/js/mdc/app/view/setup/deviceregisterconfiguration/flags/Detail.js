@@ -1,37 +1,16 @@
-Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationDetail', {
-    extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.deviceRegisterConfigurationDetail',
+Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Detail', {
+    extend: 'Mdc.view.setup.deviceregisterconfiguration.GeneralDetail',
+    alias: 'widget.deviceRegisterConfigurationDetail-flags',
     itemId: 'deviceRegisterConfigurationDetail',
 
-    mRID: null,
-    registerId: null,
-
     requires: [
-        'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationActionMenu',
-        'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationMenu',
+        'Mdc.view.setup.deviceregisterconfiguration.ActionMenu',
         'Uni.form.field.ReadingTypeDisplay',
         'Uni.form.field.ObisDisplay'
     ],
 
     initComponent: function () {
         var me = this;
-
-        me.side = [
-            {
-                xtype: 'panel',
-                title: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'deviceRegisterConfigurationMenu',
-                        itemId: 'stepsMenu',
-                        mRID: me.mRID,
-                        registerId: me.registerId,
-                        toggle: 0
-                    }
-                ]
-            }
-        ];
 
         me.content = [
             {
@@ -102,34 +81,28 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                                                 name: 'readingType'
                                             },
                                             {
+                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
+                                                name: 'lastReading',
+                                                format: 'M j, Y \\a\\t G:i',
+                                                renderer: function (value) {
+                                                    if (!Ext.isEmpty(value.reportedDateTime)) {
+                                                        return Ext.util.Format.date(new Date(value.reportedDateTime), this.format);
+                                                    }
+
+                                                    return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-')
+                                                }
+                                            },
+                                            {
+                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
+                                                name: 'value'
+                                            },
+                                            {
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfDigits', 'MDC', 'Number of digits'),
                                                 name: 'numberOfDigits'
                                             },
                                             {
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
                                                 name: 'numberOfFractionDigits'
-                                            },
-                                            {
-                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.overflow', 'MDC', 'Overflow'),
-                                                name: 'overflow',
-                                                renderer: function (value) {
-                                                    if (!Ext.isEmpty(value)) {
-                                                        return value;
-                                                    }
-
-                                                    return Uni.I18n.translate('deviceregisterconfiguration.overflow.notspecified', 'MDC', 'Not specified')
-                                                }
-                                            },
-                                            {
-                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.multiplierMode', 'MDC', 'Multiplier mode'),
-                                                name: 'multiplierMode',
-                                                renderer: function (value) {
-                                                    if (!Ext.isEmpty(value)) {
-                                                        return Uni.I18n.translate(value, 'MDC', value);
-                                                    }
-
-                                                    return Uni.I18n.translate('deviceregisterconfiguration.multiplierMode.notspecified', 'MDC', 'Not specified')
-                                                }
                                             }
                                         ]
                                     }

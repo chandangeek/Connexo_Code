@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationGrid', {
+Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceRegisterConfigurationGrid',
     itemId: 'deviceRegisterConfigurationGrid',
@@ -9,8 +9,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterConfigsOfDevice',
-        'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationActionMenu',
-        'Uni.grid.column.ReadingType'
+        'Mdc.view.setup.deviceregisterconfiguration.ActionMenu'
     ],
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' }
@@ -27,36 +26,39 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurati
                 flex: 3
             },
             {
-                xtype: 'reading-type-column',
-                dataIndex: 'readingType'
-            },
-            {
-                header: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading date'),
+                header: Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement', 'MDC', 'Latest measurement'),
                 xtype: 'datecolumn',
                 format: 'M j, Y \\a\\t G:i',
                 dataIndex: 'lastReading',
                 defaultRenderer: function(value){
-                    if(!Ext.isEmpty(value)) {
-                        return Ext.util.Format.date(value, this.format);
+                    if(!Ext.isEmpty(value.timeStamp)) {
+                        return Ext.util.Format.date(new Date(value.timeStamp), this.format);
                     }
-                    return Uni.I18n.translate('deviceregisterconfiguration.lastReading.notspecified', 'MDC', 'N/A');
+                    return Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement.notspecified', 'MDC', '-');
                 },
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.validationStatus', 'MDC', 'Validation status'),
-                dataIndex: 'validationStatus',
-                renderer: function (value, metaData, record) {
-                    if(value == true) {
-                        return 'OK';
+                header: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
+                xtype: 'datecolumn',
+                format: 'M j, Y \\a\\t G:i',
+                dataIndex: 'lastReading',
+                defaultRenderer: function(value){
+                    if(!Ext.isEmpty(value.reportedDateTime)) {
+                        return Ext.util.Format.date(new Date(value.reportedDateTime), this.format);
                     }
-                    return 'NOK';
+                    return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-');
                 },
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
+                dataIndex: 'value',
                 flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',
-                items:'Mdc.view.setup.deviceregisterconfiguration.DeviceRegisterConfigurationActionMenu'
+                items:'Mdc.view.setup.deviceregisterconfiguration.ActionMenu'
             }
         ];
 
