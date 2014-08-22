@@ -6,7 +6,7 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
-import com.energyict.mdc.dashboard.ConnectionStatusOverview;
+import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardCounters;
@@ -57,7 +57,7 @@ public class ConnectionOverviewInfo {
 
     public <H extends HasName & HasId> ConnectionOverviewInfo(
             ConnectionSummaryData connectionSummaryData,
-            ConnectionStatusOverview connectionStatusOverview,
+            TaskStatusOverview taskStatusOverview,
             ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview,
             ComPortPoolBreakdown comPortPoolBreakdown,
             ConnectionTypeBreakdown connectionTypeBreakdown,
@@ -68,7 +68,7 @@ public class ConnectionOverviewInfo {
         connectionSummary = ConnectionSummaryInfo.from(connectionSummaryData, thesaurus);
 
         overviews=new ArrayList<>(2);
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), connectionStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
+        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
         overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResult, successIndicatorAdapter)); // JP-4280
 
         breakdowns=new ArrayList<>(3);

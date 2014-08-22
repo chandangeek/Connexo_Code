@@ -12,7 +12,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
-import com.energyict.mdc.dashboard.ConnectionStatusOverview;
+import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardService;
@@ -103,8 +103,8 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
         return overview;
     }
 
-    private ConnectionStatusOverview createConnectionStatusOverview() {
-        ConnectionStatusOverview overview = mock(ConnectionStatusOverview.class);
+    private TaskStatusOverview createConnectionStatusOverview() {
+        TaskStatusOverview overview = mock(TaskStatusOverview.class);
         when(overview.getTotalCount()).thenReturn(100L);
         List<Counter<TaskStatus>> counters = new ArrayList<>();
         counters.add(createCounter(TaskStatus.Busy, 41L));
@@ -158,8 +158,8 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
 
     @Test
     public void testGetOverview() throws UnsupportedEncodingException {
-        ConnectionStatusOverview connectionStatusOverview = createConnectionStatusOverview();
-        when(dashboardService.getConnectionStatusOverview()).thenReturn(connectionStatusOverview);
+        TaskStatusOverview taskStatusOverview = createConnectionStatusOverview();
+        when(dashboardService.getConnectionTaskStatusOverview()).thenReturn(taskStatusOverview);
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
         when(dashboardService.getComSessionSuccessIndicatorOverview()).thenReturn(comSessionSuccessIndicatorOverview);
         ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();

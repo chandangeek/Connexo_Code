@@ -3,7 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
-import com.energyict.mdc.dashboard.ConnectionStatusOverview;
+import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
@@ -32,14 +32,14 @@ public class ConnectionOverviewResource {
     @Consumes("application/json")
     @Produces("application/json")
     public ConnectionOverviewInfo getConnectionOverview() throws Exception {
-        ConnectionStatusOverview connectionStatusOverview = dashboardService.getConnectionStatusOverview();
+        TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview();
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
         ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
         ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getDeviceTypeBreakdown();
-        ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(connectionStatusOverview);
+        ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(taskStatusOverview);
 
-        return new ConnectionOverviewInfo(connectionSummaryData, connectionStatusOverview, comSessionSuccessIndicatorOverview,
+        return new ConnectionOverviewInfo(connectionSummaryData, taskStatusOverview, comSessionSuccessIndicatorOverview,
                 comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown,
                 thesaurus);
     }

@@ -1,6 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.dashboard.ConnectionStatusOverview;
+import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import java.util.HashMap;
@@ -17,20 +17,20 @@ public class ConnectionSummaryData {
     private long failed;
     private long total;
 
-    public ConnectionSummaryData(ConnectionStatusOverview connectionStatusOverview) {
-        Map<TaskStatus, Long> counts = getTaskStatusCountsAsMap(connectionStatusOverview);
+    public ConnectionSummaryData(TaskStatusOverview taskStatusOverview) {
+        Map<TaskStatus, Long> counts = getTaskStatusCountsAsMap(taskStatusOverview);
 
         failed=counts.get(TaskStatus.Failed)+counts.get(TaskStatus.NeverCompleted);
         pending=counts.get(TaskStatus.Pending)+counts.get(TaskStatus.Busy)+counts.get(TaskStatus.Retrying);
     }
 
-    private Map<TaskStatus, Long> getTaskStatusCountsAsMap(ConnectionStatusOverview connectionStatusOverview) {
+    private Map<TaskStatus, Long> getTaskStatusCountsAsMap(TaskStatusOverview taskStatusOverview) {
         Map<TaskStatus, Long> counts = new HashMap<>();
         for (TaskStatus taskStatus : TaskStatus.values()) {
             counts.put(taskStatus, 0L);
         }
 
-        for (Counter<TaskStatus> taskStatusCounter : connectionStatusOverview) {
+        for (Counter<TaskStatus> taskStatusCounter : taskStatusOverview) {
             counts.put(taskStatusCounter.getCountTarget(), taskStatusCounter.getCount());
         }
         return counts;
