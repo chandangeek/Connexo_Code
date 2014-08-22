@@ -4,7 +4,6 @@ Ext.define('Cfg.controller.Validation', {
     stores: [
         'ValidationRuleSets',
         'ValidationRules',
-        'ValidationPropertySpecs',
         'Validators'
     ],
 
@@ -19,7 +18,6 @@ Ext.define('Cfg.controller.Validation', {
         'ValidationRuleSet',
         'ValidationRule',
         'ReadingType',
-        'ValidationRuleProperty',
         'Validator'
     ],
 
@@ -44,9 +42,7 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'rulesetPreviewTitle', selector: 'validation-ruleset-preview #rulesetPreviewTitle'},
         {ref: 'rulePreviewTitle', selector: 'validation-rule-preview #rulePreviewTitle'},
         {ref: 'readingTypesArea', selector: 'validation-rule-preview #readingTypesArea'},
-        {ref: 'propertiesArea', selector: 'validation-rule-preview #propertiesArea'},
         {ref: 'readingTypesOverviewArea', selector: 'ruleOverview #readingTypesArea'},
-        {ref: 'propertiesOverviewArea', selector: 'ruleOverview #propertiesArea'},
         {ref: 'rulesetOverviewTitle', selector: 'ruleSetOverview #rulesetOverviewTitle'},
         {ref: 'ruleBrowseTitle', selector: '#ruleBrowseTitle'},
         {ref: 'ruleSetDetailsLink', selector: 'validation-ruleset-preview #ruleSetDetailsLink'},
@@ -162,7 +158,7 @@ Ext.define('Cfg.controller.Validation', {
                 rule = form.down('#validatorCombo').value;
             }
 
-            record .set('implementation', rule);
+            record.set('implementation', rule);
             record.set('name', name);
             record.set('ruleSet', {
                 id: me.ruleSetId
@@ -171,7 +167,10 @@ Ext.define('Cfg.controller.Validation', {
             if (button.action === 'editRuleAction') {
                 record.readingTypes().removeAll();
             }
-            var properties = propertyForm.getRecord().properties();
+
+            if (propertyForm.getRecord()) {
+            	record.propertiesStore = propertyForm.getRecord().properties();
+            }
 
             for (var i = 0; i < readingTypes.items.length; i++) {
                 var readingTypeMRID = readingTypes.items[i].items.items[0],
@@ -183,7 +182,6 @@ Ext.define('Cfg.controller.Validation', {
             }
 
             record.readingTypes().add(arrReadingTypes);
-            record.propertiesStore = properties;
 
             me.getAddRule().setLoading('Loading...');
             record.save({
@@ -218,26 +216,16 @@ Ext.define('Cfg.controller.Validation', {
         }
     },
 
-    updateProperties: function (field, oldValue, newValue) {
-        var store = this.getValidatorsStore();
-        var found;
-        for ( i = 0; i < store.data.items.length; i++){
-            if ( store.data.items[i].data.implementation == field.value ){
-                found = store.data.items[i];
-                break;
-            }
-        }
+    updateProperties: function (field, newValue) {
+        var record = this.getValidatorsStore().getById(newValue),
+            propertyForm = this.getAddRule().down('property-form');
 
-        widget = this.getAddRule();
-
-        var propertyForm = widget.down('property-form');
-        if (found.properties().count()) {
+        if (record && record.properties() && record.properties().count()) {
+            propertyForm.loadRecord(record);
             propertyForm.show();
-            propertyForm.loadRecord(found);
         } else {
             propertyForm.hide();
         }
-        widget.setLoading(false);
     },
 
     addReadingType: function () {
@@ -818,25 +806,14 @@ Ext.define('Cfg.controller.Validation', {
         me.getApplication().fireEvent('changecontentevent', rulesContainerWidget);
         rulesContainerWidget.setLoading(true);
 
-        // TODO This is not performant whatsoever. Refactor when there is a REST call that filters on rule id.
-
-        Ext.Ajax.request({
-            url: '/api/val/validation/rules/' + ruleSetId,
-            params: {},
-            disableCaching: false,
-            method: 'GET',
-            success: function (response) {
-                var rules = Ext.JSON.decode(response.responseText).rules,
-                    itemForm = rulesContainerWidget.down('validation-rule-preview'),
-                    rule = {};
-
-                Ext.Array.each(rules, function (ruleJson) {
-                    if (parseInt(ruleId) === ruleJson.id) {
-                        rule = Ext.create('Cfg.model.ValidationRule', ruleJson);
-                        return;
-                    }
-                });
-
+        var rulesStore = me.getValidationRulesStore();
+        rulesStore.load({
+            params: {
+                id: ruleSetId
+            },
+            callback: function (records, operation, success) {
+                var rule = rulesStore.getById(parseInt(ruleId));
+                var itemForm = rulesContainerWidget.down('validation-rule-preview');
                 itemForm.updateValidationRule(rule);
                 itemForm.down('#rulePreviewActionsButton').destroy();
                 itemForm.setTitle('');
@@ -845,13 +822,7 @@ Ext.define('Cfg.controller.Validation', {
                 rulesContainerWidget.down('validation-rule-action-menu').record = rule;
                 rulesContainerWidget.down('validation-rule-action-menu').down('#view').hide();
                 rulesContainerWidget.down('#stepsRuleMenu').setTitle(rule.get('name'));
-
-                Cfg.model.ValidationRuleSet.load(ruleSetId, {
-                    success: function (ruleSet) {
-                        me.getApplication().fireEvent('loadRuleSet', ruleSet);
-                        rulesContainerWidget.setLoading(false);
-                    }
-                });
+                rulesContainerWidget.setLoading(false);
             }
         });
     }

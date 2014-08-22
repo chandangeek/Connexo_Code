@@ -58,10 +58,10 @@ Ext.define('Cfg.view.validation.RulePreview', {
             items: []
         },
         {
-            xtype: 'container',
-            margin: '5 0 0 0',
-            itemId: 'propertiesArea',
-            items: []
+            xtype: 'property-form',
+            padding: '5 10 0 10',
+            width: '100%',
+            isEdit: false
         }
     ],
 
@@ -91,26 +91,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
     },
 
     addProperties: function (selectedRule) {
-        var properties = selectedRule.data.properties;
-        this.down('#propertiesArea').removeAll();
-        for (var i = 0; i < properties.length; i++) {
-            var property = properties[i];
-            var propertyName = property.name;
-            var propertyValue = property.value;
-            var required = property.required;
-            var label = propertyName;
-            if (!required) {
-                label = label + ' (optional)';
-            }
-            this.down('#propertiesArea').add(
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: label,
-                    value: propertyValue,
-                    labelWidth: 260
-                }
-            );
-        }
+        this.down('property-form').loadRecord(selectedRule);
     },
 
     addReadingTypes: function (selectedRule) {
