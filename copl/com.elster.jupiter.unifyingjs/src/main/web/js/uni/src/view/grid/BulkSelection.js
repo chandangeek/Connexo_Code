@@ -402,6 +402,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
             me.getView().height = gridHeight;
             me.headerCt.height = gridHeaderHeight;
+            me.doLayout();
         }
     },
 
