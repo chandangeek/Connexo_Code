@@ -198,7 +198,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public LoadProfileSpec findLoadProfileSpec(int loadProfileSpecId) {
+    public LoadProfileSpec findLoadProfileSpec(long loadProfileSpecId) {
         return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("id", loadProfileSpecId).orNull();
     }
 

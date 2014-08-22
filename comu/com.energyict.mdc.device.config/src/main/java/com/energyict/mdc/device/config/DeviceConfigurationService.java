@@ -113,7 +113,7 @@ public interface DeviceConfigurationService {
      * @param loadProfileSpecId the ID of the LoadProfileSpec
      * @return the LoadProfileSpec or <code>null</code> if there is no such LoadProfileSpec
      */
-    public LoadProfileSpec findLoadProfileSpec(int loadProfileSpecId);
+    public LoadProfileSpec findLoadProfileSpec(long loadProfileSpecId);
 
     /**
      * Find a {@link LoadProfileSpec} which is modeled by the given {@link LoadProfileType} for the given
