@@ -99,7 +99,7 @@ public class DeviceCommunicationProtocolsResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteDeviceCommunicationProtocol(@PathParam("id") int id) {
+    public Response deleteDeviceCommunicationProtocol(@PathParam("id") long id) {
         try {
             this.protocolPluggableService.deleteDeviceProtocolPluggableClass(id);
         }
