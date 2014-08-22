@@ -45,7 +45,7 @@ public interface ValidationService {
 
     Validator getValidator(String implementation);
 
-    List<ValidationRuleSetResolver> getValidationRuleSetResolvers();
+    boolean isValidationRuleSetInUse(ValidationRuleSet validationRuleSet);
 
     List<List<ReadingQuality>> getValidationStatus(Channel channel, List<? extends BaseReading> readings);
 

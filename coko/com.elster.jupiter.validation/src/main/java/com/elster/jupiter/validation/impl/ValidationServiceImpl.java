@@ -456,8 +456,13 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public List<ValidationRuleSetResolver> getValidationRuleSetResolvers() {
-        return ImmutableList.copyOf(ruleSetResolvers);
+    public boolean isValidationRuleSetInUse(ValidationRuleSet validationRuleSet) {
+        for(ValidationRuleSetResolver resolver : ruleSetResolvers) {
+            if(resolver.isValidationRuleSetInUse(validationRuleSet)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void removeValidationRuleSetResolver(ValidationRuleSetResolver resolver) {
