@@ -32,13 +32,24 @@ public class StandardParametersBean {
         List<String> values = get(key);
         if (values != null && values.size() > 0) {
             String value = values.get(0);
-            if (value.contains("*")) {
-                value = value.replaceAll("\\*","%");
-                isRegExp = true;
-            }
-            return value;
+            return processedValue(value);
         }
         return null;
+    }
+
+    private String processedValue(String value) {
+        if (value.contains("*")) {
+            value = value.replaceAll("\\*","%");
+            isRegExp = true;
+        }
+        if (value.contains("?")) {
+            value = value.replaceAll("\\?","_");
+            isRegExp = true;
+        }
+        if (value.contains("%")) {
+            isRegExp = true;
+        }
+        return value;
     }
 
     public List<Long> getLong(Object key) {
