@@ -730,15 +730,28 @@ Ext.define('Cfg.controller.Validation', {
                 location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/edit';
                 break;
             case 'deleteRuleSet':
-                me.showDeleteRuleSetConfirmation(record);
+                me.checkIfRuleSetIsInUse(record);
                 break;
         }
     },
 
-    showDeleteRuleSetConfirmation: function (ruleSet) {
+    checkIfRuleSetIsInUse: function(ruleSet) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '/api/val/validation/' + me.ruleSetId + '/usage',
+            method: 'GET',
+            success: function (operation) {
+                var jsonIsInUse = operation.responseText;
+                me.showDeleteRuleSetConfirmation(ruleSet, jsonIsInUse);
+            }
+        })
+    },
+
+    showDeleteRuleSetConfirmation: function (ruleSet, jsonIsInUse) {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('validation.removeRuleSet.msg', 'CFG', 'This validation rule set will no longer be available.'),
+            msg: me.getDeleteRuleSetConfirmationMsg(jsonIsInUse),
             title: Ext.String.format(Uni.I18n.translate('validation.removeRule.title', 'CFG', "Remove '{0}'?"), ruleSet.get('name')),
             config: {
                 rule: ruleSet
@@ -754,7 +767,16 @@ Ext.define('Cfg.controller.Validation', {
                         break;
                 }
             }
+
         });
+    },
+
+    getDeleteRuleSetConfirmationMsg: function(jsonIsInUse) {
+        if(jsonIsInUse === "true") {
+            return Uni.I18n.translate('validation.removeRuleSet.msgInUse', 'CFG', 'This validation rule set is in use. The validation rule set will no longer be available.')
+        } else {
+            return Uni.I18n.translate('validation.removeRuleSet.msg', 'CFG', 'This validation rule set will no longer be available.')
+        }
     },
 
     deleteRuleSet: function (ruleSet) {
