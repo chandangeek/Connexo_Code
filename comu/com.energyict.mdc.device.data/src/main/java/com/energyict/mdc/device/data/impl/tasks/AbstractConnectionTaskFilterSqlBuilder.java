@@ -66,16 +66,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     }
 
     private void appendDeviceTypeSql() {
-        if (!this.deviceTypes.isEmpty()) {
-            this.appendWhereOrAnd();
-            this.append(" (");
-            this.append(this.connectionTaskTableName());
-            this.append(".device in (select id from ");
-            this.append(TableSpecs.DDC_DEVICE.name());
-            this.append(" where ");
-            this.appendInClause("devicetype", this.deviceTypes);
-            this.append("))");
-        }
+        this.appendDeviceTypeSql(this.connectionTaskTableName(), this.deviceTypes);
     }
 
     private boolean requiresLastComSessionClause() {

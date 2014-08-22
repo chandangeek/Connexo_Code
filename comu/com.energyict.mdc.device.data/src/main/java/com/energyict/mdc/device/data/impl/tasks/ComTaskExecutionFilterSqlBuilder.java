@@ -31,7 +31,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     private Set<DeviceType> deviceTypes;
 
     public ComTaskExecutionFilterSqlBuilder(ComTaskExecutionFilterSpecification filterSpecification, Clock clock) {
-        super(clock);
+        super(clock, filterSpecification);
         this.completionCodes = EnumSet.noneOf(CompletionCode.class);
         this.completionCodes.addAll(filterSpecification.latestResults);
         this.comSchedules = new HashSet<>(filterSpecification.comSchedules);
@@ -84,7 +84,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     private void appendComTaskClause () {
         if (this.requiresComTaskClause()) {
             this.appendWhereOrAnd();
-            this.appendInSql("comtask", this.comTasks);
+            this.appendInClause("comtask", this.comTasks);
         }
     }
 

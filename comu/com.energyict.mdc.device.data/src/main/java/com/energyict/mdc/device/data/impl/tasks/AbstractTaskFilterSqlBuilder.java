@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 
@@ -70,6 +71,10 @@ public abstract class AbstractTaskFilterSqlBuilder {
         return TableSpecs.DDC_CONNECTIONTASK.name();
     }
 
+    protected String comTaskExecutionTableName() {
+        return TableSpecs.DDC_COMTASKEXEC.name();
+    }
+
     protected void appendInClause(String columnName, Set<? extends HasId> idBusinessObjects) {
         if (idBusinessObjects.size() == 1) {
             this.append(columnName);
@@ -106,13 +111,6 @@ public abstract class AbstractTaskFilterSqlBuilder {
         this.append(" in (");
     }
 
-    protected void appendInSql(String columName, Collection<? extends HasId> idBusinessObjects) {
-        this.append(columName);
-        this.append(" in (");
-        this.appendIds(idBusinessObjects);
-        this.append(")");
-    }
-
     protected void appendIds(Collection<? extends HasId> idBusinessObjects) {
         Iterator<? extends HasId> iterator = idBusinessObjects.iterator();
         while (iterator.hasNext()) {
@@ -121,6 +119,19 @@ public abstract class AbstractTaskFilterSqlBuilder {
             if (iterator.hasNext()) {
                 this.append(", ");
             }
+        }
+    }
+
+    protected void appendDeviceTypeSql(String targetTableName, Set<DeviceType> deviceTypes) {
+        if (!deviceTypes.isEmpty()) {
+            this.appendWhereOrAnd();
+            this.append(" (");
+            this.append(targetTableName);
+            this.append(".device in (select id from ");
+            this.append(TableSpecs.DDC_DEVICE.name());
+            this.append(" where ");
+            this.appendInClause("devicetype", deviceTypes);
+            this.append("))");
         }
     }
 

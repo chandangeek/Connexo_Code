@@ -1,12 +1,17 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import com.elster.jupiter.util.time.Clock;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Builds the SQL query thats counts {@link ConnectionTask}s
@@ -19,8 +24,8 @@ public class ComTaskExecutionFilterMatchCounterSqlBuilder extends AbstractComTas
 
     private ServerComTaskStatus taskStatus;
 
-    public ComTaskExecutionFilterMatchCounterSqlBuilder(ServerComTaskStatus taskStatus, Clock clock) {
-        super(clock);
+    public ComTaskExecutionFilterMatchCounterSqlBuilder(ServerComTaskStatus taskStatus, ComTaskExecutionFilterSpecification filter,  Clock clock) {
+        super(clock, filter);
         this.taskStatus = taskStatus;
     }
 

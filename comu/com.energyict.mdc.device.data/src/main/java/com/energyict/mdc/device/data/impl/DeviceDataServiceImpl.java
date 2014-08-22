@@ -404,7 +404,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     public void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ComTaskExecutionFilterSpecification filter, ServerComTaskStatus taskStatus) {
-        ComTaskExecutionFilterMatchCounterSqlBuilder countingFilter = new ComTaskExecutionFilterMatchCounterSqlBuilder(taskStatus, this.clock);
+        ComTaskExecutionFilterMatchCounterSqlBuilder countingFilter = new ComTaskExecutionFilterMatchCounterSqlBuilder(taskStatus, filter, this.clock);
         countingFilter.appendTo(sqlBuilder);
     }
 
