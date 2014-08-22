@@ -1,7 +1,5 @@
 package com.energyict.messaging.confluence.messagesync;
 
-import com.energyict.cim.EndDeviceEventType;
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.messaging.confluence.messagesync.client.ConfluenceSoapService;
 import com.energyict.messaging.confluence.messagesync.client.RemoteException;
 
@@ -26,18 +24,13 @@ public class SyncCimCodesAllProtocols {
         String token = loginToConfluence(getConfluenceSoapService());
 
 
-        int eisCode = 1;
-        EndDeviceEventType endDeviceEventType = EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(eisCode);
-        String cimCode = endDeviceEventType.toString();
-
-
         Iterator<Object> it = properties.keySet().iterator();
         while (it.hasNext()) {
             String javaClassName = (String) it.next();
             try{
-                SyncMessagesForProtocol.syncMessagesForProtocol(javaClassName, token);
+                SyncCimCodeForProtocol.syncCimCodeForProtocol(javaClassName, token);
             }catch (IOException | ClassNotFoundException e) {
-                logger.warning("Failed to sync messages for protocol " + javaClassName + ": " + e.getMessage());
+                logger.warning("Failed to fill in CIM-codes " + javaClassName + ": " + e.getMessage());
             }
         }
     }

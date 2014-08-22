@@ -1,18 +1,10 @@
 package com.energyict.messaging.confluence.messagesync;
 
 import com.energyict.messaging.confluence.messagesync.client.*;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.w3c.dom.Document;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -50,12 +42,17 @@ public class SyncPageForProtocol {
         String protocolDescription = getDescriptionGenerator().getProtocolDescription(javaClassName);
         RemotePage protocolPage = soapService.getPage(token, "PRTCL", protocolDescription);
 
-        logger.info("Checking contents of page '" + protocolDescription + "', looking for obsolete whitspace");
+        logger.info("Checking contents of page '" + protocolDescription + "', looking for obsolete whitespace");
 
         String currentPageContent = protocolPage.getContent();
         currentPageContent = currentPageContent.replace("\n", "");
         currentPageContent = currentPageContent.replace("\r", "");
         currentPageContent = currentPageContent.replace("\t", "");
+        //Needed to "clean" pages made with old template which had some HTML-errors
+//        currentPageContent = currentPageContent.replace("<th><p><strong>","<th>");
+//        currentPageContent = currentPageContent.replace("</strong></p></th>","</th>");
+//        currentPageContent = currentPageContent.replace("<p align=\"left\"><strong>","");
+//        currentPageContent = currentPageContent.replaceAll("<th><p>A</p></th><th><p>B</p></th><th><p>C</p></th><th><p>D</p></th><th><p>E</p></th><th><p>F</p></th><th><p>.*?</p></th>", "<th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>Manufacturer Description &ndash; (Optional: Code)</th>");
 
         Matcher matcher = pattern.matcher(currentPageContent);
         if (matcher.find()) {
@@ -64,9 +61,9 @@ public class SyncPageForProtocol {
             protocolPage.setContent(result);
             soapService.storePage(token, protocolPage);
             logger.info("Successfully updated the page '" + protocolDescription + "'");
-        }
-        else
+        }  else {
             logger.info("No match for page ' " + protocolDescription + "'");
+        }
     }
 
     private static String loginToConfluence(ConfluenceSoapService soapService) throws java.rmi.RemoteException {
