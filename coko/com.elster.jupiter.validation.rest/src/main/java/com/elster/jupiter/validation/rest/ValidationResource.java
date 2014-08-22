@@ -135,17 +135,7 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getValidationRuleSetUsage(@PathParam("id") final long id, @Context final SecurityContext securityContext) {
         ValidationRuleSet validationRuleSet = fetchValidationRuleSet(id, securityContext);
-        return Response.status(Response.Status.OK).entity(isValidationRuleSetInUse(validationRuleSet)).build();
-    }
-
-    private boolean isValidationRuleSetInUse(ValidationRuleSet validationRuleSet) {
-        List<ValidationRuleSetResolver> resolvers = Bus.getValidationService().getValidationRuleSetResolvers();
-        for(ValidationRuleSetResolver resolver : resolvers) {
-            if(resolver.isValidationRuleSetInUse(validationRuleSet)) {
-                return true;
-            }
-        }
-        return false;
+        return Response.status(Response.Status.OK).entity(Bus.getValidationService().isValidationRuleSetInUse(validationRuleSet)).build();
     }
 
     @DELETE
