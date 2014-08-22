@@ -1,0 +1,57 @@
+{
+    "count": 1,
+    "communicationsTasks": [
+        {
+            "name": "Comm task",
+            "device": {
+                "id": "1234-5678-9012",
+                "name": "some device"
+            },
+            "deviceConfiguration": {
+                "id": 123123,
+                "name": "123123"
+            },
+            "deviceType": {
+                "id": 1010,
+                "name": "device type"
+            },
+            "comScheduleName": "Weekly billing",
+            "comScheduleFrequency": "every 1 weeks (offset: 12 hours)",
+            "urgency": 100,
+            "currentState": {
+                "id": "Busy",
+                "displayValue": "Busy"
+            },
+            "startTime": 1407851711314,
+            "successfulFinishTime": 1407851711314,
+            "nextCommunication": 1407851711314,
+            "alwaysExecuteOnInbound":false
+        },
+        {
+            "name": "Comm task 2",
+            "device": {
+                "id": "1234-5678-9012",
+                "name": "some device 2"
+            },
+            "deviceConfiguration": {
+                "id": 123123,
+                "name": "123123"
+            },
+            "deviceType": {
+                "id": 1010,
+                "name": "device type 2"
+            },
+            "comScheduleName": "Weekly billing",
+            "comScheduleFrequency": "every 1 weeks (offset: 12 hours)",
+            "urgency": 100,
+            "currentState": {
+                "id": "Busy",
+                "displayValue": "Busy"
+            },
+            "startTime": 1407851711314,
+            "successfulFinishTime": 1407851711314,
+            "nextCommunication": 1407851711314,
+            "alwaysExecuteOnInbound":true
+        }
+    ]
+}

@@ -4,6 +4,16 @@ Ext.define('Dsh.model.ConnectionTask', {
         { name: 'device', type: 'auto' },
         { name: 'deviceConfiguration', type: 'auto' },
         { name: 'deviceType', type: 'auto' },
+        {
+            name: 'devConfig',
+            persist: false,
+            mapping: function (data) {
+                var devConfig = {};
+                devConfig.config = data.deviceConfiguration;
+                devConfig.devType = data.deviceType;
+                return devConfig
+            }
+        },
         { name: 'currentState', type: 'auto' },
         { name: 'latestStatus', type: 'auto' },
         { name: 'latestResult', type: 'auto' },
@@ -18,12 +28,12 @@ Ext.define('Dsh.model.ConnectionTask', {
         { name: 'connectionMethod', type: 'auto' },
         { name: 'window', type: 'auto' },
         { name: 'connectionStrategy', type: 'auto' },
-        { name: 'nextExecution', type: 'auto' },
+        { name: 'nextExecution', type: 'date', dateFormat: 'time'},
         'communicationTasks'
     ],
     hasOne: [
         {
-            model: 'Dsh.model.Task',
+            model: 'Dsh.model.CommTask',
             name: 'communicationTasks'
         }
     ]
