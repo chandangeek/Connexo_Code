@@ -57,6 +57,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
@@ -320,6 +321,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         if (communicationConfiguration != null) {
             communicationConfiguration.delete();
+        }
+        List<DeviceConfValidationRuleSetUsage> usageCopy = ImmutableList.copyOf(deviceConfValidationRuleSetUsages);
+        for(DeviceConfValidationRuleSetUsage usage : usageCopy) {
+            if (usage.getDeviceConfiguration().getId() == this.getId()) {
+                deviceConfValidationRuleSetUsages.remove(usage);
+            }
         }
     }
 
@@ -916,6 +923,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         return null;
     }
 
+    @Override
     public void removeValidationRuleSet(ValidationRuleSet validationRuleSet) {
         DeviceConfValidationRuleSetUsage usage = getUsage(validationRuleSet);
         deviceConfValidationRuleSetUsages.remove(usage);

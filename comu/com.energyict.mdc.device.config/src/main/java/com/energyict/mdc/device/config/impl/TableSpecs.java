@@ -507,6 +507,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<DeviceConfValidationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfValidationRuleSetUsage.class);
             table.map(DeviceConfValidationRuleSetUsageImpl.class);
+            table.setJournalTableName("DTC_DEVICECONFRULESETUSAGEJRNL");
             Column validationRuleSetIdColumn =
                     table.column("VALIDATIONRULESETID").type("number").notNull().conversion(NUMBER2LONG).map("validationRuleSetId").add();
             Column deviceConfigurationIdColumn =
@@ -514,7 +515,7 @@ public enum TableSpecs {
 
             table.primaryKey("DTC_PK_SETCONFIGUSAGE").on(validationRuleSetIdColumn, deviceConfigurationIdColumn).add();
             table.foreignKey("DTC_FK_RULESET").references(ValidationService.COMPONENTNAME, "VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("validationRuleSet").on(validationRuleSetIdColumn).add();
-            table.foreignKey("DTC_FK_DEVICECONFIG").references("DTC_DEVICECONFIG").reverseMap("deviceConfValidationRuleSetUsages").onDelete(CASCADE).composition().map("deviceConfiguration").on(deviceConfigurationIdColumn).add();
+            table.foreignKey("DTC_FK_DEVICECONFIG").references("DTC_DEVICECONFIG").reverseMap("deviceConfValidationRuleSetUsages").composition().map("deviceConfiguration").on(deviceConfigurationIdColumn).add();
         }
     },
     ;
