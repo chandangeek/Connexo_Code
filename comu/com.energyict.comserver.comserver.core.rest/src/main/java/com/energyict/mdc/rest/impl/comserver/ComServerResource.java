@@ -71,7 +71,7 @@ public class ComServerResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo<?> getComServer(@PathParam("id") int id) {
+    public ComServerInfo<?> getComServer(@PathParam("id") long id) {
         Optional<ComServer> comServer = engineModelService.findComServer(id);
         if (!comServer.isPresent()) {
             throw new WebApplicationException("No ComServer with id "+id,
@@ -83,7 +83,7 @@ public class ComServerResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteComServer(@PathParam("id") int id) {
+    public Response deleteComServer(@PathParam("id") long id) {
         try {
             Optional<ComServer> comServer = engineModelService.findComServer(id);
             if (!comServer.isPresent()) {
@@ -124,11 +124,11 @@ public class ComServerResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<ComServer> comServerInfo) {
+    public ComServerInfo updateComServer(@PathParam("id") long id, ComServerInfo<ComServer> comServerInfo) {
         Optional<ComServer> comServer = engineModelService.findComServer(id);
         if (!comServer.isPresent()) {
-            throw new WebApplicationException("No ComServer with id "+id,
-                    Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build());
+            throw new WebApplicationException("No ComServer with id " + id,
+                    Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id " + id).build());
         }
 
         Optional<List<InboundComPortInfo>> inboundComPorts = Optional.fromNullable(comServerInfo.inboundComPorts);

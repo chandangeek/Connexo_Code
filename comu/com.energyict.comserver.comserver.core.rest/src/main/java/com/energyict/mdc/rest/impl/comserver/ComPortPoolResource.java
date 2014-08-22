@@ -58,7 +58,7 @@ public class ComPortPoolResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortPoolInfo<?> getComPortPool(@PathParam("id") int id) {
+    public ComPortPoolInfo<?> getComPortPool(@PathParam("id") long id) {
         Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
         if (comPortPool.isPresent()) {
             return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineModelService);
@@ -122,7 +122,7 @@ public class ComPortPoolResource {
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteComPortPool(@PathParam("id") int id) {
+    public Response deleteComPortPool(@PathParam("id") long id) {
         Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
         if (!comPortPool.isPresent()) {
             return Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build();
@@ -150,7 +150,7 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
+    public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") long id, ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
         Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
         if (!comPortPool.isPresent()) {
             throw new WebApplicationException("No ComPortPool with id " + id, Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build());
