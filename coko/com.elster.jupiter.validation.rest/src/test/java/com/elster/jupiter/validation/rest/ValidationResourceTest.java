@@ -188,13 +188,8 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         List<?> listValue = (List<?>) listValueInfo.value;
         assertThat(listValue).hasSize(2);
 
-        Map<?, ?> value = (Map<?, ?>) listValue.get(0);
-        assertThat(value.get("id")).isEqualTo("1");
-        assertThat(value.get("name")).isEqualTo("first");
-
-        value = (Map<?, ?>) listValue.get(1);
-        assertThat(value.get("id")).isEqualTo("2");
-        assertThat(value.get("name")).isEqualTo("second");
+        assertThat(listValue.get(0)).isEqualTo("1");
+        assertThat(listValue.get(1)).isEqualTo("2");
     }
 
     @Test
@@ -404,7 +399,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         PropertyInfo textInfo = new PropertyInfo("text", new PropertyValueInfo<String>("string", null), null, true);
         PropertyInfo listValueInfo = new PropertyInfo();
         listValueInfo.key = "listvalue";
-        listValueInfo.propertyValueInfo = new PropertyValueInfo<ListValueEntry[]>(new ListValueEntry[]{Finder.bean1, Finder.bean2}, null);
+        listValueInfo.propertyValueInfo = new PropertyValueInfo<String[]>(new String[]{"1", "2"}, null);
         
         infos.add(numberInfo);
         infos.add(nullableInfo);
