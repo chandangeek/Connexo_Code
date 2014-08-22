@@ -13,4 +13,5 @@ import java.util.List;
 public interface ValidationRuleSetResolver {
 
     List<ValidationRuleSet> resolve(MeterActivation meterActivation);
+    boolean isValidationRuleSetInUse(ValidationRuleSet ruleset);
 }

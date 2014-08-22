@@ -189,6 +189,10 @@ public class ValidationIT {
                     public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
                         return Arrays.asList(validationRuleSet);
                     }
+                    @Override
+                    public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
+                        return false;
+                    }
                 });
                 return null;
             }

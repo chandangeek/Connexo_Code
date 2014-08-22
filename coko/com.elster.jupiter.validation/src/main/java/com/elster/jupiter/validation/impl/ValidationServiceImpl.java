@@ -35,10 +35,7 @@ import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.Ordering;
+import com.google.common.collect.*;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -456,6 +453,11 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addValidationRuleSetResolver(ValidationRuleSetResolver resolver) {
         ruleSetResolvers.add(resolver);
+    }
+
+    @Override
+    public List<ValidationRuleSetResolver> getValidationRuleSetResolvers() {
+        return ImmutableList.copyOf(ruleSetResolvers);
     }
 
     public void removeValidationRuleSetResolver(ValidationRuleSetResolver resolver) {

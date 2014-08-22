@@ -45,6 +45,8 @@ public interface ValidationService {
 
     Validator getValidator(String implementation);
 
+    List<ValidationRuleSetResolver> getValidationRuleSetResolvers();
+
     List<List<ReadingQuality>> getValidationStatus(Channel channel, List<? extends BaseReading> readings);
 
     List<? extends MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation);
