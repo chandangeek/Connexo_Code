@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.google.common.base.Optional;
 
@@ -70,7 +69,7 @@ public class LoadProfileConfigurationResource {
     public Response getLoadProfileSpec(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("loadProfileSpecId") int loadProfileSpecId,
+            @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam QueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
         return Response.ok(PagedInfoList.asJson("data", LoadProfileSpecInfo.from(Collections.singletonList(loadProfileSpec)), queryParameters)).build();
@@ -105,7 +104,7 @@ public class LoadProfileConfigurationResource {
     public Response editLoadProfileSpecOnDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("loadProfileSpecId") int loadProfileSpecId,
+            @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam QueryParameters queryParameters,
             LoadProfileSpecInfo request) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -122,7 +121,7 @@ public class LoadProfileConfigurationResource {
     public Response deleteLoadProfileSpecFromDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("loadProfileSpecId") int loadProfileSpecId,
+            @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -137,7 +136,7 @@ public class LoadProfileConfigurationResource {
     public Response getAllChannelsForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("loadProfileSpecId") int loadProfileSpecId,
+            @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam QueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
         List<ChannelSpec> channelSpecs = deviceConfigurationService.findChannelSpecsForLoadProfileSpec(loadProfileSpec);
@@ -151,8 +150,8 @@ public class LoadProfileConfigurationResource {
     public Response getChannelForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("loadProfileSpecId") int loadProfileSpecId,
-            @PathParam("channelId") int channelId,
+            @PathParam("loadProfileSpecId") long loadProfileSpecId,
+            @PathParam("channelId") long channelId,
             @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -168,7 +167,7 @@ public class LoadProfileConfigurationResource {
     public Response createChannelForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("loadProfileSpecId") int loadProfileSpecId,
+            @PathParam("loadProfileSpecId") long loadProfileSpecId,
             ChannelSpecFullInfo request) {
 
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -193,8 +192,8 @@ public class LoadProfileConfigurationResource {
     public Response editChannelSpecOnDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("loadProfileSpecId") int loadProfileSpecId,
-            @PathParam("channelId") int channelId,
+            @PathParam("loadProfileSpecId") long loadProfileSpecId,
+            @PathParam("channelId") long channelId,
             @BeanParam QueryParameters queryParameters,
             ChannelSpecFullInfo request) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -221,8 +220,8 @@ public class LoadProfileConfigurationResource {
     public Response deleteChannelSpecFromDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("loadProfileSpecId") int loadProfileSpecId,
-            @PathParam("channelId") int channelId,
+            @PathParam("loadProfileSpecId") long loadProfileSpecId,
+            @PathParam("channelId") long channelId,
             @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -237,7 +236,7 @@ public class LoadProfileConfigurationResource {
     public Response getAvailableMeasurementTypesForChannel(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("loadProfileSpecId") int loadProfileSpecId,
+            @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam QueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
         Map<Long, ChannelType> channelTypes = new HashMap<>();
@@ -274,7 +273,7 @@ public class LoadProfileConfigurationResource {
         return loadProfileType.get();
     }
 
-    private LoadProfileSpec findLoadProfileSpecByIdOrThrowEception(int loadProfileSpecId) {
+    private LoadProfileSpec findLoadProfileSpecByIdOrThrowEception(long loadProfileSpecId) {
         LoadProfileSpec loadProfileSpec = deviceConfigurationService.findLoadProfileSpec(loadProfileSpecId);
         if (loadProfileSpec == null){
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfileSpecId);
@@ -282,7 +281,7 @@ public class LoadProfileConfigurationResource {
         return loadProfileSpec;
     }
 
-    private ChannelSpec findChannelSpecByIdOrThrowException(int channelId) {
+    private ChannelSpec findChannelSpecByIdOrThrowException(long channelId) {
         ChannelSpec channelSpec = deviceConfigurationService.findChannelSpec(channelId);
         if (channelSpec == null){
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelId);

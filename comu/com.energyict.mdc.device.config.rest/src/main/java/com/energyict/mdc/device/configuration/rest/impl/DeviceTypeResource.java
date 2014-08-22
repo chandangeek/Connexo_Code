@@ -255,8 +255,8 @@ public class DeviceTypeResource {
     }
 
     private void findAllAvailableRegisterTypesForDeviceConfiguration(DeviceType deviceType, List<RegisterType> registerTypes, String deviceConfiguationIdString) {
-        int deviceConfigurationId = Integer.parseInt(deviceConfiguationIdString);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType ,deviceConfigurationId);
+        long deviceConfigurationId = Long.parseLong(deviceConfiguationIdString);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         registerTypes.addAll(deviceType.getRegisterTypes());
         Set<Long> unavailableRegisterTypeIds = new HashSet<>();
         for(RegisterSpec registerSpec: deviceConfiguration.getRegisterSpecs()){
