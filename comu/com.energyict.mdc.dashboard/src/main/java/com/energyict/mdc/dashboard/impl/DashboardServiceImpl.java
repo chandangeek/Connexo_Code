@@ -3,12 +3,12 @@ package com.energyict.mdc.dashboard.impl;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
-import com.energyict.mdc.dashboard.ConnectionStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.ConnectionTypeHeatMap;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.DeviceTypeHeatMap;
+import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -59,8 +59,8 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ConnectionStatusOverview getConnectionStatusOverview() {
-        ConnectionStatusOverviewImpl overview = new ConnectionStatusOverviewImpl();
+    public TaskStatusOverview getConnectionTaskStatusOverview() {
+        TaskStatusOverviewImpl overview = new TaskStatusOverviewImpl();
         Map<TaskStatus, Long> statusCounters = this.deviceDataService.getConnectionTaskStatusCount();
         for (TaskStatus taskStatus : TaskStatus.values()) {
             overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
@@ -179,6 +179,16 @@ public class DashboardServiceImpl implements DashboardService {
         ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(successIndicatorValues.next());
         for (ComSession.SuccessIndicator successIndicator : orderedSuccessIndicators()) {
             overview.add(new CounterImpl<>(successIndicator, successIndicatorValues.next()));
+        }
+        return overview;
+    }
+
+    @Override
+    public TaskStatusOverview getCommunicationTaskStatusOverview() {
+        TaskStatusOverviewImpl overview = new TaskStatusOverviewImpl();
+        Map<TaskStatus, Long> statusCounters = this.deviceDataService.getComTaskExecutionStatusCount();
+        for (TaskStatus taskStatus : TaskStatus.values()) {
+            overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
         }
         return overview;
     }

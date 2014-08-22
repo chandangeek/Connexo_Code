@@ -11,7 +11,7 @@ package com.energyict.mdc.dashboard;
  */
 public interface DashboardService {
 
-    public ConnectionStatusOverview getConnectionStatusOverview();
+    public TaskStatusOverview getConnectionTaskStatusOverview();
 
     public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview();
 
@@ -26,5 +26,7 @@ public interface DashboardService {
     public DeviceTypeHeatMap getDeviceTypeHeatMap();
 
     public ComPortPoolHeatMap getComPortPoolHeatMap();
+
+    public TaskStatusOverview getCommunicationTaskStatusOverview();
 
 }

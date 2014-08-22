@@ -3,7 +3,7 @@ package com.energyict.mdc.dashboard.impl;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
-import com.energyict.mdc.dashboard.ConnectionStatusOverview;
+import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
@@ -74,7 +74,7 @@ public class DashboardServiceImplTest {
         when(this.deviceDataService.getConnectionTaskStatusCount()).thenReturn(statusCounters);
 
         // Business methods
-        ConnectionStatusOverview overview = this.dashboardService.getConnectionStatusOverview();
+        TaskStatusOverview overview = this.dashboardService.getConnectionTaskStatusOverview();
 
         // Asserts
         verify(this.deviceDataService).getConnectionTaskStatusCount();
@@ -241,6 +241,28 @@ public class DashboardServiceImplTest {
         assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
         assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
         assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+    }
+
+    @Test
+    public void testCommunicationOverview () {
+        Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
+        for (TaskStatus taskStatus : TaskStatus.values()) {
+            statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
+        }
+        when(this.deviceDataService.getComTaskExecutionStatusCount()).thenReturn(statusCounters);
+
+        // Business methods
+        TaskStatusOverview overview = this.dashboardService.getCommunicationTaskStatusOverview();
+
+        // Asserts
+        verify(this.deviceDataService).getComTaskExecutionStatusCount();
+        assertThat(overview).isNotNull();
+        Set<TaskStatus> missingTaskStatusses = EnumSet.allOf(TaskStatus.class);
+        for (Counter<TaskStatus> taskStatusCounter : overview) {
+            assertThat(taskStatusCounter.getCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
+            missingTaskStatusses.remove(taskStatusCounter.getCountTarget());
+        }
+        assertThat(missingTaskStatusses).as("Some TaskStatusses were not reported!").isEmpty();
     }
 
 }
