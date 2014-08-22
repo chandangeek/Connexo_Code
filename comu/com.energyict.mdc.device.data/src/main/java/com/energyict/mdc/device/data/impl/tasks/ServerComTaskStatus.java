@@ -1,9 +1,13 @@
-package com.energyict.mdc.device.data;
+package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.device.data.ServerComTaskExecution;
+import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+
+import com.elster.jupiter.util.time.Clock;
+
 import java.util.Date;
 
 /**
@@ -14,7 +18,6 @@ import java.util.Date;
  * @since 2012-10-08 (09:04)
  */
 public enum ServerComTaskStatus {
-    // TODO move back to impl package, mdc-all has references on this class though
 
     /**
      * @see TaskStatus#OnHold
@@ -31,11 +34,12 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
+        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and nextExecutionTimestamp is null");
         }
     },
+
     /**
      * @see TaskStatus#Busy
      */
@@ -51,12 +55,19 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
+        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and ((comport is not null) or " +
-                    "((exists (select * from " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct where ct.comserver is not null and ct.id = " + TableSpecs.DDC_COMTASKEXEC.name() + ".connectiontask))" +
-                    " and " + TableSpecs.DDC_COMTASKEXEC.name() + ".nextExecutionTimestamp is not null and " + TableSpecs.DDC_COMTASKEXEC.name() + ".nextexecutiontimestamp <= ?))");
-            sqlBuilder.bindLong(now);
+            sqlBuilder.append("and ((comport is not null) or ((exists (select * from ");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(" ct where ct.comserver is not null and ct.id = ");
+            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
+            sqlBuilder.append(".connectiontask)) and ");
+            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
+            sqlBuilder.append(".nextExecutionTimestamp is not null and ");
+            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
+            sqlBuilder.append(".nextexecutiontimestamp <=");
+            sqlBuilder.addUtcInstant(now);
+            sqlBuilder.append("))");
         }
     },
 
@@ -78,12 +89,14 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
+        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and comport is null and not exists (select * from " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct where ct.comserver is not null and ct.id = " + TableSpecs.DDC_COMTASKEXEC
-                    .name() + ".connectiontask)");
-            sqlBuilder.append("and nextexecutiontimestamp <= ?");
-            sqlBuilder.bindLong(now);
+            sqlBuilder.append("and comport is null and not exists (select * from ");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(" ct where ct.comserver is not null and ct.id = ");
+            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
+            sqlBuilder.append(".connectiontask) and nextexecutiontimestamp <=");
+            sqlBuilder.addUtcInstant(now);
         }
     },
 
@@ -107,14 +120,14 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
+        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and lastSuccessfulCompletion is null ");
             sqlBuilder.append("and comport is null ");
             sqlBuilder.append("and currentretrycount = 0 ");
             sqlBuilder.append("and nextExecutionTimestamp is not null ");
-            sqlBuilder.append("and nextExecutionTimestamp > ?");
-            sqlBuilder.bindLong(now);
+            sqlBuilder.append("and nextExecutionTimestamp > ");
+            sqlBuilder.addUtcInstant(now);
         }
     },
 
@@ -136,10 +149,10 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
+        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and nextexecutiontimestamp > ? ");
-            sqlBuilder.bindLong(now);
+            sqlBuilder.append("and nextexecutiontimestamp > ");
+            sqlBuilder.addUtcInstant(now);
             sqlBuilder.append("and comport is null ");
             sqlBuilder.append("and currentretrycount > 0");  // currentRetryCount is only incremented when task fails. It is reset to 0 when the maxTries is reached
         }
@@ -166,11 +179,11 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
+        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and nextExecutionTimestamp is not null ");
-            sqlBuilder.append("and nextExecutionTimestamp > ? ");
-            sqlBuilder.bindLong(now);
+            sqlBuilder.append("and nextExecutionTimestamp >");
+            sqlBuilder.addUtcInstant(now);
             sqlBuilder.append("and lastSuccessfulCompletion is not null ");
             sqlBuilder.append("and lastExecutionFailed = 1 ");
             sqlBuilder.append("and currentretrycount = 0");
@@ -197,12 +210,12 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
+        public void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and comport is null ");
             sqlBuilder.append("and lastSuccessfulCompletion is not null ");
-            sqlBuilder.append("and nextexecutiontimestamp > ?");
-            sqlBuilder.bindLong(now);
+            sqlBuilder.append("and nextexecutiontimestamp >");
+            sqlBuilder.addUtcInstant(now);
             sqlBuilder.append("and lastExecutionFailed = 0");
         }
     };
@@ -215,17 +228,20 @@ public enum ServerComTaskStatus {
     public abstract TaskStatus getPublicStatus ();
 
     /**
-     * Checks if this ServerTaskStatus
-     * applies to the {@link ComTaskExecution}.
-     *
+     * Checks if this ServerTaskStatus applies to the {@link ComTaskExecution}.
      *
      * @param task The ComTaskExecution
-     * @param now
+     * @param now The current time
      * @return <code>true</code> iff this ServerTaskStatus applies to the ComTaskExecution
      */
     public abstract boolean appliesTo(ServerComTaskExecution task, Date now);
 
-    public void completeFindBySqlBuilder (SqlBuilder sqlBuilder, long now) {
+    public final void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
+        sqlBuilder.appendWhereOrAnd();
+        this.completeFindBySqlBuilder(sqlBuilder, clock.now());
+    }
+
+    protected void completeFindBySqlBuilder (ClauseAwareSqlBuilder sqlBuilder, Date date) {
         sqlBuilder.append("obsolete_date is null ");
     }
 
@@ -233,7 +249,7 @@ public enum ServerComTaskStatus {
      * Gets the {@link TaskStatus} that applies to the specified {@link ComTaskExecution}.
      *
      * @param task The ComTaskExecution
-     * @param now
+     * @param now The current time
      * @return The applicable TaskStatus
      */
     public static TaskStatus getApplicableStatusFor(ServerComTaskExecution task, Date now) {

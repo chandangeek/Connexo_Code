@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
@@ -179,7 +180,7 @@ public interface DeviceDataService {
      */
     public void clearDefaultConnectionTask (Device device);
 
-    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
+    public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
 
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed
@@ -390,6 +391,23 @@ public interface DeviceDataService {
      * @return the requested ComTaskExecution
      */
     ComTaskExecution findComTaskExecution(long id);
+
+    /**
+     * Counts all {@link ComTaskExecution}s in the system,
+     * grouping them by their respective {@link TaskStatus}.
+     *
+     * @return The numbers, broken down by TaskStatus
+     */
+    public Map<TaskStatus, Long> getComTaskExecutionStatusCount();
+
+    /**
+     * Counts all {@link ComTaskExecution}s that match the specified filter,
+     * grouping them by their respective {@link TaskStatus}.
+     *
+     * @param filter The ComTaskExecutionFilterSpecification
+     * @return The numbers, broken down by TaskStatus
+     */
+    public Map<TaskStatus, Long> getComTaskExecutionStatusCount(ComTaskExecutionFilterSpecification filter);
 
     /**
      * Finds all ComTaskExecutions for the given Device which aren't made obsolete yet

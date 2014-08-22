@@ -1,25 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
@@ -46,16 +26,19 @@ import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionFilterMatchCounterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskFilterMatchCounterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskFilterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.TimedOutTasksSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionBuilderImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -85,6 +68,27 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -365,6 +369,43 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     @Override
     public List<ConnectionTask> findConnectionTasksByStatus(TaskStatus status) {
         return this.getDataModel().mapper(ConnectionTask.class).select(ServerConnectionTaskStatus.forTaskStatus(status).condition());
+    }
+
+    @Override
+    public Map<TaskStatus, Long> getComTaskExecutionStatusCount() {
+        ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
+        filter.taskStatuses = EnumSet.allOf(TaskStatus.class);
+        return this.getComTaskExecutionStatusCount(filter);
+    }
+
+    @Override
+    public Map<TaskStatus, Long> getComTaskExecutionStatusCount(ComTaskExecutionFilterSpecification filter) {
+        ClauseAwareSqlBuilder sqlBuilder = null;
+        for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(filter)) {
+            // Check first pass
+            if (sqlBuilder == null) {
+                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
+            }
+            else {
+                sqlBuilder.unionAll();
+                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
+            }
+        }
+        return this.addMissingTaskStatusCounters(this.fetchTaskStatusCounters(sqlBuilder));
+    }
+
+    private Set<ServerComTaskStatus> taskStatusesForCounting (ComTaskExecutionFilterSpecification filter) {
+        Set<ServerComTaskStatus> taskStatuses = EnumSet.noneOf(ServerComTaskStatus.class);
+        for (TaskStatus taskStatus : filter.taskStatuses) {
+            taskStatuses.add(ServerComTaskStatus.forTaskStatus(taskStatus));
+        }
+        return taskStatuses;
+    }
+
+    public void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ComTaskExecutionFilterSpecification filter, ServerComTaskStatus taskStatus) {
+        ComTaskExecutionFilterMatchCounterSqlBuilder countingFilter = new ComTaskExecutionFilterMatchCounterSqlBuilder(taskStatus, this.clock);
+        countingFilter.appendTo(sqlBuilder);
     }
 
     @Override
