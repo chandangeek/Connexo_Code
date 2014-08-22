@@ -36,7 +36,7 @@ public class ConnectionOverviewResource {
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
         ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
         ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
-        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getDeviceTypeBreakdown();
+        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown();
         ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(taskStatusOverview);
 
         return new ConnectionOverviewInfo(connectionSummaryData, taskStatusOverview, comSessionSuccessIndicatorOverview,

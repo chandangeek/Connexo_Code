@@ -167,7 +167,7 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
         ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
         when(dashboardService.getConnectionTypeBreakdown()).thenReturn(connectionStatusBreakdown);
         DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
-        when(dashboardService.getDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
+        when(dashboardService.getConnectionTasksDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
         DeviceTypeHeatMap heatMap = createDeviceTypeHeatMap();
         when(dashboardService.getDeviceTypeHeatMap()).thenReturn(heatMap);
 
