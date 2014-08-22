@@ -184,9 +184,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     })
                 });
             }
-            this.getCommunicationSchedulePreview().getLayout().setActiveItem(1);
-        } else {
-            this.getCommunicationSchedulePreview().getLayout().setActiveItem(0);
         }
     },
 
@@ -250,6 +247,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 communicationScheduleToDelete: communicationSchedule,
                 me: me
             },
+            scope: me,
             fn: me.removeCommunicationSchedule
         });
     },
@@ -260,12 +258,10 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     removeCommunicationSchedule: function (btn, text, opt) {
         if (btn === 'confirm') {
+
             var communicationScheduleToDelete = opt.config.communicationScheduleToDelete;
-            communicationScheduleToDelete.destroy({
-                callback: function () {
-                    location.href = '#administration/communicationschedules';
-                }
-            });
+            var store = this.getCommunicationSchedulesGrid().getStore();
+            store.remove(communicationScheduleToDelete);
         }
     },
 
