@@ -38,6 +38,7 @@ Ext.define('Uni.Loader', {
         'Uni.override.StoreOverride',
         'Uni.override.GridPanelOverride',
         'Uni.override.FormOverride',
+        'Uni.override.form.field.ComboBox',
         'Uni.override.ModelOverride'
     ],
 
