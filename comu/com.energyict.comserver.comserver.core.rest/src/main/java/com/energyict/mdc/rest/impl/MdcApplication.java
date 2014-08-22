@@ -31,7 +31,7 @@ import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.mdc.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/mdc", "name=" + MdcApplication.COMPONENT_NAME})
 public class MdcApplication extends Application implements InstallService {
-    public static final String COMPONENT_NAME = "MDR";
+    public static final String COMPONENT_NAME = "CCR";
 
     private volatile EngineModelService engineModelService;
     private volatile TransactionService transactionService;
