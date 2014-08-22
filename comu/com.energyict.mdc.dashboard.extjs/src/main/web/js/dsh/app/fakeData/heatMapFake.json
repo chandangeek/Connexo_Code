@@ -1,0 +1,86 @@
+{
+    "breakdown": "deviceType",
+    "heatMap": [
+        {
+            "displayValue": "deviceType1",
+            "alias": "deviceType",
+            "id": 1,
+            "data": [
+                {
+                    "id": "Broken",
+                    "displayName": "Broken",
+                    "count": 100
+                },
+                {
+                    "id": "SetupError",
+                    "displayName": "Setup error",
+                    "count": 101
+                },
+                {
+                    "id": "Success",
+                    "displayName": "Success",
+                    "count": 102
+                },
+                {
+                    "id": "AtLeastOneFailed",
+                    "displayName": "at least one failed",
+                    "count": 103
+                }
+            ]
+        },
+        {
+            "displayValue": "deviceType2",
+            "alias": "deviceType",
+            "id": 2,
+            "data": [
+                {
+                    "id": "Broken",
+                    "displayName": "Broken",
+                    "count": 100
+                },
+                {
+                    "id": "SetupError",
+                    "displayName": "Setup error",
+                    "count": 101
+                },
+                {
+                    "id": "Success",
+                    "displayName": "Success",
+                    "count": 102
+                },
+                {
+                    "id": "AtLeastOneFailed",
+                    "displayName": "at least one failed",
+                    "count": 103
+                }
+            ]
+        },
+        {
+            "displayValue": "deviceType3",
+            "alias": "deviceType",
+            "id": 3,
+            "data": [
+                {
+                    "id": "Broken",
+                    "displayName": "Broken",
+                    "count": 100
+                },
+                {
+                    "id": "SetupError",
+                    "displayName": "Setup error",
+                    "count": 101
+                },
+                {
+                    "id": "Success",
+                    "displayName": "Success",
+                    "count": 102
+                },
+                {
+                    "id": "AtLeastOneFailed",
+                    "displayName": "at least one failed",
+                    "count": 103
+                }
+            ]
+        }
+    ]
+}

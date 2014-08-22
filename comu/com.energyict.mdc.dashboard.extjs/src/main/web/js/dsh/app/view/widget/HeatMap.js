@@ -13,7 +13,8 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 displayField: 'localizedValue',
                 queryMode: 'local',
                 valueField: 'breakdown',
-                store: 'Dsh.store.CombineStore'
+                store: 'Dsh.store.CombineStore',
+                autoSelect: true
             }
         }, '->'
     ],
@@ -42,19 +43,19 @@ Ext.define('Dsh.view.widget.HeatMap', {
         me.chart.series[0].yAxis.update({categories: categories}, false);
     },
 
-    storeToHighchartData: function (store, fields) {
+    storeToHighchartData: function (store) {
         var data = [],
             x = 0,
             y = 0;
         store.each(function (rec) {
-            Ext.each(fields, function (item) {
-                var value = rec.get(item);
-                (value == 0) && (value = value.toString());
+            Ext.each(rec.data.data, function (item) {
+                var count = item.count,
+                    value = count > 0 ? count : count.toString();
                 data.push([x, y, value]);
-                ++x;
+                ++y;
             });
-            x = 0;
-            ++y;
+            y = 0;
+            ++x;
         });
         return data;
     },
@@ -63,21 +64,19 @@ Ext.define('Dsh.view.widget.HeatMap', {
         return this.down('#combine-combo');
     },
 
-    loadChart: function (alias) {
-
-
-//        var me = this,
-//            ycat = ['Success count', 'Failed count', 'Pending count'],
-//            xcat = record.counters().collect('displayName')
-//            ;
-//
-//        me.setYAxis(xcat, 'Latest result');
-//        me.setXAxis(ycat, record.get('displayName'));
-//        me.setChartData(me.storeToHighchartData(record.counters(), [
-//            "successCount",
-//            "failedCount",
-//            "pendingCount"
-//        ]));
+    loadChart: function (store) {
+        if (store.getCount() > 0) {
+            var me = this,
+                ycat = [],
+                xcat = store.collect('displayValue')
+                ;
+            Ext.each(store.getAt(0).data.data, function (item) {
+                ycat.push(item.displayName);
+            });
+            me.setXAxis(xcat, 'Latest result');
+            me.setYAxis(ycat, 'Breakdown');
+            me.setChartData(me.storeToHighchartData(store));
+        }
     },
 
     initComponent: function () {
@@ -86,11 +85,12 @@ Ext.define('Dsh.view.widget.HeatMap', {
         this.callParent(arguments);
 
         store.on('load', function (store, records) {
-            records && ()
+            me.loadChart(store)
         });
 
         me.getCombo().on('change', function (combo, newValue) {
-            store.proxy.extraparams = {filters: '[{"property":"breakdown","value":"deviceType"}]'}
+            store.proxy.extraParams.filter = '[{"property":"breakdown","value": "' + newValue + '"}]';
+            store.load();
         });
 
         var cmp = me.down('#heatmapchart');
