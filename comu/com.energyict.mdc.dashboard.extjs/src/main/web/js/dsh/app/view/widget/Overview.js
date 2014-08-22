@@ -15,6 +15,13 @@ Ext.define('Dsh.view.widget.Overview', {
         type: 'hbox',
         align: 'stretch'
     },
+    defaults: {
+        flex: 1,
+        style: {
+            paddingRight: '20px'
+        }
+    },
+    total: 0,
 
     bindStore: function (store) {
         var me = this;
@@ -29,20 +36,20 @@ Ext.define('Dsh.view.widget.Overview', {
                     xtype: 'dataview',
                     itemId: item.get('alias') + '-dataview',
                     itemSelector: 'tbody.item',
-                    total: item.get('total'),
+                    total: item.get('total') || me.total,
                     store: item.counters(),
                     tpl:
                         '<table>' +
-                        '<tpl for=".">' +
-                        '<tbody class="item">' +
-                        '<tr>' +
-                        '<td class="label" style="min-width: 200px">' +
-                        '<a href="#{id}">{displayName}</a>' +
-                        '</td>' +
-                        '<td width="100%" id="bar-{#}"></td>' +
-                        '</tr>' +
-                        '</tbody>' +
-                        '</tpl>' +
+                            '<tpl for=".">' +
+                                '<tbody class="item item-{#}">' +
+                                '<tr>' +
+                                    '<td class="label" style="min-width: 200px">' +
+                                        '<a href="#{id}">{displayName}</a>' +
+                                    '</td>' +
+                                    '<td width="100%" id="bar-{#}"></td>' +
+                                '</tr>' +
+                            '</tbody>' +
+                            '</tpl>' +
                         '</table>',
                     listeners: {
                         refresh: function (view) {
@@ -52,10 +59,14 @@ Ext.define('Dsh.view.widget.Overview', {
 
                                 var bar = Ext.widget('bar', {
                                     limit: record.get('count'),
-                                    total: item.get('total'),
+                                    total: item.get('total') || view.total,
                                     count: record.get('count'),
                                     label: record.get('count')
                                 }).render(view.getEl().down('#bar-' + pos));
+                                var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
+                                    { property: item.get('alias'), value: record.get('id') }
+                                ]});
+                                view.getEl().down('.item-' + pos + ' > tr > td > a').set({ href: href });
                             });
                         }
                     }

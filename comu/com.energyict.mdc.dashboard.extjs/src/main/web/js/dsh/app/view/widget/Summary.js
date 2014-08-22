@@ -16,7 +16,7 @@ Ext.define('Dsh.view.widget.Summary', {
                 tpl:
                     '<table>' +
                         '<tpl for=".">' +
-                            '<tbody class="item">' +
+                            '<tbody class="item item-{#}">' +
                                 '{% var parentIndex = xindex; %}' +
                                 '<tr>' +
                                     '<td class="label">' +
@@ -50,6 +50,10 @@ Ext.define('Dsh.view.widget.Summary', {
                                         label: Math.round(data.get('count') * 100 / record.get('count')) + '% (' + data.get('count') + ')'
                                     });
                                     bar.render(view.getEl().down('#bar-' + pos + '-' + (idx + 1)));
+                                    var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
+                                        { property: view.record.get('alias'), value: data.get('id') }
+                                    ]});
+                                    view.getEl().down('.item-' + pos + '  tr.child > td > a').set({ href: href });
                                 });
                             }
                             var bar =  Ext.widget('bar', {
@@ -59,6 +63,10 @@ Ext.define('Dsh.view.widget.Summary', {
                                 label: Math.round(record.get('count') * 100 / view.total) + '% (' + record.get('count') + ')'
                             });
                             bar.render(view.getEl().down('#bar-' + pos));
+                            var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
+                                { property: view.record.get('alias'), value: record.get('id') }
+                            ]});
+                            view.getEl().down('.item-' + pos + ' > tr > td > a').set({ href: href });
                         });
                     }
                 }
@@ -72,6 +80,8 @@ Ext.define('Dsh.view.widget.Summary', {
 
         var view = me.down('#summary-dataview');
         view.total = record.get('total');
+        view.record = record;
+
         view.bindStore(record.counters());
     }
 });
