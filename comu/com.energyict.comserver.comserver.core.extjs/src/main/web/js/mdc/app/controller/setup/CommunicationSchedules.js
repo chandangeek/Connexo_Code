@@ -258,10 +258,10 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     removeCommunicationSchedule: function (btn, text, opt) {
         if (btn === 'confirm') {
-
             var communicationScheduleToDelete = opt.config.communicationScheduleToDelete;
             var store = this.getCommunicationSchedulesGrid().getStore();
             store.remove(communicationScheduleToDelete);
+            store.sync();
         }
     },
 
