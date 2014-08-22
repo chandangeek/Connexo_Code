@@ -42,7 +42,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<DeviceType> table = dataModel.addTable(this.name(), DeviceType.class);
             table.map(DeviceTypeImpl.class);
-            table.cache();
+
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
@@ -131,7 +131,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<DeviceConfiguration> table = dataModel.addTable(name(), DeviceConfiguration.class);
             table.map(DeviceConfigurationImpl.class);
-            table.cache();
+
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
