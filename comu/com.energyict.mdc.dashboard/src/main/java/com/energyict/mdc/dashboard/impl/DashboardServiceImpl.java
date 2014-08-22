@@ -12,6 +12,7 @@ import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -84,7 +85,7 @@ public class DashboardServiceImpl implements DashboardService {
         for (ComPortPool comPortPool : this.availableComPortPools()) {
             ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
             filter.useLastComSession = true;
-            this.addBreakdownStatusses(filter);
+            filter.taskStatuses = this.breakdownStatusses();
             filter.comPortPools.add(comPortPool);
             Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(comPortPool, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
@@ -102,7 +103,7 @@ public class DashboardServiceImpl implements DashboardService {
         for (ConnectionTypePluggableClass connectionTypePluggableClass : this.availableConnectionTypes()) {
             ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
             filter.useLastComSession = true;
-            this.addBreakdownStatusses(filter);
+            filter.taskStatuses = this.breakdownStatusses();
             filter.connectionTypes.add(connectionTypePluggableClass);
             Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(connectionTypePluggableClass, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
@@ -115,12 +116,12 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public DeviceTypeBreakdown getDeviceTypeBreakdown() {
+    public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown() {
         DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
         for (DeviceType deviceType : this.availableDeviceTypes()) {
             ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
             filter.useLastComSession = true;
-            this.addBreakdownStatusses(filter);
+            filter.taskStatuses = this.breakdownStatusses();
             filter.deviceTypes.add(deviceType);
             Map<TaskStatus, Long> statusCount = this.deviceDataService.getConnectionTaskStatusCount(filter);
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(deviceType, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
@@ -128,11 +129,12 @@ public class DashboardServiceImpl implements DashboardService {
         return breakdown;
     }
 
-    private void addBreakdownStatusses(ConnectionTaskFilterSpecification filter) {
-        filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
-        filter.taskStatuses.addAll(this.successTaskStatusses());
-        filter.taskStatuses.addAll(this.failedTaskStatusses());
-        filter.taskStatuses.addAll(this.pendingTaskStatusses());
+    private Set<TaskStatus> breakdownStatusses() {
+        Set<TaskStatus> taskStatuses = EnumSet.noneOf(TaskStatus.class);
+        taskStatuses.addAll(this.successTaskStatusses());
+        taskStatuses.addAll(this.failedTaskStatusses());
+        taskStatuses.addAll(this.pendingTaskStatusses());
+        return taskStatuses;
     }
 
     @Override
@@ -191,6 +193,19 @@ public class DashboardServiceImpl implements DashboardService {
             overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
         }
         return overview;
+    }
+
+    @Override
+    public DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown() {
+        DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
+        for (DeviceType deviceType : this.availableDeviceTypes()) {
+            ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
+            filter.taskStatuses = this.breakdownStatusses();
+            filter.deviceTypes.add(deviceType);
+            Map<TaskStatus, Long> statusCount = this.deviceDataService.getComTaskExecutionStatusCount(filter);
+            breakdown.add(new TaskStatusBreakdownCounterImpl<>(deviceType, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
+        }
+        return breakdown;
     }
 
     private List<ComSession.SuccessIndicator> orderedSuccessIndicators() {

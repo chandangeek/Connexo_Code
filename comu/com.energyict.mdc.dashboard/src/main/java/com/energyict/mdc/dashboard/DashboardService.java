@@ -19,7 +19,7 @@ public interface DashboardService {
 
     public ConnectionTypeBreakdown getConnectionTypeBreakdown();
 
-    public DeviceTypeBreakdown getDeviceTypeBreakdown();
+    public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown();
 
     public ConnectionTypeHeatMap getConnectionTypeHeatMap();
 
@@ -28,5 +28,7 @@ public interface DashboardService {
     public ComPortPoolHeatMap getComPortPoolHeatMap();
 
     public TaskStatusOverview getCommunicationTaskStatusOverview();
+
+    public DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown();
 
 }

@@ -10,6 +10,7 @@ import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -196,13 +197,13 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testDeviceTypeBreakdownWithoutDeviceTypes () {
+    public void testConnectionTaskDeviceTypeBreakdownWithoutDeviceTypes () {
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
 
         // Business methods
-        DeviceTypeBreakdown breakdown = this.dashboardService.getDeviceTypeBreakdown();
+        DeviceTypeBreakdown breakdown = this.dashboardService.getConnectionTasksDeviceTypeBreakdown();
 
         // Asserts
         verify(this.deviceDataService, never()).getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class));
@@ -215,7 +216,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testDeviceTypeBreakdownWithDeviceTypesButNoConnections () {
+    public void testConnectionTaskDeviceTypeBreakdownWithDeviceTypesButNoConnections() {
         DeviceType deviceType = mock(DeviceType.class);
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Arrays.asList(deviceType));
@@ -227,7 +228,7 @@ public class DashboardServiceImplTest {
         when(this.deviceDataService.getConnectionTaskStatusCount(any(ConnectionTaskFilterSpecification.class))).thenReturn(statusCounters);
 
         // Business methods
-        DeviceTypeBreakdown breakdown = this.dashboardService.getDeviceTypeBreakdown();
+        DeviceTypeBreakdown breakdown = this.dashboardService.getConnectionTasksDeviceTypeBreakdown();
 
         // Asserts
         ArgumentCaptor<ConnectionTaskFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
@@ -263,6 +264,54 @@ public class DashboardServiceImplTest {
             missingTaskStatusses.remove(taskStatusCounter.getCountTarget());
         }
         assertThat(missingTaskStatusses).as("Some TaskStatusses were not reported!").isEmpty();
+    }
+
+    @Test
+    public void testComTaskExecutionsDeviceTypeBreakdownWithoutDeviceTypes () {
+        Finder<DeviceType> finder = mock(Finder.class);
+        when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
+        when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
+
+        // Business methods
+        DeviceTypeBreakdown breakdown = this.dashboardService.getCommunicationTasksDeviceTypeBreakdown();
+
+        // Asserts
+        verify(this.deviceDataService, never()).getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class));
+        assertThat(breakdown).isNotNull();
+        assertThat(breakdown.iterator().hasNext()).isFalse();
+        assertThat(breakdown.getTotalCount()).isZero();
+        assertThat(breakdown.getTotalSuccessCount()).isZero();
+        assertThat(breakdown.getTotalFailedCount()).isZero();
+        assertThat(breakdown.getTotalPendingCount()).isZero();
+    }
+
+    @Test
+    public void testComTaskExecutionsDeviceTypeBreakdownWithDeviceTypesButNoConnections() {
+        DeviceType deviceType = mock(DeviceType.class);
+        Finder<DeviceType> finder = mock(Finder.class);
+        when(finder.find()).thenReturn(Arrays.asList(deviceType));
+        when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
+        Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
+        for (TaskStatus taskStatus : TaskStatus.values()) {
+            statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
+        }
+        when(this.deviceDataService.getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class))).thenReturn(statusCounters);
+
+        // Business methods
+        DeviceTypeBreakdown breakdown = this.dashboardService.getCommunicationTasksDeviceTypeBreakdown();
+
+        // Asserts
+        ArgumentCaptor<ComTaskExecutionFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
+        verify(this.deviceDataService).getComTaskExecutionStatusCount(filterCaptor.capture());
+        assertThat(filterCaptor.getValue().deviceTypes).hasSize(1);
+        assertThat(filterCaptor.getValue().deviceTypes.iterator().next()).isEqualTo(deviceType);
+        assertThat(breakdown).isNotNull();
+        assertThat(breakdown.iterator().hasNext()).isTrue();
+        assertThat(breakdown.iterator().next()).isNotNull();
+        assertThat(breakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
 }
