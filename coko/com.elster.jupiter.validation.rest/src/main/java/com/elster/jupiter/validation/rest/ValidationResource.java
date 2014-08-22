@@ -11,10 +11,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.*;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -131,6 +128,24 @@ public class ValidationResource {
             }
         });
         return getValidationRuleSet(info.id, securityContext);
+    }
+
+    @GET
+    @Path("/{id}/usage")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getValidationRuleSetUsage(@PathParam("id") final long id, @Context final SecurityContext securityContext) {
+        ValidationRuleSet validationRuleSet = fetchValidationRuleSet(id, securityContext);
+        return Response.status(Response.Status.OK).entity(isValidationRuleSetInUse(validationRuleSet)).build();
+    }
+
+    private boolean isValidationRuleSetInUse(ValidationRuleSet validationRuleSet) {
+        List<ValidationRuleSetResolver> resolvers = Bus.getValidationService().getValidationRuleSetResolvers();
+        for(ValidationRuleSetResolver resolver : resolvers) {
+            if(resolver.isValidationRuleSetInUse(validationRuleSet)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @DELETE
