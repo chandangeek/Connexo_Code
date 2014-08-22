@@ -219,6 +219,16 @@ Ext.define('Uni.view.grid.BulkSelection', {
      */
     radioGroupName: 'selectedGroupType-' + new Date().getTime() * Math.random(),
 
+    /**
+     * @cfg radioHidden
+     */
+    radioHidden: false,
+
+    /**
+     * @cfg bottomToolbarHidden
+     */
+    bottomToolbarHidden: false,
+
     gridHeight: 0,
     gridHeaderHeight: 0,
 
@@ -241,6 +251,10 @@ Ext.define('Uni.view.grid.BulkSelection', {
              */
             'selecteditemsadd'
         );
+
+        if (me.radioHidden) {
+            me.allChosenByDefault = true;
+        }
 
         me.dockedItems = [
             {
@@ -366,6 +380,8 @@ Ext.define('Uni.view.grid.BulkSelection', {
             currentGridHeaderHeight,
             noBorderCls = 'force-no-border';
 
+        me.getTopToolbarContainer().setVisible(visible);
+
         if (me.rendered) {
             currentGridHeight = me.getView().height;
             currentGridHeaderHeight = me.headerCt.height;
@@ -384,10 +400,8 @@ Ext.define('Uni.view.grid.BulkSelection', {
                 me.gridHeaderHeight = currentGridHeaderHeight;
             }
 
-            me.getTopToolbarContainer().setVisible(visible);
             me.getView().height = gridHeight;
             me.headerCt.height = gridHeaderHeight;
-            me.doLayout();
         }
     },
 
