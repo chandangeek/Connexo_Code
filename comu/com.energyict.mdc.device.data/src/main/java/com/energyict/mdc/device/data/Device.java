@@ -216,6 +216,9 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     Date getModDate();
 
+    @Override
+    List<LogBook> getLogBooks();
+
     LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook);
 
     LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile);
@@ -240,10 +243,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param meterReading the meterReadings which will be stored
      */
     void store(MeterReading meterReading);
-
-    public List<LoadProfileReading> getChannelDataFor(LoadProfile loadProfile, Interval interval);
-
-    List<LoadProfileReading> getChannelDataFor(Channel channel, Interval interval);
 
     /**
      * Gets a list of all device multipliers that were active for a device

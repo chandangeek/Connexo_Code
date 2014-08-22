@@ -192,12 +192,6 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         @Override
-        public ComSessionBuilder totalTime(long totalTime) {
-            comSession.setTotalTime(totalTime);
-            return parentBuilder();
-        }
-
-        @Override
         public ComSessionBuilder unsuccessful() {
             comSession.setSuccessful(false);
             return parentBuilder();
@@ -310,11 +304,6 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     @Override
     public ComSessionBuilder talkDuration(Duration duration) {
         return state.talkDuration(duration);
-    }
-
-    @Override
-    public ComSessionBuilder totalTime(long totalTime) {
-        return state.totalTime(totalTime);
     }
 
     @Override

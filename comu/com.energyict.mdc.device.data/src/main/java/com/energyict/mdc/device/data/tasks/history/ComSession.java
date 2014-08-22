@@ -1,13 +1,14 @@
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.elster.jupiter.util.time.Interval;
-
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
+
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
 import org.joda.time.Duration;
 
 import java.util.Date;
@@ -60,7 +61,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      *
      * @return The total number of milli seconds
      */
-    public long getTotalTime ();
+    public Duration getTotalDuration();
 
     /**
      * Gets the number of milli seconds take were necessary to setup the connection.

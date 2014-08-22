@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -48,6 +49,15 @@ public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
      * @return the Interval of the LoadProfile
      */
     TimeDuration getInterval();
+
+    /**
+     * Returns the data of all of this load profile's channels
+     *
+     * @param interval The interval over which data will be returned
+     * @return data for all channels of this loadprofile
+     */
+    public List<LoadProfileReading> getChannelData(Interval interval);
+
 
     /**
      * Gets the {@link com.energyict.mdc.device.config.LoadProfileSpec} which

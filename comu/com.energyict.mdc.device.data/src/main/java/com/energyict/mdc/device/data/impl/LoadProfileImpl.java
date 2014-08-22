@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -18,6 +19,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import com.energyict.mdc.device.data.LoadProfileReading;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -37,7 +39,7 @@ public class LoadProfileImpl implements LoadProfile {
     private final DataModel dataModel;
 
     private long id;
-    private Reference<Device> device = ValueReference.absent();
+    private Reference<DeviceImpl> device = ValueReference.absent();
     private Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
     private UtcInstant lastReading;
 
@@ -47,7 +49,7 @@ public class LoadProfileImpl implements LoadProfile {
         this.dataModel = dataModel;
     }
 
-    LoadProfileImpl initialize(LoadProfileSpec loadProfileSpec, Device device) {
+    LoadProfileImpl initialize(LoadProfileSpec loadProfileSpec, DeviceImpl device) {
         this.loadProfileSpec.set(loadProfileSpec);
         this.device.set(device);
         return this;
@@ -126,6 +128,11 @@ public class LoadProfileImpl implements LoadProfile {
     @Override
     public ObisCode getLoadProfileTypeObisCode() {
         return getLoadProfileSpec().getLoadProfileType().getObisCode();
+    }
+
+    @Override
+    public List<LoadProfileReading> getChannelData(Interval interval) {
+        return this.device.get().getChannelData(this, interval);
     }
 
     private void update() {
@@ -261,6 +268,11 @@ public class LoadProfileImpl implements LoadProfile {
         @Override
         public ReadingType getReadingType() {
             return channelSpec.getReadingType();
+        }
+
+        @Override
+        public List<LoadProfileReading> getChannelData(Interval interval) {
+            return LoadProfileImpl.this.device.get().getChannelData(this, interval);
         }
     }
 }

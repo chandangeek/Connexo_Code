@@ -1,11 +1,13 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
-
 import java.util.Date;
+import java.util.List;
 
 /**
  * Models a Logbook on a Device.
@@ -23,6 +25,8 @@ public interface LogBook extends BaseLogBook, HasId {
     LogBookSpec getLogBookSpec();
 
     LogBookType getLogBookType();
+
+    public List<EndDeviceEventRecord> getEndDeviceEvents(Interval interval);
 
     /**
      * Defines an <i>update</i> component to update a {@link com.energyict.mdc.device.data.LogBook} implementation

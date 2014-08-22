@@ -1,19 +1,21 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComStatistics;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPool;
+
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
 import org.joda.time.Duration;
 
 import javax.inject.Inject;
@@ -38,7 +40,7 @@ public class ComSessionImpl implements ComSession {
         STATISTICS("statistics"),
         START_DATE("startDate"),
         STOP_DATE("stopDate"),
-        TOTAL_TIME("totalTime"),
+        TOTAL_TIME("totalMillis"),
         CONNECT_MILLIS("connectMillis"),
         TALK_MILLIS("talkMillis"),
         STORE_MILLIS("storeMillis"),
@@ -72,9 +74,9 @@ public class ComSessionImpl implements ComSession {
 
     private Reference<ComStatistics> statistics = ValueReference.absent();
 
-    private Date startDate;
-    private Date stopDate;
-    private long totalTime;
+    private UtcInstant startDate;
+    private UtcInstant stopDate;
+    private long totalMillis;
     private long connectMillis;
     private long talkMillis;
     private long storeMillis;
@@ -135,17 +137,17 @@ public class ComSessionImpl implements ComSession {
 
     @Override
     public Date getStartDate() {
-        return startDate;
+        return startDate.toDate();
     }
 
     @Override
     public Date getStopDate() {
-        return stopDate;
+        return stopDate.toDate();
     }
 
     @Override
-    public long getTotalTime() {
-        return totalTime;
+    public Duration getTotalDuration() {
+        return Duration.millis(totalMillis);
     }
 
     @Override
@@ -193,10 +195,6 @@ public class ComSessionImpl implements ComSession {
         return this.taskNotExecutedCount;
     }
 
-    void setTotalTime(long totalTime) {
-        this.totalTime = totalTime;
-    }
-
     void setTalkDuration(Duration duration) {
         this.talkMillis = duration.getMillis();
     }
@@ -210,6 +208,10 @@ public class ComSessionImpl implements ComSession {
     }
 
     void setStopTime(Date stopTime) {
+        this.setStopTime(new UtcInstant(stopTime));
+    }
+
+    private void setStopTime(UtcInstant stopTime) {
         this.stopDate = stopTime;
     }
 
@@ -249,22 +251,31 @@ public class ComSessionImpl implements ComSession {
 
     @Override
     public void save() {
-        if (id == 0) {
-            dataModel.mapper(ComSession.class).persist(this);
-            return;
+        this.calculateTotalMillis();
+        if (this.id == 0) {
+            this.dataModel.mapper(ComSession.class).persist(this);
         }
-        dataModel.mapper(ComSession.class).update(this);
+        else {
+            this.dataModel.mapper(ComSession.class).update(this);
+        }
+    }
+
+    private void calculateTotalMillis() {
+        if (this.startDate != null && this.stopDate != null) {
+            this.totalMillis = (this.stopDate.getTime() - this.startDate.getTime());
+        }
     }
 
     public static ComSessionImpl from(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
-        return dataModel.getInstance(ComSessionImpl.class).init(connectionTask, comPortPool, comPort, startTime);
+        return dataModel.getInstance(ComSessionImpl.class).init(connectionTask, comPortPool, comPort, new UtcInstant(startTime));
     }
 
-    private ComSessionImpl init(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime) {
+    private ComSessionImpl init(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, UtcInstant startTime) {
         this.connectionTask.set(connectionTask);
         this.comPortPool.set(comPortPool);
         this.comPort.set(comPort);
         this.startDate = startTime;
         return this;
     }
+
 }
