@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.readings.EndDeviceEvent;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -12,7 +12,6 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.masterdata.LogBookType;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
@@ -27,7 +26,7 @@ public class LogBookImpl implements LogBook {
     private final DataModel dataModel;
 
     private long id;
-    private Reference<Device> device = ValueReference.absent();
+    private Reference<DeviceImpl> device = ValueReference.absent();
     private Reference<LogBookSpec> logBookSpec = ValueReference.absent();
     private UtcInstant lastReading;
 
@@ -37,7 +36,7 @@ public class LogBookImpl implements LogBook {
         this.dataModel = dataModel;
     }
 
-    LogBookImpl initialize(LogBookSpec logBookSpec, Device device) {
+    LogBookImpl initialize(LogBookSpec logBookSpec, DeviceImpl device) {
         this.logBookSpec.set(logBookSpec);
         this.device.set(device);
         return this;
@@ -82,8 +81,8 @@ public class LogBookImpl implements LogBook {
     }
 
     @Override
-    public List<EndDeviceEvent> getEndDeviceEvents(Interval interval) {
-        return Collections.emptyList();
+    public List<EndDeviceEventRecord> getEndDeviceEvents(Interval interval) {
+        return this.device.get().getLogBookDeviceEvents(this, interval);
     }
 
     abstract static class LogBookUpdater implements LogBook.LogBookUpdater {

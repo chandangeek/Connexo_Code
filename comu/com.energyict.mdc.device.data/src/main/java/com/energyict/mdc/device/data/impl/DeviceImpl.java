@@ -1056,6 +1056,23 @@ public class DeviceImpl implements Device {
         return new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
     }
 
+    List<EndDeviceEventRecord> getLogBookDeviceEvents(LogBook logBook, Interval interval) {
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        List<EndDeviceEventRecord> endDeviceEventRecords = new ArrayList<>();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                List<EndDeviceEventRecord> deviceEvents = meter.get().getDeviceEvents(interval);
+                for (EndDeviceEventRecord deviceEvent : deviceEvents) {
+                    if (deviceEvent.getLogBookId()==logBook.getId()) {
+                        endDeviceEventRecords.add(deviceEvent);
+                    }
+                }
+            }
+        }
+        return endDeviceEventRecords;
+    }
+
     private void getUnsortedChannelDataFor(Interval interval, Meter meter, Channel mdcChannel, Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
         List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, interval);
         for (MeterActivation meterActivation : meterActivations) {
