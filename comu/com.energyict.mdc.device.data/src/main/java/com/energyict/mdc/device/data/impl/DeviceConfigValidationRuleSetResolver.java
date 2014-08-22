@@ -5,6 +5,8 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import org.osgi.service.component.annotations.Component;
@@ -22,10 +24,16 @@ import java.util.List;
 public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetResolver {
 
     private volatile DeviceDataService deviceDataService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
 
     @Reference
     public void setDeviceDataService(DeviceDataService deviceDataService) {
         this.deviceDataService = deviceDataService;
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
@@ -37,6 +45,14 @@ public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetR
             }
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
+        if(!deviceConfigurationService.findDeviceConfigurationsForValidationRuleSet(ruleset.getId()).isEmpty()) {
+                return true;
+        }
+        return false;
     }
 
     private boolean hasMdcMeter(MeterActivation meterActivation) {
