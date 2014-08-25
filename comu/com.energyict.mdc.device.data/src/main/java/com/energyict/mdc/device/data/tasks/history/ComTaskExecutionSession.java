@@ -48,11 +48,11 @@ public interface ComTaskExecutionSession extends HasId {
      * Returns a {@link ComCommandJournalEntryBuilder} that adds a new
      * {@link ComCommandJournalEntry} to this ComTaskExecutionSession.
      *
+     * @param timestamp The timestamp of which the ComCommandJournalEntry
+     * @param completionCode The CompletionCode of the ComCommand
+     * @param errorDescription The error description
+     * @param commandDescription The ComCommand description
      * @return The ComCommandJournalEntryBuilder
-     * @param timestamp
-     * @param completionCode
-     * @param errorDescription
-     * @param commandDescription
      */
     public ComCommandJournalEntry createComCommandJournalEntry(Date timestamp, CompletionCode completionCode, String errorDescription, String commandDescription);
 
@@ -60,10 +60,10 @@ public interface ComTaskExecutionSession extends HasId {
      * Returns a {@link ComCommandJournalEntryBuilder} that adds a new
      * {@link ComTaskExecutionMessageJournalEntry} to this ComTaskExecutionSession.
      *
+     * @param timestamp The timestamp of which the ComCommandJournalEntry
+     * @param errorDescription The error description
+     * @param message The message
      * @return The ComTaskExecutionMessageJournalEntryBuilder
-     * @param timestamp
-     * @param errorDescription
-     * @param message
      */
     public ComTaskExecutionMessageJournalEntry createComTaskExecutionMessageJournalEntry(Date timestamp, String errorDescription, String message);
 

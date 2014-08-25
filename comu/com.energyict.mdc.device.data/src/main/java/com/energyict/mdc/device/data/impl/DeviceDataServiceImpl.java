@@ -52,6 +52,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.ComPort;
@@ -1632,6 +1633,51 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             counters.put(businessObjectId, successIndicatorCounters);
         }
         return successIndicatorCounters;
+    }
+
+    @Override
+    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount() {
+        SqlBuilder sqlBuilder = new SqlBuilder("select t.highestPrioCompletionCode, count(*) from (select comtaskexec, MAX(HIGHESTPRIOCOMPLETIONCODE) KEEP (DENSE_RANK LAST ORDER BY ctes.startdate) HIGHESTPRIOCOMPLETIONCODE from ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        sqlBuilder.append(" ctes group by comtaskexec) t group by t.highestPrioCompletionCode");
+        return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
+    }
+
+    private Map<CompletionCode, Long> fetchCompletionCodeCounters(SqlBuilder builder) {
+        Map<CompletionCode, Long> counters = new HashMap<>();
+        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(false))) {
+            this.fetchCompletionCodeCounters(stmnt, counters);
+        }
+        catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+        return counters;
+    }
+
+    private void fetchCompletionCodeCounters(PreparedStatement statement, Map<CompletionCode, Long> counters) throws SQLException {
+        try (ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                int completionCodeOrdinal = resultSet.getInt(1);
+                long counter = resultSet.getLong(2);
+                counters.put(CompletionCode.fromOrdinal(completionCodeOrdinal), counter);
+            }
+        }
+    }
+
+    private Map<CompletionCode, Long> addMissingCompletionCodeCounters(Map<CompletionCode, Long> counters) {
+        for (CompletionCode missing : this.completionCodeComplement(counters.keySet())) {
+            counters.put(missing, 0L);
+        }
+        return counters;
+    }
+
+    private EnumSet<CompletionCode> completionCodeComplement(Set<CompletionCode> completionCodes) {
+        if (completionCodes.isEmpty()) {
+            return EnumSet.allOf(CompletionCode.class);
+        }
+        else {
+            return EnumSet.complementOf(EnumSet.copyOf(completionCodes));
+        }
     }
 
     @Override

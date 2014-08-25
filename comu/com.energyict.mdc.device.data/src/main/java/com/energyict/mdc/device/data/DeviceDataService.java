@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -531,6 +532,14 @@ public interface DeviceDataService {
      * @return The numbers, broken down by SuccessIndicator
      */
     public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount();
+
+    /**
+     * Counts the last {@link ComSession} of all {@link ConnectionTask}s,
+     * grouping them by their respective highest priority {@link CompletionCode}.
+     *
+     * @return The numbers, broken down by SuccessIndicator
+     */
+    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount();
 
     /**
      * Counts all {@link ConnectionTask}s grouping them by their
