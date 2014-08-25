@@ -277,15 +277,15 @@ Ext.define('Uni.view.grid.BulkSelection', {
                         items: [
                             {
                                 name: me.radioGroupName,
-                                boxLabel: '<b>' + me.allLabel + '</b><br/>' +
-                                    '<span style="color: grey;">' + me.allDescription + '</span>',
+                                boxLabel: '<b>' + me.allLabel + '</b>',
+                                afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + me.allDescription + '</span>',
                                 inputValue: me.allInputValue,
                                 checked: me.allChosenByDefault
                             },
                             {
                                 name: me.radioGroupName,
-                                boxLabel: '<b>' + me.selectedLabel + '</b><br/>' +
-                                    '<span style="color: grey;">' + me.selectedDescription + '</span>',
+                                boxLabel: '<b>' + me.selectedLabel + '</b>',
+                                afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + me.selectedDescription + '</span>',
                                 inputValue: me.selectedInputValue,
                                 checked: !me.allChosenByDefault
                             }
