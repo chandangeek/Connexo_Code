@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.impl;
 
 import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
@@ -16,6 +17,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -426,6 +428,27 @@ public class DashboardServiceImplTest {
         assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
         assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
         assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+    }
+
+    @Test
+    public void testComTaskExecutionCompletionCodeOverview () {
+        Map<CompletionCode, Long> counters = new EnumMap<>(CompletionCode.class);
+        for (CompletionCode completionCode : CompletionCode.values()) {
+            counters.put(completionCode, EXPECTED_STATUS_COUNT_VALUE);
+        }
+        when(this.deviceDataService.getComTaskLastComSessionHighestPriorityCompletionCodeCount()).thenReturn(counters);
+
+        // Business methods
+        ComCommandCompletionCodeOverview overview = this.dashboardService.getCommunicationTaskCompletionResultOverview();
+
+        // Asserts
+        assertThat(overview).isNotNull();
+        verify(this.deviceDataService).getComTaskLastComSessionHighestPriorityCompletionCodeCount();
+        assertThat(overview.iterator().hasNext()).isTrue();
+        for (Counter<CompletionCode> completionCodeCounter : overview) {
+            assertThat(completionCodeCounter.getCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
+        }
+        assertThat(overview.getTotalCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE * CompletionCode.values().length);
     }
 
 }

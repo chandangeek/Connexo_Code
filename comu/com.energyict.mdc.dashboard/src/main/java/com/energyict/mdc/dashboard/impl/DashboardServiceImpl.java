@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
@@ -18,6 +19,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -242,6 +244,16 @@ public class DashboardServiceImpl implements DashboardService {
             breakdown.add(new TaskStatusBreakdownCounterImpl<>(comTask, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
         }
         return breakdown;
+    }
+
+    @Override
+    public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview() {
+        ComCommandCompletionCodeOverviewImpl overview = new ComCommandCompletionCodeOverviewImpl();
+        Map<CompletionCode, Long> completionCodeCount = this.deviceDataService.getComTaskLastComSessionHighestPriorityCompletionCodeCount();
+        for (CompletionCode completionCode : CompletionCode.values()) {
+            overview.add(new CounterImpl<>(completionCode, completionCodeCount.get(completionCode)));
+        }
+        return overview;
     }
 
     private List<ComSession.SuccessIndicator> orderedSuccessIndicators() {

@@ -35,4 +35,6 @@ public interface DashboardService {
 
     public ComTaskBreakdown getCommunicationTasksBreakdown();
 
+    public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview();
+
 }
