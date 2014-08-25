@@ -9,5 +9,5 @@ package com.energyict.mdc.dashboard;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-04 (16:52)
  */
-public interface HeatMap<T> extends Iterable<HeatMapRow<T>> {
+public interface ConnectionTaskHeatMap<T> extends Iterable<ConnectionTaskHeatMapRow<T>> {
 }

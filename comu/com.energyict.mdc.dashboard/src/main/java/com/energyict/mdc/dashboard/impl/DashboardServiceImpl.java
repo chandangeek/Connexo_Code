@@ -6,11 +6,12 @@ import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ComTaskBreakdown;
+import com.energyict.mdc.dashboard.CommunicationTaskHeatMap;
+import com.energyict.mdc.dashboard.ConnectionTaskDeviceTypeHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.ConnectionTypeHeatMap;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
-import com.energyict.mdc.dashboard.DeviceTypeHeatMap;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -155,7 +156,7 @@ public class DashboardServiceImpl implements DashboardService {
         Map<ConnectionTypePluggableClass, List<Long>> rawData = this.deviceDataService.getConnectionTypeHeatMap();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : rawData.keySet()) {
             List<Long> counters = rawData.get(connectionTypePluggableClass);
-            HeatMapRowImpl<ConnectionTypePluggableClass> heatMapRow = new HeatMapRowImpl<>(connectionTypePluggableClass);
+            ConnectionTaskHeatMapRowImpl<ConnectionTypePluggableClass> heatMapRow = new ConnectionTaskHeatMapRowImpl<>(connectionTypePluggableClass);
             heatMapRow.add(this.newComSessionSuccessIndicatorOverview(counters));
             heatMap.add(heatMapRow);
         }
@@ -163,12 +164,12 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public DeviceTypeHeatMap getDeviceTypeHeatMap() {
-        DeviceTypeHeatMapImpl heatMap = new DeviceTypeHeatMapImpl();
-        Map<DeviceType, List<Long>> rawData = this.deviceDataService.getDeviceTypeHeatMap();
+    public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap() {
+        ConnectionTaskDeviceTypeHeatMapImpl heatMap = new ConnectionTaskDeviceTypeHeatMapImpl();
+        Map<DeviceType, List<Long>> rawData = this.deviceDataService.getConnectionsDeviceTypeHeatMap();
         for (DeviceType deviceType : rawData.keySet()) {
             List<Long> counters = rawData.get(deviceType);
-            HeatMapRowImpl<DeviceType> heatMapRow = new HeatMapRowImpl<>(deviceType);
+            ConnectionTaskHeatMapRowImpl<DeviceType> heatMapRow = new ConnectionTaskHeatMapRowImpl<>(deviceType);
             heatMapRow.add(this.newComSessionSuccessIndicatorOverview(counters));
             heatMap.add(heatMapRow);
         }
@@ -176,12 +177,12 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ComPortPoolHeatMap getComPortPoolHeatMap() {
+    public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap() {
         ComPortPoolHeatMapImpl heatMap = new ComPortPoolHeatMapImpl();
-        Map<ComPortPool, List<Long>> rawData = this.deviceDataService.getComPortPoolHeatMap();
+        Map<ComPortPool, List<Long>> rawData = this.deviceDataService.getConnectionsComPortPoolHeatMap();
         for (ComPortPool comPortPool : rawData.keySet()) {
             List<Long> counters = rawData.get(comPortPool);
-            HeatMapRowImpl<ComPortPool> heatMapRow = new HeatMapRowImpl<>(comPortPool);
+            ConnectionTaskHeatMapRowImpl<ComPortPool> heatMapRow = new ConnectionTaskHeatMapRowImpl<>(comPortPool);
             heatMapRow.add(this.newComSessionSuccessIndicatorOverview(counters));
             heatMap.add(heatMapRow);
         }
@@ -252,6 +253,28 @@ public class DashboardServiceImpl implements DashboardService {
         Map<CompletionCode, Long> completionCodeCount = this.deviceDataService.getComTaskLastComSessionHighestPriorityCompletionCodeCount();
         for (CompletionCode completionCode : CompletionCode.values()) {
             overview.add(new CounterImpl<>(completionCode, completionCodeCount.get(completionCode)));
+        }
+        return overview;
+    }
+
+    @Override
+    public CommunicationTaskHeatMap getCommunicationTasksHeatMap() {
+        CommunicationTaskHeatMapImpl heatMap = new CommunicationTaskHeatMapImpl();
+        Map<DeviceType, List<Long>> rawData = this.deviceDataService.getComTasksDeviceTypeHeatMap();
+        for (DeviceType deviceType : rawData.keySet()) {
+            List<Long> counters = rawData.get(deviceType);
+            CommunicationTaskHeatMapRowImpl heatMapRow = new CommunicationTaskHeatMapRowImpl(deviceType);
+            heatMapRow.add(this.newComCommandCompletionCodeOverview(counters));
+            heatMap.add(heatMapRow);
+        }
+        return heatMap;
+    }
+
+    private ComCommandCompletionCodeOverview newComCommandCompletionCodeOverview(List<Long> counters) {
+        Iterator<Long> completionCodeValues = counters.iterator();
+        ComCommandCompletionCodeOverviewImpl overview = new ComCommandCompletionCodeOverviewImpl();
+        for (CompletionCode completionCode : CompletionCode.values()) {
+            overview.add(new CounterImpl<>(completionCode, completionCodeValues.next()));
         }
         return overview;
     }

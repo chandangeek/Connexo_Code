@@ -1,7 +1,7 @@
 package com.energyict.mdc.dashboard.impl;
 
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
-import com.energyict.mdc.dashboard.HeatMapRow;
+import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,22 +10,22 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link HeatMapRow} interface.
+ * Provides an implementation for the {@link ConnectionTaskHeatMapRow} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-04 (17:11)
  */
-public class HeatMapRowImpl<T> implements HeatMapRow<T> {
+public class ConnectionTaskHeatMapRowImpl<T> implements ConnectionTaskHeatMapRow<T> {
 
     private final T target;
     private final List<ComSessionSuccessIndicatorOverview> overviews = new ArrayList<>();
 
-    public HeatMapRowImpl(T target) {
+    public ConnectionTaskHeatMapRowImpl(T target) {
         super();
         this.target = target;
     }
 
-    public HeatMapRowImpl(T target, ComSessionSuccessIndicatorOverview... overviews) {
+    public ConnectionTaskHeatMapRowImpl(T target, ComSessionSuccessIndicatorOverview... overviews) {
         this(target);
         this.overviews.addAll(Arrays.asList(overviews));
     }

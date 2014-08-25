@@ -23,9 +23,9 @@ public interface DashboardService {
 
     public ConnectionTypeHeatMap getConnectionTypeHeatMap();
 
-    public DeviceTypeHeatMap getDeviceTypeHeatMap();
+    public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap();
 
-    public ComPortPoolHeatMap getComPortPoolHeatMap();
+    public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap();
 
     public TaskStatusOverview getCommunicationTaskStatusOverview();
 
@@ -36,5 +36,7 @@ public interface DashboardService {
     public ComTaskBreakdown getCommunicationTasksBreakdown();
 
     public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview();
+
+    public CommunicationTaskHeatMap getCommunicationTasksHeatMap();
 
 }

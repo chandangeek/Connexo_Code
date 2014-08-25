@@ -1,7 +1,6 @@
 package com.energyict.mdc.dashboard.impl;
 
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
-import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 /**
@@ -12,8 +11,8 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
  */
 public class ComCommandCompletionCodeOverviewImpl extends DashboardCountersImpl<CompletionCode> implements ComCommandCompletionCodeOverview {
 
-    public ComCommandCompletionCodeOverviewImpl(Counter<CompletionCode>... counters) {
-        super(counters);
+    public ComCommandCompletionCodeOverviewImpl() {
+        super();
     }
 
 }
