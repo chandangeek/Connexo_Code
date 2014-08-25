@@ -137,4 +137,7 @@ mvn:com.elster.jupiter/systemadmin/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/systemadmin.rest/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/systemadmin.extjs/1.0.0-SNAPSHOT	
 mvn:com.elster.jupiter/properties/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.dashboard/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.dashboard.rest/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.dashboard.extjs/1.0.0-SNAPSHOT
 
