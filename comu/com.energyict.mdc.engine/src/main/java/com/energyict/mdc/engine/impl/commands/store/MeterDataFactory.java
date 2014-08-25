@@ -46,7 +46,7 @@ public final class MeterDataFactory {
     public static Reading createReadingForDeviceRegisterAndObisCode(final CollectedRegister deviceRegister) {
         ReadingImpl reading = getRegisterReading(deviceRegister);
         if (deviceRegister.getFromTime() != null && deviceRegister.getToTime() != null) {
-            reading.setInterval(deviceRegister.getFromTime(), deviceRegister.getToTime());
+            reading.setTimePeriod(deviceRegister.getFromTime(), deviceRegister.getToTime());
         }
         return reading;
     }
