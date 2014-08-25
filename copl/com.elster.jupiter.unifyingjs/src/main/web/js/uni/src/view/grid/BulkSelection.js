@@ -254,15 +254,17 @@ Ext.define('Uni.view.grid.BulkSelection', {
     onSelectDefaultGroupType: function () {
         var me = this,
             row = me.getView().getNode(0),
-            rowHeight = Ext.get(row).getHeight(),
+            rowElement = Ext.get(row),
             value = {};
 
         value[me.radioGroupName] = me.allChosenByDefault ? me.allInputValue : me.selectedInputValue;
         me.getSelectionGroupType().setValue(value);
 
-        // Forces the view to update itself.
-        me.getView().setHeight(me.store.getCount() * rowHeight);
-        me.doLayout();
+        if (rowElement !== null) {
+            // Forces the view to update itself.
+            me.getView().setHeight(me.store.getCount() * rowElement.getHeight());
+            me.doLayout();
+        }
 
         me.onChangeSelectionGroupType();
     },
