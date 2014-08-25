@@ -55,6 +55,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     private String severity;
     private String issuerID;
     private String issuerTrackingID;
+    private String deviceEventType;
     private Status status;
     private long processingFlags;
     private int logBookId;
@@ -257,6 +258,16 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @Override
     public void setmRID(String mRID) {
         this.mRID = mRID;
+    }
+
+    @Override
+    public String getDeviceEventType() {
+        return deviceEventType;
+    }
+
+    @Override
+    public void setDeviceEventType(String deviceEventType) {
+        this.deviceEventType = deviceEventType;
     }
 
     EndDeviceEventRecordImpl init(EndDevice endDevice, EndDeviceEventType eventType, Date createdDateTime) {

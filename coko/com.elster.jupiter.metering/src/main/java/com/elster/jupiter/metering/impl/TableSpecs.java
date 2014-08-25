@@ -321,6 +321,7 @@ public enum TableSpecs {
             table.column("PROCESSINGFLAGS").type("number").map("processingFlags").conversion(NUMBER2LONG).add();
             table.column("LOGBOOKID").type("number").map("logBookId").conversion(NUMBER2INT).add();
             table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").conversion(NUMBER2INT).add();
+            table.column("DEVICEEVENTTYPE").varChar(80).map("deviceEventType").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_ENDDEVICEEVENTRECORD").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn).add();
             table.foreignKey("MTR_FK_EVENT_ENDDEVICE").on(endDeviceColumn).references(MTR_ENDDEVICE.name()).onDelete(DeleteRule.CASCADE).map("endDevice").add();
