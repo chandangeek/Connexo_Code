@@ -50,6 +50,8 @@ Ext.define('Dsh.view.ConnectionOverview', {
                         xtype: 'summary',
                         flex: 3,
                         wTitle: Uni.I18n.translate('connection.widget.summary.title', 'DSH', 'Connection summary'),
+                        router: me.router,
+                        parent: 'connections',
                         style: {
                             paddingRight: '150px'
                         }
@@ -86,7 +88,9 @@ Ext.define('Dsh.view.ConnectionOverview', {
 //            },
             {
                 xtype: 'overview',
-                category: 'Connection'
+                category: 'Connection',
+                parent: 'connections',
+                router: me.router
             },
             {
                 xtype: 'breakdown',

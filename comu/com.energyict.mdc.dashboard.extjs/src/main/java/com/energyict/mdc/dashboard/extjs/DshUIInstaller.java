@@ -22,6 +22,8 @@ public class DshUIInstaller implements InstallService {
     private volatile Thesaurus thesaurus;
     private volatile Activator activator;
 
+    public DshUIInstaller(){}
+
     @Activate
     public void activate(BundleContext context) {
         try {
