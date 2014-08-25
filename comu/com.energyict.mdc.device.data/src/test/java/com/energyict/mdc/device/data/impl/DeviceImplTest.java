@@ -483,7 +483,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Date readingTimeStamp = eventEnd;
         com.elster.jupiter.metering.readings.beans.ReadingImpl reading =
                 new com.elster.jupiter.metering.readings.beans.ReadingImpl(this.averageForwardEnergyReadingTypeMRID, readingValue, readingTimeStamp);
-        reading.setInterval(eventStart, eventEnd);
+        reading.setTimePeriod(eventStart, eventEnd);
         MeterReadingImpl meterReading = new MeterReadingImpl();
         meterReading.addReading(reading);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
