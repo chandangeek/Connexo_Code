@@ -36,15 +36,13 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
+import java.util.Arrays;
+import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.osgi.framework.BundleContext;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -97,6 +95,7 @@ public class PersistenceTest {
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(EventService.class); // fake call to make sure component is initialized
             injector.getInstance(MasterDataService.class); // fake call to make sure component is initialized
+            injector.getInstance(TaskService.class); // fake call to make sure component is initialized
             ctx.commit();
         }
         deviceMessageService = mock(DeviceMessageService.class);
