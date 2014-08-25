@@ -25,10 +25,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
             },
             {
                 itemId: 'searchitemsremoveschedules',
-                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.removeSchedules', 'MDC', 'Remove communication schedules') + '</b><br/>' +
-                    '<span style="color: grey;">' +
-                    Uni.I18n.translate('searchItems.bulk.removeScheduleMsg', 'MDC', 'Communication schedule will no longer be visible and used on the selected devices. A record is kept for tracking purposes. This action cannot be undone.') +
-                    '</span>',
+                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.removeSchedules', 'MDC', 'Remove communication schedules') + '</b>',
+                afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('searchItems.bulk.removeScheduleMsg', 'MDC', 'Communication schedule will no longer be visible and used on the selected devices. A record is kept for tracking purposes. This action cannot be undone.') + '</span>',
                 name: 'operation',
                 inputValue: 'remove'
             }
