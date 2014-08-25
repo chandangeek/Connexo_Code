@@ -110,6 +110,7 @@ public class InMemoryPersistence {
             injector.getInstance(MeteringService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
+            injector.getInstance(SchedulingService.class);
             ctx.commit();
         }
         Environment environment = injector.getInstance(Environment.class);
