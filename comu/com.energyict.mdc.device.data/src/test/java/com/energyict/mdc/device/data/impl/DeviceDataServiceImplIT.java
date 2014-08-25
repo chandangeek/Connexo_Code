@@ -1,11 +1,17 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.util.time.UtcInstant;
 
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +47,29 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
         ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
         filter.taskStatuses = this.breakdownStatusses();
         filter.deviceTypes.add(deviceType);
+
+        // Business method
+        Map<TaskStatus, Long> statusCount = inMemoryPersistence.getDeviceDataService().getComTaskExecutionStatusCount(filter);
+
+        // Assertts
+        assertThat(statusCount).isNotNull();
+        for (TaskStatus taskStatus : TaskStatus.values()) {
+            assertThat(statusCount.get(taskStatus)).isNotNull();
+        }
+    }
+
+    @Transactional
+    @Test
+    public void testGetCommunicationTasksComScheduleBreakdown() {
+        ComScheduleBuilder scheduleBuilder =
+                inMemoryPersistence.getSchedulingService().newComSchedule(
+                        "testGetCommunicationTasksComScheduleBreakdown",
+                        new TemporalExpression(TimeDuration.days(1)),
+                        new UtcInstant(new Date()));
+        ComSchedule comSchedule = scheduleBuilder.build();
+        ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
+        filter.taskStatuses = this.breakdownStatusses();
+        filter.comSchedules.add(comSchedule);
 
         // Business method
         Map<TaskStatus, Long> statusCount = inMemoryPersistence.getDeviceDataService().getComTaskExecutionStatusCount(filter);

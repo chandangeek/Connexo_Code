@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.util.time.Clock;
@@ -20,17 +21,20 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
 
     private Set<DeviceType> deviceTypes;
     private Set<ComTask> comTasks;
+    private Set<ComSchedule> comSchedules;
 
     public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, ComTaskExecutionFilterSpecification filter) {
         super(clock);
         this.deviceTypes = new HashSet<>(filter.deviceTypes);
         this.comTasks = new HashSet<>(filter.comTasks);
+        this.comSchedules = new HashSet<>(filter.comSchedules);
     }
 
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
         taskStatus.completeFindBySqlBuilder(this.getActualBuilder(), this.getClock());
         this.appendDeviceTypeSql();
         this.appendComTaskSql();
+        this.appendComSchedulesSql();
     }
 
     private void appendDeviceTypeSql() {
@@ -50,6 +54,17 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
             this.addString(ComTaskExecutionImpl.MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);
             this.append(") and ");
             this.appendInClause("comtask", this.comTasks);
+            this.append(")");
+        }
+    }
+
+    private void appendComSchedulesSql() {
+        if (!this.comSchedules.isEmpty()) {
+            this.appendWhereOrAnd();
+            this.append("(discriminator =");
+            this.addString(ComTaskExecutionImpl.SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);
+            this.append(" and ");
+            this.appendInClause("comschedule", this.comSchedules);
             this.append(")");
         }
     }
