@@ -1,8 +1,8 @@
-Ext.define('Dsh.model.CommunicationOverview', {
-    extend: 'Dsh.model.ConnectionSummary',
+Ext.define('Dsh.model.communication.Overview', {
+    extend: 'Ext.data.Model',
     proxy: {
         type: 'ajax',
-        url: '/api/dsr/connectionoverview',
+        url: '/api/dsr/communicationoverview',
         reader: {
             type: 'json',
             root: 'data'

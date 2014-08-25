@@ -89,7 +89,9 @@ Ext.define('Dsh.view.CommunicationOverview', {
                 category: 'Communication'
             },
             {
-                xtype: 'breakdown'
+                xtype: 'breakdown',
+                parent: 'communications',
+                router: me.router
             }
         ];
         this.callParent(arguments);

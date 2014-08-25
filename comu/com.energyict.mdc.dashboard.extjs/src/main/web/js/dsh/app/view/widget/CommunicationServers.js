@@ -18,7 +18,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                                 '<tpl if="xindex &lt; 4">',
                                     '<tr class="comserver" >',
                                         '<td>',
-                                            '<a href="' + router.getRoute('administration/comservers/detail/overview').buildUrl({id: '{comServerName}'}) + '">{comServerName}</a>',
+                                            '<a href="' + router.getRoute('administration/comservers/detail/overview').buildUrl({id: '{comServerId}'}) + '">{comServerName}</a>',
                                         '</td>',
                                         '<td style="padding-left: 15px;">',
                                             '<tpl if="running">',
@@ -52,7 +52,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                                 '<td>' + record.get('comServerName') + '</td>' +
                                 '</tr>' +
                                 '<tr>' +
-                                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.onlineRemote', 'DSH', 'Online/remote') + '</td>' +
+                                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.onlineRemote', 'DSH', 'Online/Remote') + '</td>' +
                                 '<td>' + record.get('comServerType').charAt(0).toUpperCase() + record.get('comServerType').slice(1).toLocaleLowerCase() + '</td>' +
                                 '</tr>' +
                                 '<tr>' +

@@ -1,22 +1,22 @@
 Ext.define('Dsh.model.CommunicationServerInfo', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'comServerName' },
-        { name: 'comServerType' },
+        { name: 'comServerId', type: 'int' },
+        { name: 'comServerName', type: 'string' },
+        { name: 'comServerType', type: 'string' },
         { name: 'running', type: 'boolean' },
         { name: 'blocked', type: 'boolean' },
-        { name: 'blockTime' }
+        { name: 'blockTime', type: 'auto' }
     ],
     associations: [
         { name: 'blockTime', type: 'hasOne', model: 'Dsh.model.TimeInfo', associationKey: 'blockTime' }
     ],
     proxy: {
-        type: 'rest',
-        url: '../../apps/dashboard/app/fakeData/ComServerStatusInfosFake.json',
+        type: 'ajax',
+        url: '../../api/dsr/comserverstatussummary',
         reader: {
             type: 'json',
-            root: 'comServerStatusInfos',
-            totalProperty: 'total'
+            root: 'comServerStatusInfos'
         }
     }
 });

@@ -40,9 +40,16 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.deviceConfig', 'DSH', 'Device configuration'),
-                    name: 'deviceConfiguration',
+                    name: 'devConfig',
                     renderer: function (val) {
-                        return '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>'
+                        var res = '';
+                        val && (res = '<a href="#/administration/devicetypes/' +
+                            val.devType.id + '/deviceconfigurations/' +
+                            val.config.id +
+                            '">' +
+                            val.config.name +
+                            '</a>');
+                        return res
                     }
                 },
                 {
@@ -109,18 +116,24 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.commTasks', 'DSH', 'Communication tasks'),
                     name: 'taskCount',
                     renderer: function (val) {
-                        return '<tpl><span class="fa fa-check fa-lg"></span>' + val.numberOfSuccessfulTasks + '<br></tpl>' +
-                            '<tpl><span class="fa fa-times fa-lg"></span>' + val.numberOfFailedTasks + '<br></tpl>' +
-                            '<tpl><span class="fa fa-ban fa-lg"></span>' + val.numberOfIncompleteTasks + '</tpl>'
+                        return '<tpl><span class="fa fa-check fa-lg" style="color: green; width: 24px; vertical-align: 0% !important;"></span>' + val.numberOfSuccessfulTasks + '</span><br></tpl>' +
+                            '<tpl><span class="fa fa-times fa-lg" style="color: red; width: 24px; vertical-align: 0% !important;"></span>' + val.numberOfFailedTasks + '<br></tpl>' +
+                            '<tpl><span class="fa fa-ban fa-lg" style="color: #333333; width: 24px; vertical-align: 0% !important"></span>' + val.numberOfIncompleteTasks + '</tpl>'
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.startedOn', 'DSH', 'Started on'),
-                    name: 'startDateTime'
+                    name: 'startDateTime',
+                    renderer: function (val) {
+                        return Ext.Date.format(val, 'm/d/Y h:i:s');
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.finishedOn', 'DSH', 'Finished on'),
-                    name: 'endDateTime'
+                    name: 'endDateTime',
+                    renderer: function (val) {
+                        return Ext.Date.format(val, 'm/d/Y h:i:s');
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.duration', 'DSH', 'Duration'),

@@ -23,7 +23,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                         communications: {
                             title: 'Communications',
                             route: 'communications',
-                            controller: 'Dsh.controller.CommunicationOverview',
+                            controller: 'Dsh.controller.Communications',
                             action: 'showOverview'
                         },
                         connection: {
