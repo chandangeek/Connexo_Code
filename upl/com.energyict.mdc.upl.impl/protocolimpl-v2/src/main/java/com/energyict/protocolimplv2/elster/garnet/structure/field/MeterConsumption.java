@@ -28,7 +28,7 @@ public class MeterConsumption extends AbstractField<MeterConsumption> {
         return ProtocolTools.concatByteArrays(
                 serialNumber.getBytes(),
                 getBytesFromInt(activeEnergy, SINGLE_CONSUMPTION_LENGTH),
-                getBCDFromInt(reactiveEnergy, SINGLE_CONSUMPTION_LENGTH)
+                getBytesFromInt(reactiveEnergy, SINGLE_CONSUMPTION_LENGTH)
         );
     }
 

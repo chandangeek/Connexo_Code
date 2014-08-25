@@ -18,8 +18,8 @@ import java.util.TimeZone;
  */
 public class DateTime extends AbstractField<DateTime> {
 
-    private static SimpleDateFormat dateFormatter = new SimpleDateFormat("yyMMddHHmmss");
-    private static SimpleDateFormat toStringDateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyMMddHHmmss");
+    private SimpleDateFormat toStringDateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     public static final int LENGTH = 6;
 
@@ -28,13 +28,13 @@ public class DateTime extends AbstractField<DateTime> {
     public DateTime(TimeZone timeZone) {
         calendar = Calendar.getInstance(timeZone);
         calendar.setTime(Clocks.getAppServerClock().now());
-        dateFormatter.setTimeZone(calendar.getTimeZone());
+        dateFormatter.setTimeZone(timeZone);
     }
 
     public DateTime(TimeZone timeZone, Date date) {
-        this.calendar = Calendar.getInstance(timeZone);
+        calendar = Calendar.getInstance(timeZone);
         dateFormatter.setTimeZone(calendar.getTimeZone());
-        this.calendar.setTime(date);
+        calendar.setTime(date);
     }
 
     @Override

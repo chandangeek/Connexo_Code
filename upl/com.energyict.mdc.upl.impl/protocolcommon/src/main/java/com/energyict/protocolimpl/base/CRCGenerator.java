@@ -253,10 +253,7 @@ static private final int[] CRC16={
         }
         return crc;
     }
-    
-    
-    
-    
+
     static public int calcCRCDirect(byte[] data) {
         return calcCRCDirect(data, 0xA001);
     }

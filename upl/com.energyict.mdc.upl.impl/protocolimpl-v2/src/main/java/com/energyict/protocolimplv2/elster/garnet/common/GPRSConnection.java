@@ -5,7 +5,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Address;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
 import com.energyict.protocolimplv2.elster.garnet.exception.CipheringException;
 import com.energyict.protocolimplv2.elster.garnet.exception.ConnectionException;
@@ -15,6 +14,7 @@ import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException
 import com.energyict.protocolimplv2.elster.garnet.exception.TimeoutException;
 import com.energyict.protocolimplv2.elster.garnet.frame.RequestFrame;
 import com.energyict.protocolimplv2.elster.garnet.frame.ResponseFrame;
+import com.energyict.protocolimplv2.elster.garnet.frame.field.Address;
 import com.energyict.protocolimplv2.elster.garnet.frame.field.Crc;
 import com.energyict.protocolimplv2.elster.garnet.frame.field.FunctionCode;
 import com.energyict.protocolimplv2.elster.garnet.structure.NotExecutedErrorResponseStructure;

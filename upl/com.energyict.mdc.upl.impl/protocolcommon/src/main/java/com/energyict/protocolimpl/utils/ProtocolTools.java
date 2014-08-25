@@ -484,7 +484,7 @@ public final class ProtocolTools {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            throw new ProtocolInterruptedException(e);
+            Thread.currentThread().interrupt();
         }
     }
 
