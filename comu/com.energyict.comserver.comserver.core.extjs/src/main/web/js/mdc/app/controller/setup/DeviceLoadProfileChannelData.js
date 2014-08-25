@@ -49,6 +49,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             'deviceLoadProfileChannelData #deviceLoadProfileDataFilterApplyBtn': {
                 click: this.applyFilter
             },
+            'deviceLoadProfileChannelData #deviceLoadProfileChannelDataFilterForm #hourField': {
+                blur: this.filterTimeFieldBlurHandler
+            },
+            'deviceLoadProfileChannelData #deviceLoadProfileChannelDataFilterForm #minuteField': {
+                blur: this.filterTimeFieldBlurHandler
+            },
             'deviceLoadProfileChannelData #deviceLoadProfileDataFilterResetBtn': {
                 click: this.setDefaults
             },
@@ -214,6 +220,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         page.down('#deviceLoadProfileChannelGraphView').setLoading(true);
         page.down('#deviceLoadProfileChannelDataTopFilter').addButtons(filterModel);
         dataStore.load();
+    },
+
+    filterTimeFieldBlurHandler: function (field) {
+        var value = field.getValue();
+
+        ((!value && value !== 0) || value > field.maxValue || value < field.minValue) && field.setValue(0);
     },
 
     setDefaults: function () {
