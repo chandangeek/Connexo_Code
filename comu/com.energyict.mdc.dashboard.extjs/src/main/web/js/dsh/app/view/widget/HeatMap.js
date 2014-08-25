@@ -64,7 +64,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
         return this.down('#combine-combo');
     },
 
-    loadChart: function (store) {
+    loadChart: function (store, xTitle) {
         if (store.getCount() > 0) {
             var me = this,
                 ycat = [],
@@ -73,27 +73,33 @@ Ext.define('Dsh.view.widget.HeatMap', {
             Ext.each(store.getAt(0).data.data, function (item) {
                 ycat.push(item.displayName);
             });
-            me.setXAxis(xcat, 'Latest result');
-            me.setYAxis(ycat, 'Breakdown');
+            me.setXAxis(xcat, xTitle);
+            me.setYAxis(ycat, 'Latest result');
             me.setChartData(me.storeToHighchartData(store));
         }
     },
 
     initComponent: function () {
         var me = this,
+            xTitle = '',
             store = Ext.getStore('Dsh.store.ConnectionResultsStore');
         this.callParent(arguments);
-
         store.on('load', function (store, records) {
-            me.loadChart(store)
+            me.loadChart(store, xTitle)
         });
-
-        me.getCombo().on('change', function (combo, newValue) {
+        var combo = me.getCombo(),
+            cmp = me.down('#heatmapchart');
+        combo.getStore().on('load', function (store) {
+            if (store.getCount() > 0) {
+                var val = store.getAt(1);
+                combo.select(val);
+                xTitle = val.get('localizedValue')
+            }
+        });
+        combo.on('change', function (combo, newValue) {
             store.proxy.extraParams.filter = '[{"property":"breakdown","value": "' + newValue + '"}]';
             store.load();
         });
-
-        var cmp = me.down('#heatmapchart');
         cmp.on('afterrender', function () {
             Ext.defer(function () {
                 me.renderChart(cmp.getEl().dom);
