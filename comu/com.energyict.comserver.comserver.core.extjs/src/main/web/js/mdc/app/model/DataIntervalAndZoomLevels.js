@@ -23,7 +23,7 @@ Ext.define('Mdc.model.DataIntervalAndZoomLevels', {
                 intervalStart = intervalEndDateTime - all.count * 60000;
                 break;
             case 'hours':
-                intervalStart = intervalEndDateTime + all.count * 1440000;
+                intervalStart = intervalEndDateTime - all.count * 1440000;
                 break;
             case 'days':
                 intervalStart = intervalEndDateTime - all.count * 86400000;
