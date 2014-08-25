@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
         },
         {
             xtype: 'reading-type-displayfield',
-            fieldLabel: Uni.I18n.translate('deviceloadprofiles.cimReadingType', 'MDC', 'CIM reading type'),
+            fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'),
             name: 'cimReadingType'
         },
         {
