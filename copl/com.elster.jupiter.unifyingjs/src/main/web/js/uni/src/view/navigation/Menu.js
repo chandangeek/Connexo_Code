@@ -49,7 +49,8 @@ Ext.define('Uni.view.navigation.Menu', {
             text: model.data.text,
             href: href,
             data: model,
-            iconCls: iconCls
+            iconCls: iconCls,
+            hidden: model.data.hidden
         };
     },
 

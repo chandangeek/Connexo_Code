@@ -8,7 +8,8 @@ Ext.define('Uni.model.MenuItem', {
         'portal',
         'href',
         'glyph',
-        'index'
+        'index',
+        'hidden'
     ],
     proxy: {
         type: 'memory'

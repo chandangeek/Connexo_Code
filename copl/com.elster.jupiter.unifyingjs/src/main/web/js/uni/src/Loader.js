@@ -15,6 +15,7 @@ Ext.define('Uni.Loader', {
 
         'Uni.About',
         'Uni.I18n',
+        'Uni.Auth',
 
         'Uni.controller.Acknowledgements',
         'Uni.controller.Configuration',
@@ -83,6 +84,7 @@ Ext.define('Uni.Loader', {
         Ext.require('Uni.store.AppItems');
         Ext.require('Uni.store.Notifications');
         Ext.require('Uni.store.Translations');
+        Ext.require('Uni.store.Privileges');
     },
 
     loadVtypes: function () {
@@ -133,6 +135,9 @@ Ext.define('Uni.Loader', {
 
     afterLoadingScripts: function (callback) {
         Uni.I18n.load(function () {
+            callback();
+        });
+        Uni.Auth.load(function () {
             callback();
         });
     },
