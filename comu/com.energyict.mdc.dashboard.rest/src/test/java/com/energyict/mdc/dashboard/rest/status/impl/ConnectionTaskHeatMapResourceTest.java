@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (17:27)
  */
-public class ConnectionHeatMapResourceTest extends JerseyTest {
+public class ConnectionTaskHeatMapResourceTest extends JerseyTest {
 
     @Mock
     private StatusService statusService;

@@ -40,7 +40,7 @@ public class ConnectionHeatMapResource {
         BreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
 
         return new ConnectionHeatMapInfo(
-                breakdown==BreakdownOption.comPortPool?dashboardService.getComPortPoolHeatMap():(breakdown==BreakdownOption.connectionType?dashboardService.getConnectionTypeHeatMap():dashboardService.getDeviceTypeHeatMap()),
+                breakdown==BreakdownOption.comPortPool?dashboardService.getConnectionsComPortPoolHeatMap():(breakdown==BreakdownOption.connectionType?dashboardService.getConnectionTypeHeatMap():dashboardService.getConnectionsDeviceTypeHeatMap()),
                 breakdown,
                 thesaurus);
     }

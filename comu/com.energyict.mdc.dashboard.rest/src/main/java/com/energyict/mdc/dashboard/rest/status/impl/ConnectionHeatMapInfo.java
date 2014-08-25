@@ -4,9 +4,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
+import com.energyict.mdc.dashboard.ConnectionTaskHeatMap;
 import com.energyict.mdc.dashboard.Counter;
-import com.energyict.mdc.dashboard.HeatMap;
-import com.energyict.mdc.dashboard.HeatMapRow;
+import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +25,16 @@ public class ConnectionHeatMapInfo {
     @XmlJavaTypeAdapter(BreakdownOptionAdapter.class)
     public BreakdownOption breakdown;
 
-    public <H extends HasName & HasId> ConnectionHeatMapInfo(HeatMap<H> heatMap, BreakdownOption breakdown, Thesaurus thesaurus)
+    public <H extends HasName & HasId> ConnectionHeatMapInfo(ConnectionTaskHeatMap<H> heatMap, BreakdownOption breakdown, Thesaurus thesaurus)
             throws Exception {
         this.breakdown = breakdown;
         this.heatMap=new ArrayList<>();
         createHeatMap(heatMap, breakdown, thesaurus);
     }
 
-    private <H extends HasName & HasId> void createHeatMap(HeatMap<H> heatMap, BreakdownOption breakdown, Thesaurus thesaurus) throws Exception {
+    private <H extends HasName & HasId> void createHeatMap(ConnectionTaskHeatMap<H> heatMap, BreakdownOption breakdown, Thesaurus thesaurus) throws Exception {
         if (heatMap!=null) {
-            for (HeatMapRow<H> row : heatMap) {
+            for (ConnectionTaskHeatMapRow<H> row : heatMap) {
                 HeatMapRowInfo heatMapRowInfo = new HeatMapRowInfo();
                 heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
                 heatMapRowInfo.id = row.getTarget().getId(); // ID of the object
