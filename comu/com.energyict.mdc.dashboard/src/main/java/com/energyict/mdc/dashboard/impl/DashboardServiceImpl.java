@@ -2,6 +2,7 @@ package com.energyict.mdc.dashboard.impl;
 
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
+import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ComTaskBreakdown;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
@@ -21,6 +22,8 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -49,15 +52,17 @@ public class DashboardServiceImpl implements DashboardService {
     private volatile DeviceDataService deviceDataService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile TaskService taskService;
+    private volatile SchedulingService schedulingService;
 
     public DashboardServiceImpl() {
         super();
     }
 
     @Inject
-    public DashboardServiceImpl(TaskService taskService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService) {
+    public DashboardServiceImpl(TaskService taskService, SchedulingService schedulingService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setTaskService(taskService);
+        this.setSchedulingService(schedulingService);
         this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setDeviceDataService(deviceDataService);
@@ -214,6 +219,19 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
+    public ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown() {
+        ComScheduleBreakdownImpl breakdown = new ComScheduleBreakdownImpl();
+        for (ComSchedule comSchedule : this.availableComSchedules()) {
+            ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
+            filter.taskStatuses = this.breakdownStatusses();
+            filter.comSchedules.add(comSchedule);
+            Map<TaskStatus, Long> statusCount = this.deviceDataService.getComTaskExecutionStatusCount(filter);
+            breakdown.add(new TaskStatusBreakdownCounterImpl<>(comSchedule, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
+        }
+        return breakdown;
+    }
+
+    @Override
     public ComTaskBreakdown getCommunicationTasksBreakdown() {
         ComTaskBreakdownImpl breakdown = new ComTaskBreakdownImpl();
         for (ComTask comTask : this.availableComTasks()) {
@@ -232,6 +250,10 @@ public class DashboardServiceImpl implements DashboardService {
 
     private List<DeviceType> availableDeviceTypes () {
         return this.deviceConfigurationService.findAllDeviceTypes().find();
+    }
+
+    private List<ComSchedule> availableComSchedules () {
+        return this.schedulingService.findAllSchedules();
     }
 
     private List<ComTask> availableComTasks () {
@@ -268,6 +290,11 @@ public class DashboardServiceImpl implements DashboardService {
             total = total + statusCount.get(taskStatus);
         }
         return total;
+    }
+
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
     }
 
     @Reference

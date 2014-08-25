@@ -31,6 +31,8 @@ public interface DashboardService {
 
     public DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown();
 
+    public ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown();
+
     public ComTaskBreakdown getCommunicationTasksBreakdown();
 
 }
