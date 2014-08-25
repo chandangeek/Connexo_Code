@@ -43,7 +43,16 @@ public class ReadingStorerImpl implements ReadingStorer {
 		if (channel.isRegular()) {
 			addIntervalReading(channel, reading.getTimeStamp(), ProfileStatus.of(),reading.getValue());
 		} else {
-			this.storer.add(channel.getTimeSeries(),reading.getTimeStamp(),DEFAULTPROCESSSTATUS.getBits(), reading.getValue(),reading.getText());
+			if (channel.hasMacroPeriod()) {
+				Interval interval = reading.getTimePeriod();
+				if (interval == null) {
+					this.storer.add(channel.getTimeSeries(),reading.getTimeStamp(),DEFAULTPROCESSSTATUS.getBits(), reading.getValue(),reading.getText(),null,null);
+				} else {
+					this.storer.add(channel.getTimeSeries(),reading.getTimeStamp(),DEFAULTPROCESSSTATUS.getBits(), reading.getValue(),reading.getText(),interval.getStart(),interval.getEnd());
+				}
+			} else {
+				this.storer.add(channel.getTimeSeries(),reading.getTimeStamp(),DEFAULTPROCESSSTATUS.getBits(), reading.getValue(),reading.getText());
+			}
 		}
         addScope(channel, reading.getTimeStamp());
     }

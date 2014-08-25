@@ -15,7 +15,7 @@ public abstract class BaseReadingImpl implements BaseReading {
 
     private final BigDecimal value;
     private final Date timeStamp;
-    private Optional<Interval> interval = Optional.absent();
+    private Optional<Interval> timePeriod = Optional.absent();
     private String source;
     private BigDecimal sensorAccuracy;
 
@@ -51,15 +51,15 @@ public abstract class BaseReadingImpl implements BaseReading {
 
     @Override
     public Interval getTimePeriod() {
-        return interval.orNull();
+        return timePeriod.orNull();
     }
 
-    public void setInterval(Date start, Date end) {
-        interval = Optional.of(new Interval(start, end));
+    public void setTimePeriod(Date start, Date end) {
+        timePeriod = Optional.of(new Interval(start, end));
     }
 
-    public void setInterval(Optional<Interval> interval) {
-        this.interval = interval;
+    public void setTimePeriod(Interval interval) {
+        this.timePeriod = Optional.fromNullable(interval);
     }
 
     public void setSource(String source) {

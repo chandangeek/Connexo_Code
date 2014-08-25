@@ -35,6 +35,7 @@ import static org.mockito.Mockito.mock;
 public class CachedTypesTest {
 
     private static Injector bootInjector;
+    private Injector injector;
     private static InMemoryBootstrapModule bootMemoryBootstrapModule = new InMemoryBootstrapModule();
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     
@@ -84,12 +85,12 @@ public class CachedTypesTest {
 
     @Before
     public void instanceSetup() throws SQLException {
-//    	injector = getInjector(inMemoryBootstrapModule);
+    	injector = getInjector(inMemoryBootstrapModule);
     }
     
     @After
     public void instanceTearDown() throws SQLException {
-//    	inMemoryBootstrapModule.deactivate();
+    	inMemoryBootstrapModule.deactivate();
     }
     
 

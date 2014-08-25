@@ -32,6 +32,7 @@ public class ReadingImpl extends BaseReadingImpl implements Reading {
     	this.mrid = mrid;
     	this.text = text;
     }
+    
     @Override
     public String getReason() {
         return reason;
@@ -49,6 +50,10 @@ public class ReadingImpl extends BaseReadingImpl implements Reading {
     @Override
     public String getText() {
     	return text;
+    }
+    
+    public void setText(String text) {
+    	this.text = text;
     }
     
 }

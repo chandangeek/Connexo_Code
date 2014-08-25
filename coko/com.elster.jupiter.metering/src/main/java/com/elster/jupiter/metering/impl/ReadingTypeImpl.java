@@ -278,6 +278,9 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         return minutes == 0 ? Optional.<IntervalLength>absent() : Optional.of(IntervalLength.ofMinutes(minutes));
     }
 
+	boolean hasMacroPeriod() {
+		return !macroPeriod.equals(MacroPeriod.NOTAPPLICABLE);
+	}
 
     @Override
     public final boolean equals(Object o) {

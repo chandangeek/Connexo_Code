@@ -102,6 +102,7 @@ public class ChannelImplTest extends EqualsContractTest {
         when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, 1)).thenReturn(Optional.of(recordSpec));
         when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, 2)).thenReturn(Optional.of(recordSpec));
         when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, 4)).thenReturn(Optional.of(recordSpec));
+        when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, 5)).thenReturn(Optional.of(recordSpec));
         when(vault.createIrregularTimeSeries(recordSpec, TIME_ZONE)).thenReturn(timeSeries);
         when(vault.createRegularTimeSeries(recordSpec, TIME_ZONE, IntervalLength.ofDay(), 0)).thenReturn(regularTimeSeries);
         when(timeSeries.getId()).thenReturn(TIMESERIES_ID);

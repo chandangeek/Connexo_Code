@@ -47,14 +47,7 @@ public enum RecordSpecs {
 			 recordSpec.addFieldSpec("Value", NUMBER);
 			 recordSpec.addFieldSpec("Text", TEXT);
 			 recordSpec.addFieldSpec("From Time", DATE);
-		}
-	},
-	DEMANDREGISTER("Demand Register",false) {
-		void addFieldSpecs(RecordSpec recordSpec) {
-			recordSpec.addFieldSpec("Value", NUMBER);
-			recordSpec.addFieldSpec("Text", TEXT);
-			recordSpec.addFieldSpec("From Time", DATE);
-			recordSpec.addFieldSpec("Event Time", DATE);
+			 recordSpec.addFieldSpec("To Time", DATE);
 		}
 	};
 	  

@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.IntervalLength;
 import com.elster.jupiter.ids.RecordSpec;
@@ -134,13 +135,9 @@ public final class ChannelImpl implements Channel {
     private RecordSpec getRecordSpec(boolean regular) {
     	RecordSpecs definition;
     	if (regular) {
-    		if (bulkQuantityReadingType.isPresent()) {
-    			definition = RecordSpecs.BULKQUANTITYINTERVAL;
-    		} else {
-    			definition = RecordSpecs.SINGLEINTERVAL;
-    		}
+    		definition = bulkQuantityReadingType.isPresent() ? RecordSpecs.BULKQUANTITYINTERVAL : RecordSpecs.SINGLEINTERVAL;
     	} else {
-    		definition = RecordSpecs.BASEREGISTER;
+    		definition = hasMacroPeriod() ? RecordSpecs.BILLINGPERIOD : RecordSpecs.BASEREGISTER;
     	}
         return definition.get(idsService);
     }
@@ -362,5 +359,10 @@ public final class ChannelImpl implements Channel {
 			builder.add(createReading(regular,entry));
 		}
 		return builder.build();
+	}
+	
+	@Override
+	public boolean hasMacroPeriod() {
+		return !mainReadingType.get().equals(MacroPeriod.NOTAPPLICABLE);
 	}
 }
