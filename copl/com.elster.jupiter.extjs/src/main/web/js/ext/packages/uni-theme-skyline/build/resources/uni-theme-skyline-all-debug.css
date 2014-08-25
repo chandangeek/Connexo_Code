@@ -13637,7 +13637,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif; }
+  font: normal 13px Lato; }
 
 /* line 21, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-type-text textarea.x-form-invalid-field, .x-form-type-text input.x-form-invalid-field,
@@ -13706,7 +13706,7 @@ textarea.x-form-empty-field {
 
 /* line 11, ../../../ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px/17px Lato;
   color: #686868;
   margin-top: 6px; }
 
@@ -14507,7 +14507,7 @@ a.x-color-picker-item:hover {
 
 /* line 100, ../../../ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px Lato;
   background-color: white;
   resize: none; }
 
@@ -40425,6 +40425,10 @@ div.x-form-spinner-down {
   color: #eb5642;
   font: 13px/16px "Lato", helvetica, arial, verdana, sans-serif;
   padding: 10px 0px 10px 0px; }
+
+/* line 19, ../../sass/src/form/field/Base.scss */
+.x-form-invalid-field {
+  border-color: #eb5642; }
 
 /* line 4, ../../sass/src/window/MessageBox.scss */
 .x-message-box .x-window-body .x-header .x-header-text {
