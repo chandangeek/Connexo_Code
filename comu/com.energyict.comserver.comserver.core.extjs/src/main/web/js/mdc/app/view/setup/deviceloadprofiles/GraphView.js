@@ -98,7 +98,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
             },
 
             legend: {
-                enabled: true
+                enabled: false
             },
 
             plotOptions: {
@@ -125,7 +125,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                             var chart = this.chart,
                                 index = this.index,
                                 visibleYAxises = [],
-                            yAxis;;
+                            yAxis;
 
                             $.each(chart.series, function (i, serie) {
                                 if ((serie.visible) || (serie.index == index)) {
@@ -143,7 +143,11 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                     borderColor: 'black',
                     borderWidth: 0.5,
                     pointPadding: 0,
-                    groupPadding: 0
+                    groupPadding: 0,
+                    color: '#70BB51'
+                },
+                line: {
+                    color: '#70BB51'
                 }
             },
 

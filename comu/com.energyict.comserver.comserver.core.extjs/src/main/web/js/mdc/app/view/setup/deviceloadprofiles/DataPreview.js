@@ -122,13 +122,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                             ]
                         }
                     ]
-                },
-                {
-                    defaults: {
-                        xtype: 'displayfield',
-                        labelWidth: 200
-                    },
-                    items: channelsFields
                 }
             ],
             loadRecord: function (record) {

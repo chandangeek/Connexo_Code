@@ -112,14 +112,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
             title = loadProfileRecord.get('name'),
             interval = loadProfileRecord.get('interval').count + loadProfileRecord.get('interval').timeUnit,
-            currentAxisTopValue = 1,
+            currentAxisTopValue = 2,
             currentLine = 0,
             series = [],
             yAxis = [],
             channels = [],
             measurementTypeOrder = [],
             channelDataArrays = {},
-            flowMeasuresNumbers = {},
             seriesToYAxisMap = {},
             intervalLengthInMs,
             lineCount,
@@ -134,8 +133,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         Ext.Array.each(loadProfileRecord.get('channels'), function (channel, index) {
             var seriesObject = {marker: {
                     enabled: false
-                }},
-                flowLineNumber;
+                }};
             seriesObject['name'] = channel.name;
             channelDataArrays[channel.id] = [];
             seriesObject['data'] = channelDataArrays[channel.id];
@@ -143,24 +141,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 case 'flow':
                     seriesObject['type'] = 'line';
                     seriesObject['step'] = false;
-                    flowLineNumber = flowMeasuresNumbers[channel.unitOfMeasure.id];
-                    if (isNaN(flowLineNumber)) {
-                        flowMeasuresNumbers[channel.unitOfMeasure.id] = currentLine;
-                        seriesObject['yAxis'] = currentLine;
-                        measurementTypeOrder.push(channel.unitOfMeasure.localizedValue);
-                        currentLine += 1;
-                    } else {
-                        seriesObject['yAxis'] = flowLineNumber;
-                    }
                     break;
                 case 'volume':
                     seriesObject['type'] = 'column';
                     seriesObject['step'] = true;
-                    seriesObject['yAxis'] = currentLine;
-                    measurementTypeOrder.push(channel.unitOfMeasure.localizedValue);
-                    currentLine += 1;
                     break;
             }
+            measurementTypeOrder.push(channel.name);
+            seriesObject['yAxis'] = currentLine;
+            currentLine += 1;
             channels.push({name: channel.name, unitOfMeasure: channel.unitOfMeasure.localizedValue });
             seriesToYAxisMap[index] = seriesObject['yAxis'];
             series.push(seriesObject);
@@ -169,12 +158,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         lineCount = measurementTypeOrder.length;
         step = (100 / lineCount | 0) - 1;
 
-        Ext.Array.each(measurementTypeOrder, function (type, index) {
+        Ext.Array.each(channels, function (channel, index) {
             var yAxisObject = {
                 opposite: false,
                 gridLineDashStyle: 'Dot',
                 showEmpty: false
-            };
+            },
+                yAxisTitle = channel.name + ', ' + channel.unitOfMeasure
+
 
             if (index == 0) {
                 yAxisObject['height'] = step + '%';
@@ -184,13 +175,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 } else {
                     yAxisObject['height'] = step + '%';
                 }
-                yAxisObject['top'] = currentAxisTopValue + '%';
                 yAxisObject['offset'] = 0;
             }
+            yAxisObject['top'] = currentAxisTopValue + '%';
             currentAxisTopValue += step + 2;
             yAxisObject['title'] = {
-                rotation: 270,
-                text: type
+                rotation: 0,
+                align: 'high',
+                margin: -40 - 5 * yAxisTitle.length,
+                text: yAxisTitle
             };
             yAxis.push(yAxisObject);
         });

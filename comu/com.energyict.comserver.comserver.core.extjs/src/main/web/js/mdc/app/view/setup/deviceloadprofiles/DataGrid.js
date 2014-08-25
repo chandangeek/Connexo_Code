@@ -30,8 +30,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
             me.columns.push({
                 header: channel.name,
                 dataIndex: 'channelData',
-                flex: 1,
-                minWidth: 100,
+                width: 300,
                 renderer: function (data) {
                     return data[channel.id] + ' ' + channel.unitOfMeasure.localizedValue;
                 }
