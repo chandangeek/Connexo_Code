@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
+import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.util.time.Clock;
 
@@ -18,19 +19,39 @@ import java.util.Set;
 public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractTaskFilterSqlBuilder {
 
     private Set<DeviceType> deviceTypes;
+    private Set<ComTask> comTasks;
 
     public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, ComTaskExecutionFilterSpecification filter) {
         super(clock);
         this.deviceTypes = new HashSet<>(filter.deviceTypes);
+        this.comTasks = new HashSet<>(filter.comTasks);
     }
 
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
         taskStatus.completeFindBySqlBuilder(this.getActualBuilder(), this.getClock());
         this.appendDeviceTypeSql();
+        this.appendComTaskSql();
     }
 
     private void appendDeviceTypeSql() {
         this.appendDeviceTypeSql(this.comTaskExecutionTableName(), this.deviceTypes);
+    }
+
+    private void appendComTaskSql() {
+        if (!this.comTasks.isEmpty()) {
+            this.appendWhereOrAnd();
+            this.append("(discriminator =");
+            this.addString(ComTaskExecutionImpl.SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);
+            this.append("and comschedule in (select comschedule from SCH_COMTASKINCOMSCHEDULE where ");
+            this.appendInClause("comtask", this.comTasks);
+            this.append(")) or ((discriminator =");
+            this.addString(ComTaskExecutionImpl.AD_HOC_COM_TASK_EXECUTION_DISCRIMINATOR);
+            this.append("or discriminator =");
+            this.addString(ComTaskExecutionImpl.MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);
+            this.append(") and ");
+            this.appendInClause("comtask", this.comTasks);
+            this.append(")");
+        }
     }
 
 }
