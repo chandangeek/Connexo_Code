@@ -246,9 +246,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
             me.hideBottomToolbar();
         }
 
-        // Forces the view to update itself.
-//        me.getView().setHeight(me.maxHeight);
-
         me.store.on('afterrender', me.onChangeSelectionGroupType, me, {
             single: true
         });
