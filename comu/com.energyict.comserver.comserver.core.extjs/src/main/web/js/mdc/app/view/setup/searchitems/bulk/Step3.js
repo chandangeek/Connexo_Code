@@ -24,6 +24,9 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                 type: 'vbox',
                 align: 'left'
             },
+            style: {
+                padding: '0 0 0 3px'
+            },
             width: '100%',
             items: [
                 {
