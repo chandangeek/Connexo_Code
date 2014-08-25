@@ -571,7 +571,17 @@ public interface DeviceDataService {
      *
      * @return The counters
      */
-    public Map<DeviceType, List<Long>> getDeviceTypeHeatMap();
+    public Map<DeviceType, List<Long>> getConnectionsDeviceTypeHeatMap();
+
+    /**
+     * Counts all {@link ComTaskExecution}s grouping them by their
+     * respective {@link DeviceType} and the {@link CompletionCode}
+     * of the task's last {@link ComTaskExecutionSession session}.
+     * The counters are returned in the order of CompletionCode.
+     *
+     * @return The counters
+     */
+    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap();
 
     /**
      * Counts all {@link ConnectionTask}s grouping them by their
@@ -587,6 +597,6 @@ public interface DeviceDataService {
      *
      * @return The counters
      */
-    public Map<ComPortPool, List<Long>> getComPortPoolHeatMap();
+    public Map<ComPortPool, List<Long>> getConnectionsComPortPoolHeatMap();
 
 }
