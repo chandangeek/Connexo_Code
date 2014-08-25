@@ -8,6 +8,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.rest.PrivilegeInfos;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.elster.jupiter.users.rest.UserInfos;
 import com.elster.jupiter.users.rest.actions.CreateUserTransaction;
@@ -28,10 +29,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.util.List;
 
 @Path("/users")
@@ -105,6 +103,15 @@ public class UserResource {
             }
         }
     }
+
+    @GET
+    @Path("/privileges")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PrivilegeInfos getUserPrivileges(@Context SecurityContext securityContext) {
+        User user = (User) securityContext.getUserPrincipal();
+        return new PrivilegeInfos(user.getPrivileges());
+    }
+
 
     @PUT
     @Path("/{id}/")
