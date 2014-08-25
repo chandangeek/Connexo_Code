@@ -1,0 +1,71 @@
+Ext.define('Mdc.view.setup.deviceloadprofiles.SideFilter', {
+    extend: 'Ext.panel.Panel',
+    requires: [
+        'Uni.component.filter.view.Filter',
+        'Mdc.widget.DateTimeField',
+        'Mdc.store.LoadProfileDataDurations'
+    ],
+    alias: 'widget.deviceLoadProfileDataSideFilter',
+    itemId: 'deviceLoadProfileDataSideFilter',
+    ui: 'medium',
+    width: 310,
+    items: {
+        xtype: 'filter-form',
+        itemId: 'deviceLoadProfileDataFilterForm',
+        title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
+        ui: 'filter',
+        items: [
+            {
+                xtype: 'component',
+                html: '<h4>' + Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval') + '</h4>'
+            },
+            {
+                xtype: 'dateTimeField',
+                name: 'intervalStart',
+                fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From'),
+                labelAlign: 'top',
+                dateCfg: {
+                    flex: 1,
+                    editable: false,
+                    maxValue: new Date()
+                },
+                hourCfg: {
+                    width: 57
+                },
+                minuteCfg: {
+                    width: 57
+                }
+            },
+            {
+                xtype: 'combobox',
+                name: 'duration',
+                fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.duration', 'MDC', 'Duration'),
+                labelAlign: 'top',
+                store: 'Mdc.store.LoadProfileDataDurations',
+                displayField: 'localizeValue',
+                valueField: 'id',
+                editable: false,
+                queryMode: 'local'
+            }
+        ],
+        dockedItems: [
+            {
+                xtype: 'toolbar',
+                dock: 'bottom',
+                items: [
+                    {
+                        itemId: 'deviceLoadProfileDataFilterApplyBtn',
+                        ui: 'action',
+                        text: Uni.I18n.translate('general.apply', 'MDC', 'Apply'),
+                        action: 'filter'
+                    },
+                    {
+                        itemId: 'deviceLoadProfileDataFilterResetBtn',
+                        text: Uni.I18n.translate('general.reset', 'MDC', 'Reset'),
+                        action: 'reset'
+                    }
+                ]
+            }
+        ]
+    }
+});

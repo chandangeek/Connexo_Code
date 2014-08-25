@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
         'Mdc.view.setup.deviceloadprofiles.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofiles.TableView',
         'Mdc.view.setup.deviceloadprofiles.GraphView',
-        'Mdc.widget.DateTimeField'
+        'Mdc.view.setup.deviceloadprofiles.SideFilter',
+        'Mdc.view.setup.deviceloadprofiles.TopFilter'
     ],
 
     router: null,
@@ -39,26 +40,33 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
                     ui: 'link'
                 }
             ],
-
-            tbar: {
-                xtype: 'toolbar',
-                items: [
-                    {
-                        xtype: 'container',
-                        itemId: 'readingsCountOnLoadProfile',
-                        hidden: true,
-                        flex: 1
-                    }
-                ]
-            },
             items: [
                 {
-                    xtype: 'deviceLoadProfilesTableView',
-                    hidden: true,
-                    channels: me.channels
+                    xtype: 'deviceLoadProfileDataTopFilter'
                 },
                 {
-                    xtype: 'deviceLoadProfilesGraphView'
+                    tbar: {
+                        xtype: 'toolbar',
+                        items: [
+                            {
+                                xtype: 'container',
+                                itemId: 'readingsCount',
+                                hidden: true,
+                                flex: 1
+                            }
+                        ]
+                    },
+                    items: [
+
+                        {
+                            xtype: 'deviceLoadProfilesTableView',
+                            hidden: true,
+                            channels: me.channels
+                        },
+                        {
+                            xtype: 'deviceLoadProfilesGraphView'
+                        }
+                    ]
                 }
             ]
         };
@@ -74,6 +82,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
                 {
                     xtype: 'deviceLoadProfilesSubMenuPanel',
                     router: me.router
+                },
+                {
+                    xtype: 'deviceLoadProfileDataSideFilter'
                 }
             ]
         };

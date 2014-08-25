@@ -5,7 +5,9 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
     requires: [
         'Mdc.view.setup.deviceloadprofilechannels.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofilechannels.TableView',
-        'Mdc.view.setup.deviceloadprofilechannels.GraphView'
+        'Mdc.view.setup.deviceloadprofilechannels.GraphView',
+        'Mdc.view.setup.deviceloadprofilechannels.TopFilter',
+        'Mdc.view.setup.deviceloadprofilechannels.SideFilter'
     ],
 
     router: null,
@@ -40,18 +42,50 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
             ],
             items: [
                 {
-                    xtype: 'deviceLoadProfileChannelTableView',
-                    hidden: true
+                    xtype: 'deviceLoadProfileChannelDataTopFilter'
                 },
                 {
-                    xtype: 'deviceLoadProfileChannelGraphView'
+                    tbar: {
+                        xtype: 'toolbar',
+                        items: [
+                            {
+                                xtype: 'container',
+                                itemId: 'readingsCount',
+                                hidden: true,
+                                flex: 1
+                            }
+                        ]
+                    },
+                    items: [
+
+                        {
+                            xtype: 'deviceLoadProfileChannelTableView',
+                            hidden: true
+                        },
+                        {
+                            xtype: 'deviceLoadProfileChannelGraphView'
+                        }
+                    ]
                 }
             ]
         };
 
         me.side = {
-            xtype: 'deviceLoadProfileChannelSubMenuPanel',
-            router: me.router
+            xtype: 'panel',
+            ui: 'medium',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    xtype: 'deviceLoadProfileChannelSubMenuPanel',
+                    router: me.router
+                },
+                {
+                    xtype: 'deviceLoadProfileChannelDataSideFilter'
+                }
+            ]
         };
 
         me.callParent(arguments);

@@ -105,6 +105,10 @@ Ext.define('Mdc.widget.DateTimeField', {
             this.dateField.setValue(date);
             this.hourField.setValue(date.getHours());
             this.minuteField.setValue(date.getMinutes());
+        } else {
+            this.dateField.reset();
+            this.hourField.reset();
+            this.minuteField.reset();
         }
     },
 

@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 dataIndex: 'channelData',
                 width: 300,
                 renderer: function (data) {
-                    return data[channel.id] + ' ' + channel.unitOfMeasure.localizedValue;
+                    return data[channel.id] ? data[channel.id] + ' ' + channel.unitOfMeasure.localizedValue : '';
                 }
             });
         });
