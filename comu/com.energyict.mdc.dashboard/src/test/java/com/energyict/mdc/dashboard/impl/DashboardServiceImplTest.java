@@ -3,6 +3,7 @@ package com.energyict.mdc.dashboard.impl;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
+import com.energyict.mdc.dashboard.ComTaskBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
@@ -18,11 +19,15 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,12 +63,14 @@ public class DashboardServiceImplTest {
     private DeviceDataService deviceDataService;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
+    @Mock
+    private TaskService taskService;
 
     private DashboardServiceImpl dashboardService;
 
     @Before
     public void setupService () {
-        this.dashboardService = new DashboardServiceImpl(this.engineModelService, this.deviceConfigurationService, this.deviceDataService, this.protocolPluggableService);
+        this.dashboardService = new DashboardServiceImpl(this.taskService, this.engineModelService, this.deviceConfigurationService, this.deviceDataService, this.protocolPluggableService);
     }
 
     @Test
@@ -286,7 +293,7 @@ public class DashboardServiceImplTest {
     }
 
     @Test
-    public void testComTaskExecutionsDeviceTypeBreakdownWithDeviceTypesButNoConnections() {
+    public void testComTaskExecutionsDeviceTypeBreakdownWithDeviceTypesButNoComTaskExecutions() {
         DeviceType deviceType = mock(DeviceType.class);
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Arrays.asList(deviceType));
@@ -305,6 +312,61 @@ public class DashboardServiceImplTest {
         verify(this.deviceDataService).getComTaskExecutionStatusCount(filterCaptor.capture());
         assertThat(filterCaptor.getValue().deviceTypes).hasSize(1);
         assertThat(filterCaptor.getValue().deviceTypes.iterator().next()).isEqualTo(deviceType);
+        assertThat(breakdown).isNotNull();
+        assertThat(breakdown.iterator().hasNext()).isTrue();
+        assertThat(breakdown.iterator().next()).isNotNull();
+        assertThat(breakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+    }
+
+    @Test
+    public void testComTaskExecutionsBreakdownWithoutComTasks () {
+        Finder<DeviceType> finder = mock(Finder.class);
+        when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
+        when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
+        List<ComTask> comTasks = new ArrayList<>(0);
+        when(this.taskService.findAllComTasks()).thenReturn(comTasks);
+
+        // Business methods
+        ComTaskBreakdown breakdown = this.dashboardService.getCommunicationTasksBreakdown();
+
+        // Asserts
+        verify(this.deviceDataService, never()).getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class));
+        assertThat(breakdown).isNotNull();
+        assertThat(breakdown.iterator().hasNext()).isFalse();
+        assertThat(breakdown.getTotalCount()).isZero();
+        assertThat(breakdown.getTotalSuccessCount()).isZero();
+        assertThat(breakdown.getTotalFailedCount()).isZero();
+        assertThat(breakdown.getTotalPendingCount()).isZero();
+    }
+
+    @Test
+    public void testComTaskExecutionsBreakdownWithDeviceTypesButNoComTaskExecutions() {
+        Finder<DeviceType> finder = mock(Finder.class);
+        when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
+        when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
+        List<ComTask> comTasks = new ArrayList<>(1);
+        ComTask comTask = mock(ComTask.class);
+        when(comTask.getId()).thenReturn(97L);
+        when(comTask.getName()).thenReturn("testComTaskExecutionsDeviceTypeBreakdownWithDeviceTypesButNoComTaskExecutions");
+        comTasks.add(comTask);
+        when(this.taskService.findAllComTasks()).thenReturn(comTasks);
+        Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
+        for (TaskStatus taskStatus : TaskStatus.values()) {
+            statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
+        }
+        when(this.deviceDataService.getComTaskExecutionStatusCount(any(ComTaskExecutionFilterSpecification.class))).thenReturn(statusCounters);
+
+        // Business methods
+        ComTaskBreakdown breakdown = this.dashboardService.getCommunicationTasksBreakdown();
+
+        // Asserts
+        ArgumentCaptor<ComTaskExecutionFilterSpecification> filterCaptor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
+        verify(this.deviceDataService).getComTaskExecutionStatusCount(filterCaptor.capture());
+        assertThat(filterCaptor.getValue().comTasks).hasSize(1);
+        assertThat(filterCaptor.getValue().comTasks.iterator().next()).isEqualTo(comTask);
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();

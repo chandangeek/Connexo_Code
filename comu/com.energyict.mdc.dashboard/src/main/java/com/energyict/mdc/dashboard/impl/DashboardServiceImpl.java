@@ -3,6 +3,7 @@ package com.energyict.mdc.dashboard.impl;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
+import com.energyict.mdc.dashboard.ComTaskBreakdown;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.ConnectionTypeHeatMap;
 import com.energyict.mdc.dashboard.DashboardService;
@@ -20,6 +21,8 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -45,14 +48,16 @@ public class DashboardServiceImpl implements DashboardService {
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceDataService deviceDataService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile TaskService taskService;
 
     public DashboardServiceImpl() {
         super();
     }
 
     @Inject
-    public DashboardServiceImpl(EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService) {
+    public DashboardServiceImpl(TaskService taskService, EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, ProtocolPluggableService protocolPluggableService) {
         this();
+        this.setTaskService(taskService);
         this.setEngineModelService(engineModelService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setDeviceDataService(deviceDataService);
@@ -208,12 +213,29 @@ public class DashboardServiceImpl implements DashboardService {
         return breakdown;
     }
 
+    @Override
+    public ComTaskBreakdown getCommunicationTasksBreakdown() {
+        ComTaskBreakdownImpl breakdown = new ComTaskBreakdownImpl();
+        for (ComTask comTask : this.availableComTasks()) {
+            ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
+            filter.taskStatuses = this.breakdownStatusses();
+            filter.comTasks.add(comTask);
+            Map<TaskStatus, Long> statusCount = this.deviceDataService.getComTaskExecutionStatusCount(filter);
+            breakdown.add(new TaskStatusBreakdownCounterImpl<>(comTask, this.successCount(statusCount), this.failedCount(statusCount), this.pendingCount(statusCount)));
+        }
+        return breakdown;
+    }
+
     private List<ComSession.SuccessIndicator> orderedSuccessIndicators() {
         return Arrays.asList(ComSession.SuccessIndicator.SetupError, ComSession.SuccessIndicator.Broken);
     }
 
     private List<DeviceType> availableDeviceTypes () {
         return this.deviceConfigurationService.findAllDeviceTypes().find();
+    }
+
+    private List<ComTask> availableComTasks () {
+        return this.taskService.findAllComTasks();
     }
 
     private EnumSet<TaskStatus> successTaskStatusses() {
@@ -246,6 +268,11 @@ public class DashboardServiceImpl implements DashboardService {
             total = total + statusCount.get(taskStatus);
         }
         return total;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @Reference
