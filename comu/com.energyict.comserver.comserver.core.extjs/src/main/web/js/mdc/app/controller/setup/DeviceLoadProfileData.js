@@ -91,11 +91,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                 widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
-
                 dataStore.on('load', function () {
                     me.showReadingsCount(dataStore);
                     me.showGraphView(record);
-                    widget.down('#deviceLoadProfilesGraphView').setLoading(false);
+                    widget.setLoading(false);
                 }, me);
 
                 me.setDefaults();
@@ -242,7 +241,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             value && dataStoreProxy.setExtraParam(key, value);
         });
 
-        page.down('#deviceLoadProfilesGraphView').setLoading(true);
+        page.setLoading(true);
         page.down('#deviceLoadProfileDataTopFilter').addButtons(filterModel);
         dataStore.load();
     },

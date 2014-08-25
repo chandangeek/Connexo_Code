@@ -91,6 +91,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             mRID: mRID,
             loadProfileId: loadProfileId
         });
+
         models.channel.load(channelId, {
             success: function (record) {
                 widget = Ext.widget('deviceLoadProfileChannelData', {
@@ -105,7 +106,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 dataStore.on('load', function () {
                     me.showReadingsCount(dataStore);
                     me.showGraphView(record);
-                    widget.down('#deviceLoadProfileChannelGraphView').setLoading(false);
+                    widget.setLoading(false);
                 }, me);
 
                 me.setDefaults();
@@ -157,7 +158,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 break;
         }
 
-
+        console.log(dataStore);
         if (dataStore.getTotalCount() > 1) {
             dataStore.each(function (record) {
                 seriesObject['data'].push([record.get('interval').end, record.get('value')]);
@@ -211,7 +212,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             value && dataStoreProxy.setExtraParam(key, value);
         });
 
-        page.down('#deviceLoadProfileChannelGraphView').setLoading(true);
+        page.setLoading(true);
         page.down('#deviceLoadProfileChannelDataTopFilter').addButtons(filterModel);
         dataStore.load();
     },

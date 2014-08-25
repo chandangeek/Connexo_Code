@@ -63,6 +63,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
                     success: function (record) {
                         me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                         widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
+                        widget.down('#deviceLoadProfileChannelsIntervalAndLastReading').loadRecord(record);
                     }
                 });
             };
@@ -77,6 +78,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
         preview.down('#deviceLoadProfileChannelsPreviewForm').loadRecord(record);
         preview.down('#deviceLoadProfileChannelsActionMenu').record = record;
     },
+
     chooseAction: function (menu, item) {
         var router = this.getController('Uni.controller.history.Router'),
             route;

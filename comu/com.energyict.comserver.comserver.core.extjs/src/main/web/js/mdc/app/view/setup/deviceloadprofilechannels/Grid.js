@@ -25,28 +25,19 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Grid', {
                     var url = me.router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data').buildUrl({mRID: me.mRID, loadProfileId: me.loadProfileId, channelId: record.getId()});
                     return '<a href="' + url + '">' + value + '</a>';
                 },
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
-                dataIndex: 'interval_formatted',
-                flex: 1
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('deviceloadprofiles.unitOfMeasure', 'MDC', 'Unit of measure'),
                 dataIndex: 'unitOfMeasure_formatted',
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('deviceloadprofiles.lastReading', 'MDC', 'Last reading'),
-                dataIndex: 'lastReading_formatted',
-                flex: 1
+                flex: 2
             },
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
                     xtype: 'deviceLoadProfileChannelsActionMenu'
-                }
+                },
+                flex: 1
             }
         ];
 

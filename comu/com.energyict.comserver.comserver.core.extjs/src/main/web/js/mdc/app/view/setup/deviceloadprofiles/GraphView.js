@@ -143,6 +143,10 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                     borderColor: 'black',
                     borderWidth: 0.5,
                     pointPadding: 0,
+                    dataGrouping:
+                    {
+                        enabled: false
+                    },
                     groupPadding: 0,
                     color: '#70BB51'
                 },
