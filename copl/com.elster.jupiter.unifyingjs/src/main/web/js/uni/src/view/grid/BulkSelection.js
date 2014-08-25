@@ -246,6 +246,13 @@ Ext.define('Uni.view.grid.BulkSelection', {
             me.hideBottomToolbar();
         }
 
+        // Forces the view to update itself.
+//        me.getView().setHeight(me.maxHeight);
+
+        me.store.on('afterrender', me.onChangeSelectionGroupType, me, {
+            single: true
+        });
+
         me.store.on('load', me.onSelectDefaultGroupType, me, {
             single: true
         });
@@ -303,6 +310,15 @@ Ext.define('Uni.view.grid.BulkSelection', {
             if (currentGridHeight !== 0 && currentGridHeaderHeight !== 0) {
                 me.gridHeight = currentGridHeight;
                 me.gridHeaderHeight = currentGridHeaderHeight;
+            }
+
+            if (typeof gridHeight === 'undefined') {
+                var row = me.getView().getNode(0),
+                    rowElement = Ext.get(row);
+
+                if (rowElement !== null) {
+                    gridHeight = me.store.getCount() * rowElement.getHeight();
+                }
             }
 
             me.getView().height = gridHeight;
