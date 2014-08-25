@@ -100,7 +100,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                 items: [
                                                     {
                                                         xtype: 'displayfield',
-                                                        value: '<span style="color: grey"><i>' + Uni.I18n.translate('communicationschedule.noComTaskSelected', 'MDC', 'No communication task(s) selected yet') + '</i></span>'
+                                                        value: '<span style="color: grey"><i>' + Uni.I18n.translate('communicationschedule.noComTaskSelected', 'MDC', 'No communication tasks selected yet') + '</i></span>'
                                                     },
                                                     {
                                                         xtype: 'grid',
@@ -133,7 +133,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                                     {
                                                                         tooltip: 'Remove',
                                                                         handler: function(grid, rowIndex, colIndex, item, e, record, row) {
-                                                                            debugger;
                                                                             this.fireEvent('deleteComTask', record);
                                                                         }
                                                                     }
