@@ -111,7 +111,12 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
     @Override
     public Date getCreateTime() {
-        return createTime.toDate();
+        return createTime!=null?createTime.toDate():null;
+    }
+
+    @Override
+    public Date getModTime() {
+        return modTime!=null?modTime.toDate():null;
     }
 
     @Override

@@ -16,6 +16,11 @@ public interface EndDeviceEventRecord extends EndDeviceEvent {
      */
     Date getCreateTime();
 
+    /**
+     * This is the date time of latest event modification in the DB
+     */
+    Date getModTime();
+
     EndDevice getEndDevice();
 
     EndDeviceEventType getEventType();
