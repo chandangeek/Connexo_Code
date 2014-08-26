@@ -48,7 +48,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     public List<PropertyInfo> properties;
     public boolean allowSimultaneousConnections;
     public TimeDurationInfo rescheduleRetryDelay;
-    public TemporalExpressionInfo nextExecutionSpecs;
+    public TemporalExpressionInfo temporalExpression;
 
     public ConnectionMethodInfo() {
     }
