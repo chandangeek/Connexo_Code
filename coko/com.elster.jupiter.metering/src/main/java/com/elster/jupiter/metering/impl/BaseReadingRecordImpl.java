@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.ProcessStatus;
+
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -126,6 +128,10 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     @Override
     public Interval getTimePeriod() {
         return null;
+    }
+    
+    public List<? extends ReadingQuality> getQualities() {
+    	return getChannel().findReadingQuality(getTimeStamp());
     }
 
 }

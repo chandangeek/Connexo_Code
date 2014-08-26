@@ -92,6 +92,11 @@ public class ReadingQualityImpl implements ReadingQuality {
         }
         return channel;
     }
+    
+    @Override
+    public String getTypeCode() {
+    	return typeCode;
+    }
 
     @Override
     public ReadingQualityType getType() {

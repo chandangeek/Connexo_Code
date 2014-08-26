@@ -21,4 +21,8 @@ public interface BaseReadingRecord extends BaseReading {
     ProcessStatus getProcesStatus();
 
     void setProcessingFlags(ProcessStatus.Flag... flags);
+    
+    @Override
+    List<? extends ReadingQuality> getQualities();
+    
 }

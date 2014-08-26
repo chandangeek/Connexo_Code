@@ -4,9 +4,7 @@ import com.google.common.base.Optional;
 
 import java.util.Date;
 
-public interface ReadingQuality {
-
-    String getComment();
+public interface ReadingQuality extends com.elster.jupiter.metering.readings.ReadingQuality {
 
     Date getTimestamp();
 

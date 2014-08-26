@@ -1,10 +1,15 @@
 package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
+
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -18,6 +23,7 @@ public abstract class BaseReadingImpl implements BaseReading {
     private Optional<Interval> timePeriod = Optional.absent();
     private String source;
     private BigDecimal sensorAccuracy;
+    private final List<ReadingQualityImpl> qualities = new ArrayList<>();
 
     BaseReadingImpl(Date timeStamp, BigDecimal value) {
         this.timeStamp = timeStamp;
@@ -68,5 +74,17 @@ public abstract class BaseReadingImpl implements BaseReading {
 
     public void setSensorAccuracy(BigDecimal sensorAccuracy) {
         this.sensorAccuracy = sensorAccuracy;
+    }
+    
+    public void addQuality(String typeCode, String comment) {
+    	qualities.add(new ReadingQualityImpl(typeCode, comment));
+    }
+    
+    public void addQuality(String typeCode) {
+    	addQuality(typeCode,null);
+    }
+    
+    public List<? extends ReadingQuality> getQualities() {
+    	return Collections.unmodifiableList(qualities);
     }
 }
