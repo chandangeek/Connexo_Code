@@ -185,6 +185,13 @@
                 <artifactId>metering</artifactId>
                 <version>${jupiter.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>metering.groups</artifactId>
+                <version>${jupiter.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering.extjs</artifactId>
