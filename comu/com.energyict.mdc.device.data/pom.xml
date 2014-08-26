@@ -24,6 +24,12 @@
       <artifactId>mdc.scheduling</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+      <dependency>
+          <groupId>com.elster.jupiter</groupId>
+          <artifactId>metering.groups</artifactId>
+      </dependency>
+
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.masterdata</artifactId>
@@ -39,6 +45,7 @@
       <artifactId>domain.util</artifactId>
       <version>${jupiter.version}</version>
     </dependency>
+
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.common</artifactId>
