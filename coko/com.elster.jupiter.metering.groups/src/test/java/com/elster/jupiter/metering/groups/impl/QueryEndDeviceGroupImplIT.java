@@ -8,9 +8,11 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.impl.MeteringServiceImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -42,6 +44,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueryEndDeviceGroupImplIT {
@@ -94,9 +97,18 @@ public class QueryEndDeviceGroupImplIT {
             @Override
             public Void perform() {
                 injector.getInstance(MeteringGroupsService.class);
+
+                MeteringGroupsService meteringGroupsService = (MeteringGroupsServiceImpl) injector.getInstance(MeteringGroupsService.class);
+                MeteringService meteringService = (MeteringServiceImpl) injector.getInstance(MeteringService.class);
+
+                SimpleEndDeviceQueryProvider endDeviceQueryProvider = new SimpleEndDeviceQueryProvider();
+                endDeviceQueryProvider.setMeteringService(meteringService);
+                meteringGroupsService.addEndDeviceQueryProvider(endDeviceQueryProvider);
+
                 return null;
             }
         });
+
     }
 
     @After
@@ -118,6 +130,7 @@ public class QueryEndDeviceGroupImplIT {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             QueryEndDeviceGroup queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(Operator.EQUAL.compare("id", 15).or(Operator.EQUAL.compare("mRID", ED_MRID)));
             queryEndDeviceGroup.setMRID("mine");
+            queryEndDeviceGroup.setQueryProviderName(SimpleEndDeviceQueryProvider.SIMPLE_ENDDEVICE_QUERYPRVIDER);
             queryEndDeviceGroup.save();
             ctx.commit();
         }

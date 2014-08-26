@@ -26,6 +26,9 @@ public interface EndDeviceGroup {
 
     void setAliasName(String aliasName);
 
+    void setQueryProviderName(String queryProviderName);
+
+
     void save();
 
 }

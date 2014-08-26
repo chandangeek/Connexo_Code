@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.groups.impl;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.impl.query.QueryBuilder;
 import com.elster.jupiter.orm.DataMapper;
@@ -22,17 +23,20 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     private transient QueryBuilder queryBuilder;
 
     private final MeteringService meteringService;
+    private final MeteringGroupsService meteringGroupService;
     private final DataModel dataModel;
 
     @Inject
-    public QueryEndDeviceGroupImpl(DataModel dataModel, MeteringService meteringService) {
+    public QueryEndDeviceGroupImpl(DataModel dataModel, MeteringService meteringService, MeteringGroupsService meteringGroupService) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
+        this.meteringGroupService = meteringGroupService;
     }
 
     @Override
     public List<EndDevice> getMembers(Date date) {
-        return meteringService.getEndDeviceQuery().select(getCondition());
+        return meteringGroupService.getEndDeviceQueryProvider(getQueryProviderName()).findEndDevices(date, getCondition());
+        //return meteringService.getEndDeviceQuery().select(getCondition());
     }
 
     @Override
@@ -102,5 +106,4 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
         }
         return operations;
     }
-
 }

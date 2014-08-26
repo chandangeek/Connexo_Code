@@ -26,4 +26,8 @@ public interface MeteringGroupsService {
     Optional<EnumeratedEndDeviceGroup> findEnumeratedEndDeviceGroup(long id);
 
     Optional<EndDeviceGroup> findEndDeviceGroup(String mRID);
+
+    EndDeviceQueryProvider getEndDeviceQueryProvider(String name);
+
+    void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider);
 }

@@ -1,13 +1,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.metering.groups.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -15,12 +9,10 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringGroupsService.class, InstallService.class}, property = "name=" + MeteringGroupsService.COMPONENTNAME, immediate = true)
@@ -28,6 +20,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     private volatile DataModel dataModel;
     private volatile MeteringService meteringService;
+
+    private volatile List<EndDeviceQueryProvider> endDeviceQueryProviders = new ArrayList<EndDeviceQueryProvider>();
 
     public MeteringGroupsServiceImpl() {
     }
@@ -100,7 +94,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Override
     public QueryEndDeviceGroup createQueryEndDeviceGroup(Condition condition) {
-        QueryEndDeviceGroupImpl queryUsagePointGroup = new QueryEndDeviceGroupImpl(dataModel, meteringService);
+        QueryEndDeviceGroupImpl queryUsagePointGroup = new QueryEndDeviceGroupImpl(dataModel, meteringService, this);
         queryUsagePointGroup.setCondition(condition);
         return queryUsagePointGroup;
     }
@@ -140,4 +134,23 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider) {
+        endDeviceQueryProviders.add(endDeviceQueryProvider);
+    }
+
+    public void removeEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider) {
+        endDeviceQueryProviders.remove(endDeviceQueryProvider);
+    }
+
+    public EndDeviceQueryProvider getEndDeviceQueryProvider(String name) {
+        for (EndDeviceQueryProvider endDeviceQueryProvider : endDeviceQueryProviders) {
+            if (endDeviceQueryProvider.getName().equals(name)) {
+                return endDeviceQueryProvider;
+            }
+        }
+        return null;
+    }
+
 }
