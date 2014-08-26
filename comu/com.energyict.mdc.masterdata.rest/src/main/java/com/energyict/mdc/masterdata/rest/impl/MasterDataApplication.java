@@ -3,6 +3,7 @@ package com.energyict.mdc.masterdata.rest.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
@@ -11,22 +12,21 @@ import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.protocolimpl.modbus.core.Device;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.ws.rs.core.Application;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-@Component(name = "com.energyict.mds.rest", service = Application.class, immediate = true, property = {"alias=/mds"})
-public class MasterDataApplication extends Application {
+@Component(name = "com.energyict.mds.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/mds", "name=" + MasterDataApplication.COMPONENT_NAME})
+public class MasterDataApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "MDR";
 
@@ -84,6 +84,12 @@ public class MasterDataApplication extends Application {
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Override
+    public void install() {
+        Installer installer = new Installer();
+        installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
     }
 
     class HK2Binder extends AbstractBinder {
