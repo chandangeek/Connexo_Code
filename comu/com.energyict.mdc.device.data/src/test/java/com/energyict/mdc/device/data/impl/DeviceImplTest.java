@@ -1076,8 +1076,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
         assertThat(readings).hasSize(3);
-        assertThat(readings.get(0).getInterval().getStart()).isEqualTo(new Date(1406852100000L)); // Fri, 01 Aug 2014 00:15:00 GMT
         assertThat(readings.get(1).getInterval().getStart()).isEqualTo(new Date(1406853000000L)); // Fri, 01 Aug 2014 00:30:00 GMT
+        assertThat(readings.get(2).getInterval().getStart()).isEqualTo(new Date(1406852100000L)); // Fri, 01 Aug 2014 00:15:00 GMT
     }
 
     @Test
