@@ -134,11 +134,10 @@ Ext.define('Uni.Loader', {
     },
 
     afterLoadingScripts: function (callback) {
-        Uni.I18n.load(function () {
-            callback();
-        });
         Uni.Auth.load(function () {
-            callback();
+            Uni.I18n.load(function () {
+                callback();
+            });
         });
     },
 
@@ -148,7 +147,7 @@ Ext.define('Uni.Loader', {
         fileref.setAttribute('type', 'text/css');
         fileref.setAttribute('href', href);
 
-        document.getElementsByTagName("head")[0].appendChild(fileref);
+        document.getElementsByTagName('head')[0].appendChild(fileref);
     }
 
 });
