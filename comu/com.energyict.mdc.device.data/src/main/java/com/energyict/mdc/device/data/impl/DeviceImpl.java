@@ -103,6 +103,7 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1041,7 +1042,8 @@ public class DeviceImpl implements Device {
                 }
             }
         }
-        return new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        ArrayList<LoadProfileReading> loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        return Lists.reverse(loadProfileReadings);
     }
 
     List<LoadProfileReading> getChannelData(Channel channel, Interval interval) {
@@ -1053,7 +1055,8 @@ public class DeviceImpl implements Device {
                 this.getUnsortedChannelDataFor(interval, meter.get(), channel, sortedLoadProfileReadingMap);
             }
         }
-        return new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        ArrayList<LoadProfileReading> loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        return Lists.reverse(loadProfileReadings);
     }
 
     List<EndDeviceEventRecord> getLogBookDeviceEvents(LogBook logBook, Interval interval) {
