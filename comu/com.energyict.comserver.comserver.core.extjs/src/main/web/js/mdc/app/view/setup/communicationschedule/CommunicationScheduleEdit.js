@@ -183,6 +183,17 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                 xtype: 'scheduleField',
                                                 name: 'temporalExpression',
                                                 itemId: 'scheduleField',
+                                                value: {
+                                                    every: {
+                                                        count: 15,
+                                                        timeUnit: 'minutes'
+                                                    },
+                                                    lastDay: false,
+                                                    offset: {
+                                                        count: 0,
+                                                        timeUnit: 'seconds'
+                                                    }
+                                                },
                                                 hourCfg: {
                                                     width: 60
                                                 },
@@ -201,6 +212,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                         itemId: 'startDate',
                                         required: true,
                                         fieldLabel: Uni.I18n.translate('communicationschedule.startOn', 'MDC', 'Start on'),
+                                        value: new Date(),
                                         hourCfg: {
                                             width: 60
                                         },
