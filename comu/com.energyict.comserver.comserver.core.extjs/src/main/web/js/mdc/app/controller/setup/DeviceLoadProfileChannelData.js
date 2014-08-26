@@ -158,10 +158,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 break;
         }
 
-        console.log(dataStore);
-        if (dataStore.getTotalCount() > 1) {
+        if (dataStore.getTotalCount() > 0) {
             dataStore.each(function (record) {
-                seriesObject['data'].push([record.get('interval').end, record.get('value')]);
+                if (record.get('value')) {
+                    seriesObject['data'].push([record.get('interval').end, record.get('value')]);
+                }
             });
             series.push(seriesObject);
             container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);

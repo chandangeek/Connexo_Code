@@ -11,11 +11,10 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
     ],
 
     router: null,
-    channels: null,
+    channel: null,
 
     initComponent: function () {
         var me = this;
-
         me.content = {
             ui: 'large',
             title: Uni.I18n.translate('deviceloadprofiles.channels.channelData', 'MDC', 'Channel data'),
@@ -60,6 +59,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
 
                         {
                             xtype: 'deviceLoadProfileChannelTableView',
+                            channel: me.channel,
                             hidden: true
                         },
                         {

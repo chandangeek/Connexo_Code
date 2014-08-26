@@ -16,6 +16,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
         'showConditionalToolTip'
     ],
     channels: null,
+
     initComponent: function () {
         var me = this;
 

@@ -185,7 +185,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             yAxis.push(yAxisObject);
         });
 
-        if (dataStore.getTotalCount() > 1) {
+        if (dataStore.getTotalCount() > 0) {
             dataStore.each(function (record) {
                 Ext.iterate(record.get('channelData'), function (key, value) {
                     if (channelDataArrays[key]) {
