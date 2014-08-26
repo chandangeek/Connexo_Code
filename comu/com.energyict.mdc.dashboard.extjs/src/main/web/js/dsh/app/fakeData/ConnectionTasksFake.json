@@ -189,7 +189,7 @@
             "nextExecution": 1407851711314,
             "communicationTasks": {
                 "count": 2,
-                "communicationsTasks": [
+                "communicationTasks": [
                     {
                         "name": "Comm task 3",
                         "device": {
@@ -243,8 +243,8 @@
                         "comScheduleName": "Weekly billing",
                         "comScheduleFrequency":{
                             "every":{
-                                "count":1,
-                                "timeUnit":"weeks"
+                                "count":2,
+                                "timeUnit":"days"
                             },
                             "offset":{
                                 "count":43200,

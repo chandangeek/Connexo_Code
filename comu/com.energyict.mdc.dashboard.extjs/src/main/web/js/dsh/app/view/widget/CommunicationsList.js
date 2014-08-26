@@ -10,7 +10,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
         'Uni.view.toolbar.PagingBottom',
         'Dsh.view.widget.ActionMenu'
     ],
-    store: 'Dsh.store.CommunicationTasks',
+//    store: 'Dsh.store.CommunicationTasks',
     columns: {
         defaults: {
             sortable: false,
