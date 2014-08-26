@@ -128,7 +128,7 @@ public enum MessageSeeds implements MessageSeed {
     NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY(13023, Keys.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY, "Next Execution Spec's offset is greater than its frequency.", SEVERE),
     UNDER_MINIMUM_RESCHEDULE_DELAY(13024, Keys.UNDER_MINIMUM_RESCHEDULE_DELAY, "Reschedule delay is below minimum.", SEVERE),
     VETO_CONNECTIONTYPE_PLUGGABLECLASS_DELETION(13025, "connectionTypePluggableClass.XstillInUseByY", "ConnectionType Pluggable Class {0} is still in use by {1}", SEVERE),
-    VETO_COMPORTPOOL_DELETION(13026, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by {1}", SEVERE),
+    VETO_COMPORTPOOL_DELETION(13026, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by connection method(s): {1}", SEVERE),
     PROTOCOL_INVALID_NAME(13027,"deviceType.no.such.protocol", "A protocol with name {0} does not exist", SEVERE),
     PROTOCOLDIALECT_CONF_PROPS_CANT_DROP_REQUIRED(13028, "protocolDialectConfigurationProperties.cannotDropRequired", "ProtocolDialectConfigurationProperties {0} cannot drop property {1} since it is required.", SEVERE),
     PROTOCOLDIALECT_CONF_PROPS_IN_USE(13029, "protocolDialectConfigurationProperties.inUse", "ProtocolDialectConfigurationProperties ''{0}'' of device configuration ''{1}'' cannot be deleted because they are still in use", SEVERE),

@@ -18,7 +18,7 @@ import java.util.List;
 public class VetoDeleteComPortPoolException extends LocalizedException {
 
     public VetoDeleteComPortPoolException(Thesaurus thesaurus, ComPortPool comPortPool, List<PartialConnectionTask> clients) {
-        super(thesaurus, MessageSeeds.VETO_COMPORTPOOL_DELETION, comPortPool, asString(clients));
+        super(thesaurus, MessageSeeds.VETO_COMPORTPOOL_DELETION, comPortPool.getName(), asString(clients));
     }
 
     private static String asString(List<PartialConnectionTask> clients) {

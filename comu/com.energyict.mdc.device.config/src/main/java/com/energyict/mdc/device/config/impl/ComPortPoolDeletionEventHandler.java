@@ -24,7 +24,7 @@ public class ComPortPoolDeletionEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         ComPortPool source = (ComPortPool) localEvent.getSource();
-        List<PartialConnectionTask> found = deviceConfigurationService.findByComPortPool(source);
+        List<PartialConnectionTask> found = this.deviceConfigurationService.findByComPortPool(source);
         if (!found.isEmpty()) {
             throw new VetoDeleteComPortPoolException(getThesaurus(), source, found);
         }
@@ -36,11 +36,12 @@ public class ComPortPoolDeletionEventHandler implements TopicHandler {
 
     @Override
     public String getTopicMatcher() {
-        return "com/energyict/mdc/engine/model/comportpool/DELETED";
+        return "com/energyict/mdc/engine/config/comportpool/VALIDATE_DELETE";
     }
 
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
+
 }
