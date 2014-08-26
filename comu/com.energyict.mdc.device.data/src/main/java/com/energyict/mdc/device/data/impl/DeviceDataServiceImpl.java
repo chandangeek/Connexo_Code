@@ -119,6 +119,7 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.util.conditions.Where.*;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
@@ -127,7 +128,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-10 (16:27)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataService.COMPONENTNAME, immediate = true)
+@Component(name="com.energyict.mdc.device.data", service = {DeviceDataService.class, ServerDeviceDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataService.COMPONENTNAME, immediate = true)
 public class DeviceDataServiceImpl implements ServerDeviceDataService, ReferencePropertySpecFinderProvider, InstallService {
 
     private static final Logger LOGGER = Logger.getLogger(DeviceDataServiceImpl.class.getName());
@@ -189,7 +190,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public boolean hasDevices (DeviceConfiguration deviceConfiguration) {
-        Condition condition = Where.where(DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(deviceConfiguration);
+        Condition condition = where(DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(deviceConfiguration);
         Finder<Device> page =
                 DefaultFinder.
                         of(Device.class, condition, this.dataModel).
@@ -742,6 +743,16 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
+    public boolean hasConnectionTasks(ComPortPool comPortPool) {
+        List<ConnectionTask> connectionTasks =
+                this.dataModel.query(ConnectionTask.class).
+                        select(where("comPortPool").isEqualTo(comPortPool),
+                            new Order[0], false, new String[0],
+                            1, 1);
+        return !connectionTasks.isEmpty();
+    }
+
+    @Override
     public boolean hasComTaskExecutions(ComTaskEnablement comTaskEnablement) {
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.append("select count(*) from ");
@@ -1269,7 +1280,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         if (comPort.isActive()) {
             InboundComPortPool inboundComPortPool = comPort.getComPortPool();
             Date now = this.clock.now();
-            Condition condition = Where.where("connectionTask.paused").isEqualTo(false)
+            Condition condition = where("connectionTask.paused").isEqualTo(false)
                     .and(where("connectionTask.comServer").isNull())
                     .and(where("connectionTask.obsoleteDate").isNull())
                     .and(where("connectionTask.device").isEqualTo(device))
@@ -1326,7 +1337,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public Optional<ComSession> getLastComSession(ConnectionTask<?, ?> connectionTask) {
-        Condition condition = Where.where(ComSessionImpl.Fields.CONNECTION_TASK.fieldName()).isEqualTo(connectionTask);
+        Condition condition = where(ComSessionImpl.Fields.CONNECTION_TASK.fieldName()).isEqualTo(connectionTask);
         Finder<ComSession> page =
                 DefaultFinder.
                         of(ComSession.class, condition, this.dataModel).
@@ -1343,7 +1354,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution) {
-        Condition condition = Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution);
+        Condition condition = where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution);
         Finder<ComTaskExecutionSession> page =
                 DefaultFinder.
                         of(ComTaskExecutionSession.class, condition, this.dataModel).

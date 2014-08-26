@@ -355,10 +355,29 @@ public enum TableSpecs {
             table.column("TASKFAILURECOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_FAILURE_COUNT.fieldName()).add();
             table.column("TASKNOTEXECUTEDCOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_NOT_EXECUTED_COUNT.fieldName()).add();
             table.column("STATUS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComSessionImpl.Fields.STATUS.fieldName()).add();
-            table.foreignKey("FK_DDC_COMSESSION_STATS").on(statistics).references(DDC_COMSTATISTICS.name()).map(ComSessionImpl.Fields.STATISTICS.fieldName()).add();
-            table.foreignKey("FK_DDC_COMSESSION_COMPORTPOOL").on(comportPool).references("MDC", "MDC_COMPORTPOOL").map(ComSessionImpl.Fields.COMPORT_POOL.fieldName()).add();
-            table.foreignKey("FK_DDC_COMSESSION_COMPORT").on(comport).references("MDC", "MDC_COMPORT").map(ComSessionImpl.Fields.COMPORT.fieldName()).add();
-            table.foreignKey("FK_DDC_COMSESSION_CONNTASK").on(connectionTask).references(DDC_CONNECTIONTASK.name()).map(ComSessionImpl.Fields.CONNECTION_TASK.fieldName()).add();
+            table.foreignKey("FK_DDC_COMSESSION_STATS").
+                    on(statistics).
+                    references(DDC_COMSTATISTICS.name()).
+                    map(ComSessionImpl.Fields.STATISTICS.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_COMSESSION_COMPORTPOOL").
+                    on(comportPool).
+                    references("MDC", "MDC_COMPORTPOOL").
+                    onDelete(CASCADE).
+                    map(ComSessionImpl.Fields.COMPORT_POOL.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_COMSESSION_COMPORT").
+                    on(comport).
+                    references("MDC", "MDC_COMPORT").
+                    onDelete(CASCADE).
+                    map(ComSessionImpl.Fields.COMPORT.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_COMSESSION_CONNTASK").
+                    on(connectionTask).
+                    references(DDC_CONNECTIONTASK.name()).
+                    onDelete(CASCADE).
+                    map(ComSessionImpl.Fields.CONNECTION_TASK.fieldName()).
+                    add();
             table.primaryKey("PK_DDC_COMSESSION").on(id).add();
         }
     },
@@ -378,10 +397,30 @@ public enum TableSpecs {
             Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
             table.column("HIGHESTPRIOCOMPLETIONCODE").number().conversion(NUMBER2ENUM).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_COMPLETION_CODE.fieldName()).add();
             table.column("HIGHESTPRIOERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_ERROR_DESCRIPTION.fieldName()).add();
-            table.foreignKey("FK_DDC_COMTSKEXECSESSION_SESS").on(session).references(DDC_COMSESSION.name()).map("comSession").composition().reverseMap("comTaskExecutionSessions").add();
-            table.foreignKey("FK_DDC_COMTASKSESSION_COMTASK").on(comTaskExecution).references(DDC_COMTASKEXEC.name()).map(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).onDelete(CASCADE).add();
-            table.foreignKey("FK_DDC_COMTSKEXECSESSION_STATS").on(statistics).references(DDC_COMSTATISTICS.name()).map(ComTaskExecutionSessionImpl.Fields.STATISTICS.fieldName()).add();
-            table.foreignKey("FK_DDC_COMTSKEXECSESSION_DEVIC").on(device).references(DDC_DEVICE.name()).map(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).add();
+            table.foreignKey("FK_DDC_COMTSKEXECSESSION_SESS").
+                    on(session).
+                    references(DDC_COMSESSION.name()).
+                    onDelete(CASCADE).
+                    map("comSession").
+                    composition().
+                    reverseMap("comTaskExecutionSessions").add();
+            table.foreignKey("FK_DDC_COMTASKSESSION_COMTASK").
+                    on(comTaskExecution).
+                    references(DDC_COMTASKEXEC.name()).
+                    onDelete(CASCADE).
+                    map(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_COMTSKEXECSESSION_STATS").
+                    on(statistics).
+                    references(DDC_COMSTATISTICS.name()).
+                    map(ComTaskExecutionSessionImpl.Fields.STATISTICS.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_COMTSKEXECSESSION_DEVIC").
+                    on(device).
+                    references(DDC_DEVICE.name()).
+                    onDelete(CASCADE).
+                    map(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).
+                    add();
             table.primaryKey("PK_DDC_COMTASKEXECSESSION").on(id).add();
         }
     },
@@ -399,7 +438,14 @@ public enum TableSpecs {
             table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
             table.column("MOD_DATE").type("DATE").map("modDate").add();
             table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).map("message").add();
-            table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION").on(comtaskexecsession).references(DDC_COMTASKEXECSESSION.name()).map("comTaskExecutionSession").composition().reverseMap("comTaskExecutionJournalEntries").onDelete(CASCADE).add();
+            table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION").
+                    on(comtaskexecsession).
+                    references(DDC_COMTASKEXECSESSION.name()).
+                    onDelete(CASCADE).
+                    map("comTaskExecutionSession").
+                    composition().
+                    reverseMap("comTaskExecutionJournalEntries").
+                    add();
             table.primaryKey("PK_DDC_COMTASKJOURNALENTRY").on(id).add();
         }
     },
@@ -414,7 +460,14 @@ public enum TableSpecs {
             table.column("TIMESTAMP").number().conversion(NUMBER2UTCINSTANT).notNull().map("timestamp").add();
             table.column("MOD_DATE").type("DATE").map("modDate").add();
             table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
-            table.foreignKey("FK_DDC_COMSESSIONJENTR_SESSION").on(comsession).references(DDC_COMSESSION.name()).map("comSession").composition().reverseMap("journalEntries").add();
+            table.foreignKey("FK_DDC_COMSESSIONJENTR_SESSION").
+                    on(comsession).
+                    references(DDC_COMSESSION.name()).
+                    onDelete(CASCADE).
+                    map("comSession").
+                    composition().
+                    reverseMap("journalEntries").
+                    add();
             table.primaryKey("PK_DDC_COMSESSIONJOURNALENTRY").on(id).add();
         }
     },

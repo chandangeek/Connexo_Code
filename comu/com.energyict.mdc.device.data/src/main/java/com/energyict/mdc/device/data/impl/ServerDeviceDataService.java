@@ -5,7 +5,9 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -22,6 +24,15 @@ import com.google.common.base.Optional;
 public interface ServerDeviceDataService extends DeviceDataService {
 
     public Thesaurus getThesaurus();
+
+    /**
+     * Tests if the specified {@link ComPortPool} is used
+     * by at least one {@link ConnectionTask}.
+     *
+     * @param comPortPool The ComPortPool
+     * @return A flag that indicates if the ComPortPool is used or not
+     */
+    public boolean hasConnectionTasks(ComPortPool comPortPool);
 
     /**
      * Tests if the specified {@link ComTaskEnablement} is used
