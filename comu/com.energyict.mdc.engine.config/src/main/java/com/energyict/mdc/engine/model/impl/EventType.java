@@ -1,0 +1,50 @@
+package com.energyict.mdc.engine.model.impl;
+
+import com.energyict.mdc.engine.model.EngineModelService;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventTypeBuilder;
+import com.elster.jupiter.events.ValueType;
+import com.elster.jupiter.orm.TransactionRequired;
+
+/**
+ * Models the different event types that are produced by this "engine configuration bundle".
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2014-08-25 (16:23)
+ */
+public enum EventType {
+
+    COMPORTPOOL_CREATED("comportpool/CREATED"),
+    COMPORTPOOL_UPDATED("comportpool/UPDATED"),
+    COMPORTPOOL_VALIDATE_DELETE("comportpool/VALIDATE_DELETE"),
+    COMPORTPOOL_DELETED("comportpool/DELETED");
+
+    private static final String NAMESPACE = "com/energyict/mdc/engine/config/";
+    private final String topic;
+
+    EventType(String topic) {
+        this.topic = topic;
+    }
+
+    public String topic() {
+        return NAMESPACE + topic;
+    }
+
+    @TransactionRequired
+    void install(EventService eventService) {
+        EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
+                .name(name())
+                .component(EngineModelService.COMPONENT_NAME)
+                .category("Crud")
+                .scope("System")
+                .shouldPublish();
+        this.addCustomProperties(builder).create().save();
+    }
+
+    private EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+        eventTypeBuilder.withProperty("id", ValueType.LONG, "id");
+        return eventTypeBuilder;
+    }
+
+}

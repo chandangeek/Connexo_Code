@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.energyict.mdc.Expected;
 import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.common.TimeDuration;
@@ -14,10 +11,15 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+
+import org.junit.*;
+import org.junit.rules.*;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -243,40 +245,6 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         assertThat(this.getEngineModelService().findOutboundComPortPool(comPortPool.getId())).isNull();
     }
 
-//    @Test
-//    public void testDeleteWithComSession () throws TranslatableApplicationException, SQLException {
-//        OutboundComPortPool shadow = getEngineModelService().newOutboundComPortPool();
-//        OutboundComPortPool comPortPool = this.getComPortPoolFactory().createOutbound(shadow);
-//        List<ComSession> comSessions = new ArrayList<>();
-//        ComSession comSession = mock(ComSession.class);
-//        comSessions.add(comSession);
-//        when(this.getComSessionFactory().findByPool(comPortPool)).thenReturn(comSessions);
-//
-//        // Business method
-//        comPortPool.delete();
-//
-//        // Asserts
-//        verify(comSession).delete();
-//    }
-
-//    @Test(expected = TranslatableApplicationException.class)
-//    public void testDeleteWithConnectionTasks () throws TranslatableApplicationException, SQLException {
-//        OutboundComPortPool shadow = getEngineModelService().newOutboundComPortPool();
-//        OutboundComPortPool comPortPool = this.getComPortPoolFactory().createOutbound(shadow);
-//        List<ServerConnectionMethod> connectionMethods = new ArrayList<>();
-//        ConnectionTask connectionTask = mock(ConnectionTask.class);
-//        when(connectionTask.getName()).thenReturn("testDeleteWithConnectionTasks");
-//        ServerConnectionMethod connectionMethod = mock(ServerConnectionMethod.class);
-//        when(connectionMethod.getConnectionTask()).thenReturn(connectionTask);
-//        connectionMethods.add(connectionMethod);
-//        when(this.getConnectionMethodFactory().findByPool(comPortPool)).thenReturn(connectionMethods);
-//
-//        // Business method
-//        comPortPool.delete();
-//
-//        // Expected TranslatableApplicationException because a ComPortPool that is still used by ConnectionTasks cannot be deleted
-//    }
-
     @Test
     @Transactional
     public void testMakeObsolete() throws TranslatableApplicationException, SQLException {
@@ -305,26 +273,6 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         assertThat(reloaded.isObsolete()).isTrue();
         assertThat(reloaded.getObsoleteDate()).isNotNull();
     }
-
-//    @Test
-//    @Transactional
-//    @Expected(expected = TranslatableApplicationException.class)
-//    public void testMakeObsoleteWithConnectionTasks () throws TranslatableApplicationException, SQLException {
-//        OutboundComPortPool shadow = newOutboundComPortPoolWithoutViolations();
-//        OutboundComPortPool comPortPool = this.getComPortPoolFactory().createOutbound(shadow);
-//        List<ServerConnectionMethod> connectionMethods = new ArrayList<>();
-//        ConnectionTask connectionTask = mock(ConnectionTask.class);
-//        when(connectionTask.getName()).thenReturn("testMakeObsoleteWithConnectionTasks");
-//        ServerConnectionMethod connectionMethod = mock(ServerConnectionMethod.class);
-//        when(connectionMethod.getConnectionTask()).thenReturn(connectionTask);
-//        connectionMethods.add(connectionMethod);
-//        when(this.getConnectionMethodFactory().findByPool(comPortPool)).thenReturn(connectionMethods);
-//
-//        // Business method
-//        comPortPool.makeObsolete();
-//
-//        // Expected TranslatableApplicationException because a ComPortPool that is still used by ConnectionTasks cannot be made obsolete
-//    }
 
     @Test
     @Transactional

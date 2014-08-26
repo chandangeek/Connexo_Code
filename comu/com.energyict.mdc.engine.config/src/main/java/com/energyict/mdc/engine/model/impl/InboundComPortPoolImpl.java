@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -10,10 +7,15 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+
 import javax.inject.Inject;
 import javax.validation.constraints.Min;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.InboundComPortPool} interface.
@@ -32,8 +34,8 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     private long discoveryProtocolPluggableClassId;
 
     @Inject
-    protected InboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService, Thesaurus thesaurus, ProtocolPluggableService pluggableService) {
-        super(dataModel, thesaurus);
+    protected InboundComPortPoolImpl(DataModel dataModel, EventService eventService, EngineModelService engineModelService, Thesaurus thesaurus, ProtocolPluggableService pluggableService) {
+        super(dataModel, thesaurus, eventService);
         this.engineModelService = engineModelService;
         this.pluggableService = pluggableService;
     }
@@ -79,42 +81,21 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     }
 
     protected void validateDelete() {
+        super.validateDelete();
         this.validateNotUsedByComPorts();
-        this.validateNotUsedByConnectionTasks();
     }
 
     @Override
     protected void validateMakeObsolete() {
         super.validateMakeObsolete();
         this.validateNotUsedByComPorts();
-        this.validateNotUsedByConnectionTasks();
     }
 
     private void validateNotUsedByComPorts() {
-
         List<InboundComPort> comPorts = this.getComPorts();
         if (!comPorts.isEmpty()) {
-            List<String> names = new ArrayList<>();
-            for (InboundComPort comPort : comPorts) {
-                names.add(comPort.getName());
-            }
-
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.COMPORTPOOL_STILL_REFERENCED);
         }
-    }
-
-    private void validateNotUsedByConnectionTasks () {
-        // TODO replace by event
-//        ServerConnectionTaskFactory connectionTaskFactory = this.getConnectionTaskFactory();
-//        List<InboundConnectionTask> connectionTasks = connectionTaskFactory.findInboundUsingComPortPool(this);
-//        if (!connectionTasks.isEmpty()) {
-//            String names = CollectionFormatter.toSeparatedList(toNames(connectionTasks), ",");
-//            throw new BusinessException(
-//                    "inboundComPortPoolXStillInUseByConnectionTasksY",
-//                    "Inbound ComPortPool '{0}' is still in use by the following inbound connection tasks(s): {1}",
-//                    this.getName(),
-//                    names);
-//        }
     }
 
     @Override

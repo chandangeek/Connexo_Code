@@ -56,6 +56,7 @@ public class PersistenceTest {
                 inMemoryBootstrapModule,
                 new OrmModule(),
                 new UtilModule(),
+                new EventsModule(),
                 new NlsModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),

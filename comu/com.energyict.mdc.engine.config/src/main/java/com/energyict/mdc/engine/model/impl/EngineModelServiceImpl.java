@@ -24,12 +24,10 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -51,7 +49,6 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
 import static com.energyict.mdc.engine.model.impl.ComPortImpl.OUTBOUND_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
@@ -62,18 +59,20 @@ import static com.energyict.mdc.engine.model.impl.ComServerImpl.REMOTE_COMSERVER
 public class EngineModelServiceImpl implements EngineModelService, InstallService, OrmClient {
 
     private volatile DataModel dataModel;
+    private volatile EventService eventService;
+    private volatile NlsService nlsService;
+    private volatile ProtocolPluggableService protocolPluggableService;
     private Thesaurus thesaurus;
-    private NlsService nlsService;
-    private ProtocolPluggableService protocolPluggableService;
 
     public EngineModelServiceImpl() {
         super();
     }
 
     @Inject
-    public EngineModelServiceImpl(OrmService ormService, NlsService nlsService, ProtocolPluggableService protocolPluggableService) {
+    public EngineModelServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setOrmService(ormService);
+        this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.activate();
@@ -82,19 +81,8 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public void install() {
-        this.createTranslations();
-        dataModel.install(true, true);
+        new Installer(this.dataModel, this.thesaurus, this.eventService).install(true);
     }
-
-    private void createTranslations() {
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(EngineModelService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-        }
-        thesaurus.addTranslations(translations);
-    }
-
 
     @Reference
     public void setOrmService(OrmService ormService) {
@@ -102,6 +90,11 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference
@@ -120,6 +113,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
             @Override
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
+                bind(EventService.class).toInstance(eventService);
                 bind(NlsService.class).toInstance(nlsService);
                 bind(EngineModelService.class).toInstance(EngineModelServiceImpl.this);
                 bind(ServletBasedInboundComPort.class).to(ServletBasedInboundComPortImpl.class);

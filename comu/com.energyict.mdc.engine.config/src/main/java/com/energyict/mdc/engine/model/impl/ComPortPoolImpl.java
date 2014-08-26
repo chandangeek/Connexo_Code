@@ -1,9 +1,11 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -53,6 +55,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
 
     private final DataModel dataModel;
     protected final Thesaurus thesaurus;
+    protected final EventService eventService;
 
     private long id;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
@@ -67,9 +70,10 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     private ComPortType comPortType;
 
     @Inject
-    protected ComPortPoolImpl(DataModel dataModel, Thesaurus thesaurus) {
+    protected ComPortPoolImpl(DataModel dataModel, Thesaurus thesaurus, EventService eventService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
+        this.eventService = eventService;
     }
 
     @Override
@@ -143,6 +147,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
         if (this.isObsolete()) {
             throw new TranslatableApplicationException(thesaurus,MessageSeeds.IS_ALREADY_OBSOLETE);
         }
+        this.validateNotUsed();
     }
 
     protected void validateComPortForComPortType(ComPort comPort, ComPortType comPortType) {
@@ -158,9 +163,16 @@ public abstract class ComPortPoolImpl implements ComPortPool {
 
     @Override
     public void delete() {
-        validateDelete();
+        this.validateDelete();
         dataModel.remove(this);
     }
 
-    protected abstract void validateDelete();
+    protected void validateDelete() {
+        this.validateNotUsed();
+    }
+
+    private void validateNotUsed() {
+        this.eventService.postEvent(EventType.COMPORTPOOL_VALIDATE_DELETE.topic(), this);
+    }
+
 }

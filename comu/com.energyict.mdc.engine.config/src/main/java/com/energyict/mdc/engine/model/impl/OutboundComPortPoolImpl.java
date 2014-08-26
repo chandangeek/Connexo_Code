@@ -1,19 +1,22 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
+
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.OutboundComPortPool} interface.
@@ -32,8 +35,8 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
     private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
     @Inject
-    protected OutboundComPortPoolImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider, Thesaurus thesaurus) {
-        super(dataModel, thesaurus);
+    protected OutboundComPortPoolImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider, Thesaurus thesaurus, EventService eventService) {
+        super(dataModel, thesaurus, eventService);
         this.comPortPoolMemberProvider = comPortPoolMemberProvider;
     }
 
@@ -80,31 +83,6 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
     @Override
     public void setTaskExecutionTimeout(TimeDuration taskExecutionTimeout) {
         this.taskExecutionTimeout = new TimeDuration(taskExecutionTimeout.getCount(), taskExecutionTimeout.getTimeUnitCode());
-    }
-
-    @Override
-    protected void validateDelete() {
-        this.validateNotUsedByConnectionMethods();
-    }
-
-    @Override
-    protected void validateMakeObsolete() {
-        super.validateMakeObsolete();
-        this.validateNotUsedByConnectionMethods();
-    }
-
-    private void validateNotUsedByConnectionMethods() {
-        // TODO replace with Event
-//        List<ServerConnectionMethod> connectionMethods = this.getConnectionMethodFactory().findByPool(this);
-//        if (!connectionMethods.isEmpty()) {
-//            List<ConnectionTask> connectionTasks = this.collectConnectionTasks(connectionMethods);
-//            String names = CollectionFormatter.toSeparatedList(toNames(connectionTasks), ",");
-//            throw new BusinessException(
-//                    "outboundComPortPoolXStillInUseByConnectionMethodY",
-//                    "Outbound ComPortPool '{0}' is still in use by the following connection tasks: {1}",
-//                    this.getName(),
-//                    names);
-//        }
     }
 
     @Override
