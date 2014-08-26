@@ -30,9 +30,9 @@ Ext.define('Dsh.view.widget.common.Bar', {
     prepareData: function(){
         var me = this;
         return {
-            limit: Math.round(me.limit * 100 / me.total),
+            limit: !me.total ? 0 : Math.round(me.limit * 100 / me.total),
             label: me.label,
-            count: Math.round(me.count * 100 / me.limit)
+            count: !me.limit ? 0 : Math.round(me.count * 100 / me.limit)
         }
     },
 
