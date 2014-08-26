@@ -96,7 +96,6 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -104,6 +103,7 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -790,8 +790,8 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public List<BaseLogBook> getLogBooks() {
-        return Collections.<BaseLogBook>unmodifiableList(this.logBooks);
+    public List<LogBook> getLogBooks() {
+        return Collections.unmodifiableList(this.logBooks);
     }
 
     @Override
@@ -1042,7 +1042,8 @@ public class DeviceImpl implements Device {
                 }
             }
         }
-        return new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        List<LoadProfileReading> loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        return Lists.reverse(loadProfileReadings);
     }
 
     List<LoadProfileReading> getChannelData(Channel channel, Interval interval) {
@@ -1054,7 +1055,25 @@ public class DeviceImpl implements Device {
                 this.getUnsortedChannelDataFor(interval, meter.get(), channel, sortedLoadProfileReadingMap);
             }
         }
-        return new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        List<LoadProfileReading> loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        return Lists.reverse(loadProfileReadings);
+    }
+
+    List<EndDeviceEventRecord> getLogBookDeviceEvents(LogBook logBook, Interval interval) {
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        List<EndDeviceEventRecord> endDeviceEventRecords = new ArrayList<>();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                List<EndDeviceEventRecord> deviceEvents = meter.get().getDeviceEvents(interval);
+                for (EndDeviceEventRecord deviceEvent : deviceEvents) {
+                    if (deviceEvent.getLogBookId()==logBook.getId()) {
+                        endDeviceEventRecords.add(deviceEvent);
+                    }
+                }
+            }
+        }
+        return endDeviceEventRecords;
     }
 
     private void getUnsortedChannelDataFor(Interval interval, Meter meter, Channel mdcChannel, Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {

@@ -6,6 +6,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
+
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -64,8 +66,8 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
 
     private Reference<ComTaskExecution> comTaskExecution = ValueReference.absent();
 
-    private Date startDate;
-    private Date stopDate;
+    private UtcInstant startDate;
+    private UtcInstant stopDate;
     private SuccessIndicator successIndicator;
     private List<ComTaskExecutionJournalEntry> comTaskExecutionJournalEntries = new ArrayList<>();
 
@@ -117,12 +119,12 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
 
     @Override
     public Date getStartDate() {
-        return startDate;
+        return startDate.toDate();
     }
 
     @Override
     public Date getStopDate() {
-        return stopDate;
+        return stopDate.toDate();
     }
 
     @Override
@@ -173,8 +175,8 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
         this.comSession.set(comSession);
         this.comTaskExecution.set(comTaskExecution);
         this.device.set(device);
-        this.startDate = interval.getStart();
-        this.stopDate = interval.getEnd();
+        this.startDate = new UtcInstant(interval.getStart());
+        this.stopDate = new UtcInstant(interval.getEnd());
         this.successIndicator = successIndicator;
         return this;
     }

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.TupleParser;
+import com.elster.jupiter.util.time.Clock;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -71,6 +72,14 @@ public class ClauseAwareSqlBuilder {
 
     public void addDate(Date date) {
         this.actualBuilder.addDate(date);
+    }
+
+    public void addUtcInstant(Clock clock) {
+        this.addUtcInstant(clock.now());
+    }
+
+    public void addUtcInstant(Date date) {
+        this.actualBuilder.addLong(date.getTime());
     }
 
     public void space() {

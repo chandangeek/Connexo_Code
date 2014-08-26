@@ -483,7 +483,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Date readingTimeStamp = eventEnd;
         com.elster.jupiter.metering.readings.beans.ReadingImpl reading =
                 new com.elster.jupiter.metering.readings.beans.ReadingImpl(this.averageForwardEnergyReadingTypeMRID, readingValue, readingTimeStamp);
-        reading.setInterval(eventStart, eventEnd);
+        reading.setTimePeriod(eventStart, eventEnd);
         MeterReadingImpl meterReading = new MeterReadingImpl();
         meterReading.addReading(reading);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
@@ -1076,8 +1076,8 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
         assertThat(readings).hasSize(3);
-        assertThat(readings.get(0).getInterval().getStart()).isEqualTo(new Date(1406852100000L)); // Fri, 01 Aug 2014 00:15:00 GMT
         assertThat(readings.get(1).getInterval().getStart()).isEqualTo(new Date(1406853000000L)); // Fri, 01 Aug 2014 00:30:00 GMT
+        assertThat(readings.get(2).getInterval().getStart()).isEqualTo(new Date(1406852100000L)); // Fri, 01 Aug 2014 00:15:00 GMT
     }
 
     @Test

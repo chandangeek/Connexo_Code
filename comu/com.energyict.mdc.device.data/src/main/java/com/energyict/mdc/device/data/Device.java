@@ -216,6 +216,9 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     Date getModDate();
 
+    @Override
+    List<LogBook> getLogBooks();
+
     LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook);
 
     LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile);

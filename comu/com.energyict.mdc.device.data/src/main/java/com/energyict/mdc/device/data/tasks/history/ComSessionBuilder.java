@@ -14,8 +14,6 @@ import java.util.Date;
  */
 public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
-    ComSessionBuilder totalTime(long totalTime);
-
     ComSessionBuilder connectDuration(Duration duration);
 
     ComSessionBuilder talkDuration(Duration duration);

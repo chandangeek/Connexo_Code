@@ -19,20 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CompletionCodeTest {
 
     @Test
-    public void testValueFromDb () {
-        for (CompletionCode completionCode : CompletionCode.values()) {
-            assertThat(CompletionCode.valueFromDb(completionCode.dbValue())).
-                    as("Conversion from an to db for CompletionCode " + completionCode + " fails").
-                    isEqualTo(completionCode);
-        }
-    }
-
-    @Test(expected = ApplicationException.class)
-    public void testUnknownValueFromDb () {
-        CompletionCode.valueFromDb(CompletionCode.values().length * 10);
-    }
-
-    @Test
     public void testAlwaysUpgradeFromLowestPriority () {
         Set<CompletionCode> allButLowestPriority = EnumSet.complementOf(EnumSet.of(CompletionCode.Ok));
         for (CompletionCode notLowestPriority : allButLowestPriority) {

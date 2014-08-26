@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  * Models the different outcomes of the execution of tiny commands
- * that are sent to a Device
+ * that are sent to a {@link com.energyict.mdc.device.data.Device}
  * in a communication session.
  * Some outcomes are more serious then others and should
  * be given priority when processing.
@@ -43,6 +43,10 @@ public enum CompletionCode {
         return this.relatedResultTypes.contains(resultType);
     }
 
+    public static CompletionCode fromOrdinal(int ordinal) {
+        return values()[ordinal];
+    }
+
     /**
      * Finds the CompletionCode for the specified {@link ResultType}.
      *
@@ -56,15 +60,6 @@ public enum CompletionCode {
             }
         }
         throw new ApplicationException("No matching CompletionCode for ResultType: " + resultType);
-    }
-
-    public static CompletionCode valueFromDb(int dbValue) {
-        for (CompletionCode completionCode : values()) {
-            if (completionCode.dbValue() == dbValue) {
-                return completionCode;
-            }
-        }
-        throw new ApplicationException("unknown dbValue: " + dbValue);
     }
 
     /**

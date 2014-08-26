@@ -26,16 +26,19 @@ import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionFilterMatchCounterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskFilterMatchCounterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskFilterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.TimedOutTasksSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionBuilderImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -49,6 +52,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.ComPort;
@@ -366,6 +370,43 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     @Override
     public List<ConnectionTask> findConnectionTasksByStatus(TaskStatus status) {
         return this.getDataModel().mapper(ConnectionTask.class).select(ServerConnectionTaskStatus.forTaskStatus(status).condition());
+    }
+
+    @Override
+    public Map<TaskStatus, Long> getComTaskExecutionStatusCount() {
+        ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
+        filter.taskStatuses = EnumSet.allOf(TaskStatus.class);
+        return this.getComTaskExecutionStatusCount(filter);
+    }
+
+    @Override
+    public Map<TaskStatus, Long> getComTaskExecutionStatusCount(ComTaskExecutionFilterSpecification filter) {
+        ClauseAwareSqlBuilder sqlBuilder = null;
+        for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(filter)) {
+            // Check first pass
+            if (sqlBuilder == null) {
+                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
+            }
+            else {
+                sqlBuilder.unionAll();
+                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
+            }
+        }
+        return this.addMissingTaskStatusCounters(this.fetchTaskStatusCounters(sqlBuilder));
+    }
+
+    private Set<ServerComTaskStatus> taskStatusesForCounting (ComTaskExecutionFilterSpecification filter) {
+        Set<ServerComTaskStatus> taskStatuses = EnumSet.noneOf(ServerComTaskStatus.class);
+        for (TaskStatus taskStatus : filter.taskStatuses) {
+            taskStatuses.add(ServerComTaskStatus.forTaskStatus(taskStatus));
+        }
+        return taskStatuses;
+    }
+
+    public void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ComTaskExecutionFilterSpecification filter, ServerComTaskStatus taskStatus) {
+        ComTaskExecutionFilterMatchCounterSqlBuilder countingFilter = new ComTaskExecutionFilterMatchCounterSqlBuilder(taskStatus, filter, this.clock);
+        countingFilter.appendTo(sqlBuilder);
     }
 
     @Override
@@ -1193,7 +1234,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         if (!comPortPools.isEmpty()) {
             long nowInSeconds = this.clock.now().getTime() / DateTimeConstants.MILLIS_PER_SECOND;
             DataMapper<ComTaskExecution> mapper = this.dataModel.mapper(ComTaskExecution.class);
-            com.elster.jupiter.util.sql.SqlBuilder sqlBuilder = mapper.builder("cte", "FIRST_ROWS(1)");
+            com.elster.jupiter.util.sql.SqlBuilder sqlBuilder = mapper.builder("cte", "LEADING(cte) USE_NL(ct)");
             sqlBuilder.append(", ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(" ct");
@@ -1417,7 +1458,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         SqlBuilder sqlBuilder = new SqlBuilder("select ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator from ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
         sqlBuilder.append(" cs where not exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, DDC_CONNECTIONTASK ct where ct.id = cst.connectiontask group by cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.fetchHeatMapCounters(sqlBuilder);
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
         /* Need another similar query that selects the successful last com sessions that have at least one failing task.
          * Again for clarity's sake, the formatted SQL
          * select ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*)
@@ -1435,7 +1476,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         SqlBuilder failingComTasksSqlBuilder = new SqlBuilder("select ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator from ");
         failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
         failingComTasksSqlBuilder.append(" cs where cs.successIndicator = 0 and exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, DDC_CONNECTIONTASK ct where ct.id = cst.connectiontask group by cm.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters = this.fetchHeatMapCounters(failingComTasksSqlBuilder);
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters = this.fetchConnectionTypeHeatMapCounters(failingComTasksSqlBuilder);
         return this.buildConnectionTypeHeatMap(partialCounters, remainingCounters);
     }
 
@@ -1444,13 +1485,84 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         Set<Long> allConnectionTypePluggableClassIds = this.union(partialCounters.keySet(), remainingCounters.keySet());
         for (Long connectionTypePluggableClassId : allConnectionTypePluggableClassIds) {
             ConnectionTypePluggableClass connectionTypePluggableClass = this.protocolPluggableService.findConnectionTypePluggableClass(connectionTypePluggableClassId);
-            heatMap.put(connectionTypePluggableClass, this.orderCounters(partialCounters.get(connectionTypePluggableClassId), remainingCounters.get(connectionTypePluggableClassId)));
+            heatMap.put(connectionTypePluggableClass, this.orderSuccessIndicatorCounters(partialCounters.get(connectionTypePluggableClassId), remainingCounters.get(connectionTypePluggableClassId)));
         }
         return heatMap;
     }
 
     @Override
-    public Map<DeviceType, List<Long>> getDeviceTypeHeatMap() {
+    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap() {
+        /* For clarity's sake, here is the formatted SQL/
+         * select dev.DEVICETYPE, lctes.highestPrioCompletionCode, count(*)
+         *  from (select comtaskexec, MAX(HIGHESTPRIOCOMPLETIONCODE) KEEP (DENSE_RANK LAST ORDER BY ctes.startdate) highestPrioCompletionCode
+         *          from DDC_COMTASKEXECSESSION ctes
+         *         group by comtaskexec) lctes,
+         *       DDC_COMTASKEXEC cte, DDC_DEVICE dev
+         * where cte.id = lctes.comtaskexec
+         *   and cte.DEVICE = dev.id
+         * group by dev.DEVICETYPE, lctes.highestPrioCompletionCode
+         */
+        SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, lctes.highestPrioCompletionCode, count(*) from (select comtaskexec, MAX(HIGHESTPRIOCOMPLETIONCODE) KEEP (DENSE_RANK LAST ORDER BY ctes.startdate) highestPrioCompletionCode from ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        sqlBuilder.append(" ctes group by comtaskexec) lctes, ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
+        sqlBuilder.append(" cte, ");
+        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        sqlBuilder.append(" dev where cte.id = lctes.comtaskexec and cte.device = dev.id group by dev.devicetype, lctes.highestPrioCompletionCode");
+        Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
+        Map<DeviceType, List<Long>> heatMap = new HashMap<>();
+        for (Long deviceTypeId : partialCounters.keySet()) {
+            DeviceType deviceType = this.deviceConfigurationService.findDeviceType(deviceTypeId);
+            heatMap.put(deviceType, this.orderedCompletionCodeCounters(partialCounters.get(deviceTypeId)));
+        }
+        return heatMap;
+    }
+
+    private List<Long> orderedCompletionCodeCounters(Map<CompletionCode, Long> completionCodeCounters) {
+        List<Long> counters = new ArrayList<>(CompletionCode.values().length);
+        for (CompletionCode completionCode : CompletionCode.values()) {
+            counters.add(completionCodeCounters.get(completionCode));
+        }
+        return counters;
+    }
+
+    private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(SqlBuilder builder) {
+        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(false))) {
+            return this.fetchComTaskHeatMapCounters(stmnt);
+        }
+        catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+    }
+
+    private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(PreparedStatement statement) throws SQLException {
+        Map<Long, Map<CompletionCode, Long>> counters = new HashMap<>();
+        try (ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                long businessObjectId = resultSet.getLong(1);
+                int completionCodeOrdinal = resultSet.getInt(2);
+                long counter = resultSet.getLong(3);
+                Map<CompletionCode, Long> successIndicatorCounters = this.getOrPutCompletionCodeCounters(businessObjectId, counters);
+                successIndicatorCounters.put(CompletionCode.fromOrdinal(completionCodeOrdinal), counter);
+            }
+        }
+        return counters;
+    }
+
+    private Map<CompletionCode, Long> getOrPutCompletionCodeCounters(long businessObjectId, Map<Long, Map<CompletionCode, Long>> counters) {
+        Map<CompletionCode, Long> completionCodeCounters = counters.get(businessObjectId);
+        if (completionCodeCounters == null) {
+            completionCodeCounters = new HashMap<>();
+            for (CompletionCode missing : EnumSet.allOf(CompletionCode.class)) {
+                completionCodeCounters.put(missing, 0L);
+            }
+            counters.put(businessObjectId, completionCodeCounters);
+        }
+        return completionCodeCounters;
+    }
+
+    @Override
+    public Map<DeviceType, List<Long>> getConnectionsDeviceTypeHeatMap() {
         /* For clarity's sake, here is the formatted SQL:
          * select dev.DEVICETYPE, cst.successIndicator, count(*)
          *   from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator
@@ -1464,8 +1576,14 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
          */
         SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, cst.successIndicator, count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator from ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs where not exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, DDC_CONNECTIONTASK ct, DDC_DEVICE dev where ct.id = cst.connectiontask and ct.device = dev.id group by dev.devicetype, cst.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.fetchHeatMapCounters(sqlBuilder);
+        sqlBuilder.append(" cs where not exists (select * from ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        sqlBuilder.append(" cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, ");
+        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+        sqlBuilder.append(" ct, ");
+        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        sqlBuilder.append(" dev where ct.id = cst.connectiontask and ct.device = dev.id group by dev.devicetype, cst.successIndicator");
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
         /* Need another similar query that selects the successful last com sessions that have at least one failing task.
          * Again for clarity's sake, the formatted SQL
          * select dev.DEVICETYPE, cst.successIndicator, count(*)
@@ -1483,8 +1601,14 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
          */
         SqlBuilder failingComTasksSqlBuilder = new SqlBuilder("select dev.DEVICETYPE, cst.successIndicator, count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator from ");
         failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        failingComTasksSqlBuilder.append(" cs where cs.successIndicator = 0 and exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, DDC_CONNECTIONTASK ct, DDC_DEVICE dev where ct.id = cst.connectiontask and ct.device = dev.id group by dev.devicetype, cst.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters = this.fetchHeatMapCounters(failingComTasksSqlBuilder);
+        failingComTasksSqlBuilder.append(" cs where cs.successIndicator = 0 and exists (select * from ");
+        failingComTasksSqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        failingComTasksSqlBuilder.append(" cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, ");
+        failingComTasksSqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+        failingComTasksSqlBuilder.append(" ct, ");
+        failingComTasksSqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        failingComTasksSqlBuilder.append(" dev where ct.id = cst.connectiontask and ct.device = dev.id group by dev.devicetype, cst.successIndicator");
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters = this.fetchConnectionTypeHeatMapCounters(failingComTasksSqlBuilder);
         return this.buildDeviceTypeHeatMap(partialCounters, remainingCounters);
     }
 
@@ -1493,13 +1617,13 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         Set<Long> allDeviceTypeIds = this.union(partialCounters.keySet(), remainingCounters.keySet());
         for (Long deviceTypeId : allDeviceTypeIds) {
             DeviceType deviceType = this.deviceConfigurationService.findDeviceType(deviceTypeId);
-            heatMap.put(deviceType, this.orderCounters(partialCounters.get(deviceTypeId), remainingCounters.get(deviceTypeId)));
+            heatMap.put(deviceType, this.orderSuccessIndicatorCounters(partialCounters.get(deviceTypeId), remainingCounters.get(deviceTypeId)));
         }
         return heatMap;
     }
 
     @Override
-    public Map<ComPortPool, List<Long>> getComPortPoolHeatMap() {
+    public Map<ComPortPool, List<Long>> getConnectionsComPortPoolHeatMap() {
         /* For clarity's sake, here is the formatted SQL:
          * select ct.COMPORTPOOL, cst.successIndicator, count(*)
          *   from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator
@@ -1512,8 +1636,12 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
          */
         SqlBuilder sqlBuilder = new SqlBuilder("select ct.COMPORTPOOL, cst.successIndicator, count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator from ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs where not exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, DDC_CONNECTIONTASK ct where ct.id = cst.connectiontask group by ct.devicetype, cst.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.fetchHeatMapCounters(sqlBuilder);
+        sqlBuilder.append(" cs where not exists (select * from ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        sqlBuilder.append(" cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, ");
+        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+        sqlBuilder.append(" ct where ct.id = cst.connectiontask group by ct.devicetype, cst.successIndicator");
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
         /* Need another similar query that selects the successful last com sessions that have at least one failing task.
          * Again for clarity's sake, the formatted SQL
          * select ct.COMPORTPOOL, cst.successIndicator, count(*)
@@ -1529,8 +1657,12 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
          */
         SqlBuilder failingComTasksSqlBuilder = new SqlBuilder("select ct.COMPORTPOOL, cst.successIndicator, count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator from ");
         failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        failingComTasksSqlBuilder.append(" cs where cs.successIndicator = 0 and exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, DDC_CONNECTIONTASK ct where ct.id = cst.connectiontask group by ct.devicetype, cst.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters = this.fetchHeatMapCounters(failingComTasksSqlBuilder);
+        failingComTasksSqlBuilder.append(" cs where cs.successIndicator = 0 and exists (select * from ");
+        failingComTasksSqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        failingComTasksSqlBuilder.append(" cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by connectiontask) cst, ");
+        failingComTasksSqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+        failingComTasksSqlBuilder.append(" ct where ct.id = cst.connectiontask group by ct.devicetype, cst.successIndicator");
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters = this.fetchConnectionTypeHeatMapCounters(failingComTasksSqlBuilder);
         return this.buildComPortPoolHeatMap(partialCounters, remainingCounters);
     }
 
@@ -1539,7 +1671,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         Set<Long> allComPortPoolIds = this.union(partialCounters.keySet(), remainingCounters.keySet());
         for (Long comPortPoolId : allComPortPoolIds) {
             ComPortPool comPortPool = this.engineModelService.findComPortPool(comPortPoolId);
-            heatMap.put(comPortPool, this.orderCounters(partialCounters.get(comPortPoolId), remainingCounters.get(comPortPoolId)));
+            heatMap.put(comPortPool, this.orderSuccessIndicatorCounters(partialCounters.get(comPortPoolId), remainingCounters.get(comPortPoolId)));
         }
         return heatMap;
     }
@@ -1550,7 +1682,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         return union;
     }
 
-    private List<Long> orderCounters(Map<ComSession.SuccessIndicator, Long> successIndicatorCounters, Map<ComSession.SuccessIndicator, Long> failingTaskCounters) {
+    private List<Long> orderSuccessIndicatorCounters(Map<ComSession.SuccessIndicator, Long> successIndicatorCounters, Map<ComSession.SuccessIndicator, Long> failingTaskCounters) {
         List<Long> counters = new ArrayList<>(ComSession.SuccessIndicator.values().length + 1);
         counters.add(failingTaskCounters.get(ComSession.SuccessIndicator.Success));
         counters.add(successIndicatorCounters.get(ComSession.SuccessIndicator.Success));
@@ -1559,16 +1691,16 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         return counters;
     }
 
-    private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchHeatMapCounters(SqlBuilder builder) {
+    private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchConnectionTypeHeatMapCounters(SqlBuilder builder) {
         try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(false))) {
-            return this.fetchHeatMapCounters(stmnt);
+            return this.fetchConnectionTypeHeatMapCounters(stmnt);
         }
         catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
     }
 
-    private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchHeatMapCounters(PreparedStatement statement) throws SQLException {
+    private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchConnectionTypeHeatMapCounters(PreparedStatement statement) throws SQLException {
         Map<Long, Map<ComSession.SuccessIndicator, Long>> counters = new HashMap<>();
         try (ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
@@ -1592,6 +1724,51 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             counters.put(businessObjectId, successIndicatorCounters);
         }
         return successIndicatorCounters;
+    }
+
+    @Override
+    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount() {
+        SqlBuilder sqlBuilder = new SqlBuilder("select t.highestPrioCompletionCode, count(*) from (select comtaskexec, MAX(HIGHESTPRIOCOMPLETIONCODE) KEEP (DENSE_RANK LAST ORDER BY ctes.startdate) HIGHESTPRIOCOMPLETIONCODE from ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        sqlBuilder.append(" ctes group by comtaskexec) t group by t.highestPrioCompletionCode");
+        return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
+    }
+
+    private Map<CompletionCode, Long> fetchCompletionCodeCounters(SqlBuilder builder) {
+        Map<CompletionCode, Long> counters = new HashMap<>();
+        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(false))) {
+            this.fetchCompletionCodeCounters(stmnt, counters);
+        }
+        catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+        return counters;
+    }
+
+    private void fetchCompletionCodeCounters(PreparedStatement statement, Map<CompletionCode, Long> counters) throws SQLException {
+        try (ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                int completionCodeOrdinal = resultSet.getInt(1);
+                long counter = resultSet.getLong(2);
+                counters.put(CompletionCode.fromOrdinal(completionCodeOrdinal), counter);
+            }
+        }
+    }
+
+    private Map<CompletionCode, Long> addMissingCompletionCodeCounters(Map<CompletionCode, Long> counters) {
+        for (CompletionCode missing : this.completionCodeComplement(counters.keySet())) {
+            counters.put(missing, 0L);
+        }
+        return counters;
+    }
+
+    private EnumSet<CompletionCode> completionCodeComplement(Set<CompletionCode> completionCodes) {
+        if (completionCodes.isEmpty()) {
+            return EnumSet.allOf(CompletionCode.class);
+        }
+        else {
+            return EnumSet.complementOf(EnumSet.copyOf(completionCodes));
+        }
     }
 
     @Override

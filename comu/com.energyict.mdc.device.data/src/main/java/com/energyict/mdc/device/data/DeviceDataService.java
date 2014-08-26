@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
@@ -18,6 +19,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
@@ -179,7 +181,7 @@ public interface DeviceDataService {
      */
     public void clearDefaultConnectionTask (Device device);
 
-    void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
+    public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
 
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed
@@ -392,6 +394,23 @@ public interface DeviceDataService {
     ComTaskExecution findComTaskExecution(long id);
 
     /**
+     * Counts all {@link ComTaskExecution}s in the system,
+     * grouping them by their respective {@link TaskStatus}.
+     *
+     * @return The numbers, broken down by TaskStatus
+     */
+    public Map<TaskStatus, Long> getComTaskExecutionStatusCount();
+
+    /**
+     * Counts all {@link ComTaskExecution}s that match the specified filter,
+     * grouping them by their respective {@link TaskStatus}.
+     *
+     * @param filter The ComTaskExecutionFilterSpecification
+     * @return The numbers, broken down by TaskStatus
+     */
+    public Map<TaskStatus, Long> getComTaskExecutionStatusCount(ComTaskExecutionFilterSpecification filter);
+
+    /**
      * Finds all ComTaskExecutions for the given Device which aren't made obsolete yet
      *
      * @param device the device
@@ -515,6 +534,14 @@ public interface DeviceDataService {
     public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount();
 
     /**
+     * Counts the last {@link ComSession} of all {@link ConnectionTask}s,
+     * grouping them by their respective highest priority {@link CompletionCode}.
+     *
+     * @return The numbers, broken down by SuccessIndicator
+     */
+    public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount();
+
+    /**
      * Counts all {@link ConnectionTask}s grouping them by their
      * respective {@link ConnectionTypePluggableClass} and the {@link ComSession.SuccessIndicator}
      * of the last {@link ComSession}.
@@ -544,7 +571,17 @@ public interface DeviceDataService {
      *
      * @return The counters
      */
-    public Map<DeviceType, List<Long>> getDeviceTypeHeatMap();
+    public Map<DeviceType, List<Long>> getConnectionsDeviceTypeHeatMap();
+
+    /**
+     * Counts all {@link ComTaskExecution}s grouping them by their
+     * respective {@link DeviceType} and the {@link CompletionCode}
+     * of the task's last {@link ComTaskExecutionSession session}.
+     * The counters are returned in the order of CompletionCode.
+     *
+     * @return The counters
+     */
+    public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap();
 
     /**
      * Counts all {@link ConnectionTask}s grouping them by their
@@ -560,6 +597,6 @@ public interface DeviceDataService {
      *
      * @return The counters
      */
-    public Map<ComPortPool, List<Long>> getComPortPoolHeatMap();
+    public Map<ComPortPool, List<Long>> getConnectionsComPortPoolHeatMap();
 
 }
