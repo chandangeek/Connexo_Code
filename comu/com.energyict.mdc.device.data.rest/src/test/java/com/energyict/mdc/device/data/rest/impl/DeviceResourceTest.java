@@ -198,7 +198,7 @@ public class DeviceResourceTest extends JerseyTest {
                 .containsKey("properties")
                 .containsKey("allowSimultaneousConnections")
                 .containsKey("rescheduleRetryDelay")
-                .containsKey("nextExecutionSpecs");
+                .containsKey("temporalExpression");
     }
 
     @Test
