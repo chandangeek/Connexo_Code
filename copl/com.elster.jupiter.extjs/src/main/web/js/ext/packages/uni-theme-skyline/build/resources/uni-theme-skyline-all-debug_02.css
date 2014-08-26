@@ -1,3 +1,23 @@
+.x-btn-remove-small-focus .x-frame-ml,
+.x-btn-remove-small-focus .x-frame-mr {
+  background-image: url(images/btn/btn-remove-small-focus-sides.gif);
+}
+/* line 595, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-remove-small-focus .x-frame-mc {
+  background-color: #e0422d;
+  background-image: url(images/btn/btn-remove-small-focus-fbg.gif);
+}
+
+/* line 610, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-remove-small-over .x-frame-tl,
+.x-btn-remove-small-over .x-frame-bl,
+.x-btn-remove-small-over .x-frame-tr,
+.x-btn-remove-small-over .x-frame-br,
+.x-btn-remove-small-over .x-frame-tc,
+.x-btn-remove-small-over .x-frame-bc {
+  background-image: url(images/btn/btn-remove-small-over-corners.gif);
+}
+/* line 614, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small-over .x-frame-ml,
 .x-btn-remove-small-over .x-frame-mr {
   background-image: url(images/btn/btn-remove-small-over-sides.gif);
@@ -14618,17 +14638,4 @@ a:hover, a.x-btn:hover {
 .x-btn-step-active-small-mr {
   zoom: 1;
   background-image: url(images/btn/btn-step-active-small-corners.gif);
-}
-
-/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-step-active-small-ml,
-.x-btn-step-active-small-mr {
-  zoom: 1;
-  background-image: url(images/btn/btn-step-active-small-sides.gif);
-  background-repeat: repeat-y;
-}
-
-/* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-step-active-small-mc {
-  padding: 0px 0px 0px 0px;
 }

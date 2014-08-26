@@ -885,18 +885,23 @@ h6 {
   background-image: url("images/grid/defaultItem.png");
 }
 
-/* line 10, ../../sass/src/Component.scss */
+/* line 9, ../../sass/src/Component.scss */
 .icon-delete {
   background-image: url("images/button/ico_delete.png") !important;
   width: 16px !important;
   height: 16px !important;
 }
 
-/* line 16, ../../sass/src/Component.scss */
+/* line 15, ../../sass/src/Component.scss */
 .icon-delete:hover {
   background-image: url("images/button/ico_deleteA.png") !important;
   width: 16px !important;
   height: 16px !important;
+}
+
+/* line 21, ../../sass/src/Component.scss */
+.force-no-border *[class*='x-grid-'] {
+  border: none !important;
 }
 
 /* line 1, ../../sass/src/container/BreadcrumbTrailContainer.scss */
@@ -920,13 +925,20 @@ h6 {
 }
 
 /* line 21, ../../sass/src/container/NavigationHeader.scss */
-.icon-logout {
-  background-image: url("images/container/ico_profile.png") !important;
+.icon-user {
+  background-image: url("images/container/user.png");
   width: 20px;
   height: 20px;
 }
 
 /* line 27, ../../sass/src/container/NavigationHeader.scss */
+.icon-search {
+  background-image: url("images/container/search.png");
+  width: 20px;
+  height: 20px;
+}
+
+/* line 33, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader {
   background-color: #2e587e;
   color: white;
@@ -941,8 +953,12 @@ h6 {
   background: linear-gradient(to right, #2e587e, #529ebe);
   /* Standard syntax */
 }
-/* line 45, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher, .x-container-navigationheader .nav-toggler, .x-container-navigationheader .notifications-anchor, .x-container-navigationheader .nav-help, .x-container-navigationheader .user-menu {
+/* line 51, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .nav-appswitcher,
+.x-container-navigationheader .nav-toggler,
+.x-container-navigationheader .notifications-anchor,
+.x-container-navigationheader .nav-help,
+.x-container-navigationheader .user-menu {
   background: none;
   border: none;
   border-radius: 0;
@@ -952,33 +968,57 @@ h6 {
   padding: 0 4px;
 }
 /* line 9, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button, .x-container-navigationheader .nav-toggler .x-btn-button, .x-container-navigationheader .notifications-anchor .x-btn-button, .x-container-navigationheader .nav-help .x-btn-button, .x-container-navigationheader .user-menu .x-btn-button {
+.x-container-navigationheader .nav-appswitcher .x-btn-button,
+.x-container-navigationheader .nav-toggler .x-btn-button,
+.x-container-navigationheader .notifications-anchor .x-btn-button,
+.x-container-navigationheader .nav-help .x-btn-button,
+.x-container-navigationheader .user-menu .x-btn-button {
   padding-right: 10px;
   padding-left: 10px;
 }
 /* line 15, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-inner, .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner, .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner, .x-container-navigationheader .nav-help .x-btn-button .x-btn-inner, .x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
+.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-inner,
+.x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner,
+.x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner,
+.x-container-navigationheader .nav-help .x-btn-button .x-btn-inner,
+.x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
   color: white;
 }
 /* line 19, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-glyph, .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph, .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph, .x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph, .x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
+.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-glyph,
+.x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph,
+.x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph,
+.x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph,
+.x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
   opacity: 1;
   height: auto;
   line-height: 36px;
   margin-top: 3px;
   margin-left: 10px;
 }
-/* line 48, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher .icon-logout, .x-container-navigationheader .nav-toggler .icon-logout, .x-container-navigationheader .notifications-anchor .icon-logout, .x-container-navigationheader .nav-help .icon-logout, .x-container-navigationheader .user-menu .icon-logout {
-  margin: 14px 8px;
-  width: 20px !important;
-  height: 20px !important;
-}
 /* line 54, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher:hover, .x-container-navigationheader .nav-toggler:hover, .x-container-navigationheader .notifications-anchor:hover, .x-container-navigationheader .nav-help:hover, .x-container-navigationheader .user-menu:hover {
-  background-color: #71adc7;
+.x-container-navigationheader .nav-appswitcher .icon-user, .x-container-navigationheader .nav-appswitcher .icon-search,
+.x-container-navigationheader .nav-toggler .icon-user,
+.x-container-navigationheader .nav-toggler .icon-search,
+.x-container-navigationheader .notifications-anchor .icon-user,
+.x-container-navigationheader .notifications-anchor .icon-search,
+.x-container-navigationheader .nav-help .icon-user,
+.x-container-navigationheader .nav-help .icon-search,
+.x-container-navigationheader .user-menu .icon-user,
+.x-container-navigationheader .user-menu .icon-search {
+  margin: 14px 8px;
+  width: 20px;
+  height: 20px;
 }
 /* line 60, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .nav-appswitcher:hover,
+.x-container-navigationheader .nav-toggler:hover,
+.x-container-navigationheader .notifications-anchor:hover,
+.x-container-navigationheader .nav-help:hover,
+.x-container-navigationheader .user-menu:hover {
+  background-color: #71adc7;
+}
+/* line 66, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .x-menu-active {
   background-color: #71adc7;
 }
@@ -994,19 +1034,19 @@ h6 {
 .x-container-navigationheader .nav-toggler .x-btn-arrow-bottom {
   padding-bottom: inherit;
 }
-/* line 67, ../../sass/src/container/NavigationHeader.scss */
+/* line 73, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph {
   opacity: 0.5;
 }
-/* line 71, ../../sass/src/container/NavigationHeader.scss */
+/* line 77, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler:hover .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
-/* line 76, ../../sass/src/container/NavigationHeader.scss */
+/* line 82, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .x-pressed .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
-/* line 82, ../../sass/src/container/NavigationHeader.scss */
+/* line 88, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler .x-pressed .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
@@ -1022,15 +1062,15 @@ h6 {
 .x-container-navigationheader .nav-appswitcher .x-btn-arrow-bottom, .x-container-navigationheader .notifications-anchor .x-btn-arrow-bottom {
   padding-bottom: inherit;
 }
-/* line 92, ../../sass/src/container/NavigationHeader.scss */
+/* line 98, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field {
   width: 240px;
 }
-/* line 96, ../../sass/src/container/NavigationHeader.scss */
+/* line 102, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body {
   float: right;
 }
-/* line 99, ../../sass/src/container/NavigationHeader.scss */
+/* line 105, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body input {
   border-radius: 10px;
   -moz-border-radius: 10px;
@@ -1043,11 +1083,11 @@ h6 {
   width: 120px;
   height: 24px;
 }
-/* line 113, ../../sass/src/container/NavigationHeader.scss */
+/* line 119, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body input:focus, .x-container-navigationheader .search-field .x-form-item-body input:hover {
   width: 240px;
 }
-/* line 120, ../../sass/src/container/NavigationHeader.scss */
+/* line 126, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-button {
   background: none;
   border: none;
@@ -1074,7 +1114,7 @@ h6 {
   margin-top: 3px;
   margin-left: 10px;
 }
-/* line 124, ../../sass/src/container/NavigationHeader.scss */
+/* line 130, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-button:hover {
   background-color: #71adc7;
 }
@@ -14959,32 +14999,4 @@ a:hover, a.x-btn:hover {
   line-height: 24px;
   color: white;
   opacity: 0.5;
-}
-/* line 313, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-ie8m .x-btn-sort-medium .x-btn-glyph {
-  color: #ebebeb;
-}
-
-/* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium-disabled {
-  background-image: none;
-  background-color: #d8d8d8;
-}
-
-/* line 346, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium-icon .x-btn-button,
-.x-btn-sort-medium-noicon .x-btn-button {
-  height: 24px;
-}
-/* line 350, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium-icon .x-btn-inner,
-.x-btn-sort-medium-noicon .x-btn-inner {
-  line-height: 24px;
-}
-
-/* line 360, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium-icon .x-btn-arrow-right .x-btn-inner,
-.x-btn-sort-medium-noicon .x-btn-arrow-right .x-btn-inner,
-.x-btn-sort-medium-icon-text-left .x-btn-arrow-right .x-btn-inner {
-  padding-right: 0;
 }

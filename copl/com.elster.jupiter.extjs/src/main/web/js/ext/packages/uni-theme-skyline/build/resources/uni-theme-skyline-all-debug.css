@@ -13637,7 +13637,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px Lato; }
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif; }
 
 /* line 21, ../../../ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-type-text textarea.x-form-invalid-field, .x-form-type-text input.x-form-invalid-field,
@@ -13706,7 +13706,7 @@ textarea.x-form-empty-field {
 
 /* line 11, ../../../ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px Lato;
+  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
   margin-top: 6px; }
 
@@ -14507,7 +14507,7 @@ a.x-color-picker-item:hover {
 
 /* line 100, ../../../ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px Lato;
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
   background-color: white;
   resize: none; }
 
@@ -20780,12 +20780,18 @@ h6 {
   margin: 17px; }
 
 /* line 21, ../../sass/src/container/NavigationHeader.scss */
-.icon-logout {
-  background-image: url("images/container/ico_profile.png") !important;
+.icon-user {
+  background-image: url("images/container/user.png");
   width: 20px;
   height: 20px; }
 
 /* line 27, ../../sass/src/container/NavigationHeader.scss */
+.icon-search {
+  background-image: url("images/container/search.png");
+  width: 22px;
+  height: 23px; }
+
+/* line 33, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader {
   background-color: #2e587e;
   color: white;
@@ -20799,11 +20805,12 @@ h6 {
   /* For Firefox 3.6 to 15 */
   background: linear-gradient(to right, #2e587e, #529ebe);
   /* Standard syntax */ }
-  /* line 45, ../../sass/src/container/NavigationHeader.scss */
+  /* line 52, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .nav-appswitcher,
   .x-container-navigationheader .nav-toggler,
   .x-container-navigationheader .notifications-anchor,
   .x-container-navigationheader .nav-help,
+  .x-container-navigationheader .search-button,
   .x-container-navigationheader .user-menu {
     background: none;
     border: none;
@@ -20817,6 +20824,7 @@ h6 {
     .x-container-navigationheader .nav-toggler .x-btn-button,
     .x-container-navigationheader .notifications-anchor .x-btn-button,
     .x-container-navigationheader .nav-help .x-btn-button,
+    .x-container-navigationheader .search-button .x-btn-button,
     .x-container-navigationheader .user-menu .x-btn-button {
       padding-right: 10px;
       padding-left: 10px; }
@@ -20825,6 +20833,7 @@ h6 {
       .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner,
       .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner,
       .x-container-navigationheader .nav-help .x-btn-button .x-btn-inner,
+      .x-container-navigationheader .search-button .x-btn-button .x-btn-inner,
       .x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
         color: white; }
       /* line 19, ../../sass/src/button/TransparentButton.scss */
@@ -20832,29 +20841,42 @@ h6 {
       .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph,
       .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph,
       .x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph,
+      .x-container-navigationheader .search-button .x-btn-button .x-btn-glyph,
       .x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
         opacity: 1;
         height: auto;
         line-height: 36px;
         margin-top: 3px;
         margin-left: 10px; }
-    /* line 48, ../../sass/src/container/NavigationHeader.scss */
-    .x-container-navigationheader .nav-appswitcher .icon-logout,
-    .x-container-navigationheader .nav-toggler .icon-logout,
-    .x-container-navigationheader .notifications-anchor .icon-logout,
-    .x-container-navigationheader .nav-help .icon-logout,
-    .x-container-navigationheader .user-menu .icon-logout {
-      margin: 14px 8px;
-      width: 20px !important;
-      height: 20px !important; }
-    /* line 54, ../../sass/src/container/NavigationHeader.scss */
+    /* line 55, ../../sass/src/container/NavigationHeader.scss */
+    .x-container-navigationheader .nav-appswitcher .icon-user,
+    .x-container-navigationheader .nav-toggler .icon-user,
+    .x-container-navigationheader .notifications-anchor .icon-user,
+    .x-container-navigationheader .nav-help .icon-user,
+    .x-container-navigationheader .search-button .icon-user,
+    .x-container-navigationheader .user-menu .icon-user {
+      margin: 14px 16px;
+      width: 20px;
+      height: 20px; }
+    /* line 61, ../../sass/src/container/NavigationHeader.scss */
+    .x-container-navigationheader .nav-appswitcher .icon-search,
+    .x-container-navigationheader .nav-toggler .icon-search,
+    .x-container-navigationheader .notifications-anchor .icon-search,
+    .x-container-navigationheader .nav-help .icon-search,
+    .x-container-navigationheader .search-button .icon-search,
+    .x-container-navigationheader .user-menu .icon-search {
+      margin: 13px 2px;
+      width: 22px;
+      height: 23px; }
+    /* line 67, ../../sass/src/container/NavigationHeader.scss */
     .x-container-navigationheader .nav-appswitcher:hover,
     .x-container-navigationheader .nav-toggler:hover,
     .x-container-navigationheader .notifications-anchor:hover,
     .x-container-navigationheader .nav-help:hover,
+    .x-container-navigationheader .search-button:hover,
     .x-container-navigationheader .user-menu:hover {
       background-color: #71adc7; }
-  /* line 60, ../../sass/src/container/NavigationHeader.scss */
+  /* line 73, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .x-menu-active {
     background-color: #71adc7; }
   /* line 8, ../../sass/src/container/NavigationHeader.scss */
@@ -20866,16 +20888,16 @@ h6 {
   /* line 16, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .nav-toggler .x-btn-arrow-bottom {
     padding-bottom: inherit; }
-  /* line 67, ../../sass/src/container/NavigationHeader.scss */
+  /* line 80, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph {
     opacity: 0.5; }
-  /* line 71, ../../sass/src/container/NavigationHeader.scss */
+  /* line 84, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .nav-toggler:hover .x-btn-button .x-btn-glyph {
     opacity: 1.0; }
-  /* line 76, ../../sass/src/container/NavigationHeader.scss */
+  /* line 89, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .x-pressed .x-btn-button .x-btn-glyph {
     opacity: 1.0; }
-  /* line 82, ../../sass/src/container/NavigationHeader.scss */
+  /* line 95, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .nav-toggler .x-pressed .x-btn-button .x-btn-glyph {
     opacity: 1.0; }
   /* line 8, ../../sass/src/container/NavigationHeader.scss */
@@ -20887,13 +20909,13 @@ h6 {
   /* line 16, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .nav-appswitcher .x-btn-arrow-bottom, .x-container-navigationheader .notifications-anchor .x-btn-arrow-bottom {
     padding-bottom: inherit; }
-  /* line 92, ../../sass/src/container/NavigationHeader.scss */
+  /* line 105, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .search-field {
     width: 240px; }
-    /* line 96, ../../sass/src/container/NavigationHeader.scss */
+    /* line 109, ../../sass/src/container/NavigationHeader.scss */
     .x-container-navigationheader .search-field .x-form-item-body {
       float: right; }
-      /* line 99, ../../sass/src/container/NavigationHeader.scss */
+      /* line 112, ../../sass/src/container/NavigationHeader.scss */
       .x-container-navigationheader .search-field .x-form-item-body input {
         border-radius: 10px;
         -moz-border-radius: 10px;
@@ -20905,10 +20927,14 @@ h6 {
         -ms-transition: all 1s ease;
         width: 120px;
         height: 24px; }
-        /* line 113, ../../sass/src/container/NavigationHeader.scss */
+        /* line 126, ../../sass/src/container/NavigationHeader.scss */
         .x-container-navigationheader .search-field .x-form-item-body input:focus, .x-container-navigationheader .search-field .x-form-item-body input:hover {
           width: 240px; }
-  /* line 120, ../../sass/src/container/NavigationHeader.scss */
+  /* line 133, ../../sass/src/container/NavigationHeader.scss */
+  .x-container-navigationheader .user-menu {
+    padding-left: 0;
+    padding-right: 8px; }
+  /* line 138, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .search-button {
     background: none;
     border: none;
@@ -20916,7 +20942,8 @@ h6 {
     -moz-border-radius: 0;
     -webkit-border-radius: 0;
     padding: 0;
-    margin-left: 5px; }
+    padding-left: 8px;
+    margin-left: 4px; }
     /* line 9, ../../sass/src/button/TransparentButton.scss */
     .x-container-navigationheader .search-button .x-btn-button {
       padding-right: 10px;
@@ -20931,7 +20958,7 @@ h6 {
         line-height: 36px;
         margin-top: 3px;
         margin-left: 10px; }
-    /* line 124, ../../sass/src/container/NavigationHeader.scss */
+    /* line 143, ../../sass/src/container/NavigationHeader.scss */
     .x-container-navigationheader .search-button:hover {
       background-color: #71adc7; }
 
@@ -41680,7 +41707,7 @@ div.x-form-spinner-down {
 *[class*='x-window-'] .x-form-display-field {
   margin-top: 16px;
   color: #686868; }
-/* line 49, ../../sass/src/window/MessageBox.scss */
+/* line 50, ../../sass/src/window/MessageBox.scss */
 *[class*='x-window-'] *[class*='x-message-box-'] {
   background-position: 12px 4px; }
 
@@ -44028,7 +44055,7 @@ div.x-form-spinner-down {
   border-color: #86b9cf !important;
   border-width: 1px !important; }
 
-/* line 94, ../../sass/src/window/MessageBox.scss */
+/* line 95, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-error .x-window-body .x-header .x-header-text {
   color: #eb5642; }
 
@@ -45204,7 +45231,7 @@ div.x-form-spinner-down {
   border-color: #86b9cf !important;
   border-width: 1px !important; }
 
-/* line 122, ../../sass/src/window/MessageBox.scss */
+/* line 123, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-success .x-window-body .x-header .x-header-text {
   color: #74af74; }
 
@@ -46380,7 +46407,7 @@ div.x-form-spinner-down {
   border-color: #86b9cf !important;
   border-width: 1px !important; }
 
-/* line 149, ../../sass/src/window/MessageBox.scss */
+/* line 150, ../../sass/src/window/MessageBox.scss */
 .x-window-message-error .x-message-box-error {
   background-position: 12px 4px; }
 

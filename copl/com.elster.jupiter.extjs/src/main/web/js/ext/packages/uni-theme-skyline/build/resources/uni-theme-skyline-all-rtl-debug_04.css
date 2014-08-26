@@ -1,3 +1,17 @@
+/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-message-error-tr,
+.x-window-message-error-br,
+.x-window-message-error-mr {
+  padding-right: 10px;
+}
+
+/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-message-error-tl,
+.x-window-message-error-bl,
+.x-window-message-error-ml {
+  padding-left: 10px;
+}
+
 /* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-message-error-tc {
   height: 10px;

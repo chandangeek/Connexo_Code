@@ -1,3 +1,31 @@
+.x-ie8m .x-btn-sort-medium .x-btn-glyph {
+  color: #ebebeb;
+}
+
+/* line 320, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-disabled {
+  background-image: none;
+  background-color: #d8d8d8;
+}
+
+/* line 346, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon .x-btn-button,
+.x-btn-sort-medium-noicon .x-btn-button {
+  height: 24px;
+}
+/* line 350, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon .x-btn-inner,
+.x-btn-sort-medium-noicon .x-btn-inner {
+  line-height: 24px;
+}
+
+/* line 360, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium-icon .x-btn-arrow-right .x-btn-inner,
+.x-btn-sort-medium-noicon .x-btn-arrow-right .x-btn-inner,
+.x-btn-sort-medium-icon-text-left .x-btn-arrow-right .x-btn-inner {
+  padding-right: 0;
+}
+/* line 365, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-medium-icon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-sort-medium-noicon .x-btn-arrow-right .x-rtl.x-btn-inner,
 .x-btn-sort-medium-icon-text-left .x-btn-arrow-right .x-rtl.x-btn-inner {
@@ -17242,18 +17270,4 @@ div.x-form-spinner-down {
 /* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-message-error-bc {
   background-position: 0 -10px;
-}
-
-/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-message-error-tr,
-.x-window-message-error-br,
-.x-window-message-error-mr {
-  padding-right: 10px;
-}
-
-/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-message-error-tl,
-.x-window-message-error-bl,
-.x-window-message-error-ml {
-  padding-left: 10px;
 }

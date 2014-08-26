@@ -1,3 +1,16 @@
+/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-ml,
+.x-btn-step-active-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-active-small-sides.gif);
+  background-repeat: repeat-y;
+}
+
+/* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-mc {
+  padding: 0px 0px 0px 0px;
+}
+
 /* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-strict .x-ie7 .x-btn-step-active-small-tl,
 .x-strict .x-ie7 .x-btn-step-active-small-bl {

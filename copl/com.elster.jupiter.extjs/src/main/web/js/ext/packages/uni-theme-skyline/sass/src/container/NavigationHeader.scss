@@ -18,10 +18,16 @@
     }
 }
 
-.icon-logout {
-    background-image: url('images/container/ico_profile.png') !important;
+.icon-user {
+    background-image: url('images/container/user.png');
     width: 20px;
     height: 20px;
+}
+
+.icon-search {
+    background-image: url('images/container/search.png');
+    width: 22px;
+    height: 23px;
 }
 
 .#{$prefix}container-navigationheader {
@@ -42,13 +48,20 @@
     .nav-toggler,
     .notifications-anchor,
     .nav-help,
+    .search-button,
     .user-menu {
         @include transparent-button;
 
-        .icon-logout {
-            margin: 14px 8px;
-            width: 20px !important;
-            height: 20px !important;
+        .icon-user {
+            margin: 14px 16px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .icon-search {
+            margin: 13px 2px;
+            width: 22px;
+            height: 23px;
         }
 
         &:hover {
@@ -117,9 +130,15 @@
         }
     }
 
+    .user-menu {
+        padding-left: 0;
+        padding-right: 8px;
+    }
+
     .search-button {
         @include transparent-button;
-        margin-left: 5px;
+        padding-left: 8px;
+        margin-left: 4px;
 
         &:hover {
             @include highlight-header-background;
