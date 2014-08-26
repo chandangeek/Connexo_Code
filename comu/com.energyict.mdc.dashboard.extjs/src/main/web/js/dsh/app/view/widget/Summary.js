@@ -13,6 +13,7 @@ Ext.define('Dsh.view.widget.Summary', {
                 itemId: 'summary-dataview',
                 itemSelector: 'tbody.item',
                 cls: 'summary',
+                total: 0,
                 tpl:
                     '<table>' +
                         '<tpl for=".">' +
@@ -47,7 +48,7 @@ Ext.define('Dsh.view.widget.Summary', {
                                         limit: record.get('count'),
                                         total: view.total,
                                         count: data.get('count'),
-                                        label: Math.round(data.get('count') * 100 / record.get('count')) + '% (' + data.get('count') + ')'
+                                        label: Math.round(!view.total ? 0 : data.get('count') * 100 / record.get('count')) + '% (' + data.get('count') + ')'
                                     });
                                     bar.render(view.getEl().down('#bar-' + pos + '-' + (idx + 1)));
                                     var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
@@ -60,7 +61,7 @@ Ext.define('Dsh.view.widget.Summary', {
                                 limit: view.total,
                                 total: view.total,
                                 count: record.get('count'),
-                                label: Math.round(record.get('count') * 100 / view.total) + '% (' + record.get('count') + ')'
+                                label: Math.round(!view.total ? 0 : record.get('count') * 100 / view.total) + '% (' + record.get('count') + ')'
                             });
                             bar.render(view.getEl().down('#bar-' + pos));
                             var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
@@ -79,7 +80,7 @@ Ext.define('Dsh.view.widget.Summary', {
         var me = this;
 
         var view = me.down('#summary-dataview');
-        view.total = record.get('total');
+        view.total = record.get('total') || 0;
         view.record = record;
 
         view.bindStore(record.counters());

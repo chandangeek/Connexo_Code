@@ -14,7 +14,7 @@ Ext.define('Dsh.view.widget.common.StackedBar', {
     prepareData: function(){
         var me = this;
         var counts = _.object(_.map(me.count, function (value, key) {
-            return [key, Math.round(value * 100 / me.limit)];
+            return [key, !me.limit ? 0 : Math.round(value * 100 / me.limit)];
         }));
         return Ext.apply(me.callParent(), {
             count: counts,
