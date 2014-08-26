@@ -33,11 +33,11 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import org.hamcrest.core.IsNull;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeterReadingStorerTest {
@@ -132,7 +133,8 @@ public class MeterReadingStorerTest {
         	block.addIntervalReading(new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
         	block.addIntervalReading(new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(1100)));
         	String registerReadingTypeCode = builder.period(TimeAttribute.NOTAPPLICABLE).code();
-        	Reading reading = new ReadingImpl(registerReadingTypeCode, BigDecimal.valueOf(1200), dateTime.toDate());
+        	ReadingImpl reading = new ReadingImpl(registerReadingTypeCode, BigDecimal.valueOf(1200), dateTime.toDate());
+        	reading.addQuality("1.1.1","Whatever");
         	meterReading.addReading(reading);
         	meter.store(meterReading);
         	
@@ -149,8 +151,27 @@ public class MeterReadingStorerTest {
             assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1200));
             assertThat(meter.getReadingsBefore(dateTime.toDate(), meteringService.getReadingType(intervalReadingTypeCode).get(),10)).isEmpty();
             assertThat(meter.getReadingsOnOrBefore(dateTime.toDate(), meteringService.getReadingType(intervalReadingTypeCode).get(),10)).hasSize(1);
+            List<Channel> channels = meter.getMeterActivations().get(0).getChannels();
+            Optional<Channel> channel = Optional.absent();
+            for (Channel candidate : channels) {
+            	if (candidate.getMainReadingType().getMRID().equals(registerReadingTypeCode)) {
+            		channel = Optional.of(candidate);
+            	}
+            }
+            assertThat(channel).isPresent();
+            assertThat(channel.get().findReadingQuality(dateTime.toDate())).hasSize(1);
+            //update reading quality
+            meterReading = new MeterReadingImpl();
+            reading = new ReadingImpl(registerReadingTypeCode, BigDecimal.valueOf(1200), dateTime.toDate());
+            String newComment = "Whatever it was";
+        	reading.addQuality("1.1.1",newComment);
+        	meterReading.addReading(reading);
+        	meter.store(meterReading);
+            assertThat(channel.get().findReadingQuality(dateTime.toDate())).hasSize(1);
+            assertThat(channel.get().findReadingQuality(dateTime.toDate()).get(0).getComment()).isEqualTo(newComment);
             ctx.commit();
         }
+   
     }
 
     @Test

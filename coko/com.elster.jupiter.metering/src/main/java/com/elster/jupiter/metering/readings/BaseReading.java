@@ -13,5 +13,5 @@ public interface BaseReading {
 	BigDecimal getValue();
 	String getSource();
 	Interval getTimePeriod();
-	List<? extends ReadingQuality> getQualities();
+	List<? extends ReadingQuality> getReadingQualities();
 }

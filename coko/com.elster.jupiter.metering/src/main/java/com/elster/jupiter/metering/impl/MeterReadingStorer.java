@@ -245,7 +245,7 @@ public class MeterReadingStorer {
     }
 
     private void addedReading(Channel channel, BaseReading reading) {
-    	if (!reading.getQualities().isEmpty()) {
+    	if (!reading.getReadingQualities().isEmpty()) {
     		Pair<IntervalBuilder, List<BaseReading>> pair = readingQualitiesToStore.get(channel);
     		if (pair == null) {
     			pair = Pair.<IntervalBuilder,List<BaseReading>>of(new IntervalBuilder(),new ArrayList<BaseReading>());
@@ -261,19 +261,20 @@ public class MeterReadingStorer {
     	List<ReadingQualityImpl> toUpdate = new ArrayList<>();
     	for (Channel channel : readingQualitiesToStore.keySet()) {
     		Pair<IntervalBuilder,List<BaseReading>> pair = readingQualitiesToStore.get(channel);
-    		List<? extends ReadingQuality> qualities = channel.findReadingQuality(pair.getFirst().getInterval());
+    		List<? extends ReadingQuality> readingQualities = channel.findReadingQuality(pair.getFirst().getInterval());
     		for (BaseReading reading : pair.getLast()) {
     			Date timeStamp = reading.getTimeStamp();
-    			for (ReadingQuality quality : reading.getQualities()) {
-    				Optional<ReadingQualityImpl> existing = find(timeStamp, quality.getTypeCode(), qualities);
+    			for (ReadingQuality readingQuality : reading.getReadingQualities()) {
+    				Optional<ReadingQualityImpl> existing = find(timeStamp, readingQuality.getTypeCode(), readingQualities);
     				if (existing.isPresent()) {
-    					if (quality.getComment() != null && !quality.getComment().equals(existing.get().getComment())) {    						
-    						existing.get().setComment(quality.getComment());
+    
+    					if (readingQuality.getComment() != null && !readingQuality.getComment().equals(existing.get().getComment())) {    						
+    						existing.get().setComment(readingQuality.getComment());
     						toUpdate.add(existing.get());
     					}
     				} else {
-    					ReadingQualityImpl newReadingQuality = ReadingQualityImpl.from(dataModel, new ReadingQualityType(quality.getTypeCode()),channel,timeStamp);
-    					newReadingQuality.setComment(quality.getComment());
+    					ReadingQualityImpl newReadingQuality = ReadingQualityImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()),channel,timeStamp);
+    					newReadingQuality.setComment(readingQuality.getComment());
     					toInsert.add(newReadingQuality);
     				}
     			}
@@ -289,9 +290,9 @@ public class MeterReadingStorer {
     
     private Optional<ReadingQualityImpl> find(Date timeStamp, String typeCode, List<? extends ReadingQuality> candidates) {
     	for (ReadingQuality each : candidates) {
-    		ReadingQualityImpl quality = (ReadingQualityImpl)  each;
-    		if (quality.getTimestamp().equals(timeStamp) && quality.getTypeCode().equals(typeCode)) {
-    			return Optional.of(quality);
+    		ReadingQualityImpl readingQuality = (ReadingQualityImpl)  each;
+    		if (readingQuality.getReadingTimestamp().equals(timeStamp) && readingQuality.getTypeCode().equals(typeCode)) {
+    			return Optional.of(readingQuality);
     		}
     	}
     	return Optional.absent();
