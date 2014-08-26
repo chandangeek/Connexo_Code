@@ -30,7 +30,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
     setChartData: function (data) {
         var me = this;
         me.chart.series[0].setData([], true);
-       Ex.defer(me.chart.series[0].setData(data, true), 100)
+       Ext.defer(me.chart.series[0].setData(data, true), 100)
     },
 
     setXAxis: function (categories, title) {

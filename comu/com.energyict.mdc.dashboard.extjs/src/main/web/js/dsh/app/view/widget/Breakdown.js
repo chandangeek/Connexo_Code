@@ -107,8 +107,10 @@ Ext.define('Dsh.view.widget.Breakdown', {
                         '<tpl for=".">' +
                         '<tbody class="item item-{#}">' +
                         '<tr>' +
-                        '<td class="label" style="min-width: 200px">' +
-                        '<a>{displayName}</a>' +
+                        '<td>' +
+                        '<a>' +
+                        '<div style="width: 200px; overflow: hidden; text-overflow: ellipsis; padding-right: 20px">{displayName}</div>' +
+                        '</a>' +
                         '</td>' +
                         '<td width="100%" id="bar-{#}"></td>' +
                         '</tr>' +

@@ -43,8 +43,10 @@ Ext.define('Dsh.view.widget.Overview', {
                             '<tpl for=".">' +
                                 '<tbody class="item item-{#}">' +
                                 '<tr>' +
-                                    '<td class="label" style="min-width: 200px">' +
-                                        '<a href="#{id}">{displayName}</a>' +
+                                    '<td>' +
+                                        '<div style="width: 200px; overflow: hidden; text-overflow: ellipsis; padding-right: 20px">' +
+                                            '<a href="#{id}">{displayName}</a>' +
+                                        '</div>' +
                                     '</td>' +
                                     '<td width="100%" id="bar-{#}"></td>' +
                                 '</tr>' +
@@ -66,7 +68,7 @@ Ext.define('Dsh.view.widget.Overview', {
                                 var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
                                     { property: item.get('alias'), value: record.get('id') }
                                 ]});
-                                view.getEl().down('.item-' + pos + ' > tr > td > a').set({ href: href });
+                                view.getEl().down('.item-' + pos + ' > tr > td > div > a').set({ href: href });
                             });
                         }
                     }
