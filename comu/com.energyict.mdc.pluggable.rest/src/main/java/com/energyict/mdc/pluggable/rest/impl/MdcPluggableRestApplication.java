@@ -1,6 +1,8 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
+import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -26,8 +28,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.pluggable.rest", service = Application.class, immediate = true, property = {"alias=/plr"})
-public class MdcPluggableRestApplication extends Application {
+@Component(name = "com.energyict.mdc.pluggable.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/plr", "name=" + MdcPluggableRestApplication.COMPONENT_NAME})
+public class MdcPluggableRestApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "PLR";
 
@@ -93,6 +95,13 @@ public class MdcPluggableRestApplication extends Application {
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
+
+    @Override
+    public void install() {
+        Installer installer = new Installer();
+        installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
+    }
+
 
     class HK2Binder extends AbstractBinder {
 
