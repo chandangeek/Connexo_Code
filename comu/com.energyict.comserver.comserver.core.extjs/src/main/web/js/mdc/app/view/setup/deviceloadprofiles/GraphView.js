@@ -94,7 +94,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                     });
                     s += '</tbody></table>';
                     return s;
-                }
+                },
+                followPointer: true,
+                followTouchMove: true
             },
 
             legend: {

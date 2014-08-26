@@ -90,7 +90,9 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
                         s += '</tr>'
                     s += '</tbody></table>';
                     return s;
-                }
+                },
+                followPointer: true,
+                followTouchMove: true
             },
 
             legend: {
