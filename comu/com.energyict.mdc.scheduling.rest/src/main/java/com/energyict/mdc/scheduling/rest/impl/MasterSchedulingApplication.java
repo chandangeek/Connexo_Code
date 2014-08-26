@@ -28,7 +28,7 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.sch.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/scr"})
+@Component(name = "com.energyict.sch.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/scr", "name=" + MasterSchedulingApplication.COMPONENT_NAME})
 public class MasterSchedulingApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "SCR";
