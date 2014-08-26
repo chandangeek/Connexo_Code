@@ -173,5 +173,5 @@ enum BreakdownOption {
     connectionType,
     deviceType,
     comPortPool,
-    comSchedule
+    comTask, comSchedule
 }

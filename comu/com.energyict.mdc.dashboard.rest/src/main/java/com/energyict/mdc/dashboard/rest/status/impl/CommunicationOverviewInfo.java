@@ -6,7 +6,7 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
-import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
+import com.energyict.mdc.dashboard.ComTaskBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardCounters;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
@@ -61,7 +61,7 @@ public class CommunicationOverviewInfo {
             TaskStatusOverview taskStatusOverview,
             ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview,
             ComScheduleBreakdown comScheduleBreakdown,
-            ConnectionTypeBreakdown connectionTypeBreakdown,
+            ComTaskBreakdown comTaskBreakdown,
             DeviceTypeBreakdown deviceTypeBreakdown,
             Thesaurus thesaurus) throws Exception {
         this.thesaurus = thesaurus;
@@ -72,7 +72,8 @@ public class CommunicationOverviewInfo {
         overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResult, completionCodeAdapter));
 
         breakdowns=new ArrayList<>(3);
-        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_TASK.getKey(), MessageSeeds.PER_COMMUNICATION_TASK.getDefaultFormat()), comScheduleBreakdown, BreakdownOption.comSchedule));
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_SCHEDULE.getKey(), MessageSeeds.PER_COMMUNICATION_SCHEDULE.getDefaultFormat()), comScheduleBreakdown, BreakdownOption.comSchedule));
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_TASK.getKey(), MessageSeeds.PER_COMMUNICATION_TASK.getDefaultFormat()), comTaskBreakdown, BreakdownOption.comTask));
         sortAllOverviews();
     }
 
