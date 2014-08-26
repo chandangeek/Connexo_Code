@@ -110,6 +110,11 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     }
 
     @Override
+    public Date getCreateTime() {
+        return createTime.toDate();
+    }
+
+    @Override
     public String getDescription() {
         return description;
     }

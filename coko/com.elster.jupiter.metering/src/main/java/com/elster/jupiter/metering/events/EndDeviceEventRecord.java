@@ -4,11 +4,17 @@ import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 
+import java.util.Date;
 import java.util.Map;
 
 public interface EndDeviceEventRecord extends EndDeviceEvent {
 
     long getProcessingFlags();
+
+    /**
+     * This is the date time of event creation in the DB
+     */
+    Date getCreateTime();
 
     EndDevice getEndDevice();
 
