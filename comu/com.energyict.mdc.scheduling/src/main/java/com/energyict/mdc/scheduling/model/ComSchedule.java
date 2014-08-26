@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling.model;
 
+import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
@@ -10,7 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public interface ComSchedule extends HasId, DataCollectionConfiguration {
+public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration {
 
     public long getId();
 
