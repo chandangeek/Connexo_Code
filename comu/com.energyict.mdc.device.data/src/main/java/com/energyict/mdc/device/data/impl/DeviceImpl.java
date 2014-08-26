@@ -1042,7 +1042,7 @@ public class DeviceImpl implements Device {
                 }
             }
         }
-        ArrayList<LoadProfileReading> loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        List<LoadProfileReading> loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
         return Lists.reverse(loadProfileReadings);
     }
 
@@ -1055,7 +1055,7 @@ public class DeviceImpl implements Device {
                 this.getUnsortedChannelDataFor(interval, meter.get(), channel, sortedLoadProfileReadingMap);
             }
         }
-        ArrayList<LoadProfileReading> loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        List<LoadProfileReading> loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
         return Lists.reverse(loadProfileReadings);
     }
 
