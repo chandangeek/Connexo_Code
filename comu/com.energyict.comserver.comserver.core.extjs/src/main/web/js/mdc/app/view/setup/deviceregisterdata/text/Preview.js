@@ -1,9 +1,10 @@
-Ext.define('Mdc.view.setup.deviceregisterdata.textregisterreport.Preview', {
+Ext.define('Mdc.view.setup.deviceregisterdata.text.Preview', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.devicetextregisterreportpreview',
-    itemId: 'deviceTextRegisterReportPreview',
+    alias: 'widget.deviceregisterreportpreview-text',
+    itemId: 'deviceregisterreportpreview',
     title: '',
     frame: true,
+
     tools: [
         {
             xtype: 'button',
@@ -11,6 +12,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.textregisterreport.Preview', {
             iconCls: 'x-uni-action-iconD'
         }
     ],
+
     items: {
         xtype: 'form',
         defaults: {
@@ -25,8 +27,16 @@ Ext.define('Mdc.view.setup.deviceregisterdata.textregisterreport.Preview', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
+                        fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                         name: 'timeStamp',
+                        format: 'M j, Y \\a\\t G:i',
+                        renderer: function (value) {
+                            return Ext.util.Format.date(value, this.format);
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('device.registerData.readingtTime', 'MDC', 'Reading time'),
+                        name: 'reportedDateTime',
                         format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
                             return Ext.util.Format.date(value, this.format);
@@ -35,13 +45,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.textregisterreport.Preview', {
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                         name: 'value'
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('device.registerData.validationStatus', 'MDC', 'Validation status'),
-                        name: 'validationStatus',
-                        renderer: function (value, metaData, record) {
-                            return Uni.I18n.translate(value, 'MDC', value)
-                        }
                     }
                 ]
             }

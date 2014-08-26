@@ -1,8 +1,8 @@
-Ext.define('Mdc.view.setup.deviceregisterdata.valueregisterreport.Grid', {
+Ext.define('Mdc.view.setup.deviceregisterdata.flags.Grid', {
     extend: 'Mdc.view.setup.deviceregisterdata.MainGrid',
-    alias: 'widget.devicevalueregisterreportgrid',
-    itemId: 'numerical-deviceRegisterReportGrid',
-    store: 'NumericalRegisterData',
+    alias: 'widget.deviceregisterreportgrid-flags',
+    itemId: 'deviceregisterreportgrid',
+    store: 'TextRegisterData',
 
     columns: {
         items: [
@@ -17,19 +17,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.valueregisterreport.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('device.registerData.amount', 'MDC', 'Amount'),
+                header: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                 dataIndex: 'value',
-                renderer: function (value, metaData, record) {
-                    return value + ' ' + record.get('unitOfMeasure')
-                },
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('device.registerData.rawValue', 'MDC', 'Raw value'),
-                dataIndex: 'rawValue',
-                renderer: function (value, metaData, record) {
-                    return value + ' ' + record.get('unitOfMeasure')
-                },
                 flex: 1
             },
             {

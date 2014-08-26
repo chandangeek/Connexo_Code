@@ -1,7 +1,5 @@
 Ext.define('Mdc.view.setup.deviceregisterdata.MainSetup', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.deviceMainRegisterReportSetup',
-    itemId: 'deviceMainRegisterReportSetup',
 
     mRID: null,
     registerId: null,
@@ -26,6 +24,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainSetup', {
             }
         ];
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });

@@ -1,4 +1,4 @@
-Ext.define('Mdc.model.EventRegisterData', {
+Ext.define('Mdc.model.BillingRegisterData', {
     extend: 'Mdc.model.RegisterData',
     fields: [
         {name: 'multiplier', type:'auto', useNull: true},

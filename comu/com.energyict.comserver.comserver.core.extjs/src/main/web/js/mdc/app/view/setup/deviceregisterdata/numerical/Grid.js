@@ -1,8 +1,8 @@
-Ext.define('Mdc.view.setup.deviceregisterdata.eventregisterreport.Grid', {
+Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
     extend: 'Mdc.view.setup.deviceregisterdata.MainGrid',
-    alias: 'widget.deviceeventregisterreportgrid',
-    itemId: 'event-deviceRegisterReportGrid',
-    store: 'EventRegisterData',
+    alias: 'widget.deviceregisterreportgrid-numerical',
+    itemId: 'deviceregisterreportgrid',
+    store: 'NumericalRegisterData',
 
     columns: {
         items: [
@@ -25,17 +25,12 @@ Ext.define('Mdc.view.setup.deviceregisterdata.eventregisterreport.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('device.registerData.interval', 'MDC', 'Interval'),
-                dataIndex: 'interval',
-                renderer: function (value) {
-                    if (value) {
-                        var startDate = new Date(value.start),
-                            endDate = new Date(value.end),
-                            format = 'M j, Y \\a\\t G:i';
-                        return Ext.util.Format.date(startDate, format) + ' - ' + Ext.util.Format.date(endDate, format);
-                    }
+                header: Uni.I18n.translate('device.registerData.rawValue', 'MDC', 'Raw value'),
+                dataIndex: 'rawValue',
+                renderer: function (value, metaData, record) {
+                    return value + ' ' + record.get('unitOfMeasure')
                 },
-                flex: 2
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('device.registerData.validationStatus', 'MDC', 'Validation status'),

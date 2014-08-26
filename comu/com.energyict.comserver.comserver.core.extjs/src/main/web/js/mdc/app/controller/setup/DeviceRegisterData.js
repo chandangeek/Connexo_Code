@@ -4,77 +4,56 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     views: [
         'setup.deviceregisterdata.MainSetup',
         'setup.deviceregisterdata.MainGrid',
-        'setup.deviceregisterdata.textregisterreport.Setup',
-        'setup.deviceregisterdata.textregisterreport.Grid',
-        'setup.deviceregisterdata.textregisterreport.Preview',
-        'setup.deviceregisterdata.valueregisterreport.Setup',
-        'setup.deviceregisterdata.valueregisterreport.Grid',
-        'setup.deviceregisterdata.valueregisterreport.Preview',
-        'setup.deviceregisterdata.eventregisterreport.Setup',
-        'setup.deviceregisterdata.eventregisterreport.Grid',
-        'setup.deviceregisterdata.eventregisterreport.Preview'
-
+        'setup.deviceregisterdata.text.Setup',
+        'setup.deviceregisterdata.text.Grid',
+        'setup.deviceregisterdata.text.Preview',
+        'setup.deviceregisterdata.numerical.Setup',
+        'setup.deviceregisterdata.numerical.Grid',
+        'setup.deviceregisterdata.numerical.Preview',
+        'setup.deviceregisterdata.billing.Setup',
+        'setup.deviceregisterdata.billing.Grid',
+        'setup.deviceregisterdata.billing.Preview',
+        'setup.deviceregisterdata.flags.Setup',
+        'setup.deviceregisterdata.flags.Grid',
+        'setup.deviceregisterdata.flags.Preview'
     ],
 
     stores: [
         'RegisterData',
         'NumericalRegisterData',
-        'EventRegisterData',
+        'BillingRegisterData',
         'TextRegisterData'
     ],
 
     refs: [
-        {ref: 'deviceEventRegisterReportPreview', selector: '#deviceEventRegisterReportPreview'},
-        {ref: 'deviceValueRegisterReportPreview', selector: '#deviceValueRegisterReportPreview'},
-        {ref: 'deviceTextRegisterReportPreview', selector: '#deviceTextRegisterReportPreview'}
+        {ref: 'deviceregisterreportpreview', selector: '#deviceregisterreportpreview'}
     ],
 
     init: function () {
-        this.control({
-            '#deviceValueRegisterReportSetup #numerical-deviceRegisterReportGrid': {
-                select: this.loadNumericalGridItemDetail
-            }
-        });
-        this.control({
-            '#deviceEventRegisterReportSetup #event-deviceRegisterReportGrid': {
-                select: this.loadEventGridItemDetail
-            }
-        });
-        this.control({
-            '#deviceTextRegisterReportSetup #text-deviceRegisterReportGrid': {
-                select: this.loadTextGridItemDetail
+        var me = this;
+
+        me.control({
+            '#deviceregisterreportsetup #deviceregisterreportgrid': {
+                select: me.loadGridItemDetail
             }
         });
     },
 
-    loadTextGridItemDetail: function(selectionModel, record) {
-        var previewPanel = this.getDeviceTextRegisterReportPreview();
-        this.loadGridItemDetail(previewPanel, record);
-    },
+    loadGridItemDetail: function (rowmodel, record, index) {
 
-    loadNumericalGridItemDetail: function(selectionModel, record) {
-        var previewPanel = this.getDeviceValueRegisterReportPreview();
-        this.loadGridItemDetail(previewPanel, record);
-    },
+        var me = this,
+            previewPanel = me.getDeviceregisterreportpreview(),
+            form = previewPanel.down('form');
 
-    loadEventGridItemDetail: function(selectionModel, record) {
-        var previewPanel = this.getDeviceEventRegisterReportPreview();
-        this.loadGridItemDetail(previewPanel, record);
-    },
-
-    loadGridItemDetail: function (previewPanel, record) {
-        var form = previewPanel.down('form');
         previewPanel.setTitle(Ext.util.Format.date(record.get('timeStamp'), 'M j, Y \\a\\t G:i'));
         form.loadRecord(record);
     },
 
     showDeviceRegisterDataView: function(mRID, registerId) {
         var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0],
-            store,
-            widget;
+            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
-        viewport.setLoading(true);
+        contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
@@ -82,16 +61,15 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 model.getProxy().setExtraParam('mRID', mRID);
                 model.load(registerId, {
                     success: function (register) {
-                        widget = Ext.widget(register.get('type') + '-deviceregisterreportsetup', {mRID: mRID, registerId: registerId});
-                        store = widget.down('#' + register.get('type') + '-deviceRegisterReportGrid').store;
-                        store.getProxy().extraParams = ({mRID: mRID, registerId: registerId});
-                        store.load();
+                        var type = register.get('type');
+                        var widget = Ext.widget('deviceregisterreportsetup-' + type, {mRID: mRID, registerId: registerId});
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         me.getApplication().fireEvent('changecontentevent', widget);
                         widget.down('#stepsMenu').setTitle(register.get('name'));
                     },
+
                     callback: function () {
-                        viewport.setLoading(false);
+                        contentPanel.setLoading(false);
                     }
                 });
             }
