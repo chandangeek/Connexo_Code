@@ -33,7 +33,7 @@ public class CommunicationOverviewResource {
         TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview();
         ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview();
 
-        return new CommunicationOverviewInfo(null, taskStatusOverview, null, null, null, null, thesaurus);
+        return new CommunicationOverviewInfo(null, taskStatusOverview, comSessionSuccessIndicatorOverview, null, null, null, thesaurus);
     }
 
 }

@@ -4,8 +4,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
+import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
-import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardCounters;
@@ -45,6 +45,8 @@ public class CommunicationOverviewInfo {
     private static final TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
     @JsonIgnore
     private static final SuccessIndicatorAdapter successIndicatorAdapter = new SuccessIndicatorAdapter();
+    @JsonIgnore
+    private static final CompletionCodeAdapter completionCodeAdapter = new CompletionCodeAdapter();
 
 //    public ConnectionSummaryInfo connectionSummary;
 
@@ -57,7 +59,7 @@ public class CommunicationOverviewInfo {
     public <H extends HasName & HasId> CommunicationOverviewInfo(
             ConnectionSummaryData connectionSummaryData,
             TaskStatusOverview taskStatusOverview,
-            ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview,
+            ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview,
             ComPortPoolBreakdown comPortPoolBreakdown,
             ConnectionTypeBreakdown connectionTypeBreakdown,
             DeviceTypeBreakdown deviceTypeBreakdown,
@@ -66,8 +68,8 @@ public class CommunicationOverviewInfo {
 
 
         overviews=new ArrayList<>(2);
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResult, successIndicatorAdapter)); // JP-4280
+        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.state, taskStatusAdapter));
+        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResult, completionCodeAdapter));
 
         sortAllOverviews();
 
