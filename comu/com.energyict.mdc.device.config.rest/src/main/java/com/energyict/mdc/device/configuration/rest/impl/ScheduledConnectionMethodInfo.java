@@ -33,7 +33,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
             this.comWindowStart=0;
             this.comWindowEnd=0;
         }
-        this.temporalExpression =partialConnectionTask.getNextExecutionSpecs()!=null?
+        this.nextExecutionSpecs =partialConnectionTask.getNextExecutionSpecs()!=null?
                 TemporalExpressionInfo.from(partialConnectionTask.getNextExecutionSpecs().getTemporalExpression()):null;
     }
 
@@ -50,8 +50,8 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         partialConnectionTask.setConnectionStrategy(this.connectionStrategy);
         partialConnectionTask.setComportPool(Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace() ? null : (OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool));
         partialConnectionTask.setRescheduleRetryDelay(this.rescheduleRetryDelay!=null?this.rescheduleRetryDelay.asTimeDuration():null);
-        if (temporalExpression !=null) {
-            partialConnectionTask.setTemporalExpression(temporalExpression.asTemporalExpression());
+        if (nextExecutionSpecs !=null) {
+            partialConnectionTask.setTemporalExpression(nextExecutionSpecs.asTemporalExpression());
         } else {
             partialConnectionTask.setNextExecutionSpecs(null);
         }
@@ -66,16 +66,16 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
             .comPortPool((OutboundComPortPool) engineModelService.findComPortPool(this.comPortPool))
             .asDefault(this.isDefault)
             .allowSimultaneousConnections(this.allowSimultaneousConnections);
-        if (this.temporalExpression !=null) {
-            if (this.temporalExpression.offset==null) {
+        if (this.nextExecutionSpecs !=null) {
+            if (this.nextExecutionSpecs.offset==null) {
                 scheduledConnectionTaskBuilder
                         .nextExecutionSpec()
-                        .temporalExpression(this.temporalExpression.every.asTimeDuration())
+                        .temporalExpression(this.nextExecutionSpecs.every.asTimeDuration())
                         .set();
             } else {
                 scheduledConnectionTaskBuilder
                         .nextExecutionSpec()
-                        .temporalExpression(this.temporalExpression.every.asTimeDuration(), this.temporalExpression.offset.asTimeDuration())
+                        .temporalExpression(this.nextExecutionSpecs.every.asTimeDuration(), this.nextExecutionSpecs.offset.asTimeDuration())
                         .set();
             }
         }
