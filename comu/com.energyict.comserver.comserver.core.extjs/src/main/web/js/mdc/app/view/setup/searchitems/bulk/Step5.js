@@ -10,6 +10,9 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step5', {
     tbar: {
         xtype: 'panel',
         ui: 'medium',
+        style: {
+            padding: '0 0 0 3px'
+        },
         title: '',
         itemId: 'searchitemsbulkactiontitle'
     },

@@ -127,13 +127,13 @@ Ext.define('Mdc.widget.ScheduleField', {
                 itemId : 'dayField',
                 store: new Ext.data.SimpleStore({
                     data : [
-                        [1,'monday',Uni.I18n.translate('schedulefield.monday', 'UNI', 'monday')],
-                        [2,'tuesday',Uni.I18n.translate('schedulefield.tuesday', 'UNI', 'tuesday')],
-                        [3,'wednesday',Uni.I18n.translate('schedulefield.wednesday', 'UNI', 'wednesday')],
-                        [4,'thursday',Uni.I18n.translate('schedulefield.thursday', 'UNI', 'thursday')],
-                        [5,'friday',Uni.I18n.translate('schedulefield.friday', 'UNI', 'friday')],
-                        [6,'saturday',Uni.I18n.translate('schedulefield.saturday', 'UNI', 'saturday')],
-                        [7,'sunday',Uni.I18n.translate('schedulefield.sunday', 'UNI', 'sunday')]
+                        [1,'monday',Uni.I18n.translate('general.daysofweek.monday', 'MDC', 'Monday')],
+                        [2,'tuesday',Uni.I18n.translate('general.daysofweek.tuesday', 'MDC', 'Tuesday')],
+                        [3,'wednesday',Uni.I18n.translate('general.daysofweek.wednesday', 'MDC', 'Wednesday')],
+                        [4,'thursday',Uni.I18n.translate('general.daysofweek.thursday', 'MDC', 'Thursday')],
+                        [5,'friday',Uni.I18n.translate('general.daysofweek.friday', 'MDC', 'Friday')],
+                        [6,'saturday',Uni.I18n.translate('general.daysofweek.saturday', 'MDC', 'Saturday')],
+                        [7,'sunday',Uni.I18n.translate('general.daysofweek.sunday', 'MDC', 'Sunday')]
                     ],
                     id : 0,
                     fields : ['dayId', 'dayKey','translation']

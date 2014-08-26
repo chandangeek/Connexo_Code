@@ -100,7 +100,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                 items: [
                                                     {
                                                         xtype: 'displayfield',
-                                                        value: '<span style="color: grey"><i>' + Uni.I18n.translate('communicationschedule.noComTaskSelected', 'MDC', 'No communication task(s) selected yet') + '</i></span>'
+                                                        value: '<span style="color: grey"><i>' + Uni.I18n.translate('communicationschedule.noComTaskSelected', 'MDC', 'No communication tasks selected yet') + '</i></span>'
                                                     },
                                                     {
                                                         xtype: 'grid',
@@ -133,7 +133,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                                     {
                                                                         tooltip: 'Remove',
                                                                         handler: function(grid, rowIndex, colIndex, item, e, record, row) {
-                                                                            debugger;
                                                                             this.fireEvent('deleteComTask', record);
                                                                         }
                                                                     }
@@ -184,6 +183,17 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                 xtype: 'scheduleField',
                                                 name: 'temporalExpression',
                                                 itemId: 'scheduleField',
+                                                value: {
+                                                    every: {
+                                                        count: 15,
+                                                        timeUnit: 'minutes'
+                                                    },
+                                                    lastDay: false,
+                                                    offset: {
+                                                        count: 0,
+                                                        timeUnit: 'seconds'
+                                                    }
+                                                },
                                                 hourCfg: {
                                                     width: 60
                                                 },
@@ -202,6 +212,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                         itemId: 'startDate',
                                         required: true,
                                         fieldLabel: Uni.I18n.translate('communicationschedule.startOn', 'MDC', 'Start on'),
+                                        value: new Date(),
                                         hourCfg: {
                                             width: 60
                                         },
