@@ -44,8 +44,6 @@ public class CommunicationOverviewInfo {
     @JsonIgnore
     private static final TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
     @JsonIgnore
-    private static final SuccessIndicatorAdapter successIndicatorAdapter = new SuccessIndicatorAdapter();
-    @JsonIgnore
     private static final CompletionCodeAdapter completionCodeAdapter = new CompletionCodeAdapter();
 
 //    public ConnectionSummaryInfo connectionSummary;
@@ -74,6 +72,7 @@ public class CommunicationOverviewInfo {
         breakdowns=new ArrayList<>(3);
         breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_SCHEDULE.getKey(), MessageSeeds.PER_COMMUNICATION_SCHEDULE.getDefaultFormat()), comScheduleBreakdown, BreakdownOption.comSchedule));
         breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_TASK.getKey(), MessageSeeds.PER_COMMUNICATION_TASK.getDefaultFormat()), comTaskBreakdown, BreakdownOption.comTask));
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_DEVICE_TYPE.getKey(), MessageSeeds.PER_DEVICE_TYPE.getDefaultFormat()), deviceTypeBreakdown, BreakdownOption.deviceType));
         sortAllOverviews();
     }
 
