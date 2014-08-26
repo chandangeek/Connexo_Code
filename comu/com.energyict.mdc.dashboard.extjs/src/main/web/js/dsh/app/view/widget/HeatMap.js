@@ -3,7 +3,8 @@ Ext.define('Dsh.view.widget.HeatMap', {
     alias: 'widget.heat-map',
     layout: 'fit',
     minHeight: 450,
-    tbar: [ '->',
+    tbar: [
+        '->',
         {
             xtype: 'fieldcontainer',
             fieldLabel: 'Combine',
@@ -16,7 +17,8 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 store: 'Dsh.store.CombineStore',
                 autoSelect: true
             }
-        }, '->'
+        },
+        '->'
     ],
 
     items: {
@@ -28,7 +30,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
     setChartData: function (data) {
         var me = this;
         me.chart.series[0].setData([], true);
-        Ext.defer(me.chart.series[0].setData(data, true), 100);
+       Ex.defer(me.chart.series[0].setData(data, true), 100)
     },
 
     setXAxis: function (categories, title) {
@@ -50,7 +52,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
         store.each(function (rec) {
             Ext.each(rec.data.data, function (item) {
                 var count = item.count,
-                    value = count > 0 ? count : count.toString();
+                    value = count == 0 ? count : count.toString();
                 data.push([x, y, value]);
                 ++y;
             });
