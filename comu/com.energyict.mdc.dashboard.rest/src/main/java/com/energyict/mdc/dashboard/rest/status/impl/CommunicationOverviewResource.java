@@ -35,11 +35,11 @@ public class CommunicationOverviewResource {
     public CommunicationOverviewInfo getCommunicationOverview() throws Exception {
         TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview();
         ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview();
-        ComScheduleBreakdown communicationTasksComScheduleBreakdown = dashboardService.getCommunicationTasksComScheduleBreakdown();
-        ComTaskBreakdown communicationTasksBreakdown = dashboardService.getCommunicationTasksBreakdown();
-        DeviceTypeBreakdown communicationTasksDeviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown();
+        ComScheduleBreakdown comScheduleBreakdown = dashboardService.getCommunicationTasksComScheduleBreakdown();
+        ComTaskBreakdown comTaskBreakdown = dashboardService.getCommunicationTasksBreakdown();
+        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown();
 
-        return new CommunicationOverviewInfo(null, taskStatusOverview, comSessionSuccessIndicatorOverview, communicationTasksComScheduleBreakdown, communicationTasksBreakdown, communicationTasksDeviceTypeBreakdown, thesaurus);
+        return new CommunicationOverviewInfo(null, taskStatusOverview, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown, thesaurus);
     }
 
 }
