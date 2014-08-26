@@ -19,7 +19,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
         items: [
             {
                 itemId: 'name',
-                text: Uni.I18n.translate('communication.widget.details.commTask', 'DSH', 'Communication task'),
+                text: Uni.I18n.translate('communication.widget.details.commTask', 'DSH', 'Communications'),
                 dataIndex: 'name',
                 flex: 1
             },

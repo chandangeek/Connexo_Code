@@ -15,6 +15,13 @@ Ext.define('Dsh.model.CommunicationTask', {
         { name: 'successfulFinishTime', type: 'date', dateFormat: 'time'},
         { name: 'nextCommunication', type: 'date', dateFormat: 'time'},
         {
+            name: 'title',
+            persist: false,
+            mapping: function (data) {
+                return data.name + ' on ' + data.device.name;
+            }
+        },
+        {
             name: 'devConfig',
             persist: false,
             mapping: function (data) {

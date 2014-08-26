@@ -14,6 +14,13 @@ Ext.define('Dsh.model.ConnectionTask', {
                 return devConfig
             }
         },
+        {
+            name: 'title',
+            persist: false,
+            mapping: function (data) {
+                return data.connectionMethod.name + ' on ' + data.device.name
+            }
+        },
         { name: 'currentState', type: 'auto' },
         { name: 'latestStatus', type: 'auto' },
         { name: 'latestResult', type: 'auto' },
@@ -33,7 +40,7 @@ Ext.define('Dsh.model.ConnectionTask', {
     ],
     hasOne: [
         {
-            model: 'Dsh.model.CommTask',
+            model: 'Dsh.model.CommTasks',
             name: 'communicationTasks'
         }
     ]

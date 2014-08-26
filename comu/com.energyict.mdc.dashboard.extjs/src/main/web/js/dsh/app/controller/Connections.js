@@ -61,9 +61,13 @@ Ext.define('Dsh.controller.Connections', {
         var me = this,
             record = selected[0],
             preview = me.getCommunicationPreview();
-        record.data.devConfig = me.getConnectionsList().getSelectionModel().getSelection()[0].get('devConfig');
+        record.data.devConfig = {
+            config: record.data.deviceConfiguration,
+            devType: record.data.deviceType
+        };
+        record.data.title = record.data.name + ' on ' + record.data.device.name
+        preview.setTitle(record.data.title);
         preview.loadRecord(record);
-        preview.setTitle(record.get('name'))
     },
 
     onSelectionChange: function (grid, selected) {
@@ -73,7 +77,7 @@ Ext.define('Dsh.controller.Connections', {
             commTasksData = record.get('communicationTasks').communicationTasks,
             commTasks = Ext.create('Ext.data.Store', {model: 'Dsh.model.CommunicationTask',data: commTasksData});
         preview.loadRecord(record);
-        preview.setTitle(record.get('name'));
+        preview.setTitle(record.get('title'));
         me.getCommunicationContainer().removeAll(true);
         me.getCommunicationContainer().add({
             xtype: 'preview-container',
@@ -95,7 +99,7 @@ Ext.define('Dsh.controller.Connections', {
                 itemId: 'communicationpreview'
             }
         });
-        me.getCommTasksTitle().setTitle(Uni.I18n.translate('communication.widget.details.commTasksOf', 'DSH', 'Communication tasks of'));
+        me.getCommTasksTitle().setTitle(Uni.I18n.translate('communication.widget.details.commTasksOf', 'DSH', 'Communication tasks of') + ' ' + record.get('title'));
         me.getCommunicationList().getSelectionModel().select(0);
     }
 });

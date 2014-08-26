@@ -4,12 +4,12 @@ Ext.define('Dsh.view.widget.ActionMenu', {
     plain: true,
     items: [
         {   itemId: 'assign',
-            text: 'Assign',
+            text: 'Item 1',
             action: 'assign'
         },
         {
             itemId: 'close',
-            text: 'Close',
+            text: 'item 2',
             action: 'close'
         }
     ]

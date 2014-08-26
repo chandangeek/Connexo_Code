@@ -24,7 +24,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 dataIndex: 'device',
                 flex: 2,
                 renderer: function (val) {
-                    return '<a href="#/devices/"' + val.id + '">' + val.name + '</a>'
+                    return '<a href="#/devices/' + val.id + '">' + val.name + '</a>'
                 }
             },
             {

@@ -25,8 +25,12 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('communication.widget.details.commTask', 'DSH', 'Communication task'),
+                    fieldLabel: Uni.I18n.translate('communication.widget.details.commTask', 'DSH', 'Name'),
                     name: 'name'
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('communication.widget.details.commTask', 'DSH', 'Communication task(s)'),
+                    name: 'title'
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.device', 'DSH', 'Device'),
@@ -57,12 +61,23 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('communication.widget.details.schedule', 'DSH', 'Shedule'),
+                    fieldLabel: Uni.I18n.translate('communication.widget.details.schedule', 'DSH', 'Frequency'),
                     name: 'comScheduleName'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('communication.widget.details.protocolDialect', 'DSH', 'Protocol dialect'),
-                    name: 'connectionType'
+                    fieldLabel: ' ',
+                    name: 'comScheduleFrequency',
+                    renderer: function (val) {
+                        var res = '';
+                        if (val) {
+                            res = Uni.I18n.translate('communication.widget.details.every', 'DSH', 'Every')
+                                + ' '
+                                + val.every.count
+                                + ' '
+                                + val.every.timeUnit;
+                        }
+                        return res
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.urgency', 'DSH', 'Urgency'),

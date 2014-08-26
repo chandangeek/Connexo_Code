@@ -3,7 +3,7 @@
     "connectionTasks": [
         {
             "device": {
-                "id": "11",
+                "id": 11,
                 "name": "some device"
             },
             "deviceConfiguration": {
@@ -47,7 +47,7 @@
             },
             "connectionMethod": {
                 "id": null,
-                "name": "partial connection task name( default )"
+                "name": "Some connection method"
             },
             "window": "09:00 - 17:00",
             "connectionStrategy": {
@@ -61,19 +61,29 @@
                     {
                         "name": "Comm task",
                         "device": {
-                            "id": "1234-5678-9012",
+                            "id": 11,
                             "name": "some device"
                         },
                         "deviceConfiguration": {
-                            "id": 123123,
+                            "id": 1001,
                             "name": "123123"
                         },
                         "deviceType": {
-                            "id": 1010,
+                            "id": 1001,
                             "name": "device type"
                         },
                         "comScheduleName": "Weekly billing",
-                        "comScheduleFrequency": "every 1 weeks (offset: 12 hours)",
+                        "comScheduleFrequency":{
+                            "every":{
+                                "count":1,
+                                "timeUnit":"weeks"
+                            },
+                            "offset":{
+                                "count":43200,
+                                "timeUnit":"seconds"
+                            },
+                            "lastDay":false
+                        },
                         "urgency": 100,
                         "currentState": {
                             "id": "Busy",
@@ -87,11 +97,11 @@
                     {
                         "name": "Comm task 2",
                         "device": {
-                            "id": "1234-5678-9012",
+                            "id": 11,
                             "name": "some device 2"
                         },
                         "deviceConfiguration": {
-                            "id": 123123,
+                            "id": 1001,
                             "name": "123123"
                         },
                         "deviceType": {
@@ -99,7 +109,17 @@
                             "name": "device type 2"
                         },
                         "comScheduleName": "Weekly billing",
-                        "comScheduleFrequency": "every 1 weeks (offset: 12 hours)",
+                        "comScheduleFrequency":{
+                            "every":{
+                                "count":1,
+                                "timeUnit":"weeks"
+                            },
+                            "offset":{
+                                "count":43200,
+                                "timeUnit":"seconds"
+                            },
+                            "lastDay":false
+                        },
                         "urgency": 100,
                         "currentState": {
                             "id": "Busy",
@@ -115,15 +135,15 @@
         },
         {
             "device": {
-                "id": "1234-5678-9012",
+                "id": 11,
                 "name": "some device 2"
             },
             "deviceConfiguration": {
-                "id": 123123,
+                "id": 1001,
                 "name": "dev config"
             },
             "deviceType": {
-                "id": 1010,
+                "id": 1001,
                 "name": "device type"
             },
             "currentState": "Inactive",
@@ -159,7 +179,7 @@
             },
             "connectionMethod": {
                 "id": null,
-                "name": "partial connection task name( default )"
+                "name": "Some other connection method"
             },
             "window": "09:00 - 17:00",
             "connectionStrategy": {
@@ -169,23 +189,33 @@
             "nextExecution": 1407851711314,
             "communicationTasks": {
                 "count": 2,
-                "communicationTasks": [
+                "communicationsTasks": [
                     {
                         "name": "Comm task 3",
                         "device": {
-                            "id": "1234-5678-9012",
+                            "id": 11,
                             "name": "some device"
                         },
                         "deviceConfiguration": {
-                            "id": 123123,
+                            "id": 1001,
                             "name": "123123"
                         },
                         "deviceType": {
-                            "id": 1010,
+                            "id": 1001,
                             "name": "device type"
                         },
                         "comScheduleName": "Weekly billing",
-                        "comScheduleFrequency": "every 1 weeks (offset: 12 hours)",
+                        "comScheduleFrequency":{
+                            "every":{
+                                "count":1,
+                                "timeUnit":"weeks"
+                            },
+                            "offset":{
+                                "count":43200,
+                                "timeUnit":"seconds"
+                            },
+                            "lastDay":false
+                        },
                         "urgency": 100,
                         "currentState": {
                             "id": "Busy",
@@ -199,19 +229,29 @@
                     {
                         "name": "Comm task 4",
                         "device": {
-                            "id": "1234-5678-9012",
+                            "id": 11,
                             "name": "some device 2"
                         },
                         "deviceConfiguration": {
-                            "id": 123123,
+                            "id": 1001,
                             "name": "123123"
                         },
                         "deviceType": {
-                            "id": 1010,
+                            "id": 1001,
                             "name": "device type 2"
                         },
                         "comScheduleName": "Weekly billing",
-                        "comScheduleFrequency": "every 1 weeks (offset: 12 hours)",
+                        "comScheduleFrequency":{
+                            "every":{
+                                "count":1,
+                                "timeUnit":"weeks"
+                            },
+                            "offset":{
+                                "count":43200,
+                                "timeUnit":"seconds"
+                            },
+                            "lastDay":false
+                        },
                         "urgency": 100,
                         "currentState": {
                             "id": "Busy",

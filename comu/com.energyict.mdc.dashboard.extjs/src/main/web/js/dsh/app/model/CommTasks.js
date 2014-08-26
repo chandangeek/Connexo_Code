@@ -7,7 +7,7 @@ Ext.define('Dsh.model.CommTasks', {
     hasMany: [
         {
             model: 'Dsh.model.CommunicationTask',
-            name: 'communicationTasks'
+            name: 'communicationsTasks'
         }
     ]
 });
