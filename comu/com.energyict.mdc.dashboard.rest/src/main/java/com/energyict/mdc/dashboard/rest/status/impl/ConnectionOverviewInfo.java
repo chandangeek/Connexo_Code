@@ -172,5 +172,6 @@ enum FilterOption {
 enum BreakdownOption {
     connectionType,
     deviceType,
-    comPortPool
+    comPortPool,
+    comSchedule
 }

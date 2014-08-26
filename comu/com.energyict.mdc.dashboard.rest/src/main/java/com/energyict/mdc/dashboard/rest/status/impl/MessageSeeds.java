@@ -45,6 +45,7 @@ public enum MessageSeeds implements MessageSeed {
     DEFAULT(35, "default", "default"),
     AS_SOON_AS_POSSIBLE(36, "asSoonAsPossible", "As soon a possible"),
     MINIMIZE_CONNECTIONS(37, "minimizeConnections", "Minimize connections"),
+    PER_COMMUNICATION_TASK(38, "PerCommunicationTask", "Per communication task"),
 
     ;
 

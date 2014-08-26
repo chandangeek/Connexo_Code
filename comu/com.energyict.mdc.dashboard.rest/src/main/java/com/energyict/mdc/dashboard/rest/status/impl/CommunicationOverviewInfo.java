@@ -5,7 +5,7 @@ import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
-import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
+import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardCounters;
@@ -51,7 +51,7 @@ public class CommunicationOverviewInfo {
 //    public ConnectionSummaryInfo connectionSummary;
 
     public List<TaskSummaryInfo> overviews;
-//    public List<BreakdownSummaryInfo> breakdowns;
+    public List<BreakdownSummaryInfo> breakdowns;
 
     public CommunicationOverviewInfo() {
     }
@@ -60,7 +60,7 @@ public class CommunicationOverviewInfo {
             ConnectionSummaryData connectionSummaryData,
             TaskStatusOverview taskStatusOverview,
             ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview,
-            ComPortPoolBreakdown comPortPoolBreakdown,
+            ComScheduleBreakdown comScheduleBreakdown,
             ConnectionTypeBreakdown connectionTypeBreakdown,
             DeviceTypeBreakdown deviceTypeBreakdown,
             Thesaurus thesaurus) throws Exception {
@@ -71,8 +71,9 @@ public class CommunicationOverviewInfo {
         overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.state, taskStatusAdapter));
         overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResult, completionCodeAdapter));
 
+        breakdowns=new ArrayList<>(3);
+        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_TASK.getKey(), MessageSeeds.PER_COMMUNICATION_TASK.getDefaultFormat()), comScheduleBreakdown, BreakdownOption.comSchedule));
         sortAllOverviews();
-
     }
 
 

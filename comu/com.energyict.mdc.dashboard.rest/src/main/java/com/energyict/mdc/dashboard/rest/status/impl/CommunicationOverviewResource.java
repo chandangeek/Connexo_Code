@@ -2,6 +2,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
+import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import javax.inject.Inject;
@@ -32,8 +33,9 @@ public class CommunicationOverviewResource {
     public CommunicationOverviewInfo getCommunicationOverview() throws Exception {
         TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview();
         ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview();
+        ComScheduleBreakdown communicationTasksComScheduleBreakdown = dashboardService.getCommunicationTasksComScheduleBreakdown();
 
-        return new CommunicationOverviewInfo(null, taskStatusOverview, comSessionSuccessIndicatorOverview, null, null, null, thesaurus);
+        return new CommunicationOverviewInfo(null, taskStatusOverview, comSessionSuccessIndicatorOverview, communicationTasksComScheduleBreakdown, null, null, thesaurus);
     }
 
 }
