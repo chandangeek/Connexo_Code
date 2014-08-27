@@ -65,25 +65,27 @@ public class InstallerImpl {
 		user.save();
 		user.join(administrators);
 	}
+
+    private Resource getOrCreateResource(UserService userService, Resources item) {
+        Optional<Resource> found = userService.findResource(item.getName());
+        if(found.isPresent()){
+            return found.get();
+        }
+        else {
+            return userService.createResource(dataModel.getName(), item.getName(), item.getDescription());
+        }
+    }
 	
 	private void createPrivileges(UserService userService) {
-        Resource resource;
-        Optional<Resource> found;
         for(Resources item : Resources.values()){
-            found = userService.findResource(item.getName());
-            if(found.isPresent()){
-                resource = found.get();
-            }
-            else {
-                resource = userService.createResource(dataModel.getName(), item.getName(), item.getDescription());
-            }
+            Resource resource = getOrCreateResource(userService, item);
 
             for(String privilege : item.getPrivileges()){
                 try{
                     resource.createPrivilege(privilege);
                 }
                 catch (Exception e) {
-                    this.logger.log(Level.SEVERE, e.getMessage(), e);
+                    this.logger.log(Level.WARNING, e.getMessage(), e);
                 }
             }
         }
