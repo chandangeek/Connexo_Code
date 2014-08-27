@@ -4,7 +4,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.NumericalRegister;
 
-import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingRecord;
 
 import java.util.List;
