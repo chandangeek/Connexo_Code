@@ -18,7 +18,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -29,8 +28,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Calendar;
 import java.util.List;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/devices")
 public class DeviceResource {
@@ -47,6 +44,7 @@ public class DeviceResource {
     private final Provider<DeviceValidationResource> deviceValidationResourceProvider;
     private final Provider<RegisterResource> registerResourceProvider;
     private final Provider<BulkScheduleResource> bulkScheduleResourceProvider;
+    private final Provider<ComtaskExecutionResource> comTaskExecutionResourceProvider;
     private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
 
@@ -65,6 +63,7 @@ public class DeviceResource {
             ExceptionFactory exceptionFactory,
             Provider<DeviceValidationResource> deviceValidationResourceProvider,
             Provider<BulkScheduleResource> bulkScheduleResourceProvider,
+            Provider<ComtaskExecutionResource> comTaskExecutionResourceProvider,
             Thesaurus thesaurus) {
 
         this.resourceHelper = resourceHelper;
@@ -81,6 +80,7 @@ public class DeviceResource {
         this.deviceValidationResourceProvider = deviceValidationResourceProvider;
         this.exceptionFactory = exceptionFactory;
         this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
+        this.comTaskExecutionResourceProvider = comTaskExecutionResourceProvider;
         this.thesaurus = thesaurus;
     }
 	
@@ -246,5 +246,10 @@ public class DeviceResource {
     @Path("/schedules")
     public BulkScheduleResource getBulkScheduleResource() {
         return bulkScheduleResourceProvider.get();
+    }
+
+    @Path("/{mRID}/schedules")
+    public ComtaskExecutionResource getComTaskExecutionResource() {
+        return comTaskExecutionResourceProvider.get();
     }
 }
