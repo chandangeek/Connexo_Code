@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocols.messaging.LegacyMessageConverter;
@@ -266,7 +267,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     protected String getDeviceMessageConverterMappingFor(String deviceProtocolJavaClassname) {
         String meterProtocolClassName = getMessageAdapterMappingFactory().getMessageMappingJavaClassNameForDeviceProtocol(deviceProtocolJavaClassname);
         if (meterProtocolClassName == null) {
-            throw DeviceProtocolAdapterCodingExceptions.mappingElementDoesNotExist(this.getClass(), "legacyMessageMapper", deviceProtocolJavaClassname);
+            throw DeviceProtocolAdapterCodingExceptions.mappingElementDoesNotExist(MessageSeeds.NON_EXISTING_MAP_ELEMENT, this.getClass(), "legacyMessageMapper", deviceProtocolJavaClassname);
         }
         return meterProtocolClassName;
     }

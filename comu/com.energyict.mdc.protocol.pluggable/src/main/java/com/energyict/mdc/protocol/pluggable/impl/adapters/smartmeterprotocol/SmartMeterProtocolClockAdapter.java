@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
 import java.io.IOException;
 import java.util.Date;
@@ -31,7 +32,7 @@ public class SmartMeterProtocolClockAdapter implements DeviceClockSupport {
         try {
             this.smartMeterProtocol.setTime(timeToSet);
         } catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
     }
 
@@ -43,7 +44,7 @@ public class SmartMeterProtocolClockAdapter implements DeviceClockSupport {
         try {
             return this.smartMeterProtocol.getTime();
         } catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
     }
 }

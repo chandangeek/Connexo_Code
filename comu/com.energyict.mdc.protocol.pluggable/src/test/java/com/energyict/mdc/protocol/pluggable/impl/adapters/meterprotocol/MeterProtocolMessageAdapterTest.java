@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.impl.DataModelInitializer;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
@@ -121,7 +122,7 @@ public class MeterProtocolMessageAdapterTest {
         try {
             new MeterProtocolMessageAdapter(meterProtocol, this.protocolPluggableService.getDataModel(), this.protocolPluggableService, this.inMemoryPersistence.getIssueService());
         } catch (DeviceProtocolAdapterCodingExceptions e) {
-            if (!"CSC-DEV-124".equals(e.getMessageId())) {
+            if (!e.getMessageSeed().equals(MessageSeeds.NON_EXISTING_MAP_ELEMENT)) {
                 fail("Exception should have indicated that the given MeterProtocol is not known in the adapter mapping, but was " + e.getMessage());
             }
             throw e;

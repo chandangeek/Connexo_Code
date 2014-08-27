@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
+
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.Ean13Factory;
@@ -20,6 +21,7 @@ import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
 /**
  * Provides mapping services from the lecacy {@link com.energyict.mdc.protocol.api.legacy.dynamic.ValueFactory}
@@ -39,7 +41,7 @@ public class LegacyValueFactoryMapping {
                 return mapping.getLegacyClass();
             }
         }
-        throw CommunicationException.unKnownLegacyValueFactoryClass(newClass.getName());
+        throw new CommunicationException(MessageSeeds.UNKNOWN_LEGACY_VALUEFACTORY_CLASS, newClass.getName());
     }
 
     public static Class<ValueFactory> classForLegacy(Class<? extends com.energyict.mdc.protocol.api.legacy.dynamic.ValueFactory> legacyClass) {
@@ -49,7 +51,7 @@ public class LegacyValueFactoryMapping {
                 return mapping.getNewClass();
             }
         }
-        throw CommunicationException.unKnownLegacyValueFactoryClass(legacyClass.getName());
+        throw new CommunicationException(MessageSeeds.UNKNOWN_LEGACY_VALUEFACTORY_CLASS, legacyClass.getName());
     }
 
     private static void ensureMappingInitialized () {

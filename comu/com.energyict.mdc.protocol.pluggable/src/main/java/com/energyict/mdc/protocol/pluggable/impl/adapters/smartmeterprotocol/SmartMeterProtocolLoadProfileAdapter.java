@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -150,9 +151,9 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                     collectedLoadProfiles.add(deviceLoadProfile);
                 }
             } catch (IOException e) {
-                throw new LegacyProtocolException(e);
+                throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
             } catch (IndexOutOfBoundsException e) {
-                throw new DataParseException(e);
+                throw new DataParseException(e, MessageSeeds.INDEX_OUT_OF_BOUND_DATA_PARSE_EXCEPTION);
             }
             return collectedLoadProfiles;
         } else {

@@ -1,13 +1,15 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdw.cpo.PropertySpecBuilder;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.dynamic.AttributeValueSelectionMode;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdw.cpo.PropertySpecBuilder;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +69,7 @@ public final class LegacyPropertySpecSupport {
             return valueFactoryClass.newInstance();
         }
         catch (InstantiationException | IllegalAccessException e) {
-            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(e, valueFactoryClass);
+            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, e, valueFactoryClass);
         }
     }
 
@@ -76,7 +78,7 @@ public final class LegacyPropertySpecSupport {
             return valueFactoryClass.newInstance();
         }
         catch (InstantiationException | IllegalAccessException e) {
-            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(e, valueFactoryClass);
+            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, e, valueFactoryClass);
         }
     }
 

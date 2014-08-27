@@ -1,9 +1,5 @@
 package com.energyict.mdc.protocol.pluggable;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
@@ -39,16 +35,14 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.Hhu
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SimpleTestSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
-import com.energyict.mdw.cpo.PropertySpecFactory;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import org.fest.assertions.api.Assertions;
 import org.fest.assertions.core.Condition;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -57,6 +51,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -113,7 +114,7 @@ public class SmartMeterProtocolAdapterTest {
                     return Class.forName(javaClassName).newInstance();
                 }
                 catch (ClassNotFoundException e) {
-                    throw DeviceProtocolAdapterCodingExceptions.unKnownDeviceSecuritySupportClass(e, javaClassName);
+                    throw DeviceProtocolAdapterCodingExceptions.unKnownDeviceSecuritySupportClass(MessageSeeds.UNKNOWN_DEVICE_SECURITY_SUPPORT_CLASS, e, javaClassName);
                 }
             }
         });
@@ -337,7 +338,7 @@ public class SmartMeterProtocolAdapterTest {
             // call the logOn business method
             smartMeterProtocolAdapter.logOn();
         } catch (CommunicationException e) {
-            if (!e.getMessageId().equals("CSC-COM-113")) {
+            if (!e.getMessageSeed().equals(MessageSeeds.PROTOCOL_CONNECT)) {
                 throw e;
             }
         }
@@ -369,7 +370,7 @@ public class SmartMeterProtocolAdapterTest {
             // call the logOn business method
             smartMeterProtocolAdapter.logOff();
         } catch (CommunicationException e) {
-            if (!e.getMessageId().equals("CSC-COM-114")) {
+            if (!e.getMessageSeed().equals(MessageSeeds.PROTOCOL_DISCONNECT)) {
                 throw e;
             }
         }

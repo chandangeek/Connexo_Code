@@ -1,9 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
@@ -31,6 +27,7 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.DataModelInitializer;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
@@ -44,14 +41,13 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDevic
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.HhuEnabledMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
-import com.energyict.mdw.cpo.PropertySpecFactory;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import org.fest.assertions.core.Condition;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -61,6 +57,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -375,7 +377,7 @@ public class MeterProtocolAdapterTest {
             // call the logOn business method
             meterProtocolAdapter.logOn();
         } catch (CommunicationException e) {
-            if (!e.getMessageId().equals("CSC-COM-113")) {
+            if (!e.getMessageSeed().equals(MessageSeeds.PROTOCOL_CONNECT)) {
                 throw e;
             }
         }
@@ -403,7 +405,7 @@ public class MeterProtocolAdapterTest {
             // call the business method
             meterProtocolAdapter.logOff();
         } catch (CommunicationException e) {
-            if (!e.getMessageId().equals("CSC-COM-114")) {
+            if (!e.getMessageSeed().equals(MessageSeeds.PROTOCOL_DISCONNECT)) {
                 throw e;
             }
         }

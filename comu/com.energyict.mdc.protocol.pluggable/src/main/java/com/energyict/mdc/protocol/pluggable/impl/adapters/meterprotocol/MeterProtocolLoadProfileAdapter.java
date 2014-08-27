@@ -23,6 +23,8 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+
 import org.joda.time.DateTimeConstants;
 
 import java.io.IOException;
@@ -97,7 +99,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        throw DeviceProtocolAdapterCodingExceptions.unsupportedMethod(this.getClass(), "getLoadProfileData");
+        throw DeviceProtocolAdapterCodingExceptions.unsupportedMethod(MessageSeeds.UNSUPPORTED_METHOD, this.getClass(), "getLoadProfileData");
     }
 
     /**
@@ -115,7 +117,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             }
             return listOfChannelInfo;
         } catch (IOException e) {
-            throw DeviceConfigurationException.notAccessible(GENERIC_LOAD_PROFILE_OBISCODE);
+            throw new DeviceConfigurationException(MessageSeeds.CONFIG_NOT_ACCESSIBLE, GENERIC_LOAD_PROFILE_OBISCODE);
         }
     }
 

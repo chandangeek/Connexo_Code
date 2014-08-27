@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.RegisterDataIdentifier;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -71,7 +72,7 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
                     collectedRegisters.add(defaultDeviceRegister);
                 }
                 catch (IOException e) {
-                    throw new LegacyProtocolException(e);
+                    throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
                 }
             }
             return collectedRegisters;

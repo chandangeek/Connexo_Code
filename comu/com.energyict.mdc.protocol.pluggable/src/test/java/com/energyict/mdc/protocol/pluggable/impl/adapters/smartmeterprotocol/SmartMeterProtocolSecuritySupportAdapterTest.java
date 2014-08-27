@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.impl.DataModelInitializer;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
@@ -104,7 +105,7 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
                     this.propertiesAdapter,
                     new SecuritySupportAdapterMappingFactoryImpl(this.dataModel));
         } catch (DeviceProtocolAdapterCodingExceptions e) {
-            if (!e.getMessageId().equals("CSC-DEV-124")) {
+            if (!e.getMessageSeed().equals(MessageSeeds.NON_EXISTING_MAP_ELEMENT)) {
                 fail("Exception should have indicated that the given meterProtocol is not known in the adapter, but was " + e.getMessage());
             }
             throw e;

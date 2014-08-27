@@ -414,7 +414,7 @@ public class DeviceProtocolPluggableClassImplTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Constants.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY+"}")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY+"}")
     public void newInstanceSmartMeterProtocolIllegalPropertyTest() throws BusinessException, SQLException {
         transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {
             @Override
@@ -430,7 +430,7 @@ public class DeviceProtocolPluggableClassImplTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE + "}")
     public void newInstanceNotADeviceProtocolTest() throws BusinessException, SQLException {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
                 transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {

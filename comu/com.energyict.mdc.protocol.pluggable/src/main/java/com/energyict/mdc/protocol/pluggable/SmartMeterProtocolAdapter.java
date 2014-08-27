@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.pluggable;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -47,6 +45,9 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Sma
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolMessageAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolRegisterAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
+
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -206,7 +207,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
                     this.protocolLogger);
         }
         catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
         this.propertiesAdapter.copyProperties(comChannel.getProperties());
         if (this.smartMeterProtocolMessageAdapter != null) {
@@ -236,7 +237,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
             this.meterProtocol.release();
         }
         catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
     }
 
@@ -277,7 +278,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
             return this.meterProtocol.getMeterSerialNumber();
         }
         catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
     }
 
@@ -412,7 +413,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
             this.meterProtocol.connect();
         }
         catch (IOException e) {
-            throw CommunicationException.protocolConnectFailed(e);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT, e);
         }
     }
 
@@ -427,7 +428,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
             this.meterProtocol.disconnect();
         }
         catch (IOException e) {
-            throw CommunicationException.protocolDisconnectFailed(e);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_DISCONNECT, e);
         }
     }
 

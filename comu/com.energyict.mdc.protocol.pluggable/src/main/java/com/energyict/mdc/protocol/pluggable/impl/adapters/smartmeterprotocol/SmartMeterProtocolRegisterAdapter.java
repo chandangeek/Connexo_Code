@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.RegisterDataIdentifier;
 
 import java.io.IOException;
@@ -72,7 +73,7 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
                 }
                 return collectedRegisters;
             } catch (IOException e) {
-                throw new LegacyProtocolException(e); // we should receive all the data or nothing
+                throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e); // we should receive all the data or nothing
             }
         } else {
             return Collections.emptyList();

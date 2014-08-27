@@ -30,7 +30,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             this.validatePropertyValues(properties, propertySpecs, context);
             return this.valid;
         } catch (ProtocolCreationException e) {
-            context.buildConstraintViolationWithTemplate("{"+MessageSeeds.Constants.PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE+"}").addConstraintViolation().disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE+"}").addConstraintViolation().disableDefaultConstraintViolation();
             return false;
         }
     }
@@ -40,7 +40,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             if (getPropertySpec(propertySpecs, propertyName) == null) {
                 context.disableDefaultConstraintViolation();
                 context
-                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY + "}")
+                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY + "}")
                     .addPropertyNode("properties").addPropertyNode(propertyName).addConstraintViolation();
                 this.valid = false;
             }
@@ -72,7 +72,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         }
         catch (InvalidValueException e) {
             context
-                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY + "}")
+                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY + "}")
                 .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation().disableDefaultConstraintViolation();
             this.valid = false;
         }

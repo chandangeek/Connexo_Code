@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -38,6 +36,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceProtocolSecuritySupportAdapter;
@@ -48,6 +47,9 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolA
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolTopologyAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
+
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -206,7 +208,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
                     this.protocolLogger);
         }
         catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
         this.propertiesAdapter.copyProperties(comChannel.getProperties());
         if (this.meterProtocolMessageAdapter != null) {
@@ -230,7 +232,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
             this.meterProtocol.release();
         }
         catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
     }
 
@@ -281,7 +283,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(final List<LoadProfileReader> loadProfiles) {
-        throw DeviceProtocolAdapterCodingExceptions.unsupportedMethod(this.getClass(), "getLoadProfileData");
+        throw DeviceProtocolAdapterCodingExceptions.unsupportedMethod(MessageSeeds.UNSUPPORTED_METHOD, this.getClass(), "getLoadProfileData");
     }
 
     @Override public List<CollectedData> getLoadProfileLogBooksData(final List<LoadProfileReader> loadProfiles, final List<LogBookReader> logBookReaders) {
@@ -295,7 +297,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public List<CollectedLogBook> getLogBookData(final List<LogBookReader> logBookReaders) {
-        throw DeviceProtocolAdapterCodingExceptions.unsupportedMethod(this.getClass(), "getLogBookData");
+        throw DeviceProtocolAdapterCodingExceptions.unsupportedMethod(MessageSeeds.UNSUPPORTED_METHOD, this.getClass(), "getLogBookData");
     }
 
     @Override
@@ -400,7 +402,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
             this.meterProtocol.connect();
         }
         catch (IOException e) {
-            throw CommunicationException.protocolConnectFailed(e);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT, e);
         }
     }
 
@@ -415,7 +417,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
             this.meterProtocol.disconnect();
         }
         catch (IOException e) {
-            throw CommunicationException.protocolDisconnectFailed(e);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_DISCONNECT, e);
         }
     }
 
@@ -447,7 +449,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
             this.meterProtocol.setProperties(this.propertiesAdapter.getProperties().toStringProperties());
         }
         catch (InvalidPropertyException | MissingPropertyException e) {
-            throw new LegacyProtocolException(e);
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
     }
 

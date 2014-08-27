@@ -38,6 +38,7 @@ import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
@@ -741,7 +742,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         if (inboundDeviceProtocol != null) {
             return inboundDeviceProtocol;
         } else {
-            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(throwable, pluggableClass.getJavaClassName());
+            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, throwable, pluggableClass.getJavaClassName());
         }
     }
 

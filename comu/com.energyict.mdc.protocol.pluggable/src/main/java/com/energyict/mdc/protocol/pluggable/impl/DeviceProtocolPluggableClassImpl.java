@@ -14,12 +14,14 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolNotAllowedByLicenseException;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.license.LicenseService;
@@ -28,7 +30,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 
 import javax.inject.Inject;
-
 import java.util.List;
 
 /**
@@ -101,7 +102,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
             }
         }
         catch (InstantiationException | IllegalAccessException e) {
-            throw new ProtocolCreationException(pluggableClass.getJavaClassName());
+            throw new ProtocolCreationException(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, pluggableClass.getJavaClassName());
         }
         deviceProtocol.setPropertySpecService(this.propertySpecService);
         return deviceProtocol;
@@ -125,7 +126,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
             return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService, deviceCacheMarshallingService);
         }
         else {
-            throw new ProtocolCreationException(protocol.getClass());
+            throw new ProtocolCreationException(MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, protocol.getClass());
         }
     }
 

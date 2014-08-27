@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 
@@ -120,7 +121,7 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
         try {
             return this.protocolPluggableService.createDeviceProtocolSecurityFor(className);
         } catch (ProtocolCreationException e) {
-            throw DeviceProtocolAdapterCodingExceptions.unKnownDeviceSecuritySupportClass(e, className);
+            throw DeviceProtocolAdapterCodingExceptions.unKnownDeviceSecuritySupportClass(MessageSeeds.UNKNOWN_DEVICE_SECURITY_SUPPORT_CLASS, e, className);
         }
     }
 
@@ -137,7 +138,7 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
     protected String getDeviceSecuritySupportMappingFor(String deviceProtocolJavaClassname) {
         final String securitySupportJavaClassName = this.securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol(deviceProtocolJavaClassname);
         if (securitySupportJavaClassName == null) {
-            throw DeviceProtocolAdapterCodingExceptions.mappingElementDoesNotExist(this.getClass(), "securitySupportAdapter", deviceProtocolJavaClassname);
+            throw DeviceProtocolAdapterCodingExceptions.mappingElementDoesNotExist(MessageSeeds.NON_EXISTING_MAP_ELEMENT, this.getClass(), "securitySupportAdapter", deviceProtocolJavaClassname);
         }
         return securitySupportJavaClassName;
     }
