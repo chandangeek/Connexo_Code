@@ -16,6 +16,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetE
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetStartOfDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.Date;
@@ -95,7 +96,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
-            throw new GeneralParseException(e);
+            throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
     }
 

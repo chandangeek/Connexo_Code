@@ -1,10 +1,5 @@
 package com.energyict.dlms.common;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -21,9 +16,16 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.util.Date;
@@ -103,7 +105,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
             checkCacheObjects();
             initAfterConnect();
         } catch (IOException e) {
-            throw CommunicationException.protocolConnectFailed(e);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT, e);
         }
     }
 
@@ -163,7 +165,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
                 changed = true;
             }
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         } finally {
             if (changed) {
                 this.dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
@@ -217,7 +219,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
             getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(timeToSet));
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -227,7 +229,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
             return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 

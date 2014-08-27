@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
@@ -89,7 +91,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
             }
         }
         catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
         return DiscoverResultType.DATA;
     }
@@ -116,7 +118,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
                         break;
                 }
             } catch (IOException e) {
-                throw new CommunicationException(e);
+                throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
             }
         }
     }

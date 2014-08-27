@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay;
 
 import java.io.IOException;
@@ -143,7 +144,7 @@ public class InHomeDisplayMessageExecutor extends GenericMessageExecutor {
     private UserFileFactory getUserFileFactory() {
         List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
         if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(UserFileFactory.class);
+            throw new CommunicationException(MessageSeeds.MISSING_MODULE, UserFileFactory.class);
         }
         else {
             return factories.get(0);

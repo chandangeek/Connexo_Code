@@ -3,6 +3,7 @@ package com.energyict.protocols.mdc.channels;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.protocols.mdc.exceptions.AsynchroneousCommunicationIsNotSupportedException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,8 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Provides an implementation of the {@link ComChannel} interface
  * that uses synchroneous communication, i.e. data is always written first
  * and then data can be read. Reading and writing at the same time is not permitted.
- * The latter will throw a {@link AsynchroneousCommunicationIsNotSupportedException}
- * with the reference {@link com.energyict.mdc.common.exceptions.CommonExceptionReferences#ASYNCHRONEOUS_COMMUNICATION_IS_NOT_SUPPORTED}.
+ * The latter will throw a {@link AsynchroneousCommunicationIsNotSupportedException}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-15 (10:11)
@@ -47,7 +47,7 @@ public class SynchroneousComChannel extends AbstractComChannel {
             this.out.flush();
         }
         catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
         return !previousValue;  // Status was changed if previousValue != true, i.e. if it false
     }
@@ -71,7 +71,7 @@ public class SynchroneousComChannel extends AbstractComChannel {
             return operation.doRead();
         }
         catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -138,7 +138,7 @@ public class SynchroneousComChannel extends AbstractComChannel {
             operation.doWrite();
         }
         catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -171,7 +171,7 @@ public class SynchroneousComChannel extends AbstractComChannel {
             this.out.close();
         }
         catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 

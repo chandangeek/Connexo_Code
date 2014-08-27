@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.Environment;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import com.energyict.mdc.protocol.api.device.DeviceMessageSpecFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -54,7 +56,7 @@ public class MessageConverterTools {
     private static DeviceMessageSpecFactory getDeviceMessageSpecFactory () {
         List<DeviceMessageSpecFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceMessageSpecFactory.class);
         if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(DeviceMessageSpecFactory.class);
+            throw new CommunicationException(MessageSeeds.MISSING_MODULE, DeviceMessageSpecFactory.class);
         }
         else {
             return factories.get(0);

@@ -75,7 +75,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
             return this.getClass().getClassLoader().loadClass(javaClassName);
         }
         catch (ClassNotFoundException e) {
-            throw new ProtocolCreationException (javaClassName);
+            throw new ProtocolCreationException (MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, javaClassName);
         }
     }
 

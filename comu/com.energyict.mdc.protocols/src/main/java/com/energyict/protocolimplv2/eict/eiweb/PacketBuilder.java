@@ -8,9 +8,11 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
 import com.energyict.protocols.util.LittleEndianOutputStream;
 
@@ -210,7 +212,7 @@ public class PacketBuilder {
                 this.parseDeviceIdentifier(Integer.parseInt(id), serialNumber);
             }
             catch (NumberFormatException e) {
-                throw new CommunicationException(e, EIWebConstants.DEVICE_ID_URL_PARAMETER_NAME, id);
+                throw new CommunicationException(MessageSeeds.NUMERIC_PARAMETER_EXPECTED, e, EIWebConstants.DEVICE_ID_URL_PARAMETER_NAME, id);
             }
         }
     }
@@ -236,7 +238,7 @@ public class PacketBuilder {
             }
         }
         catch (NumberFormatException e) {
-            throw new CommunicationException(e, EIWebConstants.MASK_URL_PARAMETER_NAME, mask);
+            throw new CommunicationException(MessageSeeds.NUMERIC_PARAMETER_EXPECTED, e, EIWebConstants.MASK_URL_PARAMETER_NAME, mask);
         }
     }
 
@@ -249,7 +251,7 @@ public class PacketBuilder {
                 nrOfAcceptedMessages = Integer.parseInt(xmlctr);
             }
             catch (NumberFormatException e) {
-                throw new CommunicationException(e, EIWebConstants.MESSAGE_COUNTER_URL_PARAMETER_NAME, xmlctr);
+                throw new CommunicationException(MessageSeeds.NUMERIC_PARAMETER_EXPECTED, e, EIWebConstants.MESSAGE_COUNTER_URL_PARAMETER_NAME, xmlctr);
             }
         }
     }
@@ -270,7 +272,7 @@ public class PacketBuilder {
         StringTokenizer st = new StringTokenizer(strValues, ",");
         int iTokens = st.countTokens();
         if (iTokens != nrOfChannels) {
-            throw new DataEncryptionException(this.getDeviceIdentifier());
+            throw new DataEncryptionException(MessageSeeds.ENCRYPTION_ERROR, this.getDeviceIdentifier());
         }
         try {
             for (int i = 0; i < iTokens; i++) {
@@ -278,7 +280,7 @@ public class PacketBuilder {
             }
         }
         catch (NumberFormatException e) {
-            throw new CommunicationException(e, EIWebConstants.METER_DATA_PARAMETER_NAME, strValues);
+            throw new CommunicationException(MessageSeeds.NUMERIC_PARAMETER_EXPECTED, e, EIWebConstants.METER_DATA_PARAMETER_NAME, strValues);
         }
         return valuesArray;
     }
@@ -300,7 +302,7 @@ public class PacketBuilder {
             os.writeLEInt((int) Long.parseLong(utc));
         }
         catch (NumberFormatException e) {
-            throw new CommunicationException(e, EIWebConstants.UTC_URL_PARAMETER_NAME, utc);
+            throw new CommunicationException(MessageSeeds.NUMERIC_PARAMETER_EXPECTED, e, EIWebConstants.UTC_URL_PARAMETER_NAME, utc);
         }
     }
 
@@ -309,7 +311,7 @@ public class PacketBuilder {
             os.writeByte(Byte.parseByte(code));
         }
         catch (NumberFormatException e) {
-            throw new CommunicationException(e, EIWebConstants.CODE_URL_PARAMETER_NAME, code);
+            throw new CommunicationException(MessageSeeds.NUMERIC_PARAMETER_EXPECTED, e, EIWebConstants.CODE_URL_PARAMETER_NAME, code);
         }
     }
 
@@ -318,7 +320,7 @@ public class PacketBuilder {
             os.writeLEShort((short) Integer.parseInt(statebits, HEX_PARSE_RADIX));
         }
         catch (NumberFormatException e) {
-            throw new CommunicationException(e, EIWebConstants.STATE_BITS_URL_PARAMETER_NAME, statebits);
+            throw new CommunicationException(MessageSeeds.NUMERIC_PARAMETER_EXPECTED, e, EIWebConstants.STATE_BITS_URL_PARAMETER_NAME, statebits);
         }
     }
 
@@ -441,26 +443,15 @@ public class PacketBuilder {
     }
 
     private int getSeqTimeHour () {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(this.getSeq().charAt(1));
-        buffer.append(this.getSeq().charAt(3));
-        return Integer.parseInt(buffer.toString());
+        return Integer.parseInt(String.valueOf(this.getSeq().charAt(1)) + this.getSeq().charAt(3));
     }
 
     private int getSeqTimeMinute () {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(this.getSeq().charAt(0));
-        buffer.append(this.getSeq().charAt(2));
-        return Integer.parseInt(buffer.toString());
+        return Integer.parseInt(String.valueOf(this.getSeq().charAt(0)) + this.getSeq().charAt(2));
     }
 
     private MD5Seed buildMD5Seed () {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(getSeq().charAt(1));
-        buffer.append(getSeq().charAt(3));
-        buffer.append(getSeq().charAt(0));
-        buffer.append(getSeq().charAt(2));
-        return this.cryptographer.buildMD5Seed(this.deviceIdentifier, buffer.toString());
+        return this.cryptographer.buildMD5Seed(this.deviceIdentifier, String.valueOf(getSeq().charAt(1)) + getSeq().charAt(3) + getSeq().charAt(0) + getSeq().charAt(2));
     }
 
     public int getVersion() {

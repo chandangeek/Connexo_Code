@@ -9,6 +9,8 @@ import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.common.ObisCode;
 
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import java.util.List;
 
 /**
@@ -80,7 +82,7 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
     private LogBookFactory getLogBookFactory () {
         List<LogBookFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LogBookFactory.class);
         if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(LogBookFactory.class);
+            throw new CommunicationException(MessageSeeds.MISSING_MODULE, LogBookFactory.class);
         }
         else {
             return factories.get(0);

@@ -12,6 +12,8 @@ import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
 
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -47,7 +49,7 @@ public class SerialNumberDeviceIdentifier implements DeviceIdentifier, FindMulti
             }
             else {
                 if (this.allDevices.size() > 1) {
-                    throw DuplicateException.duplicateFoundFor(BaseDevice.class, this.toString());
+                    throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, BaseDevice.class, this.toString());
                 }
                 else {
                     this.device = this.allDevices.get(0);
@@ -64,7 +66,7 @@ public class SerialNumberDeviceIdentifier implements DeviceIdentifier, FindMulti
     private DeviceFactory getDeviceFactory() {
         List<DeviceFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
         if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(DeviceFactory.class);
+            throw new CommunicationException(MessageSeeds.MISSING_MODULE, DeviceFactory.class);
         }
         else {
             return factories.get(0);

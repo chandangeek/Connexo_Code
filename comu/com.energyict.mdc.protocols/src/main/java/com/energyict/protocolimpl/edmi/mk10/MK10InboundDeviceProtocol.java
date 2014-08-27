@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
@@ -67,7 +68,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
                 setDeviceIdentifier(packet.getSerial());
                 return DiscoverResultType.IDENTIFIER;
             default:
-                throw InboundFrameException.unexpectedFrame(packet.toString(), "The received packet is unsupported in the current protocol");
+                throw new InboundFrameException(MessageSeeds.INBOUND_UNEXPECTED_FRAME, packet.toString(), "The received packet is unsupported in the current protocol");
         }
     }
 
@@ -99,7 +100,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
                 retryCount++;
                 timeoutMoment = System.currentTimeMillis() + getTimeOutProperty();
                 if (retryCount > getRetriesProperty()) {
-                    throw InboundFrameException.timeout(String.format("Timeout while waiting for inbound frame, after %d ms, using %d retries.", getTimeOutProperty(), getRetriesProperty()));
+                    throw new InboundFrameException(MessageSeeds.INBOUND_TIMEOUT, String.format("Timeout while waiting for inbound frame, after %d ms, using %d retries.", getTimeOutProperty(), getRetriesProperty()));
                 }
             }
         }

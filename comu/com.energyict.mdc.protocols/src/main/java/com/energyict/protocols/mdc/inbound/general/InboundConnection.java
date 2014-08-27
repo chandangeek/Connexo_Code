@@ -10,6 +10,7 @@ import com.energyict.protocols.mdc.inbound.general.frames.EventFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.EventPOFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.RegisterFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.RequestFrame;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -159,7 +160,7 @@ public class InboundConnection {
         if (frame.contains(REGISTER_TAG)) {
             return new RegisterFrame(frame, serialNumberPlaceHolder);
         }
-        throw InboundFrameException.unexpectedFrame(frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
+        throw new InboundFrameException(MessageSeeds.INBOUND_UNEXPECTED_FRAME, frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }
 
     private String getFrameTag(String frame) {
@@ -231,7 +232,7 @@ public class InboundConnection {
                 retryCount++;
                 timeoutMoment = System.currentTimeMillis() + timeout;
                 if (retryCount > retries) {
-                    throw InboundFrameException.timeout("Timeout while waiting for inbound frame, after " + timeout + " ms, using " + retries + " retries.");
+                    throw new InboundFrameException(MessageSeeds.INBOUND_TIMEOUT, "Timeout while waiting for inbound frame, after " + timeout + " ms, using " + retries + " retries.");
                 }
                 if (retryRequest != null) {    //Send retry and wait again
                     send(retryRequest);

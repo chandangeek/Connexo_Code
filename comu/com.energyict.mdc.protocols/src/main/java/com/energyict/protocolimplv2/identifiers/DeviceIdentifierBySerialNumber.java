@@ -11,6 +11,8 @@ import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
 
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +49,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
             }
             else {
                 if (this.allDevices.size() > 1) {
-                    throw DuplicateException.duplicateFoundFor(BaseDevice.class, this.toString());
+                    throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, BaseDevice.class, this.toString());
                 }
                 else {
                     this.device = this.allDevices.get(0);

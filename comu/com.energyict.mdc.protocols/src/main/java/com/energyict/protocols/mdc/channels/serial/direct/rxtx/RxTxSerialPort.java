@@ -6,6 +6,7 @@ import com.energyict.mdc.protocol.api.exceptions.SerialPortException;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
 import com.energyict.protocols.mdc.channels.serial.modem.SignalController;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
@@ -58,12 +59,12 @@ public class RxTxSerialPort implements ServerSerialPort {
         try {
             portIdentifier = CommPortIdentifier.getPortIdentifier(serialPortConfiguration.getComPortName());
         } catch (NoSuchPortException e) {
-            throw SerialPortException.serialPortDoesNotExist(serialPortConfiguration.getComPortName());
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_DOES_NOT_EXIST, serialPortConfiguration.getComPortName());
         }
         try {
             serialPort = (SerialPort) portIdentifier.open(this.getClass().getName(), serialPortConfiguration.getSerialPortOpenTimeOut().intValue());
         } catch (PortInUseException e) {
-            throw SerialPortException.serialPortIsInUse(serialPortConfiguration.getComPortName(), e.currentOwner);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_IS_IN_USE, serialPortConfiguration.getComPortName(), e.currentOwner);
         }
         setSerialPortParameters();
     }
@@ -75,17 +76,17 @@ public class RxTxSerialPort implements ServerSerialPort {
                     getRxTxNrOfStopBits(serialPortConfiguration.getNrOfStopBits().getNrOfStopBits()),
                     getRxTxParity(serialPortConfiguration.getParity().getParity()));
         } catch (UnsupportedCommOperationException e) {
-            throw SerialPortException.serialLibraryException(e);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
         try {
             setFlowControlMode(serialPortConfiguration.getFlowControl().getFlowControl());
         } catch (UnsupportedCommOperationException e) {
-            throw SerialPortException.serialLibraryException(e);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
         try {
             serialPort.enableReceiveTimeout(serialPortConfiguration.getSerialPortReadTimeOut().intValue());
         } catch (UnsupportedCommOperationException e) {
-            throw SerialPortException.serialLibraryException(e);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
     }
 
@@ -115,7 +116,7 @@ public class RxTxSerialPort implements ServerSerialPort {
             getSerialPortSignalController().setRTS(true);
             getSerialPortSignalController().setDTR(true);
         } else {
-            throw SerialPortException.configurationMisMatch(SerialPortConfiguration.FLOW_CONTROL_NAME, flowControl);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.FLOW_CONTROL_NAME, flowControl);
         }
     }
 
@@ -131,7 +132,7 @@ public class RxTxSerialPort implements ServerSerialPort {
         } else if (Parities.SPACE.getParity().equals(configParity)) {
             return SerialPort.PARITY_SPACE;
         }
-        throw SerialPortException.configurationMisMatch(SerialPortConfiguration.PARITY_NAME, configParity);
+        throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.PARITY_NAME, configParity);
     }
 
     protected int getRxTxNrOfStopBits(BigDecimal stopBits) {
@@ -143,7 +144,7 @@ public class RxTxSerialPort implements ServerSerialPort {
             case STOPBITS_1_5_UNSCALED_VALUE:
                 return SerialPort.STOPBITS_1_5;
         }
-        throw SerialPortException.configurationMisMatch(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, stopBits.toString());
+        throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.NR_OF_STOP_BITS_NAME, stopBits.toString());
     }
 
     protected int getRxTxNrOfDataBits(BigDecimal dataBits) {
@@ -151,7 +152,7 @@ public class RxTxSerialPort implements ServerSerialPort {
             return dataBits.intValue();
         }
         else {
-            throw SerialPortException.configurationMisMatch(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, dataBits.toString());
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.NR_OF_DATA_BITS_NAME, dataBits.toString());
         }
     }
 
@@ -171,7 +172,7 @@ public class RxTxSerialPort implements ServerSerialPort {
             try {
                 return this.serialPort.getInputStream();
             } catch (IOException e) {
-                throw SerialPortException.serialLibraryException(e);
+                throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
             }
         }
         return this.inputStream;
@@ -183,7 +184,7 @@ public class RxTxSerialPort implements ServerSerialPort {
             try {
                 return this.serialPort.getOutputStream();
             } catch (IOException e) {
-                throw SerialPortException.serialLibraryException(e);
+                throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
             }
         }
         return this.outputStream;

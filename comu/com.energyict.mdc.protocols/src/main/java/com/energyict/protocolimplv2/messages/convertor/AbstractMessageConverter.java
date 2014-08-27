@@ -6,7 +6,9 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
+
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.messaging.LegacyMessageConverter;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -73,14 +75,16 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
-            throw new GeneralParseException(e);
+            throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
     }
+
     protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 1, "");
         } catch (ParserConfigurationException e) {
-            throw new GeneralParseException(e);
+            throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
     }
+
 }

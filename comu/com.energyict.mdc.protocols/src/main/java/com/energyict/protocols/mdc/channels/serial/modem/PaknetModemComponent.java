@@ -2,8 +2,11 @@ package com.energyict.protocols.mdc.channels.serial.modem;
 
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.ModemException;
-import com.energyict.mdc.protocol.api.exceptions.ProtocolExceptionReferences;
+import com.energyict.mdc.protocol.api.exceptions.ModemTimeoutException;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 /**
 * @author sva
@@ -35,7 +38,7 @@ public class PaknetModemComponent {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
-            throw ModemException.connectTimeOutException(this.comPortName, modemProperties.getConnectTimeout().getMilliSeconds());
+            throw new ModemException(MessageSeeds.MODEM_CONNECT_TIMEOUT, this.comPortName, modemProperties.getConnectTimeout().getMilliSeconds());
         }
 
         initializeAfterConnect(comChannel);
@@ -60,11 +63,11 @@ public class PaknetModemComponent {
         disconnectModemBeforeNewSession(comChannel);
 
         if (!initializeCommandState(comChannel)) {
-            throw ModemException.failedToInitializeCommandStateString(this.comPortName, lastResponseReceived);
+            throw new ModemException(MessageSeeds.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE, this.comPortName, lastResponseReceived);
         }
 
         if (!sendParameters(comChannel)) {
-            throw ModemException.failedToWriteInitString(this.comPortName, lastCommandSend, lastResponseReceived);
+            throw new ModemException(MessageSeeds.MODEM_COULD_NOT_SEND_INIT_STRING, this.comPortName, lastCommandSend, lastResponseReceived);
         }
     }
 
@@ -195,10 +198,8 @@ public class PaknetModemComponent {
                 if (readAndVerify(comChannel, expectedAnswer, timeOutInMillis)) {
                     return true;
                 }
-            } catch (ModemException e) {
-                if (!e.getMessageId().equals("CSM-COM-205")) { // only timeout exceptions
-                    throw e;
-                }
+            } catch (ModemTimeoutException e) {
+                // Ignore timeouts
             }
         }
         return false;
@@ -227,7 +228,7 @@ public class PaknetModemComponent {
                 }
                 if (System.currentTimeMillis() > max) {
                     if (responseBuilder.length() == 0) { // indication that we did not read anything
-                        throw ModemException.commandTimeoutExceeded(this.comPortName, timeOutInMillis, lastCommandSend);
+                        throw new ModemTimeoutException(MessageSeeds.MODEM_READ_TIMEOUT, this.comPortName, timeOutInMillis, lastCommandSend);
                     } else {
                         return false;
                     }
@@ -257,7 +258,7 @@ public class PaknetModemComponent {
     protected boolean validateResponse(String response, String expectedAnswer) {
         for (PaknetModemComponent.ExceptionAnswers exceptionAnswer : PaknetModemComponent.ExceptionAnswers.values()) {
             if (response.contains(exceptionAnswer.getError())) {
-                throw ModemException.dialingError(this.comPortName, exceptionAnswer.getExceptionReferences(), this.lastCommandSend);
+                throw new ModemException(exceptionAnswer.getMessageSeed(), this.comPortName, this.lastCommandSend);
             }
         }
         return response.contains(expectedAnswer);
@@ -321,19 +322,20 @@ public class PaknetModemComponent {
         ;   // ToDO: No exception answers registered yet!
 
         private final String error;
-        private final ProtocolExceptionReferences exceptionReferences;
+        private final MessageSeed messageSeed;
 
-        ExceptionAnswers(String error, ProtocolExceptionReferences exceptionReferences) {
+        ExceptionAnswers(String error, MessageSeed messageSeed) {
             this.error = error;
-            this.exceptionReferences = exceptionReferences;
+            this.messageSeed = messageSeed;
         }
 
         public String getError() {
-            return error;
+            return this.error;
         }
 
-        public ProtocolExceptionReferences getExceptionReferences() {
-            return exceptionReferences;
+        public MessageSeed getMessageSeed() {
+            return this.messageSeed;
         }
     }
+
 }

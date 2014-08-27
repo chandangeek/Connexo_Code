@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
@@ -102,7 +103,7 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
         try {
             searchForSlaveDevices();
         } catch (ConnectionException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -137,7 +138,7 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
         } catch (IOException e) {
             String message = "Could not retrieve the serialnumber of the meter. " + e.getMessage();
             getLogger().finest(message);
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -263,7 +264,7 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
         try {
             return getMeterTopology().getDeviceTopology();
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 

@@ -41,6 +41,7 @@ import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -394,7 +395,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     private CollectedDataFactory getCollectedDataFactory() {
         List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
         if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+            throw new CommunicationException(MessageSeeds.MISSING_MODULE, CollectedDataFactory.class);
         }
         else {
             return factories.get(0);

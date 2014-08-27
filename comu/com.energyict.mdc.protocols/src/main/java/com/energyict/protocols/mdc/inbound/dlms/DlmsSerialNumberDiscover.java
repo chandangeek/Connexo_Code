@@ -20,6 +20,7 @@ import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 import com.energyict.protocols.mdc.inbound.dlms.aso.SimpleApplicationServiceObject;
 import com.energyict.protocols.mdc.inbound.general.AbstractDiscover;
 import com.energyict.protocols.mdc.inbound.general.InboundConnection;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -64,7 +65,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
                 disconnect();
             }
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
 
         return DiscoverResultType.IDENTIFIER;

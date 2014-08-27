@@ -2,14 +2,13 @@ package com.energyict.protocols.mdc.channels.ip.datagrams;
 
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.InboundCommunicationException;
-import com.energyict.protocols.mdc.channels.ip.datagrams.AbstractUdpSession;
-import com.energyict.protocols.mdc.channels.ip.datagrams.DatagramComChannel;
+
 import com.energyict.protocols.mdc.services.SocketService;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.io.PipedOutputStream;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.SocketException;
 
 /**
@@ -33,7 +32,7 @@ public class InboundUdpSession extends AbstractUdpSession {
         try {
             setDatagramSocket(socketService.newUDPSocket(portNumber));
         } catch (SocketException e) {
-            throw new InboundCommunicationException(e);
+            throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
         }
     }
 
@@ -56,7 +55,7 @@ public class InboundUdpSession extends AbstractUdpSession {
             datagramComChannel.startReading();   // need to set the startReading because we are listening for data!
             return datagramComChannel;
         } catch (IOException e) {
-            throw new InboundCommunicationException(e);
+            throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
         }
     }
 

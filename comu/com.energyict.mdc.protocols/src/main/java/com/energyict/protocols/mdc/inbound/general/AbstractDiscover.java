@@ -1,6 +1,5 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
@@ -15,8 +14,11 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolImplFactory;
 import com.energyict.protocols.util.ProtocolInstantiator;
 
@@ -159,7 +161,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
         try {
             return protocolInstantiator.getSerialNumber().getSerialNumber(discoverInfo);
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -167,7 +169,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
         try {
             return ProtocolImplFactory.getProtocolInstantiator(meterProtocolClass);
         } catch (IOException e) {
-            throw new ProtocolCreationException(meterProtocolClass);
+            throw new ProtocolCreationException(MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, meterProtocolClass);
         }
     }
 
@@ -175,7 +177,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
         try {
             return identificationFactory.getMeterProtocolClass(identificationFrame);
         } catch (IOException e) {
-            throw InboundFrameException.unexpectedFrame(e, identificationFrame, e.getMessage());
+            throw new InboundFrameException(MessageSeeds.INBOUND_UNEXPECTED_FRAME, e, identificationFrame, e.getMessage());
         }
     }
 
@@ -183,7 +185,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
         try {
             return ProtocolImplFactory.getIdentificationFactory();
         } catch (IOException e) {
-            throw new ProtocolCreationException(IdentificationFactory.class.getName());
+            throw new ProtocolCreationException(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, IdentificationFactory.class.getName());
         }
     }
 

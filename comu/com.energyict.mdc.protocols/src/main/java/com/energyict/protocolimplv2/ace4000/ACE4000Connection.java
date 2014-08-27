@@ -4,6 +4,8 @@ import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,10 +69,10 @@ public class ACE4000Connection {
             if (getCurrentSystemTime() - interMessageTimeout > 0) {
                 if (msg.toString().isEmpty()) {
                     if (inbound) {
-                        throw InboundFrameException.timeout(String.format("Timeout: didn't receive an inbound frame after %d ms.", timeout));
+                        throw new InboundFrameException(MessageSeeds.INBOUND_TIMEOUT, String.format("Timeout: didn't receive an inbound frame after %d ms.", timeout));
                     } else {
                         IOException cause = new IOException(String.format("Timeout: didn't receive an outbound frame after %d ms.",timeout));
-                        throw CommunicationException.numberOfRetriesReached(cause, ace4000.getProperties().getRetries());
+                        throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, cause, ace4000.getProperties().getRetries());
                     }
                 } else {
                     return splitConcatenatedFrames(msg.toString());    //Return the received frames after waiting for a timeout

@@ -22,6 +22,7 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocols.mdc.services.impl.Bus;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -766,12 +767,12 @@ public class ObjectFactory {
             try {
                 document = builder.parse(new InputSource(new StringReader(xml)));
             } catch (IOException e) {
-                throw InboundFrameException.unexpectedFrame(xml, e.getMessage());
+                throw new InboundFrameException(MessageSeeds.INBOUND_UNEXPECTED_FRAME, xml, e.getMessage());
             }
             Element topElement = document.getDocumentElement();
             parseElements(topElement);
         } catch (ParserConfigurationException | SAXException e) {
-            throw InboundFrameException.unexpectedFrame(xml, e.getMessage());
+            throw new InboundFrameException(MessageSeeds.INBOUND_UNEXPECTED_FRAME, xml, e.getMessage());
         }
     }
 

@@ -38,7 +38,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
             inboundDeviceProtocol.setPropertySpecService(this.propertySpecService);
             return inboundDeviceProtocol;
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(e, pluggableClass.getJavaClassName());
+            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, e, pluggableClass.getJavaClassName());
         }
     }
 
@@ -47,7 +47,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
         try {
             return (InboundDeviceProtocol) (Class.forName(javaClassName)).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(e, javaClassName);
+            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, e, javaClassName);
         }
     }
 

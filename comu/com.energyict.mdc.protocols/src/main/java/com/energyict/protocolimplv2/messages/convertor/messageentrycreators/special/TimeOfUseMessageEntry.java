@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 
@@ -72,7 +73,8 @@ public class TimeOfUseMessageEntry implements MessageEntryCreator {
         try {
             return ProtocolTools.compress(codeTableDescription);
         } catch (IOException e) {
-            throw new GeneralParseException(e);
+            throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
     }
+
 }

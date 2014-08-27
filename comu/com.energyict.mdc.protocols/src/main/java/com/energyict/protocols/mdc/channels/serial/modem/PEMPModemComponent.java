@@ -3,6 +3,7 @@ package com.energyict.protocols.mdc.channels.serial.modem;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.ModemException;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 /**
  * Modem component for PEMP communication, which is based on the {@link PaknetModemComponent}.
@@ -27,7 +28,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
-            throw ModemException.connectTimeOutException(getComPortName(), modemProperties.getConnectTimeout().getMilliSeconds());
+            throw new ModemException(MessageSeeds.MODEM_CONNECT_TIMEOUT, getComPortName(), modemProperties.getConnectTimeout().getMilliSeconds());
         }
 
         initializeAfterConnect(comChannel);
@@ -53,15 +54,15 @@ public class PEMPModemComponent extends PaknetModemComponent {
         disconnectModemBeforeNewSession(comChannel);
 
         if (!initializeCommandState(comChannel)) {
-            throw ModemException.failedToInitializeCommandStateString(getComPortName(), getLastResponseReceived());
+            throw new ModemException(MessageSeeds.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE, getComPortName(), getLastResponseReceived());
         }
 
         if (!initializePEMPCommandState(comChannel)) {
-            throw ModemException.failedToInitializeCommandStateString(getComPortName(), getLastResponseReceived());
+            throw new ModemException(MessageSeeds.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE, getComPortName(), getLastResponseReceived());
         }
 
         if (!sendParameters(comChannel)) {
-            throw ModemException.failedToWriteInitString(getComPortName(), getLastCommandSend(), getLastResponseReceived());
+            throw new ModemException(MessageSeeds.MODEM_COULD_NOT_SEND_INIT_STRING, getComPortName(), getLastCommandSend(), getLastResponseReceived());
         }
     }
 

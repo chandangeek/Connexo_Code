@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class EIWebCryptographer implements Cryptographer {
         this.usageCount++;
         TypedProperties connectionTypeProperties = this.inboundDiscoveryContext.getDeviceConnectionTypeProperties(deviceIdentifier);
         if (connectionTypeProperties == null) {
-            throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
+            throw new CommunicationException(MessageSeeds.NOT_CONFIGURED_FOR_INBOUND_COMMUNICATION,  deviceIdentifier);
         }
         else {
             List<SecurityProperty> securityProperties = this.inboundDiscoveryContext.getDeviceProtocolSecurityProperties(deviceIdentifier);
@@ -52,7 +53,7 @@ public class EIWebCryptographer implements Cryptographer {
                 return new StringBasedMD5Seed(source + macAddress + encryptionPassword);
             }
             else {
-                throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
+                throw new CommunicationException(MessageSeeds.NOT_CONFIGURED_FOR_INBOUND_COMMUNICATION,  deviceIdentifier);
             }
         }
     }

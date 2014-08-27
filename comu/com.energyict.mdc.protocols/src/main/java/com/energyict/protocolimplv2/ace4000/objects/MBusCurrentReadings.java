@@ -11,6 +11,7 @@ import com.energyict.protocolimpl.mbus.core.ObisCodeCreator;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -118,7 +119,7 @@ public class MBusCurrentReadings extends AbstractActarisObject {
             }
 
         } catch (IOException e) {
-            throw new DataParseException(e);
+            throw new DataParseException(e, MessageSeeds.INDEX_OUT_OF_BOUND_DATA_PARSE_EXCEPTION);
         }
     }
 

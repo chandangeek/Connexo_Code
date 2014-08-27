@@ -21,6 +21,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.ConfigWithUserFileAndActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.ConfigWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.nio.charset.Charset;
@@ -128,7 +129,8 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
-            throw new GeneralParseException(e);
+            throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
     }
+
 }

@@ -20,6 +20,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocols.mdc.protocoltasks.Dsmr23DeviceProtocolDialect;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class AM100 extends AbstractNtaProtocol {
                 getDlmsCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
             }
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 

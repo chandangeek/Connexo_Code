@@ -12,6 +12,8 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
+
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
 import org.joda.time.DateTimeConstants;
 
@@ -120,7 +122,7 @@ public class ProfileBuilder {
         meterReadings = new ArrayList<>();
 
         if (data == null) {
-            throw CommunicationException.missingInboundData(this.packetBuilder.getDeviceIdentifier());
+            throw new CommunicationException(MessageSeeds.NO_INBOUND_DATE, this.packetBuilder.getDeviceIdentifier());
         }
 
         buildChannelInfo();
@@ -175,7 +177,7 @@ public class ProfileBuilder {
             Date date = new Date(ldate);
 
             if ((i == 0) && (!packetBuilder.isTimeCorrect(date))) {
-                throw new DataEncryptionException(this.packetBuilder.getDeviceIdentifier());
+                throw new DataEncryptionException(MessageSeeds.ENCRYPTION_ERROR, this.packetBuilder.getDeviceIdentifier());
             }
             this.buildIntervalDataForRecord(is, date);
         }
@@ -203,7 +205,7 @@ public class ProfileBuilder {
                 break;
 
             default:
-                throw CommunicationException.unsupportedVersion(packetBuilder.getVersion(), "EIWeb packet builder");
+                throw new CommunicationException(MessageSeeds.UNSUPPORTED_VERSION, packetBuilder.getVersion(), "EIWeb packet builder");
         }
 
         for (int t = 0; t < packetBuilder.getNrOfChannels(); t++) {
@@ -224,7 +226,7 @@ public class ProfileBuilder {
                 break;
 
             default:
-                throw CommunicationException.unsupportedVersion(packetBuilder.getVersion(), "EIWeb packet builder");
+                throw new CommunicationException(MessageSeeds.UNSUPPORTED_VERSION, packetBuilder.getVersion(), "EIWeb packet builder");
         }
     }
 

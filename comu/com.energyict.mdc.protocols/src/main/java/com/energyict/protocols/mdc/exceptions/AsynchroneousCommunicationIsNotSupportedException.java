@@ -1,10 +1,9 @@
 package com.energyict.protocols.mdc.exceptions;
 
-import com.energyict.mdc.common.exceptions.CommonExceptionReferences;
-import com.energyict.mdc.common.exceptions.CommonReferenceScope;
-import com.energyict.mdc.common.exceptions.ExceptionCode;
-import com.energyict.mdc.common.exceptions.ExceptionType;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
+
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 /**
  * Models the exceptional situations that occur when a developer has
@@ -17,19 +16,11 @@ import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 public final class AsynchroneousCommunicationIsNotSupportedException extends ComServerRuntimeException {
 
     public AsynchroneousCommunicationIsNotSupportedException () {
-        this(asynchroneousCommunicationIsNotSupportedCode());
+        this(MessageSeeds.ASYNCHRONEOUS_COMMUNICATION_IS_NOT_SUPPORTED);
     }
 
-    private static ExceptionCode asynchroneousCommunicationIsNotSupportedCode () {
-        return new ExceptionCode(new CommonReferenceScope(), ExceptionType.CODING, CommonExceptionReferences.ASYNCHRONEOUS_COMMUNICATION_IS_NOT_SUPPORTED);
-    }
-
-    private AsynchroneousCommunicationIsNotSupportedException(ExceptionCode code, Object... messageArguments) {
-        super(code, messageArguments);
-    }
-
-    private AsynchroneousCommunicationIsNotSupportedException(Throwable cause, ExceptionCode code, Object... messageArguments) {
-        super(cause, code, messageArguments);
+    private AsynchroneousCommunicationIsNotSupportedException(MessageSeed messageSeed, Object... messageArguments) {
+        super(messageSeed, messageArguments);
     }
 
 }

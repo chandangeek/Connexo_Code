@@ -38,6 +38,7 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.protocols.mdc.services.impl.Bus;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
 
@@ -172,7 +173,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             }
             return this.loadProfileConfigurationList;
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 

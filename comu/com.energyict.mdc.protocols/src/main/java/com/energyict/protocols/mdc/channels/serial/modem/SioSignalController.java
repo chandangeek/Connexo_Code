@@ -1,8 +1,9 @@
 package com.energyict.protocols.mdc.channels.serial.modem;
 
-import Serialio.SerialPort;
-import com.energyict.protocols.mdc.channels.serial.modem.SignalController;
 import com.energyict.mdc.protocol.api.exceptions.SerialPortException;
+
+import Serialio.SerialPort;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 
@@ -26,7 +27,7 @@ public class SioSignalController implements SignalController {
         try {
             return this.serialPort.sigDSR();
         } catch (IOException e) {
-            throw SerialPortException.serialLibraryException(e);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
     }
 
@@ -35,7 +36,7 @@ public class SioSignalController implements SignalController {
         try {
             return this.serialPort.sigCTS();
         } catch (IOException e) {
-            throw SerialPortException.serialLibraryException(e);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
     }
 
@@ -44,7 +45,7 @@ public class SioSignalController implements SignalController {
         try {
             return this.serialPort.sigCD();
         } catch (IOException e) {
-            throw SerialPortException.serialLibraryException(e);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
     }
 
@@ -53,7 +54,7 @@ public class SioSignalController implements SignalController {
         try {
             return this.serialPort.sigRing();
         } catch (IOException e) {
-            throw SerialPortException.serialLibraryException(e);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
     }
 
@@ -62,7 +63,7 @@ public class SioSignalController implements SignalController {
         try {
             this.serialPort.setDTR(dtr);
         } catch (IOException e) {
-            throw SerialPortException.serialLibraryException(e);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
     }
 
@@ -71,7 +72,7 @@ public class SioSignalController implements SignalController {
         try {
             this.serialPort.setRTS(rts);
         } catch (IOException e) {
-            throw SerialPortException.serialLibraryException(e);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
     }
 }

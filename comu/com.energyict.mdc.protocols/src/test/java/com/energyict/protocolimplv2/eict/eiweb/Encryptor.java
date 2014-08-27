@@ -3,6 +3,8 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -32,7 +34,7 @@ public class Encryptor {
             md = MessageDigest.getInstance("MD5");
         }
         catch (NoSuchAlgorithmException e) {
-            throw new DataEncryptionException(e);
+            throw new DataEncryptionException(MessageSeeds.ENCRYPTION_ERROR, e);
         }
         this.md5Key = md.digest(this.md5Seed);
     }

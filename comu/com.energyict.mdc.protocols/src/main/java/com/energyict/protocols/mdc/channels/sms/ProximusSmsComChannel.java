@@ -1,6 +1,8 @@
 package com.energyict.protocols.mdc.channels.sms;
 
 import com.energyict.protocols.mdc.channels.AbstractComChannel;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 
 import java.io.ByteArrayInputStream;
@@ -35,7 +37,7 @@ public class ProximusSmsComChannel extends AbstractComChannel {
         try {
             byteArrayOutputStream.close();
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -74,7 +76,7 @@ public class ProximusSmsComChannel extends AbstractComChannel {
             byteArrayOutputStream.write(bytes);
             return bytes.length;
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 

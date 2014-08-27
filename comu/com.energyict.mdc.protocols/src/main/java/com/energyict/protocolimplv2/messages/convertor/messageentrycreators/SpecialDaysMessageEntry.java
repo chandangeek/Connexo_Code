@@ -10,6 +10,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 
@@ -59,7 +60,8 @@ public class SpecialDaysMessageEntry implements MessageEntryCreator {
         try {
             return ProtocolTools.compress(codeTableDescription);
         } catch (IOException e) {
-            throw new GeneralParseException(e);
+            throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
     }
+
 }

@@ -52,10 +52,10 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
             }
         }
         catch (InstantiationException | IllegalAccessException e) {
-            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(e, javaClassName);
+            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, e, javaClassName);
         }
         catch (ClassNotFoundException e) {
-            throw DeviceProtocolAdapterCodingExceptions.unKnownDeviceSecuritySupportClass(e, javaClassName);
+            throw DeviceProtocolAdapterCodingExceptions.unKnownDeviceSecuritySupportClass(MessageSeeds.UNKNOWN_DEVICE_SECURITY_SUPPORT_CLASS, e, javaClassName);
         }
     }
 

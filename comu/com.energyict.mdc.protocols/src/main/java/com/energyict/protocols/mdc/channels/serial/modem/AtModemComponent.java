@@ -3,9 +3,12 @@ package com.energyict.protocols.mdc.channels.serial.modem;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.ModemException;
-import com.energyict.mdc.protocol.api.exceptions.ProtocolExceptionReferences;
+import com.energyict.mdc.protocol.api.exceptions.ModemTimeoutException;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.modem.postdial.AbstractAtPostDialCommand;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -51,7 +54,7 @@ public class AtModemComponent {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
-            throw ModemException.connectTimeOutException(this.comPortName, atModemProperties.getConnectTimeout().getMilliSeconds());
+            throw new ModemException(MessageSeeds.MODEM_CONNECT_TIMEOUT, this.comPortName, atModemProperties.getConnectTimeout().getMilliSeconds());
         }
 
         initializeAfterConnect(comChannel);
@@ -74,15 +77,15 @@ public class AtModemComponent {
         this.comPortName = name;
 
         if (!hangUpComChannel(comChannel)) {
-            throw ModemException.couldNotHangup(this.comPortName);
+            throw new ModemException(MessageSeeds.MODEM_COULD_NOT_HANG_UP, this.comPortName);
         }
 
         if (!reStoreProfile(comChannel)) {
-            throw ModemException.couldNotRestoreProfile(this.comPortName, lastCommandSend, lastResponseReceived);
+            throw new ModemException(MessageSeeds.MODEM_COULD_NOT_RESTORE_DEFAULT_PROFILE, this.comPortName, lastCommandSend, lastResponseReceived);
         }
 
         if (!sendInitStrings(comChannel)) {
-            throw ModemException.failedToWriteInitString(this.comPortName, lastCommandSend, lastResponseReceived);
+            throw new ModemException(MessageSeeds.MODEM_COULD_NOT_SEND_INIT_STRING, this.comPortName, lastCommandSend, lastResponseReceived);
         }
     }
 
@@ -161,7 +164,6 @@ public class AtModemComponent {
      * Terminate all current sessions on the modem
      *
      * @param comChannel the serialComChannel
-     * @return true if all commands succeeded, false otherwise
      */
     public void disconnectModem(ComChannel comChannel) {
         hangUpComChannel(comChannel);
@@ -195,7 +197,7 @@ public class AtModemComponent {
             comChannel.flush();
             flushInputStream(comChannel);
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -293,10 +295,9 @@ public class AtModemComponent {
                 if (readAndVerify(comChannel, expectedAnswer, atModemProperties.getCommandTimeOut().getMilliSeconds())) {
                     return true;
                 }
-            } catch (ModemException e) {
-                if (!e.getMessageId().equals("PRA-COM-205")) { // only timeout exceptions
-                    throw e;
-                }
+            }
+            catch (ModemTimeoutException e) {
+                // Ignore timeouts
             }
         }
         return false;
@@ -325,7 +326,7 @@ public class AtModemComponent {
                 }
                 if (System.currentTimeMillis() > max) {
                     if (responseBuilder.length() == 0) { // indication that we did not read anything
-                        throw ModemException.commandTimeoutExceeded(this.comPortName, timeOutInMillis, lastCommandSend);
+                        throw new ModemTimeoutException(MessageSeeds.MODEM_READ_TIMEOUT, this.comPortName, timeOutInMillis, lastCommandSend);
                     } else {
                         return false;
                     }
@@ -355,7 +356,7 @@ public class AtModemComponent {
     private boolean validateResponse(String response, String expectedAnswer) {
         for (AtModemComponent.ExceptionAnswers exceptionAnswer : AtModemComponent.ExceptionAnswers.values()) {
             if (response.contains(exceptionAnswer.getError())) {
-                throw ModemException.dialingError(this.comPortName, exceptionAnswer.getExceptionReferences(), this.lastCommandSend);
+                throw new ModemException(exceptionAnswer.getMessageSeed(), this.comPortName, this.lastCommandSend);
             }
         }
         return response.contains(expectedAnswer);
@@ -406,26 +407,26 @@ public class AtModemComponent {
      * Exception values which can occur during communication with the modem.
      */
     public enum ExceptionAnswers {
-        BUSY_EXCEPTION(BUSY, ProtocolExceptionReferences.AT_MODEM_BUSY),
-        ERROR_EXCEPTION(ERROR, ProtocolExceptionReferences.AT_MODEM_ERROR),
-        NO_ANSWER_EXCEPTION(NO_ANSWER, ProtocolExceptionReferences.AT_MODEM_NO_ANSWER),
-        NO_CARRIER_EXCEPTION(NO_CARRIER, ProtocolExceptionReferences.AT_MODEM_NO_CARRIER),
-        NO_DIALTONE_EXCEPTION(NO_DIALTONE, ProtocolExceptionReferences.AT_MODEM_NO_DIALTONE);
+        BUSY_EXCEPTION(BUSY, MessageSeeds.AT_MODEM_BUSY),
+        ERROR_EXCEPTION(ERROR, MessageSeeds.AT_MODEM_ERROR),
+        NO_ANSWER_EXCEPTION(NO_ANSWER, MessageSeeds.AT_MODEM_NO_ANSWER),
+        NO_CARRIER_EXCEPTION(NO_CARRIER, MessageSeeds.AT_MODEM_NO_CARRIER),
+        NO_DIALTONE_EXCEPTION(NO_DIALTONE, MessageSeeds.AT_MODEM_NO_DIALTONE);
 
         private final String error;
-        private final ProtocolExceptionReferences exceptionReferences;
+        private final MessageSeed messageSeed;
 
-        ExceptionAnswers(String error, ProtocolExceptionReferences exceptionReferences) {
+        ExceptionAnswers(String error, MessageSeed messageSeed) {
             this.error = error;
-            this.exceptionReferences = exceptionReferences;
+            this.messageSeed = messageSeed;
         }
 
         public String getError() {
-            return error;
+            return this.error;
         }
 
-        public ProtocolExceptionReferences getExceptionReferences() {
-            return exceptionReferences;
+        public MessageSeed getMessageSeed() {
+            return this.messageSeed;
         }
     }
 

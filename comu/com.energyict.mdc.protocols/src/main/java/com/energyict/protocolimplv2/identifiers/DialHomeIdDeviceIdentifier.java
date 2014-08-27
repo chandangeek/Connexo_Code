@@ -4,6 +4,8 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdw.cpo.PropertySpecFactory;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -46,7 +48,7 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipl
                 throw new NotFoundException("Device with callHomeID " + this.callHomeID + " not found");
             } else {
                 if (this.allDevices.size() > 1) {
-                    throw DuplicateException.duplicateFoundFor(BaseDevice.class, this.toString());
+                    throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, BaseDevice.class, this.toString());
                 } else {
                     this.device = this.allDevices.get(0);
                 }

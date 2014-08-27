@@ -6,6 +6,8 @@ import com.energyict.mdc.protocol.api.device.messages.BaseDeviceMessageFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import java.util.List;
 
 /**
@@ -54,7 +56,7 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     private BaseDeviceMessageFactory getDeviceMessageFactory () {
         List<BaseDeviceMessageFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(BaseDeviceMessageFactory.class);
         if (factories.isEmpty()) {
-            throw CommunicationException.missingModuleException(BaseDeviceMessageFactory.class);
+            throw new CommunicationException(MessageSeeds.MISSING_MODULE, BaseDeviceMessageFactory.class);
         }
         else {
             return factories.get(0);

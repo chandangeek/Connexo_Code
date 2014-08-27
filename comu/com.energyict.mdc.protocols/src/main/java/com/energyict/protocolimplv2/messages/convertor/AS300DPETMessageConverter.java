@@ -14,6 +14,7 @@ import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,7 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
             return ids;
         }
         catch (NumberFormatException e) {
-            throw new GeneralParseException(e);
+            throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
     }
 
@@ -103,16 +104,18 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
 //                        builder.append("</" + KEY).append(String.valueOf(index)).append(">");
 //                        index++;
 //                    } else {
-                        ApplicationException e = new ApplicationException("Device with serial number " + device.getSerialNumber() + " doesn't have a value for the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ")!");
-                        throw new GeneralParseException(e);
+                    throw new GeneralParseException(
+                            MessageSeeds.GENERAL_PARSE_ERROR,
+                            new ApplicationException("Device with serial number " + device.getSerialNumber() + " doesn't have a value for the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ")!"));
 //                    }
                 } else {
-                    ApplicationException e = new ApplicationException("Rtu with serial number " + device.getSerialNumber() + " doesn't have the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ") defined!");
-                    throw new GeneralParseException(e);
+                    throw new GeneralParseException(
+                            MessageSeeds.GENERAL_PARSE_ERROR,
+                            new ApplicationException("Rtu with serial number " + device.getSerialNumber() + " doesn't have the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ") defined!"));
                 }
             }
         } catch (ClassCastException e) {
-            throw new GeneralParseException(e);
+            throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
         return builder.toString();
     }

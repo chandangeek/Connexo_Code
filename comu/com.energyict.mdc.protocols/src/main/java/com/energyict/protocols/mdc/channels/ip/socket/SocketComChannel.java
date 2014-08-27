@@ -1,6 +1,8 @@
 package com.energyict.protocols.mdc.channels.ip.socket;
 
 import com.energyict.protocols.mdc.channels.SynchroneousComChannel;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 
@@ -37,12 +39,13 @@ public class SocketComChannel extends SynchroneousComChannel {
             try {
                 super.doClose();
             } finally {
-                if(this.socket != null){
+                if (this.socket != null) {
                     this.socket.close();
                 }
             }
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
+
 }

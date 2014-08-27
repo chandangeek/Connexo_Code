@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.SerialPortException;
 import com.energyict.protocols.mdc.channels.serial.modem.SignalController;
 import com.energyict.protocols.mdc.channels.serial.modem.SioSignalController;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +51,7 @@ public class SioSerialPort implements ServerSerialPort {
         try {
             this.serialPort = new SerialPortLocal(createSerialConfig());
         } catch (IOException e) {
-            throw SerialPortException.serialLibraryException(e);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
         updateFlags();
     }
@@ -87,7 +88,7 @@ public class SioSerialPort implements ServerSerialPort {
         } else if (FlowControl.XONXOFF.getFlowControl().equals(flowControl)) {
             return SerialConfig.HS_XONXOFF;
         } else {
-            throw SerialPortException.configurationMisMatch(SerialPortConfiguration.FLOW_CONTROL_NAME, flowControl);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.FLOW_CONTROL_NAME, flowControl);
         }
     }
 
@@ -103,7 +104,7 @@ public class SioSerialPort implements ServerSerialPort {
         } else if (Parities.SPACE.getParity().equals(parity)) {
             return SerialConfig.PY_SPACE;
         } else {
-            throw SerialPortException.configurationMisMatch(SerialPortConfiguration.PARITY_NAME, parity);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.PARITY_NAME, parity);
         }
     }
 
@@ -114,7 +115,7 @@ public class SioSerialPort implements ServerSerialPort {
             case SERIAL_CONFIG_2_STOP_BITS_UNSCALED_VALUE:
                 return SerialConfig.ST_2BITS;
             default:
-                throw SerialPortException.configurationMisMatch(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, nrOfStopBits.toString());
+                throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.NR_OF_STOP_BITS_NAME, nrOfStopBits.toString());
         }
     }
 
@@ -129,7 +130,7 @@ public class SioSerialPort implements ServerSerialPort {
             case SERIAL_CONFIG_8_DATA_BITS_MARKER:
                 return SerialConfig.LN_8BITS;
             default:
-                throw SerialPortException.configurationMisMatch(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, nrOfDataBits.toString());
+                throw new SerialPortException(MessageSeeds.SERIAL_PORT_CONFIGURATION_MISMATCH, SerialPortConfiguration.NR_OF_DATA_BITS_NAME, nrOfDataBits.toString());
         }
     }
 
@@ -153,7 +154,7 @@ public class SioSerialPort implements ServerSerialPort {
             try {
                 return new SerInputStream(this.serialPort);
             } catch (IOException e) {
-                throw SerialPortException.serialLibraryException(e);
+                throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
             }
         }
         return this.inputStream;
@@ -165,7 +166,7 @@ public class SioSerialPort implements ServerSerialPort {
             try {
                 return new SerOutputStream(this.serialPort);
             } catch (IOException e) {
-                throw SerialPortException.serialLibraryException(e);
+                throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
             }
         }
         return this.outputStream;
@@ -177,7 +178,7 @@ public class SioSerialPort implements ServerSerialPort {
             try {
                 this.serialPort.close();
             } catch (IOException e) {
-                throw new CommunicationException(e);
+                throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
             }
         }
     }
@@ -188,7 +189,7 @@ public class SioSerialPort implements ServerSerialPort {
         try {
             this.serialPort.configure(createSerialConfig());
         } catch (IOException e) {
-            throw SerialPortException.serialLibraryException(e);
+            throw new SerialPortException(MessageSeeds.SERIAL_PORT_LIBRARY_EXCEPTION, e);
         }
         updateFlags();
     }
