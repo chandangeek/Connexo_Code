@@ -34,7 +34,7 @@ public abstract class ReadingInfo<R extends Reading, S extends RegisterSpec> {
         this.reportedDateTime = reading.getReportedDateTime().getTime();
         this.validationStatus = ValidationStatus.NOT_VALIDATED;
         if(reading.isValidated()) {
-            if(reading.getReadingQualities().size() == 1 && reading.getReadingQualities().get(0).getType().getCode().equals(ReadingQualityType.MDM_VALIDATED_OK_CODE)) {
+            if(reading.getReadingQualities().size() == 1 && reading.getReadingQualities().get(0).getTypeCode().equals(ReadingQualityType.MDM_VALIDATED_OK_CODE)) {
                 this.validationStatus = ValidationStatus.OK;
             } else {
                 this.validationStatus = ValidationStatus.SUSPECT;
