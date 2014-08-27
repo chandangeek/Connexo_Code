@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
     store: 'Mdc.store.ChannelOfLoadProfileOfDeviceData',
     requires: [
         'Uni.grid.column.Action',
-        'Mdc.view.setup.deviceloadprofilechannels.DataActionMenu'
+        'Mdc.view.setup.deviceloadprofilechannels.DataActionMenu',
+        'Uni.grid.column.IntervalFlags'
     ],
     height: 395,
     plugins: {
@@ -17,6 +18,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
     initComponent: function () {
         var me = this,
             readingType = me.channelRecord.get('cimReadingType'),
+            measurementType = me.channelRecord.get('unitOfMeasure_formatted'),
             accumulationBehavior;
 
         me.columns = [
@@ -32,47 +34,40 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
             accumulationBehavior = readingType.split('.')[3];
         }
 
-        // 3 means cumulative
-        if (accumulationBehavior && accumulationBehavior == 3) {
+        // 1 means cumulative
+        if (accumulationBehavior && accumulationBehavior == 1) {
             me.columns.push({
                 header: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
-                dataIndex: 'cumulativeValue',
+                dataIndex: 'value',
+                renderer: function (value, metaData, record) {
+                    return value + ' ' + measurementType;
+                },
                 flex: 1
             }, {
                 header: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
                 dataIndex: 'delta',
+                renderer: function (value, metaData, record) {
+                    if (!value) {
+                        value = 0;
+                    }
+                    return value + ' ' + measurementType;
+                },
                 flex: 1
             });
         } else {
             me.columns.push({
                 header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
                 dataIndex: 'value',
+                renderer: function (value, metaData, record) {
+                    return value + ' ' + measurementType;
+                },
                 flex: 1
             });
         }
 
         me.columns.push({
-                header: Uni.I18n.translate('deviceloadprofiles.channels.intervalFlags', 'MDC', 'Interval flags'),
+                xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
-                        renderer: function (data) {
-                            var result = '',
-                                tooltip = '';
-//                                icon = this.nextSibling('button');
-                            if (Ext.isArray(data) && data.length) {
-                                result = data.length;
-                                Ext.Array.each(data, function (value, index) {
-                                    index++;
-                                    tooltip += Uni.I18n.translate('deviceloadprofiles.flag', 'MDC', 'Flag') + ' ' + index + ': ' + value + '<br>';
-
-                                });
-//                                icon.setTooltip(tooltip);
-//                                icon.show();
-                            }
-//                            else {
-//                                icon.hide();
-//                            }
-                            return result;
-                        },
                 flex: 1
             },
             {
