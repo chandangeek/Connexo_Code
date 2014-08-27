@@ -69,7 +69,7 @@ Ext.define('Dsh.view.CommunicationOverview', {
                         style: {
                             paddingLeft: '50px'
                         },
-                        data: [ //TODO: set real data
+                        data: [
                             {
                                 link: Uni.I18n.translate('communication.widget.quicklinks.viewAll', 'DSH', 'View all communications'),
                                 href: me.router.getRoute('workspace/datacommunication/communications').buildUrl()

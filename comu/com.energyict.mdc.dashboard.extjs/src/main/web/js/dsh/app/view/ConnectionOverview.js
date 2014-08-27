@@ -71,7 +71,7 @@ Ext.define('Dsh.view.ConnectionOverview', {
                         style: {
                             paddingLeft: '50px'
                         },
-                        data: [ //TODO: set real data
+                        data: [
                             {
                                 link: Uni.I18n.translate('connection.widget.quicklinks.viewAll', 'DSH', 'View all connections'),
                                 href: me.router.getRoute('workspace/datacommunication/connections').buildUrl()
