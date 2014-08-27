@@ -1033,29 +1033,41 @@ public class DeviceImpl implements Device {
 
     List<LoadProfileReading> getChannelData(LoadProfile loadProfile, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        boolean meterHasData=false;
         Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval);
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 for (Channel channel : loadProfile.getChannels()) {
-                    this.getUnsortedChannelDataFor(interval, meter.get(), channel, sortedLoadProfileReadingMap);
+                    meterHasData |= this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
                 }
             }
         }
-        List<LoadProfileReading> loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        List<LoadProfileReading> loadProfileReadings;
+        if (meterHasData) {
+            loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        } else {
+            loadProfileReadings=Collections.emptyList();
+        }
         return Lists.reverse(loadProfileReadings);
     }
 
     List<LoadProfileReading> getChannelData(Channel channel, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        boolean meterHasData=false;
         Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval);
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                this.getUnsortedChannelDataFor(interval, meter.get(), channel, sortedLoadProfileReadingMap);
+                meterHasData = this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
             }
         }
-        List<LoadProfileReading> loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        List<LoadProfileReading> loadProfileReadings;
+        if (meterHasData) {
+            loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+        } else {
+            loadProfileReadings=Collections.emptyList();
+        }
         return Lists.reverse(loadProfileReadings);
     }
 
@@ -1076,12 +1088,24 @@ public class DeviceImpl implements Device {
         return endDeviceEventRecords;
     }
 
-    private void getUnsortedChannelDataFor(Interval interval, Meter meter, Channel mdcChannel, Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
+    /**
+     * Adds meter readings for a single channel the timeslot-map.
+     * @param interval The interval over which meter readings are requested
+     * @param meter The meter for which readings are requested
+     * @param mdcChannel The meter's channel for which readings are requested
+     * @param sortedLoadProfileReadingMap The map to add the readings too in the correct timeslot
+     * @return true if any readings were added to the map, false otherwise
+     */
+    private boolean addChannelDataToMap(Interval interval, Meter meter, Channel mdcChannel, Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
+        boolean meterHasData=false;
         List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, interval);
         for (MeterActivation meterActivation : meterActivations) {
             Interval meterActivationInterval = meterActivation.getInterval().intersection(interval);
             ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
             List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
+            if (!meterReadings.isEmpty()) {
+                meterHasData=true;
+            }
             Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
                 // Todo: process the reading qualities, adding them somehow to the LoadProfileReading
@@ -1094,6 +1118,7 @@ public class DeviceImpl implements Device {
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
         }
+        return meterHasData;
     }
 
     private List<ProfileStatus.Flag> getFlagsFromProfileStatus(ProfileStatus profileStatus) {
