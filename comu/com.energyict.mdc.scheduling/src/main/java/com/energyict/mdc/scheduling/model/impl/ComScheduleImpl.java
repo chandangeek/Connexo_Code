@@ -3,6 +3,7 @@ package com.energyict.mdc.scheduling.model.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
@@ -34,6 +35,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -82,6 +84,7 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     @Size(max= Global.DEFAULT_DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
     private String mRID;
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
+    @IsPresent
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
     private SchedulingStatus schedulingStatus;
     @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
@@ -103,6 +106,7 @@ public class ComScheduleImpl implements ComSchedule, HasId {
         this.name = name!=null?name.trim():null;
     }
 
+    @Valid
     @Override
     public NextExecutionSpecs getNextExecutionSpecs() {
         return nextExecutionSpecs.get();
@@ -151,19 +155,24 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     public void setTemporalExpression(TemporalExpression temporalExpression) {
         if (!this.nextExecutionSpecs.isPresent()) {
             NextExecutionSpecs nextExecutionSpecs = schedulingService.newNextExecutionSpecs(temporalExpression);
-            nextExecutionSpecs.save();
             this.nextExecutionSpecs.set(nextExecutionSpecs);
         } else  {
             this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
-            this.nextExecutionSpecs.get().save();
         }
     }
 
     @Override
     public void save() {
-        Save.action(this.getId()).save(dataModel, this);
-        if (Save.UPDATE.equals(Save.action(this.getId()))) {
+        Save actionToPerform = Save.action(this.getId());
+        // So all fields will be validated at the same time
+        actionToPerform.validate(dataModel, this);
+        this.nextExecutionSpecs.get().save();
+
+        if (Save.UPDATE.equals(actionToPerform)) {
+            dataModel.update(this);
             this.eventService.postEvent(UpdateEventType.COMSCHEDULES.topic(), this);
+        } else{
+            dataModel.persist(this);
         }
     }
 
