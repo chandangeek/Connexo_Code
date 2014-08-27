@@ -249,6 +249,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ELSTER_GARNET_CONCENTRATOR(216, "com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator", FamilyRule.ELSTER_GARNET),
     ELSTER_GARNET_AC100C(217, "com.energyict.protocolimplv2.elster.garnet.A100C", FamilyRule.ELSTER_GARNET),
     ELSTER_A1800(218, "com.energyict.protocolimpl.dlms.a1800.A1800"),
+    ELSTER_AM540(219, "com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
