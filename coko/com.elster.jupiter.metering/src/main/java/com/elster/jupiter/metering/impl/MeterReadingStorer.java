@@ -257,15 +257,15 @@ public class MeterReadingStorer {
     }
     
     private void storeReadingQualities() {
-    	List<ReadingQualityImpl> toInsert = new ArrayList<>();
-    	List<ReadingQualityImpl> toUpdate = new ArrayList<>();
+    	List<ReadingQualityRecordImpl> toInsert = new ArrayList<>();
+    	List<ReadingQualityRecordImpl> toUpdate = new ArrayList<>();
     	for (Channel channel : readingQualitiesToStore.keySet()) {
     		Pair<IntervalBuilder,List<BaseReading>> pair = readingQualitiesToStore.get(channel);
     		List<? extends ReadingQuality> readingQualities = channel.findReadingQuality(pair.getFirst().getInterval());
     		for (BaseReading reading : pair.getLast()) {
     			Date timeStamp = reading.getTimeStamp();
     			for (ReadingQuality readingQuality : reading.getReadingQualities()) {
-    				Optional<ReadingQualityImpl> existing = find(timeStamp, readingQuality.getTypeCode(), readingQualities);
+    				Optional<ReadingQualityRecordImpl> existing = find(timeStamp, readingQuality.getTypeCode(), readingQualities);
     				if (existing.isPresent()) {
     
     					if (readingQuality.getComment() != null && !readingQuality.getComment().equals(existing.get().getComment())) {    						
@@ -273,7 +273,7 @@ public class MeterReadingStorer {
     						toUpdate.add(existing.get());
     					}
     				} else {
-    					ReadingQualityImpl newReadingQuality = ReadingQualityImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()),channel,timeStamp);
+    					ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()),channel,timeStamp);
     					newReadingQuality.setComment(readingQuality.getComment());
     					toInsert.add(newReadingQuality);
     				}
@@ -281,16 +281,16 @@ public class MeterReadingStorer {
     		}
     	}
     	if (!toInsert.isEmpty()) {
-    		dataModel.mapper(ReadingQualityImpl.class).persist(toInsert);
+    		dataModel.mapper(ReadingQualityRecordImpl.class).persist(toInsert);
     	}
     	if (!toUpdate.isEmpty()) {
-    		dataModel.mapper(ReadingQualityImpl.class).update(toUpdate);
+    		dataModel.mapper(ReadingQualityRecordImpl.class).update(toUpdate);
     	}
     }
     
-    private Optional<ReadingQualityImpl> find(Date timeStamp, String typeCode, List<? extends ReadingQuality> candidates) {
+    private Optional<ReadingQualityRecordImpl> find(Date timeStamp, String typeCode, List<? extends ReadingQuality> candidates) {
     	for (ReadingQuality each : candidates) {
-    		ReadingQualityImpl readingQuality = (ReadingQualityImpl)  each;
+    		ReadingQualityRecordImpl readingQuality = (ReadingQualityRecordImpl)  each;
     		if (readingQuality.getReadingTimestamp().equals(timeStamp) && readingQuality.getTypeCode().equals(typeCode)) {
     			return Optional.of(readingQuality);
     		}

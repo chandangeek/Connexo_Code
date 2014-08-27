@@ -12,7 +12,7 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -130,7 +130,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
         return null;
     }
     
-    public List<? extends ReadingQuality> getReadingQualities() {
+    public List<? extends ReadingQualityRecord> getReadingQualities() {
     	return getChannel().findReadingQuality(getTimeStamp());
     }
 

@@ -39,7 +39,6 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Clock;
-import com.sun.org.apache.xerces.internal.impl.dv.xs.AnySimpleDV;
 
 
 @RunWith(MockitoJUnitRunner.class)

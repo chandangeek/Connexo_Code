@@ -12,7 +12,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -268,13 +268,13 @@ public final class ChannelImpl implements Channel {
 	}
 
     @Override
-    public ReadingQuality createReadingQuality(ReadingQualityType type, BaseReadingRecord baseReadingRecord) {
-        return ReadingQualityImpl.from(dataModel, type, this, baseReadingRecord);
+    public ReadingQualityRecord createReadingQuality(ReadingQualityType type, BaseReadingRecord baseReadingRecord) {
+        return ReadingQualityRecordImpl.from(dataModel, type, this, baseReadingRecord);
     }
 
     @Override
-    public ReadingQuality createReadingQuality(ReadingQualityType type, Date timestamp) {
-        return ReadingQualityImpl.from(dataModel, type, this, timestamp);
+    public ReadingQualityRecord createReadingQuality(ReadingQualityType type, Date timestamp) {
+        return ReadingQualityRecordImpl.from(dataModel, type, this, timestamp);
     }
 
     @Override
@@ -283,9 +283,9 @@ public final class ChannelImpl implements Channel {
     }
 
     @Override
-    public List<ReadingQuality> findReadingQuality(Interval interval) {
+    public List<ReadingQualityRecord> findReadingQuality(Interval interval) {
         Condition condition = inInterval(interval).and(ofThisChannel());
-        return dataModel.mapper(ReadingQuality.class).select(condition); 
+        return dataModel.mapper(ReadingQualityRecord.class).select(condition); 
     }
 
     private Condition inInterval(Interval interval) {        
@@ -297,9 +297,9 @@ public final class ChannelImpl implements Channel {
     }
 
     @Override
-    public Optional<ReadingQuality> findReadingQuality(ReadingQualityType type, Date timestamp) {
+    public Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Date timestamp) {
         Condition condition = ofThisChannel().and(withTimestamp(timestamp));
-        List<ReadingQuality> list = dataModel.mapper(ReadingQuality.class).select(condition);
+        List<ReadingQualityRecord> list = dataModel.mapper(ReadingQualityRecord.class).select(condition);
         return FluentIterable.from(list).first();
     }
 
@@ -308,15 +308,15 @@ public final class ChannelImpl implements Channel {
     }
 
     @Override
-    public List<ReadingQuality> findReadingQuality(ReadingQualityType type, Interval interval) {
+    public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Interval interval) {
         Condition ofTypeAndInInterval = inInterval(interval).and(Operator.EQUAL.compare("typeCode", type.getCode()));
-        return dataModel.mapper(ReadingQuality.class).select(ofTypeAndInInterval,Order.ascending("readingTimestamp"));
+        return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval,Order.ascending("readingTimestamp"));
     }
 
     @Override
-    public List<ReadingQuality> findReadingQuality(Date timestamp) {
+    public List<ReadingQualityRecord> findReadingQuality(Date timestamp) {
         Condition atTimestamp = withTimestamp(timestamp);
-        return dataModel.mapper(ReadingQuality.class).select(atTimestamp, Order.ascending("readingTimestamp"));
+        return dataModel.mapper(ReadingQualityRecord.class).select(atTimestamp, Order.ascending("readingTimestamp"));
     }
 
     @Override

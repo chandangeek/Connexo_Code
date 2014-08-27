@@ -11,7 +11,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
@@ -146,7 +146,7 @@ public class ReadingQualityImplIT {
             @Override
             protected void doPerform() {
                 Date date = new DateMidnight(2001, 1, 1).toDate();
-                ReadingQuality readingQuality = doTest(getMeteringService(), date);
+                ReadingQualityRecord readingQuality = doTest(getMeteringService(), date);
 
                 when(topicHandler.getClasses()).thenReturn(new Class[]{LocalEventImpl.class});
                 ((PublisherImpl) injector.getInstance(Publisher.class)).addHandler(topicHandler);
@@ -175,7 +175,7 @@ public class ReadingQualityImplIT {
         return injector.getInstance(TransactionService.class);
     }
 
-    private ReadingQuality doTest(MeteringService meteringService, Date date) {
+    private ReadingQualityRecord doTest(MeteringService meteringService, Date date) {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
         usagePoint.save();
@@ -186,7 +186,7 @@ public class ReadingQualityImplIT {
         regularStorer.addIntervalReading(channel, date, ProfileStatus.of(), BigDecimal.valueOf(561561, 2));
         regularStorer.execute();
         BaseReadingRecord reading = channel.getReading(date).get();
-        ReadingQuality readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), reading);
+        ReadingQualityRecord readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), reading);
         readingQuality.save();
         return readingQuality;
     }

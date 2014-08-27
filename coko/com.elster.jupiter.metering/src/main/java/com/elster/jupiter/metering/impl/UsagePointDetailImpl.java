@@ -1,9 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
+import static com.google.common.base.Objects.toStringHelper;
+
+import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
+
+import javax.inject.Inject;
+
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -11,14 +19,6 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
-
-import javax.inject.Inject;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import static com.google.common.base.Objects.toStringHelper;
 
 public abstract class UsagePointDetailImpl implements UsagePointDetail {
 

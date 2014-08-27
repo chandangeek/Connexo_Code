@@ -24,14 +24,14 @@ public interface Channel {
     List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Interval interval);
     List<BaseReadingRecord> getReadings(ReadingType readingType, Interval interval);
     Optional<BaseReadingRecord> getReading(Date when);
-    ReadingQuality createReadingQuality(ReadingQualityType type, BaseReadingRecord baseReadingRecord);
-    ReadingQuality createReadingQuality(ReadingQualityType type, Date timestamp);
+    ReadingQualityRecord createReadingQuality(ReadingQualityType type, BaseReadingRecord baseReadingRecord);
+    ReadingQualityRecord createReadingQuality(ReadingQualityType type, Date timestamp);
 
-    Optional<ReadingQuality> findReadingQuality(ReadingQualityType type, Date timestamp);
-    List<ReadingQuality> findReadingQuality(ReadingQualityType type, Interval interval);
+    Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Date timestamp);
+    List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Interval interval);
 
-    List<ReadingQuality> findReadingQuality(Date timestamp);
-    List<ReadingQuality> findReadingQuality(Interval interval);
+    List<ReadingQualityRecord> findReadingQuality(Date timestamp);
+    List<ReadingQualityRecord> findReadingQuality(Interval interval);
 
     boolean isRegular();
     List<BaseReadingRecord> getReadingsBefore(Date when, int readingCount);

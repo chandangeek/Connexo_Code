@@ -272,8 +272,8 @@ public enum TableSpecs {
     MTR_READINGQUALITY {
         @Override
         void addTo(DataModel dataModel) {
-			Table<ReadingQuality> table = dataModel.addTable(name(),ReadingQuality.class);
-            table.map(ReadingQualityImpl.class);
+			Table<ReadingQualityRecord> table = dataModel.addTable(name(),ReadingQualityRecord.class);
+            table.map(ReadingQualityRecordImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).map("channelId").add();
             Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("readingTimestamp").add();
