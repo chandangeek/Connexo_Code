@@ -1,18 +1,17 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.ReadingQuality;
+
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
-
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
-
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

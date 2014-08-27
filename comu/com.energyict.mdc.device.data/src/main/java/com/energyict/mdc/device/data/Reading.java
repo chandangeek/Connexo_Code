@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingType;
 
 import java.math.BigDecimal;
