@@ -1,38 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsServiceImpl;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.metering.impl.MeteringServiceImpl;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -54,21 +21,51 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.services.*;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -76,6 +73,11 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,27 +88,21 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceGroupTest {
 
-    static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
+    private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
 
     private static final String ED_MRID = " ( ";
     private Injector injector;
-    private InMemoryBootstrapModule bootstrapModule;
 
-    static final String DEVICE_TYPE_NAME = "DeviceTypeName";
-    protected static InMemoryIntegrationPersistence inMemoryPersistence;
+    private static final String DEVICE_TYPE_NAME = "DeviceTypeName";
 
     @Mock
-    DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-
+    private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
-    DeviceProtocol deviceProtocol;
-
-
+    private DeviceProtocol deviceProtocol;
     @Mock
-    private Principal principal;
+    private static Principal principal;
     @Mock
     private Thesaurus thesaurus;
-
     @Mock
     private BundleContext bundleContext;
     @Mock
@@ -138,10 +134,7 @@ public class DeviceGroupTest {
     @Mock
     private SecurityPropertyService securityPropertyService;
 
-
-
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
 
     private class MockModule extends AbstractModule {
 
@@ -168,10 +161,10 @@ public class DeviceGroupTest {
     @Before
     public void setUp() throws SQLException {
         when(principal.getName()).thenReturn("Ernie");
-        this.bootstrapModule = new InMemoryBootstrapModule();
+        this.inMemoryBootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new ThreadSecurityModule(this.principal),
-                this.bootstrapModule,
+                this.inMemoryBootstrapModule,
                 new OrmModule(),
                 new EventsModule(),
                 new PubSubModule(),
@@ -208,9 +201,9 @@ public class DeviceGroupTest {
                 injector.getInstance(DeviceDataServiceImpl.class);
                 injector.getInstance(SecurityPropertyServiceImpl.class);
 
-                MeteringGroupsService meteringGroupsService = (MeteringGroupsServiceImpl) injector.getInstance(MeteringGroupsService.class);
-                MeteringService meteringService = (MeteringServiceImpl) injector.getInstance(MeteringService.class);
-                DeviceDataService deviceDataService = (DeviceDataServiceImpl) injector.getInstance(DeviceDataServiceImpl.class);
+                MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+                MeteringService meteringService = injector.getInstance(MeteringService.class);
+                DeviceDataService deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
 
                 DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
                 endDeviceQueryProvider.setMeteringService(meteringService);
@@ -223,6 +216,18 @@ public class DeviceGroupTest {
 
     }
 
+    @Before
+    public void initializeMocks() {
+        when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+        when(authenticationAccessLevel.getId()).thenReturn(0);
+        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
+        EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        when(encryptionAccessLevel.getId()).thenReturn(0);
+        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
+    }
+
     @After
     public void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();
@@ -230,8 +235,8 @@ public class DeviceGroupTest {
 
     @Test
     public void testPersistence() {
-        EndDevice endDevice = null;
-        try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        EndDevice endDevice;
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
 
             DeviceDataService deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
@@ -266,15 +271,6 @@ public class DeviceGroupTest {
         assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
     }
 
-    private Condition createMultipleConditions(String params, String conditionField) {
-        Condition condition = Condition.FALSE;
-        String[] values = params.split(",");
-        for (String value : values) {
-            condition = condition.or(where(conditionField).isEqualTo(value.trim()));
-        }
-        return condition;
-    }
-
     private DeviceConfiguration getDeviceConfiguration() {
         DeviceType deviceType = injector.getInstance(DeviceConfigurationService.class).newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("DeviceConfiguration");
@@ -283,18 +279,6 @@ public class DeviceGroupTest {
         deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
-    }
-
-    @Before
-    public void initializeMocks() {
-        when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
-        when(authenticationAccessLevel.getId()).thenReturn(0);
-        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
-        EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
-        when(encryptionAccessLevel.getId()).thenReturn(0);
-        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
     }
 
 }
