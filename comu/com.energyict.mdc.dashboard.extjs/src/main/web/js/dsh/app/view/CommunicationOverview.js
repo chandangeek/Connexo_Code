@@ -56,6 +56,7 @@ Ext.define('Dsh.view.CommunicationOverview', {
                     },
                     {
                         xtype: 'communication-servers',
+                        itemId: 'communication-servers',
                         router: me.router,
                         flex: 1,
                         style: {

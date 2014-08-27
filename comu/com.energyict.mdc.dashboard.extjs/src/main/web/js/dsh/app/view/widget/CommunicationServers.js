@@ -1,7 +1,6 @@
 Ext.define('Dsh.view.widget.CommunicationServers', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.communication-servers',
-    itemId: 'communication-servers',
     initComponent: function () {
         var router = this.router;
         this.items = [
