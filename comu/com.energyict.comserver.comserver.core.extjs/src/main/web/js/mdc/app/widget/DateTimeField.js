@@ -68,13 +68,15 @@ Ext.define('Mdc.widget.DateTimeField', {
 //                },
                 maxValue: 23,
                 minValue: 0,
+                allowDecimals: false,
                 submitValue: false,
                 margin: '0 5 0 0',
                 listeners: {
                     change: {
                         fn: me.onItemChange,
                         scope: me
-                    }
+                    },
+                    blur: me.numberFieldValidation
                 }
             }, me.hourCfg),
             Ext.apply({
@@ -93,19 +95,30 @@ Ext.define('Mdc.widget.DateTimeField', {
 //                },
                 maxValue: 59,
                 minValue: 0,
+                allowDecimals: false,
                 submitValue: false,
                 margin: '0 5 0 0',
                 listeners: {
                     change: {
                         fn: me.onItemChange,
                         scope: me
-                    }
+                    },
+                    blur: me.numberFieldValidation
                 }
             }, me.minuteCfg)
 
         ]
     },
 
+    numberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if(Ext.isEmpty(value) || value < field.minValue) {
+            field.setValue(field.minValue);
+        } else if (value > field.maxValue) {
+            field.setValue(field.maxValue);
+        }
+    },
 
     getValue: function () {
         if(this.dateField.getValue()!== null &&  this.dateField.getValue()!== undefined){

@@ -74,14 +74,9 @@ Ext.define('Mdc.widget.ScheduleField', {
                 submitValue: false,
                 width: 70,
                 minValue: 1,
+                allowDecimals: false,
                 listeners: {
-                    blur: {
-                        fn: function(field){
-                            if(Ext.isEmpty(field.getValue())) {
-                                field.setValue(1);
-                            }
-                        }
-                    },
+                    blur: me.numberFieldValidation,
                     change: {
                         fn: me.onItemChange,
                         scope: me
@@ -198,14 +193,9 @@ Ext.define('Mdc.widget.ScheduleField', {
                 itemId: 'hourField',
                 maxValue: 23,
                 minValue: 0,
+                allowDecimals: false,
                 listeners: {
-                    blur: {
-                        fn: function(field){
-                            if(Ext.isEmpty(field.getValue())) {
-                                field.setValue(0);
-                            }
-                        }
-                    },
+                    blur: me.numberFieldValidation,
                     change: {
                         fn: me.onItemChange,
                         scope: me
@@ -219,14 +209,9 @@ Ext.define('Mdc.widget.ScheduleField', {
                 itemId: 'minuteField',
                 maxValue: 59,
                 minValue: 0,
+                allowDecimals: false,
                 listeners: {
-                    blur: {
-                        fn: function(field){
-                            if(Ext.isEmpty(field.getValue())) {
-                                field.setValue(0);
-                            }
-                        }
-                    },
+                    blur: me.numberFieldValidation,
                     change: {
                         fn: me.onItemChange,
                         scope: me
@@ -248,14 +233,9 @@ Ext.define('Mdc.widget.ScheduleField', {
                 itemId: 'secondField',
                 maxValue: 59,
                 minValue: 0,
+                allowDecimals: false,
                 listeners: {
-                    blur: {
-                        fn: function(field){
-                            if(Ext.isEmpty(field.getValue())) {
-                                field.setValue(0);
-                            }
-                        }
-                    },
+                    blur: me.numberFieldValidation,
                     change: {
                         fn: me.onItemChange,
                         scope: me
@@ -274,6 +254,16 @@ Ext.define('Mdc.widget.ScheduleField', {
             })
 
         ]
+    },
+
+    numberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if(Ext.isEmpty(value) || value < field.minValue) {
+            field.setValue(field.minValue);
+        } else if (value > field.maxValue) {
+            field.setValue(field.maxValue);
+        }
     },
 
     adjustOffsetGui:function(newValue){
