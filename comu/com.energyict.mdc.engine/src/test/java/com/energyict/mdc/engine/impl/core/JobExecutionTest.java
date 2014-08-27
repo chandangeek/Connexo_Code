@@ -51,6 +51,9 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.protocols.mdc.channels.VoidComChannel;
 import com.google.common.base.Optional;
@@ -68,6 +71,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -139,6 +143,10 @@ public class JobExecutionTest {
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     private EventPublisherImpl eventPublisher;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Thesaurus thesaurus;
 
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private IssueService issueService = new FakeIssueService();
@@ -146,11 +154,14 @@ public class JobExecutionTest {
     private CommandRootImpl root2;
 
     public void setupServiceProvider () {
+        when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
+        when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setTransactionService(new FakeTransactionService());
         this.serviceProvider.setDeviceDataService(this.deviceDataService);
         this.serviceProvider.setEngineService(this.engineService);
         this.serviceProvider.setDeviceConfigurationService(this.deviceConfigurationService);
+        this.serviceProvider.setNlsService(this.nlsService);
         this.serviceProvider.setClock(this.clock);
         ServiceProvider.instance.set(this.serviceProvider);
     }

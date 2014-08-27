@@ -34,6 +34,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.time.Clock;
@@ -62,6 +63,8 @@ public final class ExecutionContext implements JournalEntryFactory {
     public interface ServiceProvider {
 
         public Clock clock();
+
+        public NlsService nlsService();
 
         public IssueService issueService();
 
@@ -418,9 +421,15 @@ public final class ExecutionContext implements JournalEntryFactory {
             this.comPortRelatedComChannel.logRemainingBytes();
         }
         if (this.currentTaskExecutionBuilder != null) { // Check if the failure occurred in the context of an executing ComTask
-            if (!ComServerRuntimeException.class.isAssignableFrom(t.getClass())) {
-                currentTaskExecutionBuilder.addComCommandJournalEntry(now(), CompletionCode.UnexpectedError, t.getLocalizedMessage(), "General");
-            }// else the task will be logged, next task can be executed
+            String translated;
+            if (t instanceof ComServerRuntimeException) {
+                ComServerRuntimeException comServerRuntimeException = (ComServerRuntimeException) t;
+                translated = comServerRuntimeException.translated(this.serviceProvider.nlsService());
+            }
+            else {
+                translated = t.getLocalizedMessage();
+            }
+            currentTaskExecutionBuilder.addComCommandJournalEntry(now(), CompletionCode.UnexpectedError, translated, "General");
         }
     }
 

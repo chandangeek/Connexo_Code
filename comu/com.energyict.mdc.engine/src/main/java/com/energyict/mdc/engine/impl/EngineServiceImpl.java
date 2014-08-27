@@ -72,6 +72,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialComponentService;
+    private volatile NlsService nlsService;
 
     public EngineServiceImpl() {
     }
@@ -188,6 +189,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
@@ -298,6 +300,11 @@ public class EngineServiceImpl implements EngineService, InstallService {
         @Override
         public EngineService engineService() {
             return EngineServiceImpl.this;
+        }
+
+        @Override
+        public NlsService nlsService() {
+            return nlsService;
         }
 
         @Override

@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -43,6 +44,7 @@ public class FakeServiceProvider
     private EventService eventService;
     private TransactionService transactionService;
     private Clock clock;
+    private NlsService nlsService;
     private IssueService issueService;
     private HexService hexService;
     private DeviceDataService deviceDataService;
@@ -73,6 +75,14 @@ public class FakeServiceProvider
     @Override
     public Clock clock() {
         return clock;
+    }
+
+    public NlsService nlsService() {
+        return nlsService;
+    }
+
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
     }
 
     @Override
