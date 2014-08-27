@@ -160,11 +160,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
      */
     radioGroupName: 'selectedGroupType-' + new Date().getTime() * Math.random(),
 
-    /**
-     * @cfg bottomToolbarHidden
-     */
-    bottomToolbarHidden: false,
-
     initComponent: function () {
         var me = this;
 
@@ -247,19 +242,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
             me.hideBottomToolbar();
         }
 
-        me.store.on('afterrender', me.onChangeSelectionGroupType, me, {
-            single: true
-        });
-
-//        me.getView().on('beforerefresh', function () {
-//            var records = me.getView().getViewRange();
-//            return typeof records !== 'undefined';
-//        });
-
-        me.store.on('load', me.onSelectDefaultGroupType, me, {
-            single: true
-        });
-
         me.store.on('bulkremove', me.onLoad, me);
         me.store.on('remove', me.onLoad, me);
         me.store.on('clear', me.onLoad, me);
@@ -276,70 +258,11 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.onLoad(me.store);
     },
 
-    onSelectDefaultGroupType: function () {
-        var me = this,
-            value = {};
-
-        if (me.rendered) {
-            value[me.radioGroupName] = me.allChosenByDefault ? me.allInputValue : me.selectedInputValue;
-            me.getSelectionGroupType().setValue(value);
-            me.getSelectionGroupType().fireEvent('change');
-        }
-
-        me.onChangeSelectionGroupType();
-    },
-
     onChangeSelectionGroupType: function (radiogroup, value) {
         var me = this,
             selection = me.view.getSelectionModel().getSelection();
 
         me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
-        me.getView().setDisabled(me.isAllSelected());
-//        me.setGridVisible(!me.isAllSelected());
-    },
-
-    setGridVisible: function (visible) {
-        var me = this,
-            gridHeight = me.gridHeight,
-            gridHeaderHeight = me.gridHeaderHeight,
-            currentGridHeight,
-            currentGridHeaderHeight,
-            noBorderCls = 'force-no-border';
-
-        me.getTopToolbarContainer().setVisible(visible);
-
-        if (me.rendered) {
-            currentGridHeight = me.getView().height;
-            currentGridHeaderHeight = me.headerCt.height;
-
-            if (!visible) {
-                gridHeight = 0;
-                gridHeaderHeight = 0;
-
-                me.addCls(noBorderCls);
-            } else {
-                me.removeCls(noBorderCls);
-            }
-
-            if (currentGridHeight !== 0 && currentGridHeaderHeight !== 0) {
-                me.gridHeight = currentGridHeight;
-                me.gridHeaderHeight = currentGridHeaderHeight;
-            }
-
-            if (typeof gridHeight === 'undefined') {
-                var row = me.getView().getNode(0),
-                    rowElement = Ext.get(row);
-
-                if (rowElement !== null) {
-                    var count = me.store.getCount() > 10 ? 10 : me.store.getCount();
-                    gridHeight = count * rowElement.getHeight();
-                }
-            }
-
-            me.getView().height = gridHeight;
-            me.headerCt.height = gridHeaderHeight;
-            me.doLayout();
-        }
     },
 
     onClickAddButton: function () {
