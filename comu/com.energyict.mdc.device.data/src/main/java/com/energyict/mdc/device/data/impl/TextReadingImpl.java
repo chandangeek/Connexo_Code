@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.data.TextReading;
 
-import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingRecord;
 
 import java.util.List;

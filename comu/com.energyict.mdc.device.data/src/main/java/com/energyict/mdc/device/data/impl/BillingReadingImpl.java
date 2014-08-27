@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.data.BillingReading;
 
-import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
