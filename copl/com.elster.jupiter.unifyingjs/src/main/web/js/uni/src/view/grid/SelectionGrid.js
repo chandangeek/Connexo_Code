@@ -27,18 +27,17 @@ Ext.define('Uni.view.grid.SelectionGrid', {
             leadingBufferZone: 5,
             scrollToLoadBuffer: 10,
             onViewResize: function (view, width, height, oldWidth, oldHeight) {
-                if (height === 0 || oldHeight === 0) {
+                if (!oldHeight || height !== oldHeight) {
                     var me = this,
-                        count = view.all.getCount(),
-                        newHeight = count * me.rowHeight;
-
-                    if (count > 10) {
-                        newHeight = 10 * me.rowHeight;
+                        newViewSize,
+                        scrollRange;
+                    if (view.all.getCount()) {
+                        delete me.rowHeight;
                     }
-
-                    if (view.getHeight() !== 0 && view.getHeight() !== newHeight) {
-                        view.setHeight(newHeight);
-                    }
+                    scrollRange = me.getScrollHeight();
+                    newViewSize = 18;
+                    me.viewSize = me.setViewSize(newViewSize);
+                    me.stretchView(view, scrollRange);
                 }
             }
         }

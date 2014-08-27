@@ -203,13 +203,15 @@ Ext.define('Uni.view.grid.BulkSelection', {
                     name: me.radioGroupName,
                     boxLabel: '<b>' + me.allLabel + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + me.allDescription + '</span>',
-                    inputValue: me.allInputValue
+                    inputValue: me.allInputValue,
+                    checked: me.allChosenByDefault
                 },
                 {
                     name: me.radioGroupName,
                     boxLabel: '<b>' + me.selectedLabel + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + me.selectedDescription + '</span>',
-                    inputValue: me.selectedInputValue
+                    inputValue: me.selectedInputValue,
+                    checked: !me.allChosenByDefault
                 }
             ]
         }, 0);
@@ -257,17 +259,12 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
     onSelectDefaultGroupType: function () {
         var me = this,
-            row = me.getView().getNode(0),
-            rowElement = Ext.get(row),
             value = {};
 
-        value[me.radioGroupName] = me.allChosenByDefault ? me.allInputValue : me.selectedInputValue;
-        me.getSelectionGroupType().setValue(value);
-
-        if (rowElement !== null) {
-            // Forces the view to update itself.
-            me.getView().setHeight(me.store.getCount() * rowElement.getHeight());
-            me.doLayout();
+        if (me.rendered) {
+            value[me.radioGroupName] = me.allChosenByDefault ? me.allInputValue : me.selectedInputValue;
+            me.getSelectionGroupType().setValue(value);
+            me.getSelectionGroupType().fireEvent('change');
         }
 
         me.onChangeSelectionGroupType();
@@ -314,7 +311,8 @@ Ext.define('Uni.view.grid.BulkSelection', {
                     rowElement = Ext.get(row);
 
                 if (rowElement !== null) {
-                    gridHeight = me.store.getCount() * rowElement.getHeight();
+                    var count = me.store.getCount() > 10 ? 10 : me.store.getCount();
+                    gridHeight = count * rowElement.getHeight();
                 }
             }
 
@@ -322,13 +320,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
             me.headerCt.height = gridHeaderHeight;
             me.doLayout();
         }
-    },
-
-    onClickUncheckAllButton: function (button) {
-        var me = this;
-
-        me.view.getSelectionModel().deselectAll();
-        button.setDisabled(true);
     },
 
     onClickAddButton: function () {
