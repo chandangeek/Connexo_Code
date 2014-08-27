@@ -16,13 +16,7 @@ import java.util.List;
 @Component(name = "com.elster.jupiter.metering.groups.impl.SimpleEndDeviceQueryProvider", service = {EndDeviceQueryProvider.class}, property = "name=" + MeteringGroupsService.COMPONENTNAME, immediate = true)
 public class SimpleEndDeviceQueryProvider implements EndDeviceQueryProvider {
 
-    private volatile MeteringGroupsService meteringGroupsService;
     private volatile MeteringService meteringService;
-
-    @Reference
-    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
-        this.meteringGroupsService = meteringGroupsService;
-    }
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {

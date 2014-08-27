@@ -36,7 +36,6 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     @Override
     public List<EndDevice> getMembers(Date date) {
         return meteringGroupService.getEndDeviceQueryProvider(getQueryProviderName()).findEndDevices(date, getCondition());
-        //return meteringService.getEndDeviceQuery().select(getCondition());
     }
 
     @Override
