@@ -159,9 +159,9 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY+"}", property = "temporalExpression")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY+"}", property = "nextExecutionSpecs.temporalExpression")
     public void testCanCreateWithoutTemporalExpression() throws Exception {
-        inMemoryPersistence.getSchedulingService().newComSchedule("nameX", null, null).build();
+        inMemoryPersistence.getSchedulingService().newComSchedule("nameX", null, new UtcInstant(System.currentTimeMillis())).build();
     }
 
     @Test
