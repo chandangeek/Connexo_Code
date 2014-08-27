@@ -75,9 +75,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
     extend: 'Uni.view.grid.SelectionGrid',
     xtype: 'bulk-selection-grid',
 
-    height: 620,
-    minHeight: 280,
-    bottomToolbarHeight: 27,
+    maxHeight: 600,
 
     /**
      * @cfg allLabel
@@ -159,6 +157,14 @@ Ext.define('Uni.view.grid.BulkSelection', {
      * @cfg radioGroupName
      */
     radioGroupName: 'selectedGroupType-' + new Date().getTime() * Math.random(),
+
+    /**
+     * @cfg bottomToolbarHidden
+     */
+    bottomToolbarHidden: false,
+
+    gridHeight: 0,
+    gridHeaderHeight: 0,
 
     initComponent: function () {
         var me = this;
@@ -242,20 +248,26 @@ Ext.define('Uni.view.grid.BulkSelection', {
             me.hideBottomToolbar();
         }
 
-        me.store.on('bulkremove', me.onLoad, me);
-        me.store.on('remove', me.onLoad, me);
-        me.store.on('clear', me.onLoad, me);
-        me.store.on('load', me.onLoad, me);
-
-        me.on('afterlayout', me.onLoad, me, {
+        me.store.on('afterrender', me.onChangeSelectionGroupType, me, {
             single: true
         });
 
-        me.on('afterrender', me.onLoad, me, {
+        me.store.on('load', me.onSelectDefaultGroupType, me, {
             single: true
         });
+    },
 
-        me.onLoad(me.store);
+    onSelectDefaultGroupType: function () {
+        var me = this,
+            value = {};
+
+        if (me.rendered) {
+            value[me.radioGroupName] = me.allChosenByDefault ? me.allInputValue : me.selectedInputValue;
+            me.getSelectionGroupType().setValue(value);
+            me.getSelectionGroupType().fireEvent('change');
+        }
+
+        me.onChangeSelectionGroupType();
     },
 
     onChangeSelectionGroupType: function (radiogroup, value) {
@@ -263,6 +275,51 @@ Ext.define('Uni.view.grid.BulkSelection', {
             selection = me.view.getSelectionModel().getSelection();
 
         me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
+        me.setGridVisible(!me.isAllSelected());
+    },
+
+    setGridVisible: function (visible) {
+        var me = this,
+            gridHeight = me.gridHeight,
+            gridHeaderHeight = me.gridHeaderHeight,
+            currentGridHeight,
+            currentGridHeaderHeight,
+            noBorderCls = 'force-no-border';
+
+        me.getTopToolbarContainer().setVisible(visible);
+
+        if (me.rendered) {
+            currentGridHeight = me.getView().height;
+            currentGridHeaderHeight = me.headerCt.height;
+
+            if (!visible) {
+                gridHeight = 0;
+                gridHeaderHeight = 0;
+
+                me.addCls(noBorderCls);
+            } else {
+                me.removeCls(noBorderCls);
+            }
+
+            if (currentGridHeight !== 0 && currentGridHeaderHeight !== 0) {
+                me.gridHeight = currentGridHeight;
+                me.gridHeaderHeight = currentGridHeaderHeight;
+            }
+
+            if (typeof gridHeight === 'undefined') {
+                var row = me.getView().getNode(0),
+                    rowElement = Ext.get(row);
+
+                if (rowElement !== null) {
+                    var count = me.store.getCount() > 10 ? 10 : me.store.getCount();
+                    gridHeight = count * rowElement.getHeight();
+                }
+            }
+
+            me.getView().height = gridHeight;
+            me.headerCt.height = gridHeaderHeight;
+            me.doLayout();
+        }
     },
 
     onClickAddButton: function () {
@@ -285,31 +342,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.getSelectionGroupType().setValue(value);
 
         me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
-    },
-
-    onLoad: function () {
-        var me = this,
-            count = me.store.getCount(),
-            newHeight = me.minHeight;
-
-        if (me.rendered) {
-            var row = me.getView().getNode(0),
-                rowElement = Ext.get(row);
-
-            if (rowElement !== null && typeof rowElement !== 'undefined') {
-                var rowHeight = rowElement.getComputedHeight();
-
-                newHeight += count > 10 ? 10 * rowHeight : count * rowHeight;
-
-                if (!me.getBottomToolbar().isVisible()) {
-                    newHeight -= me.bottomToolbarHeight;
-                }
-
-                me.setHeight(newHeight);
-            }
-
-            // TODO Hide the grid when 'all items' is selected.
-        }
     },
 
     isAllSelected: function () {
