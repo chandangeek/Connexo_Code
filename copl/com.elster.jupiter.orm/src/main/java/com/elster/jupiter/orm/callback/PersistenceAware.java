@@ -7,7 +7,7 @@ package com.elster.jupiter.orm.callback;
  *  In contrast to JPA, postLoad implementations can perform actions that trigger
  *  additional database queries.
  *  
- *  Mainly used for object using the orm.cache bundle, to make them thread safe  
+ *  Mainly used for cached objects to make them thread safe  
  *  and avoid lazy initialization of associated objects.
  *      
  */

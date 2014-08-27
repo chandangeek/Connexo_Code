@@ -340,11 +340,11 @@ public class TableImpl<T> implements Table<T> {
         List<TableImpl<?>> related = new ArrayList<>();
         addAllRelated(related);
         related.remove(0);
-        List<DataMapperImpl<?>> mappers = new ArrayList<>(related.size());
-        for (TableImpl<?> each : related) {
-            mappers.add(each.getDataMapper());
+        DataMapperImpl<?>[] mappers = new DataMapperImpl<?>[related.size()];
+        for (int i = 0 ; i < related.size() ; i++) {
+        	mappers[i] = related.get(i).getDataMapper();
         }
-        return getDataMapper(type).with(mappers.toArray(new DataMapperImpl<?>[mappers.size()]));
+        return getDataMapper(type).with(mappers);
     }
 
     public QueryExecutorImpl<T> getQuery() {
