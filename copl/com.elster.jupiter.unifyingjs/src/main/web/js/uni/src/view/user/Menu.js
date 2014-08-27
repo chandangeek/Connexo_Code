@@ -4,10 +4,9 @@
 Ext.define('Uni.view.user.Menu', {
     extend: 'Ext.button.Button',
     alias: 'widget.userMenu',
-//    glyph: 'xe004@icomoon',
     scale: 'small',
     cls: 'user-menu',
-    iconCls: 'icon-logout',
+    iconCls: 'icon-user',
 
     menu: [
         /*{

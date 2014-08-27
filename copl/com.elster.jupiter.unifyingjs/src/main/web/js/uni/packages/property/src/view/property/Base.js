@@ -105,7 +105,7 @@ Ext.define('Uni.property.view.property.Base', {
         var resetButtonHidden = this.resetButtonHidden;
         var button = this.getResetButton();
 
-        if (!resetButtonHidden) {
+        if (!resetButtonHidden && this.isEdit) {
             button.setTooltip(
                     Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
                     + ' &quot; ' + this.getProperty().get('default') + '&quot;'

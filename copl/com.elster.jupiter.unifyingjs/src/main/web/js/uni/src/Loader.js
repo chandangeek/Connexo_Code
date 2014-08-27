@@ -15,6 +15,7 @@ Ext.define('Uni.Loader', {
 
         'Uni.About',
         'Uni.I18n',
+        'Uni.Auth',
 
         'Uni.controller.Acknowledgements',
         'Uni.controller.Configuration',
@@ -38,6 +39,7 @@ Ext.define('Uni.Loader', {
         'Uni.override.StoreOverride',
         'Uni.override.GridPanelOverride',
         'Uni.override.FormOverride',
+        'Uni.override.form.field.ComboBox',
         'Uni.override.ModelOverride'
     ],
 
@@ -82,6 +84,7 @@ Ext.define('Uni.Loader', {
         Ext.require('Uni.store.AppItems');
         Ext.require('Uni.store.Notifications');
         Ext.require('Uni.store.Translations');
+        Ext.require('Uni.store.Privileges');
     },
 
     loadVtypes: function () {
@@ -131,8 +134,10 @@ Ext.define('Uni.Loader', {
     },
 
     afterLoadingScripts: function (callback) {
-        Uni.I18n.load(function () {
-            callback();
+        Uni.Auth.load(function () {
+            Uni.I18n.load(function () {
+                callback();
+            });
         });
     },
 
@@ -142,7 +147,7 @@ Ext.define('Uni.Loader', {
         fileref.setAttribute('type', 'text/css');
         fileref.setAttribute('href', href);
 
-        document.getElementsByTagName("head")[0].appendChild(fileref);
+        document.getElementsByTagName('head')[0].appendChild(fileref);
     }
 
 });
