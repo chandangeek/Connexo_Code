@@ -865,6 +865,22 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
                             action: 'showDeviceDataValidationMainView'
                         },
+                        communicationschedules: {
+                            title: 'Communication schedule',
+                            route: 'communicationschedules',
+                            controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
+                            action: 'showDeviceCommunicationScheduleView',
+                            items: {
+
+                                add: {
+                                    title: 'Add shared Communication schedules',
+                                    route: 'add',
+                                    controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
+                                    action: 'addSharedCommunicationSchedule'
+                                }
+
+                            }
+                        },
                         loadprofiles: {
                             title: 'Load profiles',
                             route: 'loadprofiles',

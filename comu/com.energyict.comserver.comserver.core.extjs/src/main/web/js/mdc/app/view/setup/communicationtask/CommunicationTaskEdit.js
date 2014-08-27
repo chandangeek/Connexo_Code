@@ -154,11 +154,12 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                         queryMode: 'local',
                         displayField: 'name',
                         valueField: 'id',
-                        emptyText: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Use the default protocol dialect'),
+                        emptyText: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Select the protocol dialect'),
                         forceSelection: true,
                         editable: false,
                         msgTarget: 'under',
-                        width: 600
+                        width: 600,
+                        required: true
                     },
                     {
                         xtype: 'numberfield',
