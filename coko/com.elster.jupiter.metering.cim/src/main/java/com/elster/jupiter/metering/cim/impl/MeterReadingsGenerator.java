@@ -8,11 +8,13 @@ import ch.iec.tc57._2011.meterreadings_.ObjectFactory;
 import ch.iec.tc57._2011.meterreadings_.Reading;
 import ch.iec.tc57._2011.meterreadings_.ReadingQuality;
 import ch.iec.tc57._2011.meterreadings_.UsagePoint;
+
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -63,11 +65,11 @@ public class MeterReadingsGenerator {
         }
     }
 
-    private List<com.elster.jupiter.metering.ReadingQuality> getValidationQualities(Channel channel, Interval interval) {
-        List<com.elster.jupiter.metering.ReadingQuality> qualities = channel.findReadingQuality(interval);
-        Collections.sort(qualities, new Comparator<com.elster.jupiter.metering.ReadingQuality>() {
+    private List<ReadingQualityRecord> getValidationQualities(Channel channel, Interval interval) {
+        List<com.elster.jupiter.metering.ReadingQualityRecord> qualities = channel.findReadingQuality(interval);
+        Collections.sort(qualities, new Comparator<com.elster.jupiter.metering.ReadingQualityRecord>() {
             @Override
-            public int compare(com.elster.jupiter.metering.ReadingQuality first, com.elster.jupiter.metering.ReadingQuality second) {
+            public int compare(com.elster.jupiter.metering.ReadingQualityRecord first, com.elster.jupiter.metering.ReadingQualityRecord second) {
                 return first.getTimestamp().compareTo(second.getTimestamp());
             }
         });
@@ -129,24 +131,24 @@ public class MeterReadingsGenerator {
         return channel.getRegisterReadings(interval);
     }
 
-    void addBaseReadings(MeterReading meterReading, List<? extends BaseReadingRecord> intervalReadings, List<com.elster.jupiter.metering.ReadingQuality> validationQualities) {
-        BinarySearch<Date, com.elster.jupiter.metering.ReadingQuality> binarySearch = binarySearchByTimestamp(validationQualities);
+    void addBaseReadings(MeterReading meterReading, List<? extends BaseReadingRecord> intervalReadings, List<com.elster.jupiter.metering.ReadingQualityRecord> validationQualities) {
+        BinarySearch<Date, com.elster.jupiter.metering.ReadingQualityRecord> binarySearch = binarySearchByTimestamp(validationQualities);
         for (BaseReadingRecord baseReading : intervalReadings) {
-            List<com.elster.jupiter.metering.ReadingQuality> relevantQualities = relevantQualities(baseReading, binarySearch);
+            List<com.elster.jupiter.metering.ReadingQualityRecord> relevantQualities = relevantQualities(baseReading, binarySearch);
             addReadingsPerReadingType(meterReading, baseReading, relevantQualities);
         }
     }
 
-    private BinarySearch<Date, com.elster.jupiter.metering.ReadingQuality> binarySearchByTimestamp(List<com.elster.jupiter.metering.ReadingQuality> validationQualities) {
-        return BinarySearch.in(validationQualities).using(new BinarySearch.Key<Date, com.elster.jupiter.metering.ReadingQuality>() {
+    private BinarySearch<Date, com.elster.jupiter.metering.ReadingQualityRecord> binarySearchByTimestamp(List<com.elster.jupiter.metering.ReadingQualityRecord> validationQualities) {
+        return BinarySearch.in(validationQualities).using(new BinarySearch.Key<Date, com.elster.jupiter.metering.ReadingQualityRecord>() {
                 @Override
-                public Date getKey(com.elster.jupiter.metering.ReadingQuality readingQuality) {
+                public Date getKey(com.elster.jupiter.metering.ReadingQualityRecord readingQuality) {
                     return readingQuality.getReadingTimestamp();
                 }
             });
     }
 
-    private List<com.elster.jupiter.metering.ReadingQuality> relevantQualities(BaseReadingRecord baseReading, BinarySearch<Date, com.elster.jupiter.metering.ReadingQuality> binarySearch) {
+    private List<com.elster.jupiter.metering.ReadingQualityRecord> relevantQualities(BaseReadingRecord baseReading, BinarySearch<Date, com.elster.jupiter.metering.ReadingQualityRecord> binarySearch) {
         int first = binarySearch.firstOccurrence(baseReading.getTimeStamp());
         if (first < 0) {
             return Collections.emptyList();
@@ -155,7 +157,7 @@ public class MeterReadingsGenerator {
         return binarySearch.getList().subList(first, last + 1);
     }
 
-    private void addReadingsPerReadingType(MeterReading meterReading, BaseReadingRecord baseReading, List<com.elster.jupiter.metering.ReadingQuality> relevantQualities) {
+    private void addReadingsPerReadingType(MeterReading meterReading, BaseReadingRecord baseReading, List<com.elster.jupiter.metering.ReadingQualityRecord> relevantQualities) {
         for (ReadingType readingType : FluentIterable.from(baseReading.getReadingTypes()).filter(filter)) {
             createReading(meterReading, baseReading, createReadingType(readingType), relevantQualities);
         }
@@ -178,7 +180,7 @@ public class MeterReadingsGenerator {
         return value;
     }
 
-    void createReading(MeterReading meterReading, BaseReading baseReading, Reading.ReadingType readingType, List<com.elster.jupiter.metering.ReadingQuality> relevantQualities) {
+    void createReading(MeterReading meterReading, BaseReading baseReading, Reading.ReadingType readingType, List<com.elster.jupiter.metering.ReadingQualityRecord> relevantQualities) {
         if (baseReading.getValue() == null) {
             return;
         }
@@ -198,7 +200,7 @@ public class MeterReadingsGenerator {
                 }
             }
         }
-        for (com.elster.jupiter.metering.ReadingQuality quality : relevantQualities) {
+        for (com.elster.jupiter.metering.ReadingQualityRecord quality : relevantQualities) {
             ReadingQuality readingQuality = payloadObjectFactory.createReadingQuality();
             ReadingQuality.ReadingQualityType readingQualityType = payloadObjectFactory.createReadingQualityReadingQualityType();
             readingQualityType.setRef(quality.getType().getCode());
