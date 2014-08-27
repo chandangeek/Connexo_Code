@@ -1,4 +1,4 @@
-package com.energyict.mdc.scheduling.rest.impl;
+package com.energyict.mdc.scheduling.rest;
 
 import com.energyict.mdc.tasks.ComTask;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;

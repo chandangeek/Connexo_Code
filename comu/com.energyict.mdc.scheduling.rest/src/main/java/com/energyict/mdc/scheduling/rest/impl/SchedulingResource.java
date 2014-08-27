@@ -5,11 +5,15 @@ import com.energyict.mdc.common.rest.IdListBuilder;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -31,13 +35,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Path("/schedules")
 public class SchedulingResource {
@@ -60,14 +58,61 @@ public class SchedulingResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getSchedules(@BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
+        String mrid = queryFilter.getFilterProperties().get("mrid");
+        String available = queryFilter.getFilterProperties().get("available");
+        List<ComSchedule> comSchedules = new ArrayList<>();
         Calendar calendar = Calendar.getInstance(clock.getTimeZone());
-        List<ComSchedule> comSchedules = schedulingService.findAllSchedules(calendar).from(queryParameters).find();
+        if(mrid!= null && "true".equalsIgnoreCase(available)){
+            Device device = deviceDataService.findByUniqueMrid(mrid);
+            List<ComSchedule> possibleComSchedules = schedulingService.findAllSchedules(calendar).from(queryParameters).find();
+            List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+            for(ComSchedule comSchedule:possibleComSchedules){
+                if(isValidComSchedule(comSchedule, comTaskExecutions,device.getDeviceConfiguration().getComTaskEnablements())){
+                    comSchedules.add(comSchedule);
+                }
+            }
+        } else {
+            comSchedules = schedulingService.findAllSchedules(calendar).from(queryParameters).find();
+        }
+
         List<ComScheduleInfo> comScheduleInfos = new ArrayList<>();
         for (ComSchedule comSchedule : comSchedules) {
             comScheduleInfos.add(ComScheduleInfo.from(comSchedule, isInUse(comSchedule)));
         }
-
         return PagedInfoList.asJson("schedules", comScheduleInfos, queryParameters);
+    }
+
+    private boolean isValidComSchedule(ComSchedule comSchedule, List<ComTaskExecution> comTaskExecutions, List<ComTaskEnablement> comTaskEnablements) {
+        Set<Long> allowedComTaskIds = getAllowedComTaskIds(comTaskEnablements);
+        Set<Long> alreadyAssignedComTaskIds = getAlreadyAssignedComTaskIds(comTaskExecutions);
+        Set<Long> toBeVerifiedComTaskIds = new HashSet<>();
+        for(ComTask comTaskFromSchedule : comSchedule.getComTasks()){
+            if(alreadyAssignedComTaskIds.contains(comTaskFromSchedule.getId())) {
+                return false;
+            }
+            toBeVerifiedComTaskIds.add(comTaskFromSchedule.getId());
+        }
+        return allowedComTaskIds.containsAll(toBeVerifiedComTaskIds);
+    }
+
+    private Set<Long> getAllowedComTaskIds(List<ComTaskEnablement> comTaskEnablements) {
+        Set<Long> allowedComTaskIds = new HashSet<>();
+        for(ComTaskEnablement comTaskEnablement: comTaskEnablements){
+            allowedComTaskIds.add(comTaskEnablement.getComTask().getId());
+        }
+        return allowedComTaskIds;
+    }
+
+    private Set<Long> getAlreadyAssignedComTaskIds(List<ComTaskExecution> comTaskExecutions) {
+        Set<Long> alreadyAssignedComTaskIds = new HashSet<>();
+        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+            if(!comTaskExecution.isAdHoc()){
+                for(ComTask comTask : comTaskExecution.getComTasks()){
+                    alreadyAssignedComTaskIds.add(comTask.getId());
+                }
+            }
+        }
+        return alreadyAssignedComTaskIds;
     }
 
     @GET
