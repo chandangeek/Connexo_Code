@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -181,7 +182,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
         ComScheduleBuilderImpl(String name, TemporalExpression temporalExpression, UtcInstant startDate) {
             instance = dataModel.getInstance(ComScheduleImpl.class);
-            instance.setName(name);
+            instance.setName(Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name);
             instance.setTemporalExpression(temporalExpression);
             instance.setSchedulingStatus(SchedulingStatus.ACTIVE);
             instance.setStartDate(startDate);

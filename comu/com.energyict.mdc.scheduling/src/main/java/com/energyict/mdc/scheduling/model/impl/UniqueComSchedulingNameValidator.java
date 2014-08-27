@@ -28,7 +28,7 @@ public class UniqueComSchedulingNameValidator implements ConstraintValidator<Uni
             return true;
         }
         for (ComSchedule comSchedule : schedulingService.findAllSchedules()) {
-            if (comSchedule.getName().equals(value.getName()) && comSchedule.getId()!=value.getId()) {
+            if (value.getName().equals(comSchedule.getName()) && comSchedule.getId()!=value.getId()) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message)
                         .addPropertyNode(ComScheduleImpl.Fields.NAME.fieldName())
