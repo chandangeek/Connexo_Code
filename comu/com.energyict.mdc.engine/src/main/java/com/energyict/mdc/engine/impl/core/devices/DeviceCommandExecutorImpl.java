@@ -7,7 +7,6 @@ import com.energyict.mdc.engine.impl.commands.store.FreeUnusedTokenDeviceCommand
 import com.energyict.mdc.engine.impl.commands.store.NoResourcesAcquiredException;
 import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ComServerThreadFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.model.ComServer;
 

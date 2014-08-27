@@ -105,7 +105,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logStartOfVerifySerialNumberCommand (ExecutionContext executionContext);
 
     private pointcut serialNumberMisMatch(DeviceProtocol deviceProtocol, ExecutionContext executionContext, String meterSerialNumber, String configuredSerialNumber):
-            call(* com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException.serialNumberMisMatch(java.lang.String, java.lang.String))
+            call(* com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException.serialNumberMisMatch(java.lang.String, java.lang.String, com.elster.jupiter.util.exception.MessageSeed))
          && args(meterSerialNumber, configuredSerialNumber)
          && cflowbelow(startVerifySerialNumberCommand(deviceProtocol, executionContext));
 
@@ -223,7 +223,7 @@ public abstract aspect AbstractComCommandLogging {
     protected abstract void logStartOfVerifyTimeDifferenceCommand (ExecutionContext executionContext);
 
     private pointcut timeDifferenceExceeded(DeviceProtocol deviceProtocol, ExecutionContext executionContext, long actualTimeDifference, long maximumTimeDifference):
-        call(* com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException.timeDifferenceExceeded(long, long))
+        call(* com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException.timeDifferenceExceeded(com.elster.jupiter.util.exception.MessageSeed, long, long))
             && args(actualTimeDifference, maximumTimeDifference)
             && cflowbelow(startVerifyTimeDifferenceCommand(deviceProtocol, executionContext));
 

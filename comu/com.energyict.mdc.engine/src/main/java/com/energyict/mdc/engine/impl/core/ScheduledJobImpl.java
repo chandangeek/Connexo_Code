@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -133,7 +134,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
                 this.getConnectionTask().disconnect(getExecutionContext().getComPortRelatedComChannel());
             }
             catch (ConnectionException e) {
-                throw new ConnectionFailureException(e);
+                throw new ConnectionFailureException(MessageSeeds.CONNECTION_FAILURE, e);
             }
         }
     }

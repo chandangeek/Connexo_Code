@@ -13,6 +13,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
@@ -192,7 +193,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         catch (ConnectionException e) {
             this.comPortRelatedComChannel = null;
             this.connectionFailed(e, this.connectionTask);
-            throw new ConnectionSetupException(e);
+            throw new ConnectionSetupException(MessageSeeds.CONNECTION_FAILURE, e);
         }
         finally {
             this.connecting.stop();

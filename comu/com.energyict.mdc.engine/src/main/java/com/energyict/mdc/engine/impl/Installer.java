@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl;
 
+import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
@@ -7,9 +10,6 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
-
-import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +45,8 @@ public class Installer {
         catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        createEventTypes();
-        createTranslations();
+        this.createEventTypes();
+        this.createTranslations();
     }
 
     private void createTranslations() {

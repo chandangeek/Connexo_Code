@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
 
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
@@ -47,7 +48,7 @@ public abstract aspect AbstractComPortDiscoveryLogging {
                 break;
             }
             default: {
-                throw CommunicationException.unsupportedDiscoveryResultType(resultType);
+                throw new CommunicationException(MessageSeeds.UNSUPPORTED_DISCOVERY_RESULT_TYPE, resultType);
             }
         }
     }

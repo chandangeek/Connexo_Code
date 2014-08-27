@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.protocols.mdc.services.SocketService;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.mdc.services.impl.SocketServiceImpl;
 
 import java.io.IOException;
@@ -154,8 +155,8 @@ public class UDPPortConnectorTest {
             // business method
             new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService);
         } catch (InboundCommunicationException e) {
-            if (!"CSC-COM-403".equalsIgnoreCase(e.getMessageId())) {
-                fail("Message should have indicated that their was an exception during the setup of the inbound call, but was " + e.getMessage());
+            if (!e.getMessageSeed().equals(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION)) {
+                fail("Message should have indicated that their was an exception during the setup of the inbound call, but was " + e.getMessageSeed());
             } else {
                 throw e;
             }
@@ -176,8 +177,8 @@ public class UDPPortConnectorTest {
             // Business method
             udpPortConnector.accept();
         } catch (InboundCommunicationException e) {
-            if (!"CSC-COM-403".equalsIgnoreCase(e.getMessageId())) {
-                fail("Message should have indicated that their was an exception during the setup of the inbound call, but was " + e.getMessage());
+            if (!e.getMessageSeed().equals(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION)) {
+                fail("Message should have indicated that their was an exception during the setup of the inbound call, but was " + e.getMessageSeed());
             } else {
                 throw e;
             }

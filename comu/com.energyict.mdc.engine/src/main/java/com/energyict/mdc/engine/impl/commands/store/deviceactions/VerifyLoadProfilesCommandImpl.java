@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
@@ -16,10 +17,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,7 +105,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                             addIssue(
                                     getIssueService().newProblem(
                                             loadProfileConfiguration.getObisCode(),
-// Todo: Move CommonExceptionReferences to MessageSeeds
+// Todo: Add to MessageSeeds
 // Environment.DEFAULT.get().getTranslation("unknownclocktasktype").replaceAll("'", "''"),
                                             "Loadprofile {0} is not supported by the device.",
                                             loadProfileConfiguration.getObisCode()),
@@ -141,30 +139,26 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     private void verifyLocalChannelConfiguration(LoadProfileReader loadProfileReader, CollectedLoadProfileConfiguration loadProfileConfiguration, ChannelInfo localChannelInfo) {
         ObisCode loadProfileConfigurationObisCode = loadProfileConfiguration.getObisCode();
         for (ChannelInfo meterChannelInfo : loadProfileConfiguration.getChannelInfos()) {
-            try {
-                if (match(localChannelInfo, meterChannelInfo)) {
-                    if (shouldRemove(localChannelInfo, meterChannelInfo)) {
-                        readersToRemove.add(loadProfileReader);
-                        addIssue(
-                                getIssueService().newProblem(
-                                        loadProfileConfigurationObisCode,
-// Todo: Move CommonExceptionReferences to MessageSeeds
+            if (match(localChannelInfo, meterChannelInfo)) {
+                if (shouldRemove(localChannelInfo, meterChannelInfo)) {
+                    readersToRemove.add(loadProfileReader);
+                    addIssue(
+                            getIssueService().newProblem(
+                                    loadProfileConfigurationObisCode,
+// Todo: Add to MessageSeeds
 // Environment.DEFAULT.get().getTranslation("loadprofileobiscodeXincorrectchannelunits").replaceAll("'", "''"),
-                                        "Channel unit mismatch: load profile in the meter with OBIS code '{0}' has a channel ({1}) with the unit '{2}', whilst the configured unit for that channel is '{3}'",
-                                        loadProfileConfigurationObisCode,
-                                        meterChannelInfo.getChannelObisCode(),
-                                        meterChannelInfo.getUnit(),
-                                        localChannelInfo.getUnit()),
-                                CompletionCode.ConfigurationError);
-                    }
+                                    "Channel unit mismatch: load profile in the meter with OBIS code '{0}' has a channel ({1}) with the unit '{2}', whilst the configured unit for that channel is '{3}'",
+                                    loadProfileConfigurationObisCode,
+                                    meterChannelInfo.getChannelObisCode(),
+                                    meterChannelInfo.getUnit(),
+                                    localChannelInfo.getUnit()),
+                            CompletionCode.ConfigurationError);
                 }
-            } catch (IOException e) {
-                throw DeviceConfigurationException.channelNameNotAnObisCode(meterChannelInfo.getName());
             }
         }
     }
 
-    private boolean match(ChannelInfo localChannelInfo, ChannelInfo meterChannelInfo) throws IOException {
+    private boolean match(ChannelInfo localChannelInfo, ChannelInfo meterChannelInfo) {
         return meterChannelInfo.getChannelObisCode().equalsIgnoreBChannel(localChannelInfo.getChannelObisCode())
                 && meterChannelInfo.getMeterIdentifier().equalsIgnoreCase(localChannelInfo.getMeterIdentifier());
     }
@@ -188,7 +182,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
             addIssue(
                     getIssueService().newProblem(
                             loadProfileConfiguration.getObisCode(),
-// Todo: Move CommonExceptionReferences to MessageSeeds
+// Todo: Add to MessageSeeds
 // Environment.DEFAULT.get().getTranslation("loadprofileobiscodeXincorrectinterval").replaceAll("'", "''"),
                             "Load profile interval mismatch; load profile with OBIS code '{0}' has a {1} second(s) interval on the device, while {2} second(s) is configured in eiMaster",
                             loadProfileConfiguration.getObisCode(),
@@ -211,7 +205,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                 addIssue(
                         getIssueService().newProblem(
                                 loadProfileConfiguration.getObisCode(),
-// Todo: Move CommonExceptionReferences to MessageSeeds
+// Todo: Add to MessageSeeds
 // Environment.DEFAULT.get().getTranslation("loadProfileObisCodeXIncorrectChannelNumbers").replaceAll("'", "''"),
                                 "Number of channels mismatch; load profile with OBIS code '{0}' has {1} channel(s) on the device, while there are {2} channel(s) in eiMaster",
                                 loadProfileConfiguration.getObisCode(),

@@ -3,11 +3,11 @@ package com.energyict.mdc.engine.exceptions;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
-import com.energyict.mdc.common.exceptions.ExceptionCode;
-import com.energyict.mdc.common.exceptions.ExceptionType;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
- * Models the exceptions related to the {@link ComCommand ComCommands}
+ * Models the exceptions related to {@link ComCommand}s.
  *
  * @author gna
  * @since 10/05/12 - 13:33
@@ -15,23 +15,13 @@ import com.energyict.mdc.common.exceptions.ExceptionType;
 public final class ComCommandException extends ComServerRuntimeException {
 
     /**
-     * Constructs a new ComServerRuntimeException identified by the {@link ExceptionCode}.
-     *
-     * @param code      The ExceptionCode
-     * @param arguments values identifying the exception
-     */
-    private ComCommandException(ExceptionCode code, Object... arguments) {
-        super(code, arguments);
-    }
-
-    /**
-     * Creates an Exception indicating that the given argument already exists in the CommandRoot
+     * Creates an Exception indicating that the given argument already exists in the CommandRoot.
      *
      * @param comCommand the {@link ComCommand} violating the uniqueness
      * @return the newly created exception
      */
-    public static ComCommandException uniqueCommandViolation(final ComCommand comCommand) {
-        return new ComCommandException(generateExceptionCodeByReference(ComServerExecutionExceptionReferences.COMMAND_NOT_UNIQUE), comCommand);
+    public static ComCommandException uniqueCommandViolation(ComCommand comCommand) {
+        return new ComCommandException(MessageSeeds.COMMAND_NOT_UNIQUE, comCommand);
     }
 
     /**
@@ -42,16 +32,11 @@ public final class ComCommandException extends ComServerRuntimeException {
      * @return the newly created exception
      */
     public static ComCommandException illegalCommand(final ComCommand comCommand, final DeviceProtocol deviceProtocol) {
-        return new ComCommandException(generateExceptionCodeByReference(ComServerExecutionExceptionReferences.ILLEGAL_COMMAND), comCommand, deviceProtocol);
+        return new ComCommandException(MessageSeeds.ILLEGAL_COMMAND, comCommand,deviceProtocol);
     }
 
-    /**
-     * Generate an <code>ExceptionCode</code> based on the given <code>ComServerExecutionExceptionReferences</code>
-     *
-     * @param reference the {@link ExceptionCode#reference reference} to use in the <code>ExceptionCode</code>
-     * @return the newly created <code>ExceptionCode</code>
-     */
-    private static ExceptionCode generateExceptionCodeByReference(ComServerExecutionExceptionReferences reference) {
-        return new ExceptionCode(ComServerExecutionReferenceScope.SINGLETON, ExceptionType.CODING, reference);
+    private ComCommandException(MessageSeed messageSeed, Object... arguments) {
+        super(messageSeed, arguments);
     }
+
 }

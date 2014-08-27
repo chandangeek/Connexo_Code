@@ -43,7 +43,7 @@ public class DeviceCacheImpl implements DeviceCache {
     private final Clock clock;
     private final ProtocolPluggableService protocolPluggableService;
     private byte[] simpleCache;
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_IS_REQUIRED_FOR_CACHE + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_IS_REQUIRED_FOR_CACHE + "}")
     private Reference<Device> device = ValueReference.absent();
 
     private Date modificationDate;

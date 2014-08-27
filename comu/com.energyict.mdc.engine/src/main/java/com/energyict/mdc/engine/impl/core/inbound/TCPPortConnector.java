@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.ComPort;
@@ -37,7 +38,7 @@ public class TCPPortConnector implements InboundComPortConnector {
             this.serverSocket = socketService.newTCPSocket(comPort.getPortNumber());
         }
         catch (IOException e) {
-            throw new InboundCommunicationException(e);
+            throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
         }
     }
 
@@ -48,7 +49,7 @@ public class TCPPortConnector implements InboundComPortConnector {
             return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket), this.hexService);
         }
         catch (IOException e) {
-            throw new InboundCommunicationException(e);
+            throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
         }
     }
 

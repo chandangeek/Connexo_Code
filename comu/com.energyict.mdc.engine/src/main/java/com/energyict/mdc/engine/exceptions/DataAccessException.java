@@ -1,9 +1,7 @@
 package com.energyict.mdc.engine.exceptions;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
-import com.energyict.mdc.common.exceptions.ExceptionCode;
-import com.energyict.mdc.common.exceptions.ExceptionType;
+
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -28,40 +26,28 @@ import java.util.concurrent.TimeoutException;
  */
 public class DataAccessException extends ComServerRuntimeException {
 
-    public DataAccessException (String message) {
-        super(exceptionCode(), message);
-    }
-
-    public DataAccessException (NotFoundException cause) {
-        super(cause, exceptionCode(), cause.getMessage());
-    }
-
     public DataAccessException (SQLException cause) {
-        super(cause, exceptionCode(), cause.getMessage());
+        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
     }
 
     public DataAccessException (JSONException cause) {
-        super(cause, exceptionCode(), cause.getMessage());
+        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
     }
 
     public DataAccessException (IOException cause) {
-        super(cause, exceptionCode(), cause.getMessage());
+        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
     }
 
     public DataAccessException (InterruptedException cause) {
-        super(cause, exceptionCode(), cause.getMessage());
+        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
     }
 
     public DataAccessException (ExecutionException cause) {
-        super(cause, exceptionCode(), cause.getMessage());
+        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
     }
 
     public DataAccessException (TimeoutException cause) {
-        super(cause, exceptionCode(), cause.getMessage());
-    }
-
-    private static ExceptionCode exceptionCode () {
-        return new ExceptionCode(ComServerPersistenceReferenceScope.SINGLETON, ExceptionType.SQL, ComServerPersistenceExceptionReferences.UNEXPECTED_SQL_ERROR);
+        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
     }
 
 }

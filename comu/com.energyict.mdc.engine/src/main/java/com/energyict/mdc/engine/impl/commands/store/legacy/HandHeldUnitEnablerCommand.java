@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.energyict.mdc.engine.exceptions.ComCommandException;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
@@ -46,7 +47,7 @@ public class HandHeldUnitEnablerCommand extends SimpleComCommand {
                     throw ComCommandException.illegalCommand(this, deviceProtocol);
                 }
             } catch (ConnectionException e) {
-                throw new CommunicationException(e);
+                throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
             }
         }
     }

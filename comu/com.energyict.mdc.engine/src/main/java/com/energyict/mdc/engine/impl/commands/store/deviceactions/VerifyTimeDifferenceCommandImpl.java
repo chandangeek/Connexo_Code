@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -51,13 +52,13 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
         if (Math.abs(this.timeDifference.getMilliSeconds()) > this.maximumClockDifference.getMilliSeconds()) {
             addIssue(getIssueService().newProblem(
                     getCommandType(),
-// Todo: Move CommonExceptionReferences to MessageSeeds
+// Todo: Add to MessageSeeds
 // Environment.DEFAULT.get().getTranslation("CSC-CONF-134").replaceAll("'", "''"),
                     "Time difference exceeds the configured maximum\\: The time difference ({0}) is larger than the configured allowed maximum ({1})",
                     this.timeDifference,
                     this.maximumClockDifference),
                     CompletionCode.TimeError);
-            throw DeviceConfigurationException.timeDifferenceExceeded(this.timeDifference.getMilliSeconds(), this.maximumClockDifference.getMilliSeconds());
+            throw DeviceConfigurationException.timeDifferenceExceeded(MessageSeeds.MAXIMUM_TIME_DIFFERENCE_EXCEEDED, this.timeDifference.getMilliSeconds(), this.maximumClockDifference.getMilliSeconds());
         }
     }
 

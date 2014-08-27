@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.protocols.mdc.channels.serial.SioSerialPort;
@@ -79,7 +81,7 @@ public class SerialPortConnector implements InboundComPortConnector {
     private void acceptCallAndConnect(ComChannel comChannel, AtModemComponent modemComponent) {
         modemComponent.write(comChannel, "ATA");
         if (!modemComponent.readAndVerify(comChannel, "CONNECT", comPort.getConnectTimeout().getMilliSeconds())) {
-            throw ModemException.couldNotEstablishConnection(comPort.getName(), comPort.getConnectTimeout().getMilliSeconds());
+            throw new ModemException(MessageSeeds.MODEM_COULD_NOT_ESTABLISH_CONNECTION, comPort.getName(), comPort.getConnectTimeout().getMilliSeconds());
         }
 
         modemComponent.initializeAfterConnect(comChannel);
@@ -131,9 +133,9 @@ public class SerialPortConnector implements InboundComPortConnector {
             serialPort.openAndInit();
             return serialComponentService.newSerialComChannel(serialPort);
         } catch (SerialPortException e) {
-            throw new CommunicationException((IOException) e.getCause());
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, (IOException) e.getCause());
         } catch (UnsatisfiedLinkError e) {
-            throw new CommunicationException(new NestedIOException(e));
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, new NestedIOException(e));
         }
     }
 

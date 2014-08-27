@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
@@ -31,7 +32,7 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
      * <b>Note:</b> this action will only perform once
      * <p>
      * The serialNumber will be read from the device and verified with the serialNumber from the HeadEnd.
-     * If the serialNumbers don't match, then a {@link DeviceConfigurationException#serialNumberMisMatch(String, String)} will be thrown.
+     * If the serialNumbers don't match, then a {@link DeviceConfigurationException} will be thrown.
      * </p>
      *
      * @param deviceProtocol the {@link DeviceProtocol} which will perform the actions
@@ -43,7 +44,7 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
             String meterSerialNumber = deviceProtocol.getSerialNumber();
             if (!meterSerialNumber.equals(offlineDevice.getSerialNumber())) {
                 addIssue(getIssueService().newProblem(getCommandType(), "CSC-CONF-112", meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
-                throw DeviceConfigurationException.serialNumberMisMatch(meterSerialNumber, offlineDevice.getSerialNumber());
+                throw DeviceConfigurationException.serialNumberMisMatch(meterSerialNumber, offlineDevice.getSerialNumber(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH);
             }
         }
         else {

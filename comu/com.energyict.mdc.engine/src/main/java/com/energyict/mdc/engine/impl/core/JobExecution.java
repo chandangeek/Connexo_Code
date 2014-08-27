@@ -20,6 +20,8 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.exceptions.UnknownDeviceMessageSpecClass;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -39,7 +41,8 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
+import com.energyict.mdc.protocol.api.exceptions.SerialNumberMismatchException;
+import com.energyict.mdc.protocol.api.exceptions.TimeDifferenceExceededException;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.tasks.BasicCheckTask;
@@ -297,14 +300,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private boolean checkWhetherAllNextComTasksShouldNotBeExecutedBasedonBasicCheckFailure(ComServerRuntimeException e) {
-        if (DeviceConfigurationException.class.isAssignableFrom(e.getClass())) {
-            switch (e.getMessageId()) {
-                case "CSC-CONF-112":
-                case "CSC-CONF-134":
-                    return true;
-            }
-        }
-        return false;
+        return e instanceof TimeDifferenceExceededException || e instanceof SerialNumberMismatchException;
     }
 
     /**

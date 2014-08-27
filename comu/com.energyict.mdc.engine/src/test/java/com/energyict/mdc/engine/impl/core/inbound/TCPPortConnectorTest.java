@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -91,7 +92,7 @@ public class TCPPortConnectorTest {
             new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService);
         }
         catch (InboundCommunicationException e) {
-            if (!e.getMessageId().equalsIgnoreCase("CSC-COM-403")) {
+            if (!e.getMessageSeed().equals(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION)) {
                 fail("Message should have indicated that their was an exception during the setup of the inbound call, but was " + e.getMessage());
             }
             else {
@@ -114,7 +115,7 @@ public class TCPPortConnectorTest {
             connector.accept();
         }
         catch (InboundCommunicationException e) {
-            if (!e.getMessageId().equalsIgnoreCase("CSC-COM-403")) {
+            if (!e.getMessageSeed().equals(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION)) {
                 fail("Message should have indicated that their was an exception during the setup of the inbound call, but was " + e.getMessage());
             }
             else {

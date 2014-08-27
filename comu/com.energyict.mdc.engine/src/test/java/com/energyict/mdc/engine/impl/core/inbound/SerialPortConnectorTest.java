@@ -18,6 +18,7 @@ import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
 import com.energyict.protocols.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import org.joda.time.DateTimeConstants;
 
 import java.io.IOException;
@@ -377,7 +378,7 @@ public class SerialPortConnectorTest {
         try {
             portConnector.accept();
         } catch (ModemException e) {
-            assertThat(e.getMessageId()).isEqualTo("PRA-COM-204");
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.MODEM_COULD_NOT_HANG_UP);
             long timeAfterConnect = System.currentTimeMillis();
             long connectTime = timeAfterConnect - timeBeforeConnect;
             long secs = connectTime / DateTimeConstants.MILLIS_PER_SECOND;

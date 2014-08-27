@@ -13,8 +13,31 @@ import java.util.logging.Level;
  */
 public enum MessageSeeds implements MessageSeed {
 
-    DEVICE_CACHE_SERIALIZATION(101, Constants.DEVICE_CACHE_NOT_SERIALIZABLE,"The device cache '{0}' could not be serialized", Level.SEVERE),
-    DEVICE_CACHE_DESERIALIZATION(102, Constants.DEVICE_CACHE_NOT_DESERIALIZABLE,"The device cache '{0}' could not be deserialized", Level.SEVERE),
+    DEVICE_CACHE_SERIALIZATION(101, Keys.DEVICE_CACHE_NOT_SERIALIZABLE, "The device cache '{0}' could not be serialized", Level.SEVERE),
+    DEVICE_CACHE_DESERIALIZATION(102, Keys.DEVICE_CACHE_NOT_DESERIALIZABLE, "The device cache '{0}' could not be deserialized", Level.SEVERE),
+    NO_RESOURCES_ACQUIRED(103, "noResourcesAcquired", "Client code ignored previous failure to allocate device command execution resources", Level.SEVERE),
+    COMMAND_NOT_UNIQUE(104, "commandNotUnique", "There is already a {0} command in the current Root", Level.SEVERE),
+    ILLEGAL_COMMAND(105, "illegalCommand", "The command {0} is not allowed for {1}", Level.SEVERE),
+    MBEAN_OBJECT_FORMAT(106, "mbeanObjectFormat", "MalformedObjectNameException for ComServer {0}", Level.SEVERE),
+    COMPOSITE_TYPE_CREATION(107, "compositeTypeCreation", "CompositeType creation failed for class {0}", Level.SEVERE),
+    COMPOSITE_DATA_CREATION(108, "compositeDataCreation", "CompositeDataSupport creation failed for class {0}", Level.SEVERE),
+    UNKNOWN_COMPOSITE_DATA_ITEM(109, "unknownCompositeDataItem", "Unknown composite data item {1} on class {0}", Level.SEVERE),
+    UNEXPECTED_SQL_ERROR(110, "unexpectedSqlError", "Unexpected SQL exception\\: {0}", Level.SEVERE),
+    METHOD_ARGUMENT_CAN_NOT_BE_NULL(111, "methodArgumentCannotBeNull", "A null value for the argument {2} of method {1} of class {0} is NOT supported", Level.SEVERE),
+    LOGGER_FACTORY_REQUIRES_INTERFACE(112, "loggerFactoryRequiresInterface", "Can only produce loggers for interface classes {0}", Level.SEVERE),
+    LOGGER_FACTORY_SUPPORTS_ONLY_ONE_THROWABLE_PARAMETER(113, "loggerFactorySupportOnly1ThrowableParameter", "Only one Throwable message parameter supported but method {0} has multiple", Level.SEVERE),
+    VALIDATION_FAILED(114, "validationFailed", "Validation for attribute {1} of class {0} has previously failed and is now causing the following exception", Level.SEVERE),
+    UNRECOGNIZED_ENUM_VALUE(115, "unrecognizedEnumValue", "No value found for ordinal {1} of enumeration class {0}", Level.SEVERE),
+    CONFIG_SERIAL_NUMBER_MISMATCH(116, "serialNumberMismatch", "SerialNumber mismatch; meter has {0}, while {1} is configured in EIServer", Level.SEVERE),
+    UNSUPPORTED_DISCOVERY_RESULT_TYPE(117, "unsupportedDiscoveryResultType", "Discovery Result type {0} is unknown, not supported or no longer supported", Level.SEVERE),
+    MAXIMUM_TIME_DIFFERENCE_EXCEEDED(118, "maxTimeDiffExceeded", "Time difference exceeds the configured maximum\\: The time difference ({0}) is larger than the configured allowed maximum ({1})", Level.SEVERE),
+    INCORRECT_NUMBER_OF_COMTASKS(119, "incorrectNbrOfComTasks", "Incorrect number of PreparedComTaskExecutions. Expected {0} but got {1}", Level.SEVERE),
+    SESSION_FOR_COMTASK_MISSING(120, "comTaskSessionMissing", "Expected session for ComTask {0} was not found in ComSessionShadow", Level.SEVERE),
+    CONNECTION_TIMEOUT(121, "connectionTimeout", "Communication timeout after {0} attempt(s)", Level.SEVERE),
+    CONNECTION_FAILURE(122, "connectionFailure", "Failure to connect to device", Level.SEVERE),
+    UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION(123, "unexpectedInboundCommException", "Unexpected inbound communication exception, see stacktrace for more details", Level.SEVERE),
+    UNEXPECTED_IO_EXCEPTION(124, "unexpectedIOException", "Exception occurred while communication with a device", Level.SEVERE),
+    MODEM_COULD_NOT_ESTABLISH_CONNECTION(125, "modemConnectError", "Failed to establish a connection between modem on COM port {0} and its receiver within timeout [{1} ms]", Level.SEVERE),
     ;
 
     private final int number;
@@ -54,13 +77,10 @@ public enum MessageSeeds implements MessageSeed {
         return EngineService.COMPONENTNAME;
     }
 
-    public static class Constants {
-        public static final String PHYSICAL_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.physical.gateway";
-        public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "DDC.device.delete.linked.communication.gateway";
+    public static class Keys {
         public static final String DEVICE_IS_REQUIRED_FOR_CACHE = "DDC.device.required";
         public static final String DEVICE_CACHE_NOT_SERIALIZABLE = "DDC.device.cache.not.serializable";
         public static final String DEVICE_CACHE_NOT_DESERIALIZABLE = "DDC.device.cache.not.deserializable";
-
     }
 
 }

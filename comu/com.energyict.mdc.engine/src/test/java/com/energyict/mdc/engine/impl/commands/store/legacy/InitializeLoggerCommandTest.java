@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.energyict.mdc.engine.exceptions.ComCommandException;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
@@ -106,7 +107,7 @@ public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
             // business method
             commandRoot.execute(deviceProtocol, executionContext);
         } catch (ComCommandException e) {
-            if (!"CSE-DEV-501".equalsIgnoreCase(e.getMessageId())) {
+            if (!e.getMessageSeed().equals(MessageSeeds.ILLEGAL_COMMAND)) {
                 throw e;
             }
         }
