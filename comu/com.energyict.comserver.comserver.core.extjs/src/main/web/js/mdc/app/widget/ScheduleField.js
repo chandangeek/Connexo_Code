@@ -81,6 +81,10 @@ Ext.define('Mdc.widget.ScheduleField', {
                                 field.setValue(1);
                             }
                         }
+                    },
+                    change: {
+                        fn: me.onItemChange,
+                        scope: me
                     }
                 }
             }, me.valueCfg),
@@ -109,6 +113,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                         fn: function(combo, newValue) {
                             me.clearOffsetValues();
                             me.adjustOffsetGui(newValue);
+                            me.onItemChange();
                         },
                         scope: me
                     }
@@ -145,7 +150,13 @@ Ext.define('Mdc.widget.ScheduleField', {
                 forceSelection: true,
                 editable: false,
                 hidden: true,
-                width: 100
+                width: 100,
+                listeners: {
+                    change: {
+                        fn: me.onItemChange,
+                        scope: me
+                    }
+                }
             }, me.unitCfg),
             Ext.apply({
                 xtype: 'combobox',
@@ -167,7 +178,13 @@ Ext.define('Mdc.widget.ScheduleField', {
                 forceSelection: true,
                 editable: false,
                 hidden: true,
-                width: 100
+                width: 100,
+                listeners: {
+                    change: {
+                        fn: me.onItemChange,
+                        scope: me
+                    }
+                }
             }, me.unitCfg),
             Ext.apply({
                 xtype: 'displayfield',
@@ -188,6 +205,10 @@ Ext.define('Mdc.widget.ScheduleField', {
                                 field.setValue(0);
                             }
                         }
+                    },
+                    change: {
+                        fn: me.onItemChange,
+                        scope: me
                     }
                 },
                 submitValue: false,
@@ -205,6 +226,10 @@ Ext.define('Mdc.widget.ScheduleField', {
                                 field.setValue(0);
                             }
                         }
+                    },
+                    change: {
+                        fn: me.onItemChange,
+                        scope: me
                     }
                 },
                 submitValue: false,
@@ -230,6 +255,10 @@ Ext.define('Mdc.widget.ScheduleField', {
                                 field.setValue(0);
                             }
                         }
+                    },
+                    change: {
+                        fn: me.onItemChange,
+                        scope: me
                     }
                 },
                 submitValue: false,
@@ -291,7 +320,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 me.hourField.show();
                 me.minuteField.show();
                 me.secondField.show();
-        };
+        }
     },
 
     clear: function(){
@@ -381,9 +410,15 @@ Ext.define('Mdc.widget.ScheduleField', {
     setValue: function (schedule) {
         var me = this;
 
+        me.eachItem(function (item) {
+            item.suspendEvent('change');
+        });
+
         if (schedule) {
             me.valueField.setValue(schedule.every.count);
             me.unitField.setValue(schedule.every.timeUnit);
+            me.clearOffsetValues();
+            me.adjustOffsetGui(schedule.every.timeUnit);
 
             var offSet = schedule.offset;
             me.clearOffsetValues();
@@ -419,6 +454,12 @@ Ext.define('Mdc.widget.ScheduleField', {
             }
             me.adjustOffsetGui(schedule.every.timeUnit);
         }
+
+        me.fireEvent('change', me, schedule);
+
+        me.eachItem(function (item) {
+            item.resumeEvent('change');
+        });
     },
 
     getSubmitData: function () {
@@ -443,5 +484,9 @@ Ext.define('Mdc.widget.ScheduleField', {
         if(this.items && this.items.each){
             this.items.each(fn, scope || this);
         }
+    },
+
+    onItemChange: function () {
+        this.fireEvent('change', this, this.getValue());
     }
 });

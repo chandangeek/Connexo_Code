@@ -43,7 +43,13 @@ Ext.define('Mdc.widget.DateTimeField', {
                 altFormats: 'd.m.Y|d m Y',
                 margin: '0 5 0 0',
                 required: true,
-                submitValue: false
+                submitValue: false,
+                listeners: {
+                    change: {
+                        fn: me.onItemChange,
+                        scope: me
+                    }
+                }
             },me.dateCfg),
             Ext.apply({
                 xtype: 'displayfield',
@@ -63,7 +69,13 @@ Ext.define('Mdc.widget.DateTimeField', {
                 maxValue: 23,
                 minValue: 0,
                 submitValue: false,
-                margin: '0 5 0 0'
+                margin: '0 5 0 0',
+                listeners: {
+                    change: {
+                        fn: me.onItemChange,
+                        scope: me
+                    }
+                }
             }, me.hourCfg),
             Ext.apply({
                 xtype: 'displayfield',
@@ -82,7 +94,13 @@ Ext.define('Mdc.widget.DateTimeField', {
                 maxValue: 59,
                 minValue: 0,
                 submitValue: false,
-                margin: '0 5 0 0'
+                margin: '0 5 0 0',
+                listeners: {
+                    change: {
+                        fn: me.onItemChange,
+                        scope: me
+                    }
+                }
             }, me.minuteCfg)
 
         ]
@@ -100,16 +118,30 @@ Ext.define('Mdc.widget.DateTimeField', {
     },
 
     setValue: function (value) {
+        var me = this,
+            date;
+
+        me.eachItem(function (item) {
+            item.suspendEvent('change');
+        });
+
         if(value !== undefined){
-            var date = new Date(value);
-            this.dateField.setValue(date);
-            this.hourField.setValue(date.getHours());
-            this.minuteField.setValue(date.getMinutes());
+            date = new Date(value);
+
+            me.dateField.setValue(date);
+            me.hourField.setValue(date.getHours());
+            me.minuteField.setValue(date.getMinutes());
         } else {
-            this.dateField.reset();
-            this.hourField.reset();
-            this.minuteField.reset();
+            me.dateField.reset();
+            me.hourField.reset();
+            me.minuteField.reset();
         }
+
+        me.fireEvent('change', me, value);
+
+        me.eachItem(function (item) {
+            item.resumeEvent('change');
+        });
     },
 
     getSubmitData: function () {
@@ -134,6 +166,10 @@ Ext.define('Mdc.widget.DateTimeField', {
         if(this.items && this.items.each){
             this.items.each(fn, scope || this);
         }
+    },
+
+    onItemChange: function () {
+        this.fireEvent('change', this, this.getValue());
     }
 });
 
