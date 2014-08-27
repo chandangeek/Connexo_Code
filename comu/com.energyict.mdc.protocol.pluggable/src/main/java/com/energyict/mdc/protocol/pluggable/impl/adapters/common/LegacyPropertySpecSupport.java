@@ -9,7 +9,7 @@ import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdw.cpo.PropertySpecBuilder;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
 import java.util.ArrayList;
 import java.util.List;
