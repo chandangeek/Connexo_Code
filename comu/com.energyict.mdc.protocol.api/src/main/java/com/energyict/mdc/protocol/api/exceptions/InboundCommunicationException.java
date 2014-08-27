@@ -1,9 +1,6 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
-import com.energyict.mdc.common.exceptions.CommonExceptionReferences;
-import com.energyict.mdc.common.exceptions.CommonReferenceScope;
-import com.energyict.mdc.common.exceptions.ExceptionCode;
-import com.energyict.mdc.common.exceptions.ExceptionType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.io.IOException;
 
@@ -22,11 +19,8 @@ public class InboundCommunicationException extends ComServerRuntimeException {
      *
      * @param cause the actual cause of the exception
      */
-    public InboundCommunicationException(IOException cause) {
-        super(cause, unexpectedIoExceptionCode());
+    public InboundCommunicationException(MessageSeed messageSeed, IOException cause) {
+        super(messageSeed, cause);
     }
 
-    private static ExceptionCode unexpectedIoExceptionCode () {
-        return new ExceptionCode(new CommonReferenceScope(), ExceptionType.COMMUNICATION, CommonExceptionReferences.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION);
-    }
 }

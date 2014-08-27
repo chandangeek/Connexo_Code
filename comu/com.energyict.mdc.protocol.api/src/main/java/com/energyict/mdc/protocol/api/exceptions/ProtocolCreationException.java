@@ -1,9 +1,6 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
-import com.energyict.mdc.common.exceptions.CommonExceptionReferences;
-import com.energyict.mdc.common.exceptions.CommonReferenceScope;
-import com.energyict.mdc.common.exceptions.ExceptionCode;
-import com.energyict.mdc.common.exceptions.ExceptionType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when a protocol
@@ -14,20 +11,12 @@ import com.energyict.mdc.common.exceptions.ExceptionType;
  */
 public class ProtocolCreationException extends ComServerRuntimeException {
 
-    public ProtocolCreationException(String javaClassName) {
-        super(genericReflectionErrorExceptionCode(), javaClassName);
+    public ProtocolCreationException(MessageSeed genericJavaReflectionErrorMessageSeed, String javaClassName) {
+        super(genericJavaReflectionErrorMessageSeed, javaClassName);
     }
 
-    public ProtocolCreationException(Class unsupportedLegacyClass) {
-        super(unsupportedLegacyClassExceptionCode(), unsupportedLegacyClass.getName());
-    }
-
-    private static ExceptionCode genericReflectionErrorExceptionCode(){
-        return new ExceptionCode(new CommonReferenceScope(), ExceptionType.CODING, CommonExceptionReferences.GENERIC_JAVA_REFLECTION_ERROR);
-    }
-
-    private static ExceptionCode unsupportedLegacyClassExceptionCode (){
-        return new ExceptionCode(new CommonReferenceScope(), ExceptionType.CODING, CommonExceptionReferences.UNSUPPORTED_LEGACY_PROTOCOL_TYPE);
+    public ProtocolCreationException(MessageSeed unsupportedLegacyClassMessageSeed, Class unsupportedLegacyClass) {
+        super(unsupportedLegacyClassMessageSeed, unsupportedLegacyClass.getName());
     }
 
 }

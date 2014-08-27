@@ -1,10 +1,8 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
-import com.energyict.mdc.common.exceptions.CommonExceptionReferences;
-import com.energyict.mdc.common.exceptions.CommonReferenceScope;
-import com.energyict.mdc.common.exceptions.ExceptionCode;
-import com.energyict.mdc.common.exceptions.ExceptionType;
 import com.energyict.mdc.protocol.api.ConnectionException;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Wraps a connectionException into a ConnectionSetupException.
@@ -16,11 +14,8 @@ import com.energyict.mdc.protocol.api.ConnectionException;
  */
 public class ConnectionSetupException extends CommunicationException {
 
-    public ConnectionSetupException(ConnectionException cause) {
-        super(cause, connectionSetupExceptionCode());
+    public ConnectionSetupException(MessageSeed messageSeed, ConnectionException cause) {
+        super(messageSeed, cause);
     }
 
-    private static ExceptionCode connectionSetupExceptionCode() {
-        return new ExceptionCode(new CommonReferenceScope(), ExceptionType.COMMUNICATION, CommonExceptionReferences.CONNECTION_SETUP_ERROR);
-    }
 }

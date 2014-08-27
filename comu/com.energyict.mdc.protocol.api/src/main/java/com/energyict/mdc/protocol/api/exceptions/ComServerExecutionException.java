@@ -8,7 +8,7 @@ package com.energyict.mdc.protocol.api.exceptions;
  * Date: 13/05/13
  * Time: 11:50
  */
-public class ComServerExecutionException extends RuntimeException{
+public class ComServerExecutionException extends RuntimeException {
 
     public ComServerExecutionException() {
         super();
@@ -25,4 +25,5 @@ public class ComServerExecutionException extends RuntimeException{
     public ComServerExecutionException(String s, Throwable cause) {
         super(s, cause);
     }
+
 }

@@ -1,10 +1,8 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
-import com.energyict.mdc.common.exceptions.CommonExceptionReferences;
-import com.energyict.mdc.common.exceptions.CommonReferenceScope;
-import com.energyict.mdc.common.exceptions.ExceptionCode;
-import com.energyict.mdc.common.exceptions.ExceptionType;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -18,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public class DataEncryptionException extends CommunicationException {
 
+
     /**
      * Throws a new DataEncryptionException that indicates
      * that encrypted data received from the @link com.energyict.mdw.core.Device device}
@@ -26,12 +25,12 @@ public class DataEncryptionException extends CommunicationException {
      *
      * @param deviceIdentifier The DeviceIdentifier
      */
-    public DataEncryptionException (DeviceIdentifier deviceIdentifier) {
-        super(new ExceptionCode(new CommonReferenceScope(), ExceptionType.COMMUNICATION, CommonExceptionReferences.SECURITY));
+    public DataEncryptionException (MessageSeed messageSeed, DeviceIdentifier deviceIdentifier) {
+        super(messageSeed, deviceIdentifier.toString());
     }
 
-    public DataEncryptionException (NoSuchAlgorithmException e) {
-        super(e, new ExceptionCode(new CommonReferenceScope(), ExceptionType.COMMUNICATION, CommonExceptionReferences.SECURITY));
+    public DataEncryptionException (MessageSeed messageSeed, NoSuchAlgorithmException e) {
+        super(messageSeed, e);
     }
 
 }

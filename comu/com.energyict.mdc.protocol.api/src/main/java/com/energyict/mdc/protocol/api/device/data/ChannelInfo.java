@@ -1,21 +1,21 @@
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
+import com.energyict.mdc.protocol.api.exceptions.ObisCodeParseException;
 
-import java.io.IOException;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.math.BigDecimal;
+import java.util.logging.Level;
 
 
 /**
- * <p/>
- * Contains information about a device logical channel
+ * Contains information about a device logical channel.
  *
  * @author Karel
- *         </p>
  */
 
 public class ChannelInfo implements java.io.Serializable {
@@ -244,7 +244,7 @@ public class ChannelInfo implements java.io.Serializable {
         try {
             return ObisCode.fromString(this.name);
         } catch (IllegalArgumentException e) {
-            throw new GeneralParseException(e);
+            throw new ObisCodeParseException(new ObisCodeParseMessageSeed(), e);
         }
     }
 
@@ -294,6 +294,57 @@ public class ChannelInfo implements java.io.Serializable {
         return "ChannelInfo -> Id: " + this.id + " - Name: " + this.name + " - Unit: " + this.unit;
     }
 
+    /**
+     * @param id   logical channel id (0 based, contrary to previous documentation all protocols use zero base)
+     * @param name logical channel name (use OBIS code if device uses OBIS codes)
+     * @param unit the logical channel unit
+     * @deprecated You are highly encouraged to use one of the following constructors instead:
+     * <ul>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, com.elster.jupiter.metering.ReadingType)}</li>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, boolean, com.elster.jupiter.metering.ReadingType)}</li>
+     * </ul>
+     */
+    public ChannelInfo(int id, String name, Unit unit) {
+        this.id = id;
+        this.channelId = id;
+        this.name = name;
+        this.unit = unit;
+    }
+
+    /**
+     * @param id         0-based channel id
+     * @param name       logical channel name (use OBIS code if device uses OBIS codes)
+     * @param unit       the logical channel unit
+     * @param scaler     unit scale
+     * @param channelId  logical channel id (0 based, contrary to previous documentation all protocols use zero base)
+     * @param multiplier BigDecimal multiplier to calculate engineering values from basic pulse values
+     * @deprecated You are highly encouraged to use one of the following constructors instead:
+     * <ul>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, com.elster.jupiter.metering.ReadingType)}</li>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, boolean, com.elster.jupiter.metering.ReadingType)}</li>
+     * </ul>
+     */
+    public ChannelInfo(int id, String name, Unit unit, int scaler, int channelId, BigDecimal multiplier) {
+        this(id, name, unit);
+        this.channelId = channelId;
+        this.multiplier = multiplier;
+    }
+
+    /**
+     * @param channelId logical channel id (0 based, contrary to previous documentation all protocols use zero base)
+     * @param id        logical channel id (0 based)
+     * @param name      logical channel name (use OBIS code if device uses OBIS codes, 0 based)
+     * @param unit      the logical channel unit
+     * @deprecated You are highly encouraged to use one of the following constructors instead:
+     * <ul>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, com.elster.jupiter.metering.ReadingType)}</li>
+     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, boolean, com.elster.jupiter.metering.ReadingType)}</li>
+     * </ul>
+     */
+    public ChannelInfo(int id, int channelId, String name, Unit unit) {
+        this(id, name, unit);
+        this.channelId = channelId;
+    }
 
     public static class ChannelInfoBuilder{
 
@@ -381,57 +432,31 @@ public class ChannelInfo implements java.io.Serializable {
         }
     }
 
+    private class ObisCodeParseMessageSeed implements MessageSeed {
+        @Override
+        public String getModule() {
+            return "MPA";
+        }
 
+        @Override
+        public int getNumber() {
+            return 0;
+        }
 
-    /**
-     * @param id   logical channel id (0 based, contrary to previous documentation all protocols use zero base)
-     * @param name logical channel name (use OBIS code if device uses OBIS codes)
-     * @param unit the logical channel unit
-     * @deprecated You are highly encouraged to use one of the following constructors instead:
-     * <ul>
-     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, com.elster.jupiter.metering.ReadingType)}</li>
-     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, boolean, com.elster.jupiter.metering.ReadingType)}</li>
-     * </ul>
-     */
-    public ChannelInfo(int id, String name, Unit unit) {
-        this.id = id;
-        this.channelId = id;
-        this.name = name;
-        this.unit = unit;
+        @Override
+        public String getKey() {
+            return "obisCodeFromString";
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return "A general parsing error occured\\: {0}";
+        }
+
+        @Override
+        public Level getLevel() {
+            return Level.SEVERE;
+        }
     }
 
-    /**
-     * @param id         0-based channel id
-     * @param name       logical channel name (use OBIS code if device uses OBIS codes)
-     * @param unit       the logical channel unit
-     * @param scaler     unit scale
-     * @param channelId  logical channel id (0 based, contrary to previous documentation all protocols use zero base)
-     * @param multiplier BigDecimal multiplier to calculate engineering values from basic pulse values
-     * @deprecated You are highly encouraged to use one of the following constructors instead:
-     * <ul>
-     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, com.elster.jupiter.metering.ReadingType)}</li>
-     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, boolean, com.elster.jupiter.metering.ReadingType)}</li>
-     * </ul>
-     */
-    public ChannelInfo(int id, String name, Unit unit, int scaler, int channelId, BigDecimal multiplier) {
-        this(id, name, unit);
-        this.channelId = channelId;
-        this.multiplier = multiplier;
-    }
-
-    /**
-     * @param channelId logical channel id (0 based, contrary to previous documentation all protocols use zero base)
-     * @param id        logical channel id (0 based)
-     * @param name      logical channel name (use OBIS code if device uses OBIS codes, 0 based)
-     * @param unit      the logical channel unit
-     * @deprecated You are highly encouraged to use one of the following constructors instead:
-     * <ul>
-     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, com.elster.jupiter.metering.ReadingType)}</li>
-     * <li>{@link #ChannelInfo(int, String, com.energyict.mdc.common.Unit, String, boolean, com.elster.jupiter.metering.ReadingType)}</li>
-     * </ul>
-     */
-    public ChannelInfo(int id, int channelId, String name, Unit unit) {
-        this(id, name, unit);
-        this.channelId = channelId;
-    }
 }

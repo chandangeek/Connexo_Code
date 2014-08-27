@@ -1,8 +1,9 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
-import com.energyict.mdc.common.exceptions.ExceptionCode;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.text.MessageFormat;
 
@@ -18,39 +19,24 @@ import java.text.MessageFormat;
  */
 public abstract class ComServerRuntimeException extends ComServerExecutionException {
 
-    private String messageId;
     private Object[] messageArguments;
-    private ExceptionCode exceptionCode;
+    private MessageSeed messageSeed;
 
     /**
-     * Constructs a new ComServerRuntimeException identified by the {@link ExceptionCode}.
+     * Constructs a new ComServerRuntimeException identified by the {@link MessageSeed}.
      *
-     * @param code The ExceptionCode
+     * @param messageSeed The MessageSeed
      * @param messageArguments A sequence of values for the arguments of the human readable description
-     *        that is associated with the ExceptionCode
+     *        that is associated with the MessageSeed
      */
-    public ComServerRuntimeException (ExceptionCode code, Object... messageArguments) {
+    public ComServerRuntimeException (MessageSeed messageSeed, Object... messageArguments) {
         super();
-        this.exceptionCode = code;
-        this.messageId = code.toMessageResourceKey();
+        this.messageSeed = messageSeed;
         this.messageArguments = messageArguments;
-        assert numberOfParametersMatch(code.getExpectedNumberOfMessageArguments(), messageArguments) : "Wrong number of arguments for exception message";
     }
 
     /**
-     * Returns the exception code that uniquely identifies the type of exception
-     * @return the exception code
-     */
-    public ExceptionCode getExceptionCode() {
-        return exceptionCode;
-    }
-
-    /**
-     * Constructs a new ComServerRuntimeException identified by the {@link ExceptionCode}.
-     * <p>
-     * Enabling assertions at development time will detect the situation where
-     * the number of actual parameters does not match the expected
-     * number of parameters which is in fact a "not so harmful" coding error.
+     * Constructs a new ComServerRuntimeException identified by the {@link MessageSeed}.
      * <p>
      * The error message of the cause exception (cause) is added to the new error message.
      * Both error messages are split by {@code ComServerRuntimeException.DEFAULT_CAUSED_BY_SEPARATOR_VALUE},
@@ -59,94 +45,28 @@ public abstract class ComServerRuntimeException extends ComServerExecutionExcept
      * in one of your resource bundles.
      *
      * @param cause The actual cause of the exceptional situation
-     * @param code The ExceptionCode
+     * @param messageSeed The MessageSeed
      * @param messageArguments A sequence of values for the arguments of the human readable description
-     *                         that is associated with the ExceptionCode
+     *                         that is associated with the MessageSeed
      */
-    public ComServerRuntimeException (Throwable cause, ExceptionCode code, Object... messageArguments) {
+    public ComServerRuntimeException (Throwable cause, MessageSeed messageSeed, Object... messageArguments) {
         super(cause);
-        this.messageId = code.toMessageResourceKey();
+        this.messageSeed = messageSeed;
         this.messageArguments = messageArguments;
-        assert numberOfParametersMatch(code.getExpectedNumberOfMessageArguments(), messageArguments) : "Wrong number of arguments for exception message";
     }
 
-    public String getLocalizedMessage() {
-        return defaultFormattedMessage(this.messageId, this.messageArguments);
-    }
-
-    private static String defaultFormattedMessage (String messageId, Object[] messageArguments) {
-        String errorMsg = getTranslator().getErrorMsg(messageId);
-        return MessageFormat.format(errorMsg.replaceAll("'", "''"), messageArguments);
-    }
-
-    private static Translator getTranslator() {
-        Environment environment = Environment.DEFAULT.get();
-        if (environment != null) {
-            return environment;
-        }
-        else {
-            return new Translator() {
-                @Override
-                public String getTranslation(String key) {
-                    return key;
-                }
-
-                @Override
-                public String getTranslation(String key, boolean flagError) {
-                    return key;
-                }
-
-                @Override
-                public String getErrorMsg(String key) {
-                    return key;
-                }
-
-                @Override
-                public String getCustomTranslation(String key) {
-                    return key;
-                }
-
-                @Override
-                public String getErrorCode(String messageId) {
-                    return messageId;
-                }
-
-                @Override
-                public String getTranslation(String key, String defaultValue) {
-                    return key + defaultValue;
-                }
-
-                @Override
-                public boolean hasTranslation(String key) {
-                    return false;
-                }
-            };
-        }
-    }
-
-    /**
-     * Checks that the expected number of parameters match with the actual parameters.
-     *
-     * @param expectedNumberOfParameters The expected number of parameters
-     * @param actualParameters The actual parameters
-     *
-     * @return A flag that indicates if the expected number of parameters match the number of actual parameters
-     */
-    private static boolean numberOfParametersMatch(int expectedNumberOfParameters, Object... actualParameters) {
-        if (actualParameters == null) {
-            return expectedNumberOfParameters == 0;
-        }
-        else {
-            return actualParameters.length == expectedNumberOfParameters;
-        }
-    }
-
-    public String getMessageId() {
-        return messageId;
+    public MessageSeed getMessageSeed() {
+        return this.messageSeed;
     }
 
     public Object[] getMessageArguments() {
         return messageArguments;
+    }
+
+    public String translated (NlsService nlsService) {
+        Thesaurus thesaurus = nlsService.getThesaurus(this.messageSeed.getModule(), Layer.DOMAIN);
+        String messagePattern = thesaurus.getString(this.messageSeed.getKey(), this.messageSeed.getDefaultFormat());
+        return MessageFormat.format(messagePattern.replaceAll("'", "''"), this.messageArguments);
     }
 
 }

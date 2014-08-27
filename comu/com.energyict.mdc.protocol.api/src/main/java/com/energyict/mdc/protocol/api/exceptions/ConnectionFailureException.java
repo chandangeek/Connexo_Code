@@ -1,10 +1,8 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
-import com.energyict.mdc.common.exceptions.CommonExceptionReferences;
-import com.energyict.mdc.common.exceptions.CommonReferenceScope;
-import com.energyict.mdc.common.exceptions.ExceptionCode;
-import com.energyict.mdc.common.exceptions.ExceptionType;
 import com.energyict.mdc.protocol.api.ConnectionException;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Wraps a {@link ConnectionException}, turning it into a Runtime exception.
@@ -14,12 +12,8 @@ import com.energyict.mdc.protocol.api.ConnectionException;
  */
 public class ConnectionFailureException extends CommunicationException {
 
-    public ConnectionFailureException (ConnectionException cause) {
-        super(cause, connectionFailureExceptionCode());
-    }
-
-    private static ExceptionCode connectionFailureExceptionCode () {
-        return new ExceptionCode(new CommonReferenceScope(), ExceptionType.COMMUNICATION, CommonExceptionReferences.CONNECTION_FAILURE);
+    public ConnectionFailureException (MessageSeed messageSeed, ConnectionException cause) {
+        super(messageSeed, cause);
     }
 
 }
