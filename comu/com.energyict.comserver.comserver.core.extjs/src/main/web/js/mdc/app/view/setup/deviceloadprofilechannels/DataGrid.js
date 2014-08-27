@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                 header: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
                 dataIndex: 'value',
                 renderer: function (value, metaData, record) {
-                    return value + ' ' + measurementType;
+                    return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
                 },
                 flex: 1
             }, {
@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                     if (!value) {
                         value = 0;
                     }
-                    return value + ' ' + measurementType;
+                    return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
                 },
                 flex: 1
             });
@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                 header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
                 dataIndex: 'value',
                 renderer: function (value, metaData, record) {
-                    return value + ' ' + measurementType;
+                    return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
                 },
                 flex: 1
             });

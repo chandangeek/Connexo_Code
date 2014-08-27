@@ -34,7 +34,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 minWidth : 300,
                 flex: 1,
                 renderer: function (data) {
-                    return data[channel.id] ? data[channel.id] + ' ' + channel.unitOfMeasure.localizedValue : '';
+                    return data[channel.id]
+                        ? Uni.I18n.formatNumber(data[channel.id], 'MDC', 3) + ' ' + channel.unitOfMeasure.localizedValue
+                        : '';
                 }
             });
         });
