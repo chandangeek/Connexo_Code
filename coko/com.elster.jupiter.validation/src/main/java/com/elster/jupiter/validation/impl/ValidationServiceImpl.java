@@ -6,7 +6,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Layer;
@@ -345,13 +345,13 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public List<List<ReadingQuality>> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
-        List<List<ReadingQuality>> result = new ArrayList<>(readings.size());
+    public List<List<ReadingQualityRecord>> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
+        List<List<ReadingQualityRecord>> result = new ArrayList<>(readings.size());
         if (!readings.isEmpty()) {
             List<ChannelValidation> channelValidations = getChannelValidations(channel);
             Date lastChecked = getMinLastChecked(channelValidations);
 
-            ListMultimap<Date, ReadingQuality> readingQualities = getReadingQualities(channel, getInterval(readings));
+            ListMultimap<Date, ReadingQualityRecord> readingQualities = getReadingQualities(channel, getInterval(readings));
             ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
             for (BaseReading reading : readings) {
                 addReadingQualities(lastChecked, reading, readingQualities, validatedAndOk, channel, result);
@@ -360,11 +360,11 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         return result;
     }
 
-    private void addReadingQualities(Date lastChecked, BaseReading reading, ListMultimap<Date, ReadingQuality> readingQualities,
-                                     ReadingQualityType validatedAndOk, Channel channel, List<List<ReadingQuality>> result) {
-        List<ReadingQuality> qualities = readingQualities.get(reading.getTimeStamp());
+    private void addReadingQualities(Date lastChecked, BaseReading reading, ListMultimap<Date, ReadingQualityRecord> readingQualities,
+                                     ReadingQualityType validatedAndOk, Channel channel, List<List<ReadingQualityRecord>> result) {
+        List<ReadingQualityRecord> qualities = readingQualities.get(reading.getTimeStamp());
         if (lastChecked == null || lastChecked.before(reading.getTimeStamp())) {
-            result.add(qualities == null ? Collections.<ReadingQuality>emptyList() : qualities);
+            result.add(qualities == null ? Collections.<ReadingQualityRecord>emptyList() : qualities);
         } else {
             if (qualities == null || qualities.isEmpty()) {
                 result.add(Arrays.asList(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp())));
@@ -388,11 +388,11 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         return new Interval(min, max);
     }
 
-    private ListMultimap<Date, ReadingQuality> getReadingQualities(Channel channel, Interval interval) {
-        List<ReadingQuality> readingQualities = channel.findReadingQuality(interval);
-        return Multimaps.index(readingQualities, new Function<ReadingQuality, Date>() {
+    private ListMultimap<Date, ReadingQualityRecord> getReadingQualities(Channel channel, Interval interval) {
+        List<ReadingQualityRecord> readingQualities = channel.findReadingQuality(interval);
+        return Multimaps.index(readingQualities, new Function<ReadingQualityRecord, Date>() {
             @Override
-            public Date apply(ReadingQuality input) {
+            public Date apply(ReadingQualityRecord input) {
                 return input.getReadingTimestamp();
             }
         });

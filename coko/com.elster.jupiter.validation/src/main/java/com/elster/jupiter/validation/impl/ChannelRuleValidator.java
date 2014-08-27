@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -33,7 +33,7 @@ class ChannelRuleValidator {
 
     Date validateReadings(Channel channel, Interval interval) {
         Date lastChecked = null;
-        ListMultimap<Date, ReadingQuality> existingReadingQualities = getExistingReadingQualities(channel, interval);
+        ListMultimap<Date, ReadingQualityRecord> existingReadingQualities = getExistingReadingQualities(channel, interval);
         for (ReadingType channelReadingType : channel.getReadingTypes()) {
             if (rule.getReadingTypes().contains(channelReadingType)) {
                 Validator validator = newValidator(channel, interval, channelReadingType);
@@ -60,11 +60,11 @@ class ChannelRuleValidator {
         return lastChecked;
     }
 
-    private ListMultimap<Date, ReadingQuality> getExistingReadingQualities(Channel channel, Interval interval) {
-        List<ReadingQuality> readingQualities = channel.findReadingQuality(interval);
-        return ArrayListMultimap.create(Multimaps.index(readingQualities, new Function<ReadingQuality, Date>() {
+    private ListMultimap<Date, ReadingQualityRecord> getExistingReadingQualities(Channel channel, Interval interval) {
+        List<ReadingQualityRecord> readingQualities = channel.findReadingQuality(interval);
+        return ArrayListMultimap.create(Multimaps.index(readingQualities, new Function<ReadingQualityRecord, Date>() {
             @Override
-            public Date apply(ReadingQuality input) {
+            public Date apply(ReadingQualityRecord input) {
                 return input.getReadingTimestamp();
             }
         }));
@@ -80,9 +80,9 @@ class ChannelRuleValidator {
         return ReadingQualityType.defaultCodeForRuleId(rule.getId());
     }
 
-    private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQuality> existingReadingQualities,
+    private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQualityRecord> existingReadingQualities,
                                         ReadingQualityType readingQualityType, BaseReadingRecord readingRecord) {
-        Optional<ReadingQuality> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, readingRecord.getTimeStamp());
+        Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, readingRecord.getTimeStamp());
         if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
             saveNewReadingQuality(channel, readingRecord, readingQualityType);
             readingRecord.setProcessingFlags(ProcessStatus.Flag.SUSPECT);
@@ -94,9 +94,9 @@ class ChannelRuleValidator {
         return determineLastChecked(result, lastChecked, readingRecord.getTimeStamp());
     }
 
-    private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQuality> existingReadingQualities,
+    private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQualityRecord> existingReadingQualities,
                                         ReadingQualityType readingQualityType, Date timestamp) {
-        Optional<ReadingQuality> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, timestamp);
+        Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualitiesForType(existingReadingQualities, readingQualityType, timestamp);
         if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
             saveNewReadingQuality(channel, timestamp, readingQualityType);
         }
@@ -107,11 +107,11 @@ class ChannelRuleValidator {
         return determineLastChecked(result, lastChecked, timestamp);
     }
 
-    private Optional<ReadingQuality> getExistingReadingQualitiesForType(ListMultimap<Date, ReadingQuality> existingReadingQualities, final ReadingQualityType readingQualityType, Date timeStamp) {
-        List<ReadingQuality> iterable = existingReadingQualities.get(timeStamp);
-        return iterable == null ? Optional.<ReadingQuality>absent() : Iterables.tryFind(iterable, new Predicate<ReadingQuality>() {
+    private Optional<ReadingQualityRecord> getExistingReadingQualitiesForType(ListMultimap<Date, ReadingQualityRecord> existingReadingQualities, final ReadingQualityType readingQualityType, Date timeStamp) {
+        List<ReadingQualityRecord> iterable = existingReadingQualities.get(timeStamp);
+        return iterable == null ? Optional.<ReadingQualityRecord>absent() : Iterables.tryFind(iterable, new Predicate<ReadingQualityRecord>() {
             @Override
-            public boolean apply(ReadingQuality input) {
+            public boolean apply(ReadingQualityRecord input) {
                 return readingQualityType.equals(input.getType());
             }
         });
@@ -126,12 +126,12 @@ class ChannelRuleValidator {
     }
 
     private void saveNewReadingQuality(Channel channel, BaseReadingRecord reading, ReadingQualityType readingQualityType) {
-        ReadingQuality readingQuality = channel.createReadingQuality(readingQualityType, reading);
+        ReadingQualityRecord readingQuality = channel.createReadingQuality(readingQualityType, reading);
         readingQuality.save();
     }
 
     private void saveNewReadingQuality(Channel channel, Date timestamp, ReadingQualityType readingQualityType) {
-        ReadingQuality readingQuality = channel.createReadingQuality(readingQualityType, timestamp);
+        ReadingQualityRecord readingQuality = channel.createReadingQuality(readingQualityType, timestamp);
         readingQuality.save();
     }
 

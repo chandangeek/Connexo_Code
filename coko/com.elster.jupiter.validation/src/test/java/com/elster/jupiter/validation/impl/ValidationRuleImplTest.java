@@ -6,7 +6,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -87,7 +87,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private ReadingQuality readingQuality;
+    private ReadingQualityRecord readingQuality;
     @Mock
     private ReadingRecord readingRecord;
     @Mock
@@ -105,7 +105,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Before
     public void setUp() {
-        when(channel.findReadingQuality(new ReadingQualityType("3.6." + ID), DATE1)).thenReturn(Optional.<ReadingQuality>absent(), Optional.of(readingQuality));
+        when(channel.findReadingQuality(new ReadingQualityType("3.6." + ID), DATE1)).thenReturn(Optional.<ReadingQualityRecord>absent(), Optional.of(readingQuality));
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
