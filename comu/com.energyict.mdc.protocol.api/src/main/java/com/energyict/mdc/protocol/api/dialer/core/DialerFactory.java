@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.api.dialer.core;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.UserEnvironment;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -74,10 +73,10 @@ public class DialerFactory implements Comparable, Serializable {
     }
 
     public String getLocalizedName() {
-        if (getDialerClassName().length() == 0) {
+        if (getDialerClassName().isEmpty()) {
             return "";
         }
-        return UserEnvironment.getDefault().getTranslation(getName(), false);   // No Error Indication if name not found as key in translation table
+        return getName();
     }
 
     public String toString() {
@@ -86,15 +85,11 @@ public class DialerFactory implements Comparable, Serializable {
 
     public Dialer newDialer() {
         try {
-            if (getDialerClassName().length() == 0) {
+            if (getDialerClassName().isEmpty()) {
                 return null;
             }
             return (Dialer) Class.forName(getDialerClassName()).newInstance();
-        } catch (InstantiationException ex) {
-            throw new ApplicationException(ex);
-        } catch (ClassNotFoundException ex) {
-            throw new ApplicationException(ex);
-        } catch (IllegalAccessException ex) {
+        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) {
             throw new ApplicationException(ex);
         }
     }
@@ -130,12 +125,12 @@ public class DialerFactory implements Comparable, Serializable {
         }
     }
 
-    static public DialerFactory getDefault() {
+    public static DialerFactory getDefault() {
         return all[0];
     }
 
-    static public DialerFactory get(String name) {
-        if ((name == null) || name.length() == 0 || ("none".compareTo(name) == 0)) {
+    public static DialerFactory get(String name) {
+        if ((name == null) || name.isEmpty() || ("none".compareTo(name) == 0)) {
             return getEmptyDialer();
         }
         for (int i = 0; i < all.length; i++) {
@@ -146,7 +141,7 @@ public class DialerFactory implements Comparable, Serializable {
         throw new ApplicationException("Dialer type " + name + " does not exist");
     }
 
-    static public DialerFactory get(int index) {
+    public static DialerFactory get(int index) {
         if (index >= all.length) {
             return null;
         } else {
@@ -154,31 +149,32 @@ public class DialerFactory implements Comparable, Serializable {
         }
     }
 
-    static public int nrOfDialers() {
+    public static int nrOfDialers() {
         return all.length;
     }
 
-    static public List<DialerFactory> getAll() {
+    public static List<DialerFactory> getAll() {
         return Collections.unmodifiableList(Arrays.asList(all));
     }
 
-    static public DialerFactory getDirectDialer() {
+    public static DialerFactory getDirectDialer() {
         return DialerFactory.get(DIRECTDIALER);
     }
 
-    static public DialerFactory getOpticalDialer() {
+    public static DialerFactory getOpticalDialer() {
         return DialerFactory.get(OPTICALDIALER);
     }
 
-    static public DialerFactory getEmptyDialer() {
+    public static DialerFactory getEmptyDialer() {
         return EMPTYDIALER;
     }
 
-    static public DialerFactory getStandardModemDialer() {
+    public static DialerFactory getStandardModemDialer() {
         return DialerFactory.get(ATDIALER);
     }
 
-    static public boolean isEmptyDialer(DialerFactory fact) {
-        return (fact != null && fact.getName() == null && fact.getDialerClassName().length() == 0);
+    public static boolean isEmptyDialer(DialerFactory fact) {
+        return (fact != null && fact.getName() == null && fact.getDialerClassName().isEmpty());
     }
+
 }

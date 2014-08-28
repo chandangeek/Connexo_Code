@@ -1,14 +1,14 @@
 package com.energyict.mdc.protocol.device.messages;
 
-import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import org.junit.*;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -95,7 +95,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
         @Override
         public String getName() {
-            return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+            return this.getNameResourceKey();
         }
 
         /**
@@ -110,7 +110,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
         @Override
         public String getDescription() {
-            return UserEnvironment.getDefault().getTranslation(this.getDescriptionResourceKey());
+            return this.getDescriptionResourceKey();
         }
 
         /**
@@ -145,7 +145,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
         @Override
         public String getName() {
-            return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+            return this.getNameResourceKey();
         }
 
         /**
@@ -160,7 +160,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
         @Override
         public String getDescription() {
-            return UserEnvironment.getDefault().getTranslation(this.getDescriptionResourceKey());
+            return this.getDescriptionResourceKey();
         }
 
         /**

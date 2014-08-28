@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.device.messages;
 
-import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -55,7 +54,7 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
 
     @Override
     public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+        return this.getNameResourceKey();
     }
 
     /**
@@ -70,7 +69,7 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
 
     @Override
     public String getDescription() {
-        return UserEnvironment.getDefault().getTranslation(this.getDescriptionResourceKey());
+        return this.getDescriptionResourceKey();
     }
 
     /**
