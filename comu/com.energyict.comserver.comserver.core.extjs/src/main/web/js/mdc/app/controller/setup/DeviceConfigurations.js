@@ -139,7 +139,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         menu.down('#activateDeviceconfigurationMenuItem').setText(activateDeactivateText);
     },
 
-    showDeviceConfigurationDetailsView: function (devicetype, deviceconfiguration) {console.info(arguments);
+    showDeviceConfigurationDetailsView: function (devicetype, deviceconfiguration) {
         var me = this;
         var widget = Ext.widget('deviceConfigurationDetail', {deviceTypeId: devicetype, deviceConfigurationId: deviceconfiguration});
         var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
