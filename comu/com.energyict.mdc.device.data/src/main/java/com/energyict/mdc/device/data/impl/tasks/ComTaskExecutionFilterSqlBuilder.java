@@ -64,12 +64,21 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             }
         }
         if (this.taskStatuses.isEmpty()) {
+            this.appendDeviceTypeSql();
+            this.appendComTaskSql();
+            this.appendComSchedulesSql();
+            this.appendCompletionCodeClause();
             this.appendWhereOrAnd();
             this.append("obsolete_date is null");
         }
-        this.appendCompletionCodeClause();
         this.append(" order by lastexecutiontimestamp desc");
         return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize - 1);
+    }
+
+    @Override
+    protected void appendWhereClause(ServerComTaskStatus taskStatus) {
+        super.appendWhereClause(taskStatus);
+        this.appendCompletionCodeClause();
     }
 
     private boolean isNull(Interval interval) {

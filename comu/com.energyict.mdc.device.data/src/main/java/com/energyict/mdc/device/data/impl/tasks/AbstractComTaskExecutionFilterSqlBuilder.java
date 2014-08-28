@@ -37,11 +37,11 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.appendComSchedulesSql();
     }
 
-    private void appendDeviceTypeSql() {
+    protected void appendDeviceTypeSql() {
         this.appendDeviceTypeSql(this.comTaskExecutionTableName(), this.deviceTypes);
     }
 
-    private void appendComTaskSql() {
+    protected void appendComTaskSql() {
         if (!this.comTasks.isEmpty()) {
             this.appendWhereOrAnd();
             this.append("(discriminator =");
@@ -58,7 +58,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         }
     }
 
-    private void appendComSchedulesSql() {
+    protected void appendComSchedulesSql() {
         if (!this.comSchedules.isEmpty()) {
             this.appendWhereOrAnd();
             this.append("(discriminator =");
