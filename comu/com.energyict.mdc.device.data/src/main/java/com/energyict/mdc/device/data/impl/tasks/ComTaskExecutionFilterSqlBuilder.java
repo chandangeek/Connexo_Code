@@ -1,16 +1,19 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 
 import java.util.EnumSet;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -25,18 +28,52 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     private static final String COM_TASK_EXECUTION_SESSION_ALIAS_NAME = "ctes";
     private static final String HIGHEST_PRIORITY_COMPLETION_CODE_ALIAS_NAME = "highestPrioCompletionCode";
 
+    private Set<ServerComTaskStatus> taskStatuses;
     private Set<CompletionCode> completionCodes;
-    private Set<ComSchedule> comSchedules;
-    private Set<ComTask> comTasks;
-    private Set<DeviceType> deviceTypes;
+    public Interval lastSessionStart = null;
+    public Interval lastSessionEnd = null;
 
     public ComTaskExecutionFilterSqlBuilder(ComTaskExecutionFilterSpecification filterSpecification, Clock clock) {
         super(clock, filterSpecification);
+        this.copyTaskStatuses(filterSpecification);
         this.completionCodes = EnumSet.noneOf(CompletionCode.class);
         this.completionCodes.addAll(filterSpecification.latestResults);
-        this.comSchedules = new HashSet<>(filterSpecification.comSchedules);
-        this.comTasks = new HashSet<>(filterSpecification.comTasks);
-        this.deviceTypes = new HashSet<>(filterSpecification.deviceTypes);
+        this.lastSessionStart = filterSpecification.lastSessionStart;
+        this.lastSessionEnd = filterSpecification.lastSessionEnd;
+    }
+
+    private void copyTaskStatuses(ComTaskExecutionFilterSpecification filterSpecification) {
+        this.taskStatuses = EnumSet.noneOf(ServerComTaskStatus.class);
+        for (TaskStatus taskStatus : filterSpecification.taskStatuses) {
+            this.taskStatuses.add(ServerComTaskStatus.forTaskStatus(taskStatus));
+        }
+    }
+
+    public SqlBuilder build(DataMapper<ComTaskExecution> dataMapper, int pageStart, int pageSize) {
+        SqlBuilder sqlBuilder = dataMapper.builder(null);   // Does not generate an alias
+        this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
+        String sqlStartClause = sqlBuilder.getText();
+        Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
+        while (statusIterator.hasNext()) {
+            this.appendWhereClause(statusIterator.next());
+            if (statusIterator.hasNext()) {
+                this.unionAll();
+                this.append(sqlStartClause);
+                this.appendJoinedTables();
+            }
+        }
+        if (this.taskStatuses.isEmpty()) {
+            this.appendWhereOrAnd();
+            this.append("obsolete_date is null");
+        }
+        this.append(" order by lastexecutiontimestamp desc");
+        return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize - 1);
+    }
+
+    private boolean isNull(Interval interval) {
+        return interval == null
+                || (   (interval.getStart() == null)
+                && (interval.getEnd() == null));
     }
 
     protected void appendJoinedTables() {
@@ -79,41 +116,6 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
 
     private boolean requiresCompletionCodeClause () {
         return !this.completionCodes.isEmpty();
-    }
-
-    private void appendComTaskClause () {
-        if (this.requiresComTaskClause()) {
-            this.appendWhereOrAnd();
-            this.appendInClause("comtask", this.comTasks);
-        }
-    }
-
-    private boolean requiresComTaskClause () {
-        return !this.comTasks.isEmpty();
-    }
-
-    private void appendComScheduleSql() {
-        if (!this.comSchedules.isEmpty()) {
-            this.appendWhereOrAnd();
-            this.append(" (discriminator = ");
-            this.addString(ComTaskExecutionImpl.SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);
-            this.append(" and ");
-            this.appendInClause("comschedule", this.comSchedules);
-            this.append(")");
-        }
-    }
-
-    private void appendDeviceTypeSql() {
-        if (!this.deviceTypes.isEmpty()) {
-            this.appendWhereOrAnd();
-            this.append(" (");
-            this.append(this.connectionTaskTableName());
-            this.append(".device in (select id from ");
-            this.append(TableSpecs.DDC_DEVICE.name());
-            this.append(" where ");
-            this.appendInClause("devicetype", this.deviceTypes);
-            this.append("))");
-        }
     }
 
 }

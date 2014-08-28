@@ -45,12 +45,6 @@ public class ComTaskExecutionFilterSpecification {
     public Set<TaskStatus> taskStatuses = EnumSet.noneOf(TaskStatus.class);
 
     /**
-     * The Set of {@link ConnectionTask.SuccessIndicator}s.
-     * Note that using <strong>ALL</strong> enum values is equal to using none.
-     */
-    public Set<ConnectionTask.SuccessIndicator> latestStatuses = EnumSet.noneOf(ConnectionTask.SuccessIndicator.class);
-
-    /**
      * The Set of {@link CompletionCode}s.
      * Note that using <strong>ALL</strong> enum values is equal to using none.
      */

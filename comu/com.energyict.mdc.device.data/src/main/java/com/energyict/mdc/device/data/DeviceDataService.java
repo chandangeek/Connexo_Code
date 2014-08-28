@@ -411,6 +411,16 @@ public interface DeviceDataService {
     public Map<TaskStatus, Long> getComTaskExecutionStatusCount(ComTaskExecutionFilterSpecification filter);
 
     /**
+     * Finds all {@link ConnectionTask}s that match the specified filter.
+     *
+     * @param filter The ComTaskExecutionFilterSpecification
+     * @param pageStart The first ComTaskExecution
+     * @param pageSize The maximum number of ComTaskExecutions
+     * @return The List of ComTaskExecution
+     */
+    public List<ComTaskExecution> findComTaskExecutionsByFilter(ComTaskExecutionFilterSpecification filter, int pageStart, int pageSize);
+
+    /**
      * Finds all ComTaskExecutions for the given Device which aren't made obsolete yet
      *
      * @param device the device

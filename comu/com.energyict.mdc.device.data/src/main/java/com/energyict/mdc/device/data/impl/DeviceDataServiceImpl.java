@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinde
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionFilterMatchCounterSqlBuilder;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionFilterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskFilterMatchCounterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskFilterSqlBuilder;
@@ -84,7 +85,6 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Clock;
@@ -119,7 +119,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.elster.jupiter.util.conditions.Where.*;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
@@ -374,6 +373,24 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
+    public List<ComTaskExecution> findComTaskExecutionsByFilter(ComTaskExecutionFilterSpecification filter, int pageStart, int pageSize) {
+        ComTaskExecutionFilterSqlBuilder sqlBuilder = new ComTaskExecutionFilterSqlBuilder(filter, this.clock);
+        DataMapper<ComTaskExecution> dataMapper = this.dataModel.mapper(ComTaskExecution.class);
+        return this.fetchComTaskExecutions(dataMapper, sqlBuilder.build(dataMapper, pageStart, pageSize));
+    }
+
+    private List<ComTaskExecution> fetchComTaskExecutions(DataMapper<ComTaskExecution> dataMapper, SqlBuilder sqlBuilder) {
+        try (Fetcher<ComTaskExecution> fetcher = dataMapper.fetcher(sqlBuilder)) {
+            Iterator<ComTaskExecution> comTaskExecutionIterator = fetcher.iterator();
+            List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+            while (comTaskExecutionIterator.hasNext()) {
+                comTaskExecutions.add(comTaskExecutionIterator.next());
+            }
+            return comTaskExecutions;
+        }
+    }
+
+    @Override
     public Map<TaskStatus, Long> getComTaskExecutionStatusCount() {
         ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
         filter.taskStatuses = EnumSet.allOf(TaskStatus.class);
@@ -493,13 +510,14 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     private List<ConnectionTask> fetchConnectionTasks(DataMapper<ConnectionTask> dataMapper, SqlBuilder sqlBuilder) {
-        LOGGER.finest(sqlBuilder.getText());    // My impression is that ORM is not logging the sql as an event when using the fetcher
-        Iterator<ConnectionTask> connectionTaskIterator = dataMapper.fetcher(sqlBuilder).iterator();
-        List<ConnectionTask> connectionTasks = new ArrayList<>();
-        while (connectionTaskIterator.hasNext()) {
-            connectionTasks.add(connectionTaskIterator.next());
+        try (Fetcher<ConnectionTask> fetcher = dataMapper.fetcher(sqlBuilder)) {
+            Iterator<ConnectionTask> connectionTaskIterator = fetcher.iterator();
+            List<ConnectionTask> connectionTasks = new ArrayList<>();
+            while (connectionTaskIterator.hasNext()) {
+                connectionTasks.add(connectionTaskIterator.next());
+            }
+            return connectionTasks;
         }
-        return connectionTasks;
     }
 
     @Override
