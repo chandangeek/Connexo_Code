@@ -67,6 +67,8 @@ public class DemoServiceImpl implements DemoService {
     public static final String COM_TASK_READ_REGISTER_DATA = "Read Register data";
     public static final String COM_TASK_READ_LOAD_PROFILE_DATA = "Read LoadProfile data";
 
+    public static final String OUTBOUND_TCP_POOL_NAME = "Outbound TCP Pool";
+
     private final Boolean rethrowExceptions;
     private volatile EngineModelService engineModelService;
     private volatile TransactionService transactionService;
@@ -112,11 +114,7 @@ public class DemoServiceImpl implements DemoService {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                Map<String, RegisterType> registerTypes = new HashMap<String, RegisterType>();
-                Map<String, RegisterGroup> registerGroups = new HashMap<String, RegisterGroup>();
-                Map<String, LoadProfileType> loadProfileTypes = new HashMap<String, LoadProfileType>();
-                Map<String, LogBookType> logBookTypes = new HashMap<String, LogBookType>();
-                Map<String, ComTask> comTasks = new HashMap<String, ComTask>();
+                Store store = new Store();
 
                 OnlineComServer comServer = createComServer("Deitvs099");
                 OutboundComPort outboundTCPPort = createOutboundTcpComPort("Outbound TCP 099", comServer);
@@ -126,16 +124,16 @@ public class DemoServiceImpl implements DemoService {
 
                 comServer = createComServer(comServerName);
                 outboundTCPPort = createOutboundTcpComPort("Outbound TCP", comServer);
-                outboundTcpComPortPool = createOutboundTcpComPortPool("Outbound TCP Pool", outboundTCPPort);
+                store.getOutboundComPortPools().put(OUTBOUND_TCP_POOL_NAME,createOutboundTcpComPortPool(OUTBOUND_TCP_POOL_NAME, outboundTCPPort));
                 inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool");
                 createInboundServletPort("Inbound Servlet", 4444, comServer, inboundServletComPortPool);
 
-                findRegisterTypes(registerTypes);
-                createLoadProfiles(registerTypes, loadProfileTypes);
-                createRegisterGroups(registerTypes, registerGroups);
-                createLogbookTypes(logBookTypes);
-                createCommunicationTasks(comTasks, registerGroups, loadProfileTypes, logBookTypes);
-                createDeviceTypes(registerTypes, loadProfileTypes, logBookTypes, comTasks, outboundTcpComPortPool);
+                findRegisterTypes(store);
+                createLoadProfiles(store);
+                createRegisterGroups(store);
+                createLogbookTypes(store);
+                createCommunicationTasks(store);
+                createDeviceTypes(store);
             }
         });
     }
@@ -204,48 +202,48 @@ public class DemoServiceImpl implements DemoService {
 
     }
 
-    private void findRegisterTypes(Map<String, RegisterType> registerTypes) {
+    private void findRegisterTypes(Store store) {
         System.out.println("==> Finding Register Types...");
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_2_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_1_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_2_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_IMPORT_TOTAL_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"));
-        registerTypes.put(ACTIVE_ENERGY_EXPORT_TOTAL_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0"));
+        store.getRegisterTypes().put(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(ACTIVE_ENERGY_IMPORT_TARIFF_2_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0"));
+        store.getRegisterTypes().put(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(ACTIVE_ENERGY_EXPORT_TARIFF_1_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0"));
+        store.getRegisterTypes().put(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(ACTIVE_ENERGY_EXPORT_TARIFF_2_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0"));
+        store.getRegisterTypes().put(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(ACTIVE_ENERGY_IMPORT_TOTAL_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(ACTIVE_ENERGY_EXPORT_TOTAL_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"));
     }
 
     private RegisterType findRegisterType(String mRid) {
         return masterDataService.findRegisterTypeByReadingType(meteringService.getReadingType(mRid).get()).get();
     }
 
-    private void createLoadProfiles(Map<String, RegisterType> registerTypes, Map<String, LoadProfileType> loadProfileTypes) {
+    private void createLoadProfiles(Store store) {
         System.out.println("==> Creating Load Profiles Types...");
 
         LoadProfileType dailyElectrisity = createLoadProfile(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY, "1.0.99.2.0.255", new TimeDuration(1, TimeDuration.DAYS));
-        dailyElectrisity.createChannelTypeForRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
-        dailyElectrisity.createChannelTypeForRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
-        dailyElectrisity.createChannelTypeForRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
-        dailyElectrisity.createChannelTypeForRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
+        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
+        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
+        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
         dailyElectrisity.save();
-        loadProfileTypes.put(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY, dailyElectrisity);
+        store.getLoadProfileTypes().put(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY, dailyElectrisity);
 
         LoadProfileType monthlyElectricity = createLoadProfile(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY, "0.0.98.1.0.255", new TimeDuration(1, TimeDuration.MONTHS));
-        monthlyElectricity.createChannelTypeForRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
-        monthlyElectricity.createChannelTypeForRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
-        monthlyElectricity.createChannelTypeForRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
-        monthlyElectricity.createChannelTypeForRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
+        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
+        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
+        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
         monthlyElectricity.save();
-        loadProfileTypes.put(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY, monthlyElectricity);
+        store.getLoadProfileTypes().put(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY, monthlyElectricity);
 
         LoadProfileType _15minElectricity = createLoadProfile(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY, "1.0.99.1.0.255", new TimeDuration(15, TimeDuration.MINUTES));
-        _15minElectricity.createChannelTypeForRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
-        _15minElectricity.createChannelTypeForRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TOTAL_WH));
+        _15minElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
+        _15minElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TOTAL_WH));
         _15minElectricity.save();
-        loadProfileTypes.put(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY, _15minElectricity);
+        store.getLoadProfileTypes().put(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY, _15minElectricity);
     }
 
     private LoadProfileType createLoadProfile(String name, String obisCode, TimeDuration duartion) {
@@ -254,171 +252,157 @@ public class DemoServiceImpl implements DemoService {
         return loadProfileType;
     }
 
-    private Map<String, RegisterGroup> createRegisterGroups(Map<String, RegisterType> registerTypes, Map<String, RegisterGroup> registerGroups) {
+    private void createRegisterGroups(Store store) {
         System.out.println("==> Creating Register Groups...");
 
         RegisterGroup defaultRegisterGroup = masterDataService.newRegisterGroup(REGISTER_GROUP_DEFAULT_GROUP);
         defaultRegisterGroup.save();
-        defaultRegisterGroup.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
-        defaultRegisterGroup.addRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TOTAL_WH));
-        defaultRegisterGroup.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
-        defaultRegisterGroup.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
-        defaultRegisterGroup.addRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
-        defaultRegisterGroup.addRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
-        registerGroups.put(REGISTER_GROUP_DEFAULT_GROUP, defaultRegisterGroup);
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TOTAL_WH));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        store.getRegisterGroups().put(REGISTER_GROUP_DEFAULT_GROUP, defaultRegisterGroup);
 
         RegisterGroup tariff1 = masterDataService.newRegisterGroup(REGISTER_GROUP_TARIFF_1);
         tariff1.save();
-        tariff1.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
-        tariff1.addRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
-        registerGroups.put(REGISTER_GROUP_TARIFF_1, tariff1);
+        tariff1.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
+        tariff1.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
+        store.getRegisterGroups().put(REGISTER_GROUP_TARIFF_1, tariff1);
 
         RegisterGroup tariff2 = masterDataService.newRegisterGroup(REGISTER_GROUP_TARIFF_2);
         tariff2.save();
-        tariff2.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
-        tariff2.addRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
-        registerGroups.put(REGISTER_GROUP_TARIFF_2, tariff2);
-        return registerGroups;
+        tariff2.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
+        tariff2.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        store.getRegisterGroups().put(REGISTER_GROUP_TARIFF_2, tariff2);
     }
 
-    private void createLogbookTypes(Map<String, LogBookType> logBookTypes) {
+    private void createLogbookTypes(Store store) {
         System.out.println("==> Creating Log Book Types...");
-        createLogBookType(logBookTypes, LOG_BOOK_TYPES_DEFAULT_LOGBOOK, "0.0.99.98.0.255");
-        createLogBookType(logBookTypes, LOG_BOOK_TYPES_POWER_FAILURES, "1.0.99.97.0.255");
-        createLogBookType(logBookTypes, LOG_BOOK_TYPES_FRAUD_DETECTIONS, "0.0.99.98.1.255");
+        createLogBookType(store, LOG_BOOK_TYPES_DEFAULT_LOGBOOK, "0.0.99.98.0.255");
+        createLogBookType(store, LOG_BOOK_TYPES_POWER_FAILURES, "1.0.99.97.0.255");
+        createLogBookType(store, LOG_BOOK_TYPES_FRAUD_DETECTIONS, "0.0.99.98.1.255");
     }
 
-    private void createLogBookType(Map<String, LogBookType> logBookTypes, String logBookTypeName, String obisCode) {
+    private void createLogBookType(Store store, String logBookTypeName, String obisCode) {
         LogBookType logBookType = masterDataService.newLogBookType(logBookTypeName, ObisCode.fromString(obisCode));
         logBookType.save();
-        logBookTypes.put(logBookTypeName, logBookType);
+        store.getLogBookTypes().put(logBookTypeName, logBookType);
     }
 
-    private void createCommunicationTasks(Map<String, ComTask> comTasks, Map<String, RegisterGroup> registerGroups, Map<String, LoadProfileType> loadProfileTypes, Map<String, LogBookType> logBookTypes) {
+    private void createCommunicationTasks(Store store) {
         System.out.println("==> Creating Communication Tasks...");
 
         ComTask readAll = taskService.newComTask(COM_TASK_READ_ALL);
-        readAll.createLoadProfilesTask().loadProfileTypes(new ArrayList<LoadProfileType>(loadProfileTypes.values())).add();
-        readAll.createRegistersTask().registerGroups(Collections.singletonList(registerGroups.get(REGISTER_GROUP_DEFAULT_GROUP))).add();
-        readAll.createLogbooksTask().logBookTypes(new ArrayList<LogBookType>(logBookTypes.values())).add();
+        readAll.createLoadProfilesTask().loadProfileTypes(new ArrayList<LoadProfileType>(store.getLoadProfileTypes().values())).add();
+        readAll.createRegistersTask().registerGroups(Collections.singletonList(store.getRegisterGroups().get(REGISTER_GROUP_DEFAULT_GROUP))).add();
+        readAll.createLogbooksTask().logBookTypes(new ArrayList<LogBookType>(store.getLogBookTypes().values())).add();
         readAll.save();
-        comTasks.put(COM_TASK_READ_ALL, readAll);
+        store.getComTasks().put(COM_TASK_READ_ALL, readAll);
 
         ComTask forceClock = taskService.newComTask(COM_TASK_FORCE_CLOCK);
         forceClock.createClockTask(ClockTaskType.FORCECLOCK).add();
         forceClock.save();
-        comTasks.put(COM_TASK_FORCE_CLOCK, forceClock);
+        store.getComTasks().put(COM_TASK_FORCE_CLOCK, forceClock);
 
         ComTask readDaily = taskService.newComTask(COM_TASK_READ_DAILY);
         readDaily.createClockTask(ClockTaskType.SETCLOCK)
                 .minimumClockDifference(new TimeDuration(5, TimeDuration.SECONDS))
                 .maximumClockDifference(new TimeDuration(5, TimeDuration.MINUTES)).add();
-        LoadProfileType[] loadProfileTypesForReadDayly = {loadProfileTypes.get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY), loadProfileTypes.get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY)};
+        LoadProfileType[] loadProfileTypesForReadDayly = {store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY), store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY)};
         readDaily.createLoadProfilesTask().loadProfileTypes(Arrays.asList(loadProfileTypesForReadDayly)).add();
-        readDaily.createLogbooksTask().logBookTypes(Collections.singletonList(logBookTypes.get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK))).add();
-        RegisterGroup[] registerGroupsForReadDayly = {registerGroups.get(REGISTER_GROUP_TARIFF_1), registerGroups.get(REGISTER_GROUP_TARIFF_2)};
+        readDaily.createLogbooksTask().logBookTypes(Collections.singletonList(store.getLogBookTypes().get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK))).add();
+        RegisterGroup[] registerGroupsForReadDayly = {store.getRegisterGroups().get(REGISTER_GROUP_TARIFF_1), store.getRegisterGroups().get(REGISTER_GROUP_TARIFF_2)};
         readDaily.createRegistersTask().registerGroups(Arrays.asList(registerGroupsForReadDayly)).add();
         readDaily.save();
-        comTasks.put(COM_TASK_READ_DAILY, readDaily);
+        store.getComTasks().put(COM_TASK_READ_DAILY, readDaily);
 
         ComTask topology = taskService.newComTask(COM_TASK_TOPOLOGY);
         topology.createTopologyTask(TopologyAction.VERIFY);
         topology.save();
-        comTasks.put(COM_TASK_TOPOLOGY, topology);
+        store.getComTasks().put(COM_TASK_TOPOLOGY, topology);
 
         ComTask readRegisterData = taskService.newComTask(COM_TASK_READ_REGISTER_DATA);
-        readRegisterData.createRegistersTask().registerGroups(Collections.singletonList(registerGroups.get(REGISTER_GROUP_DEFAULT_GROUP))).add();
+        readRegisterData.createRegistersTask().registerGroups(Collections.singletonList(store.getRegisterGroups().get(REGISTER_GROUP_DEFAULT_GROUP))).add();
         readRegisterData.save();
-        comTasks.put(COM_TASK_READ_REGISTER_DATA, readRegisterData);
+        store.getComTasks().put(COM_TASK_READ_REGISTER_DATA, readRegisterData);
 
         ComTask readLoadProfileData = taskService.newComTask(COM_TASK_READ_LOAD_PROFILE_DATA);
-        readLoadProfileData.createLoadProfilesTask().loadProfileTypes(new ArrayList<LoadProfileType>(loadProfileTypes.values())).add();
+        readLoadProfileData.createLoadProfilesTask().loadProfileTypes(new ArrayList<LoadProfileType>(store.getLoadProfileTypes().values())).add();
         readLoadProfileData.save();
-        comTasks.put(COM_TASK_READ_LOAD_PROFILE_DATA, readLoadProfileData);
+        store.getComTasks().put(COM_TASK_READ_LOAD_PROFILE_DATA, readLoadProfileData);
     }
 
-    public void createDeviceTypes(
-            Map<String, RegisterType> registerTypes,
-            Map<String, LoadProfileType> loadProfileTypes,
-            Map<String, LogBookType> logBookTypes,
-            Map<String, ComTask> comTasks,
-            OutboundComPortPool outboundTcpComPortPool) {
+    public void createDeviceTypes(Store store) {
         for (int i=0; i < 6; i++){
-            createDeviceType(registerTypes, loadProfileTypes, logBookTypes, comTasks, outboundTcpComPortPool);
+            createDeviceType(store);
         }
     }
 
-    public DeviceType createDeviceType(
-            Map<String, RegisterType> registerTypes,
-            Map<String, LoadProfileType> loadProfileTypes,
-            Map<String, LogBookType> logBookTypes,
-            Map<String, ComTask> comTasks,
-            OutboundComPortPool outboundTcpComPortPool) {
+    public void createDeviceType(Store store) {
         System.out.println("==> Creating Create device types...");
         DeviceProtocolPluggableClass webRTUprotocol = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(WebRTUKP.class.getName()).get(0);
-        DeviceType dsmr2_3 = deviceConfigurationService.newDeviceType("Elster AMR " + String.format("%03d", ++deviceTypeCount), webRTUprotocol);
-        dsmr2_3.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
-        dsmr2_3.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
-        dsmr2_3.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
-        dsmr2_3.addRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TOTAL_WH));
-        dsmr2_3.addRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
-        dsmr2_3.addRegisterType(registerTypes.get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
-        dsmr2_3.addLoadProfileType(loadProfileTypes.get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY));
-        dsmr2_3.addLoadProfileType(loadProfileTypes.get(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY));
-        dsmr2_3.addLoadProfileType(loadProfileTypes.get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("Elster AMR " + String.format("%03d", ++deviceTypeCount), webRTUprotocol);
+        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TOTAL_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        deviceType.addLoadProfileType(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY));
+        deviceType.addLoadProfileType(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY));
+        deviceType.addLoadProfileType(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
 
-        dsmr2_3.addLogBookType(logBookTypes.get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK));
-        dsmr2_3.addLogBookType(logBookTypes.get(LOG_BOOK_TYPES_FRAUD_DETECTIONS));
-        dsmr2_3.addLogBookType(logBookTypes.get(LOG_BOOK_TYPES_POWER_FAILURES));
-        dsmr2_3.save();
+        deviceType.addLogBookType(store.getLogBookTypes().get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK));
+        deviceType.addLogBookType(store.getLogBookTypes().get(LOG_BOOK_TYPES_FRAUD_DETECTIONS));
+        deviceType.addLogBookType(store.getLogBookTypes().get(LOG_BOOK_TYPES_POWER_FAILURES));
+        deviceType.save();
 
-        createSimpleDeviceConfiguration(registerTypes, loadProfileTypes, logBookTypes, comTasks, outboundTcpComPortPool, dsmr2_3);
-        createExtendedDeviceConfiguration(registerTypes, loadProfileTypes, logBookTypes, comTasks, outboundTcpComPortPool, dsmr2_3);
-        return dsmr2_3;
+        createSimpleDeviceConfiguration(store, deviceType);
+        createExtendedDeviceConfiguration(store, deviceType);
     }
 
-    private void createExtendedDeviceConfiguration(Map<String, RegisterType> registerTypes, Map<String, LoadProfileType> loadProfileTypes, Map<String, LogBookType> logBookTypes, Map<String, ComTask> comTasks, OutboundComPortPool outboundTcpComPortPool, DeviceType dsmr2_3) {
+    private void createExtendedDeviceConfiguration(Store store, DeviceType deviceType) {
         System.out.println("==> Creating Extended Device Configuration...");
-        DeviceType.DeviceConfigurationBuilder extendConfigBuilder = dsmr2_3.newConfiguration("Extended Config");
+        DeviceType.DeviceConfigurationBuilder extendConfigBuilder = deviceType.newConfiguration("Extended Config");
         extendConfigBuilder.description("A complex configuration that is closely matched to the DSMR 2.3 Devices");
         extendConfigBuilder.canActAsGateway(true);
         extendConfigBuilder.isDirectlyAddressable(true);
-        addRegisterSpecToDeviceConfiguration(registerTypes, extendConfigBuilder, ACTIVE_ENERGY_IMPORT_TOTAL_WH);
-        addRegisterSpecToDeviceConfiguration(registerTypes, extendConfigBuilder, ACTIVE_ENERGY_IMPORT_TARIFF_1_WH);
-        addRegisterSpecToDeviceConfiguration(registerTypes, extendConfigBuilder, ACTIVE_ENERGY_IMPORT_TARIFF_2_WH);
-        addRegisterSpecToDeviceConfiguration(registerTypes, extendConfigBuilder, ACTIVE_ENERGY_EXPORT_TOTAL_WH);
-        addRegisterSpecToDeviceConfiguration(registerTypes, extendConfigBuilder, ACTIVE_ENERGY_EXPORT_TARIFF_1_WH);
-        addRegisterSpecToDeviceConfiguration(registerTypes, extendConfigBuilder, ACTIVE_ENERGY_EXPORT_TARIFF_2_WH);
-        extendConfigBuilder.newLoadProfileSpec(loadProfileTypes.get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
-        extendConfigBuilder.newLoadProfileSpec(loadProfileTypes.get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY));
-        extendConfigBuilder.newLoadProfileSpec(loadProfileTypes.get(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY));
-        extendConfigBuilder.newLogBookSpec(logBookTypes.get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK));
-        extendConfigBuilder.newLogBookSpec(logBookTypes.get(LOG_BOOK_TYPES_POWER_FAILURES));
-        extendConfigBuilder.newLogBookSpec(logBookTypes.get(LOG_BOOK_TYPES_FRAUD_DETECTIONS));
+        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_IMPORT_TOTAL_WH);
+        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_IMPORT_TARIFF_1_WH);
+        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_IMPORT_TARIFF_2_WH);
+        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_EXPORT_TOTAL_WH);
+        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_EXPORT_TARIFF_1_WH);
+        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_EXPORT_TARIFF_2_WH);
+        extendConfigBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
+        extendConfigBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY));
+        extendConfigBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY));
+        extendConfigBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK));
+        extendConfigBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_POWER_FAILURES));
+        extendConfigBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_FRAUD_DETECTIONS));
         DeviceConfiguration extendConfig = extendConfigBuilder.add();
 
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp");
         extendConfig.getCommunicationConfiguration()
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .comPortPool(outboundTcpComPortPool)
+                .comPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
                 .asDefault(true).build();
         SecurityPropertySet securityPropertySet = extendConfig.createSecurityPropertySet("No security").authenticationLevel(0).encryptionLevel(0).build();
         securityPropertySet.update();
         ProtocolDialectConfigurationProperties configurationProperties = setProtocolDialectConfigurationProperties(extendConfig);
-        extendConfig.enableComTask(comTasks.get(COM_TASK_READ_DAILY), securityPropertySet)
-                .setIgnoreNextExecutionSpecsForInbound(true)
-                .setPriority(100)
-                .setProtocolDialectConfigurationProperties(configurationProperties)
-                /*.setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration(1, TimeDuration.DAYS), new TimeDuration(0, TimeDuration.SECONDS)))*/.add().save();
-        extendConfig.enableComTask(comTasks.get(COM_TASK_TOPOLOGY), securityPropertySet)
+        extendConfig.enableComTask(store.getComTasks().get(COM_TASK_READ_DAILY), securityPropertySet)
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .setPriority(100)
                 .setProtocolDialectConfigurationProperties(configurationProperties).add().save();
-        extendConfig.enableComTask(comTasks.get(COM_TASK_READ_REGISTER_DATA), securityPropertySet)
+        extendConfig.enableComTask(store.getComTasks().get(COM_TASK_TOPOLOGY), securityPropertySet)
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .setPriority(100)
-                .setProtocolDialectConfigurationProperties(configurationProperties)
-                /*.setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration(1, TimeDuration.MONTHS), new TimeDuration(0, TimeDuration.SECONDS)))*/.add().save();
+                .setProtocolDialectConfigurationProperties(configurationProperties).add().save();
+        extendConfig.enableComTask(store.getComTasks().get(COM_TASK_READ_REGISTER_DATA), securityPropertySet)
+                .setIgnoreNextExecutionSpecsForInbound(true)
+                .setPriority(100)
+                .setProtocolDialectConfigurationProperties(configurationProperties).add().save();
         configureChannelsForLoadProfileSpec(extendConfig);
         extendConfig.activate();
         extendConfig.save();
@@ -440,31 +424,32 @@ public class DemoServiceImpl implements DemoService {
                 .setNumberOfFractionDigits(0).add();
     }
 
-    private void createSimpleDeviceConfiguration(Map<String, RegisterType> registerTypes, Map<String, LoadProfileType> loadProfileTypes, Map<String, LogBookType> logBookTypes, Map<String, ComTask> comTasks, OutboundComPortPool outboundTcpComPortPool, DeviceType dsmr2_3) {
+    private void createSimpleDeviceConfiguration(Store store, DeviceType deviceType) {
         System.out.println("==> Creating Simple Device Configuration...");
-        DeviceType.DeviceConfigurationBuilder simpleConfigBuilder = dsmr2_3.newConfiguration("Default");
+        DeviceType.DeviceConfigurationBuilder simpleConfigBuilder = deviceType.newConfiguration("Default");
         simpleConfigBuilder.description("A simple device configuration which contains one LoadProfile and a minimal set of Registers.");
         simpleConfigBuilder.canActAsGateway(true);
         simpleConfigBuilder.isDirectlyAddressable(true);
-        addRegisterSpecToDeviceConfiguration(registerTypes, simpleConfigBuilder, ACTIVE_ENERGY_IMPORT_TOTAL_WH);
-        addRegisterSpecToDeviceConfiguration(registerTypes, simpleConfigBuilder, ACTIVE_ENERGY_EXPORT_TOTAL_WH);
-        simpleConfigBuilder.newLoadProfileSpec(loadProfileTypes.get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
-        simpleConfigBuilder.newLogBookSpec(logBookTypes.get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK));
+        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), simpleConfigBuilder, ACTIVE_ENERGY_IMPORT_TOTAL_WH);
+        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), simpleConfigBuilder, ACTIVE_ENERGY_EXPORT_TOTAL_WH);
+        simpleConfigBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
+        simpleConfigBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK));
         DeviceConfiguration simpleConfiguration = simpleConfigBuilder.add();
 
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp");
         simpleConfiguration.getCommunicationConfiguration()
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .comPortPool(outboundTcpComPortPool)
+                .comPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
+                .addProperty("host", "")
+                .addProperty("portNumber", 4059)
                 .asDefault(true).build();
         SecurityPropertySet securityPropertySet = simpleConfiguration.createSecurityPropertySet("No security").authenticationLevel(0).encryptionLevel(0).build();
         securityPropertySet.update();
         ProtocolDialectConfigurationProperties configurationProperties = setProtocolDialectConfigurationProperties(simpleConfiguration);
-        simpleConfiguration.enableComTask(comTasks.get(COM_TASK_READ_ALL), securityPropertySet)
+        simpleConfiguration.enableComTask(store.getComTasks().get(COM_TASK_READ_ALL), securityPropertySet)
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .setPriority(100)
-                .setProtocolDialectConfigurationProperties(configurationProperties)
-                /*.setNextExecutionSpecsFrom(new TemporalExpression(new TimeDuration(1, TimeDuration.DAYS), new TimeDuration(0, TimeDuration.SECONDS)))*/.add().save();
+                .setProtocolDialectConfigurationProperties(configurationProperties).add().save();
         configureChannelsForLoadProfileSpec(simpleConfiguration);
         simpleConfiguration.activate();
         simpleConfiguration.save();
