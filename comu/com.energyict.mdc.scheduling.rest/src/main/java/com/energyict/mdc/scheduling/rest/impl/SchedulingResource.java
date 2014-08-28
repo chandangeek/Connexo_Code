@@ -140,6 +140,7 @@ public class SchedulingResource {
         if(comScheduleInfo.comTaskUsages!=null){
             updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
         }
+        comSchedule.save();
         return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, false)).build();
     }
 
@@ -166,10 +167,10 @@ public class SchedulingResource {
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression==null?null:comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.setStartDate(comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate));
         comSchedule.setmRID(comScheduleInfo.mRID);
-        comSchedule.save();
         if (comScheduleInfo.comTaskUsages!=null) {
             updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
         }
+        comSchedule.save();
         return ComScheduleInfo.from(findComScheduleOrThrowException(id), isInUse(comSchedule));
     }
 
