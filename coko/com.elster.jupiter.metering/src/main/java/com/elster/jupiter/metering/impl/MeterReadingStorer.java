@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class MeterReadingStorer {
@@ -118,15 +119,15 @@ public class MeterReadingStorer {
         for (EndDeviceEvent sourceEvent : events) {
             Optional<EndDeviceEventType> found = dataModel.mapper(EndDeviceEventType.class).getOptional(sourceEvent.getEventTypeCode());
             if (found.isPresent()) {
-                EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found.get(), sourceEvent.getCreatedDateTime());
-                for (Map.Entry<String, String> entry : sourceEvent.getEventData().entrySet()) {
-                    eventRecord.addProperty(entry.getKey(), entry.getValue());
-                }
-                Optional<EndDeviceEventRecord> existing = getEventMapper().getOptional(eventRecord.getEndDevice().getId(), eventRecord.getEventType().getMRID(), eventRecord.getCreatedDateTime());
-                if (existing.isPresent()) {
-                    toUpdate.add(eventRecord);
-                } else {
-                    toCreate.add(eventRecord);
+            	Optional<EndDeviceEventRecord> existing = getEventMapper().getOptional(meter.getId(),sourceEvent.getEventTypeCode(), sourceEvent.getCreatedDateTime());
+            	if (existing.isPresent()) {
+            		if (existing.get().updateProperties(sourceEvent.getEventData())) {
+            			toUpdate.add(existing.get());
+            		}
+            	} else {
+            		EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found.get(), sourceEvent.getCreatedDateTime());
+            		eventRecord.updateProperties(sourceEvent.getEventData());
+            		toCreate.add(eventRecord);
                 }
             } else {
                 MessageSeeds.METER_EVENT_IGNORED.log(logger, thesaurus, sourceEvent.getEventTypeCode(), meter.getMRID());

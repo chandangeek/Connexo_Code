@@ -62,4 +62,6 @@ public interface EndDeviceEventRecord extends EndDeviceEvent {
     void setDeviceEventType(String deviceEventType);
 
     void removeProperty(String key);
+
+	boolean updateProperties(Map<String, String> props);
 }

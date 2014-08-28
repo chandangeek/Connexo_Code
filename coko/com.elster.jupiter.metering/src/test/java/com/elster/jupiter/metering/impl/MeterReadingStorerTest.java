@@ -114,36 +114,5 @@ public class MeterReadingStorerTest {
         verify(eventService).postEvent(eq(EventType.METERREADING_CREATED.topic()), anyObject());
     }
 
-    @Test
-    public void testMeterReadingStorerOfExistingEndDeviceEvent() {
-        when(eventRecordFactory.getOptional(METER_ID, EVENTTYPECODE, DATE)).thenReturn(Optional.of(existing));
-
-        MeterReadingImpl meterReading = new MeterReadingImpl();
-        EndDeviceEventImpl endDeviceEvent = new EndDeviceEventImpl(EVENTTYPECODE, DATE);
-        HashMap<String, String> eventData = new HashMap<>();
-        eventData.put("A", "B");
-        endDeviceEvent.setEventData(eventData);
-        meterReading.addEndDeviceEvent(endDeviceEvent);
-        MeterReadingStorer meterReadingStorer = new MeterReadingStorer(dataModel, meteringService, meter, meterReading, thesaurus, eventService, deviceEventFactory);
-
-        meterReadingStorer.store();
-
-        ArgumentCaptor<List> listCaptor = ArgumentCaptor.forClass(List.class);
-        verify(eventRecordFactory).update(listCaptor.capture());
-
-        EndDeviceEventRecord actual = (EndDeviceEventRecord) listCaptor.getValue().get(0);
-        assertThat(actual.getEndDevice()).isEqualTo(meter);
-        assertThat(actual.getEventType()).isEqualTo(eventType);
-        assertThat(actual.getCreatedDateTime()).isEqualTo(DATE);
-        assertThat(actual.getProperties()).contains(entry("A", "B"));
-
-
-        ArgumentCaptor<EndDeviceEventRecordImpl> argumentCaptor = ArgumentCaptor.forClass(EndDeviceEventRecordImpl.class);
-        verify(eventService).postEvent(eq(EventType.END_DEVICE_EVENT_UPDATED.topic()), argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue()).isEqualTo(actual);
-        verify(eventService).postEvent(eq(EventType.METERREADING_CREATED.topic()), anyObject());
-
-    }
-
 
 }

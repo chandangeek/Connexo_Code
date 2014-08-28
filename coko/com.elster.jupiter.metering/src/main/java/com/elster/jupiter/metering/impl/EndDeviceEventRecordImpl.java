@@ -17,10 +17,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, PersistenceAware {
 
@@ -304,6 +306,22 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
                 }
             }
         }
+    }
+    
+    @Override 
+    public boolean updateProperties(Map<String,String> props) {
+    	if (this.properties.equals(props)) {
+    		return false;
+    	}
+    	Set<String> keysToRemove = new HashSet<>(this.properties.keySet()); // make a copy of keySet, as we do not want to change the map when removing.
+    	for (Map.Entry<String, String> entry : props.entrySet()) {
+    		addProperty(entry.getKey(), entry.getValue());
+    		keysToRemove.remove(entry.getKey());
+    	}
+    	for (String key : keysToRemove) {
+    		removeProperty(key);
+    	}
+    	return true;
     }
 
     @Override
