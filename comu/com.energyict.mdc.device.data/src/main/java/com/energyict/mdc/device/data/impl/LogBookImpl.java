@@ -25,11 +25,26 @@ public class LogBookImpl implements LogBook {
 
     private final DataModel dataModel;
 
+    enum FieldNames {
+        LATEST_EVENT_OCCURRENCE_IN_METER("lastEventOccurrence"),
+        LATEST_EVENT_CREATED_IN_DB("latestEventAddition");
+
+        FieldNames(String name) {
+            this.name = name;
+        }
+
+        private final String name;
+
+        public String fieldName() {
+            return name;
+        }
+    }
+
     private long id;
     private Reference<DeviceImpl> device = ValueReference.absent();
     private Reference<LogBookSpec> logBookSpec = ValueReference.absent();
-    private UtcInstant lastReading;
-    private UtcInstant modTime;
+    private UtcInstant lastEventOccurrence;
+    private UtcInstant latestEventAddition;
 
 
     @Inject
@@ -55,8 +70,8 @@ public class LogBookImpl implements LogBook {
 
     @Override
     public Date getLastLogBook() {
-        if (lastReading != null) {
-            return lastReading.toDate();
+        if (lastEventOccurrence != null) {
+            return lastEventOccurrence.toDate();
         } else {
             return null;
         }
@@ -82,8 +97,8 @@ public class LogBookImpl implements LogBook {
     }
 
     @Override
-    public Date getModTime() {
-        return modTime !=null? modTime.toDate():null;
+    public Date getLatestEventAdditionDate() {
+        return latestEventAddition !=null? latestEventAddition.toDate():null;
     }
 
     @Override
@@ -101,18 +116,18 @@ public class LogBookImpl implements LogBook {
 
         @Override
         public LogBook.LogBookUpdater setLastLogBookIfLater(Date lastReading) {
-            UtcInstant logBookLastReading = this.logBook.lastReading;
+            UtcInstant logBookLastReading = this.logBook.lastEventOccurrence;
             if (lastReading != null && (logBookLastReading == null || lastReading.after(logBookLastReading.toDate()))) {
-                this.logBook.lastReading = new UtcInstant(lastReading);
+                this.logBook.lastEventOccurrence = new UtcInstant(lastReading);
             }
             return this;
         }
 
         @Override
         public LogBook.LogBookUpdater setLastReadingIfLater(Date createTime) {
-            UtcInstant logBookCreateTime = this.logBook.modTime;
+            UtcInstant logBookCreateTime = this.logBook.latestEventAddition;
             if (createTime != null && (logBookCreateTime == null || createTime.after(logBookCreateTime.toDate()))) {
-                this.logBook.modTime = new UtcInstant(createTime);
+                this.logBook.latestEventAddition = new UtcInstant(createTime);
             }
             return this;
 

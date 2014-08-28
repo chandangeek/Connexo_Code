@@ -30,7 +30,7 @@ public interface LogBook extends BaseLogBook, HasId {
      * Time at which the logbook was was updated in the DB with a new event
      * @return
      */
-    Date getModTime();
+    Date getLatestEventAdditionDate();
 
     public List<EndDeviceEventRecord> getEndDeviceEvents(Interval interval);
 
