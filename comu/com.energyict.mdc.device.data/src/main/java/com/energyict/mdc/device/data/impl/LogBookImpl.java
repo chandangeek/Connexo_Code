@@ -29,7 +29,7 @@ public class LogBookImpl implements LogBook {
     private Reference<DeviceImpl> device = ValueReference.absent();
     private Reference<LogBookSpec> logBookSpec = ValueReference.absent();
     private UtcInstant lastReading;
-    private UtcInstant createTime;
+    private UtcInstant modTime;
 
 
     @Inject
@@ -82,8 +82,8 @@ public class LogBookImpl implements LogBook {
     }
 
     @Override
-    public Date getCreateTime() {
-        return createTime!=null?createTime.toDate():null;
+    public Date getModTime() {
+        return modTime !=null? modTime.toDate():null;
     }
 
     @Override
@@ -110,9 +110,9 @@ public class LogBookImpl implements LogBook {
 
         @Override
         public LogBook.LogBookUpdater setLastReadingIfLater(Date createTime) {
-            UtcInstant logBookCreateTime = this.logBook.createTime;
+            UtcInstant logBookCreateTime = this.logBook.modTime;
             if (createTime != null && (logBookCreateTime == null || createTime.after(logBookCreateTime.toDate()))) {
-                this.logBook.createTime = new UtcInstant(createTime);
+                this.logBook.modTime = new UtcInstant(createTime);
             }
             return this;
 
