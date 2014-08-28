@@ -31,6 +31,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
             me.columns.push({
                 header: channel.name,
                 dataIndex: 'channelData',
+                align: 'right',
                 minWidth : 300,
                 flex: 1,
                 renderer: function (data) {
