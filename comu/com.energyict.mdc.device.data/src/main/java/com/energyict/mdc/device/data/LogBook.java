@@ -26,6 +26,12 @@ public interface LogBook extends BaseLogBook, HasId {
 
     LogBookType getLogBookType();
 
+    /**
+     * Time at which the logbook was was updated in the DB with a new event
+     * @return
+     */
+    Date getLatestEventAdditionDate();
+
     public List<EndDeviceEventRecord> getEndDeviceEvents(Interval interval);
 
     /**
@@ -45,5 +51,7 @@ public interface LogBook extends BaseLogBook, HasId {
          * Updates the com.energyict.mdc.device.data.LogBook, preferably via his Device
          */
         void update();
+
+        LogBookUpdater setLastReadingIfLater(Date date);
     }
 }
