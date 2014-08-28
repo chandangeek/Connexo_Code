@@ -365,59 +365,68 @@ public class DemoServiceImpl implements DemoService {
 
     private void createExtendedDeviceConfiguration(Store store, DeviceType deviceType) {
         System.out.println("==> Creating Extended Device Configuration...");
-        DeviceType.DeviceConfigurationBuilder extendConfigBuilder = deviceType.newConfiguration("Extended Config");
-        extendConfigBuilder.description("A complex configuration that is closely matched to the DSMR 2.3 Devices");
-        extendConfigBuilder.canActAsGateway(true);
-        extendConfigBuilder.isDirectlyAddressable(true);
-        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_IMPORT_TOTAL_WH);
-        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_IMPORT_TARIFF_1_WH);
-        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_IMPORT_TARIFF_2_WH);
-        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_EXPORT_TOTAL_WH);
-        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_EXPORT_TARIFF_1_WH);
-        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), extendConfigBuilder, ACTIVE_ENERGY_EXPORT_TARIFF_2_WH);
-        extendConfigBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
-        extendConfigBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY));
-        extendConfigBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY));
-        extendConfigBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK));
-        extendConfigBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_POWER_FAILURES));
-        extendConfigBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_FRAUD_DETECTIONS));
-        DeviceConfiguration extendConfig = extendConfigBuilder.add();
+        DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration("Extended Config");
+        configBuilder.description("A complex configuration that is closely matched to the DSMR 2.3 Devices");
+        configBuilder.canActAsGateway(true);
+        configBuilder.isDirectlyAddressable(true);
 
-        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp");
-        extendConfig.getCommunicationConfiguration()
-                .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .comPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
-                .asDefault(true).build();
-        SecurityPropertySet securityPropertySet = extendConfig.createSecurityPropertySet("No security").authenticationLevel(0).encryptionLevel(0).build();
-        securityPropertySet.update();
-        ProtocolDialectConfigurationProperties configurationProperties = setProtocolDialectConfigurationProperties(extendConfig);
-        extendConfig.enableComTask(store.getComTasks().get(COM_TASK_READ_DAILY), securityPropertySet)
-                .setIgnoreNextExecutionSpecsForInbound(true)
-                .setPriority(100)
-                .setProtocolDialectConfigurationProperties(configurationProperties).add().save();
-        extendConfig.enableComTask(store.getComTasks().get(COM_TASK_TOPOLOGY), securityPropertySet)
-                .setIgnoreNextExecutionSpecsForInbound(true)
-                .setPriority(100)
-                .setProtocolDialectConfigurationProperties(configurationProperties).add().save();
-        extendConfig.enableComTask(store.getComTasks().get(COM_TASK_READ_REGISTER_DATA), securityPropertySet)
-                .setIgnoreNextExecutionSpecsForInbound(true)
-                .setPriority(100)
-                .setProtocolDialectConfigurationProperties(configurationProperties).add().save();
-        configureChannelsForLoadProfileSpec(extendConfig);
-        extendConfig.activate();
-        extendConfig.save();
-        createDevicesForDeviceConfiguration(extendConfig);
+        addRegisterSpecsToDeviceConfiguration(configBuilder, store,
+                ACTIVE_ENERGY_IMPORT_TOTAL_WH,
+                ACTIVE_ENERGY_IMPORT_TARIFF_1_WH,
+                ACTIVE_ENERGY_IMPORT_TARIFF_2_WH,
+                ACTIVE_ENERGY_EXPORT_TOTAL_WH,
+                ACTIVE_ENERGY_EXPORT_TARIFF_1_WH,
+                ACTIVE_ENERGY_EXPORT_TARIFF_2_WH);
+
+        configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
+        configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY));
+        configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY));
+        configBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK));
+        configBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_POWER_FAILURES));
+        configBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_FRAUD_DETECTIONS));
+        DeviceConfiguration configuration = configBuilder.add();
+
+        addConnectionMethodToDeviceConfiguration(store, configuration);
+        createSecurityPropertySetForDeviceConfiguration(configuration);
+        setProtocolDialectConfigurationProperties(configuration);
+        enableComTasksOnDeviceConfiguration(configuration, store, COM_TASK_READ_DAILY, COM_TASK_TOPOLOGY, COM_TASK_READ_REGISTER_DATA);
+        configureChannelsForLoadProfileSpec(configuration);
+        configuration.activate();
+        configuration.save();
+        createDevicesForDeviceConfiguration(configuration);
     }
 
-    private ProtocolDialectConfigurationProperties setProtocolDialectConfigurationProperties(DeviceConfiguration devConfiguration) {
-        ProtocolDialectConfigurationProperties configurationProperties = devConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+    /**
+     * We expect that required security property set is the first element in collection
+     */
+    public void enableComTasksOnDeviceConfiguration(DeviceConfiguration configuration, Store store, String... names){
+        if (names != null) {
+            for (String name : names) {
+                configuration.enableComTask(store.getComTasks().get(name), configuration.getSecurityPropertySets().get(0))
+                    .setIgnoreNextExecutionSpecsForInbound(true)
+                    .setPriority(100)
+                    .setProtocolDialectConfigurationProperties(configuration.getProtocolDialectConfigurationPropertiesList().get(0)).add().save();
+            }
+        }
+    }
+
+    private ProtocolDialectConfigurationProperties setProtocolDialectConfigurationProperties(DeviceConfiguration configuration) {
+        ProtocolDialectConfigurationProperties configurationProperties = configuration.getProtocolDialectConfigurationPropertiesList().get(0);
         configurationProperties.setProperty("NTASimulationTool", "1");
         configurationProperties.save();
         return configurationProperties;
     }
 
-    private void addRegisterSpecToDeviceConfiguration(Map<String, RegisterType> registerTypes, DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder, String registerName) {
-        deviceConfigurationBuilder.newNumericalRegisterSpec(registerTypes.get(registerName))
+    private void addRegisterSpecsToDeviceConfiguration(DeviceType.DeviceConfigurationBuilder builder, Store store, String... registerTypesNames){
+        if (registerTypesNames != null){
+            for (String registerTypesName : registerTypesNames) {
+                addRegisterSpecToDeviceConfiguration(builder, store.getRegisterTypes().get(registerTypesName));
+            }
+        }
+    }
+
+    private void addRegisterSpecToDeviceConfiguration(DeviceType.DeviceConfigurationBuilder builder, RegisterType registerType) {
+        builder.newNumericalRegisterSpec(registerType)
                 .setOverflowValue(new BigDecimal(99999999))
                 .setNumberOfDigits(8)
                 .setMultiplier(new BigDecimal(1))
@@ -426,34 +435,40 @@ public class DemoServiceImpl implements DemoService {
 
     private void createSimpleDeviceConfiguration(Store store, DeviceType deviceType) {
         System.out.println("==> Creating Simple Device Configuration...");
-        DeviceType.DeviceConfigurationBuilder simpleConfigBuilder = deviceType.newConfiguration("Default");
-        simpleConfigBuilder.description("A simple device configuration which contains one LoadProfile and a minimal set of Registers.");
-        simpleConfigBuilder.canActAsGateway(true);
-        simpleConfigBuilder.isDirectlyAddressable(true);
-        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), simpleConfigBuilder, ACTIVE_ENERGY_IMPORT_TOTAL_WH);
-        addRegisterSpecToDeviceConfiguration(store.getRegisterTypes(), simpleConfigBuilder, ACTIVE_ENERGY_EXPORT_TOTAL_WH);
-        simpleConfigBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
-        simpleConfigBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK));
-        DeviceConfiguration simpleConfiguration = simpleConfigBuilder.add();
+        DeviceType.DeviceConfigurationBuilder configBuilder = deviceType.newConfiguration("Default");
+        configBuilder.description("A simple device configuration which contains one LoadProfile and a minimal set of Registers.");
+        configBuilder.canActAsGateway(true);
+        configBuilder.isDirectlyAddressable(true);
+        addRegisterSpecsToDeviceConfiguration(configBuilder, store, ACTIVE_ENERGY_IMPORT_TOTAL_WH, ACTIVE_ENERGY_EXPORT_TOTAL_WH);
+        configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
+        configBuilder.newLogBookSpec(store.getLogBookTypes().get(LOG_BOOK_TYPES_DEFAULT_LOGBOOK));
+        DeviceConfiguration configuration = configBuilder.add();
 
+        addConnectionMethodToDeviceConfiguration(store, configuration);
+
+        createSecurityPropertySetForDeviceConfiguration(configuration);
+        setProtocolDialectConfigurationProperties(configuration);
+        enableComTasksOnDeviceConfiguration(configuration, store, COM_TASK_READ_ALL);
+        configureChannelsForLoadProfileSpec(configuration);
+        configuration.activate();
+        configuration.save();
+        createDevicesForDeviceConfiguration(configuration);
+    }
+
+    private SecurityPropertySet createSecurityPropertySetForDeviceConfiguration(DeviceConfiguration configuration) {
+        SecurityPropertySet securityPropertySet = configuration.createSecurityPropertySet("No security").authenticationLevel(0).encryptionLevel(0).build();
+        securityPropertySet.update();
+        return securityPropertySet;
+    }
+
+    private void addConnectionMethodToDeviceConfiguration(Store store, DeviceConfiguration configuration) {
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp");
-        simpleConfiguration.getCommunicationConfiguration()
+        configuration.getCommunicationConfiguration()
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
-                .addProperty("host", "")
-                .addProperty("portNumber", 4059)
+                .addProperty("host", "deitvs015")
+                .addProperty("portNumber", new BigDecimal(4059))
                 .asDefault(true).build();
-        SecurityPropertySet securityPropertySet = simpleConfiguration.createSecurityPropertySet("No security").authenticationLevel(0).encryptionLevel(0).build();
-        securityPropertySet.update();
-        ProtocolDialectConfigurationProperties configurationProperties = setProtocolDialectConfigurationProperties(simpleConfiguration);
-        simpleConfiguration.enableComTask(store.getComTasks().get(COM_TASK_READ_ALL), securityPropertySet)
-                .setIgnoreNextExecutionSpecsForInbound(true)
-                .setPriority(100)
-                .setProtocolDialectConfigurationProperties(configurationProperties).add().save();
-        configureChannelsForLoadProfileSpec(simpleConfiguration);
-        simpleConfiguration.activate();
-        simpleConfiguration.save();
-        createDevicesForDeviceConfiguration(simpleConfiguration);
     }
 
     private void configureChannelsForLoadProfileSpec(DeviceConfiguration devConfiguration) {
