@@ -65,6 +65,7 @@ Ext.define('Dsh.view.CommunicationOverview', {
                     },
                     {
                         xtype: 'quick-links',
+                        itemId: 'quick-links',
                         flex: 1,
                         style: {
                             paddingLeft: '50px'
