@@ -31,10 +31,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
             me.columns.push({
                 header: channel.name,
                 dataIndex: 'channelData',
+                align: 'right',
                 minWidth : 300,
                 flex: 1,
                 renderer: function (data) {
-                    return data[channel.id] ? data[channel.id] + ' ' + channel.unitOfMeasure.localizedValue : '';
+                    return data[channel.id]
+                        ? Uni.I18n.formatNumber(data[channel.id], 'MDC', 3) + ' ' + channel.unitOfMeasure.localizedValue
+                        : '';
                 }
             });
         });

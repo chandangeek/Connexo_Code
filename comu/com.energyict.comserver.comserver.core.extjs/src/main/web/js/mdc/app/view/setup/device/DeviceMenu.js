@@ -41,9 +41,15 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 hrefTarget: '_self'
             },
             {
-                text: Uni.I18n.translate('devicemenu.communication', 'MDC', 'Communication'),
-                itemId: 'communicationLink',
-                href: '#/devices/' + this.mRID + '/communication',
+                text: Uni.I18n.translate('devicemenu.communicationTasks', 'MDC', 'Communication tasks'),
+                itemId: 'communicationTasksLink',
+                href: '#/devices/' + this.mRID + '/communicationtasks',
+                hrefTarget: '_self'
+            },
+            {
+                text: Uni.I18n.translate('devicemenu.communicationSchedules', 'MDC', 'Communication schedules'),
+                itemId: 'communicationSchedulesLink',
+                href: '#/devices/' + this.mRID + '/communicationschedules',
                 hrefTarget: '_self'
             },
             {
