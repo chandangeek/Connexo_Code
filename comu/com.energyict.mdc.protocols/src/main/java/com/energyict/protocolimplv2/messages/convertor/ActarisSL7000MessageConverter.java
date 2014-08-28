@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;

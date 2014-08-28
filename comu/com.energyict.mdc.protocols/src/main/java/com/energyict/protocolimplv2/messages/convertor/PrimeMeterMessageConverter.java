@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;

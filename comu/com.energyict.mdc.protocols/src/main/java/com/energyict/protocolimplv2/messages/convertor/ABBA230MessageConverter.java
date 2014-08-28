@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;

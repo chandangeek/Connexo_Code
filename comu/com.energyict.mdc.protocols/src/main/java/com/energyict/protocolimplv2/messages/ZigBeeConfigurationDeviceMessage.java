@@ -1,16 +1,16 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.HexStringFactory;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
+
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
@@ -93,7 +93,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpec {
 
     @Override
     public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+        return this.getNameResourceKey();
     }
 
     /**

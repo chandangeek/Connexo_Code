@@ -1,19 +1,20 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.api.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.ByteArrayOutputStream;
@@ -36,8 +37,8 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
     private static final int TIMEOUT_DEFAULT = 10000;
     private static final int RETRIES_DEFAULT = 2;
-    private static final String TIMEOUT_KEY = Environment.DEFAULT.get().getTranslation("protocol.timeout");
-    private static final String RETRIES_KEY = Environment.DEFAULT.get().getTranslation("protocol.retries");
+    private static final String TIMEOUT_KEY = Bus.getThesaurus().getString(MessageSeeds.TIMEOUT.getKey(), "Timeout");
+    private static final String RETRIES_KEY = Bus.getThesaurus().getString(MessageSeeds.RETRIES.getKey(), "Retries");
 
     private DeviceIdentifierBySerialNumber deviceIdentifier;
     private InboundDiscoveryContext context;

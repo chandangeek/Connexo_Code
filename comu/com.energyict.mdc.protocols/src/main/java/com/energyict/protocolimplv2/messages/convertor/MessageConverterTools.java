@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.Environment;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
 import com.energyict.mdc.protocol.api.device.DeviceMessageSpecFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.List;
 

@@ -1,6 +1,5 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -18,6 +17,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolImplFactory;
 import com.energyict.protocols.util.ProtocolInstantiator;
@@ -37,8 +37,8 @@ import java.util.List;
  */
 public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
 
-    private static final String TIMEOUT_KEY = Environment.DEFAULT.get().getTranslation("protocol.timeout");
-    private static final String RETRIES_KEY = Environment.DEFAULT.get().getTranslation("protocol.retries");
+    private static final String TIMEOUT_KEY = Bus.getThesaurus().getString(MessageSeeds.TIMEOUT.getKey(), "Timeout");
+    private static final String RETRIES_KEY = Bus.getThesaurus().getString(MessageSeeds.RETRIES.getKey(), "Retries");
 
     private static final int TIMEOUT_DEFAULT = 10000;          //TODO are these defaults OK ?
     private static final int RETRIES_DEFAULT = 2;

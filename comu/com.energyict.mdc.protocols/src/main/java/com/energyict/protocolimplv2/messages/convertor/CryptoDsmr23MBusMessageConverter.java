@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;

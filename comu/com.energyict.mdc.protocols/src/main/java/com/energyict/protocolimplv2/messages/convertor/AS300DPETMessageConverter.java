@@ -2,12 +2,13 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;

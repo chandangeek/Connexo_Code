@@ -138,6 +138,10 @@ public enum MessageSeeds implements MessageSeed {
     AT_MODEM_NO_CARRIER(240, "atModemNoCarrier", "Receiver was not reachable, modem on COM port {0} returned NO_CARRIER command, last command send [{1}]", Level.SEVERE),
     AT_MODEM_NO_DIALTONE(241, "atModemNoDialtone", "Could not dial with modem on COM port {0}, a NO_DIALTONE command was returned, last command send [{1}]", Level.SEVERE),
     MODEM_CALL_ABORTED(242, "modemCallAborted", "Most likely an invalid command has been sent, modem on COM port {0} returned CALL ABORTED command, last command send [{1}]", Level.SEVERE),
+    TIMEOUT(243, "protocol.timeout", "Timeout", Level.INFO),
+    RETRIES(243, "protocol.retries", "Retries", Level.INFO),
+    DEVICEDIALHOMEID(244, "deviceDialHomeId", "Device call home ID", Level.INFO),
+    EVENT_VALUE(245, "protocol.eventvalue", "Value", Level.INFO),
     ;
 
     private final int number;

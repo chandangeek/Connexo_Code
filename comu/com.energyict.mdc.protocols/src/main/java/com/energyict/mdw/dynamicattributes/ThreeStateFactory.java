@@ -1,6 +1,5 @@
 package com.energyict.mdw.dynamicattributes;
 
-import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;
 import com.energyict.mdc.protocol.api.legacy.dynamic.AttributeType;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Seed;
@@ -52,28 +51,28 @@ public class ThreeStateFactory extends AbstractValueFactory<Boolean> {
     }
 
     protected String doGetHtmlString(Boolean object) {
-        StringBuffer result = new StringBuffer(100);
+        StringBuilder result = new StringBuilder(100);
 
         result.append(" <input type\"radio\" name=\"tri\" ");
         if (object != null && object) {
             result.append("checked ");
         }
         result.append("disabled=\"true\" > ");
-        result.append(UserEnvironment.getDefault().getTranslation("yes"));
+        result.append("yes");
 
         result.append(" <input type\"radio\" name=\"tri\" ");
         if (object != null && !object) {
             result.append("checked ");
         }
         result.append("disabled=\"true\" > ");
-        result.append(UserEnvironment.getDefault().getTranslation("no"));
+        result.append("no");
 
         result.append(" <input type\"radio\" name=\"tri\" ");
         if (object == null) {
             result.append("checked ");
         }
         result.append("disabled=\"true\" > ");
-        result.append(UserEnvironment.getDefault().getTranslation("unknown"));
+        result.append("unknown");
 
         return result.toString();
     }

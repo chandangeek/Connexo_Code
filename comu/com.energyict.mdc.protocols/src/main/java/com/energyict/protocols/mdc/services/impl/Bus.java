@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -21,6 +22,7 @@ public final class Bus {
     private static AtomicReference<Clock> clockProvider = new AtomicReference<>();
     private static AtomicReference<PropertySpecService> propertySpecServiceProvider = new AtomicReference<>();
     private static AtomicReference<MdcReadingTypeUtilService> mdcReadingTypeUtilServiceProvider = new AtomicReference<>();
+    private static AtomicReference<Thesaurus> thesaurusProvider = new AtomicReference<>();
 
     public static IssueService getIssueService() {
         return issueServiceProvider.get();
@@ -69,4 +71,17 @@ public final class Bus {
     public static void clearMdcReadingTypeUtilService(MdcReadingTypeUtilService old){
         mdcReadingTypeUtilServiceProvider.compareAndSet(old, null);
     }
+
+    public static Thesaurus getThesaurus() {
+        return thesaurusProvider.get();
+    }
+
+    public static void setThesaurus(Thesaurus thesaurus) {
+        thesaurusProvider.set(thesaurus);
+    }
+
+    public static void clearThesaurus(Thesaurus old) {
+        thesaurusProvider.compareAndSet(old, null);
+    }
+
 }

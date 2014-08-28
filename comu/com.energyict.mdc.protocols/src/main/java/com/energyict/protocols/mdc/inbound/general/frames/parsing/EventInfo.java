@@ -1,9 +1,11 @@
 package com.energyict.protocols.mdc.inbound.general.frames.parsing;
 
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+
+import com.energyict.protocols.mdc.services.impl.Bus;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,7 +23,7 @@ import java.util.TimeZone;
 public class EventInfo {
 
     private static final int UNKNOWN = 0;
-    private static final String PROTOCOL_EVENTVALUE = Environment.DEFAULT.get().getTranslation("protocol.eventvalue");
+    private static final String PROTOCOL_EVENTVALUE = Bus.getThesaurus().getString(MessageSeeds.EVENT_VALUE.getKey(), "Value");
     private String info;
     private int logBookId;
 
