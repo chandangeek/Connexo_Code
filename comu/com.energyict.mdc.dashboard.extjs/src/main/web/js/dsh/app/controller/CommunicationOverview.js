@@ -10,11 +10,21 @@ Ext.define('Dsh.controller.CommunicationOverview', {
         'Dsh.view.CommunicationOverview'
     ],
     refs: [
-        { ref: 'breakdown', selector: '#breakdown' },
-        { ref: 'breakdown', selector: '#breakdown' },
+        { ref: 'communicationOverview', selector: '#communication-overview' },
+        { ref: 'header', selector: '#header-section' },
+        { ref: 'summary', selector: '#summary' },
+        { ref: 'communicationServers', selector: '#communication-servers' },
         { ref: 'overview', selector: '#overview' },
-        { ref: 'summary', selector: '#summary' }
+        { ref: 'breakdown', selector: '#breakdown' }
     ],
+
+    init: function () {
+        this.control({
+            '#communication-overview #refresh-btn': {
+                click: this.loadData
+            }
+        });
+    },
 
     showOverview: function () {
         var router = this.getController('Uni.controller.history.Router');
@@ -23,13 +33,19 @@ Ext.define('Dsh.controller.CommunicationOverview', {
     },
 
     loadData: function () {
-        var me = this;
-        var model = me.getModel('Dsh.model.communication.Overview');
+        var me = this,
+            model = me.getModel('Dsh.model.communication.Overview');
+        me.getCommunicationOverview().setLoading();
+        me.getCommunicationServers().reload();
         model.load(null, {
                 success: function (record) {
                     me.getSummary().setRecord(record.getSummary());
                     me.getOverview().bindStore(record.overviews());
                     me.getBreakdown().bindStore(record.breakdowns());
+                    me.getHeader().down('#last-updated-field').setValue('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
+                },
+                callback: function () {
+                    me.getCommunicationOverview().setLoading(false);
                 }
             }
         );

@@ -25,6 +25,7 @@ Ext.define('Dsh.view.widget.Overview', {
 
     bindStore: function (store) {
         var me = this;
+        me.removeAll(true);
         store.each(function (item, idx) {
             var panel = Ext.create('Ext.panel.Panel', {
                 tbar: {

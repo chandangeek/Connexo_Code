@@ -43,16 +43,17 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                 items: [
                     {
                         xtype: 'displayfield',
-                        value: 'Last updated at 15:01', //TODO: set real
+                        itemId: 'last-updated-field',
                         style: 'margin-right: 10px'
                     },
                     {
                         xtype: 'button',
+                        itemId: 'refresh-btn',
                         text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
                         style: {
                             lineHeight: 'none'
                         },
-                        iconCls: 'fa fa-refresh fa-lg' //TODO: set real img
+                        iconCls: 'fa fa-refresh fa-lg' //TODO: set real img,
                     }
                 ]
             }

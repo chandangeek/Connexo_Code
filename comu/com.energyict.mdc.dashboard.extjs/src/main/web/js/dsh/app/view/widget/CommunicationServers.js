@@ -45,19 +45,19 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                             trackMouse: true,
                             showDelay: 50,
                             hideDelay: 0,
-                            html: '<table>' +
-                                '<tr>' +
-                                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.communicationServer', 'DSH', 'Communication server') + '</td>' +
-                                '<td>' + record.get('comServerName') + '</td>' +
-                                '</tr>' +
-                                '<tr>' +
-                                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.onlineRemote', 'DSH', 'Online/Remote') + '</td>' +
-                                '<td>' + record.get('comServerType').charAt(0).toUpperCase() + record.get('comServerType').slice(1).toLocaleLowerCase() + '</td>' +
-                                '</tr>' +
-                                '<tr>' +
-                                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.downSince', 'DSH', 'Down since') + '</td>' +
-                                '<td>' + Ext.util.Format.date(new Date(), 'D M j, Y G:i') + '</td>' +
-                                '</tr>' +
+                                html: '<table>' +
+                                    '<tr>' +
+                                        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.communicationServer', 'DSH', 'Communication server') + '</td>' +
+                                        '<td>' + record.get('comServerName') + '</td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.onlineRemote', 'DSH', 'Online/Remote') + '</td>' +
+                                        '<td>' + record.get('comServerType').charAt(0).toUpperCase() + record.get('comServerType').slice(1).toLocaleLowerCase() + '</td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.downSince', 'DSH', 'Down since') + '</td>' +
+                                        '<td>' + Ext.util.Format.date(new Date(), 'D M j, Y G:i') + '</td>' +
+                                    '</tr>' +
                                 '</table>',
                             listeners: {
                                 hide: function (tooltip) {
@@ -70,5 +70,8 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
             }
         ];
         this.callParent(arguments);
+    },
+    reload: function(){
+        this.down('dataview').store.load();
     }
 });

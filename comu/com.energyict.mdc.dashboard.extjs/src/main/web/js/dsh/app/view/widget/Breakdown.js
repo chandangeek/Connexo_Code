@@ -28,11 +28,11 @@ Ext.define('Dsh.view.widget.Breakdown', {
         {
             xtype: 'container',
             html: '<div class="legend">' +
-                '<ul>' +
-                '<li><span class="color failed"></span> ' + Uni.I18n.translate('overview.widget.breakdown.failed', 'DSH', 'Failed') + '</li>' +
-                '<li><span class="color success"></span> ' + Uni.I18n.translate('overview.widget.breakdown.success', 'DSH', 'Success') + '</li>' +
-                '<li><span class="color pending"></span> ' + Uni.I18n.translate('overview.widget.breakdown.pending', 'DSH', 'Pending') + '</li>' +
-                '</ul>' +
+                    '<ul>' +
+                        '<li><span class="color failed"></span> ' + Uni.I18n.translate('overview.widget.breakdown.failed', 'DSH', 'Failed') + '</li>' +
+                        '<li><span class="color success"></span> ' + Uni.I18n.translate('overview.widget.breakdown.success', 'DSH', 'Success') + '</li>' +
+                        '<li><span class="color pending"></span> ' + Uni.I18n.translate('overview.widget.breakdown.pending', 'DSH', 'Pending') + '</li>' +
+                    '</ul>' +
                 '</div>'
         }
     ],
@@ -78,6 +78,8 @@ Ext.define('Dsh.view.widget.Breakdown', {
 
     bindStore: function (store) {
         var me = this;
+        me.down('#summaries-0').removeAll(true);
+        me.down('#summaries-1').removeAll(true);
         store.each(function (item, idx) {
             var panel = Ext.create('Ext.panel.Panel', {
                 tbar: {
@@ -104,18 +106,18 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     total: item.get('total'),
                     store: item.counters(),
                     tpl: '<table>' +
-                        '<tpl for=".">' +
-                        '<tbody class="item item-{#}">' +
-                        '<tr>' +
-                        '<td>' +
-                        '<a>' +
-                        '<div style="width: 200px; overflow: hidden; text-overflow: ellipsis; padding-right: 20px">{displayName}</div>' +
-                        '</a>' +
-                        '</td>' +
-                        '<td width="100%" id="bar-{#}"></td>' +
-                        '</tr>' +
-                        '</tbody>' +
-                        '</tpl>' +
+                            '<tpl for=".">' +
+                                '<tbody class="item item-{#}">' +
+                                    '<tr>' +
+                                        '<td>' +
+                                            '<a>' +
+                                                '<div style="width: 200px; overflow: hidden; text-overflow: ellipsis; padding-right: 20px">{displayName}</div>' +
+                                            '</a>' +
+                                        '</td>' +
+                                        '<td width="100%" id="bar-{#}"></td>' +
+                                    '</tr>' +
+                                '</tbody>' +
+                            '</tpl>' +
                         '</table>',
                     listeners: {
                         refresh: function (view) {
