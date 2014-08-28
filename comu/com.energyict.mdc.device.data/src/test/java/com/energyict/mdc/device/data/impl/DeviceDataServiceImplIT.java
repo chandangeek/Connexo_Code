@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -7,16 +9,12 @@ import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.util.time.UtcInstant;
+import org.junit.Test;
 
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,6 +65,13 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
                         new TemporalExpression(TimeDuration.days(1)),
                         new UtcInstant(new Date()));
         ComSchedule comSchedule = scheduleBuilder.build();
+
+        ComTask simpleComTask = inMemoryPersistence.getTaskService().newComTask("Simple task");
+        simpleComTask.createStatusInformationTask();
+        simpleComTask.save();
+        comSchedule.addComTask(simpleComTask);
+        comSchedule.save();
+
         ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
         filter.taskStatuses = this.breakdownStatusses();
         filter.comSchedules.add(comSchedule);
