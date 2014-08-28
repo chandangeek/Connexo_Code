@@ -52,6 +52,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     public SqlBuilder build(DataMapper<ComTaskExecution> dataMapper, int pageStart, int pageSize) {
         SqlBuilder sqlBuilder = dataMapper.builder(null);   // Does not generate an alias
         this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
+        this.appendJoinedTables();
         String sqlStartClause = sqlBuilder.getText();
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         while (statusIterator.hasNext()) {
@@ -66,6 +67,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.appendWhereOrAnd();
             this.append("obsolete_date is null");
         }
+        this.appendCompletionCodeClause();
         this.append(" order by lastexecutiontimestamp desc");
         return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize - 1);
     }
