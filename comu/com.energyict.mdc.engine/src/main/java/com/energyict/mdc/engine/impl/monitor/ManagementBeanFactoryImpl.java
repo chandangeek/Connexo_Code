@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
@@ -8,6 +9,9 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
@@ -38,11 +42,19 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     private static final Logger LOGGER = Logger.getLogger(ManagementBeanFactoryImpl.class.getName());
 
     private volatile Clock clock;
+    private volatile Thesaurus thesaurus;
     private Map<ObjectName, Object> registeredMBeans = new HashMap<>();
 
+    @SuppressWarnings("unused")
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @SuppressWarnings("unused")
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(EngineService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Override
@@ -52,7 +64,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
             Object registeredMBean = this.registeredMBeans.get(jmxName);
             ComServerMonitorImplMBean comServerMBean;
             if (registeredMBean == null) {
-                comServerMBean = new ComServerMonitorImpl(runningComServer, this.clock);
+                comServerMBean = new ComServerMonitorImpl(runningComServer, this.clock, this.thesaurus);
                 this.registerMBean(comServerMBean, jmxName);
             }
             else {
@@ -123,7 +135,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
             Object registeredMBean = this.registeredMBeans.get(jmxName);
             ScheduledComPortMonitorImplMBean comPortMBean;
             if (registeredMBean == null) {
-                comPortMBean = new ScheduledComPortMonitorImpl(comPort, this.clock);
+                comPortMBean = new ScheduledComPortMonitorImpl(comPort, this.clock, this.thesaurus);
                 this.registerMBean(comPortMBean, jmxName);
             }
             else {

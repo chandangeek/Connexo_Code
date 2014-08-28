@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.monitor;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.exceptions.CodingException;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import org.joda.time.DateTimeConstants;
 
@@ -32,13 +33,15 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
     private static final String LAST_CHECK_FOR_CHANGES_ITEM_DESCRIPTION = "last check for changes timestamp";
 
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private final Date startTimestamp;
     private final TimeDuration changesInterPollDelay;
     private Date lastCheckForChangesTimestamp;
 
-    public OperationalStatisticsImpl(Clock clock, TimeDuration changesInterPollDelay) {
+    public OperationalStatisticsImpl(Clock clock, Thesaurus thesaurus, TimeDuration changesInterPollDelay) {
         super();
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.startTimestamp = this.clock.now();
         this.changesInterPollDelay = changesInterPollDelay;
     }
@@ -139,14 +142,14 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
                 new CompositeDataItemAccessor(RUNNING_TIME_ITEM_NAME, new ValueProvider() {
                     @Override
                     public Object getValue () {
-                        return new PrettyPrintTimeDuration(getRunningTime()).toString();
+                        return new PrettyPrintTimeDuration(getRunningTime(), thesaurus).toString();
                     }
                 }));
         accessors.add(
                 new CompositeDataItemAccessor(CHANGES_INTERPOLL_DELAY_ITEM_NAME, new ValueProvider() {
                     @Override
                     public Object getValue () {
-                        return new PrettyPrintTimeDuration(getChangesInterPollDelay()).toString();
+                        return new PrettyPrintTimeDuration(getChangesInterPollDelay(), thesaurus).toString();
                     }
                 }));
         accessors.add(

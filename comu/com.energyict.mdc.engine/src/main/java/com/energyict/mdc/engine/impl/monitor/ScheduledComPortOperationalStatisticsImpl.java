@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.monitor;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 
 import javax.management.openmbean.OpenType;
@@ -24,8 +25,8 @@ public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatis
     private final ScheduledComPort comPort;
     private Date lastCheckForWorkTimestamp;
 
-    public ScheduledComPortOperationalStatisticsImpl(ScheduledComPort comPort, Clock clock) {
-        super(clock, comPort.getComPort().getComServer().getChangesInterPollDelay());
+    public ScheduledComPortOperationalStatisticsImpl(ScheduledComPort comPort, Clock clock, Thesaurus thesaurus) {
+        super(clock, thesaurus, comPort.getComPort().getComServer().getChangesInterPollDelay());
         this.comPort = comPort;
     }
 

@@ -1,11 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -31,6 +29,8 @@ import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.google.common.base.Optional;
 
 import java.util.Arrays;
@@ -47,7 +47,10 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 
 /**
@@ -464,7 +467,7 @@ public class OfflineDeviceImplTest {
 
         @Override
         public String getName() {
-            return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+            return this.getNameResourceKey();
         }
 
         /**
@@ -479,7 +482,7 @@ public class OfflineDeviceImplTest {
 
         @Override
         public String getDescription() {
-            return UserEnvironment.getDefault().getTranslation(this.getDescriptionResourceKey());
+            return this.getDescriptionResourceKey();
         }
 
         /**

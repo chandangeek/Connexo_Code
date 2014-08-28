@@ -1,7 +1,10 @@
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 import org.joda.time.DateTimeConstants;
 
 import java.text.MessageFormat;
@@ -23,6 +26,7 @@ public class PrettyPrintTimeDuration {
     private static final int DAYS_IN_YEAR = 365;
     private static final int SECONDS_IN_YEAR = DateTimeConstants.SECONDS_PER_HOUR * DateTimeConstants.HOURS_PER_DAY * DAYS_IN_YEAR;
 
+    private final Thesaurus thesaurus;
     private int seconds;
     private int minutes;
     private int hours;
@@ -30,8 +34,9 @@ public class PrettyPrintTimeDuration {
     private int months;
     private int years;
 
-    public PrettyPrintTimeDuration (TimeDuration timeDuration) {
+    public PrettyPrintTimeDuration (TimeDuration timeDuration, Thesaurus thesaurus) {
         super();
+        this.thesaurus = thesaurus;
         this.seconds = timeDuration.getSeconds();
         this.setRemainingAttributesFromSeconds();
     }
@@ -77,6 +82,41 @@ public class PrettyPrintTimeDuration {
         return builder.toString();
     }
 
+    private enum TimeUnit {
+        YEAR(MessageSeeds.PRETTY_PRINT_TIMEDURATION_YEAR_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_YEAR_PLURAL),
+        MONTH(MessageSeeds.PRETTY_PRINT_TIMEDURATION_MONTH_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_MONTH_PLURAL),
+        DAY(MessageSeeds.PRETTY_PRINT_TIMEDURATION_DAY_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_DAY_PLURAL),
+        HOUR(MessageSeeds.PRETTY_PRINT_TIMEDURATION_HOUR_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_HOUR_PLURAL),
+        MINUTE(MessageSeeds.PRETTY_PRINT_TIMEDURATION_MINUTE_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_MINUTE_PLURAL),
+        SECOND(MessageSeeds.PRETTY_PRINT_TIMEDURATION_SECOND_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_SECOND_PLURAL);
+
+        private MessageSeed singular;
+        private MessageSeed plural;
+
+        TimeUnit(MessageSeed singular, MessageSeed plural) {
+            this.singular = singular;
+            this.plural = plural;
+        }
+
+        public void appendValue (int value, StringBuilder builder, Thesaurus thesaurus) {
+            if (this.isPlural(value)) {
+                this.append(builder, value, thesaurus, this.plural.getKey());
+            }
+            else {
+                this.append(builder, value, thesaurus, this.singular.getKey());
+            }
+        }
+
+        private boolean isPlural (int value) {
+            return value == 0 || value > 1;
+        }
+
+        private void append (StringBuilder builder, int value, Thesaurus thesaurus, String translationKey) {
+            String pattern = thesaurus.getString(translationKey, translationKey);
+            builder.append(MessageFormat.format(pattern, value));
+        }
+
+    }
     private class PrinterCommandBuilder {
 
         private PrintCommand build () {
@@ -87,27 +127,27 @@ public class PrettyPrintTimeDuration {
         }
 
         private void buildCommands (List<PrintCommand> commands) {
-            this.addCommandIfNotZero(commands, years, "PrettyPrintTimeDuration.year.singular", "PrettyPrintTimeDuration.year.plural");
-            this.addCommandIfNotZero(commands, months, "PrettyPrintTimeDuration.month.singular", "PrettyPrintTimeDuration.month.plural");
-            this.addCommandIfNotZero(commands, days, "PrettyPrintTimeDuration.day.singular", "PrettyPrintTimeDuration.day.plural");
-            this.addCommandIfNotZero(commands, hours, "PrettyPrintTimeDuration.hour.singular", "PrettyPrintTimeDuration.hour.plural");
-            this.addCommandIfNotZero(commands, minutes, "PrettyPrintTimeDuration.minute.singular", "PrettyPrintTimeDuration.minute.plural");
+            this.addCommandIfNotZero(commands, TimeUnit.YEAR, years);
+            this.addCommandIfNotZero(commands, TimeUnit.MONTH, months);
+            this.addCommandIfNotZero(commands, TimeUnit.DAY, days);
+            this.addCommandIfNotZero(commands, TimeUnit.HOUR, hours);
+            this.addCommandIfNotZero(commands, TimeUnit.MINUTE, minutes);
             if (commands.isEmpty()) {
-                this.addCommand(commands, seconds, "PrettyPrintTimeDuration.second.singular", "PrettyPrintTimeDuration.second.plural");
+                this.addCommand(commands, TimeUnit.SECOND, seconds);
             }
             else {
-                this.addCommandIfNotZero(commands, seconds, "PrettyPrintTimeDuration.second.singular", "PrettyPrintTimeDuration.second.plural");
+                this.addCommandIfNotZero(commands, TimeUnit.SECOND, seconds);
             }
         }
 
-        private void addCommandIfNotZero (List<PrintCommand> commands, int value, String singularTranslationKey, String pluralTranslationKey) {
+        private void addCommandIfNotZero(List<PrintCommand> commands, TimeUnit timeUnit, int value) {
             if (value > 0) {
-                this.addCommand(commands, value, singularTranslationKey, pluralTranslationKey);
+                this.addCommand(commands, timeUnit, value);
             }
         }
 
-        private void addCommand (List<PrintCommand> commands, int value, String singularTranslationKey, String pluralTranslationKey) {
-            commands.add(new PrintCommand(value, singularTranslationKey, pluralTranslationKey));
+        private void addCommand(List<PrintCommand> commands, TimeUnit timeUnit, int value) {
+            commands.add(new PrintCommand(timeUnit, value));
         }
 
         private void linkCommands (List<PrintCommand> commands) {
@@ -124,19 +164,17 @@ public class PrettyPrintTimeDuration {
 
     private class PrintCommand {
         private int value;
-        private String singularTranslationKey;
-        private String pluralTranslationKey;
+        private TimeUnit timeUnit;
         private PrintCommand next;
 
         private PrintCommand () {
             super();
         }
 
-        private PrintCommand (int value, String singularTranslationKey, String pluralTranslationKey) {
+        private PrintCommand(TimeUnit timeUnit, int value) {
             super();
             this.value = value;
-            this.singularTranslationKey = singularTranslationKey;
-            this.pluralTranslationKey = pluralTranslationKey;
+            this.timeUnit = timeUnit;
         }
 
         private void setNext (PrintCommand next) {
@@ -144,23 +182,9 @@ public class PrettyPrintTimeDuration {
         }
 
         protected void printWith (StringBuilder builder) {
-            if (this.isPlural(this.value)) {
-                this.print(builder, this.value, this.pluralTranslationKey);
-            }
-            else {
-                this.print(builder, this.value, this.singularTranslationKey);
-            }
+            this.timeUnit.appendValue(this.value, builder, thesaurus);
             this.next.addSeparator(builder);
             this.next.printWith(builder);
-        }
-
-        private void print (StringBuilder builder, int value, String translationKey) {
-            String pattern = UserEnvironment.getDefault().getTranslation(translationKey);
-            builder.append(MessageFormat.format(pattern, value));
-        }
-
-        private boolean isPlural (int value) {
-            return value == 0 || value > 1;
         }
 
         protected void addSeparator (StringBuilder builder) {
@@ -168,7 +192,7 @@ public class PrettyPrintTimeDuration {
         }
 
         protected void addSeparatorIfNotLast (StringBuilder builder) {
-            builder.append(UserEnvironment.getDefault().getTranslation("PrettyPrintTimeDuration.separator"));
+            builder.append(thesaurus.getString(MessageSeeds.PRETTY_PRINT_TIMEDURATION_SEPARATOR.getKey(), ", "));
         }
     }
 
@@ -185,7 +209,7 @@ public class PrettyPrintTimeDuration {
 
         @Override
         protected void addSeparatorIfNotLast (StringBuilder builder) {
-            builder.append(UserEnvironment.getDefault().getTranslation("PrettyPrintTimeDuration.lastSeparator"));
+            builder.append(thesaurus.getString(MessageSeeds.PRETTY_PRINT_TIMEDURATION_LAST_SEPARATOR.getKey(), " and "));
         }
     }
 

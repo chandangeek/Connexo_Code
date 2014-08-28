@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.logging;
 
-import com.energyict.mdc.common.UserEnvironment;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,13 +32,8 @@ public @interface Configuration {
      * Parameters of your messsage will be injected into the
      * format in the same order as they are passed.
      * <p>
-     * If your logging message interface is annotated with {@link I18N}
-     * then the format is interpreted as a translation key for the
-     * {@link UserEnvironment UserEnvironment} class.
-     * </p>
      *
      * @return The format String
-     * @see UserEnvironment#getTranslation(String)
      */
     public String format ();
 

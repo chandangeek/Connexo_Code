@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.model.ComServer;
@@ -23,8 +24,8 @@ public class ComServerOperationalStatisticsImpl extends OperationalStatisticsImp
 
     private RunningComServer runningComServer;
 
-    public ComServerOperationalStatisticsImpl(RunningComServer runningComServer, Clock clock) {
-        super(clock, runningComServer.getComServer().getChangesInterPollDelay());
+    public ComServerOperationalStatisticsImpl(RunningComServer runningComServer, Clock clock, Thesaurus thesaurus) {
+        super(clock, thesaurus, runningComServer.getComServer().getChangesInterPollDelay());
         this.runningComServer = runningComServer;
     }
 

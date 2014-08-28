@@ -38,6 +38,20 @@ public enum MessageSeeds implements MessageSeed {
     UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION(123, "unexpectedInboundCommException", "Unexpected inbound communication exception, see stacktrace for more details", Level.SEVERE),
     UNEXPECTED_IO_EXCEPTION(124, "unexpectedIOException", "Exception occurred while communication with a device", Level.SEVERE),
     MODEM_COULD_NOT_ESTABLISH_CONNECTION(125, "modemConnectError", "Failed to establish a connection between modem on COM port {0} and its receiver within timeout [{1} ms]", Level.SEVERE),
+    PRETTY_PRINT_TIMEDURATION_YEAR_SINGULAR(126, "PrettyPrintTimeDuration.year.singular", "{0} year", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_YEAR_PLURAL(127, "PrettyPrintTimeDuration.year.plural", "{0} years", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_MONTH_SINGULAR(128, "PrettyPrintTimeDuration.month.singular", "{0} month", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_MONTH_PLURAL(129, "PrettyPrintTimeDuration.month.plural", "{0} months", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_DAY_SINGULAR(130, "PrettyPrintTimeDuration.day.singular", "{0} day", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_DAY_PLURAL(131, "PrettyPrintTimeDuration.day.plural", "{0} days", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_HOUR_SINGULAR(132, "PrettyPrintTimeDuration.hour.singular", "{0} hour", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_HOUR_PLURAL(133, "PrettyPrintTimeDuration.hour.plural", "{0} hours", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_MINUTE_SINGULAR(134, "PrettyPrintTimeDuration.minute.singular", "{0} minute", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_MINUTE_PLURAL(135, "PrettyPrintTimeDuration.minute.plural", "{0} minutes", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_SECOND_SINGULAR(136, "PrettyPrintTimeDuration.second.singular", "{0} second", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_SECOND_PLURAL(137, "PrettyPrintTimeDuration.second.plural", "{0} seconds", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_SEPARATOR(138, "PrettyPrintTimeDuration.separator", ", ", Level.INFO),
+    PRETTY_PRINT_TIMEDURATION_LAST_SEPARATOR(139, "PrettyPrintTimeDuration.lastSeparator", " and ", Level.INFO),
     ;
 
     private final int number;

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 
@@ -20,11 +21,11 @@ public class ComServerMonitorImpl implements ComServerMonitorImplMBean, ComServe
     private QueryAPIStatisticsImpl queryAPIStatistics;
     private CollectedDataStorageStatisticsImpl collectedDataStorageStatistics;
 
-    public ComServerMonitorImpl(RunningComServer comServer, Clock clock) {
+    public ComServerMonitorImpl(RunningComServer comServer, Clock clock, Thesaurus thesaurus) {
         super();
         this.comServer = comServer;
         this.clock = clock;
-        this.operationalStatistics = new ComServerOperationalStatisticsImpl(comServer, this.clock);
+        this.operationalStatistics = new ComServerOperationalStatisticsImpl(comServer, this.clock, thesaurus);
         this.eventAPIStatistics = new EventAPIStatisticsImpl();
         if (comServer.isRemoteQueryApiStarted()) {
             this.queryAPIStatistics = new QueryAPIStatisticsImpl(comServer.getComServer());

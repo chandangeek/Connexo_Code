@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 
 import javax.management.openmbean.CompositeData;
@@ -14,15 +15,13 @@ import javax.management.openmbean.CompositeData;
  */
 public class ScheduledComPortMonitorImpl implements ScheduledComPortMonitorImplMBean, ScheduledComPortMonitor {
 
-    private final Clock clock;
     private ScheduledComPort comPort;
     private ScheduledComPortOperationalStatisticsImpl operationalStatistics;
 
-    public ScheduledComPortMonitorImpl(ScheduledComPort comPort, Clock clock) {
+    public ScheduledComPortMonitorImpl(ScheduledComPort comPort, Clock clock, Thesaurus thesaurus) {
         super();
         this.comPort = comPort;
-        this.clock = clock;
-        this.operationalStatistics = new ScheduledComPortOperationalStatisticsImpl(comPort, this.clock);
+        this.operationalStatistics = new ScheduledComPortOperationalStatisticsImpl(comPort, clock, thesaurus);
     }
 
     public ScheduledComPort getComPort () {

@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.core.devices;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -75,14 +74,10 @@ public class DeviceCommandExecutorImplTest {
     @Mock
     private User user;
     @Mock
-    private Environment environment;
-    @Mock
     private EventPublisherImpl eventPublisher;
 
     @Before
     public void setupComServer() {
-        Environment.DEFAULT.set(environment);
-        when(environment.getErrorMsg(anyString())).thenReturn("");
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
         when(userService.findUser(anyString())).thenReturn(Optional.of(user));

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.logging;
 
-import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.engine.exceptions.CodingException;
+
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
@@ -124,7 +124,7 @@ public final class LoggerFactory {
      * @return An instance of the message interface class
      */
     public static synchronized <MI> MI getLoggerFor (Class<MI> messageInterfaceClass, Logger logger) {
-        Context<MI> context = new ExistingLoggerStandardContext<MI>(logger);
+        Context<MI> context = new ExistingLoggerStandardContext<>(logger);
         return getLoggerFor(messageInterfaceClass, LogLevelMapper.toComServerLogLevel(logger.getLevel()), context);
     }
 
@@ -154,13 +154,7 @@ public final class LoggerFactory {
             context.injectLogger(messageInterfaceClass, messageInterface, logLevel);
             return messageInterface;
         }
-        catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        }
-        catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        catch (CannotCompileException e) {
+        catch (InstantiationException | IllegalAccessException | CannotCompileException e) {
             throw new RuntimeException(e);
         }
     }
@@ -172,20 +166,20 @@ public final class LoggerFactory {
     private static <MI> Context<MI> getContext (Class<MI> messageInterfaceClass) {
         I18N i18N = messageInterfaceClass.getAnnotation(I18N.class);
         if (i18N == null) {
-            return new StandardContext<MI>();
+            return new StandardContext<>();
         }
         else {
-            return new I18NContext<MI>();
+            return new I18NContext<>();
         }
     }
 
     private static <MI> Context<MI> getUniqueContext (Class<MI> messageInterfaceClass) {
         I18N i18N = messageInterfaceClass.getAnnotation(I18N.class);
         if (i18N == null) {
-            return new UniqueStandardContext<MI>();
+            return new UniqueStandardContext<>();
         }
         else {
-            return new UniqueI18NContext<MI>();
+            return new UniqueI18NContext<>();
         }
     }
 
@@ -218,7 +212,7 @@ public final class LoggerFactory {
 
         @Override
         protected MessageInterfaceImplementationClassGenerator<MI> newClassGenerator (Class<MI> messageInterfaceClass, LogLevel logLevel) {
-            return new MessageInterfaceImplementationClassGenerator<MI>(
+            return new MessageInterfaceImplementationClassGenerator<>(
                             LoggerHolder.class,
                             new AnnotatedMethodFinder(Configuration.class),
                             this.newSourceCodeGenerator(logLevel),
@@ -304,7 +298,7 @@ public final class LoggerFactory {
          */
         @SuppressWarnings("unchecked")
         public Collection<Method> findMethods (Class clazz) {
-            Collection<Method> annotatedMethods = new ArrayList<Method>();
+            Collection<Method> annotatedMethods = new ArrayList<>();
             for (Method method : clazz.getMethods()) {
                 Annotation annotation = method.getAnnotation(this.annotationClass);
                 if (annotation != null) {
@@ -356,7 +350,7 @@ public final class LoggerFactory {
                 return allParameterTypes;
             }
             else {
-                List<Class<?>> parameterTypes = new ArrayList<Class<?>>(allParameterTypes.length);
+                List<Class<?>> parameterTypes = new ArrayList<>(allParameterTypes.length);
                 for (int i = 0; i < allParameterTypes.length; i++) {
                     if (!this.isThrowable(allParameterTypes[i])) {
                         parameterTypes.add(allParameterTypes[i]);
@@ -509,8 +503,8 @@ public final class LoggerFactory {
 
         @Override
         protected String toJavaUtilMessageParameter (Configuration configuration) {
-            String translation = UserEnvironment.getDefault().getTranslation(super.toJavaUtilMessageParameter(configuration));
-            return translation.replace("\"", "\\\"");
+            // Todo: use NlsService and Thesaurus classes
+            return super.toJavaUtilMessageParameter(configuration);
         }
 
     }
