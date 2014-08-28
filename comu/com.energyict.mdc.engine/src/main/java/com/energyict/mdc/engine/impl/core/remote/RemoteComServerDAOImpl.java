@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
@@ -219,7 +220,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook) {
 
     }
 

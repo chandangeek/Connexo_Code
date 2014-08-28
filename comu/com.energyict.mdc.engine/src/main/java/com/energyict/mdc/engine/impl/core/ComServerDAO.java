@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.TimeDuration;
@@ -373,6 +374,6 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading);
 
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook);
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook);
 
 }

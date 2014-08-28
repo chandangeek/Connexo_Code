@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.mocks;
 
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -448,7 +449,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook) {
 
     }
 
