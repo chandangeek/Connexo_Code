@@ -45,5 +45,7 @@ public interface LogBook extends BaseLogBook, HasId {
          * Updates the com.energyict.mdc.device.data.LogBook, preferably via his Device
          */
         void update();
+
+        LogBookUpdater setLastReadingIfLater(Date date);
     }
 }
