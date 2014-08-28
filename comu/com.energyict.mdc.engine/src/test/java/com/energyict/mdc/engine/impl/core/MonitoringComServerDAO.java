@@ -1,11 +1,16 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifier;
 import com.energyict.mdc.engine.impl.tools.Counter;
 import com.energyict.mdc.engine.model.ComPort;
@@ -23,12 +28,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
-
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -239,7 +238,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook) {
         this.actual.updateLastLogBook(logBookIdentifier, lastLogBook);
     }
 
@@ -311,7 +310,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+        public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook) {
 
         }
 

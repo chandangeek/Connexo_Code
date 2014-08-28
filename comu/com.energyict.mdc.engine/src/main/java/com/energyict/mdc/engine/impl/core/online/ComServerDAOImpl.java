@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -688,10 +689,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Date lastLogBook) {
+    public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook) {
         LogBook logBook = (LogBook) logBookIdentifier.getLogBook();
         LogBook.LogBookUpdater logBookUpdater = logBook.getDevice().getLogBookUpdaterFor(logBook);
-        logBookUpdater.setLastLogBookIfLater(lastLogBook);
+        logBookUpdater.setLastLogBookIfLater(lastLogBook.getCreatedDateTime());
+        logBookUpdater.setLastReadingIfLater(getClock().now()); // We assume the event will be persisted with a time difference of only a few milliseconds
         logBookUpdater.update();
     }
 

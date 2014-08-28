@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
@@ -51,13 +52,13 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
 
     private LocalLogBook filterFutureDatesAndCalculateLastReading() {
         List<EndDeviceEvent> filteredEndDeviceEvents = new ArrayList<>();
-        Date lastLogbook = null;
+        EndDeviceEvent lastLogbook = null;
         Date currentDate = getClock().now();
         for (EndDeviceEvent endDeviceEvent : MeterDataFactory.createEndDeviceEventsFor(this.deviceLogBook)) {
             if (!endDeviceEvent.getCreatedDateTime().after(currentDate)) {
                 filteredEndDeviceEvents.add(endDeviceEvent);
-                if (lastLogbook == null || endDeviceEvent.getCreatedDateTime().after(lastLogbook)) {
-                    lastLogbook = endDeviceEvent.getCreatedDateTime();
+                if (lastLogbook == null || endDeviceEvent.getCreatedDateTime().after(lastLogbook.getCreatedDateTime())) {
+                    lastLogbook = endDeviceEvent;
                 }
             }
         }
@@ -80,9 +81,9 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
     private class LocalLogBook implements Duo<List<EndDeviceEvent>, Date> {
 
         private final List<EndDeviceEvent> endDeviceEvents;
-        private final Date lastLogbook;
+        private final EndDeviceEvent lastLogbook;
 
-        private LocalLogBook(List<EndDeviceEvent> endDeviceEvents, Date lastLogBook) {
+        private LocalLogBook(List<EndDeviceEvent> endDeviceEvents, EndDeviceEvent lastLogBook) {
             this.endDeviceEvents = endDeviceEvents;
             this.lastLogbook = lastLogBook;
         }

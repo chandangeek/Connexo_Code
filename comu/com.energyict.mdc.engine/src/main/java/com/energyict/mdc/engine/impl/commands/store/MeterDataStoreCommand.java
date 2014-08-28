@@ -27,7 +27,7 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
 
     private final Map<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> meterReadings = new HashMap<>();
     private final Map<LoadProfileIdentifier, Date> lastReadings = new HashMap<>();
-    private final Map<LogBookIdentifier, Date> lastLogBooks = new HashMap<>();
+    private final Map<LogBookIdentifier, EndDeviceEvent> lastLogBooks = new HashMap<>();
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
@@ -39,7 +39,7 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
             comServerDAO.updateLastReadingFor(loadProfileDateEntry.getKey(), loadProfileDateEntry.getValue());
         }
 
-        for (Map.Entry<LogBookIdentifier, Date> logBookDateEntry : lastLogBooks.entrySet()) {
+        for (Map.Entry<LogBookIdentifier, EndDeviceEvent> logBookDateEntry : lastLogBooks.entrySet()) {
             comServerDAO.updateLastLogBook(logBookDateEntry.getKey(), logBookDateEntry.getValue());
         }
     }
@@ -89,9 +89,9 @@ public class MeterDataStoreCommand extends DeviceCommandImpl {
         }
     }
 
-    public void addLastLogBookUpdater(LogBookIdentifier logBookIdentifier, Date lastLogbook) {
-        Date existingLastLogBook = this.lastLogBooks.get(logBookIdentifier);
-        if ((existingLastLogBook == null) || (lastLogbook != null && lastLogbook.after(existingLastLogBook))) {
+    public void addLastLogBookUpdater(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogbook) {
+        EndDeviceEvent existingLastLogBook = this.lastLogBooks.get(logBookIdentifier);
+        if ((existingLastLogBook == null) || (lastLogbook != null && lastLogbook.getCreatedDateTime().after(existingLastLogBook.getCreatedDateTime()))) {
             this.lastLogBooks.put(logBookIdentifier, lastLogbook);
         }
     }
