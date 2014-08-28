@@ -19,7 +19,8 @@ public enum MessageSeeds implements MessageSeed {
     TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE(12, Keys.TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY, "The frequency value of a temporal expression must be a strictly positive number", Level.SEVERE),
     TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE(13, Keys.TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY, "The offset value of a temporal expression must be a positive number", Level.SEVERE),
     TOO_LONG(14, Keys.TOO_LONG, "Must be less then {max} characters", Level.SEVERE),
-    COM_TASK_NOT_ENABLED(15, Keys.COMTASK_NOT_ENABLED, "The ComTask is not enabled for all devices already linked to the schedule", Level.SEVERE);
+    COM_TASK_NOT_ENABLED(15, Keys.COMTASK_NOT_ENABLED, "The ComTask is not enabled for all devices already linked to the schedule", Level.SEVERE),
+    COM_TASK_USAGES_NOT_FOUND(16, Keys.COM_TASK_USAGES_NOT_FOUND, "Communication schedule should have at least one communication task", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -73,6 +74,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String TEMPORAL_EXPRESSION_UNKNOWN_UNIT_KEY = "temporalExpression.unknown.unit";
         public static final String TEMPORAL_EXPRESSION_FREQUENCY_MUST_BE_STRICTLY_POSITIVE_KEY = "temporalExpression.every.count.positive";
         public static final String TEMPORAL_EXPRESSION_OFFSET_MUST_BE_POSITIVE_KEY = "temporalExpression.offset.count.positive";
+        public static final String COM_TASK_USAGES_NOT_FOUND = "comTaskUsagesNotFound";
 
         public static final String TOO_LONG = "tooLong";
         public static final String COMTASK_NOT_ENABLED = "comTaskNotEnabled";

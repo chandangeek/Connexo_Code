@@ -83,6 +83,7 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     private String name;
     @Size(max= Global.DEFAULT_DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
     private String mRID;
+    @Size(min=1, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND+"}")
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
     @IsPresent
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();

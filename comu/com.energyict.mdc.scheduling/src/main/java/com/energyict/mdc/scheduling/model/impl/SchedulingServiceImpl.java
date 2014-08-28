@@ -196,7 +196,6 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
         @Override
         public ComSchedule build() {
-            instance.save();
             return instance;
         }
     }
