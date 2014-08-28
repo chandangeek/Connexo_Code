@@ -70,14 +70,14 @@ public class ComServerStatusSummaryResource {
     }
 
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, OnlineComServer comServer, Client jerseyClient) {
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getName(), comServer.getStatusUri(), ComServerType.ONLINE);
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.ONLINE);
     }
 
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, RemoteComServer comServer, Client jerseyClient) {
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getName(), comServer.getStatusUri(), ComServerType.REMOTE);
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.REMOTE);
     }
 
-    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, String comServerName, String statusUri, ComServerType comServerType) {
+    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, long comServerId, String comServerName, String statusUri, ComServerType comServerType) {
         try {
             LOGGER.log(Level.FINE, "Executing " + statusUri);
             ComServerStatusInfo comServerStatusInfo =
@@ -98,6 +98,7 @@ public class ComServerStatusSummaryResource {
             LOGGER.info("ComServer " + comServerName + " is mostly likely not running");
             LOGGER.log(Level.FINE, "ComServer " + comServerName + " is mostly likely not running", e);
             ComServerStatusInfo statusInfo = new ComServerStatusInfo();
+            statusInfo.comServerId = comServerId;
             statusInfo.comServerName = comServerName;
             statusInfo.comServerType = comServerType;
             statusInfo.blocked = false;

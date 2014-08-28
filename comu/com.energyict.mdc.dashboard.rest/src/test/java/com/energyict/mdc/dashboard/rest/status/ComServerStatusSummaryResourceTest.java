@@ -119,8 +119,10 @@ public class ComServerStatusSummaryResourceTest extends JerseyTest {
 
     @Test
     public void testServerNotRunning () {
+        long comServerId = 1L;
         String comServerName = "testServerNotRunning";
         OnlineComServer comServer = mock(OnlineComServer.class);
+        when(comServer.getId()).thenReturn(comServerId);
         when(comServer.getName()).thenReturn(comServerName);
         when(comServer.getStatusUri()).thenReturn("http://localhost:9998");
         when(this.engineModelService.findAllOnlineComServers()).thenReturn(Arrays.asList(comServer));
@@ -140,6 +142,7 @@ public class ComServerStatusSummaryResourceTest extends JerseyTest {
         assertThat(summaryInfo.comServerStatusInfos).hasSize(1);
         ComServerStatusInfo comServerStatusInfo = summaryInfo.comServerStatusInfos.get(0);
         assertThat(comServerStatusInfo).isNotNull();
+        assertThat(comServerStatusInfo.comServerId).isEqualTo(comServerId);
         assertThat(comServerStatusInfo.comServerName).isEqualTo(comServerName);
         assertThat(comServerStatusInfo.comServerType).isEqualTo(ComServerType.ONLINE);
         assertThat(comServerStatusInfo.running).isFalse();
