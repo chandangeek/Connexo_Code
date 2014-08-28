@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
@@ -17,7 +15,12 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.security.LegacySecurityPropertyConverter;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -26,9 +29,6 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -58,8 +58,6 @@ public class MeterProtocolSecuritySupportAdapterTest {
     @Mock
     private SecuritySupportAdapterMappingFactoryImpl securitySupportAdapterMappingFactory;
     @Mock
-    private Environment environment;
-    @Mock
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
@@ -82,13 +80,6 @@ public class MeterProtocolSecuritySupportAdapterTest {
 
     @Before
     public void initializeEnvironment() {
-        Environment.DEFAULT.set(this.environment);
-        when(this.environment.getErrorMsg(anyString())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                return invocation.getArguments()[0];
-            }
-        });
         when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(anyString())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {

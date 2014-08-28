@@ -59,8 +59,6 @@ public class MeterProtocolRegisterAdapterTest {
     @Mock
     private IssueService issueService;
     @Mock
-    private Environment environment;
-    @Mock
     private ApplicationContext applicationContext;
     @Mock
     private CollectedDataFactory collectedDataFactory;
@@ -71,10 +69,7 @@ public class MeterProtocolRegisterAdapterTest {
     }
 
     @Before
-    public void setUpEnvironment () {
-        when(this.environment.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(this.environment.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
+    public void initializeMocksAndFactories() {
         when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class), any(ReadingType.class))).
             thenAnswer(new Answer<CollectedRegister>() {
                 @Override
@@ -99,12 +94,6 @@ public class MeterProtocolRegisterAdapterTest {
         when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(this.collectedDataFactory);
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
         when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
-        Environment.DEFAULT.set(this.environment);
-    }
-
-    @After
-    public void tearDownEnvironment () {
-        Environment.DEFAULT.set(null);
     }
 
     @After

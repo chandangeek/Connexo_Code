@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
@@ -64,10 +63,7 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
     }
 
     private Issue getIssue(Object source, String description, Object... arguments){
-        return this.issueService.newProblem(
-                source,
-                Environment.DEFAULT.get().getTranslation(description).replaceAll("'", "''"),
-                arguments);
+        return this.issueService.newProblem(source, description, arguments);
     }
 
 }

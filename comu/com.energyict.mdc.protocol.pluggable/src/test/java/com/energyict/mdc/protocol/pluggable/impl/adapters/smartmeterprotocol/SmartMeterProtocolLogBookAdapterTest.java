@@ -99,8 +99,6 @@ public class SmartMeterProtocolLogBookAdapterTest {
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
         when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
         when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
-        when(this.environment.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(this.environment.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         Environment.DEFAULT.set(this.environment);
         when(this.otherEndDeviceEventType.getName()).thenReturn("0.0.0.0");
         when(this.otherEndDeviceEventType.getMRID()).thenReturn("0.0.0.0");

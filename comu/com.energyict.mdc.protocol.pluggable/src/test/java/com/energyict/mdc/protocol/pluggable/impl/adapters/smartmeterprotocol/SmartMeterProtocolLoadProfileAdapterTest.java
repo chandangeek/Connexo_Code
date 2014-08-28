@@ -19,6 +19,12 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLoadProfile;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLoadProfileConfiguration;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;
@@ -27,14 +33,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -105,8 +105,6 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
         when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
         when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
-        when(this.environment.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
-        when(this.environment.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         Environment.DEFAULT.set(this.environment);
     }
 
@@ -148,10 +146,10 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
         when(loadProfileConfiguration.getObisCode()).thenReturn(loadProfileObisCode);
 
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
-        when(smartMeterProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Arrays.<LoadProfileConfiguration>asList(loadProfileConfiguration));
+        when(smartMeterProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Arrays.asList(loadProfileConfiguration));
         SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService);
 
-        List<CollectedLoadProfileConfiguration> loadProfileConfigurations = smartMeterProtocolLoadProfileAdapter.fetchLoadProfileConfiguration(Arrays.<LoadProfileReader>asList(loadProfileReader));
+        List<CollectedLoadProfileConfiguration> loadProfileConfigurations = smartMeterProtocolLoadProfileAdapter.fetchLoadProfileConfiguration(Arrays.asList(loadProfileReader));
         assertThat(loadProfileConfigurations).isNotNull();
         assertThat(loadProfileConfigurations).hasSize(1);
         assertThat(loadProfileConfigurations.get(0).getObisCode()).isEqualTo(loadProfileReader.getProfileObisCode());

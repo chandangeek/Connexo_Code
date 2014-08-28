@@ -151,10 +151,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     }
 
     private Issue getIssue(Object source, String description, Object... arguments){
-        return this.issueService.newProblem(
-                source,
-                Environment.DEFAULT.get().getTranslation(description).replaceAll("'", "''"),
-                arguments);
+        return this.issueService.newProblem(source, description, arguments);
     }
 
     private CollectedDataFactory getCollectedDataFactory() {

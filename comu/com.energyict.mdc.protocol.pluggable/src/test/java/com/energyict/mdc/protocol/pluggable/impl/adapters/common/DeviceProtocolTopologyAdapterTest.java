@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
@@ -12,14 +11,13 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
+import java.util.Arrays;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
-import java.util.Arrays;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -41,8 +39,6 @@ public class DeviceProtocolTopologyAdapterTest {
     private static final long DEVICE_ID = 93;
 
     @Mock
-    private static UserEnvironment userEnvironment = mock(UserEnvironment.class);
-    @Mock
     private Environment environment;
     @Mock
     private ApplicationContext applicationContext;
@@ -57,27 +53,9 @@ public class DeviceProtocolTopologyAdapterTest {
     @Mock
     private DeviceIdentifier deviceIdentifier;
 
-    @BeforeClass
-    public static void initializeUserEnvironment () {
-        UserEnvironment.setDefault(userEnvironment);
-        when(userEnvironment.getErrorMsg(anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return (String) invocation.getArguments()[0];
-            }
-        });
-    }
-
-    @AfterClass
-    public static void cleanupUserEnvironment () {
-        UserEnvironment.setDefault(null);
-    }
-
     @Before
     public void initializeEnvironment () {
         Environment.DEFAULT.set(this.environment);
-        when(this.environment.getTranslation("devicetopologynotsupported")).thenReturn("devicetopologynotsupported");
-
         when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
         when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
     }

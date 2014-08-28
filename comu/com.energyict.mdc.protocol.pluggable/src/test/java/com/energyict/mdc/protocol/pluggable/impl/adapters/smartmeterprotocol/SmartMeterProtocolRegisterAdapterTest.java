@@ -1,11 +1,9 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
@@ -19,6 +17,15 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks.MockCollectedRegister;
+
+import com.elster.jupiter.metering.ReadingType;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;
@@ -26,12 +33,6 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -67,8 +68,6 @@ public class SmartMeterProtocolRegisterAdapterTest {
     }
 
     @Mock
-    private static UserEnvironment userEnvironment = mock(UserEnvironment.class);
-    @Mock
     private Environment environment;
     @Mock
     private ApplicationContext applicationContext;
@@ -101,8 +100,6 @@ public class SmartMeterProtocolRegisterAdapterTest {
                     }
                 });
         when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
-        when(this.environment.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
-        when(this.environment.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
         Environment.DEFAULT.set(this.environment);
         CollectedDataFactoryProvider collectedDataFactoryProvider = mock(CollectedDataFactoryProvider.class);
