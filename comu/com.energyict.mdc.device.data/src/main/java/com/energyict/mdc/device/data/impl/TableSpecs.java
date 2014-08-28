@@ -180,7 +180,7 @@ public enum TableSpecs {
             Column logBookSpecId = table.column("LOGBOOKSPECID").number().notNull().add();
             Column deviceid = table.column("DEVICEID").number().notNull().add();
             table.column("LASTLOGBOOK").number().map(LogBookImpl.FieldNames.LATEST_EVENT_OCCURRENCE_IN_METER.fieldName()).conversion(ColumnConversion.NUMBER2UTCINSTANT).add();
-            table.column("CREATE_TIME").number().map(LogBookImpl.FieldNames.LATEST_EVENT_CREATED_IN_DB.fieldName()).conversion(ColumnConversion.NUMBER2UTCINSTANT).add();
+            table.column("LASTLOGBOOKCREATETIME").number().map(LogBookImpl.FieldNames.LATEST_EVENT_CREATED_IN_DB.fieldName()).conversion(ColumnConversion.NUMBER2UTCINSTANT).add();
             table.primaryKey("PK_DDC_LOGBOOK").on(id).add();
             table.foreignKey("FK_DDC_LOGBOOK_LOGBOOKSPEC").on(logBookSpecId).references(DeviceConfigurationService.COMPONENTNAME, "DTC_LOGBOOKSPEC").map("logBookSpec").add();
             table.foreignKey("FK_DDC_LOGBOOK_DEVICE").on(deviceid).references(DDC_DEVICE.name()).map("device").reverseMap("logBooks").composition().add();
