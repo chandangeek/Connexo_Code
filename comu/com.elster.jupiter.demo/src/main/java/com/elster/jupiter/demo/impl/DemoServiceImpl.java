@@ -19,7 +19,6 @@ import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -36,7 +35,6 @@ import java.util.*;
 
 @Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {"osgi.command.scope=demo", "osgi.command.function=createDemoData"}, immediate = true)
 public class DemoServiceImpl implements DemoService {
-
     public static final String ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH = "Active Energy Import Tariff 1 (kWh)";
     public static final String ACTIVE_ENERGY_IMPORT_TARIFF_1_WH = "Active Energy Import Tariff 1 (Wh)";
     public static final String ACTIVE_ENERGY_IMPORT_TARIFF_2_K_WH = "Active Energy Import Tariff 2 (kWh)";
@@ -80,6 +78,8 @@ public class DemoServiceImpl implements DemoService {
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceDataService deviceDataService;
 
+    private int deviceTypeCount = 0;
+
     public DemoServiceImpl() {
         rethrowExceptions = Boolean.FALSE;
     }
@@ -107,7 +107,8 @@ public class DemoServiceImpl implements DemoService {
         rethrowExceptions = Boolean.TRUE;
     }
 
-    public void createDemoData() {
+    @Override
+    public void createDemoData(final String comServerName, final String host) {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -117,11 +118,18 @@ public class DemoServiceImpl implements DemoService {
                 Map<String, LogBookType> logBookTypes = new HashMap<String, LogBookType>();
                 Map<String, ComTask> comTasks = new HashMap<String, ComTask>();
 
-                OnlineComServer comServer = createComServer("deitvs015");
-                OutboundComPort outboundTCPPort = createOutboundTcpComPort("DefaultActiveOutboundTCPPort", comServer);
-                OutboundComPortPool outboundTcpComPortPool = createOutboundTcpComPortPool("DefaultActiveComPortPool", outboundTCPPort);
-                InboundComPortPool inboundServletComPortPool = createInboundServletComPortPool("DefaultInboundServletComPortPool");
-                createInboundServletPort("DefaultActiveInboundServletPort", 4444, comServer, inboundServletComPortPool);
+                OnlineComServer comServer = createComServer("Deitvs099");
+                OutboundComPort outboundTCPPort = createOutboundTcpComPort("Outbound TCP 099", comServer);
+                OutboundComPortPool outboundTcpComPortPool = createOutboundTcpComPortPool("Outbound TCP Pool 099", outboundTCPPort);
+                InboundComPortPool inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool 099");
+                createInboundServletPort("Inbound Servlet 099", 4444, comServer, inboundServletComPortPool);
+
+                comServer = createComServer(comServerName);
+                outboundTCPPort = createOutboundTcpComPort("Outbound TCP", comServer);
+                outboundTcpComPortPool = createOutboundTcpComPortPool("Outbound TCP Pool", outboundTCPPort);
+                inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool");
+                createInboundServletPort("Inbound Servlet", 4444, comServer, inboundServletComPortPool);
+
                 findRegisterTypes(registerTypes);
                 createLoadProfiles(registerTypes, loadProfileTypes);
                 createRegisterGroups(registerTypes, registerGroups);
@@ -133,7 +141,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private OnlineComServer createComServer(String name) {
-        System.out.println("==> Creating ComServer...");
+        System.out.println("==> Creating ComServer '" + name + "' ...");
         OnlineComServer comServer = engineModelService.newOnlineComServerInstance();
         comServer.setName(name);
         comServer.setActive(true);
@@ -149,7 +157,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private OutboundComPort createOutboundTcpComPort(String name, ComServer comServer) {
-        System.out.println("==> Creating Outbound TCP Port...");
+        System.out.println("==> Creating Outbound TCP Port '" + name + "'...");
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = comServer.newOutboundComPort(name, 5);
         outboundComPortBuilder.comPortType(ComPortType.TCP).active(true);
         OutboundComPort comPort = outboundComPortBuilder.add();
@@ -158,7 +166,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private OutboundComPortPool createOutboundTcpComPortPool(String name, OutboundComPort... comPorts) {
-        System.out.println("==> Creating Outbound TCP Port Pool...");
+        System.out.println("==> Creating Outbound TCP Port Pool '" + name + "'...");
         OutboundComPortPool outboundComPortPool = engineModelService.newOutboundComPortPool();
         outboundComPortPool.setActive(true);
         outboundComPortPool.setComPortType(ComPortType.TCP);
@@ -174,7 +182,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private InboundComPortPool createInboundServletComPortPool(String name) {
-        System.out.println("==> Creating Inbound Servlet Port Pool...");
+        System.out.println("==> Creating Inbound Servlet Port Pool '" + name + "'...");
         InboundDeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(DlmsSerialNumberDiscover.class.getName()).get(0);
         InboundComPortPool inboundComPortPool = engineModelService.newInboundComPortPool();
         inboundComPortPool.setActive(true);
@@ -187,7 +195,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private ServletBasedInboundComPort createInboundServletPort(String name, int portNumber, ComServer comServer, InboundComPortPool comPortPool) {
-        System.out.println("==> Creating Inbound Servlet Port...");
+        System.out.println("==> Creating Inbound Servlet Port '" + name + "'...");
         ServletBasedInboundComPort.ServletBasedInboundComPortBuilder comPortBuilder = comServer.newServletBasedInboundComPort(name, "context", 10, portNumber);
         comPortBuilder.active(true).comPortPool(comPortPool).keyStoreSpecsFilePath("");
         ServletBasedInboundComPort comPort = comPortBuilder.add();
@@ -329,7 +337,18 @@ public class DemoServiceImpl implements DemoService {
         comTasks.put(COM_TASK_READ_LOAD_PROFILE_DATA, readLoadProfileData);
     }
 
-    public DeviceType createDeviceTypes(
+    public void createDeviceTypes(
+            Map<String, RegisterType> registerTypes,
+            Map<String, LoadProfileType> loadProfileTypes,
+            Map<String, LogBookType> logBookTypes,
+            Map<String, ComTask> comTasks,
+            OutboundComPortPool outboundTcpComPortPool) {
+        for (int i=0; i < 6; i++){
+            createDeviceType(registerTypes, loadProfileTypes, logBookTypes, comTasks, outboundTcpComPortPool);
+        }
+    }
+
+    public DeviceType createDeviceType(
             Map<String, RegisterType> registerTypes,
             Map<String, LoadProfileType> loadProfileTypes,
             Map<String, LogBookType> logBookTypes,
@@ -337,7 +356,7 @@ public class DemoServiceImpl implements DemoService {
             OutboundComPortPool outboundTcpComPortPool) {
         System.out.println("==> Creating Create device types...");
         DeviceProtocolPluggableClass webRTUprotocol = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(WebRTUKP.class.getName()).get(0);
-        DeviceType dsmr2_3 = deviceConfigurationService.newDeviceType("Dsmr 2.3 WebRTU KP", webRTUprotocol);
+        DeviceType dsmr2_3 = deviceConfigurationService.newDeviceType("Elster AMR " + String.format("%03d", ++deviceTypeCount), webRTUprotocol);
         dsmr2_3.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
         dsmr2_3.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
         dsmr2_3.addRegisterType(registerTypes.get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
@@ -360,7 +379,7 @@ public class DemoServiceImpl implements DemoService {
 
     private void createExtendedDeviceConfiguration(Map<String, RegisterType> registerTypes, Map<String, LoadProfileType> loadProfileTypes, Map<String, LogBookType> logBookTypes, Map<String, ComTask> comTasks, OutboundComPortPool outboundTcpComPortPool, DeviceType dsmr2_3) {
         System.out.println("==> Creating Extended Device Configuration...");
-        DeviceType.DeviceConfigurationBuilder extendConfigBuilder = dsmr2_3.newConfiguration("ExtendedConfig");
+        DeviceType.DeviceConfigurationBuilder extendConfigBuilder = dsmr2_3.newConfiguration("Extended Config");
         extendConfigBuilder.description("A complex configuration that is closely matched to the DSMR 2.3 Devices");
         extendConfigBuilder.canActAsGateway(true);
         extendConfigBuilder.isDirectlyAddressable(true);
@@ -423,7 +442,7 @@ public class DemoServiceImpl implements DemoService {
 
     private void createSimpleDeviceConfiguration(Map<String, RegisterType> registerTypes, Map<String, LoadProfileType> loadProfileTypes, Map<String, LogBookType> logBookTypes, Map<String, ComTask> comTasks, OutboundComPortPool outboundTcpComPortPool, DeviceType dsmr2_3) {
         System.out.println("==> Creating Simple Device Configuration...");
-        DeviceType.DeviceConfigurationBuilder simpleConfigBuilder = dsmr2_3.newConfiguration("SimpleConfig");
+        DeviceType.DeviceConfigurationBuilder simpleConfigBuilder = dsmr2_3.newConfiguration("Default");
         simpleConfigBuilder.description("A simple device configuration which contains one LoadProfile and a minimal set of Registers.");
         simpleConfigBuilder.canActAsGateway(true);
         simpleConfigBuilder.isDirectlyAddressable(true);
@@ -463,12 +482,13 @@ public class DemoServiceImpl implements DemoService {
 
     private void createDevicesForDeviceConfiguration(DeviceConfiguration configuration){
         System.out.println("==> Creating Devices for Configuration...");
-        for (int i = 1; i < 4; i++) {
-            createDevice(configuration, "Device" + i + "For"+configuration.getName());
+        for (int i = 1; i < 9; i++) {
+            createDevice(configuration, "ZABF0100" + String.format("%04d", configuration.getId()) + String.format("%04d", i) );
         }
     }
 
     private void createDevice(DeviceConfiguration configuration, String mrid){
+        System.out.println("==> Creating Device '" + mrid + "'...");
         Calendar calendar = Calendar.getInstance();
         Device newDevice = deviceDataService.newDevice(configuration, mrid, mrid);
         calendar.set(2014, 1, 1);
@@ -537,6 +557,10 @@ public class DemoServiceImpl implements DemoService {
         } finally {
             clearPrincipal();
         }
+    }
+
+    private int getRandomInt(int min, int max){
+        return (int) (min + Math.random() * (max - min));
     }
 
     private void setPrincipal() {

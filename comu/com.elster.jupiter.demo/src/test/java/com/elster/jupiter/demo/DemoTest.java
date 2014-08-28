@@ -158,7 +158,7 @@ public class DemoTest {
         doPreparations();
         DemoService demoService = injector.getInstance(DemoService.class);
         try {
-            demoService.createDemoData();
+            demoService.createDemoData("DemoTestComServer", "host");
         } catch (Exception e){
             fail("The demo command shouldn't produce errors");
         }
