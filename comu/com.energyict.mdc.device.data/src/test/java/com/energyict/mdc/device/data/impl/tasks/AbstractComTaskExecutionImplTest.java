@@ -1,19 +1,13 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
@@ -24,21 +18,11 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+import org.junit.Before;
 
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-
-import org.junit.*;
+import java.util.*;
 
 import static org.assertj.core.api.Fail.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Provides code reuse opportunities for ComTaskExecutionImpl component test cases.
@@ -210,6 +194,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected ComSchedule createComSchedule(String name, ComTask comTask, TemporalExpression temporalExpression) {
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(name, temporalExpression, new UtcInstant(new Date())).build();
         comSchedule.addComTask(comTask);
+        comSchedule.save();
         return comSchedule;
     }
 
