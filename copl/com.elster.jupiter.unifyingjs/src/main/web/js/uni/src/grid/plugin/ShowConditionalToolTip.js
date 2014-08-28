@@ -19,6 +19,7 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
         gridView.on('resize', this.setTooltip);
         gridView.on('beforerefresh', this.destroyTooltips);
         gridView.on('beforedestroy', this.destroyTooltips, this, {single: true});
+        grid.on('beforedestroy', this.destroyHeaderTooltips, this, {single: true});
     },
 
     /**
@@ -28,6 +29,8 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
         var gridPanel = grid.up('gridpanel');
         Ext.Array.each(gridPanel.columns, function (column) {
             var header = Ext.get(gridPanel.getEl().query('#' + column.id + '-titleEl')[0]);
+
+            header.tooltip && header.tooltip.destroy();
 
             if (column.text && (header.getWidth(true) < header.getTextWidth())) {
                 header.tooltip = Ext.create('Ext.tip.ToolTip', {
@@ -52,6 +55,16 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                     }
                 });
             }
+        });
+    },
+
+    /**
+     * @private
+     */
+    destroyHeaderTooltips: function(grid) {
+        Ext.Array.each(grid.columns, function (column) {
+            var header = Ext.get(grid.getEl().query('#' + column.id + '-titleEl')[0]);
+            header.tooltip && header.tooltip.destroy();
         });
     },
 
