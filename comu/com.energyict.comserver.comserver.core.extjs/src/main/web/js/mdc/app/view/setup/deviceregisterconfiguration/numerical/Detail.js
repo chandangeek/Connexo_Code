@@ -41,6 +41,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                 xtype: 'button',
                                 text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                                 iconCls: 'x-uni-action-iconD',
+                                itemId: 'detailActionMenu',
                                 menu: {
                                     xtype: 'deviceRegisterConfigurationActionMenu'
                                 }
@@ -56,12 +57,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                 },
                                 items: [
                                     {
-                                        xtype: 'container',
-                                        columnWidth: 0.5,
-                                        layout: {
-                                            type: 'vbox',
-                                            align: 'stretch'
-                                        },
+                                        xtype:'fieldcontainer',
+                                        fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
+                                        labelAlign: 'top',
+                                        layout: 'vbox',
                                         defaults: {
                                             xtype: 'displayfield',
                                             labelWidth: 250
@@ -82,11 +81,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                             },
                                             {
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
-                                                name: 'lastReading',
+                                                name: 'reportedDateTime',
                                                 format: 'M j, Y \\a\\t G:i',
                                                 renderer: function (value) {
-                                                    if (!Ext.isEmpty(value.reportedDateTime)) {
-                                                        return Ext.util.Format.date(new Date(value.reportedDateTime), this.format);
+                                                    if (!Ext.isEmpty(value)) {
+                                                        return Ext.util.Format.date(new Date(value), this.format);
                                                     }
 
                                                     return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-')

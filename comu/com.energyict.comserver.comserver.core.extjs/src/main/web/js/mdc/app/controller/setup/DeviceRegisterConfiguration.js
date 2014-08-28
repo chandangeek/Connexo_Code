@@ -28,6 +28,15 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         me.control({
             '#deviceRegisterConfigurationGrid': {
                 select: me.onDeviceRegisterConfigurationGridSelect
+            },
+            '#gridPreviewActionMenu menu menuitem[action=viewdata]': {
+                click: me.onGridPreviewActionMenuViewDataClick
+            },
+            '#detailActionMenu menu menuitem[action=viewdata]': {
+                click: me.onDetailActionMenuViewDataClick
+            },
+            '#deviceRegisterConfigurationGrid uni-actioncolumn': {
+                viewdata: me.onGridPreviewActionMenuViewDataClick
             }
         });
     },
@@ -92,6 +101,22 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             }
 
         });
+    },
+
+    onGridPreviewActionMenuViewDataClick: function() {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            grid = me.getDeviceRegisterConfigurationGrid(),
+            lastSelected = grid.getView().getSelectionModel().getLastSelected();
+
+        router.getRoute('devices/device/registers/register/data').forward({registerId: lastSelected.getData().id});
+    },
+
+    onDetailActionMenuViewDataClick: function() {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        router.getRoute('devices/device/registers/register/data').forward();
     }
 });
 
