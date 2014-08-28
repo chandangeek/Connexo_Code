@@ -83,7 +83,7 @@ public class InvalidValueException extends BusinessException {
     * @return localized message pattern
     */
     private static String getFieldName (String fieldId) {
-        return UserEnvironment.getDefault().getTranslation(fieldId,false);
+        return fieldId;
     }
 
     public String getFieldId() {

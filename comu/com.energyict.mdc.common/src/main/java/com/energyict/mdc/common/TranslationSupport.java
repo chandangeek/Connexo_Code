@@ -32,8 +32,7 @@ public enum TranslationSupport {
     }
 
     public static String localizedValue (Enum value, boolean classNameAsPrefix) {
-        String translationKey = getTranslationKey(value, classNameAsPrefix);
-        return UserEnvironment.getDefault().getTranslation(translationKey);
+        return getTranslationKey(value, classNameAsPrefix);
     }
 
     private static String getTranslationKey (Enum value, boolean classNameAsPrefix) {

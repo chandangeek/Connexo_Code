@@ -1,15 +1,10 @@
 package com.energyict.mdc.common;
 
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.common.MultiBundleTranslator;
 import org.junit.*;
 import org.junit.runner.*;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
 /**
  * User: gde
@@ -17,20 +12,6 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class HexStringTest {
-
-    @Mock
-    private Environment environment;
-
-    @Before
-    public void setEnvironment () {
-        Environment.DEFAULT.set(this.environment);
-        when(this.environment.getErrorMsg("invalidHexString")).thenReturn(MultiBundleTranslator.MISSING_RESOURCE_PREFIX + "invalidHexString");
-    }
-
-    @After
-    public void cleanEnvironment () {
-        Environment.DEFAULT.set(null);
-    }
 
     @Test
     public void testConstructorValid() {

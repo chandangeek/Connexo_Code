@@ -162,8 +162,6 @@ public interface License extends Serializable {
      */
     int getDeviceLimit();
 
-    LicenseViolation calculateLimits() throws LicenseViolationException, BusinessException, SQLException;
-
     /**
      * Returns the date the calculation of the different limits (Device/Channel/Register) happened
      *

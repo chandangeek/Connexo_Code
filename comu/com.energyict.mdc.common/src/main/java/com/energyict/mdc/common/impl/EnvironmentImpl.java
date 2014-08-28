@@ -1,21 +1,15 @@
 package com.energyict.mdc.common.impl;
 
-import com.energyict.mdc.common.ApplicationComponent;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
-import com.energyict.mdc.common.CacheHolder;
-import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryFinder;
 import com.energyict.mdc.common.FormatPreferences;
-import com.energyict.mdc.common.JmsSessionContext;
-import com.energyict.mdc.common.MultiBundleTranslator;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdc.common.Translator;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -28,25 +22,18 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 @Component(name="com.energyict.mdc.environment", service = Environment.class)
@@ -59,7 +46,6 @@ public class EnvironmentImpl implements Environment {
      * in the map that holds the (globally) registered objects.
      */
     private static final String APPLICATIONCONTEXT = "APPLICATIONCONTEXT";
-    private static final int DEFAULT_BATCH_SIZE = 1000;
 
     /**
      * The objects that are globally shared and made available by name.
@@ -115,10 +101,7 @@ public class EnvironmentImpl implements Environment {
         };
     }
 
-    public DataSource getDataSource () {
-        return dataSource;
-    }
-
+    @SuppressWarnings("unused")
     @Reference
     public void setDataSource (DataSource dataSource) {
         LOGGER.fine("DataSource is being injected into the MDC environment: " + dataSource);
@@ -162,11 +145,6 @@ public class EnvironmentImpl implements Environment {
         Environment.DEFAULT.set(null);
         this.context = null;
         LOGGER.fine("MDC environment is deactived");
-    }
-
-    @Override
-    public void reloadEventManager () {
-        this.startEventManager();
     }
 
     @Override
@@ -268,41 +246,7 @@ public class EnvironmentImpl implements Environment {
         return transactionContext != null && !transactionContext.isFinished();
     }
 
-    @Override
-    public void clearCache () {
-        for (CacheHolder each : this.getCacheHolders()) {
-            each.clearCache();
-        }
-    }
-
-    private Collection<CacheHolder> getCacheHolders () {
-        Collection<CacheHolder> cacheHolders = new ArrayList<>();
-        this.collectCacheHolders(cacheHolders, this.localNamedObjectsHolder.get().values());
-        this.collectCacheHolders(cacheHolders, this.globalNamedObjects.values());
-        return cacheHolders;
-    }
-
-    private void collectCacheHolders (Collection<CacheHolder> cacheHolders, Iterable<Object> objects) {
-        for (Object each : objects) {
-            if (each instanceof CacheHolder) {
-                cacheHolders.add((CacheHolder) each);
-            }
-        }
-    }
-
-    @Override
-    public Translator getTranslator () {
-        ApplicationContext context = getApplicationContext();
-        if (context != null) {
-            return context.getTranslator();
-        }
-        else {
-            return new MultiBundleTranslator(Locale.getDefault());
-        }
-    }
-
-    @Override
-    public FactoryFinder findFactoryFinder () {
+    private FactoryFinder findFactoryFinder () {
         return getApplicationContext();
     }
 
@@ -342,51 +286,6 @@ public class EnvironmentImpl implements Environment {
         return getDecimalFormatSymbols().getGroupingSeparator();
     }
 
-    @Override
-    public boolean useOraLobs () {
-        // Use configuration support for OSGi services
-        return false;
-    }
-
-    @Override
-    public String getTranslation (String key) {
-        return getTranslator().getTranslation(key);
-    }
-
-    @Override
-    public String getTranslation (String key, boolean flagError) {
-        return getTranslator().getTranslation(key, flagError);
-    }
-
-    @Override
-    public String getErrorMsg (String key) {
-        return getTranslator().getErrorMsg(key);
-    }
-
-    @Override
-    public String getCustomTranslation (String key) {
-        return getTranslator().getCustomTranslation(key);
-    }
-
-    @Override
-    public String getErrorCode (String messageId) {
-        return getTranslator().getErrorCode(messageId);
-    }
-
-    @Override
-    public String getTranslation (String key, String defaultValue) {
-        return getTranslator().getTranslation(key, defaultValue);
-    }
-
-    @Override
-    public boolean hasTranslation (String key) {
-        return getTranslator().hasTranslation(key);
-    }
-
-    public static void writeSeal (Properties properties, File file) throws IOException {
-        Configuration.writeSeal(properties, file);
-    }
-
     private TransactionContext getTransactionContext () {
         TransactionContext transactionContext = this.transactionContextHolder.get();
         if (transactionContext == null) {
@@ -400,14 +299,8 @@ public class EnvironmentImpl implements Environment {
         return new TransactionContext(this.dataSource);
     }
 
-    @Override
-    public BusinessEventManager getEventManager () {
+    private BusinessEventManager getEventManager () {
         return this.eventManagerHolder.get();
-    }
-
-    @Override
-    public void setEventManager (BusinessEventManager eventManager) {
-        this.eventManagerHolder.set(eventManager);
     }
 
     @Override
@@ -429,12 +322,6 @@ public class EnvironmentImpl implements Environment {
     }
 
     @Override
-    public void clearApplicationContext () {
-        put(APPLICATIONCONTEXT, null, false);
-        put(APPLICATIONCONTEXT, null, true);
-    }
-
-    @Override
     public Locale getLocale () {
         ApplicationContext context = this.getApplicationContext();
         if (context == null) {
@@ -444,59 +331,6 @@ public class EnvironmentImpl implements Environment {
             return context.getLocale();
         }
 
-    }
-
-    @Override
-    public ApplicationComponent getComponent (String name) {
-        ApplicationContext context = this.getApplicationContext();
-        if (context == null) {
-            return null;
-        }
-        else {
-            return context.getComponent(name);
-        }
-    }
-
-    @Override
-    public void preferencesChange () {
-        ApplicationContext context = this.getApplicationContext();
-        if (context != null) {
-            context.preferencesChange();
-        }
-    }
-
-    @Override
-    public JmsSessionContext getJmsSessionContext () {
-        return getTransactionContext().getJmsSessionContext();
-    }
-
-    @Override
-    public Date getDatabaseTime () {
-        try {
-            ResultSet resultSet = null;
-            try (PreparedStatement statement = this.getConnection().prepareStatement("select systimestamp from dual")) {
-                resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    return resultSet.getTimestamp(1);
-                }
-                else {
-                    throw new ApplicationException("getDatabaseTime unexpected error");
-                }
-            }
-            finally {
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-            }
-        }
-        catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public int getBatchSize () {
-        return DEFAULT_BATCH_SIZE;
     }
 
     private interface NamedObjects {

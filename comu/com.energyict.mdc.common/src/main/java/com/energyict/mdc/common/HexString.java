@@ -1,11 +1,9 @@
 package com.energyict.mdc.common;
 
-import com.elster.jupiter.util.Checks;
-
 import java.io.Serializable;
 import java.math.BigInteger;
 
-import static com.elster.jupiter.util.Checks.*;
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * User: gde
@@ -29,11 +27,7 @@ public class HexString implements Comparable, Serializable, Nullable {
                 this.content = hexString.toUpperCase();
             }
             catch (NumberFormatException x) {
-                String invalidHexString = UserEnvironment.getDefault().getErrorMsg("invalidHexString");
-                if (invalidHexString.startsWith(MultiBundleTranslator.MISSING_RESOURCE_PREFIX)) {
-                    invalidHexString = "Invalid HexString";
-                }
-                throw new IllegalArgumentException(invalidHexString);
+                throw new IllegalArgumentException("Invalid HexString");
             }
         }
     }

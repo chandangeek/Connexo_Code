@@ -1,9 +1,10 @@
 package com.energyict.mdc.common;
 
+import org.joda.time.DateTimeConstants;
+
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.Calendar;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.joda.time.DateTimeConstants;
 
 /**
  * represents a relative period in time
@@ -88,11 +89,7 @@ public class TimeDuration implements Comparable, Serializable {
         this.timeUnitCode = timeUnitCode;
         //validate that the number of seconds doesn't cause an int overflow.
         if (causesIntOverflow(count, timeUnitCode)) {
-            String invalidTimeDuration = UserEnvironment.getDefault().getErrorMsg("invalidTimeDuration");
-            if (invalidTimeDuration.startsWith(MultiBundleTranslator.MISSING_RESOURCE_PREFIX)) {
-                invalidTimeDuration = "Invalid time duration";
-            }
-            throw new IllegalArgumentException(invalidTimeDuration);
+            throw new IllegalArgumentException("Invalid time duration");
         }
     }
 

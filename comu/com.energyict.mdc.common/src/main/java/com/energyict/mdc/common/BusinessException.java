@@ -150,7 +150,7 @@ public class BusinessException extends java.lang.Exception {
      * @return localized message pattern
      */
     public String getPattern(String messageId) {
-        return UserEnvironment.getDefault().getErrorMsg(messageId);
+        return messageId;
     }
 
     public String getMessageId() {
@@ -159,7 +159,7 @@ public class BusinessException extends java.lang.Exception {
 
     public String getErrorCode() {
         if (messageId != null) {
-            return UserEnvironment.getDefault().getErrorCode(messageId);
+            return this.messageId;
         }
         else {
             return "EIS-UNKNOWN";
