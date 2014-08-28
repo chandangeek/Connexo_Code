@@ -162,21 +162,29 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<OnlineComServer> findAllOnlineComServers() {
-        return convertComServerListToOnlineComServers(getComServerDataMapper().find("class", ONLINE_COMSERVER_DISCRIMINATOR));
+        Condition condition = Where.where("class").isEqualTo(ONLINE_COMSERVER_DISCRIMINATOR).and(Where.where("obsoleteDate").isNull());
+        return convertComServerListToOnlineComServers(getComServerDataMapper().select(condition));
     }
 
     @Override
     public List<RemoteComServer> findAllRemoteComServers() {
-        return convertComServerListToRemoteComServers(getComServerDataMapper().find("class", REMOTE_COMSERVER_DISCRIMINATOR));
+        Condition condition = Where.where("class").isEqualTo(REMOTE_COMSERVER_DISCRIMINATOR).and(Where.where("obsoleteDate").isNull());
+        return convertComServerListToRemoteComServers(getComServerDataMapper().select(condition));
     }
 
     @Override
     public List<RemoteComServer> findRemoteComServersForOnlineComServer(OnlineComServer onlineComServer) {
-        return convertComServerListToRemoteComServers(getComServerDataMapper().find("class", REMOTE_COMSERVER_DISCRIMINATOR, "onlineComServer", onlineComServer));    }
+        Condition condition = 
+                     Where.where("class").isEqualTo(REMOTE_COMSERVER_DISCRIMINATOR)
+                .and(Where.where("onlineComServer").isEqualTo(onlineComServer))
+                .and(Where.where("obsoleteDate").isNull());
+        return convertComServerListToRemoteComServers(getComServerDataMapper().select(condition));
+    }
 
     @Override
     public List<OfflineComServer> findAllOfflineComServers() {
-        return convertComServerListToOfflineComServers(getComServerDataMapper().find("class", OFFLINE_COMSERVER_DISCRIMINATOR));
+        Condition condition = Where.where("class").isEqualTo(OFFLINE_COMSERVER_DISCRIMINATOR).and(Where.where("obsoleteDate").isNull());
+        return convertComServerListToOfflineComServers(getComServerDataMapper().select(condition));
     }
 
     @Override
