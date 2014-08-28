@@ -26,6 +26,8 @@ public interface LogBook extends BaseLogBook, HasId {
 
     LogBookType getLogBookType();
 
+    Date getCreateTime();
+
     public List<EndDeviceEventRecord> getEndDeviceEvents(Interval interval);
 
     /**

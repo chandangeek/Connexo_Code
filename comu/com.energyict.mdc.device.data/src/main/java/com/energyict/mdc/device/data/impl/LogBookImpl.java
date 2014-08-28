@@ -82,6 +82,11 @@ public class LogBookImpl implements LogBook {
     }
 
     @Override
+    public Date getCreateTime() {
+        return createTime!=null?createTime.toDate():null;
+    }
+
+    @Override
     public List<EndDeviceEventRecord> getEndDeviceEvents(Interval interval) {
         return this.device.get().getLogBookDeviceEvents(this, interval);
     }
