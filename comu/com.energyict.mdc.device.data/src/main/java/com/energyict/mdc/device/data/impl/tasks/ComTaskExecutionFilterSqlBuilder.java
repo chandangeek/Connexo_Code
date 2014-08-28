@@ -68,6 +68,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.appendComTaskSql();
             this.appendComSchedulesSql();
             this.appendCompletionCodeClause();
+            this.appendLastSessionStartWhereClause();
             this.appendWhereOrAnd();
             this.append("obsolete_date is null");
         }
@@ -79,12 +80,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
         super.appendWhereClause(taskStatus);
         this.appendCompletionCodeClause();
-    }
-
-    private boolean isNull(Interval interval) {
-        return interval == null
-                || (   (interval.getStart() == null)
-                && (interval.getEnd() == null));
+        this.appendLastSessionStartWhereClause();
     }
 
     protected void appendJoinedTables() {
@@ -127,6 +123,25 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
 
     private boolean requiresCompletionCodeClause () {
         return !this.completionCodes.isEmpty();
+    }
+
+    private void appendLastSessionStartWhereClause() {
+        if (!this.isNull(this.lastSessionStart)) {
+            this.appendWhereOrAnd();
+            this.append(" exists (select * from ");
+            this.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            this.append(" where ");
+            this.append(TableSpecs.DDC_COMTASKEXEC.name());
+            this.append(".connectiontask = id and ");
+            this.appendIntervalWhereClause(TableSpecs.DDC_CONNECTIONTASK.name(), "LASTCOMMUNICATIONSTART", this.lastSessionStart);
+            this.append(")");
+        }
+    }
+
+    private boolean isNull(Interval interval) {
+        return interval == null
+                || (   (interval.getStart() == null)
+                && (interval.getEnd() == null));
     }
 
 }

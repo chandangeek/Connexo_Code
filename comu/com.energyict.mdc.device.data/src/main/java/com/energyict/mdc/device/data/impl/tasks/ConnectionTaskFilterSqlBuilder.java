@@ -178,32 +178,6 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
         }
     }
 
-    private void appendIntervalWhereClause(String tableName, String columnName, Interval interval) {
-        if (interval.getStart() != null) {
-            this.append(" (");
-            this.append(tableName);
-            this.append(".");
-            this.append(columnName);
-            this.append(" >=");
-            this.addLong(interval.getStart().getTime() / DateTimeConstants.MILLIS_PER_SECOND);
-            if (interval.getEnd() != null) {
-                this.append(" and ");
-            }
-        }
-        if (interval.getEnd() != null) {
-            if (interval.getStart() == null) {
-                this.append(" (");
-            }
-            this.append(columnName);
-            this.append(" <");
-            this.addLong(interval.getEnd().getTime() / DateTimeConstants.MILLIS_PER_SECOND);
-            this.append(") ");
-        }
-        else {
-            this.append(") ");
-        }
-    }
-
     private enum ListAppendMode {
         FIRST {
             @Override

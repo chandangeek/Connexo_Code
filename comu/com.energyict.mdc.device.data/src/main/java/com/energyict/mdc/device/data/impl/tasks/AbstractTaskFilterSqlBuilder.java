@@ -6,6 +6,8 @@ import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+import org.joda.time.DateTimeConstants;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -132,6 +134,32 @@ public abstract class AbstractTaskFilterSqlBuilder {
             this.append(" where ");
             this.appendInClause("devicetype", deviceTypes);
             this.append("))");
+        }
+    }
+
+    protected void appendIntervalWhereClause(String tableName, String columnName, Interval interval) {
+        if (interval.getStart() != null) {
+            this.append(" (");
+            this.append(tableName);
+            this.append(".");
+            this.append(columnName);
+            this.append(" >=");
+            this.addLong(interval.getStart().getTime() / DateTimeConstants.MILLIS_PER_SECOND);
+            if (interval.getEnd() != null) {
+                this.append(" and ");
+            }
+        }
+        if (interval.getEnd() != null) {
+            if (interval.getStart() == null) {
+                this.append(" (");
+            }
+            this.append(columnName);
+            this.append(" <");
+            this.addLong(interval.getEnd().getTime() / DateTimeConstants.MILLIS_PER_SECOND);
+            this.append(") ");
+        }
+        else {
+            this.append(") ");
         }
     }
 
