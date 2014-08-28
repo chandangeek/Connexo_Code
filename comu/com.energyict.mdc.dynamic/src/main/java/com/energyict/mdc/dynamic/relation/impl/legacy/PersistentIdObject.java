@@ -1,7 +1,5 @@
 package com.energyict.mdc.dynamic.relation.impl.legacy;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObject;
@@ -11,12 +9,14 @@ import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TypeId;
 
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.util.Checks;
+
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.util.Objects;
 
 /**
@@ -59,16 +59,14 @@ public abstract class PersistentIdObject implements IdBusinessObject {
      * Saves this object for the first time.
      */
     protected void postNew() {
-        DataMapper dataMapper = this.getDataMapper();
-        dataMapper.persist(this);
+        this.getDataMapper().persist(this);
     }
 
     /**
      * Updates the changes made to this object.
      */
     protected void post() {
-        DataMapper dataMapper = this.getDataMapper();
-        dataMapper.update(this);
+        this.getDataMapper().update(this);
     }
 
     public void delete() throws BusinessException, SQLException {
@@ -158,11 +156,11 @@ public abstract class PersistentIdObject implements IdBusinessObject {
             }
         }
         if (value.length() > maxlen) {
-            DecimalFormat formatter = Environment.DEFAULT.get().getFormatPreferences().getNumberFormat();
             throw new BusinessException(
                         "fieldXMaxYLong",
                         "The field \"{0}\" can only be {1} characters long",
-                        fieldName == null ? "" : getTranslation(fieldName, objectName), formatter.format(maxlen));
+                        this.getTranslation(fieldName, objectName),
+                        String.valueOf(maxlen));
         }
     }
 
@@ -171,19 +169,18 @@ public abstract class PersistentIdObject implements IdBusinessObject {
             throw new BusinessException(
                     "fieldXCannotBeEmpty",
                     "The field \"{0}\" cannot be empty",
-                    fieldName == null ? "" : getTranslation(fieldName, objectName)
+                    this.getTranslation(fieldName, objectName)
             );
         }
     }
 
     private String getTranslation(String fieldName, String objectName) {
-        if (objectName == null) {
-            objectName = "";
+        if (fieldName == null) {
+            return "";
         }
         else {
-            objectName = Environment.DEFAULT.get().getTranslation(objectName, false) + " > ";
+            return objectName + " > " + fieldName;
         }
-        return objectName + Environment.DEFAULT.get().getTranslation(fieldName, false);
     }
 
     protected Connection getConnection() {

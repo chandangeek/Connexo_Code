@@ -1,16 +1,8 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -26,29 +18,6 @@ import static org.mockito.Mockito.when;
 public abstract class AbstractPropertySpecTest {
 
     static final int TEST_BUSINESS_OBJECT_ID = 97;
-
-    @Mock
-    private Environment environment;
-    @Mock
-    private Translator translator;
-
-    @Before
-    public void setEnvironment () {
-        Environment.DEFAULT.set(this.environment);
-        when(this.environment.getErrorMsg(anyString())).thenReturn("MR");
-        when(this.environment.getTranslator()).thenReturn(translator);
-        when(translator.getErrorMsg(anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return (String) invocationOnMock.getArguments()[0];
-            }
-        });
-    }
-
-    @After
-    public void cleanEnvironment () {
-        Environment.DEFAULT.set(null);
-    }
 
     protected TestBusinessObject newPersistentTestBusinessObject() {
         TestBusinessObject testBusinessObject = mock(TestBusinessObject.class);
