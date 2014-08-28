@@ -25,7 +25,17 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
      * @private
      */
     setTooltip: function (grid) {
-        Ext.Array.each(grid.up('gridpanel').columns, function (column) {
+        var gridPanel = grid.up('gridpanel');
+        Ext.Array.each(gridPanel.columns, function (column) {
+            var header = Ext.get(gridPanel.getEl().query('#' + column.id + '-titleEl')[0]);
+
+            if (column.text && (header.getWidth(true) < header.getTextWidth())) {
+                header.tooltip = Ext.create('Ext.tip.ToolTip', {
+                    target: header,
+                    html: column.text
+                });
+            }
+
             if (column.$className === 'Ext.grid.column.Column' || column.$className === 'Ext.grid.column.Date') {
                 Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + column.id), function (item) {
                     var cell = Ext.get(item),
