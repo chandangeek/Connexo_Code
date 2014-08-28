@@ -6,6 +6,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.*;
@@ -19,6 +20,9 @@ import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.TemporalExpression;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -69,6 +73,9 @@ public class DemoServiceImpl implements DemoService {
 
     public static final String OUTBOUND_TCP_POOL_NAME = "Outbound TCP Pool";
 
+    public static final String COM_SCHEDULE_READ_DEFAULT_GROUP_DAILY = "Read default group daily";
+    public static final String COM_SCHEDULE_READ_TARIFFS_MOUNTHLY = "Read tariffs mounthly";
+
     private final Boolean rethrowExceptions;
     private volatile EngineModelService engineModelService;
     private volatile TransactionService transactionService;
@@ -79,6 +86,7 @@ public class DemoServiceImpl implements DemoService {
     private volatile TaskService taskService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceDataService deviceDataService;
+    private volatile SchedulingService schedulingService;
 
     private int deviceTypeCount = 0;
 
@@ -96,7 +104,8 @@ public class DemoServiceImpl implements DemoService {
             MeteringService meteringService,
             TaskService taskService,
             DeviceConfigurationService deviceConfigurationService,
-            DeviceDataService deviceDataService) {
+            DeviceDataService deviceDataService,
+            SchedulingService schedulingService) {
         this.engineModelService = engineModelService;
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
@@ -106,6 +115,7 @@ public class DemoServiceImpl implements DemoService {
         this.taskService = taskService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceDataService = deviceDataService;
+        this.schedulingService = schedulingService;
         rethrowExceptions = Boolean.TRUE;
     }
 
@@ -115,6 +125,7 @@ public class DemoServiceImpl implements DemoService {
             @Override
             protected void doPerform() {
                 Store store = new Store();
+                store.getProperties().put("host", host);
 
                 OnlineComServer comServer = createComServer("Deitvs099");
                 OutboundComPort outboundTCPPort = createOutboundTcpComPort("Outbound TCP 099", comServer);
@@ -133,6 +144,7 @@ public class DemoServiceImpl implements DemoService {
                 createRegisterGroups(store);
                 createLogbookTypes(store);
                 createCommunicationTasks(store);
+                createCommunicationSchedules(store);
                 createDeviceTypes(store);
             }
         });
@@ -334,6 +346,19 @@ public class DemoServiceImpl implements DemoService {
         store.getComTasks().put(COM_TASK_READ_LOAD_PROFILE_DATA, readLoadProfileData);
     }
 
+    private void createCommunicationSchedules(Store store){
+        System.out.println("==> Creating Communication Schedules...");
+        createCommunicationSchedule(store, COM_SCHEDULE_READ_DEFAULT_GROUP_DAILY, COM_TASK_READ_REGISTER_DATA, TimeDuration.days(1));
+        createCommunicationSchedule(store, COM_SCHEDULE_READ_TARIFFS_MOUNTHLY, COM_TASK_READ_DAILY, TimeDuration.months(1));
+    }
+
+    private void createCommunicationSchedule(Store store, String comScheduleName, String taskName, TimeDuration every) {
+        ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleName, new TemporalExpression(every), new UtcInstant(new Date())).build();
+        comSchedule.addComTask(store.getComTasks().get(taskName));
+        comSchedule.save();
+        store.getComSchedules().put(comScheduleName, comSchedule);
+    }
+
     public void createDeviceTypes(Store store) {
         for (int i=0; i < 6; i++){
             createDeviceType(store);
@@ -371,12 +396,9 @@ public class DemoServiceImpl implements DemoService {
         configBuilder.isDirectlyAddressable(true);
 
         addRegisterSpecsToDeviceConfiguration(configBuilder, store,
-                ACTIVE_ENERGY_IMPORT_TOTAL_WH,
-                ACTIVE_ENERGY_IMPORT_TARIFF_1_WH,
-                ACTIVE_ENERGY_IMPORT_TARIFF_2_WH,
-                ACTIVE_ENERGY_EXPORT_TOTAL_WH,
-                ACTIVE_ENERGY_EXPORT_TARIFF_1_WH,
-                ACTIVE_ENERGY_EXPORT_TARIFF_2_WH);
+                ACTIVE_ENERGY_IMPORT_TOTAL_WH, ACTIVE_ENERGY_IMPORT_TARIFF_1_WH,
+                ACTIVE_ENERGY_IMPORT_TARIFF_2_WH, ACTIVE_ENERGY_EXPORT_TOTAL_WH,
+                ACTIVE_ENERGY_EXPORT_TARIFF_1_WH, ACTIVE_ENERGY_EXPORT_TARIFF_2_WH);
 
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY));
@@ -393,7 +415,7 @@ public class DemoServiceImpl implements DemoService {
         configureChannelsForLoadProfileSpec(configuration);
         configuration.activate();
         configuration.save();
-        createDevicesForDeviceConfiguration(configuration);
+        createDevicesForDeviceConfiguration(store, configuration);
     }
 
     /**
@@ -448,11 +470,11 @@ public class DemoServiceImpl implements DemoService {
 
         createSecurityPropertySetForDeviceConfiguration(configuration);
         setProtocolDialectConfigurationProperties(configuration);
-        enableComTasksOnDeviceConfiguration(configuration, store, COM_TASK_READ_ALL);
+        enableComTasksOnDeviceConfiguration(configuration, store, COM_TASK_READ_ALL, COM_TASK_READ_DAILY, COM_TASK_READ_REGISTER_DATA);
         configureChannelsForLoadProfileSpec(configuration);
         configuration.activate();
         configuration.save();
-        createDevicesForDeviceConfiguration(configuration);
+        createDevicesForDeviceConfiguration(store, configuration);
     }
 
     private SecurityPropertySet createSecurityPropertySetForDeviceConfiguration(DeviceConfiguration configuration) {
@@ -466,7 +488,7 @@ public class DemoServiceImpl implements DemoService {
         configuration.getCommunicationConfiguration()
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
-                .addProperty("host", "deitvs015")
+                .addProperty("host", store.getProperties().get("host"))
                 .addProperty("portNumber", new BigDecimal(4059))
                 .asDefault(true).build();
     }
@@ -480,20 +502,25 @@ public class DemoServiceImpl implements DemoService {
         }
     }
 
-    private void createDevicesForDeviceConfiguration(DeviceConfiguration configuration){
+    private void createDevicesForDeviceConfiguration(Store store, DeviceConfiguration configuration){
         System.out.println("==> Creating Devices for Configuration...");
         for (int i = 1; i < 9; i++) {
-            createDevice(configuration, "ZABF0100" + String.format("%04d", configuration.getId()) + String.format("%04d", i) );
+            createDevice(store, configuration, String.format("%04d", configuration.getId()) + String.format("%04d", i) );
         }
     }
 
-    private void createDevice(DeviceConfiguration configuration, String mrid){
+    private void createDevice(Store store, DeviceConfiguration configuration, String serialNumber){
+        String mrid = "ZABF0100" +  serialNumber;
         System.out.println("==> Creating Device '" + mrid + "'...");
         Calendar calendar = Calendar.getInstance();
-        Device newDevice = deviceDataService.newDevice(configuration, mrid, mrid);
+        Device device = deviceDataService.newDevice(configuration, mrid, mrid);
+        device.setSerialNumber(serialNumber);
         calendar.set(2014, 1, 1);
-        newDevice.setYearOfCertification(calendar.getTime());
-        newDevice.save();
+        device.setYearOfCertification(calendar.getTime());
+        device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_READ_DEFAULT_GROUP_DAILY)).add();
+        device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_READ_TARIFFS_MOUNTHLY)).add();
+        device.save();
+
     }
 
     @Reference
@@ -539,6 +566,11 @@ public class DemoServiceImpl implements DemoService {
     @Reference
     public void setDeviceDataService(DeviceDataService deviceDataService) {
         this.deviceDataService = deviceDataService;
+    }
+
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
     }
 
     private <T> T executeTransaction(Transaction<T> transaction) {
