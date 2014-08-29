@@ -4,12 +4,9 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.status.ComServerType;
-
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.joda.time.DateTimeConstants;
-
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.GET;
@@ -18,10 +15,14 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.joda.time.DateTimeConstants;
 
 /**
  * Models the REST resource that gets the summary of all the statusse
@@ -47,14 +48,15 @@ public class ComServerStatusSummaryResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerStatusSummaryInfo getComServerStatusSummary() {
+    public ComServerStatusSummaryInfo getComServerStatusSummary(@Context UriInfo uriInfo) {
         Client jerseyClient = this.newJerseyClient();
+        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path(ComServerStatusResource.class).host("{host}");
         ComServerStatusSummaryInfo statusSummaryInfo = new ComServerStatusSummaryInfo();
         for (OnlineComServer comServer : this.findAllOnlineComServers()) {
-            this.addStatusInfo(statusSummaryInfo, comServer, jerseyClient);
+            this.addStatusInfo(statusSummaryInfo, comServer, jerseyClient, uriBuilder);
         }
         for (RemoteComServer comServer : this.findAllRemoteComServers()) {
-            this.addStatusInfo(statusSummaryInfo, comServer, jerseyClient);
+            this.addStatusInfo(statusSummaryInfo, comServer, jerseyClient, uriBuilder);
         }
         return statusSummaryInfo;
     }
@@ -69,15 +71,19 @@ public class ComServerStatusSummaryResource {
                 property(ClientProperties.READ_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 2);
     }
 
-    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, OnlineComServer comServer, Client jerseyClient) {
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.ONLINE);
+    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, OnlineComServer comServer, Client jerseyClient, UriBuilder uriBuilder) {
+        String defaultUri = uriBuilder.build(comServer.getName()).toString();
+        String statusUri = comServer.usesDefaultStatusUri()? defaultUri :comServer.getStatusUri();
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), defaultUri, statusUri, ComServerType.ONLINE);
     }
 
-    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, RemoteComServer comServer, Client jerseyClient) {
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.REMOTE);
+    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, RemoteComServer comServer, Client jerseyClient, UriBuilder uriBuilder) {
+        String defaultUri = uriBuilder.build(comServer.getName()).toString();
+        String statusUri = comServer.usesDefaultStatusUri()? defaultUri :comServer.getStatusUri();
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), defaultUri, statusUri, ComServerType.REMOTE);
     }
 
-    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, long comServerId, String comServerName, String statusUri, ComServerType comServerType) {
+    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, long comServerId, String comServerName, String defaultUri, String statusUri, ComServerType comServerType) {
         try {
             LOGGER.log(Level.FINE, "Executing " + statusUri);
             ComServerStatusInfo comServerStatusInfo =
@@ -100,6 +106,7 @@ public class ComServerStatusSummaryResource {
             ComServerStatusInfo statusInfo = new ComServerStatusInfo();
             statusInfo.comServerId = comServerId;
             statusInfo.comServerName = comServerName;
+            statusInfo.defaultUri = defaultUri;
             statusInfo.comServerType = comServerType;
             statusInfo.blocked = false;
             statusInfo.running = false;

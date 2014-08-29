@@ -18,18 +18,20 @@ public class ComServerStatusInfo {
     public boolean running;
     public boolean blocked;
     public TimeDurationInfo blockTime;
+    public String defaultUri;
 
     public ComServerStatusInfo() {
         super();
     }
 
-    public ComServerStatusInfo(ComServerStatus status) {
+    public ComServerStatusInfo(ComServerStatus status, String defaultUri) {
         super();
         this.comServerName = status.getComServerName();
         this.comServerId=status.getComServerId();
         this.comServerType = status.getComServerType();
         this.running = status.isRunning();
         this.blocked = status.isBlocked();
+        this.defaultUri = defaultUri;
         if (this.blocked) {
             this.blockTime = new TimeDurationInfo((int) status.getBlockTime().getStandardSeconds());
         }
