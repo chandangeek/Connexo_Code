@@ -88,7 +88,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                         var series = points.point.series;
                         s += '<tr>'
                         s += '<td style="padding-right: 10px; text-align: right"><b>' + channels[series.index].name + '</b></td>';
-                        s += '<td style="padding-right: 1px; text-align: right">' + points.y + '</td>';
+                        s += '<td style="padding-right: 1px; text-align: right">' + Uni.I18n.formatNumber(points.y, 'MDC', 3)  + '</td>';
                         s += '<td style="padding-left: 1px; text-align: left">' + channels[series.index].unitOfMeasure + '</td>';
                         s += '</tr>'
                     });

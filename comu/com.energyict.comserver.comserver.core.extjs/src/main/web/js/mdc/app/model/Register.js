@@ -25,7 +25,10 @@ Ext.define('Mdc.model.Register', {
 
                 return '-';
             }
-        }
+        },
+        {name: 'timeStamp', mapping: 'lastReading.timeStamp', useNull: true},
+        {name: 'reportedDateTime', mapping: 'lastReading.reportedDateTime', useNull: true},
+        {name: 'interval', mapping: 'lastReading.interval', useNull: true}
     ],
     proxy: {
         type: 'rest',

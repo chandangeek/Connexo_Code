@@ -30,10 +30,16 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.SideFilter', {
                     maxValue: new Date()
                 },
                 hourCfg: {
-                    width: 57
+                    width: 57,
+                    valueToRaw: function (value) {
+                        return (value < 10 ? '0' : '') + value;
+                    }
                 },
                 minuteCfg: {
-                    width: 57
+                    width: 57,
+                    valueToRaw: function (value) {
+                        return (value < 10 ? '0' : '') + value;
+                    }
                 }
             },
             {

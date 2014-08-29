@@ -189,7 +189,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             dataStore.each(function (record) {
                 Ext.iterate(record.get('channelData'), function (key, value) {
                     if (channelDataArrays[key]) {
-                        channelDataArrays[key].unshift([record.get('interval').end, value])
+                        channelDataArrays[key].unshift([record.get('interval').end, value]);
                     }
                 });
             });

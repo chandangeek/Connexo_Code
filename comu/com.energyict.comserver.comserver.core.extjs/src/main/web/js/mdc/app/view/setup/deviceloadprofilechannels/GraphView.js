@@ -85,7 +85,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
                     s += '<table style="margin-top: 10px"><tbody>';
                         s += '<tr>'
                         s += '<td style="padding-right: 10px; text-align: right"><b>' + channelName + '</b></td>';
-                        s += '<td style="padding-right: 1px; text-align: right">' + this.points[0].y + '</td>';
+                        s += '<td style="padding-right: 1px; text-align: right">' + Uni.I18n.formatNumber(this.points[0].y, 'MDC', 3) + '</td>';
                         s += '<td style="padding-left: 1px; text-align: left">' + unitOfMeasure + '</td>';
                         s += '</tr>'
                     s += '</tbody></table>';

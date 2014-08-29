@@ -3,7 +3,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
     alias: 'widget.deviceLoadProfilesDataPreview',
     itemId: 'deviceLoadProfilesDataPreview',
     requires: [
-        'Mdc.view.setup.deviceloadprofiles.DataActionMenu'
+        'Mdc.view.setup.deviceloadprofiles.DataActionMenu',
+        'Uni.form.field.IntervalFlagsDisplay'
     ],
     layout: 'fit',
     frame: true,
@@ -83,43 +84,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                             name: 'readingTime_formatted'
                         },
                         {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.intervalFlags', 'MDC', 'Interval flags'),
-                            layout: 'hbox',
-                            items: [
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'intervalFlags',
-                                    margin: '3 0 0 0',
-                                    renderer: function (data) {
-                                        var result = '',
-                                            tooltip = '',
-                                            icon = this.nextSibling('button');
-                                        if (Ext.isArray(data) && data.length) {
-                                            result = data.length;
-                                            Ext.Array.each(data, function (value, index) {
-                                                index++;
-                                                tooltip += Uni.I18n.translate('deviceloadprofiles.flag', 'MDC', 'Flag') + ' ' + index + ': ' + value + '<br>';
-                                            });
-                                            icon.setTooltip(tooltip);
-                                            icon.show();
-                                        } else {
-                                            icon.hide();
-                                        }
-                                        return result;
-                                    }
-                                },
-                                {
-                                    xtype: 'button',
-                                    tooltip: '',
-                                    iconCls: 'icon-info-small',
-                                    ui: 'blank',
-                                    itemId: 'intervalFlagsHelp',
-                                    shadow: false,
-                                    margin: '6 0 0 10',
-                                    width: 16
-                                }
-                            ]
+                            xtype: 'interval-flags-displayfield'
                         }
                     ]
                 }

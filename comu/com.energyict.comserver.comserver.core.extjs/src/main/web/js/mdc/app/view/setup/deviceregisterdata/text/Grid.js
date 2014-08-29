@@ -19,7 +19,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
             {
                 header: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                 dataIndex: 'value',
-                flex: 1
+                renderer: function (value, metaData, record) {
+                    if(!Ext.isEmpty(value) && Ext.isString(value)) {
+                        var val = new String(value);
+                        return val.substr(0,300);
+                    }
+                },
+                flex: 3
             },
             {
                 xtype: 'uni-actioncolumn'

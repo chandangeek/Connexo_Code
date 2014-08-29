@@ -297,7 +297,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigId = deviceConfigurationId;
         var me = this;
-        var registerTypesOfDevicetypeStore = Ext.data.StoreManager.lookup('RegisterTypesOfDevicetype')
+        var registerTypesOfDevicetypeStore = Ext.data.StoreManager.lookup('RegisterTypesOfDevicetype');
         registerTypesOfDevicetypeStore.getProxy().setExtraParam('deviceType', deviceTypeId);
 
         registerTypesOfDevicetypeStore.load({
@@ -324,13 +324,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         widget.down('form').loadRecord(registerConfiguration);
                                         me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + registerConfiguration.get('name') + "'");
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerType'));
-                                        if (deviceConfiguration.get('active') === true) {
-                                            widget.down('#registerTypeComboBox').disable();
-                                            widget.down('#editMultiplierField').disable();
-                                        } else {
-                                            widget.down('#registerTypeComboBox').enable();
-                                            widget.down('#editMultiplierField').enable();
-                                        }
                                         if(registerConfiguration.get('asText')===true){
                                             widget.down('#textRadio').setValue(true);
                                         } else {

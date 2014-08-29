@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
                         mRID: me.mRID,
-                        toggle: 7
+                        toggle: 8
                     }
                 ]
             }
