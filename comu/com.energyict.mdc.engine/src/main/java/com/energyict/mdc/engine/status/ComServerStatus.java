@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.status;
 
+import java.util.Date;
 import org.joda.time.Duration;
 
 /**
@@ -50,6 +51,16 @@ public interface ComServerStatus {
      *         or <code>null</code> if the ComServer is not blocked.
      */
     public Duration getBlockTime ();
+
+    /**
+     * Returns the time that the {@link com.energyict.mdc.engine.model.ComServer} is already blocked.
+     * Note that this will return null if the ComServer is not blocked,
+     * i.e. the method {@link #isBlocked()} returned false.
+     *
+     * @return The time that the ComServer is already block
+     *         or <code>null</code> if the ComServer is not blocked.
+     */
+    public Date getBlockTimestamp();
 
     /**
      * id of the comserver, used to access the REST resource to the comserver
