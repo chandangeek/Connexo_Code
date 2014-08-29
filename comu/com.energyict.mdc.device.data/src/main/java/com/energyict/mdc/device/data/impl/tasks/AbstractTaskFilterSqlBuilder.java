@@ -153,6 +153,8 @@ public abstract class AbstractTaskFilterSqlBuilder {
             if (interval.getStart() == null) {
                 this.append(" (");
             }
+            this.append(tableName);
+            this.append(".");
             this.append(columnName);
             this.append(" <");
             this.addLong(interval.getEnd().getTime() / DateTimeConstants.MILLIS_PER_SECOND);

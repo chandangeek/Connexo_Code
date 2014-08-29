@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import com.elster.jupiter.orm.DataMapper;
@@ -81,7 +82,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     protected void appendNonStatusWhereClauses() {
         super.appendNonStatusWhereClauses();
         this.appendCompletionCodeClause();
-        this.appendLastSessionStartWhereClause();
+        this.appendLastSessionIntervalWhereClause();
     }
 
     protected void appendJoinedTables() {
@@ -126,8 +127,9 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         return !this.completionCodes.isEmpty();
     }
 
-    private void appendLastSessionStartWhereClause() {
-        if (!this.isNull(this.lastSessionStart)) {
+    private void appendLastSessionIntervalWhereClause() {
+        if (   !this.isNull(this.lastSessionStart)
+            || !this.isNull(this.lastSessionEnd)) {
             this.appendWhereOrAnd();
             this.append(" exists (select * from ");
             this.append(TableSpecs.DDC_COMSESSION.name());
@@ -135,8 +137,18 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
             this.append(" ctes where ctes.comtaskexec = ");
             this.append(TableSpecs.DDC_COMTASKEXEC.name());
-            this.append(".id and ctes.comsession = cs.id and ");
-            this.appendIntervalWhereClause("cs", "startdate", this.lastSessionStart);
+            this.append(".id and ctes.comsession = cs.id ");
+            if (!this.isNull(this.lastSessionStart)) {
+                this.appendWhereOrAnd();
+                this.appendIntervalWhereClause("cs", "startdate", this.lastSessionStart);
+            }
+            if (!this.isNull(this.lastSessionEnd)) {
+                this.append("and (ctes.successindicator =");
+                this.addInt(ComTaskExecutionSession.SuccessIndicator.Success.ordinal());
+                this.appendWhereOrAnd();
+                this.appendIntervalWhereClause("cs", "stopdate", this.lastSessionEnd);
+                this.append(" )");
+            }
             this.append(")");
         }
     }
