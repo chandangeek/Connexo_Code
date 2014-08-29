@@ -143,6 +143,11 @@ public class CommunicationTaskHeatMapResourceTest extends JerseyTest {
                 return o1.displayValue.compareTo(o2.displayValue);
             }
         });
+
+        for (HeatMapRowInfo heatMapRowInfo : map.heatMap) {
+            assertThat(heatMapRowInfo.data).isSortedAccordingTo(new CompletionCodeTaskCounterInfoComparator());
+        }
+
     }
 
     private CommunicationTaskHeatMap createHeatMap() {
