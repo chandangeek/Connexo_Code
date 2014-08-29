@@ -20761,6 +20761,119 @@ h6 {
 .force-no-border *[class*='x-grid-'] {
   border: none !important; }
 
+/* line 4, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu {
+  background: -webkit-linear-gradient(top, #2e587e, #478bae);
+  /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(bottom, #2e587e, #478bae);
+  /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(bottom, #2e587e, #478bae);
+  /* For Firefox 3.6 to 15 */
+  background: linear-gradient(to bottom, #2e587e, #478bae);
+  /* Standard syntax */
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 48px !important;
+  z-index: 20001;
+  transition: width 400ms;
+  -moz-transition: width 400ms;
+  /* Firefox 4 */
+  -webkit-transition: width 400ms;
+  /* Safari and Chrome */
+  -o-transition: width 400ms;
+  /* Opera */ }
+  /* line 24, ../../sass/src/container/NavigationMenu.scss */
+  .x-container-navigationmenu:hover {
+    width: 255px !important;
+    padding-right: 1px; }
+  /* line 29, ../../sass/src/container/NavigationMenu.scss */
+  .x-container-navigationmenu .menu-item, .x-container-navigationmenu .x-box-inner, .x-container-navigationmenu .x-box-target {
+    width: 100% !important; }
+  /* line 33, ../../sass/src/container/NavigationMenu.scss */
+  .x-container-navigationmenu .x-panel-body-default {
+    background-color: transparent; }
+  /* line 37, ../../sass/src/container/NavigationMenu.scss */
+  .x-container-navigationmenu .x-pressed {
+    background-color: white; }
+    /* line 41, ../../sass/src/container/NavigationMenu.scss */
+    .x-container-navigationmenu .x-pressed .x-btn-button .x-btn-inner, .x-container-navigationmenu .x-pressed .x-btn-button .x-btn-glyph {
+      color: #2f77ac; }
+    /* line 45, ../../sass/src/container/NavigationMenu.scss */
+    .x-container-navigationmenu .x-pressed .x-btn-button:hover {
+      background-color: white; }
+
+/* line 52, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationwrapper {
+  padding-right: 48px; }
+
+/* line 9, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu {
+  position: absolute !important;
+  z-index: 20001 !important;
+  height: auto !important;
+  bottom: 0;
+  border-top: 1px solid #597d9d;
+  overflow: visible;
+  background: -webkit-linear-gradient(top, #2e587e, #529ebe);
+  /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(bottom, #2e587e, #529ebe);
+  /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(bottom, #2e587e, #529ebe);
+  /* For Firefox 3.6 to 15 */
+  background: linear-gradient(to bottom, #2e587e, #529ebe);
+  /* Standard syntax */ }
+  /* line 23, ../../sass/src/container/AppCenter.scss */
+  .uni-nav-appcenter-menu .x-menu-body {
+    background-color: transparent;
+    overflow: visible; }
+    /* line 27, ../../sass/src/container/AppCenter.scss */
+    .uni-nav-appcenter-menu .x-menu-body .x-box-inner {
+      overflow: visible; }
+  /* line 32, ../../sass/src/container/AppCenter.scss */
+  .uni-nav-appcenter-menu .uni-nav-appcenter-dataview {
+    margin-right: -5px !important;
+    left: 0 !important; }
+    /* line 36, ../../sass/src/container/AppCenter.scss */
+    .uni-nav-appcenter-menu .uni-nav-appcenter-dataview .handlebar {
+      background-color: #2e587e;
+      position: absolute;
+      width: 47px;
+      height: 1px;
+      top: -1px; }
+    /* line 44, ../../sass/src/container/AppCenter.scss */
+    .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a {
+      text-transform: uppercase;
+      text-decoration: none;
+      white-space: nowrap;
+      font-size: 16px;
+      color: white; }
+      /* line 51, ../../sass/src/container/AppCenter.scss */
+      .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item {
+        padding-top: 16px;
+        padding-right: 16px;
+        padding-bottom: 4px; }
+        /* line 58, ../../sass/src/container/AppCenter.scss */
+        .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item:hover {
+          background-color: #71adc7; }
+        /* line 62, ../../sass/src/container/AppCenter.scss */
+        .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon {
+          background-repeat: no-repeat;
+          background-position: center;
+          display: inline-block;
+          position: relative;
+          width: 32px;
+          height: 32px;
+          top: -6px;
+          margin-right: 8px;
+          margin-left: 7px; }
+        /* line 4, ../../sass/src/container/AppCenter.scss */
+        .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon-connexo {
+          background-image: url("images/container/appcenter/connexo.png"); }
+        /* line 4, ../../sass/src/container/AppCenter.scss */
+        .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon-devices {
+          background-image: url("images/container/appcenter/devices.png"); }
+
 /* line 1, ../../sass/src/container/BreadcrumbTrailContainer.scss */
 .x-container-breadcrumbtrailcontainer {
   background-color: #71adc7;
@@ -20792,6 +20905,12 @@ h6 {
   height: 23px; }
 
 /* line 33, ../../sass/src/container/NavigationHeader.scss */
+.icon-appcenter {
+  background-image: url("images/container/applicationCenter.png");
+  width: 20px;
+  height: 18px; }
+
+/* line 39, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader {
   background-color: #2e587e;
   color: white;
@@ -20805,8 +20924,8 @@ h6 {
   /* For Firefox 3.6 to 15 */
   background: linear-gradient(to right, #2e587e, #529ebe);
   /* Standard syntax */ }
-  /* line 52, ../../sass/src/container/NavigationHeader.scss */
-  .x-container-navigationheader .nav-appswitcher,
+  /* line 58, ../../sass/src/container/NavigationHeader.scss */
+  .x-container-navigationheader .uni-nav-appcenter,
   .x-container-navigationheader .nav-toggler,
   .x-container-navigationheader .notifications-anchor,
   .x-container-navigationheader .nav-help,
@@ -20820,7 +20939,7 @@ h6 {
     padding: 0;
     padding: 0 4px; }
     /* line 9, ../../sass/src/button/TransparentButton.scss */
-    .x-container-navigationheader .nav-appswitcher .x-btn-button,
+    .x-container-navigationheader .uni-nav-appcenter .x-btn-button,
     .x-container-navigationheader .nav-toggler .x-btn-button,
     .x-container-navigationheader .notifications-anchor .x-btn-button,
     .x-container-navigationheader .nav-help .x-btn-button,
@@ -20829,7 +20948,7 @@ h6 {
       padding-right: 10px;
       padding-left: 10px; }
       /* line 15, ../../sass/src/button/TransparentButton.scss */
-      .x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-inner,
+      .x-container-navigationheader .uni-nav-appcenter .x-btn-button .x-btn-inner,
       .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner,
       .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner,
       .x-container-navigationheader .nav-help .x-btn-button .x-btn-inner,
@@ -20837,7 +20956,7 @@ h6 {
       .x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
         color: white; }
       /* line 19, ../../sass/src/button/TransparentButton.scss */
-      .x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-glyph,
+      .x-container-navigationheader .uni-nav-appcenter .x-btn-button .x-btn-glyph,
       .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph,
       .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph,
       .x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph,
@@ -20848,8 +20967,8 @@ h6 {
         line-height: 36px;
         margin-top: 3px;
         margin-left: 10px; }
-    /* line 55, ../../sass/src/container/NavigationHeader.scss */
-    .x-container-navigationheader .nav-appswitcher .icon-user,
+    /* line 61, ../../sass/src/container/NavigationHeader.scss */
+    .x-container-navigationheader .uni-nav-appcenter .icon-user,
     .x-container-navigationheader .nav-toggler .icon-user,
     .x-container-navigationheader .notifications-anchor .icon-user,
     .x-container-navigationheader .nav-help .icon-user,
@@ -20858,8 +20977,8 @@ h6 {
       margin: 14px 16px;
       width: 20px;
       height: 20px; }
-    /* line 61, ../../sass/src/container/NavigationHeader.scss */
-    .x-container-navigationheader .nav-appswitcher .icon-search,
+    /* line 67, ../../sass/src/container/NavigationHeader.scss */
+    .x-container-navigationheader .uni-nav-appcenter .icon-search,
     .x-container-navigationheader .nav-toggler .icon-search,
     .x-container-navigationheader .notifications-anchor .icon-search,
     .x-container-navigationheader .nav-help .icon-search,
@@ -20868,15 +20987,25 @@ h6 {
       margin: 13px 2px;
       width: 22px;
       height: 23px; }
-    /* line 67, ../../sass/src/container/NavigationHeader.scss */
-    .x-container-navigationheader .nav-appswitcher:hover,
+    /* line 73, ../../sass/src/container/NavigationHeader.scss */
+    .x-container-navigationheader .uni-nav-appcenter .icon-appcenter,
+    .x-container-navigationheader .nav-toggler .icon-appcenter,
+    .x-container-navigationheader .notifications-anchor .icon-appcenter,
+    .x-container-navigationheader .nav-help .icon-appcenter,
+    .x-container-navigationheader .search-button .icon-appcenter,
+    .x-container-navigationheader .user-menu .icon-appcenter {
+      margin: 15px 8px;
+      width: 20px;
+      height: 18px; }
+    /* line 79, ../../sass/src/container/NavigationHeader.scss */
+    .x-container-navigationheader .uni-nav-appcenter:hover,
     .x-container-navigationheader .nav-toggler:hover,
     .x-container-navigationheader .notifications-anchor:hover,
     .x-container-navigationheader .nav-help:hover,
     .x-container-navigationheader .search-button:hover,
     .x-container-navigationheader .user-menu:hover {
       background-color: #71adc7; }
-  /* line 73, ../../sass/src/container/NavigationHeader.scss */
+  /* line 85, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .x-menu-active {
     background-color: #71adc7; }
   /* line 8, ../../sass/src/container/NavigationHeader.scss */
@@ -20888,34 +21017,44 @@ h6 {
   /* line 16, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .nav-toggler .x-btn-arrow-bottom {
     padding-bottom: inherit; }
-  /* line 80, ../../sass/src/container/NavigationHeader.scss */
+  /* line 92, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph {
     opacity: 0.5; }
-  /* line 84, ../../sass/src/container/NavigationHeader.scss */
+  /* line 96, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .nav-toggler:hover .x-btn-button .x-btn-glyph {
     opacity: 1.0; }
-  /* line 89, ../../sass/src/container/NavigationHeader.scss */
+  /* line 101, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .x-pressed .x-btn-button .x-btn-glyph {
     opacity: 1.0; }
-  /* line 95, ../../sass/src/container/NavigationHeader.scss */
+  /* line 107, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .nav-toggler .x-pressed .x-btn-button .x-btn-glyph {
     opacity: 1.0; }
   /* line 8, ../../sass/src/container/NavigationHeader.scss */
-  .x-container-navigationheader .nav-appswitcher .x-btn-arrow, .x-container-navigationheader .notifications-anchor .x-btn-arrow {
+  .x-container-navigationheader .uni-nav-appcenter .x-btn-arrow, .x-container-navigationheader .notifications-anchor .x-btn-arrow {
     background-image: none; }
   /* line 12, ../../sass/src/container/NavigationHeader.scss */
-  .x-container-navigationheader .nav-appswitcher .x-btn-arrow-right, .x-container-navigationheader .notifications-anchor .x-btn-arrow-right {
+  .x-container-navigationheader .uni-nav-appcenter .x-btn-arrow-right, .x-container-navigationheader .notifications-anchor .x-btn-arrow-right {
     padding-right: inherit; }
   /* line 16, ../../sass/src/container/NavigationHeader.scss */
-  .x-container-navigationheader .nav-appswitcher .x-btn-arrow-bottom, .x-container-navigationheader .notifications-anchor .x-btn-arrow-bottom {
+  .x-container-navigationheader .uni-nav-appcenter .x-btn-arrow-bottom, .x-container-navigationheader .notifications-anchor .x-btn-arrow-bottom {
     padding-bottom: inherit; }
-  /* line 105, ../../sass/src/container/NavigationHeader.scss */
+  /* line 117, ../../sass/src/container/NavigationHeader.scss */
+  .x-container-navigationheader .uni-nav-appcenter {
+    border-right: 1px solid #597d9d;
+    margin-right: 0 !important; }
+    /* line 121, ../../sass/src/container/NavigationHeader.scss */
+    .x-container-navigationheader .uni-nav-appcenter .x-btn-button {
+      padding-right: 8px; }
+    /* line 125, ../../sass/src/container/NavigationHeader.scss */
+    .x-container-navigationheader .uni-nav-appcenter.x-menu-active {
+      background-color: #2e587e; }
+  /* line 130, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .search-field {
     width: 240px; }
-    /* line 109, ../../sass/src/container/NavigationHeader.scss */
+    /* line 134, ../../sass/src/container/NavigationHeader.scss */
     .x-container-navigationheader .search-field .x-form-item-body {
       float: right; }
-      /* line 112, ../../sass/src/container/NavigationHeader.scss */
+      /* line 137, ../../sass/src/container/NavigationHeader.scss */
       .x-container-navigationheader .search-field .x-form-item-body input {
         border-radius: 10px;
         -moz-border-radius: 10px;
@@ -20927,14 +21066,14 @@ h6 {
         -ms-transition: all 1s ease;
         width: 120px;
         height: 24px; }
-        /* line 126, ../../sass/src/container/NavigationHeader.scss */
+        /* line 151, ../../sass/src/container/NavigationHeader.scss */
         .x-container-navigationheader .search-field .x-form-item-body input:focus, .x-container-navigationheader .search-field .x-form-item-body input:hover {
           width: 240px; }
-  /* line 133, ../../sass/src/container/NavigationHeader.scss */
+  /* line 158, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .user-menu {
     padding-left: 0;
     padding-right: 8px; }
-  /* line 138, ../../sass/src/container/NavigationHeader.scss */
+  /* line 163, ../../sass/src/container/NavigationHeader.scss */
   .x-container-navigationheader .search-button {
     background: none;
     border: none;
@@ -20958,7 +21097,7 @@ h6 {
         line-height: 36px;
         margin-top: 3px;
         margin-left: 10px; }
-    /* line 143, ../../sass/src/container/NavigationHeader.scss */
+    /* line 168, ../../sass/src/container/NavigationHeader.scss */
     .x-container-navigationheader .search-button:hover {
       background-color: #71adc7; }
 

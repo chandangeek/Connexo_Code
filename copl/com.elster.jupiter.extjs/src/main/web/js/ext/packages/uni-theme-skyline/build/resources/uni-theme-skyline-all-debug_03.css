@@ -1,3 +1,217 @@
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-sort-toolbar-large-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-toolbar-large-pressed-corners.gif), sides:url(images/btn/btn-sort-toolbar-large-pressed-sides.gif), frame-bg:url(images/btn/btn-sort-toolbar-large-pressed-fbg.gif), bg:url(images/btn/btn-sort-toolbar-large-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-sort-toolbar-large-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-toolbar-large-disabled-corners.gif), sides:url(images/btn/btn-sort-toolbar-large-disabled-sides.gif), frame-bg:url(images/btn/btn-sort-toolbar-large-disabled-fbg.gif), bg:url(images/btn/btn-sort-toolbar-large-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 3, ../../sass/src/button/NavigationLogoButton.scss */
+*[class*='x-btn-navigationlogo-'] {
+  background: none;
+  border: none;
+  border-radius: 0;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  padding: 0;
+  background-image: url("images/container/connexo.png");
+  background-repeat: no-repeat;
+  background-size: auto 28px;
+  background-position: 14px;
+  padding-left: 60px;
+}
+/* line 9, ../../sass/src/button/TransparentButton.scss */
+*[class*='x-btn-navigationlogo-'] .x-btn-button {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+/* line 15, ../../sass/src/button/TransparentButton.scss */
+*[class*='x-btn-navigationlogo-'] .x-btn-button .x-btn-inner {
+  color: white;
+}
+/* line 19, ../../sass/src/button/TransparentButton.scss */
+*[class*='x-btn-navigationlogo-'] .x-btn-button .x-btn-glyph {
+  opacity: 1;
+  height: auto;
+  line-height: 36px;
+  margin-top: 3px;
+  margin-left: 10px;
+}
+/* line 13, ../../sass/src/button/NavigationLogoButton.scss */
+*[class*='x-btn-navigationlogo-'] .x-btn-button .x-btn-inner {
+  font-size: 24px;
+  font-weight: normal;
+}
+/* line 19, ../../sass/src/button/NavigationLogoButton.scss */
+*[class*='x-btn-navigationlogo-']:hover {
+  background-color: #71adc7;
+}
+
+/* line 11, ../../sass/src/button/StepButton.scss */
+.x-btn-step-active-small {
+  width: 24px !important;
+  height: 24px !important;
+  padding: 2px !important;
+  font-weight: bold;
+}
+/* line 6, ../../sass/src/button/StepButton.scss */
+.x-btn-step-active-small .x-btn-inner {
+  padding: 1px 0 !important;
+}
+
+/* line 15, ../../sass/src/button/StepButton.scss */
+.x-btn-step-completed-small {
+  width: 24px !important;
+  height: 24px !important;
+  padding: 2px !important;
+  font-weight: bold;
+}
+/* line 6, ../../sass/src/button/StepButton.scss */
+.x-btn-step-completed-small .x-btn-inner {
+  padding: 1px 0 !important;
+}
+
+/* line 19, ../../sass/src/button/StepButton.scss */
+.x-btn-step-non-completed-small {
+  width: 24px !important;
+  height: 24px !important;
+  padding: 2px !important;
+  font-weight: bold;
+}
+/* line 6, ../../sass/src/button/StepButton.scss */
+.x-btn-step-non-completed-small .x-btn-inner {
+  padding: 1px 0 !important;
+}
+
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-step-active-small {
+  border-color: transparent;
+}
+
+/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small {
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  -ms-border-radius: 12px;
+  -o-border-radius: 12px;
+  border-radius: 12px;
+  padding: 11px 11px 11px 11px;
+  border-width: 1px;
+  border-style: solid;
+  background-color: #70bb51;
+}
+
+/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-mc {
+  background-color: #70bb51;
+}
+
+/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-nbr .x-btn-step-active-small {
+  padding: 0 !important;
+  border-width: 0 !important;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  background-color: transparent;
+}
+
+/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-frameInfo {
+  font-family: th-12-12-12-12-1-1-1-1-11-11-11-11;
+}
+
+/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-tl {
+  background-position: 0 -24px;
+}
+
+/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-tr {
+  background-position: right -36px;
+}
+
+/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-bl {
+  background-position: 0 -48px;
+}
+
+/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-br {
+  background-position: right -60px;
+}
+
+/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-ml {
+  background-position: 0 top;
+}
+
+/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-mr {
+  background-position: right top;
+}
+
+/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-tc {
+  background-position: 0 0;
+}
+
+/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-bc {
+  background-position: 0 -12px;
+}
+
+/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-tr,
+.x-btn-step-active-small-br,
+.x-btn-step-active-small-mr {
+  padding-right: 12px;
+}
+
+/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-tl,
+.x-btn-step-active-small-bl,
+.x-btn-step-active-small-ml {
+  padding-left: 12px;
+}
+
+/* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-tc {
+  height: 12px;
+}
+
+/* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-bc {
+  height: 12px;
+}
+
+/* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
+.x-btn-step-active-small-tl,
+.x-btn-step-active-small-bl,
+.x-btn-step-active-small-tr,
+.x-btn-step-active-small-br,
+.x-btn-step-active-small-tc,
+.x-btn-step-active-small-bc,
+.x-btn-step-active-small-ml,
+.x-btn-step-active-small-mr {
+  zoom: 1;
+  background-image: url(images/btn/btn-step-active-small-corners.gif);
+}
+
 /* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-step-active-small-ml,
 .x-btn-step-active-small-mr {
@@ -9497,7 +9711,7 @@ div.x-form-spinner-down {
   margin-top: 16px;
   color: #686868;
 }
-/* line 49, ../../sass/src/window/MessageBox.scss */
+/* line 50, ../../sass/src/window/MessageBox.scss */
 *[class*='x-window-'] *[class*='x-message-box-'] {
   background-position: 12px 4px;
 }
@@ -12256,7 +12470,7 @@ div.x-form-spinner-down {
   border-width: 1px !important;
 }
 
-/* line 94, ../../sass/src/window/MessageBox.scss */
+/* line 95, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-error .x-window-body .x-header .x-header-text {
   color: #eb5642;
 }
@@ -13638,7 +13852,7 @@ div.x-form-spinner-down {
   border-width: 1px !important;
 }
 
-/* line 122, ../../sass/src/window/MessageBox.scss */
+/* line 123, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-success .x-window-body .x-header .x-header-text {
   color: #74af74;
 }
@@ -15020,7 +15234,7 @@ div.x-form-spinner-down {
   border-width: 1px !important;
 }
 
-/* line 149, ../../sass/src/window/MessageBox.scss */
+/* line 150, ../../sass/src/window/MessageBox.scss */
 .x-window-message-error .x-message-box-error {
   background-position: 12px 4px;
 }

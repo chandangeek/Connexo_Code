@@ -30,6 +30,12 @@
     height: 23px;
 }
 
+.icon-appcenter {
+    background-image: url('images/container/applicationCenter.png');
+    width: 20px;
+    height: 18px;
+}
+
 .#{$prefix}container-navigationheader {
     background-color: $header-default-background-color;
     color: $header-default-color;
@@ -44,7 +50,7 @@
     background: -moz-linear-gradient(right, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* For Firefox 3.6 to 15 */
     background: linear-gradient(to right, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* Standard syntax */
 
-    .nav-appswitcher,
+    .uni-nav-appcenter,
     .nav-toggler,
     .notifications-anchor,
     .nav-help,
@@ -62,6 +68,12 @@
             margin: 13px 2px;
             width: 22px;
             height: 23px;
+        }
+
+        .icon-appcenter {
+            margin: 15px 8px;
+            width: 20px;
+            height: 18px;
         }
 
         &:hover {
@@ -98,8 +110,21 @@
         }
     }
 
-    .nav-appswitcher, .notifications-anchor {
+    .uni-nav-appcenter, .notifications-anchor {
         @include hidden-arrow-button;
+    }
+
+    .uni-nav-appcenter {
+        border-right: 1px solid #597d9d;
+        margin-right: 0 !important;
+
+        .x-btn-button {
+            padding-right: 8px;
+        }
+
+        &.x-menu-active {
+            background-color: $header-default-bg-gradient-start-color;
+        }
     }
 
     .search-field {

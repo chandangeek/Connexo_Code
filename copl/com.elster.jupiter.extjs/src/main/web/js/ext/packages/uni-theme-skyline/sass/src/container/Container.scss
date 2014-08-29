@@ -1,6 +1,9 @@
-@mixin container($ui){}
+@mixin container($ui) {
+}
+
 @include container('default');
 
+@import "AppCenter";
 @import "BreadcrumbTrailContainer";
 @import "BreadcrumbTrail";
 @import "NavigationHeader";

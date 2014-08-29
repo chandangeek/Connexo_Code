@@ -904,6 +904,138 @@ h6 {
   border: none !important;
 }
 
+/* line 4, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu {
+  background: -webkit-linear-gradient(top, #2e587e, #478bae);
+  /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(bottom, #2e587e, #478bae);
+  /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(bottom, #2e587e, #478bae);
+  /* For Firefox 3.6 to 15 */
+  background: linear-gradient(to bottom, #2e587e, #478bae);
+  /* Standard syntax */
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 48px !important;
+  z-index: 20001;
+  transition: width 400ms;
+  -moz-transition: width 400ms;
+  /* Firefox 4 */
+  -webkit-transition: width 400ms;
+  /* Safari and Chrome */
+  -o-transition: width 400ms;
+  /* Opera */
+}
+/* line 24, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu:hover {
+  width: 255px !important;
+  padding-right: 1px;
+}
+/* line 29, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu .menu-item, .x-container-navigationmenu .x-box-inner, .x-container-navigationmenu .x-box-target {
+  width: 100% !important;
+}
+/* line 33, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu .x-panel-body-default {
+  background-color: transparent;
+}
+/* line 37, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu .x-pressed {
+  background-color: white;
+}
+/* line 41, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu .x-pressed .x-btn-button .x-btn-inner, .x-container-navigationmenu .x-pressed .x-btn-button .x-btn-glyph {
+  color: #2f77ac;
+}
+/* line 45, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu .x-pressed .x-btn-button:hover {
+  background-color: white;
+}
+
+/* line 52, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationwrapper {
+  padding-right: 48px;
+}
+
+/* line 9, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu {
+  position: absolute !important;
+  z-index: 20001 !important;
+  height: auto !important;
+  bottom: 0;
+  border-top: 1px solid #597d9d;
+  overflow: visible;
+  background: -webkit-linear-gradient(top, #2e587e, #529ebe);
+  /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(bottom, #2e587e, #529ebe);
+  /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(bottom, #2e587e, #529ebe);
+  /* For Firefox 3.6 to 15 */
+  background: linear-gradient(to bottom, #2e587e, #529ebe);
+  /* Standard syntax */
+}
+/* line 23, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .x-menu-body {
+  background-color: transparent;
+  overflow: visible;
+}
+/* line 27, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .x-menu-body .x-box-inner {
+  overflow: visible;
+}
+/* line 32, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .uni-nav-appcenter-dataview {
+  margin-right: -5px !important;
+  left: 0 !important;
+}
+/* line 36, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .uni-nav-appcenter-dataview .handlebar {
+  background-color: #2e587e;
+  position: absolute;
+  width: 47px;
+  height: 1px;
+  top: -1px;
+}
+/* line 44, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .uni-nav-appcenter-dataview a {
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 16px;
+  color: white;
+}
+/* line 51, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item {
+  padding-top: 16px;
+  padding-right: 16px;
+  padding-bottom: 16px;
+}
+/* line 58, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item:hover {
+  background-color: #71adc7;
+}
+/* line 62, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon {
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  position: relative;
+  width: 32px;
+  height: 32px;
+  top: -6px;
+  margin-right: 8px;
+  margin-left: 7px;
+}
+/* line 4, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon-connexo {
+  background-image: url("images/container/appcenter/connexo.png");
+}
+/* line 4, ../../sass/src/container/AppCenter.scss */
+.uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon-devices {
+  background-image: url("images/container/appcenter/devices.png");
+}
+
 /* line 1, ../../sass/src/container/BreadcrumbTrailContainer.scss */
 .x-container-breadcrumbtrailcontainer {
   background-color: #71adc7;
@@ -934,11 +1066,18 @@ h6 {
 /* line 27, ../../sass/src/container/NavigationHeader.scss */
 .icon-search {
   background-image: url("images/container/search.png");
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 23px;
 }
 
 /* line 33, ../../sass/src/container/NavigationHeader.scss */
+.icon-appcenter {
+  background-image: url("images/container/applicationCenter.png");
+  width: 20px;
+  height: 18px;
+}
+
+/* line 39, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader {
   background-color: #2e587e;
   color: white;
@@ -953,11 +1092,12 @@ h6 {
   background: linear-gradient(to right, #2e587e, #529ebe);
   /* Standard syntax */
 }
-/* line 51, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher,
+/* line 58, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .uni-nav-appcenter,
 .x-container-navigationheader .nav-toggler,
 .x-container-navigationheader .notifications-anchor,
 .x-container-navigationheader .nav-help,
+.x-container-navigationheader .search-button,
 .x-container-navigationheader .user-menu {
   background: none;
   border: none;
@@ -968,27 +1108,30 @@ h6 {
   padding: 0 4px;
 }
 /* line 9, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button,
+.x-container-navigationheader .uni-nav-appcenter .x-btn-button,
 .x-container-navigationheader .nav-toggler .x-btn-button,
 .x-container-navigationheader .notifications-anchor .x-btn-button,
 .x-container-navigationheader .nav-help .x-btn-button,
+.x-container-navigationheader .search-button .x-btn-button,
 .x-container-navigationheader .user-menu .x-btn-button {
   padding-right: 10px;
   padding-left: 10px;
 }
 /* line 15, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-inner,
+.x-container-navigationheader .uni-nav-appcenter .x-btn-button .x-btn-inner,
 .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner,
 .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner,
 .x-container-navigationheader .nav-help .x-btn-button .x-btn-inner,
+.x-container-navigationheader .search-button .x-btn-button .x-btn-inner,
 .x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
   color: white;
 }
 /* line 19, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-button .x-btn-glyph,
+.x-container-navigationheader .uni-nav-appcenter .x-btn-button .x-btn-glyph,
 .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph,
 .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph,
 .x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph,
+.x-container-navigationheader .search-button .x-btn-button .x-btn-glyph,
 .x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
   opacity: 1;
   height: auto;
@@ -996,29 +1139,49 @@ h6 {
   margin-top: 3px;
   margin-left: 10px;
 }
-/* line 54, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher .icon-user, .x-container-navigationheader .nav-appswitcher .icon-search,
+/* line 61, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .uni-nav-appcenter .icon-user,
 .x-container-navigationheader .nav-toggler .icon-user,
-.x-container-navigationheader .nav-toggler .icon-search,
 .x-container-navigationheader .notifications-anchor .icon-user,
-.x-container-navigationheader .notifications-anchor .icon-search,
 .x-container-navigationheader .nav-help .icon-user,
-.x-container-navigationheader .nav-help .icon-search,
-.x-container-navigationheader .user-menu .icon-user,
-.x-container-navigationheader .user-menu .icon-search {
-  margin: 14px 8px;
+.x-container-navigationheader .search-button .icon-user,
+.x-container-navigationheader .user-menu .icon-user {
+  margin: 14px 16px;
   width: 20px;
   height: 20px;
 }
-/* line 60, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher:hover,
+/* line 67, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .uni-nav-appcenter .icon-search,
+.x-container-navigationheader .nav-toggler .icon-search,
+.x-container-navigationheader .notifications-anchor .icon-search,
+.x-container-navigationheader .nav-help .icon-search,
+.x-container-navigationheader .search-button .icon-search,
+.x-container-navigationheader .user-menu .icon-search {
+  margin: 13px 2px;
+  width: 22px;
+  height: 23px;
+}
+/* line 73, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .uni-nav-appcenter .icon-appcenter,
+.x-container-navigationheader .nav-toggler .icon-appcenter,
+.x-container-navigationheader .notifications-anchor .icon-appcenter,
+.x-container-navigationheader .nav-help .icon-appcenter,
+.x-container-navigationheader .search-button .icon-appcenter,
+.x-container-navigationheader .user-menu .icon-appcenter {
+  margin: 15px 8px;
+  width: 20px;
+  height: 18px;
+}
+/* line 79, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .uni-nav-appcenter:hover,
 .x-container-navigationheader .nav-toggler:hover,
 .x-container-navigationheader .notifications-anchor:hover,
 .x-container-navigationheader .nav-help:hover,
+.x-container-navigationheader .search-button:hover,
 .x-container-navigationheader .user-menu:hover {
   background-color: #71adc7;
 }
-/* line 66, ../../sass/src/container/NavigationHeader.scss */
+/* line 85, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .x-menu-active {
   background-color: #71adc7;
 }
@@ -1034,43 +1197,56 @@ h6 {
 .x-container-navigationheader .nav-toggler .x-btn-arrow-bottom {
   padding-bottom: inherit;
 }
-/* line 73, ../../sass/src/container/NavigationHeader.scss */
+/* line 92, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph {
   opacity: 0.5;
 }
-/* line 77, ../../sass/src/container/NavigationHeader.scss */
+/* line 96, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler:hover .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
-/* line 82, ../../sass/src/container/NavigationHeader.scss */
+/* line 101, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .x-pressed .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
-/* line 88, ../../sass/src/container/NavigationHeader.scss */
+/* line 107, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .nav-toggler .x-pressed .x-btn-button .x-btn-glyph {
   opacity: 1.0;
 }
 /* line 8, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-arrow, .x-container-navigationheader .notifications-anchor .x-btn-arrow {
+.x-container-navigationheader .uni-nav-appcenter .x-btn-arrow, .x-container-navigationheader .notifications-anchor .x-btn-arrow {
   background-image: none;
 }
 /* line 12, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-arrow-right, .x-container-navigationheader .notifications-anchor .x-btn-arrow-right {
+.x-container-navigationheader .uni-nav-appcenter .x-btn-arrow-right, .x-container-navigationheader .notifications-anchor .x-btn-arrow-right {
   padding-right: inherit;
 }
 /* line 16, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .nav-appswitcher .x-btn-arrow-bottom, .x-container-navigationheader .notifications-anchor .x-btn-arrow-bottom {
+.x-container-navigationheader .uni-nav-appcenter .x-btn-arrow-bottom, .x-container-navigationheader .notifications-anchor .x-btn-arrow-bottom {
   padding-bottom: inherit;
 }
-/* line 98, ../../sass/src/container/NavigationHeader.scss */
+/* line 117, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .uni-nav-appcenter {
+  border-right: 1px solid #597d9d;
+  margin-right: 0 !important;
+}
+/* line 121, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .uni-nav-appcenter .x-btn-button {
+  padding-right: 8px;
+}
+/* line 125, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .uni-nav-appcenter.x-menu-active {
+  background-color: #2e587e;
+}
+/* line 130, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field {
   width: 240px;
 }
-/* line 102, ../../sass/src/container/NavigationHeader.scss */
+/* line 134, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body {
   float: right;
 }
-/* line 105, ../../sass/src/container/NavigationHeader.scss */
+/* line 137, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body input {
   border-radius: 10px;
   -moz-border-radius: 10px;
@@ -1083,11 +1259,16 @@ h6 {
   width: 120px;
   height: 24px;
 }
-/* line 119, ../../sass/src/container/NavigationHeader.scss */
+/* line 151, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-field .x-form-item-body input:focus, .x-container-navigationheader .search-field .x-form-item-body input:hover {
   width: 240px;
 }
-/* line 126, ../../sass/src/container/NavigationHeader.scss */
+/* line 158, ../../sass/src/container/NavigationHeader.scss */
+.x-container-navigationheader .user-menu {
+  padding-left: 0;
+  padding-right: 8px;
+}
+/* line 163, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-button {
   background: none;
   border: none;
@@ -1095,7 +1276,8 @@ h6 {
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
   padding: 0;
-  margin-left: 5px;
+  padding-left: 8px;
+  margin-left: 4px;
 }
 /* line 9, ../../sass/src/button/TransparentButton.scss */
 .x-container-navigationheader .search-button .x-btn-button {
@@ -1114,7 +1296,7 @@ h6 {
   margin-top: 3px;
   margin-left: 10px;
 }
-/* line 130, ../../sass/src/container/NavigationHeader.scss */
+/* line 168, ../../sass/src/container/NavigationHeader.scss */
 .x-container-navigationheader .search-button:hover {
   background-color: #71adc7;
 }
@@ -14825,178 +15007,4 @@ a:hover, a.x-btn:hover {
 /* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-sort-medium {
   border-color: transparent;
-}
-
-/* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium {
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  -ms-border-radius: 5px;
-  -o-border-radius: 5px;
-  border-radius: 5px;
-  padding: 4px 4px 4px 4px;
-  border-width: 1px;
-  border-style: solid;
-  background-color: #d8d8d8;
-}
-
-/* line 187, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-mc {
-  background-color: #d8d8d8;
-}
-
-/* line 234, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-nbr .x-btn-sort-medium {
-  padding: 0 !important;
-  border-width: 0 !important;
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  -ms-border-radius: 0px;
-  -o-border-radius: 0px;
-  border-radius: 0px;
-  background-color: transparent;
-}
-
-/* line 249, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-frameInfo {
-  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
-}
-
-/* line 315, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tl {
-  background-position: 0 -10px;
-}
-
-/* line 319, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tr {
-  background-position: right -15px;
-}
-
-/* line 323, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-bl {
-  background-position: 0 -20px;
-}
-
-/* line 327, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-br {
-  background-position: right -25px;
-}
-
-/* line 331, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-ml {
-  background-position: 0 top;
-}
-
-/* line 335, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-mr {
-  background-position: right top;
-}
-
-/* line 339, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tc {
-  background-position: 0 0;
-}
-
-/* line 343, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-bc {
-  background-position: 0 -5px;
-}
-
-/* line 350, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tr,
-.x-btn-sort-medium-br,
-.x-btn-sort-medium-mr {
-  padding-right: 5px;
-}
-
-/* line 356, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tl,
-.x-btn-sort-medium-bl,
-.x-btn-sort-medium-ml {
-  padding-left: 5px;
-}
-
-/* line 360, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tc {
-  height: 5px;
-}
-
-/* line 363, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-bc {
-  height: 5px;
-}
-
-/* line 374, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tl,
-.x-btn-sort-medium-bl,
-.x-btn-sort-medium-tr,
-.x-btn-sort-medium-br,
-.x-btn-sort-medium-tc,
-.x-btn-sort-medium-bc,
-.x-btn-sort-medium-ml,
-.x-btn-sort-medium-mr {
-  zoom: 1;
-  background-image: url(images/btn/btn-sort-medium-corners.gif);
-}
-
-/* line 418, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-ml,
-.x-btn-sort-medium-mr {
-  zoom: 1;
-  background-image: url(images/btn/btn-sort-medium-sides.gif);
-  background-repeat: repeat-y;
-}
-
-/* line 430, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-mc {
-  padding: 0px 0px 0px 0px;
-}
-
-/* line 439, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
-.x-strict .x-ie7 .x-btn-sort-medium-tl,
-.x-strict .x-ie7 .x-btn-sort-medium-bl {
-  position: relative;
-  right: 0;
-}
-
-/*<if slicer>*/
-/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-btn-sort-medium:after {
-  display: none;
-  content: "x-slicer:corners:url(images/btn/btn-sort-medium-corners.gif), sides:url(images/btn/btn-sort-medium-sides.gif)";
-}
-
-/*</if slicer>*/
-/* */
-/* line 262, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium .x-btn-inner {
-  font-size: 14px;
-  font-weight: "normal";
-  font-family: "Lato", helvetica, arial, verdana, sans-serif;
-  color: #686868;
-  padding: 0 4px;
-}
-/* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium .x-btn-arrow {
-  background-image: url(images/button/sort-medium-arrow.png);
-}
-/* line 278, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium .x-btn-arrow-right {
-  padding-right: 30px;
-}
-/* line 283, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium .x-rtl.x-btn-arrow-right {
-  padding-right: 0;
-  padding-left: 30px;
-}
-/* line 289, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium .x-btn-arrow-bottom {
-  padding-bottom: 26px;
-}
-/* line 293, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium .x-btn-glyph {
-  font-size: 24px;
-  line-height: 24px;
-  color: white;
-  opacity: 0.5;
 }
