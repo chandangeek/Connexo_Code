@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.BooleanAdapter;
 import com.energyict.mdc.common.rest.IdListBuilder;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
@@ -7,6 +8,7 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -86,6 +88,9 @@ public class SchedulingResource {
         Set<Long> allowedComTaskIds = getAllowedComTaskIds(comTaskEnablements);
         Set<Long> alreadyAssignedComTaskIds = getAlreadyAssignedComTaskIds(comTaskExecutions);
         Set<Long> toBeVerifiedComTaskIds = new HashSet<>();
+        if(!hasSameConfigurationSettingsInEnablements(comSchedule, comTaskEnablements)){
+            return false;
+        }
         for(ComTask comTaskFromSchedule : comSchedule.getComTasks()){
             if(alreadyAssignedComTaskIds.contains(comTaskFromSchedule.getId())) {
                 return false;
@@ -93,6 +98,68 @@ public class SchedulingResource {
             toBeVerifiedComTaskIds.add(comTaskFromSchedule.getId());
         }
         return allowedComTaskIds.containsAll(toBeVerifiedComTaskIds);
+    }
+
+    private boolean hasSameConfigurationSettingsInEnablements(ComSchedule comSchedule, List<ComTaskEnablement> comTaskEnablements) {
+        List<ComTaskEnablement> comTaskEnablementsToCheck = getComTaskEnablementsForComTasks(comSchedule, comTaskEnablements);
+        if(comTaskEnablementsToCheck.size()==0){
+            return false;
+        }
+        else if(comTaskEnablementsToCheck.size()==1){
+           return true;
+        } else {
+            Long protocolDialectConfigurationPropertiesId = null;
+            if(comTaskEnablementsToCheck.get(0).getProtocolDialectConfigurationProperties().isPresent()){
+                protocolDialectConfigurationPropertiesId = comTaskEnablementsToCheck.get(0).getProtocolDialectConfigurationProperties().get().getId();
+            }
+            long securityPropertySetId = comTaskEnablementsToCheck.get(0).getSecurityPropertySet().getId();
+            Long partialConnectionTaskId = null;
+            if(comTaskEnablementsToCheck.get(0).getPartialConnectionTask().isPresent()){
+                partialConnectionTaskId = comTaskEnablementsToCheck.get(0).getPartialConnectionTask().get().getId();
+            }
+            int priority = comTaskEnablementsToCheck.get(0).getPriority();
+            for(int i = 1;i< comTaskEnablementsToCheck.size();i++){
+
+                Long compareProtocolDialectConfigurationPropertiesId = null;
+                if(comTaskEnablementsToCheck.get(i).getProtocolDialectConfigurationProperties().isPresent()){
+                    compareProtocolDialectConfigurationPropertiesId = comTaskEnablementsToCheck.get(i).getProtocolDialectConfigurationProperties().get().getId();
+                }
+                long compareSecurityPropertySetId = comTaskEnablementsToCheck.get(i).getSecurityPropertySet().getId();
+                Long comparePartialConnectionTaskId = null;
+                if(comTaskEnablementsToCheck.get(i).getPartialConnectionTask().isPresent()){
+                    comparePartialConnectionTaskId = comTaskEnablementsToCheck.get(i).getPartialConnectionTask().get().getId();
+                }
+                int comparePriority = comTaskEnablementsToCheck.get(i).getPriority();
+                if(protocolDialectConfigurationPropertiesId!=compareProtocolDialectConfigurationPropertiesId ||
+                        securityPropertySetId!=compareSecurityPropertySetId ||
+                        partialConnectionTaskId!=comparePartialConnectionTaskId||
+                        priority!=comparePriority){
+                    return false;
+                }
+            }
+            return true;
+        }
+
+    }
+
+    private List<ComTaskEnablement> getComTaskEnablementsForComTasks(ComSchedule comSchedule, List<ComTaskEnablement> comTaskEnablements) {
+        List<ComTaskEnablement> comTaskEnablementsToCheck = new ArrayList<>();
+        for(ComTask comTask:comSchedule.getComTasks()){
+            for(ComTaskEnablement comTaskEnablement:comTaskEnablements){
+                if(comTaskEnablement.getComTask().getId()==comTask.getId()){
+                    comTaskEnablementsToCheck.add(comTaskEnablement);
+                }
+            }
+        }
+        return comTaskEnablementsToCheck;
+    }
+
+    private Set<Long> asIds(List<Optional<? extends HasId>> hasIdList) {
+        Set<Long> idList = new HashSet<>();
+        for (Optional<? extends HasId> hasId : hasIdList) {
+            idList.add(hasId.get().getId());
+        }
+        return idList;
     }
 
     private Set<Long> getAllowedComTaskIds(List<ComTaskEnablement> comTaskEnablements) {
