@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
             store: 'ComServers',
             dock: 'top',
             displayMsg: Uni.I18n.translate('comserver.displayMsg', 'MDC', '{0} - {1} of {2} communication servers'),
-            displayMoreMsg: Uni.I18n.translate('comserver.displayMoreMsg', 'MDC', '{0} - {1} of more communication servers'),
+            displayMoreMsg: Uni.I18n.translate('comserver.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communication servers'),
             items: [
                 {
                     xtype: 'button',

@@ -7,20 +7,12 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
     columns: {
         items: [
             {
-                header: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
+                header: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'timeStamp',
                 xtype: 'datecolumn',
                 format: 'M j, Y \\a\\t G:i',
                 defaultRenderer: function (value) {
                     return Ext.util.Format.date(value, this.format);
-                },
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('device.registerData.amount', 'MDC', 'Amount'),
-                dataIndex: 'value',
-                renderer: function (value, metaData, record) {
-                    return value + ' ' + record.get('unitOfMeasure')
                 },
                 flex: 1
             },
@@ -38,12 +30,12 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                 flex: 2
             },
             {
-                header: Uni.I18n.translate('device.registerData.validationStatus', 'MDC', 'Validation status'),
-                dataIndex: 'validationStatus',
-                renderer: function (value) {
-                    return Uni.I18n.translate(value, 'MDC', value)
+                header: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
+                dataIndex: 'value',
+                renderer: function (value, metaData, record) {
+                    return value + ' ' + record.get('unitOfMeasure');
                 },
-                flex: 1
+                flex: 2
             },
             {
                 xtype: 'uni-actioncolumn'
