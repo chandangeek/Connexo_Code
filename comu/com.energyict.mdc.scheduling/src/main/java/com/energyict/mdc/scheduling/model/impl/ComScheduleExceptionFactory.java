@@ -15,7 +15,7 @@ public class ComScheduleExceptionFactory {
     }
 
     public LocalizedException createCanNotAddComTaskToComScheduleException() {
-        return new CanNotAddComTaskToComScheduleException(thesaurus, MessageSeeds.COM_TASK_NOT_ENABLED);
+        return new CanNotAddComTaskToComScheduleException(thesaurus, MessageSeeds.CANNOT_ADD_COM_TASK_TO_COMSCHEDULE_THAT_IS_IN_USE);
     }
 
     private class CanNotAddComTaskToComScheduleException extends LocalizedException {
