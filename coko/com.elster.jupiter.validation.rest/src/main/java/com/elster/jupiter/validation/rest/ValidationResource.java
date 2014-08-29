@@ -222,7 +222,7 @@ public class ValidationResource {
                         propertyMap.put(propertySpec.getName(), value);
                     }
                 }
-                rule = ruleSet.updateRule(info.id, info.name, info.implementation, info.active, mRIDs, propertyMap);
+                rule = ruleSet.updateRule(info.id, info.name, info.active, mRIDs, propertyMap);
                 ruleSet.save();
                 return rule;
             }

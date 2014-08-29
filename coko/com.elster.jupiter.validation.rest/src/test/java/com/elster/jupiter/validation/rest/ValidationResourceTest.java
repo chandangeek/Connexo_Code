@@ -284,7 +284,6 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(ruleSet.updateRule(
                 Matchers.eq(1L),
                 Matchers.eq("MyRuleUpdated"),
-                Matchers.eq("com.blablabla.Validator"),
                 Matchers.eq(false),
                 Matchers.eq(new ArrayList<String>()),
                 Matchers.eq(new HashMap<String, Object>()))).
