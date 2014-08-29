@@ -351,7 +351,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     @Override
     public List<? extends MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation) {
-        return getIMeterActivationValidations(meterActivation);
+        return manageMeterActivationValidations(meterActivation);
     }
 
     @Override
