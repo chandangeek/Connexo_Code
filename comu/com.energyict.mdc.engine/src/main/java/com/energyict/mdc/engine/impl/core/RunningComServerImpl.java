@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;
@@ -42,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-03 (09:58)
  */
-public abstract class RunningComServerImpl implements RunningComServer, Runnable {
+public abstract class RunningComServerImpl implements RunningComServer, Runnable, EngineService.DeactivationNotificationListener {
 
     public interface ServiceProvider
             extends
@@ -278,7 +279,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         self = this.threadFactory.newThread(this);
         self.setName("Changes monitor for " + this.comServer.getName());
         self.start();
-        this.installShutdownHook();
+        this.installShutdownHooks();
         this.status = ServerProcessStatus.STARTED;
     }
 
@@ -290,7 +291,25 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.serviceProvider.managementBeanFactory().removeIfExistsFor(this);
     }
 
-    private void installShutdownHook () {
+    private void installShutdownHooks() {
+        this.installEngineServiceShutdownHook();
+        this.installVMShutdownHook();
+    }
+
+    private void removeShutdownHooks() {
+        this.serviceProvider.engineService().unregister(this);
+    }
+
+    @Override
+    public void engineServiceDeactivationStarted() {
+        this.shutdownImmediate();
+    }
+
+    private void installEngineServiceShutdownHook () {
+        this.serviceProvider.engineService().register(this);
+    }
+
+    private void installVMShutdownHook() {
         Thread shutdownHook = this.threadFactory.newThread(new Runnable() {
             @Override
             public void run () {
@@ -333,6 +352,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     private void shutdown (boolean immediate) {
         this.doShutdown();
+        this.removeShutdownHooks();
         this.shutdownNestedServerProcesses(immediate);
         if (!immediate) {
             this.awaitNestedServerProcessesAreShutDown();

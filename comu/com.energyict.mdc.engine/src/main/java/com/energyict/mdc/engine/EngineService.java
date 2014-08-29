@@ -23,4 +23,34 @@ public interface EngineService {
 
     public Optional<DeviceCache> findDeviceCacheByDevice(Device device);
 
+    /**
+     * Registers a component that is interested to receive
+     * notification when this EngineService deactivates.
+     *
+     * @param deactivationNotificationListener The component
+     * @see DeactivationNotificationListener
+     */
+    public void register (DeactivationNotificationListener deactivationNotificationListener);
+
+    /**
+     * Unregisters a component that was interested to receive
+     * notification when this EngineService deactivates.
+     *
+     * @param deactivationNotificationListener The component that no longer wants to receive notifications
+     * @see DeactivationNotificationListener
+     */
+    public void unregister (DeactivationNotificationListener deactivationNotificationListener);
+
+    /**
+     * A DeactivationNotificationListener gets notified when this EngineService
+     * is being deactivated by the OSGi framework, most likely because
+     * it is being upgraded, its dependents have been deactivated
+     * or the entire platform is being shutdown.
+     */
+    public interface DeactivationNotificationListener {
+
+        public void engineServiceDeactivationStarted();
+
+    }
+
 }

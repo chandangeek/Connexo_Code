@@ -42,6 +42,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Copyrights EnergyICT
@@ -73,6 +75,8 @@ public class EngineServiceImpl implements EngineService, InstallService {
     private volatile SocketService socketService;
     private volatile SerialComponentService serialComponentService;
     private volatile NlsService nlsService;
+
+    private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
 
     public EngineServiceImpl() {
     }
@@ -267,7 +271,20 @@ public class EngineServiceImpl implements EngineService, InstallService {
 
     @Deactivate
     public void deactivate() {
+        for (DeactivationNotificationListener deactivationNotificationListener : this.deactivationNotificationListeners) {
+            deactivationNotificationListener.engineServiceDeactivationStarted();
+        }
         ServiceProvider.instance.set(null);
+    }
+
+    @Override
+    public void register(DeactivationNotificationListener deactivationNotificationListener) {
+        this.deactivationNotificationListeners.add(deactivationNotificationListener);
+    }
+
+    @Override
+    public void unregister(DeactivationNotificationListener deactivationNotificationListener) {
+        this.deactivationNotificationListeners.remove(deactivationNotificationListener);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
@@ -58,6 +59,8 @@ public class RunningComServerChangesTest {
     @Mock
     private EngineModelService engineModelService;
     @Mock
+    private EngineService engineService;
+    @Mock
     private DeviceDataService deviceDataService;
     @Mock
     private ManagementBeanFactory managementBeanFactory;
@@ -72,6 +75,7 @@ public class RunningComServerChangesTest {
     @Before
     public void setupServiceProvider () {
         this.serviceProvider.setClock(this.clock);
+        this.serviceProvider.setEngineService(this.engineService);
         this.serviceProvider.setEngineModelService(this.engineModelService);
         this.serviceProvider.setDeviceDataService(this.deviceDataService);
         this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);

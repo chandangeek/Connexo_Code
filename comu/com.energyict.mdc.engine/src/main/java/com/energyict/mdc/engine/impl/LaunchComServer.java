@@ -20,7 +20,7 @@ import org.osgi.service.component.annotations.Reference;
                 "osgi.command.function=lcs",
                 "osgi.command.function=scs"},
         immediate = true)
-public class LaunchComServer {
+public class LaunchComServer implements EngineService.DeactivationNotificationListener {
 
     private static final String PROPERTY_NAME_AUTO_START = "com.energyict.comserver.autostart";
 
@@ -38,7 +38,7 @@ public class LaunchComServer {
     public void activate(BundleContext context) {
         System.out.println("Activating ComServerLauncher test");
         autoStart = Boolean.parseBoolean(getOptionalProperty(context, PROPERTY_NAME_AUTO_START, "false"));
-        if(autoStart){
+        if (autoStart) {
             launchComServer();
         }
     }
@@ -46,7 +46,7 @@ public class LaunchComServer {
     @Deactivate
     public void deactivate() {
         System.out.println("Deactivating ComServerLauncher test");
-        if(autoStart){
+        if (autoStart) {
             stopComServer();
         }
     }
@@ -58,7 +58,8 @@ public class LaunchComServer {
 
     public void stopComServer() {
         if (this.launcher != null) {
-            System.out.println("Shutting down the ComServer, this might take a while ...");
+            this.engineService.unregister(this);
+            System.out.println("Shutting down the ComServer, this may take a while ...");
             this.launcher.stopComServer();
             this.launcher = null;
             System.out.println("ComServer has been shut down...");
@@ -80,6 +81,7 @@ public class LaunchComServer {
         if (this.launcher == null) {
             System.out.println("Starting ComServer");
             try {
+                this.engineService.register(this);
                 this.launcher = new ComServerLauncher(getServiceProvider());
                 launcher.startComServer();
             } catch (Exception e) {
@@ -118,4 +120,10 @@ public class LaunchComServer {
     public void setEngineService(EngineService engineService) {
         this.engineService = engineService;
     }
+
+    @Override
+    public void engineServiceDeactivationStarted() {
+        this.stopComServer();
+    }
+
 }
