@@ -32,16 +32,20 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
 
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
         taskStatus.completeFindBySqlBuilder(this.getActualBuilder(), this.getClock());
+        this.appendNonStatusWhereClauses();
+    }
+
+    protected void appendNonStatusWhereClauses() {
         this.appendDeviceTypeSql();
         this.appendComTaskSql();
         this.appendComSchedulesSql();
     }
 
-    protected void appendDeviceTypeSql() {
+    private void appendDeviceTypeSql() {
         this.appendDeviceTypeSql(this.comTaskExecutionTableName(), this.deviceTypes);
     }
 
-    protected void appendComTaskSql() {
+    private void appendComTaskSql() {
         if (!this.comTasks.isEmpty()) {
             this.appendWhereOrAnd();
             this.append("(discriminator =");
@@ -58,7 +62,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         }
     }
 
-    protected void appendComSchedulesSql() {
+    private void appendComSchedulesSql() {
         if (!this.comSchedules.isEmpty()) {
             this.appendWhereOrAnd();
             this.append("(discriminator =");

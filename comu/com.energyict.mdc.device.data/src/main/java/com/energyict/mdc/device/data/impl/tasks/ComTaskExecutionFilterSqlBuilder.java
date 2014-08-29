@@ -64,14 +64,10 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             }
         }
         if (this.taskStatuses.isEmpty()) {
-            this.appendDeviceTypeSql();
-            this.appendComTaskSql();
-            this.appendComSchedulesSql();
-            this.appendCompletionCodeClause();
-            this.appendLastSessionStartWhereClause();
-            this.appendWhereOrAnd();
-            this.append("obsolete_date is null");
+            this.appendNonStatusWhereClauses();
         }
+        this.appendWhereOrAnd();
+        this.append("obsolete_date is null");
         this.append(" order by lastexecutiontimestamp desc");
         return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize - 1);
     }
@@ -79,6 +75,11 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     @Override
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
         super.appendWhereClause(taskStatus);
+    }
+
+    @Override
+    protected void appendNonStatusWhereClauses() {
+        super.appendNonStatusWhereClauses();
         this.appendCompletionCodeClause();
         this.appendLastSessionStartWhereClause();
     }
@@ -129,11 +130,13 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         if (!this.isNull(this.lastSessionStart)) {
             this.appendWhereOrAnd();
             this.append(" exists (select * from ");
-            this.append(TableSpecs.DDC_CONNECTIONTASK.name());
-            this.append(" where ");
+            this.append(TableSpecs.DDC_COMSESSION.name());
+            this.append(" cs, ");
+            this.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+            this.append(" ctes where ctes.comtaskexec = ");
             this.append(TableSpecs.DDC_COMTASKEXEC.name());
-            this.append(".connectiontask = id and ");
-            this.appendIntervalWhereClause(TableSpecs.DDC_CONNECTIONTASK.name(), "LASTCOMMUNICATIONSTART", this.lastSessionStart);
+            this.append(".id and ctes.comsession = cs.id and ");
+            this.appendIntervalWhereClause("cs", "startdate", this.lastSessionStart);
             this.append(")");
         }
     }
