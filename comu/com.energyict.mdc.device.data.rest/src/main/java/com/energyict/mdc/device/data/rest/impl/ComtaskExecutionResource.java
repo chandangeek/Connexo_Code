@@ -82,7 +82,11 @@ public class ComtaskExecutionResource {
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
         for(ComTaskExecution comTaskExecution:comTaskExecutions){
             if(comTaskExecution.getId()==schedulingInfo.id && comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
-                ((ManuallyScheduledComTaskExecution)comTaskExecution).getUpdater().scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression()).update();
+                if(schedulingInfo.schedule == null){
+                    device.removeComTaskExecution(comTaskExecution);
+                } else {
+                    ((ManuallyScheduledComTaskExecution)comTaskExecution).getUpdater().scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression()).update();
+                }
             }
         }
         return Response.status(Response.Status.CREATED).build();
