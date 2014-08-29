@@ -1237,14 +1237,10 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public boolean isLinkedToDevices(ComSchedule comSchedule) {
-        return !this.dataModel.mapper(ScheduledComTaskExecution.class).find(ComTaskExecutionFields.COM_SCHEDULE.fieldName(), comSchedule).isEmpty();
-    }
-
-    @Override
-    public List<ComTask> findAvailableComTasksForComSchedule(ComSchedule comSchedule) {
-//        return this.dataModel.query(ComTask.class)
-//                .select(Where.where(ComTask));
-        return null; // TODO complete me
+        Condition condition = where(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).isEqualTo(comSchedule);
+        List<ScheduledComTaskExecution> scheduledComTaskExecutions = this.dataModel.query(ScheduledComTaskExecution.class).
+                select(condition, new Order[0], false, new String[0], 1, 1);
+        return !scheduledComTaskExecutions.isEmpty();
     }
 
     @Override

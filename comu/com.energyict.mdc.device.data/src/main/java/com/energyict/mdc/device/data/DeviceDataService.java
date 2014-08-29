@@ -478,13 +478,7 @@ public interface DeviceDataService {
     List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
 
     /**
-     * Find all ComTasks that can be added to the ComSchedule, i.e. all ComTasks that have a ComTaskEnablement for all
-     * devices linked to the ComSchedule.
-     */
-    List<ComTask> findAvailableComTasksForComSchedule(ComSchedule comSchedule);
-
-    /**
-     * Returns true if the ComSchedule has been linked to a device
+     * Returns true if the ComSchedule has been linked to a device.
      */
     public boolean isLinkedToDevices(ComSchedule comSchedule);
 
