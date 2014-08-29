@@ -38,6 +38,18 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSchedulePopUp', {
                                     xtype: 'scheduleField',
                                     name: 'schedule',
                                     itemId: 'scheduleField',
+                                    hourCfg: {
+                                        width: 60
+                                    },
+                                    minuteCfg: {
+                                        width: 60
+                                    },
+                                    secondCfg: {
+                                        width: 60
+                                    },
+                                    unitCfg: {
+                                        width: 110
+                                    },
                                     value: {
                                         every: {
                                             count: 15,
@@ -94,7 +106,11 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSchedulePopUp', {
 
     ],
     initComponent: function(){
+        var me =this;
         this.callParent(arguments);
         this.down('#scheduleButton').action = this.action;
+        this.down('#scheduleField').on('schedulefieldupdated',function(){
+            me.center();
+        },me);
     }
 });

@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.SharedCommunicationSchedu
     extend: 'Ext.panel.Panel',
     alias: 'widget.sharedCommunicationScheduleGrid',
     ui: 'medium',
+    cls: 'no-side-padding',
     requires: [
         'Mdc.util.ScheduleToStringConverter',
         'Mdc.view.setup.devicecommunicationschedule.SharedCommunicationScheduleActionMenu',

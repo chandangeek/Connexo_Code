@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.OnRequestCommunicationSch
     extend: 'Ext.panel.Panel',
     alias: 'widget.onRequestCommunicationScheduleGrid',
     ui: 'medium',
+    cls: 'no-side-padding',
     requires: [
         'Mdc.util.ScheduleToStringConverter'
     ],
@@ -13,7 +14,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.OnRequestCommunicationSch
             columns: [
                 {
                     header: Uni.I18n.translate('deviceCommunicationSchedules.communicationTask', 'MDC', 'Commmunication task'),
-                    flex: 1,
+                    flex: 3,
                     dataIndex: 'comTaskInfos',
                     renderer: function (value) {
                         var resultArray = [];

@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.IndividualCommunicationSc
     extend: 'Ext.panel.Panel',
     alias: 'widget.individualCommunicationScheduleGrid',
     ui: 'medium',
+    cls: 'no-side-padding',
     requires: [
         'Mdc.util.ScheduleToStringConverter'
     ],
@@ -12,8 +13,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.IndividualCommunicationSc
             padding: '0 0 0 0',
             columns: [
                 {
-                    header: Uni.I18n.translate('deviceCommunicationSchedules.communicationTasks', 'MDC', 'Commmunication tasks'),
-                    flex: 1,
+                    header: Uni.I18n.translate('deviceCommunicationSchedules.communicationTask', 'MDC', 'Commmunication task'),
+                    flex: 2,
                     dataIndex: 'comTaskInfos',
                     renderer: function(value){
                         var resultArray = [];
@@ -54,6 +55,12 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.IndividualCommunicationSc
                                 text: Uni.I18n.translate('deviceCommunicationSchedules.changeCommunicationSchedule', 'MDC', 'Change communication schedule'),
                                 itemId: 'changeCommunicationSchedule',
                                 action: 'changeCommunicationSchedule'
+
+                            },
+                            {
+                                text: Uni.I18n.translate('deviceCommunicationSchedules.removeCommunicationSchedule', 'MDC', 'Remove communication schedule'),
+                                itemId: 'removeCommunicationSchedule',
+                                action: 'removeCommunicationSchedule'
 
                             }
                         ]
