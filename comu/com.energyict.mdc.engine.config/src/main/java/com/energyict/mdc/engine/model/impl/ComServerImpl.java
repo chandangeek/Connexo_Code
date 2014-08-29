@@ -336,7 +336,7 @@ public abstract class ComServerImpl implements ComServer {
      * @return The default event registration URI
      */
     protected String defaultStatusUri () {
-        return "http://" + this.getName() + "/api/dsb/comserverstatus";
+        return "http://" + this.getName() + ":8080/api/dsr/comserverstatus";
     }
 
     @Override
