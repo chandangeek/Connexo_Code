@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 
+import java.util.Date;
 import org.joda.time.Duration;
 
 /**
@@ -37,6 +38,11 @@ public class UnknownComServerStatusImpl implements ComServerStatus {
 
     @Override
     public Duration getBlockTime() {
+        return null;
+    }
+
+    @Override
+    public Date getBlockTimestamp() {
         return null;
     }
 

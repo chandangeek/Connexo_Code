@@ -73,6 +73,19 @@ public class RunningComServerStatusImpl implements ComServerStatus {
         return this.isBlocked(this.monitor);
     }
 
+    @Override
+    public Date getBlockTimestamp() {
+        for (ScheduledComPortMonitor comPortMonitor : this.comPortMonitors) {
+            if (this.isBlocked(comPortMonitor)) {
+                return this.lastActivity(comPortMonitor.getOperationalStatistics());
+            }
+        }
+        if (this.isBlocked(this.monitor)) {
+            return this.lastActivity(this.monitor.getOperationalStatistics());
+        }
+        return null;
+    }
+
     private boolean isBlocked(ScheduledComPortMonitor comPortMonitor) {
         ScheduledComPortOperationalStatistics operationalStatistics = comPortMonitor.getOperationalStatistics();
         return this.isBlocked(this.lastActivity(operationalStatistics), new Duration(operationalStatistics.getSchedulingInterPollDelay().getMilliSeconds()));
