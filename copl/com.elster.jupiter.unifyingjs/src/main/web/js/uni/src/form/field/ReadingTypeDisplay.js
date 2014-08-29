@@ -6,7 +6,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
     xtype: 'reading-type-displayfield',
     name: 'readingType',
     fieldLabel: Uni.I18n.translate('readingType.label', 'UNI', 'Reading type'),
-    emptyText: '-',
+    emptyText: '',
 
     requires: [
         'Ext.button.Button'

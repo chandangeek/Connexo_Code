@@ -6,7 +6,7 @@ Ext.define('Uni.form.field.IntervalFlagsDisplay', {
     xtype: 'interval-flags-displayfield',
     name: 'intervalFlags',
     fieldLabel: Uni.I18n.translate('intervalFlags.label', 'UNI', 'Interval flags'),
-    emptyText: '-',
+    emptyText: '',
 
     requires: [
         'Ext.button.Button'
