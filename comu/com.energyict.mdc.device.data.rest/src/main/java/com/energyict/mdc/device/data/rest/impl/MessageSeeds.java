@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.configuration.rest.impl.DeviceConfigurationApplication;
+
 import java.text.MessageFormat;
 import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
@@ -40,6 +41,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_ERROR(58, ProfileStatus.Flag.DEVICE_ERROR.name(), "Device error"),
     BATTERY_LOW(59, ProfileStatus.Flag.BATTERY_LOW.name(), "Battery low"),
     TEST(60, ProfileStatus.Flag.TEST.name(), "Test"),
+    NULL_DATE(61, "NullDate", "Date must be filled in"),
+    DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(62, "DeactivateValidationRuleSetNotPossible", "Deactivate of validation rule set {0} is currently not possible.")
 
     ;
 
