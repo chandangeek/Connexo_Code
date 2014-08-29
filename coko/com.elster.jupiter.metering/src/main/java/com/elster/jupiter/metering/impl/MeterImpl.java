@@ -3,6 +3,8 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.CannotDeleteMeter;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -24,18 +26,18 @@ import java.util.List;
 import java.util.Set;
 
 public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
-	
-	@SuppressWarnings("unused")
-	private Reference<AmrSystem> amrSystem = ValueReference.absent();
-	private List<MeterActivationImpl> meterActivations = new ArrayList<>();
-	
+
+    @SuppressWarnings("unused")
+    private Reference<AmrSystem> amrSystem = ValueReference.absent();
+    private List<MeterActivationImpl> meterActivations = new ArrayList<>();
+
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
     private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
 
     @Inject
-	MeterImpl(DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory,
+    MeterImpl(DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory,
               MeteringService meteringService, Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory) {
         super(dataModel, eventService, deviceEventFactory, MeterImpl.class);
         this.meteringService = meteringService;
@@ -45,36 +47,36 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     }
 
     @Override
-	public List<? extends MeterActivation> getMeterActivations() {
-		return ImmutableList.copyOf(meterActivations);
-	}
-		
-	@Override
-	public void store(MeterReading meterReading) {
-		new MeterReadingStorer(getDataModel(), meteringService, this, meterReading, thesaurus, getEventService(), deviceEventFactory).store();
-	}
-	
-	@Override
-	public MeterActivationImpl activate(Date start) {
-		MeterActivationImpl result = meterActivationFactory.get().init(this, start);
+    public List<? extends MeterActivation> getMeterActivations() {
+        return ImmutableList.copyOf(meterActivations);
+    }
+
+    @Override
+    public void store(MeterReading meterReading) {
+        new MeterReadingStorer(getDataModel(), meteringService, this, meterReading, thesaurus, getEventService(), deviceEventFactory).store();
+    }
+
+    @Override
+    public MeterActivationImpl activate(Date start) {
+        MeterActivationImpl result = meterActivationFactory.get().init(this, start);
         getDataModel().persist(result);
         meterActivations.add(result);
-		return result;
-	}
-	
-	void adopt(MeterActivationImpl meterActivation) {
-		if (!meterActivations.isEmpty()) {
-    		MeterActivationImpl last = meterActivations.get(meterActivations.size() - 1);
-    		if (last.getStart().after(meterActivation.getStart())) {
-    			throw new IllegalArgumentException("Invalid start date");
-    		} else {
-    			if (last.getEnd() == null || last.getEnd().after(meterActivation.getStart())) {
-    				last.endAt(meterActivation.getStart());
-    			}
-    		}
-    	}
-		meterActivations.add(meterActivation);
-	}
+        return result;
+    }
+
+    void adopt(MeterActivationImpl meterActivation) {
+        if (!meterActivations.isEmpty()) {
+            MeterActivationImpl last = meterActivations.get(meterActivations.size() - 1);
+            if (last.getStart().after(meterActivation.getStart())) {
+                throw new IllegalArgumentException("Invalid start date");
+            } else {
+                if (last.getEnd() == null || last.getEnd().after(meterActivation.getStart())) {
+                    last.endAt(meterActivation.getStart());
+                }
+            }
+        }
+        meterActivations.add(meterActivation);
+    }
 
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
@@ -85,7 +87,7 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
         }
         return Optional.absent();
     }
-    
+
     @Override
     public Optional<MeterActivation> getMeterActivation(Date when) {
         for (MeterActivation meterActivation : meterActivations) {
@@ -95,31 +97,40 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
         }
         return Optional.absent();
     }
-    
 
-	@Override
-	public List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType) {
-		return MeterActivationsImpl.from(meterActivations, interval).getReadings(interval, readingType);
-	}
 
-	@Override
-	public Set<ReadingType> getReadingTypes(Interval interval) {
-		return MeterActivationsImpl.from(meterActivations, interval).getReadingTypes(interval);
-	}
+    @Override
+    public List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType) {
+        return MeterActivationsImpl.from(meterActivations, interval).getReadings(interval, readingType);
+    }
 
-	@Override
-	public List<? extends BaseReadingRecord> getReadingsBefore(Date when, ReadingType readingType, int count) {
-		return MeterActivationsImpl.from(meterActivations).getReadingsBefore(when,readingType,count);
-	}
-	
+    @Override
+    public Set<ReadingType> getReadingTypes(Interval interval) {
+        return MeterActivationsImpl.from(meterActivations, interval).getReadingTypes(interval);
+    }
 
-	@Override
-	public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
-		return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when,readingType,count);
-	}
+    @Override
+    public List<? extends BaseReadingRecord> getReadingsBefore(Date when, ReadingType readingType, int count) {
+        return MeterActivationsImpl.from(meterActivations).getReadingsBefore(when, readingType, count);
+    }
+
+
+    @Override
+    public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Date when, ReadingType readingType, int count) {
+        return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when, readingType, count);
+    }
 
     @Override
     public boolean hasData() {
         return MeterActivationsImpl.from(meterActivations).hasData();
+    }
+
+    @Override
+    public void delete() {
+        if (meterActivations.size() > 0) {
+            throw new CannotDeleteMeter(thesaurus, MessageSeeds.CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST, getMRID());
+        }
+
+        super.delete();
     }
 }
