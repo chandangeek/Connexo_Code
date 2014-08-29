@@ -9,6 +9,7 @@ import com.energyict.mdc.dashboard.CommunicationTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,8 +17,8 @@ import java.util.List;
  */
 public class CommunicationHeatMapInfo {
 
-
     private static final CompletionCodeAdapter completionCodeAdapter = new CompletionCodeAdapter();
+    private static final CompletionCodeTaskCounterInfoComparator completionCodeTaskCounterInfoComparator = new CompletionCodeTaskCounterInfoComparator();
 
     public List<HeatMapRowInfo> heatMap;
 
@@ -44,10 +45,12 @@ public class CommunicationHeatMapInfo {
                         taskCounterInfo.count = completionCodeCounter.getCount();
                         heatMapRowInfo.data.add(taskCounterInfo);
                     }
+                    Collections.sort(heatMapRowInfo.data, completionCodeTaskCounterInfoComparator);
                 }
                 heatMapInfoList.add(heatMapRowInfo);
             }
         }
+        Collections.sort(heatMapInfoList, new HeatMapRowInfoComparator());
         return heatMapInfoList;
     }
 

@@ -136,13 +136,14 @@ public class CommunicationTaskHeatMapResourceTest extends JerseyTest {
         ComCommandCompletionCodeOverviewImpl counters = new ComCommandCompletionCodeOverviewImpl();
         counters.add(createCounter(CompletionCode.ConnectionError, 101L));
         counters.add(createCounter(CompletionCode.ConfigurationError, 100L));
+        counters.add(createCounter(CompletionCode.ConfigurationWarning, 6L));
         counters.add(createCounter(CompletionCode.IOError, 102L));
         counters.add(createCounter(CompletionCode.Ok, 1000L));
         counters.add(createCounter(CompletionCode.ProtocolError, 1L));
         counters.add(createCounter(CompletionCode.TimeError, 7L));
         counters.add(createCounter(CompletionCode.UnexpectedError, 0L));
         long id=1;
-        for (String name: Arrays.asList("deviceType1", "deviceType2", "deviceType3")) {
+        for (String name: Arrays.asList("deviceType2", "deviceType1", "deviceType3")) {
             DeviceType deviceType = mock(DeviceType.class);
             when(deviceType.getName()).thenReturn(name);
             when(deviceType.getId()).thenReturn(id++);
