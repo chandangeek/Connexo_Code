@@ -34,6 +34,7 @@ public class CommunicationHeatMapInfo {
                 HeatMapRowInfo heatMapRowInfo = new HeatMapRowInfo();
                 heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
                 heatMapRowInfo.id = row.getTarget().getId(); // ID of the object
+                heatMapRowInfo.alias = BreakdownOption.deviceType; // Type of object
                 heatMapRowInfo.data = new ArrayList<>();
                 for (ComCommandCompletionCodeOverview counters : row) {
                     for (Counter<CompletionCode> completionCodeCounter : counters) {
