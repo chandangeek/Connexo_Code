@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,16 +9,16 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.dashboard.ConnectionTaskDeviceTypeHeatMap;
-import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
+import com.energyict.mdc.dashboard.CommunicationTaskHeatMap;
+import com.energyict.mdc.dashboard.CommunicationTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardService;
-import com.energyict.mdc.dashboard.impl.ComSessionSuccessIndicatorOverviewImpl;
-import com.energyict.mdc.dashboard.impl.ConnectionTaskHeatMapRowImpl;
+import com.energyict.mdc.dashboard.impl.ComCommandCompletionCodeOverviewImpl;
+import com.energyict.mdc.dashboard.impl.CommunicationTaskHeatMapRowImpl;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -28,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -49,7 +47,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ConnectionTaskHeatMapResourceTest extends JerseyTest {
+public class CommunicationTaskHeatMapResourceTest extends JerseyTest {
 
     @Mock
     private StatusService statusService;
@@ -93,7 +91,7 @@ public class ConnectionTaskHeatMapResourceTest extends JerseyTest {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
         ResourceConfig resourceConfig = new ResourceConfig(
-                ConnectionHeatMapResource.class,
+                CommunicationHeatMapResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 LocalizedExceptionMapper.class);
@@ -123,36 +121,32 @@ public class ConnectionTaskHeatMapResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testBadRequestWhenFilterIsMissing() throws Exception {
-        Response response = target("/connectionheatmap").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-
-    }
-
-    @Test
     public void testConnectionHeatMapJsonBinding() throws Exception {
-        ConnectionTaskDeviceTypeHeatMap heatMap = createDeviceTypeHeatMap();
-        when(dashboardService.getConnectionsDeviceTypeHeatMap()).thenReturn(heatMap);
+        CommunicationTaskHeatMap heatMap = createHeatMap();
+        when(dashboardService.getCommunicationTasksHeatMap()).thenReturn(heatMap);
 
-        Map<String, Object> map = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter("breakdown", "deviceType")).request().get(Map.class);
+        Map<String, Object> map = target("/communicationheatmap").request().get(Map.class);
 
         assertThat(map).containsKey("heatMap");
-        assertThat(map).containsKey("breakdown");
     }
 
-    private ConnectionTaskDeviceTypeHeatMap createDeviceTypeHeatMap() {
-        ConnectionTaskDeviceTypeHeatMap heatMap = mock(ConnectionTaskDeviceTypeHeatMap.class);
-        List<ConnectionTaskHeatMapRow<DeviceType>> rows = new ArrayList<>();
-        ComSessionSuccessIndicatorOverviewImpl counters = new ComSessionSuccessIndicatorOverviewImpl(103L);
-        counters.add(createCounter(ComSession.SuccessIndicator.Broken, 100L));
-        counters.add(createCounter(ComSession.SuccessIndicator.SetupError, 101L));
-        counters.add(createCounter(ComSession.SuccessIndicator.Success, 102L));
+    private CommunicationTaskHeatMap createHeatMap() {
+        CommunicationTaskHeatMap heatMap = mock(CommunicationTaskHeatMap.class);
+        List<CommunicationTaskHeatMapRow> rows = new ArrayList<>();
+        ComCommandCompletionCodeOverviewImpl counters = new ComCommandCompletionCodeOverviewImpl();
+        counters.add(createCounter(CompletionCode.ConnectionError, 101L));
+        counters.add(createCounter(CompletionCode.ConfigurationError, 100L));
+        counters.add(createCounter(CompletionCode.IOError, 102L));
+        counters.add(createCounter(CompletionCode.Ok, 1000L));
+        counters.add(createCounter(CompletionCode.ProtocolError, 1L));
+        counters.add(createCounter(CompletionCode.TimeError, 7L));
+        counters.add(createCounter(CompletionCode.UnexpectedError, 0L));
         long id=1;
         for (String name: Arrays.asList("deviceType1", "deviceType2", "deviceType3")) {
             DeviceType deviceType = mock(DeviceType.class);
             when(deviceType.getName()).thenReturn(name);
             when(deviceType.getId()).thenReturn(id++);
-            rows.add(new ConnectionTaskHeatMapRowImpl<>(deviceType, counters));
+            rows.add(new CommunicationTaskHeatMapRowImpl<>(deviceType, counters));
         }
         when(heatMap.iterator()).thenReturn(rows.iterator());
         return heatMap;
@@ -164,4 +158,5 @@ public class ConnectionTaskHeatMapResourceTest extends JerseyTest {
         when(counter.getCountTarget()).thenReturn(status);
         return counter;
     }
+
 }

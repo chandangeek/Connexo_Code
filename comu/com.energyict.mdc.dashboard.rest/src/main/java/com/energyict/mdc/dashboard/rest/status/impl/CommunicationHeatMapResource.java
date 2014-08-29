@@ -7,7 +7,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-@Path("/connectionheatmap")
+@Path("/communicationheatmap")
 public class CommunicationHeatMapResource {
 
     private final Thesaurus thesaurus;
