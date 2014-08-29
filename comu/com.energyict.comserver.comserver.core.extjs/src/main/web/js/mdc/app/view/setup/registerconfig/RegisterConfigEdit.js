@@ -205,6 +205,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
         if (this.isEdit()) {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             this.down('#createEditButton').action = 'editRegisterConfiguration';
+            this.down('#registerTypeComboBox').disable();
         } else {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             this.down('#createEditButton').action = 'createRegisterConfiguration';
