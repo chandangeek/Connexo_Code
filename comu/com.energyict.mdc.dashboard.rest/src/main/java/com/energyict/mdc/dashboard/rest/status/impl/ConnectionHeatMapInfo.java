@@ -5,10 +5,11 @@ import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMap;
-import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
+import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -54,8 +55,10 @@ public class ConnectionHeatMapInfo {
                     taskCounterInfo.count = counters.getAtLeastOneTaskFailedCount();
                     heatMapRowInfo.data.add(taskCounterInfo);
                 }
+                Collections.sort(heatMapRowInfo.data, new SuccessIndicatorTaskCounterInfoComparator());
                 this.heatMap.add(heatMapRowInfo);
             }
+            Collections.sort(this.heatMap, new HeatMapRowInfoComparator());
         }
     }
 }

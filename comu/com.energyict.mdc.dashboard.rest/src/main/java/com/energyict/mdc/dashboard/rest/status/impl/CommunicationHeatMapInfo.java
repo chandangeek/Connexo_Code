@@ -52,8 +52,8 @@ public class CommunicationHeatMapInfo {
                 }
                 heatMapInfoList.add(heatMapRowInfo);
             }
+            Collections.sort(heatMapInfoList, new HeatMapRowInfoComparator());
         }
-        Collections.sort(heatMapInfoList, new HeatMapRowInfoComparator());
         return heatMapInfoList;
     }
 
