@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortGrid', {
 
     columns: [
         {
-            header: Uni.I18n.translate('comPortPoolComPort.communicationServer', 'MDC', 'Communication port'),
+            header: Uni.I18n.translate('comPortPoolComPort.communicationPort', 'MDC', 'Communication port'),
             dataIndex: 'name',
             flex: 3
         },

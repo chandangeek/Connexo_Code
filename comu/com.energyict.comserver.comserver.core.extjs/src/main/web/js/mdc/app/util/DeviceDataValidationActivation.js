@@ -96,7 +96,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             method: 'PUT',
             jsonData: {
                 isActive: 'true',
-                lastChecked: confWindow.down('#validationFromDate').getValue().getTime()
+                lastChecked: (me.hasValidation ? confWindow.down('#validationFromDate').getValue().getTime() : null)
             },
             success: function () {
                 me.updateDataValidationStatusSection(me.mRID, view);

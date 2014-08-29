@@ -23,6 +23,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         {ref: 'communicationScheduleEdit', selector: '#communicationScheduleEdit'},
         {ref: 'communicationSchedulesGrid', selector: '#communicationSchedulesGrid'},
         {ref: 'communicationSchedulePreview', selector: '#communicationSchedulePreview'},
+        {ref: 'communicationScheduleView', selector: '#CommunicationSchedulesSetup'},
         {ref: 'communicationSchedulePreviewForm', selector: '#communicationSchedulePreviewForm'},
         {ref: 'communicationScheduleEditForm', selector: '#communicationScheduleEditForm'},
         {ref: 'communicationTaskGrid', selector: '#communicationTaskGridFromSchedule'},
@@ -263,10 +264,23 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     removeCommunicationSchedule: function (btn, text, opt) {
         if (btn === 'confirm') {
-            var communicationScheduleToDelete = opt.config.communicationScheduleToDelete;
-            var store = this.getCommunicationSchedulesGrid().getStore();
-            store.remove(communicationScheduleToDelete);
-            store.sync();
+            var me = this,
+                page = me.getCommunicationScheduleView(),
+                communicationScheduleToDelete = opt.config.communicationScheduleToDelete,
+                store = this.getCommunicationSchedulesGrid().getStore(),
+                gridToolbarTop = me.getCommunicationSchedulesGrid().down('pagingtoolbartop');
+
+            page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
+            communicationScheduleToDelete.destroy({
+                callback: function (model, operation) {
+                    page.setLoading(false);
+                    if (operation.wasSuccessful()) {
+                        gridToolbarTop.totalCount = 0;
+                        store.loadPage(1);
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.removed', 'MDC', 'Communication schedule successfully removed'));
+                    }
+                }
+            });
         }
     },
 
