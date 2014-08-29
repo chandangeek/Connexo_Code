@@ -3,10 +3,11 @@
  */
 Ext.define('Uni.view.navigation.Logo', {
     extend: 'Ext.button.Button',
-    alias: 'widget.navigationLogo',
+    xtype: 'uni-nav-logo',
     ui: 'navigationlogo',
 
-    text: 'Connexo Collect',
+    text: 'Connexo Multi Sense',
+
     action: 'home',
     scale: 'medium',
     href: '#',

@@ -30,7 +30,7 @@ Ext.define('Uni.controller.Navigation', {
         }
     ],
 
-    applicationTitle: 'Connexo Collect',
+    applicationTitle: 'Connexo Multi Sense',
     applicationTitleSeparator: '-',
 
     init: function () {

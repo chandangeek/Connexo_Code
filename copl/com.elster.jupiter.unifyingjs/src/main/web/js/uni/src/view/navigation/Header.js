@@ -8,7 +8,7 @@ Ext.define('Uni.view.navigation.Header', {
     ui: 'navigationheader',
 
     requires: [
-        'Uni.view.navigation.AppSwitcher',
+        'Uni.view.navigation.AppCenter',
         'Uni.view.navigation.Logo',
         'Uni.view.search.Basic',
         'Uni.view.search.Quick',
@@ -29,11 +29,11 @@ Ext.define('Uni.view.navigation.Header', {
      * Also see: http://jira.eict.vpdc/browse/JP-651
      */
     items: [
-//        {
-//            xtype: 'navigationAppSwitcher'
-//        },
         {
-            xtype: 'navigationLogo'
+            xtype: 'uni-nav-appcenter'
+        },
+        {
+            xtype: 'uni-nav-logo'
         },
         {
             xtype: 'component',

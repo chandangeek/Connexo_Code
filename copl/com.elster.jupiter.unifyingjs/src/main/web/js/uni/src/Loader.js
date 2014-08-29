@@ -81,6 +81,7 @@ Ext.define('Uni.Loader', {
     },
 
     loadStores: function () {
+        Ext.require('Uni.store.Apps');
         Ext.require('Uni.store.AppItems');
         Ext.require('Uni.store.Notifications');
         Ext.require('Uni.store.Translations');
