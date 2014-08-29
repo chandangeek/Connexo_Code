@@ -267,6 +267,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             var store = this.getCommunicationSchedulesGrid().getStore();
             store.remove(communicationScheduleToDelete);
             store.sync();
+            this.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.removed', 'MDC', 'Communication schedule successfully removed'));
         }
     },
 
