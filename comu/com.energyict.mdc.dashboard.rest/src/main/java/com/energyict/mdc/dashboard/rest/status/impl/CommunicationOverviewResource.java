@@ -22,11 +22,15 @@ public class CommunicationOverviewResource {
 
     private final Thesaurus thesaurus;
     private final DashboardService dashboardService;
+    private final BreakdownFactory breakdownFactory;
+    private final OverviewFactory overviewFactory;
 
     @Inject
-    public CommunicationOverviewResource(Thesaurus thesaurus, DashboardService dashboardService) {
+    public CommunicationOverviewResource(Thesaurus thesaurus, DashboardService dashboardService, BreakdownFactory breakdownFactory, OverviewFactory overviewFactory) {
         this.thesaurus = thesaurus;
         this.dashboardService = dashboardService;
+        this.breakdownFactory = breakdownFactory;
+        this.overviewFactory = overviewFactory;
     }
 
     @GET
@@ -39,7 +43,7 @@ public class CommunicationOverviewResource {
         ComTaskBreakdown comTaskBreakdown = dashboardService.getCommunicationTasksBreakdown();
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown();
 
-        return new CommunicationOverviewInfo(null, taskStatusOverview, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown, thesaurus);
+        return new CommunicationOverviewInfo(null, taskStatusOverview, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown, breakdownFactory, overviewFactory, thesaurus);
     }
 
 }

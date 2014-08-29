@@ -16,11 +16,13 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
+import com.energyict.mdc.dashboard.rest.status.impl.BreakdownFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
+import com.energyict.mdc.dashboard.rest.status.impl.OverviewFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -143,6 +145,8 @@ public class DashboardApplication extends Application implements InstallService 
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(transactionService).to(TransactionService.class);
+            bind(BreakdownFactory.class).to(BreakdownFactory.class);
+            bind(OverviewFactory.class).to(OverviewFactory.class);
         }
     }
 

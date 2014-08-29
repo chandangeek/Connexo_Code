@@ -145,6 +145,8 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
                 bind(dashboardService).to(DashboardService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
+                bind(BreakdownFactory.class).to(BreakdownFactory.class);
+                bind(OverviewFactory.class).to(OverviewFactory.class);
             }
         });
         return resourceConfig;

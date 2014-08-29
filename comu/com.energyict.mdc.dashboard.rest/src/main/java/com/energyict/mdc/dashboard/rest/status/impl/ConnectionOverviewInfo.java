@@ -3,18 +3,12 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
-import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
-import com.energyict.mdc.dashboard.Counter;
-import com.energyict.mdc.dashboard.DashboardCounters;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
-import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
-import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
+import com.energyict.mdc.dashboard.TaskStatusOverview;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -62,74 +56,23 @@ public class ConnectionOverviewInfo {
             ComPortPoolBreakdown comPortPoolBreakdown,
             ConnectionTypeBreakdown connectionTypeBreakdown,
             DeviceTypeBreakdown deviceTypeBreakdown,
+            BreakdownFactory breakdownFactory,
+            OverviewFactory overviewFactory,
             Thesaurus thesaurus) throws Exception {
         this.thesaurus = thesaurus;
 
         connectionSummary = ConnectionSummaryInfo.from(connectionSummaryData, thesaurus);
 
         overviews=new ArrayList<>(2);
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
-        overviews.add(createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResult, successIndicatorAdapter)); // JP-4280
+        overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
+        overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResult, successIndicatorAdapter)); // JP-4280
+        overviewFactory.sortAllOverviews(overviews);
 
         breakdowns=new ArrayList<>(3);
-        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), MessageSeeds.PER_COMMUNICATION_POOL.getDefaultFormat()), comPortPoolBreakdown, BreakdownOption.comPortPool)); // JP-4281
-        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), MessageSeeds.PER_CONNECTION_TYPE.getDefaultFormat()), connectionTypeBreakdown, BreakdownOption.connectionType)); // JP-4283
-        breakdowns.add(createBreakdown(thesaurus.getString(MessageSeeds.PER_DEVICE_TYPE.getKey(), MessageSeeds.PER_DEVICE_TYPE.getDefaultFormat()), deviceTypeBreakdown, BreakdownOption.deviceType)); // JP-4284
-
-        sortAllOverviews();
-        sortAllBreakdowns();
-
-    }
-
-
-    private void sortAllBreakdowns() {
-        for (BreakdownSummaryInfo breakdown : breakdowns) {
-            Collections.sort(breakdown.counters, TASK_BREAKDOWN_INFO_COMPARATOR);
-        }
-    }
-
-    private void sortAllOverviews() {
-        for (TaskSummaryInfo overview : overviews) {
-            Collections.sort(overview.counters, TASK_COUNTER_INFO_COMPARATOR);
-        }
-    }
-
-    private <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters, BreakdownOption alias) {
-        BreakdownSummaryInfo info = new BreakdownSummaryInfo();
-        info.displayName=name;
-        info.alias=alias;
-        info.total=breakdownCounters.getTotalCount();
-        info.totalSuccessCount=breakdownCounters.getTotalSuccessCount();
-        info.totalPendingCount=breakdownCounters.getTotalPendingCount();
-        info.totalFailedCount =breakdownCounters.getTotalFailedCount();
-        info.counters=new ArrayList<>();
-        for (TaskStatusBreakdownCounter<C> counter : breakdownCounters) {
-            TaskBreakdownInfo taskBreakdownInfo = new TaskBreakdownInfo();
-            taskBreakdownInfo.id=counter.getCountTarget().getId();
-            taskBreakdownInfo.displayName=counter.getCountTarget().getName();
-            taskBreakdownInfo.successCount=counter.getSuccessCount();
-            taskBreakdownInfo.pendingCount=counter.getPendingCount();
-            taskBreakdownInfo.failedCount=counter.getFailedCount();
-            info.counters.add(taskBreakdownInfo);
-        }
-
-        return info;
-    }
-
-    private <C> TaskSummaryInfo createOverview(String overviewBreakdownName, DashboardCounters<C> dashboardCounters, FilterOption alias, MapBasedXmlAdapter<C> adapter) throws Exception {
-        TaskSummaryInfo info = new TaskSummaryInfo();
-        info.displayName =overviewBreakdownName;
-        info.alias=alias;
-        info.counters=new ArrayList<>();
-        for (Counter<C> taskStatusCounter : dashboardCounters) {
-            TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-            taskCounterInfo.id=adapter.marshal(taskStatusCounter.getCountTarget());
-            taskCounterInfo.displayName=thesaurus.getString(adapter.marshal(taskStatusCounter.getCountTarget()), adapter.marshal(taskStatusCounter.getCountTarget()));
-            taskCounterInfo.count=taskStatusCounter.getCount();
-            info.counters.add(taskCounterInfo);
-        }
-
-        return info;
+        breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), MessageSeeds.PER_COMMUNICATION_POOL.getDefaultFormat()), comPortPoolBreakdown, BreakdownOption.comPortPool)); // JP-4281
+        breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), MessageSeeds.PER_CONNECTION_TYPE.getDefaultFormat()), connectionTypeBreakdown, BreakdownOption.connectionType)); // JP-4283
+        breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_DEVICE_TYPE.getKey(), MessageSeeds.PER_DEVICE_TYPE.getDefaultFormat()), deviceTypeBreakdown, BreakdownOption.deviceType)); // JP-4284
+        breakdownFactory.sortAllBreakdowns(breakdowns);
     }
 }
 

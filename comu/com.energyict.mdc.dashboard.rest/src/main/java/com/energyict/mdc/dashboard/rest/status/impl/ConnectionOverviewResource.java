@@ -22,11 +22,15 @@ public class ConnectionOverviewResource {
 
     private final Thesaurus thesaurus;
     private final DashboardService dashboardService;
+    private final OverviewFactory overviewFactory;
+    private final BreakdownFactory breakdownFactory;
 
     @Inject
-    public ConnectionOverviewResource(Thesaurus thesaurus, DashboardService dashboardService) {
+    public ConnectionOverviewResource(Thesaurus thesaurus, DashboardService dashboardService, OverviewFactory overviewFactory, BreakdownFactory breakdownFactory) {
         this.thesaurus = thesaurus;
         this.dashboardService = dashboardService;
+        this.overviewFactory = overviewFactory;
+        this.breakdownFactory = breakdownFactory;
     }
 
     @GET
@@ -41,7 +45,7 @@ public class ConnectionOverviewResource {
         ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(taskStatusOverview);
 
         return new ConnectionOverviewInfo(connectionSummaryData, taskStatusOverview, comSessionSuccessIndicatorOverview,
-                comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown,
+                comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, breakdownFactory, overviewFactory,
                 thesaurus);
     }
 
