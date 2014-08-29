@@ -48,7 +48,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     @Override
     public LoadProfile getLoadProfile() {
         if(loadProfile == null){
-            final List<LoadProfile> loadProfiles = getLoadProfileFactory().findByRtu(deviceIdentifier.findDevice());
+            final List<LoadProfile> loadProfiles = getLoadProfileFactory().findByDevice(deviceIdentifier.findDevice());
             for (LoadProfile profile : loadProfiles) {
                 if (profile.getDeviceObisCode().equals(this.loadProfileObisCode)) {
                     this.loadProfile = profile;
