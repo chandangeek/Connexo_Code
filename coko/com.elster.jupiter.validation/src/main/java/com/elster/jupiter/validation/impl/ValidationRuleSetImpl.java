@@ -258,14 +258,13 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     @Override
-    public IValidationRule updateRule(long id, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
-        IValidationRule rule = getExistingRule(id, implementation);
-        return doUpdateRule(rule, name, implementation, activeStatus, mRIDs, properties);
+    public IValidationRule updateRule(long id, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
+        IValidationRule rule = getExistingRule(id);
+        return doUpdateRule(rule, name, activeStatus, mRIDs, properties);
     }
 
-    private IValidationRule doUpdateRule(IValidationRule rule, String name, String implementation, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
+    private IValidationRule doUpdateRule(IValidationRule rule, String name,  boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
         rule.rename(name);
-        rule.setImplementation(implementation);
 
         if (activeStatus != rule.isActive()) {
             rule.toggleActivation();
@@ -283,13 +282,10 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         }
     }
 
-    private IValidationRule getExistingRule(long id, String implementation) {
+    private IValidationRule getExistingRule(long id) {
         IValidationRule rule = doGetRule(id);
         if (rule == null) {
             throw new IllegalArgumentException("The ruleset " + this.getId() + " doesn't contain provided ruleId: " + id);
-        }
-        if (rule.isActive() && !implementation.equals(rule.getImplementation())) {
-            throw new IllegalArgumentException("Validator can't be changed on an active rule");
         }
         return rule;
     }

@@ -118,7 +118,6 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         return newProperty;
     }
 
-    @Override
     public void setProperties(Map<String, Object> propertyMap) {
         DiffList<ValidationRuleProperties> entryDiff = ArrayDiffList.fromOriginal(getProperties());
         entryDiff.clear();
@@ -174,8 +173,7 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         eventService.postEvent(EventType.VALIDATIONRULE_DELETED.topic(), this);
     }
 
-    @Override
-    public void deleteProperty(ValidationRuleProperties property) {
+    void deleteProperty(ValidationRuleProperties property) {
         properties.remove(property);
     }
 
@@ -314,22 +312,14 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         doUpdate();
     }
 
-    @Override
     public void rename(String name) {
         this.name = name.trim();
     }
 
-    @Override
     public void setAction(ValidationAction action) {
         this.action = action;
     }
 
-    @Override
-    public void setImplementation(String implementation) {
-        this.implementation = implementation;
-    }
-
-    @Override
     public void setPosition(int position) {
         this.position = position;
     }

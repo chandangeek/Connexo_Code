@@ -25,21 +25,9 @@ public interface ValidationRule {
 
     ValidationRuleSet getRuleSet();
 
-    void rename(String name);
-
-    void setAction(ValidationAction action);
-
-    void setImplementation(String implementation);
-
-    void setPosition(int position);
-
     List<ValidationRuleProperties> getProperties();
 
     ValidationRuleProperties addProperty(String name, Object value);
-
-    void setProperties(Map<String, Object> map);
-
-    void deleteProperty(ValidationRuleProperties property);
 
     Map<String, Object> getProps();
 
