@@ -12,7 +12,5 @@ public interface ChannelValidation {
 
     Date getLastChecked();
 
-    void setLastChecked(Date date);
-
     Channel getChannel();
 }

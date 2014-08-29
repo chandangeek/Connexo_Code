@@ -1,6 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
 import org.junit.Before;
@@ -21,11 +21,11 @@ public class MeterValidationImplTest {
     private DataModel dataModel;
 
     @Mock
-    private MeterActivation meterActivation;
+    private Meter meter;
 
     @Before
     public void setUp() {
-        meterValidation = new MeterValidationImpl(dataModel).init(meterActivation);
+        meterValidation = new MeterValidationImpl(dataModel).init(meter);
     }
 
     @After

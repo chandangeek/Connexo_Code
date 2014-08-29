@@ -5,7 +5,11 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
@@ -89,14 +93,14 @@ public enum TableSpecs {
         }
     },
 
-    VAL_METER_VALIDATION(MeterValidation.class) {
+    VAL_METER_VALIDATION(MeterValidationImpl.class) {
         @Override
         void describeTable(Table table) {
             table.map(MeterValidationImpl.class);
-            Column meterActivationId = table.column("METERACTIVATIONID").number().notNull().conversion(NUMBER2LONG).add();
+            Column meterId = table.column("METERID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("ACTIVE").bool().map("isActive").add();
-            table.primaryKey("VAL_PK_MA_METER_VALIDATION").on(meterActivationId).add();
-            table.foreignKey("VAL_FK_MA_METER_VALIDATION").references(MeteringService.COMPONENTNAME, "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
+            table.primaryKey("VAL_PK_MA_METER_VALIDATION").on(meterId).add();
+            table.foreignKey("VAL_FK_MA_METER_VALIDATION").references(MeteringService.COMPONENTNAME, "MTR_ENDDEVICE").onDelete(RESTRICT).map("meter").on(meterId).add();
         }
     },
 

@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.comparators.NullSafeOrdering;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -19,12 +20,24 @@ import com.google.common.collect.Ordering;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 class MeterActivationValidationImpl implements IMeterActivationValidation {
+
+    private static final Ordering<ChannelValidation> ORDER_BY_LASTCHECKED_NULL_IS_GREATEST = new Ordering<ChannelValidation>() {
+        @Override
+        public int compare(ChannelValidation left, ChannelValidation right) {
+            return NullSafeOrdering.NULL_IS_GREATEST.<Date>get().compare(getLastChecked(left), getLastChecked(right));
+        }
+
+        private Date getLastChecked(ChannelValidation validation) {
+            return validation == null ? null : validation.getLastChecked();
+        }
+    };
 
     private long id;
     private Reference<MeterActivation> meterActivation = ValueReference.absent();
@@ -81,8 +94,8 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     @Override
-    public ChannelValidation addChannelValidation(Channel channel) {
-        ChannelValidation channelValidation = ChannelValidationImpl.from(dataModel, this, channel);
+    public ChannelValidationImpl addChannelValidation(Channel channel) {
+        ChannelValidationImpl channelValidation = ChannelValidationImpl.from(dataModel, this, channel);
         doGetChannelValidations().add(channelValidation);
 
         return channelValidation;
@@ -144,7 +157,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     private void validateChannel(Interval interval, Channel channel) {
         Date earliestLastChecked = null;
-        ChannelValidation channelValidation = findOrAddValidationFor(channel);
+        ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
         Date lastChecked = null;
         Interval intervalToValidate = new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), interval.getEnd());
         for (IValidationRule validationRule : getActiveRules()) {
@@ -172,16 +185,51 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         return first == null ? second : Ordering.natural().min(second, first);
     }
 
-    private ChannelValidation findOrAddValidationFor(final Channel channel) {
-        ChannelValidation channelValidation = findValidationFor(channel);
+    private ChannelValidationImpl findOrAddValidationFor(final Channel channel) {
+        ChannelValidationImpl channelValidation = findValidationFor(channel);
         return channelValidation == null ? addChannelValidation(channel) : channelValidation;
     }
 
-    private ChannelValidation findValidationFor(final Channel channel) {
+    private ChannelValidationImpl findValidationFor(final Channel channel) {
         for (ChannelValidation channelValidation : getChannelValidations()) {
             if (channelValidation.getChannel().equals(channel)) {
-                return channelValidation;
+                return (ChannelValidationImpl) channelValidation;
             }
+        }
+        return null;
+    }
+
+    @Override
+    public void updateLastChecked(Date lastChecked) {
+        for (ChannelValidation channelValidation : getChannelValidations()) {
+            ((ChannelValidationImpl) channelValidation).setLastChecked(lastChecked);
+        }
+    }
+
+    @Override
+    public boolean isAllDataValidated() {
+        if (isActive()) {
+            if (lastRun == null) {
+                return false;
+            }
+            Comparator<Date> dateComparator = NullSafeOrdering.NULL_IS_GREATEST.get();
+            for (ChannelValidation channelValidation : getChannelValidations()) {
+                Date lastDateTime = channelValidation.getChannel().getTimeSeries().getLastDateTime();
+                Date lastChecked = channelValidation.getLastChecked();
+                // with NULL_IS_GREATEST ordering, when lastChecked is null, but the validation has run for this MeterActivationValidation
+                // probably no rules are configured for the channel, so in this case the channel data is ok
+                if (dateComparator.compare(lastChecked, lastDateTime) < 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Date getMinLastChecked() {
+        if (lastRun != null) {
+            return ORDER_BY_LASTCHECKED_NULL_IS_GREATEST.min(getChannelValidations()).getLastChecked();
         }
         return null;
     }
@@ -197,7 +245,16 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     @Override
-    public void setActive(boolean status) {
+    public void activate() {
+        setActive(true);
+    }
+
+    @Override
+    public void deactivate() {
+        setActive(false);
+    }
+
+    private void setActive(boolean status) {
         this.active = status;
     }
 }

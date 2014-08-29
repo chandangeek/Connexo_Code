@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -23,7 +24,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.ProgrammableClock;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
-import com.elster.jupiter.validation.MeterValidation;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
@@ -73,9 +73,11 @@ public class ValidationServiceImplTest {
     @Mock
     private DataMapper<IValidationRule> validationRuleFactory;
     @Mock
-    private DataMapper<MeterValidation> meterValidationFactory;
+    private DataMapper<MeterValidationImpl> meterValidationFactory;
     @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private Meter meter;
     @Mock
     private DataMapper<IMeterActivationValidation> meterActivationValidationFactory;
     @Mock
@@ -83,7 +85,7 @@ public class ValidationServiceImplTest {
     @Mock
     private DataMapper<ChannelValidation> channelValidationFactory;
     @Mock
-    private MeterValidation meterValidation;
+    private MeterValidationImpl meterValidation;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -118,7 +120,7 @@ public class ValidationServiceImplTest {
         when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);
         when(dataModel.mapper(IMeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
-        when(dataModel.mapper(MeterValidation.class)).thenReturn(meterValidationFactory);
+        when(dataModel.mapper(MeterValidationImpl.class)).thenReturn(meterValidationFactory);
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(validationRuleQueryExecutor);
 
@@ -182,6 +184,8 @@ public class ValidationServiceImplTest {
     @Test
     public void testApplyRuleSetWithChannels() {
         when(meterActivation.getId()).thenReturn(ID);
+        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        when(meter.getId()).thenReturn(ID);
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(1001L);
         when(channel2.getId()).thenReturn(1002L);
@@ -219,6 +223,8 @@ public class ValidationServiceImplTest {
     @Test
     public void testManageValidationActivations() {
         when(meterActivation.getId()).thenReturn(ID);
+        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        when(meter.getId()).thenReturn(ID);
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(1001L);
         when(channel2.getId()).thenReturn(1002L);
@@ -233,7 +239,7 @@ public class ValidationServiceImplTest {
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
         validationService.validate(meterActivation, Interval.sinceEpoch());
 
-        List<MeterActivationValidation> meterActivationValidations = validationService.getOrCreateMeterActivationValidations(meterActivation);
+        List<IMeterActivationValidation> meterActivationValidations = validationService.manageMeterActivationValidations(meterActivation);
         assertThat(meterActivationValidations).hasSize(1);
         assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
         assertThat(meterActivationValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet);
@@ -244,7 +250,7 @@ public class ValidationServiceImplTest {
 
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet, validationRuleSet2));
         validationService.validate(meterActivation, Interval.sinceEpoch());
-        meterActivationValidations = validationService.getOrCreateMeterActivationValidations(meterActivation);
+        meterActivationValidations = validationService.manageMeterActivationValidations(meterActivation);
         assertThat(meterActivationValidations).hasSize(2);
         assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
         assertThat(meterActivationValidations.get(1).getMeterActivation()).isEqualTo(meterActivation);
@@ -257,7 +263,7 @@ public class ValidationServiceImplTest {
 
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet2));
         validationService.validate(meterActivation, Interval.sinceEpoch());
-        meterActivationValidations = validationService.getOrCreateMeterActivationValidations(meterActivation);
+        meterActivationValidations = validationService.manageMeterActivationValidations(meterActivation);
         assertThat(meterActivationValidations).hasSize(1);
         assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
         assertThat(meterActivationValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet2);
@@ -407,28 +413,56 @@ public class ValidationServiceImplTest {
     }
 
     @Test
-    public void testMeterValidation() {
-        when(meterActivation.getId()).thenReturn(ID);
-        when(dataModel.mapper(MeterValidation.class).getOptional(meterActivation.getId())).thenReturn(Optional.of(meterValidation));
-        when(dataModel.getInstance(MeterValidationImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new MeterValidationImpl(dataModel);
-            }
-        });
-        when(MeterValidationImpl.from(dataModel, meterActivation)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new MeterValidationImpl(dataModel);
-            }
-        });
+    public void testMeterValidationActivation() {
+        Meter meter = mock(Meter.class);
+        when(meter.getId()).thenReturn(ID);
+        when(meter.getCurrentMeterActivation()).thenReturn(Optional.of(meterActivation));
+        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.<MeterValidationImpl>absent());
+        when(dataModel.getInstance(MeterValidationImpl.class)).thenReturn(meterValidation);
+        when(meterValidation.init(any(Meter.class))).thenReturn(meterValidation);
+        when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Collections.<ValidationRuleSet>emptyList());
+
+
+        validationService.activateValidation(meter);
+
+        //Check that a MeterValidation object is made
+        verify(dataModel).getInstance(MeterValidationImpl.class);
+        verify(meterValidation).init(eq(meter));
+        verify(meterValidation).setActivationStatus(true);
+        verify(meterValidation).save();
+
+        // verify that the MeterActivationValidations are managed for the current MeterActivation
+        verify(meter).getCurrentMeterActivation();
+        verify(validationRuleSetResolver).resolve(meterActivation);
+
+    }
+
+    @Test
+    public void testDeactivateMeterValidation() {
+        Meter meter = mock(Meter.class);
+        when(meter.getId()).thenReturn(ID);
+        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
 
-        MeterValidation newMeterValidation = validationService.createMeterValidation(meterActivation);
-        assertThat(newMeterValidation).isNotNull();
-        assertThat(validationService.getMeterValidation(meterActivation).get().getActivationStatus()).isEqualTo(true);
-        validationService.setMeterValidationStatus(meterActivation, false);
+
+        validationService.deactivateValidation(meter);
+
+        //Check that a MeterValidation object is made
         verify(meterValidation).setActivationStatus(false);
+        verify(meterValidation).save();
+
+    }
+
+    @Test
+    public void testDeactivateMeterValidationNoObject() {
+        Meter meter = mock(Meter.class);
+        when(meter.getId()).thenReturn(ID);
+        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.<MeterValidationImpl>absent());
+
+        validationService.deactivateValidation(meter);
+
+        verify(meterValidation, never()).setActivationStatus(anyBoolean());
+        verify(dataModel, never()).getInstance(MeterValidationImpl.class);
 
     }
 }

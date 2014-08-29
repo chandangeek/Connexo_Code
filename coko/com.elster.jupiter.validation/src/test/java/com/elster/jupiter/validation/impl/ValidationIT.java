@@ -28,7 +28,6 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.MeterValidation;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -161,14 +160,13 @@ public class ValidationIT {
                 ReadingType readingType3 = meteringService.getReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
                 AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
                 Meter meter = amrSystem.newMeter("2331");
+                meter.save();
                 meterActivation = meter.activate(date1);
                 meterActivation.createChannel(readingType1, readingType2);
                 meterActivation.createChannel(readingType1, readingType3);
 
                 ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
                 validationService.addResource(validatorFactory);
-
-                validationService.createMeterValidation(meterActivation);
 
                 final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
                 ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSECUTIVE_ZEROES, "consecutivezeros");
@@ -189,21 +187,15 @@ public class ValidationIT {
                     public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
                         return Arrays.asList(validationRuleSet);
                     }
+
                     @Override
                     public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
                         return false;
                     }
                 });
+
+                validationService.activateValidation(meter);
                 return null;
-            }
-        });
-        injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
-                MeterValidation meterValidation = validationService.getMeterValidation(meterActivation).get();
-                meterValidation.setActivationStatus(true);
-                meterValidation.save();
             }
         });
     }

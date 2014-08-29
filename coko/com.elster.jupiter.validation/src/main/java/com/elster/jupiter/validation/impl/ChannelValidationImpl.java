@@ -52,7 +52,6 @@ final class ChannelValidationImpl implements ChannelValidation {
         return lastChecked != null ? lastChecked.toDate() : null;
     }
 
-    @Override
     public void setLastChecked(Date date) {
         lastChecked = new UtcInstant(date);
     }

@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -24,7 +25,6 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
-import com.elster.jupiter.validation.MeterValidation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
@@ -35,7 +35,11 @@ import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.Ordering;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -49,11 +53,10 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -61,14 +64,16 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public final class ValidationServiceImpl implements ValidationService, InstallService {
 
     private static final Upcast<IValidationRuleSet, ValidationRuleSet> UPCAST = new Upcast<>();
-    private static final Ordering<ChannelValidation> NULLSAFE_ORDER_BY_LASTCHECKED = new Ordering<ChannelValidation>() {
+    private static final Function<IMeterActivationValidation, Date> METER_ACTIVATION_MIN_LAST_CHECKED = new Function<IMeterActivationValidation, Date>() {
         @Override
-        public int compare(ChannelValidation left, ChannelValidation right) {
-            return NullSafeOrdering.NULL_IS_SMALLEST.<Date>get().compare(getLastChecked(left), getLastChecked(right));
+        public Date apply(IMeterActivationValidation input) {
+            return (input == null ? null : input.getMinLastChecked());
         }
-
-        private Date getLastChecked(ChannelValidation validation) {
-            return validation == null ? null : validation.getLastChecked();
+    };
+    private static final Function<ChannelValidation, Date> CHANNEL_VALIDATION_LAST_CHECKED = new Function<ChannelValidation, Date>() {
+        @Override
+        public Date apply(ChannelValidation input) {
+            return (input == null ? null : input.getLastChecked());
         }
     };
 
@@ -168,51 +173,66 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public MeterValidation createMeterValidation(MeterActivation activation) {
-        MeterValidation meterValidation = MeterValidationImpl.from(dataModel, activation);
-        meterValidation.save();
-        return meterValidation;
-    }
-
-    @Override
-    public Optional<MeterValidation> getMeterValidation(MeterActivation meterActivation) {
-        return dataModel.mapper(MeterValidation.class).getOptional(meterActivation.getId());
-    }
-
-    @Override
-    public void setMeterValidationStatus(MeterActivation meterActivation, boolean status) {
-        Optional<MeterValidation> meterValidationRef = getMeterValidation(meterActivation);
-        if (!meterValidationRef.isPresent()) {
-            meterValidationRef = Optional.of(createMeterValidation(meterActivation));
+    public void activateValidation(Meter meter) {
+        Optional<MeterValidationImpl> meterValidation = getMeterValidation(meter);
+        if (meterValidation.isPresent()) {
+            if (!meterValidation.get().getActivationStatus()) {
+                meterValidation.get().setActivationStatus(true);
+                meterValidation.get().save();
+            } // else already active
+        } else {
+            createMeterValidation(meter, true);
+            Optional<MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
+            if (currentMeterActivation.isPresent()) {
+                manageMeterActivationValidations(currentMeterActivation.get());
+            }
         }
-        MeterValidation meterValidation = meterValidationRef.get();
-        meterValidation.setActivationStatus(status);
+    }
+
+    @Override
+    public void deactivateValidation(Meter meter) {
+        Optional<MeterValidationImpl> meterValidation = getMeterValidation(meter);
+        if (meterValidation.isPresent()) {
+            if (meterValidation.get().getActivationStatus()) {
+                meterValidation.get().setActivationStatus(false);
+                meterValidation.get().save();
+            } // else already inactive
+        }
+        // else MeterValidation not present which means also inactive (see validate(...)
+    }
+
+    @Override
+    public boolean validationEnabled(Meter meter) {
+        Optional<MeterValidationImpl> meterValidation = getMeterValidation(meter);
+        return meterValidation.isPresent() && meterValidation.get().getActivationStatus();
+    }
+
+    Optional<MeterValidationImpl> getMeterValidation(Meter meter) {
+        return dataModel.mapper(MeterValidationImpl.class).getOptional(meter.getId());
+    }
+
+    private void createMeterValidation(Meter meter, boolean active) {
+        MeterValidationImpl meterValidation = MeterValidationImpl.from(dataModel, meter);
+        meterValidation.setActivationStatus(active);
         meterValidation.save();
     }
 
     @Override
-    public void setLastChecked(MeterActivation meterActivation, Date date) {
+    public void updateLastChecked(MeterActivation meterActivation, Date date) {
         if (date == null) {
             throw new IllegalArgumentException("Last Checked Date is absent");
         }
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(meterActivation);
-        for (MeterActivationValidation validation : validations) {
-            for (ChannelValidation channelValidation : validation.getChannelValidations()) {
-                channelValidation.setLastChecked(date);
-            }
+        for (IMeterActivationValidation validation : validations) {
+            validation.updateLastChecked(date);
             validation.save();
         }
     }
 
     @Override
-    public Date getLastChecked(MeterActivation meterActivation) {
+    public Optional<Date> getLastChecked(MeterActivation meterActivation) {
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(meterActivation);
-        Set<ChannelValidation> chennelValidations = new LinkedHashSet<>();
-        for (MeterActivationValidation validation : validations) {
-            chennelValidations.addAll(validation.getChannelValidations());
-        }
-        Date date = getMinLastChecked(new ArrayList<ChannelValidation>(chennelValidations));
-        return date == null ? clock.now() : date;
+        return Optional.fromNullable(getMinLastChecked(FluentIterable.from(validations).transform(METER_ACTIVATION_MIN_LAST_CHECKED)));
     }
 
     @Override
@@ -246,36 +266,37 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     @Override
     public void validate(MeterActivation meterActivation, Interval interval) {
-        Optional<MeterValidation> found = getMeterValidation(meterActivation);
-        if (found.isPresent() && found.get().getActivationStatus()) {
-            List<MeterActivationValidation> meterActivationValidations = getOrCreateMeterActivationValidations(meterActivation);
-            for (MeterActivationValidation meterActivationValidation : activeOnly(meterActivationValidations)) {
+        boolean validationActive = true;
+        // when meterActivation is not linked to a meter, validation is run.
+        if (meterActivation.getMeter().isPresent()) {
+            // if meteractivation is linked to a meter, we only run validation when it is actively configured on the meter to run it
+            Optional<MeterValidationImpl> found = getMeterValidation(meterActivation.getMeter().get());
+            validationActive = found.isPresent() && found.get().getActivationStatus();
+        }
+        if (validationActive) {
+            List<IMeterActivationValidation> meterActivationValidations = manageMeterActivationValidations(meterActivation);
+            for (IMeterActivationValidation meterActivationValidation : activeOnly(meterActivationValidations)) {
                 meterActivationValidation.validate(interval);
             }
         }
     }
 
-    Iterable<MeterActivationValidation> activeOnly(Iterable<MeterActivationValidation> validations) {
-        return Iterables.filter(validations, new Predicate<MeterActivationValidation>() {
+    Iterable<IMeterActivationValidation> activeOnly(Iterable<IMeterActivationValidation> validations) {
+        return Iterables.filter(validations, new Predicate<IMeterActivationValidation>() {
             @Override
-            public boolean apply(MeterActivationValidation input) {
+            public boolean apply(IMeterActivationValidation input) {
                 return input.isActive();
             }
         });
     }
 
-    @Override
-    public List<MeterActivationValidation> getOrCreateMeterActivationValidations(MeterActivation meterActivation) {
-        return manageMeterActivationValidations(meterActivation);
-    }
-
-    private List<MeterActivationValidation> manageMeterActivationValidations(MeterActivation meterActivation) {
+    List<IMeterActivationValidation> manageMeterActivationValidations(MeterActivation meterActivation) {
         List<ValidationRuleSet> ruleSets = new ArrayList<>();
         for (ValidationRuleSetResolver ruleSetResolver : ruleSetResolvers) {
             ruleSets.addAll(ruleSetResolver.resolve(meterActivation));
         }
         List<IMeterActivationValidation> existingMeterActivationValidations = getIMeterActivationValidations(meterActivation);
-        List<MeterActivationValidation> returnList = new ArrayList<>();
+        List<IMeterActivationValidation> returnList = new ArrayList<>();
         for (ValidationRuleSet ruleSet : ruleSets) {
             Optional<IMeterActivationValidation> meterActivationValidation = getForRuleSet(existingMeterActivationValidations, ruleSet);
             if (!meterActivationValidation.isPresent()) {
@@ -349,7 +370,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         List<List<ReadingQualityRecord>> result = new ArrayList<>(readings.size());
         if (!readings.isEmpty()) {
             List<ChannelValidation> channelValidations = getChannelValidations(channel);
-            Date lastChecked = getMinLastChecked(channelValidations);
+            Date lastChecked = getMinLastChecked(FluentIterable.from(channelValidations).transform(CHANNEL_VALIDATION_LAST_CHECKED));
 
             ListMultimap<Date, ReadingQualityRecord> readingQualities = getReadingQualities(channel, getInterval(readings));
             ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
@@ -402,8 +423,9 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         return dataModel.mapper(ChannelValidation.class).find("channel", channel);
     }
 
-    private Date getMinLastChecked(List<ChannelValidation> channelValidations) {
-        return channelValidations.isEmpty() ? null : NULLSAFE_ORDER_BY_LASTCHECKED.min(channelValidations).getLastChecked();
+    private Date getMinLastChecked(Iterable<Date> dates) {
+        Comparator<Date> comparator = NullSafeOrdering.NULL_IS_SMALLEST.get();
+        return dates.iterator().hasNext() ? Ordering.from(comparator).min(dates) : null;
     }
 
     @Override
@@ -417,6 +439,16 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
             }
         }
         return result;
+    }
+
+    @Override
+    public boolean isAllDataValidated(MeterActivation meterActivation) {
+        for (IMeterActivationValidation meterActivationValidation : getIMeterActivationValidations(meterActivation)) {
+            if (!meterActivationValidation.isAllDataValidated()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -457,8 +489,8 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     @Override
     public boolean isValidationRuleSetInUse(ValidationRuleSet validationRuleSet) {
-        for(ValidationRuleSetResolver resolver : ruleSetResolvers) {
-            if(resolver.isValidationRuleSetInUse(validationRuleSet)) {
+        for (ValidationRuleSetResolver resolver : ruleSetResolvers) {
+            if (resolver.isValidationRuleSetInUse(validationRuleSet)) {
                 return true;
             }
         }

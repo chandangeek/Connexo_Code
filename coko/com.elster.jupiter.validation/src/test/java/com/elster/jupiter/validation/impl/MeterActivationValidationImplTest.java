@@ -146,8 +146,10 @@ public class MeterActivationValidationImplTest {
     @Test
     public void testSetMeterActivationValidationStatus() throws Exception {
         assertThat(meterActivationValidation.isActive()).isEqualTo(true);
-        meterActivationValidation.setActive(false);
+        meterActivationValidation.deactivate();
         assertThat(meterActivationValidation.isActive()).isEqualTo(false);
+        meterActivationValidation.activate();
+        assertThat(meterActivationValidation.isActive()).isEqualTo(true);
     }
 
 }
