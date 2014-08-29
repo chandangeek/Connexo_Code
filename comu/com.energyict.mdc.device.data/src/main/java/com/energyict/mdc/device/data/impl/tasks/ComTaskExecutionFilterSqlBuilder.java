@@ -36,6 +36,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
 
     public ComTaskExecutionFilterSqlBuilder(ComTaskExecutionFilterSpecification filterSpecification, Clock clock) {
         super(clock, filterSpecification);
+        this.validate(filterSpecification);
         this.copyTaskStatuses(filterSpecification);
         this.completionCodes = EnumSet.noneOf(CompletionCode.class);
         this.completionCodes.addAll(filterSpecification.latestResults);
@@ -47,6 +48,24 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.taskStatuses = EnumSet.noneOf(ServerComTaskStatus.class);
         for (TaskStatus taskStatus : filterSpecification.taskStatuses) {
             this.taskStatuses.add(ServerComTaskStatus.forTaskStatus(taskStatus));
+        }
+    }
+
+    /**
+     * Validates that all specification are correct and coherent,
+     * i.e. that none of the specifications contradict each other.
+     *
+     * @param filterSpecification The ComTaskExecutionFilterSpecification
+     * @throws IllegalArgumentException Thrown when the specifications are not valid
+     */
+    protected void validate(ComTaskExecutionFilterSpecification filterSpecification) throws IllegalArgumentException {
+        if (   !filterSpecification.latestResults.isEmpty()
+            && !this.isNull(filterSpecification.lastSessionEnd)) {
+            throw new IllegalArgumentException("Latest result and last session end in interval cannot be combined");
+        }
+        if (   !filterSpecification.comTasks.isEmpty()
+            && !filterSpecification.comSchedules.isEmpty()) {
+            throw new IllegalArgumentException("Communiation tasks and communication schedules cannot be combined");
         }
     }
 
