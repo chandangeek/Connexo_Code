@@ -1,10 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.engine.status.ComServerStatus;
-import com.energyict.mdc.engine.status.ComServerType;
-import com.energyict.mdc.engine.status.StatusService;
-
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,6 +8,13 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.engine.status.ComServerStatus;
+import com.energyict.mdc.engine.status.ComServerType;
+import com.energyict.mdc.engine.status.StatusService;
+import java.util.Date;
+import java.util.Map;
+import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -20,11 +22,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Duration;
-
-import javax.ws.rs.core.Application;
-import java.util.Map;
-
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -134,6 +133,7 @@ public class ComServerStatusResourceTest extends JerseyTest {
         when(notRunning.isRunning()).thenReturn(true);
         when(notRunning.isBlocked()).thenReturn(true);
         when(notRunning.getBlockTime()).thenReturn(new Duration(DateTimeConstants.MILLIS_PER_MINUTE * 5));
+        when(notRunning.getBlockTimestamp()).thenReturn(new Date());
         when(notRunning.getComServerName()).thenReturn("testServerRunningAndBlocked");
         when(notRunning.getComServerType()).thenReturn(ComServerType.ONLINE);
         when(this.statusService.getStatus()).thenReturn(notRunning);
@@ -147,6 +147,7 @@ public class ComServerStatusResourceTest extends JerseyTest {
         assertThat(statusInfo).containsKey("running");
         assertThat(statusInfo).containsKey("blocked");
         assertThat(statusInfo).containsKey("blockTime");
+        assertThat(statusInfo).containsKey("blockedSince");
     }
 
 }

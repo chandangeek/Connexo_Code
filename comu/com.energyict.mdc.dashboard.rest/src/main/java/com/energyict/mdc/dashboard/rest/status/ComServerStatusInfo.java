@@ -3,6 +3,7 @@ package com.energyict.mdc.dashboard.rest.status;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
+import java.util.Date;
 
 /**
  * Represents the status of a ComServer in the REST layer.
@@ -18,6 +19,7 @@ public class ComServerStatusInfo {
     public boolean running;
     public boolean blocked;
     public TimeDurationInfo blockTime;
+    public Date blockedSince;
     public String defaultUri;
 
     public ComServerStatusInfo() {
@@ -34,9 +36,7 @@ public class ComServerStatusInfo {
         this.defaultUri = defaultUri;
         if (this.blocked) {
             this.blockTime = new TimeDurationInfo((int) status.getBlockTime().getStandardSeconds());
-        }
-        else {
-            this.blockTime = null;
+            this.blockedSince = status.getBlockTimestamp();
         }
     }
 
