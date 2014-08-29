@@ -22,6 +22,9 @@ public class CommunicationHeatMapInfo {
 
     public List<HeatMapRowInfo> heatMap;
 
+    public CommunicationHeatMapInfo() {
+    }
+
     public <H extends HasName & HasId> CommunicationHeatMapInfo(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus)
             throws Exception {
         this.heatMap=new ArrayList<>();

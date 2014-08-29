@@ -24,6 +24,7 @@ import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Application;
@@ -128,6 +129,20 @@ public class CommunicationTaskHeatMapResourceTest extends JerseyTest {
         Map<String, Object> map = target("/communicationheatmap").request().get(Map.class);
 
         assertThat(map).containsKey("heatMap");
+    }
+
+    @Test
+    public void testConnectionHeatMapSortings() throws Exception {
+        CommunicationTaskHeatMap heatMap = createHeatMap();
+        when(dashboardService.getCommunicationTasksHeatMap()).thenReturn(heatMap);
+
+        CommunicationHeatMapInfo map = target("/communicationheatmap").request().get(CommunicationHeatMapInfo.class);
+        assertThat(map.heatMap).isSortedAccordingTo(new Comparator<HeatMapRowInfo>() {
+            @Override
+            public int compare(HeatMapRowInfo o1, HeatMapRowInfo o2) {
+                return o1.displayValue.compareTo(o2.displayValue);
+            }
+        });
     }
 
     private CommunicationTaskHeatMap createHeatMap() {
