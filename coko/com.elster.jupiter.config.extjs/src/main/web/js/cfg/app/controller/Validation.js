@@ -169,7 +169,7 @@ Ext.define('Cfg.controller.Validation', {
             }
 
             if (propertyForm.getRecord()) {
-            	record.propertiesStore = propertyForm.getRecord().properties();
+                record.propertiesStore = propertyForm.getRecord().properties();
             }
 
             for (var i = 0; i < readingTypes.items.length; i++) {
@@ -536,10 +536,7 @@ Ext.define('Cfg.controller.Validation', {
                 editRulePanel.down('#addRuleTitle').setTitle("Edit '" + rule.get('name') + "'");
 
                 validatorField.setValue(rule.get('implementation'));
-
-                if (rule.data.active) {
-                    validatorField.disable();
-                }
+                validatorField.disable();
 
                 readingTypeField.setValue(rule.get('readingTypes')[0].mRID);
                 nameField.setValue(rule.get('name'));
@@ -723,7 +720,7 @@ Ext.define('Cfg.controller.Validation', {
         }
     },
 
-    checkIfRuleSetIsInUse: function(ruleSet) {
+    checkIfRuleSetIsInUse: function (ruleSet) {
         var me = this;
 
         Ext.Ajax.request({
@@ -759,8 +756,8 @@ Ext.define('Cfg.controller.Validation', {
         });
     },
 
-    getDeleteRuleSetConfirmationMsg: function(jsonIsInUse) {
-        if(jsonIsInUse === "true") {
+    getDeleteRuleSetConfirmationMsg: function (jsonIsInUse) {
+        if (jsonIsInUse === "true") {
             return Uni.I18n.translate('validation.removeRuleSet.msgInUse', 'CFG', 'This validation rule set is in use. The validation rule set will no longer be available.')
         } else {
             return Uni.I18n.translate('validation.removeRuleSet.msg', 'CFG', 'This validation rule set will no longer be available.')
