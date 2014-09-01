@@ -16,6 +16,12 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
             title: Uni.I18n.translate('deviceCommunicationSchedule.addCommunicationSchedules', 'MDC', 'Add shared communication schedules'),
             items: [
                 {
+                    xtype: 'component',
+                    itemId: 'overlapWarning',
+                    html: '<span style="color:red">'+ Uni.I18n.translate('deviceCommunicationSchedule.ComTaskOverlap', 'MDC', 'The current selection has overlapping communication tasks.') +'</span>',
+                    hidden: true
+                },
+                {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'addSharedCommunicationScheduleGrid'
@@ -59,7 +65,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                     xtype: 'button',
                                     action: 'addAction',
                                     itemId: 'addButton',
-                                    ui: 'action'
+                                    ui: 'action',
+                                    disabled: true
                                 },
                                 {
                                     xtype: 'button',
