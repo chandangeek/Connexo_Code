@@ -32,7 +32,7 @@ public class MapBasedXmlAdapter<V> extends XmlAdapter<String, V>{
     }
 
     @Override
-    public V unmarshal(String text) throws Exception {
+    public V unmarshal(String text) {
         if (map.containsKey(text)) {
             return map.get(text);
         }
@@ -40,7 +40,7 @@ public class MapBasedXmlAdapter<V> extends XmlAdapter<String, V>{
     }
 
     @Override
-    public String marshal(V value) throws Exception {
+    public String marshal(V value) {
         if (value!=null) {
             for (Map.Entry<String, V> entry : map.entrySet()) {
                 if (value.equals(entry.getValue())) {
