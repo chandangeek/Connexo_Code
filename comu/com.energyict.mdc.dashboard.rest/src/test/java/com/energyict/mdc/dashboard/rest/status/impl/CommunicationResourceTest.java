@@ -23,10 +23,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -175,6 +175,15 @@ public class CommunicationResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testLatestResultsAddedToFilter() throws Exception {
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("latestResults", "TimeError,ProtocolError")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+
+        ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
+        verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().latestResults).contains(CompletionCode.TimeError).contains(CompletionCode.ProtocolError).hasSize(2);
+    }
+
+    @Test
     public void testComSchedulesAddedToFilter() throws Exception {
         ComSchedule comSchedule1 = mock(ComSchedule.class);
         when(comSchedule1.getId()).thenReturn(101L);
@@ -312,7 +321,6 @@ public class CommunicationResourceTest extends JerseyTest {
         when(deviceConfiguration.getName()).thenReturn("123123");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
-        when(comTaskExecution1.getConnectionTask()).thenReturn((ConnectionTask)comTaskExecution);
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);

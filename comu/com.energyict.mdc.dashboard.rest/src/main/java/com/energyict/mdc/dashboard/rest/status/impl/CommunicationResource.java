@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import java.util.ArrayList;
@@ -34,8 +35,10 @@ public class CommunicationResource {
     private static final Comparator<ComTaskExecution> COM_TASK_EXECUTION_COMPARATOR = new ComTaskExecutionComparator();
 
     private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
+    private static final CompletionCodeAdapter COMPLETION_CODE_ADAPTER = new CompletionCodeAdapter();
 
     private static final String TASK_STATUSES = "currentStates";
+    private static final String LATEST_RESULTS = "latestResults";
     private static final String COM_SCHEDULES = "comSchedules";
     private static final String COM_TASKS = "comTasks";
     private static final String DEVICE_TYPES = "deviceTypes";
@@ -77,12 +80,21 @@ public class CommunicationResource {
 
     private ComTaskExecutionFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
         ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
-        filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
         Map<String, String> filterProperties = jsonQueryFilter.getFilterProperties();
+
+        filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
         if (filterProperties.containsKey(TASK_STATUSES)) {
             String[] taskStatuses = filterProperties.get(TASK_STATUSES).split(",");
             for (String taskStatus : taskStatuses) {
                 filter.taskStatuses.add(TASK_STATUS_ADAPTER.unmarshal(taskStatus));
+            }
+        }
+
+        filter.latestResults = EnumSet.noneOf(CompletionCode.class);
+        if (filterProperties.containsKey(LATEST_RESULTS)) {
+            String[] latestResults = filterProperties.get(LATEST_RESULTS).split(",");
+            for (String completionCode : latestResults) {
+                filter.latestResults.add(COMPLETION_CODE_ADAPTER.unmarshal(completionCode));
             }
         }
 
