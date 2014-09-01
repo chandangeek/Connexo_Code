@@ -130,9 +130,9 @@ public class SchedulingResource {
                     comparePartialConnectionTaskId = comTaskEnablementsToCheck.get(i).getPartialConnectionTask().get().getId();
                 }
                 int comparePriority = comTaskEnablementsToCheck.get(i).getPriority();
-                if(protocolDialectConfigurationPropertiesId!=compareProtocolDialectConfigurationPropertiesId ||
+                if(!protocolDialectConfigurationPropertiesId.equals(compareProtocolDialectConfigurationPropertiesId) ||
                         securityPropertySetId!=compareSecurityPropertySetId ||
-                        partialConnectionTaskId!=comparePartialConnectionTaskId||
+                        !partialConnectionTaskId.equals(comparePartialConnectionTaskId)||
                         priority!=comparePriority){
                     return false;
                 }
