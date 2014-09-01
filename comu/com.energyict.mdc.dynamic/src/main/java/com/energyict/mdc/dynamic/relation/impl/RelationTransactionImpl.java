@@ -1,10 +1,8 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;
 import com.energyict.mdc.dynamic.relation.CanLock;
@@ -16,6 +14,8 @@ import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentIdObject;
 
+import com.elster.jupiter.util.time.Interval;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,19 +25,19 @@ import java.util.Map;
 
 public class RelationTransactionImpl implements RelationTransaction, DynamicAttributeOwner {
 
-    private RelationType relationType;
+    private RelationTypeImpl relationType;
     private Date from;
     private Date to;
     private Map<RelationAttributeType, Object> dynamicAttributes = new HashMap<>();
     private int flags;
     private boolean forcedClose = false;
 
-    public RelationTransactionImpl(RelationType type) {
+    public RelationTransactionImpl(RelationTypeImpl type) {
         this.relationType = type;
     }
 
     public RelationTransactionImpl(Relation relation) {
-        this.relationType = relation.getRelationType();
+        this.relationType = (RelationTypeImpl) relation.getRelationType();
         this.from = relation.getFrom();
         this.to = relation.getTo();
         Map<RelationAttributeType, Object> map = relation.getAttributeMap();
@@ -48,7 +48,7 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
     }
 
     private RelationTransactionImpl(RelationTransactionImpl transaction) {
-        this.relationType = transaction.getRelationType();
+        this.relationType = transaction.relationType;
         this.from = transaction.getFrom();
         this.to = transaction.getTo();
         this.dynamicAttributes = transaction.getAttributeMap();
@@ -62,8 +62,8 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
     private void lock() {
         RelationAttributeType lockAttrib = this.relationType.getLockAttributeType();
         Object attributeValue = this.get(lockAttrib);
-        if (attributeValue instanceof IdBusinessObject) {
-            this.lockIdBusinessObject((IdBusinessObject) attributeValue);
+        if (attributeValue instanceof PersistentIdObject) {
+            this.lockIdBusinessObject((PersistentIdObject) attributeValue);
         }
         else if (attributeValue instanceof CanLock) {
             CanLock canLock = (CanLock) attributeValue;
@@ -74,10 +74,10 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
         }
     }
 
-    private void lockIdBusinessObject(IdBusinessObject idBusinessObject) {
-        if (idBusinessObject != null) {
-            IdBusinessObjectFactory factory = (IdBusinessObjectFactory) idBusinessObject.getFactory();
-            PersistentIdObject.lock(idBusinessObject, factory.getTableName());
+    private void lockIdBusinessObject(PersistentIdObject persistentIdObject) {
+        if (persistentIdObject != null) {
+            IdBusinessObjectFactory factory = (IdBusinessObjectFactory) persistentIdObject.getFactory();
+            PersistentIdObject.lock(persistentIdObject, factory.getTableName());
         }
     }
 
@@ -206,14 +206,6 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
         return new RelationFactory(this.relationType).create(transaction);
     }
 
-    public Map<RelationAttributeType, Object> getDynamicAttributes() {
-        return dynamicAttributes;
-    }
-
-    public void setDynamicAttributes(Map<RelationAttributeType, Object> dynamicAttributes) {
-        this.dynamicAttributes = dynamicAttributes;
-    }
-
     public Date getFrom() {
         return from;
     }
@@ -234,20 +226,12 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
         return relationType;
     }
 
-    public void setRelationType(RelationType relationType) {
-        this.relationType = relationType;
-    }
-
     public Date getTo() {
         return to;
     }
 
     public void setTo(Date to) {
         this.to = to;
-    }
-
-    public void setForcedClose(boolean forcedClose) {
-        this.forcedClose = forcedClose;
     }
 
     public Map<RelationAttributeType, Object> getAttributeMap() {

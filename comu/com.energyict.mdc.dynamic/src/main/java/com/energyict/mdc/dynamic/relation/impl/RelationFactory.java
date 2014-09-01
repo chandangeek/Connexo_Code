@@ -2,7 +2,6 @@ package com.energyict.mdc.dynamic.relation.impl;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.DatabaseException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.PrimaryKeyExternalRepresentationConvertor;
@@ -51,10 +50,10 @@ public final class RelationFactory {
             "moduserid"
     };
 
-    private RelationType relationType;
+    private RelationTypeImpl relationType;
     private Logger sql_perf_logger;
 
-    public RelationFactory(RelationType relationType) {
+    public RelationFactory(RelationTypeImpl relationType) {
         super();
         this.relationType = relationType;
         this.sql_perf_logger = Logger.getLogger("com.energyict.mdc.dynamic.relation.impl.RelationType." + relationType.getName());
@@ -181,7 +180,7 @@ public final class RelationFactory {
         if ((value == null)
                 || (value instanceof Double && ((Double) value).isNaN())
                 || (value instanceof Float && ((Float) value).isNaN())) {
-            
+
             builder.addNull(attributeType.getJdbcType());
         }
         else {
@@ -263,7 +262,7 @@ public final class RelationFactory {
         insertBuilder.append(") select id, fromdate, todate,");
         insertBuilder.addTimestamp(relation.getObsoleteDate());
         insertBuilder.append(", flags, cre_date, sysdate, creuserid, 0");
-        
+
         for (RelationAttributeType each : this.relationType.getAttributeTypes()) {
             insertBuilder.append(", ");
             insertBuilder.append(each.getName());
@@ -625,7 +624,7 @@ public final class RelationFactory {
     }
 
     private Connection getConnection() {
-        return Environment.DEFAULT.get().getConnection();
+        return this.relationType.getConnection();
     }
 
 }

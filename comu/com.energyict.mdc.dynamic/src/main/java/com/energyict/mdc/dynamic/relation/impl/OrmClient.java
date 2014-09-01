@@ -25,11 +25,7 @@ public interface OrmClient {
 
     public DataMapper<Constraint> getConstraintFactory();
 
-    public DataMapper<ConstraintMember> getConstraintMemberFactory();
-
     public List<RelationType> findRelationTypesByParticipant(BusinessObject participant);
-
-    public List<RelationAttributeType> findByRelationTypeAndParticipant(RelationType type, BusinessObject participant);
 
     public RelationAttributeType findByRelationTypeAndName(RelationType type, String name);
 

@@ -1,28 +1,30 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteDefaultRelationConstraintException;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
+import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
+import com.energyict.mdc.dynamic.relation.RelationTransaction;
+import com.energyict.mdc.dynamic.relation.RelationType;
+import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteDefaultRelationConstraintException;
 import com.energyict.mdc.dynamic.relation.exceptions.DuplicateNameException;
 import com.energyict.mdc.dynamic.relation.exceptions.EmptyConstraintException;
 import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.relation.exceptions.MultipleNonRejectConstraintsNotAllowedException;
 import com.energyict.mdc.dynamic.relation.exceptions.NameIsRequiredException;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
-import com.energyict.mdc.dynamic.relation.RelationTransaction;
-import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
@@ -41,13 +43,13 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
     private Date modDate;
 
     @Inject
-    ConstraintImpl(Thesaurus thesaurus) {
-        super();
+    ConstraintImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel);
         this.thesaurus = thesaurus;
     }
 
-    public ConstraintImpl(RelationType relationType, String name) {
-        super(name);
+    public ConstraintImpl(DataModel dataModel, RelationType relationType, String name) {
+        super(dataModel, name);
         this.relationType.set(relationType);
     }
 
@@ -283,7 +285,7 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
                     try (ResultSet rs = stmnt.executeQuery()) {
                         while (rs.next()) {
                             int relationId = rs.getInt(1);
-                            result.add(new RelationFactory(getRelationType()).find(relationId));
+                            result.add(new RelationFactory((RelationTypeImpl) getRelationType()).find(relationId));
                         }
                     }
                 }

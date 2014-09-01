@@ -1,6 +1,7 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.Environment;
@@ -22,28 +23,19 @@ import java.util.logging.Logger;
 
 public class RelationTypeDdlGenerator {
 
+    private final DataModel dataModel;
     private Thesaurus thesaurus;
     private RelationType relationType;
     private Map<RelationAttributeType, String> names = new HashMap<>();
     private boolean checkExistence = false;
     private Logger logger = Logger.getLogger(RelationTypeDdlGenerator.class.getName());
 
-    public RelationTypeDdlGenerator(RelationType relationType, Thesaurus thesaurus, boolean checkExistence) {
+    public RelationTypeDdlGenerator(DataModel dataModel, RelationType relationType, Thesaurus thesaurus, boolean checkExistence) {
         super();
+        this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.relationType = relationType;
         this.checkExistence = checkExistence;
-    }
-
-    public RelationTypeDdlGenerator(RelationType relationType, Logger logger) {
-        this.relationType = relationType;
-        this.logger = logger;
-    }
-
-    public RelationTypeDdlGenerator(RelationType relationType, boolean checkExistence, Logger logger) {
-        this.relationType = relationType;
-        this.checkExistence = checkExistence;
-        this.logger = logger;
     }
 
     public void execute() throws SQLException {
@@ -53,7 +45,6 @@ public class RelationTypeDdlGenerator {
         createDynamicAttributeSequence();
         addMetaData();
         createAttributeIndexes();
-
     }
 
     protected void addMetaData() throws SQLException {
@@ -304,7 +295,7 @@ public class RelationTypeDdlGenerator {
                 }
             }
             if (columnExists(getDynamicAttributeTableName(), attributeType.getName())) {
-                if (!isRequired != columnIsNullable(getDynamicAttributeTableName(), attributeType.getName())) {
+                if (isRequired == columnIsNullable(getDynamicAttributeTableName(), attributeType.getName())) {
                     executeDdl(getAlterAttributeColumnRequired(getDynamicAttributeTableName(),
                             attributeType.getName(), isRequired));
                 }
@@ -320,30 +311,15 @@ public class RelationTypeDdlGenerator {
     }
 
     private String getAddColumnSql(String tableName, String fieldName, String dbType, boolean isRequired) {
-        StringBuilder builder = new StringBuilder("ALTER TABLE  ");
-        builder.append(tableName);
-        builder.append(" ADD ");
-        builder.append(fieldName);
-        builder.append(" ");
-        builder.append(dbType);
-        builder.append(isRequired ? " NOT NULL" : " NULL");
-        return builder.toString();
+        return "ALTER TABLE  " + tableName + " ADD " + fieldName + " " + dbType + (isRequired ? " NOT NULL" : " NULL");
     }
 
     private String getDropColumnSql(String tableName, String fieldName) {
-        StringBuilder builder = new StringBuilder("ALTER TABLE  ");
-        builder.append(tableName);
-        builder.append(" DROP COLUMN ");
-        builder.append(fieldName);
-        return builder.toString();
+        return "ALTER TABLE  " + tableName + " DROP COLUMN " + fieldName;
     }
 
     protected String getCreateDynamicAttributeSequenceSql() {
-        StringBuilder builder = new StringBuilder("create sequence ");
-        builder.append(getDynamicAttributeSequenceName());
-        builder.append(" start with ");
-        builder.append(getMaxId() + 1);
-        return builder.toString();
+        return "create sequence " + getDynamicAttributeSequenceName() + " start with " + (getMaxId() + 1);
     }
 
     protected void generateNames() {
@@ -384,10 +360,7 @@ public class RelationTypeDdlGenerator {
     protected String getObsoleteAttributeIndexName(RelationAttributeType attributeType) {
         String tableName = getObsoleteAttributeTableName();
         String prefix = tableName.substring(0, 3);
-        StringBuilder builder = new StringBuilder("IX_");
-        builder.append(prefix);
-        builder.append(names.get(attributeType));
-        return builder.toString();
+        return "IX_" + prefix + names.get(attributeType);
     }
 
     protected boolean indexExists(String tableName, String col) throws SQLException {
@@ -491,14 +464,8 @@ public class RelationTypeDdlGenerator {
         }
     }
 
-    protected void executeSql(SqlBuilder builder) throws SQLException {
-        try (PreparedStatement statement = builder.getStatement(getConnection())) {
-            statement.executeUpdate();
-        }
-    }
-
     protected Connection getConnection() throws SQLException {
-        return Environment.DEFAULT.get().getConnection();
+        return this.dataModel.getConnection(true);
     }
 
     public void dropMetaData() throws SQLException {

@@ -1,14 +1,15 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
-import com.google.common.collect.ImmutableMap;
+
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.conditions.Order;
+
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -122,54 +123,40 @@ public class OrmClientImpl implements OrmClient {
 
     @Override
     public DataMapper<RelationType> getRelationTypeFactory() {
-        return this.dataModel.getDataMapper(RelationType.class, TableSpecs.CDR_RELATIONTYPE.name());
+        return this.dataModel.mapper(RelationType.class);
     }
 
     @Override
     public DataMapper<RelationAttributeType> getRelationAttributeTypeFactory() {
-        return this.dataModel.getDataMapper(RelationAttributeType.class, TableSpecs.CDR_RELATIONATTRIBUTETYPE.name());
+        return this.dataModel.mapper(RelationAttributeType.class);
     }
 
     @Override
     public DataMapper<Constraint> getConstraintFactory() {
-        return this.dataModel.getDataMapper(Constraint.class, TableSpecs.CDR_CONSTRAINT.name());
-    }
-
-    @Override
-    public DataMapper<ConstraintMember> getConstraintMemberFactory() {
-        return this.dataModel.getDataMapper(ConstraintMember.class, TableSpecs.CDR_CONSTRAINTMEMBER.name());
+        return this.dataModel.mapper(Constraint.class);
     }
 
     @Override
     public List<RelationType> findRelationTypesByParticipant(BusinessObject participant) {
         IdBusinessObjectFactory factory = (IdBusinessObjectFactory) participant.getFactory();
-        return this.getRelationTypeFactory().
-                with(this.getRelationAttributeTypeFactory()).
+        return this.dataModel.
+                query(RelationType.class, RelationAttributeType.class).
                 select(
                     where("objectFactoryId").isEqualTo(factory.getId()),
-                        Order.ascending("name"));
-    }
-
-    @Override
-    public List<RelationAttributeType> findByRelationTypeAndParticipant(RelationType type, BusinessObject participant) {
-        IdBusinessObjectFactory factory = (IdBusinessObjectFactory) participant.getFactory();
-        return this.getRelationAttributeTypeFactory().
-                    find(ImmutableMap.of(
-                            "relationType", type,
-                            "objectFactoryId", factory.getId()));
+                    Order.ascending("name"));
     }
 
     @Override
     public RelationAttributeType findByRelationTypeAndName(RelationType type, String name) {
-        return this.getRelationAttributeTypeFactory().
+        return this.dataModel.mapper(RelationAttributeType.class).
                 getUnique(
-                    "relationType", type,
-                    "name", name).orNull();
+                        "relationType", type,
+                        "name", name).orNull();
     }
 
     @Override
     public Constraint findConstraintByNameAndRelationType(String constraintName, RelationType relationType) {
-        return this.getConstraintFactory().
+        return this.dataModel.mapper(Constraint.class).
                 getUnique(
                         "relationType", relationType,
                         "name", constraintName).orNull();
@@ -177,10 +164,9 @@ public class OrmClientImpl implements OrmClient {
 
     @Override
     public List<Constraint> findByRelationAttributeType(RelationAttributeTypeImpl relationAttributeType) {
-        return this.getConstraintFactory().
-                with(this.getConstraintMemberFactory()).
-                select(
-                    where("attributeTypeId").isEqualTo(relationAttributeType.getId()));
+        return this.dataModel.
+                query(Constraint.class, ConstraintMember.class).
+                select(where("attributeTypeId").isEqualTo(relationAttributeType.getId()));
     }
 
 }

@@ -1,13 +1,5 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.Environment;
@@ -17,26 +9,35 @@ import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.LegacyReferenceFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteDefaultRelationAttributeException;
 import com.energyict.mdc.dynamic.relation.CompositeAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.DefaultAttributeTypeDetective;
+import com.energyict.mdc.dynamic.relation.Relation;
+import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
+import com.energyict.mdc.dynamic.relation.RelationParticipant;
+import com.energyict.mdc.dynamic.relation.RelationType;
+import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteDefaultRelationAttributeException;
 import com.energyict.mdc.dynamic.relation.exceptions.DuplicateNameException;
 import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.relation.exceptions.NameContainsInvalidCharactersException;
 import com.energyict.mdc.dynamic.relation.exceptions.NameIsRequiredException;
 import com.energyict.mdc.dynamic.relation.exceptions.NameTooLongException;
-import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.exceptions.RelationAttributeHasNullValuesException;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
-import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.exceptions.RelationTypeDDLException;
 import com.energyict.mdc.dynamic.relation.exceptions.ValueFactoryCreationException;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
 
-import javax.inject.Inject;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Interval;
 
+import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -62,21 +63,21 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     private Boolean isDefault = null;
 
     @Inject
-    RelationAttributeTypeImpl(Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        super();
+    RelationAttributeTypeImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        super(dataModel);
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
 
-    public RelationAttributeTypeImpl(RelationType relationType, Thesaurus thesaurus, String name, PropertySpecService propertySpecService) {
-        super(name);
+    public RelationAttributeTypeImpl(DataModel dataModel, RelationType relationType, Thesaurus thesaurus, String name, PropertySpecService propertySpecService) {
+        super(dataModel, name);
         this.thesaurus = thesaurus;
         this.relationType.set(relationType);
         this.propertySpecService = propertySpecService;
     }
 
-    public RelationAttributeTypeImpl(RelationType relationType, Thesaurus thesaurus, String name, ValueFactory valueFactory) {
-        super(name);
+    public RelationAttributeTypeImpl(DataModel dataModel, RelationType relationType, Thesaurus thesaurus, String name, ValueFactory valueFactory) {
+        super(dataModel, name);
         this.thesaurus = thesaurus;
         this.relationType.set(relationType);
         this.valueFactory = valueFactory;
@@ -173,7 +174,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
         if (isRequired && hasNullValues()) { // #eiserver-178 no longer take the ORU-table into account
             throw new RelationAttributeHasNullValuesException(this.thesaurus, this);
         }
-        new RelationTypeDdlGenerator(getRelationType(), this.thesaurus, true).alterAttributeColumnRequired(RelationAttributeTypeImpl.this, isRequired);
+        new RelationTypeDdlGenerator(this.getDataModel(), getRelationType(), this.thesaurus, true).alterAttributeColumnRequired(RelationAttributeTypeImpl.this, isRequired);
         setRequired(isRequired);
     }
 
@@ -352,8 +353,8 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
         return detective.isDefaultAttribute(this);
     }
 
-    public synchronized RelationType getRelationType() {
-        return this.relationType.get();
+    public synchronized RelationTypeImpl getRelationType() {
+        return (RelationTypeImpl) this.relationType.get();
     }
 
     public List<Relation> getAllRelations(RelationParticipant participant) {
@@ -407,25 +408,6 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
 
     public boolean isHidden() {
         return this.hidden;
-    }
-
-    protected boolean appendForeignKeySql(StringBuilder builder, String fkName) {
-        if (this.supportsReferentialIntegrity()) {
-            IdBusinessObjectFactory factory = (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(this.objectFactoryId);
-            builder.append(" constraint ");
-            builder.append(fkName);
-            builder.append(" foreign key(");
-            builder.append(getName());
-            builder.append(") references ");
-            builder.append(factory.getTableName());
-            builder.append("(id)");
-            return true;
-        }
-        return false;
-    }
-
-    protected boolean supportsReferentialIntegrity() {
-        return getValueFactory().isReference();
     }
 
     public boolean hasConstraint() {

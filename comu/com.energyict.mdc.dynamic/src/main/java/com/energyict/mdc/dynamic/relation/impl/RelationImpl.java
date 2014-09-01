@@ -51,10 +51,7 @@ public class RelationImpl implements Relation {
 
     private Map<RelationAttributeType, Object> dynamicAttributes = null;
 
-    protected RelationImpl() {
-    }
-
-    public RelationImpl(RelationType relationType, int id) {
+    public RelationImpl(RelationTypeImpl relationType, int id) {
         super();
         this.id = id;
         this.factory = new RelationFactory(relationType);
@@ -62,7 +59,7 @@ public class RelationImpl implements Relation {
         this.relationTypeId = relationType.getId();
     }
 
-    protected RelationImpl(RelationType relationType, ResultSet resultSet) throws SQLException {
+    protected RelationImpl(RelationTypeImpl relationType, ResultSet resultSet) throws SQLException {
         this.factory = new RelationFactory(relationType);
         this.relationType = relationType;
         this.relationTypeId = relationType.getId();

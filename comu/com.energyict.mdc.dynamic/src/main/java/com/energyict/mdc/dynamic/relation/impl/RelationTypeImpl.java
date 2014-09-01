@@ -35,6 +35,7 @@ import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.ValueFactory;
 import com.google.common.collect.ImmutableList;
@@ -68,13 +69,9 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     private TypeId typeId;
     private boolean system;
 
-    public RelationTypeImpl() {
-        super();
-    }
-
     @Inject
-    public RelationTypeImpl(Thesaurus thesaurus) {
-        super();
+    public RelationTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel);
         this.thesaurus = thesaurus;
     }
 
@@ -280,7 +277,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     private void processNewConstraints(List<ConstraintShadow> newShadows) {
         for (ConstraintShadow shadow : newShadows) {
             shadow.setRelationTypeId(getId());
-            ConstraintImpl constraint = new ConstraintImpl(this, shadow.getName());
+            ConstraintImpl constraint = new ConstraintImpl(this.getDataModel(), this, shadow.getName());
             constraint.init(this, shadow);
             this.constraints.add(constraint);
         }
@@ -388,13 +385,13 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
 
     private RelationAttributeType doAddAttribute(RelationAttributeTypeShadow shadow, PropertySpecService propertySpecService) {
         RelationAttributeType attributeType = this.createAttributeType(shadow, propertySpecService);
-        new RelationTypeDdlGenerator(this, this.thesaurus, true).addAttributeColumn(attributeType);
+        new RelationTypeDdlGenerator(this.getDataModel(), this, this.thesaurus, true).addAttributeColumn(attributeType);
         return attributeType;
     }
 
     private RelationAttributeType doAddAttribute(RelationAttributeTypeShadow shadow, ValueFactory valueFactory) {
         RelationAttributeType attributeType = this.createAttributeType(shadow, valueFactory);
-        new RelationTypeDdlGenerator(this, this.thesaurus, true).addAttributeColumn(attributeType);
+        new RelationTypeDdlGenerator(this.getDataModel(), this, this.thesaurus, true).addAttributeColumn(attributeType);
         return attributeType;
     }
 
@@ -507,7 +504,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     protected void createDynamicAttributeTable() throws SQLException {
-        new RelationTypeDdlGenerator(this, this.thesaurus, true).execute();
+        new RelationTypeDdlGenerator(this.getDataModel(), this, this.thesaurus, true).execute();
     }
 
     public void dropDynamicAttributeTable() throws SQLException {
@@ -631,7 +628,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     protected void dropMetaData() throws SQLException {
-        new RelationTypeDdlGenerator(this, this.thesaurus, true).dropMetaData();
+        new RelationTypeDdlGenerator(this.getDataModel(), this, this.thesaurus, true).dropMetaData();
     }
 
     public RelationAttributeType getAttributeType(int index) {
@@ -656,14 +653,14 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     public RelationAttributeType createAttributeType(RelationAttributeTypeShadow raShadow, PropertySpecService propertySpecService) {
-        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this, this.thesaurus, raShadow.getName(), propertySpecService);
+        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this.getDataModel(), this, this.thesaurus, raShadow.getName(), propertySpecService);
         relationAttributeType.init(this, raShadow);
         this.attributeTypes.add(relationAttributeType);
         return relationAttributeType;
     }
 
     public RelationAttributeType createAttributeType(RelationAttributeTypeShadow raShadow, ValueFactory valueFactory) {
-        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this, this.thesaurus, raShadow.getName(), valueFactory);
+        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this.getDataModel(), this, this.thesaurus, raShadow.getName(), valueFactory);
         relationAttributeType.init(this, raShadow);
         this.attributeTypes.add(relationAttributeType);
         return relationAttributeType;
@@ -681,15 +678,11 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     private void doDeleteAttributeType(RelationAttributeType raType) {
-        new RelationTypeDdlGenerator(this, this.thesaurus, true).executeDelete(raType);
+        new RelationTypeDdlGenerator(this.getDataModel(), this, this.thesaurus, true).executeDelete(raType);
     }
 
     public Relation get(int id) {
         return this.getBaseFactory().find(id);
-    }
-
-    public Class<Relation> getInstanceType() {
-        return Relation.class;
     }
 
     public List<Relation> findAll() {

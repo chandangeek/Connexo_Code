@@ -4,6 +4,8 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.DuplicateException;
 import com.energyict.mdc.common.NamedBusinessObject;
 
+import com.elster.jupiter.orm.DataModel;
+
 import java.sql.SQLException;
 import java.util.Objects;
 
@@ -18,12 +20,12 @@ public abstract class PersistentNamedObject extends PersistentIdObject implement
 
     private String name = "";
 
-    protected PersistentNamedObject() {
-        super();
+    protected PersistentNamedObject(DataModel dataModel) {
+        super(dataModel);
     }
 
-    public PersistentNamedObject(String name) {
-        super();
+    public PersistentNamedObject(DataModel dataModel, String name) {
+        super(dataModel);
         Objects.requireNonNull(name);
         this.name = name;
     }

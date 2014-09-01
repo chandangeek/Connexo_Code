@@ -4,12 +4,13 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.DatabaseException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TypeId;
 
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.Checks;
 
 import java.io.Serializable;
@@ -29,18 +30,19 @@ import java.util.Objects;
 public abstract class PersistentIdObject implements IdBusinessObject {
 
     private long id;
+    private final DataModel dataModel;
 
-    protected PersistentIdObject() {
+    protected PersistentIdObject(DataModel dataModel) {
         super();
-    }
-
-    public PersistentIdObject(int id) {
-        this();
-        this.id = id;
+        this.dataModel = dataModel;
     }
 
     public int getId() {
         return (int) id;
+    }
+
+    protected DataModel getDataModel() {
+        return dataModel;
     }
 
     @Override
@@ -183,17 +185,22 @@ public abstract class PersistentIdObject implements IdBusinessObject {
         }
     }
 
-    protected Connection getConnection() {
-        return getEnvironmentConnection();
+    public Connection getConnection() {
+        return getConnection(this.getDataModel());
     }
 
-    protected static Connection getEnvironmentConnection() {
-        return Environment.DEFAULT.get().getConnection();
-    }
-
-    public static void lock(IdBusinessObject businessObject, String tableName) {
+    protected static Connection getConnection(DataModel dataModel) {
         try {
-            try (PreparedStatement stmnt = getLockSqlBuilder(tableName, businessObject.getId()).getStatement(getEnvironmentConnection())) {
+            return dataModel.getConnection(true);
+        }
+        catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    public static void lock(PersistentIdObject persistentObject, String tableName) {
+        try {
+            try (PreparedStatement stmnt = getLockSqlBuilder(tableName, persistentObject.getId()).getStatement(getConnection(persistentObject.getDataModel()))) {
                 try (ResultSet rs = stmnt.executeQuery()) {
                     if (rs.next()) {
                         return;
