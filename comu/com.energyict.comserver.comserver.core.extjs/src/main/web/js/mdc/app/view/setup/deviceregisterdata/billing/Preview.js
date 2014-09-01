@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                         }
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('device.registerData.readingtTime', 'MDC', 'Reading time'),
+                        fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
                         name: 'reportedDateTime',
                         format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {

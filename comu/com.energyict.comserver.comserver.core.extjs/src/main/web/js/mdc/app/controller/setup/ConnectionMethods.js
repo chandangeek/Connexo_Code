@@ -263,7 +263,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         if (record) {
             record.set(values);
             if (values.connectionStrategy === 'asSoonAsPossible') {
-                record.set('nextExecutionSpecs', null);
+                record.set('temporalExpression', null);
             }
             if(!values.hasOwnProperty('comWindowStart')){
                 record.set('comWindowStart', 0);
@@ -438,7 +438,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             connectionMethod.set('isDefault', true);
         }
         if (connectionMethod.get('connectionStrategy') === 'asSoonAsPossible' || connectionMethod.get('direction') === 'Inbound') {
-            connectionMethod.set('nextExecutionSpecs', null);
+            connectionMethod.set('temporalExpression', null);
         }
 
 //        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
