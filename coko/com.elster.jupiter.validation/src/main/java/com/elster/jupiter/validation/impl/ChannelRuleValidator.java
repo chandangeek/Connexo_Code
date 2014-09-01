@@ -19,6 +19,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ class ChannelRuleValidator {
             if (rule.getReadingTypes().contains(channelReadingType)) {
                 Validator validator = newValidator(channel, interval, channelReadingType);
 
-                ReadingQualityType readingQualityType = validator.getReadingQualityTypeCode().or(defaultReadingQualityType());
+                ReadingQualityType readingQualityType = rule.getReadingQualityType();
                 if (channel.isRegular()) {
                     Interval intervalToRequest = interval.withStart(new Date(interval.getStart().getTime() - 1));
                     for (IntervalReadingRecord intervalReading : channel.getIntervalReadings(channelReadingType, intervalToRequest)) {
@@ -76,9 +77,6 @@ class ChannelRuleValidator {
         return newValidator;
     }
 
-    private ReadingQualityType defaultReadingQualityType() {
-        return ReadingQualityType.defaultCodeForRuleId(rule.getId());
-    }
 
     private Date handleValidationResult(ValidationResult result, Channel channel, Date lastChecked, ListMultimap<Date, ReadingQualityRecord> existingReadingQualities,
                                         ReadingQualityType readingQualityType, BaseReadingRecord readingRecord) {

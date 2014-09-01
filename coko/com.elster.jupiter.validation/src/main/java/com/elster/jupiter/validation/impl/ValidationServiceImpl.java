@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -24,6 +25,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -55,8 +57,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -366,33 +370,71 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
-    public List<List<ReadingQualityRecord>> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
-        List<List<ReadingQualityRecord>> result = new ArrayList<>(readings.size());
+    public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
+        List<DataValidationStatus> result = new ArrayList<>(readings.size());
         if (!readings.isEmpty()) {
             List<ChannelValidation> channelValidations = getChannelValidations(channel);
             Date lastChecked = getMinLastChecked(FluentIterable.from(channelValidations).transform(CHANNEL_VALIDATION_LAST_CHECKED));
+            ListMultimap<ReadingQualityType, IValidationRule> validationRuleMap = getValidationRulesPerReadingQuality(channelValidations);
 
             ListMultimap<Date, ReadingQualityRecord> readingQualities = getReadingQualities(channel, getInterval(readings));
             ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
             for (BaseReading reading : readings) {
-                addReadingQualities(lastChecked, reading, readingQualities, validatedAndOk, channel, result);
+                addReadingQualities(lastChecked, reading, readingQualities, validatedAndOk, validationRuleMap, channel, result);
             }
         }
         return result;
     }
 
+
+    private ListMultimap<ReadingQualityType, IValidationRule> getValidationRulesPerReadingQuality(List<ChannelValidation> channelValidations) {
+        Set<IValidationRule> rules = new HashSet<>();
+        Query<IValidationRule> ruleQuery = getAllValidationRuleQuery();
+        for (ChannelValidation channelValidation : channelValidations) {
+            ValidationRuleSet ruleSet = channelValidation.getMeterActivationValidation().getRuleSet();
+            final Channel channel = channelValidation.getChannel();
+            List<IValidationRule> validationRules = ruleQuery.select(Operator.EQUAL.compare("ruleSetId", ruleSet.getId()));
+            rules.addAll(FluentIterable.from(validationRules).filter(new Predicate<IValidationRule>() {
+                @Override
+                public boolean apply(IValidationRule input) {
+                    Set<ReadingType> validatedReadingTypes = input.getReadingTypes();
+                    return validatedReadingTypes.contains(channel.getMainReadingType()) || (channel.getBulkQuantityReadingType().isPresent() && validatedReadingTypes.contains(channel.getBulkQuantityReadingType().get()));
+                }
+            }).toSet());
+        }
+        return Multimaps.index(rules, new Function<IValidationRule, ReadingQualityType>() {
+            @Override
+            public ReadingQualityType apply(IValidationRule input) {
+                return input.getReadingQualityType();
+            }
+        });
+    }
+
+    private Query<IValidationRule> getAllValidationRuleQuery() {
+        return queryService.wrap(dataModel.query(IValidationRule.class));
+    }
+
     private void addReadingQualities(Date lastChecked, BaseReading reading, ListMultimap<Date, ReadingQualityRecord> readingQualities,
-                                     ReadingQualityType validatedAndOk, Channel channel, List<List<ReadingQualityRecord>> result) {
-        List<ReadingQualityRecord> qualities = readingQualities.get(reading.getTimeStamp());
+                                     ReadingQualityType validatedAndOk, ListMultimap<ReadingQualityType, IValidationRule> validationRuleMap, Channel channel,
+                                     List<DataValidationStatus> result) {
+        List<ReadingQualityRecord> qualities = (readingQualities.containsKey(reading.getTimeStamp()) ? readingQualities.get(reading.getTimeStamp()) : Collections.<ReadingQualityRecord>emptyList());
         if (lastChecked == null || lastChecked.before(reading.getTimeStamp())) {
-            result.add(qualities == null ? Collections.<ReadingQualityRecord>emptyList() : qualities);
+            result.add(createDataValidationStatusListFor(reading.getTimeStamp(), false, qualities, validationRuleMap));
         } else {
-            if (qualities == null || qualities.isEmpty()) {
-                result.add(Arrays.asList(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp())));
+            if (qualities.isEmpty()) {
+                result.add(createDataValidationStatusListFor(reading.getTimeStamp(), true, Arrays.asList(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp())), validationRuleMap));
             } else {
-                result.add(qualities);
+                result.add(createDataValidationStatusListFor(reading.getTimeStamp(), true, qualities, validationRuleMap));
             }
         }
+    }
+
+    private DataValidationStatus createDataValidationStatusListFor(Date timeStamp, boolean completelyValidated, List<ReadingQualityRecord> qualities, ListMultimap<ReadingQualityType, IValidationRule> validationRuleMap) {
+        DataValidationStatusImpl validationStatus = new DataValidationStatusImpl(timeStamp, completelyValidated);
+        for (ReadingQualityRecord quality : qualities) {
+            validationStatus.addReadingQuality(quality, validationRuleMap.get(quality.getType()));
+        }
+        return validationStatus;
     }
 
     private Interval getInterval(List<? extends BaseReading> readings) {

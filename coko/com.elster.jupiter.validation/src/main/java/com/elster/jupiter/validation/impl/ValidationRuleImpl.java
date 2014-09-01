@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -31,7 +32,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -289,12 +289,12 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
     public boolean isActive() {
         return active;
     }
-    
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return getValidator().getPropertySpecs();
     }
-    
+
     public PropertySpec<?> getPropertySpec(final String name) {
         return Iterables.find(getValidator().getPropertySpecs(), new Predicate<PropertySpec>() {
             @Override
@@ -432,5 +432,10 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
 
     public String getDisplayName(String name) {
         return getValidator().getDisplayName(name);
+    }
+
+    @Override
+    public ReadingQualityType getReadingQualityType() {
+        return createNewValidator().getReadingQualityTypeCode().or(ReadingQualityType.defaultCodeForRuleId(getId()));
     }
 }
