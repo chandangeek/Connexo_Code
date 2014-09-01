@@ -42,10 +42,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
             selectionModel = me.view.getSelectionModel(),
             selection = selectionModel.getSelection(),
             comTaskWindow = me.up('#addCommunicationTaskWindow'),
-            addBtn = comTaskWindow.down('#addButton'),
             preview = comTaskWindow.down('addCommunicationTaskPreview');
 
-        addBtn.setDisabled(!me.isAllSelected() && selection.length === 0);
         if (!me.isAllSelected() && selection.length != 0) {
             preview.show();
         } else {
