@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -105,6 +108,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -120,9 +124,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -1070,16 +1076,16 @@ public class DeviceImpl implements Device {
         }
         return Lists.reverse(loadProfileReadings);
     }
-
-    List<EndDeviceEventRecord> getLogBookDeviceEvents(LogBook logBook, Interval interval) {
+    
+    List<EndDeviceEventRecord> getLogBookDeviceEvents(LogBook logBook, Interval interval, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         List<EndDeviceEventRecord> endDeviceEventRecords = new ArrayList<>();
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                List<EndDeviceEventRecord> deviceEvents = meter.get().getDeviceEvents(interval);
+                List<EndDeviceEventRecord> deviceEvents = meter.get().getDeviceEvents(interval, domain, subDomain, eventOrAction);
                 for (EndDeviceEventRecord deviceEvent : deviceEvents) {
-                    if (deviceEvent.getLogBookId()==logBook.getId()) {
+                    if (deviceEvent.getLogBookId() == logBook.getId()) {
                         endDeviceEventRecords.add(deviceEvent);
                     }
                 }
