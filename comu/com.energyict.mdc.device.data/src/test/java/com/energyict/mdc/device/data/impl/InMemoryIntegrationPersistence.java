@@ -261,7 +261,6 @@ public class InMemoryIntegrationPersistence {
                 deactivate(bootstrapModule);
             }
         }
-        Environment.DEFAULT.get().close();
     }
 
     private void deactivate(Object bootstrapModule) {
