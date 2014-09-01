@@ -20807,11 +20807,12 @@ h6 {
 .x-container-navigationwrapper {
   padding-right: 48px; }
 
-/* line 9, ../../sass/src/container/AppCenter.scss */
+/* line 15, ../../sass/src/container/AppCenter.scss */
 .uni-nav-appcenter-menu {
   position: absolute !important;
   z-index: 20001 !important;
   height: auto !important;
+  padding-right: 1px;
   bottom: 0;
   border-top: 1px solid #597d9d;
   overflow: visible;
@@ -20823,40 +20824,44 @@ h6 {
   /* For Firefox 3.6 to 15 */
   background: linear-gradient(to bottom, #2e587e, #529ebe);
   /* Standard syntax */ }
-  /* line 23, ../../sass/src/container/AppCenter.scss */
+  /* line 30, ../../sass/src/container/AppCenter.scss */
   .uni-nav-appcenter-menu .x-menu-body {
     background-color: transparent;
     overflow: visible; }
-    /* line 27, ../../sass/src/container/AppCenter.scss */
+    /* line 34, ../../sass/src/container/AppCenter.scss */
     .uni-nav-appcenter-menu .x-menu-body .x-box-inner {
       overflow: visible; }
-  /* line 32, ../../sass/src/container/AppCenter.scss */
+  /* line 39, ../../sass/src/container/AppCenter.scss */
   .uni-nav-appcenter-menu .uni-nav-appcenter-dataview {
     margin-right: -5px !important;
     left: 0 !important; }
-    /* line 36, ../../sass/src/container/AppCenter.scss */
+    /* line 43, ../../sass/src/container/AppCenter.scss */
     .uni-nav-appcenter-menu .uni-nav-appcenter-dataview .handlebar {
       background-color: #2e587e;
       position: absolute;
       width: 47px;
       height: 1px;
       top: -1px; }
-    /* line 44, ../../sass/src/container/AppCenter.scss */
+    /* line 51, ../../sass/src/container/AppCenter.scss */
     .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a {
       text-transform: uppercase;
       text-decoration: none;
       white-space: nowrap;
       font-size: 16px;
       color: white; }
-      /* line 51, ../../sass/src/container/AppCenter.scss */
+      /* line 58, ../../sass/src/container/AppCenter.scss */
       .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item {
         padding-top: 16px;
         padding-right: 16px;
         padding-bottom: 4px; }
-        /* line 58, ../../sass/src/container/AppCenter.scss */
+        /* line 65, ../../sass/src/container/AppCenter.scss */
         .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item:hover {
           background-color: #71adc7; }
-        /* line 62, ../../sass/src/container/AppCenter.scss */
+        /* line 69, ../../sass/src/container/AppCenter.scss */
+        .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item.x-pressed {
+          background-color: white;
+          color: #2f77ac; }
+        /* line 74, ../../sass/src/container/AppCenter.scss */
         .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon {
           background-repeat: no-repeat;
           background-position: center;
@@ -20870,9 +20875,15 @@ h6 {
         /* line 4, ../../sass/src/container/AppCenter.scss */
         .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon-connexo {
           background-image: url("images/container/appcenter/connexo.png"); }
+        /* line 9, ../../sass/src/container/AppCenter.scss */
+        .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .x-pressed .icon-connexo {
+          background-image: url("images/container/appcenter/connexoSelected.png"); }
         /* line 4, ../../sass/src/container/AppCenter.scss */
         .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .icon-devices {
           background-image: url("images/container/appcenter/devices.png"); }
+        /* line 9, ../../sass/src/container/AppCenter.scss */
+        .uni-nav-appcenter-menu .uni-nav-appcenter-dataview a .app-item .x-pressed .icon-devices {
+          background-image: url("images/container/appcenter/devicesSelected.png"); }
 
 /* line 1, ../../sass/src/container/BreadcrumbTrailContainer.scss */
 .x-container-breadcrumbtrailcontainer {
@@ -41846,7 +41857,7 @@ div.x-form-spinner-down {
 *[class*='x-window-'] .x-form-display-field {
   margin-top: 16px;
   color: #686868; }
-/* line 50, ../../sass/src/window/MessageBox.scss */
+/* line 49, ../../sass/src/window/MessageBox.scss */
 *[class*='x-window-'] *[class*='x-message-box-'] {
   background-position: 12px 4px; }
 
@@ -44194,7 +44205,7 @@ div.x-form-spinner-down {
   border-color: #86b9cf !important;
   border-width: 1px !important; }
 
-/* line 95, ../../sass/src/window/MessageBox.scss */
+/* line 94, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-error .x-window-body .x-header .x-header-text {
   color: #eb5642; }
 
@@ -45370,7 +45381,7 @@ div.x-form-spinner-down {
   border-color: #86b9cf !important;
   border-width: 1px !important; }
 
-/* line 123, ../../sass/src/window/MessageBox.scss */
+/* line 122, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-success .x-window-body .x-header .x-header-text {
   color: #74af74; }
 
@@ -46546,7 +46557,7 @@ div.x-form-spinner-down {
   border-color: #86b9cf !important;
   border-width: 1px !important; }
 
-/* line 150, ../../sass/src/window/MessageBox.scss */
+/* line 149, ../../sass/src/window/MessageBox.scss */
 .x-window-message-error .x-message-box-error {
   background-position: 12px 4px; }
 

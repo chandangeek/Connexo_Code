@@ -4,12 +4,19 @@
     .icon-#{$icon} {
         background-image: url('images/container/appcenter/#{$icon}.png');
     }
+
+    .x-pressed {
+        .icon-#{$icon} {
+            background-image: url('images/container/appcenter/#{$icon}Selected.png');
+        }
+    }
 }
 
 .uni-nav-appcenter-menu {
     position: absolute !important;
     z-index: 20001 !important;
     height: auto !important;
+    padding-right: 1px;
     bottom: 0;
 
     border-top: 1px solid #597d9d;
@@ -57,6 +64,11 @@
 
                 &:hover {
                     background-color: $color-blue-2;
+                }
+
+                &.x-pressed {
+                    background-color: white;
+                    color: #2f77ac;
                 }
 
                 .icon {
