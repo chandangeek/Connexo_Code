@@ -76,7 +76,8 @@ public class DeviceApplication extends Application implements InstallService{
                 DeviceValidationResource.class,
                 LoadProfileResource.class,
                 BulkScheduleResource.class,
-                ComtaskExecutionResource.class
+                ComtaskExecutionResource.class,
+                LogBookResource.class
         );
     }
 
