@@ -1,33 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.ComWindow;
@@ -74,6 +46,35 @@ import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
@@ -82,29 +83,29 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartialOutboundConnectiontaskCrudIT {
@@ -120,8 +121,6 @@ public class PartialOutboundConnectiontaskCrudIT {
     MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     DeviceProtocol deviceProtocol;
-
-    public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
 
     @Mock
     private BundleContext bundleContext;
@@ -170,7 +169,7 @@ public class PartialOutboundConnectiontaskCrudIT {
 
     }
 
-    public void initializeDatabase(boolean showSqlLogging, boolean createMasterData) {
+    public void initializeDatabase(boolean showSqlLogging) throws SQLException {
         bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
@@ -218,16 +217,17 @@ public class PartialOutboundConnectiontaskCrudIT {
             injector.getInstance(ValidationService.class);
             schedulingService = injector.getInstance(SchedulingService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
+            dataModel = deviceConfigurationService.getDataModel();
+            createOracleAliases(dataModel.getConnection(true));
             ctx.commit();
         }
         Environment environment = injector.getInstance(Environment.class);
         environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
         environment.setApplicationContext(applicationContext);
-        createOracleAliases();
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         when(principal.getName()).thenReturn("test");
         Translator translator = mock(Translator.class);
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
@@ -236,7 +236,7 @@ public class PartialOutboundConnectiontaskCrudIT {
         when(applicationContext.findFactory(5011)).thenReturn(businessObjectFactory);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
-        initializeDatabase(false, false);
+        initializeDatabase(false);
 
         propertySpecService.addFactoryProvider(new ReferencePropertySpecFinderProvider() {
             @Override
@@ -885,8 +885,6 @@ public class PartialOutboundConnectiontaskCrudIT {
     @Test
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE + '}')
     public void testCreateWithWrongValueForProperty() {
-
-        PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("IPConnectionType", IpConnectionType.class.getName());
@@ -897,7 +895,7 @@ public class PartialOutboundConnectiontaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.MINIMIZE_CONNECTIONS)
+            deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.MINIMIZE_CONNECTIONS)
                     .comPortPool(outboundComPortPool)
                     .comWindow(COM_WINDOW)
                     .nextExecutionSpec().temporalExpression(TimeDuration.days(1), TimeDuration.minutes(90)).set()
@@ -950,7 +948,6 @@ public class PartialOutboundConnectiontaskCrudIT {
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD + "}")
     public void createOutboundConnectionMethodWithInboundConnectionTypeTest() {
-        PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             ConnectionTypePluggableClass inboundConnectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("Inboundtype", InboundNoParamsConnectionTypeImpl.class.getName());
@@ -961,13 +958,12 @@ public class PartialOutboundConnectiontaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutboundWhichIsActuallyAnInbound", inboundConnectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.MINIMIZE_CONNECTIONS)
+            deviceConfiguration.newPartialScheduledConnectionTask("MyOutboundWhichIsActuallyAnInbound", inboundConnectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.MINIMIZE_CONNECTIONS)
                     .comPortPool(outboundComPortPool)
                     .comWindow(COM_WINDOW)
                     .nextExecutionSpec().temporalExpression(TimeDuration.days(1), TimeDuration.minutes(90)).set()
                     .asDefault(true).build();
             deviceConfiguration.save();
-
 
             context.commit();
         }
@@ -995,24 +991,23 @@ public class PartialOutboundConnectiontaskCrudIT {
         }
     }
 
-    private static void createOracleAliases() {
+    private void createOracleAliases(Connection connection) {
         try {
-            try (PreparedStatement preparedStatement = Environment.DEFAULT.get().getConnection().prepareStatement(
+            try (PreparedStatement preparedStatement = connection.prepareStatement(
                     "CREATE VIEW IF NOT EXISTS USER_TABLES AS select table_name from INFORMATION_SCHEMA.TABLES where table_schema = 'PUBLIC'"
             )) {
                 preparedStatement.execute();
             }
-            try (PreparedStatement preparedStatement = Environment.DEFAULT.get().getConnection().prepareStatement(
+            try (PreparedStatement preparedStatement = connection.prepareStatement(
                     "CREATE VIEW IF NOT EXISTS USER_IND_COLUMNS AS select index_name, table_name, column_name, ordinal_position AS column_position from INFORMATION_SCHEMA.INDEXES where table_schema = 'PUBLIC'"
             )) {
                 preparedStatement.execute();
             }
-            try (PreparedStatement preparedStatement = Environment.DEFAULT.get().getConnection().prepareStatement(
+            try (PreparedStatement preparedStatement = connection.prepareStatement(
                     "CREATE TABLE IF NOT EXISTS USER_SEQUENCES ( SEQUENCE_NAME VARCHAR2 (30) NOT NULL, MIN_VALUE NUMBER, MAX_VALUE NUMBER, INCREMENT_BY NUMBER NOT NULL, CYCLE_FLAG VARCHAR2 (1), ORDER_FLAG VARCHAR2 (1), CACHE_SIZE NUMBER NOT NULL, LAST_NUMBER NUMBER NOT NULL)"
             )) {
                 preparedStatement.execute();
             }
-            Environment.DEFAULT.get().closeConnection();
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
