@@ -7,7 +7,6 @@ Ext.define('Dsh.view.widget.SideFilter', {
     ui: 'medium',
     requires: [
         'Uni.component.filter.view.Filter',
-        'Dsh.store.ConnectionCurrentStates',
         'Dsh.view.widget.common.SideFilterCombo'
     ],
     items: [
@@ -74,12 +73,10 @@ Ext.define('Dsh.view.widget.SideFilter', {
                         {
                             text: Uni.I18n.translate('searchItems.searchAll', 'MDC', 'Apply'),
                             ui: 'action',
-                            itemId: 'searchAllItems',
                             action: 'applyfilter'
                         },
                         {
                             text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Clear all'),
-                            itemId: 'clearAllItems',
                             action: 'clearfilter'
                         }
                     ]
