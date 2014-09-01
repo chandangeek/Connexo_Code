@@ -1,3 +1,16 @@
+/* line 430, ../../../ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-notification-success-vertical .x-window-header-icon-before-title {
+  margin: 0 0 8px 0;
+}
+/* line 435, ../../../ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-notification-success-vertical .x-rtl.x-window-header-icon-before-title {
+  margin: 0 0 8px 0;
+}
+/* line 440, ../../../ext-theme-neutral/sass/src/window/Window.scss */
+.x-window-header-notification-success-vertical .x-window-header-icon-after-title {
+  margin: 8px 0 0 0;
+}
+/* line 445, ../../../ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-success-vertical .x-rtl.x-window-header-icon-after-title {
   margin: 8px 0 0 0;
 }
@@ -164,7 +177,7 @@
   border-width: 1px !important;
 }
 
-/* line 123, ../../sass/src/window/MessageBox.scss */
+/* line 122, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-success .x-window-body .x-header .x-header-text {
   color: #74af74;
 }
@@ -1590,7 +1603,7 @@
   border-width: 1px !important;
 }
 
-/* line 150, ../../sass/src/window/MessageBox.scss */
+/* line 149, ../../sass/src/window/MessageBox.scss */
 .x-window-message-error .x-message-box-error {
   background-position: 12px 4px;
 }

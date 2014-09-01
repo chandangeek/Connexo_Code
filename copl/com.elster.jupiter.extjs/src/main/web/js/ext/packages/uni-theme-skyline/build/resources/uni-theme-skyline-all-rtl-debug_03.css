@@ -1,3 +1,28 @@
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-sort-small-pressed:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-small-pressed-corners.gif), sides:url(images/btn/btn-sort-small-pressed-sides.gif), frame-bg:url(images/btn/btn-sort-small-pressed-fbg.gif), bg:url(images/btn/btn-sort-small-pressed-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-sort-small-disabled:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-small-disabled-corners.gif), sides:url(images/btn/btn-sort-small-disabled-sides.gif), frame-bg:url(images/btn/btn-sort-small-disabled-fbg.gif), bg:url(images/btn/btn-sort-small-disabled-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 255, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-medium {
+  border-color: transparent;
+}
+
 /* line 137, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-sort-medium {
   -webkit-border-radius: 5px;
@@ -13083,7 +13108,7 @@ div.x-form-spinner-down {
   margin-top: 16px;
   color: #686868;
 }
-/* line 50, ../../sass/src/window/MessageBox.scss */
+/* line 49, ../../sass/src/window/MessageBox.scss */
 *[class*='x-window-'] *[class*='x-message-box-'] {
   background-position: 12px 4px;
 }
@@ -15930,7 +15955,7 @@ div.x-form-spinner-down {
   border-width: 1px !important;
 }
 
-/* line 95, ../../sass/src/window/MessageBox.scss */
+/* line 94, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-error .x-window-body .x-header .x-header-text {
   color: #eb5642;
 }
@@ -17175,17 +17200,4 @@ div.x-form-spinner-down {
 /* line 423, ../../../ext-theme-neutral/sass/src/window/Window.scss */
 .x-window-header-notification-success-horizontal .x-rtl.x-window-header-icon-after-title {
   margin: 0 8px 0 0;
-}
-
-/* line 430, ../../../ext-theme-neutral/sass/src/window/Window.scss */
-.x-window-header-notification-success-vertical .x-window-header-icon-before-title {
-  margin: 0 0 8px 0;
-}
-/* line 435, ../../../ext-theme-neutral/sass/src/window/Window.scss */
-.x-window-header-notification-success-vertical .x-rtl.x-window-header-icon-before-title {
-  margin: 0 0 8px 0;
-}
-/* line 440, ../../../ext-theme-neutral/sass/src/window/Window.scss */
-.x-window-header-notification-success-vertical .x-window-header-icon-after-title {
-  margin: 8px 0 0 0;
 }

@@ -1,3 +1,21 @@
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-remove-small:after {
+  display: none;
+  content: "x-slicer:corners:url(images/btn/btn-remove-small-corners.gif), sides:url(images/btn/btn-remove-small-sides.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/* line 262, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-remove-small .x-btn-inner {
+  font-size: 13px;
+  font-weight: "normal";
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  color: white;
+  padding: 0 4px;
+}
+/* line 270, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-remove-small .x-btn-arrow {
   background-image: url(images/button/remove-small-arrow.png);
 }
@@ -14551,31 +14569,4 @@ a:hover, a.x-btn:hover {
 .x-btn-sort-toolbar-large .x-btn-split-right {
   background-image: url(images/button/sort-toolbar-large-s-arrow.png);
   padding-right: 38px;
-}
-/* line 735, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-toolbar-large .x-btn-split-bottom {
-  background-image: url(images/button/sort-toolbar-large-s-arrow-b.png);
-  padding-bottom: 34px;
-}
-
-/* line 758, ../../../ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-toolbar-large-disabled {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  opacity: 0.5;
-}
-
-/*<if slicer>*/
-/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-btn-sort-toolbar-large-focus:after {
-  display: none;
-  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-toolbar-large-focus-corners.gif), sides:url(images/btn/btn-sort-toolbar-large-focus-sides.gif), frame-bg:url(images/btn/btn-sort-toolbar-large-focus-fbg.gif), bg:url(images/btn/btn-sort-toolbar-large-focus-bg.gif)";
-}
-
-/*</if slicer>*/
-/* */
-/*<if slicer>*/
-/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-btn-sort-toolbar-large-over:after {
-  display: none;
-  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-toolbar-large-over-corners.gif), sides:url(images/btn/btn-sort-toolbar-large-over-sides.gif), frame-bg:url(images/btn/btn-sort-toolbar-large-over-fbg.gif), bg:url(images/btn/btn-sort-toolbar-large-over-bg.gif)";
 }

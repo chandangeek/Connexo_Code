@@ -1,3 +1,30 @@
+.x-btn-sort-toolbar-large .x-btn-split-bottom {
+  background-image: url(images/button/sort-toolbar-large-s-arrow-b.png);
+  padding-bottom: 34px;
+}
+
+/* line 758, ../../../ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-sort-toolbar-large-disabled {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+  opacity: 0.5;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-sort-toolbar-large-focus:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-toolbar-large-focus-corners.gif), sides:url(images/btn/btn-sort-toolbar-large-focus-sides.gif), frame-bg:url(images/btn/btn-sort-toolbar-large-focus-fbg.gif), bg:url(images/btn/btn-sort-toolbar-large-focus-bg.gif)";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-btn-sort-toolbar-large-over:after {
+  display: none;
+  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-toolbar-large-over-corners.gif), sides:url(images/btn/btn-sort-toolbar-large-over-sides.gif), frame-bg:url(images/btn/btn-sort-toolbar-large-over-fbg.gif), bg:url(images/btn/btn-sort-toolbar-large-over-bg.gif)";
+}
+
 /*</if slicer>*/
 /* */
 /*<if slicer>*/
@@ -9711,7 +9738,7 @@ div.x-form-spinner-down {
   margin-top: 16px;
   color: #686868;
 }
-/* line 50, ../../sass/src/window/MessageBox.scss */
+/* line 49, ../../sass/src/window/MessageBox.scss */
 *[class*='x-window-'] *[class*='x-message-box-'] {
   background-position: 12px 4px;
 }
@@ -12470,7 +12497,7 @@ div.x-form-spinner-down {
   border-width: 1px !important;
 }
 
-/* line 95, ../../sass/src/window/MessageBox.scss */
+/* line 94, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-error .x-window-body .x-header .x-header-text {
   color: #eb5642;
 }
@@ -13852,7 +13879,7 @@ div.x-form-spinner-down {
   border-width: 1px !important;
 }
 
-/* line 123, ../../sass/src/window/MessageBox.scss */
+/* line 122, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-success .x-window-body .x-header .x-header-text {
   color: #74af74;
 }
@@ -15234,7 +15261,7 @@ div.x-form-spinner-down {
   border-width: 1px !important;
 }
 
-/* line 150, ../../sass/src/window/MessageBox.scss */
+/* line 149, ../../sass/src/window/MessageBox.scss */
 .x-window-message-error .x-message-box-error {
   background-position: 12px 4px;
 }
