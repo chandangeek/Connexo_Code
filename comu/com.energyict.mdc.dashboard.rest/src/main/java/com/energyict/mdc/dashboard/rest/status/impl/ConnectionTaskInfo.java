@@ -47,8 +47,8 @@ public class ConnectionTaskInfo {
     public static ConnectionTaskInfo from(ConnectionTask<?, ?> connectionTask, Optional<ComSession> lastComSessionOptional, List<ComTaskExecution> comTaskExecutions, Thesaurus thesaurus) throws Exception {
         ConnectionTaskInfo info = new ConnectionTaskInfo();
         info.device=new IdWithNameInfo(connectionTask.getDevice().getmRID(), connectionTask.getDevice().getName());
-        info.deviceType=new IdWithNameInfo(connectionTask.getDevice().getDeviceType().getId(), connectionTask.getDevice().getDeviceType().getName());
-        info.deviceConfiguration=new IdWithNameInfo(connectionTask.getDevice().getDeviceConfiguration().getId(), connectionTask.getDevice().getDeviceConfiguration().getName());
+        info.deviceType=new IdWithNameInfo(connectionTask.getDevice().getDeviceType());
+        info.deviceConfiguration=new IdWithNameInfo(connectionTask.getDevice().getDeviceConfiguration());
         info.currentState = null;// TODO wait for merge
 
         info.latestStatus=new LatestStatusInfo();
@@ -77,17 +77,18 @@ public class ConnectionTaskInfo {
         info.communicationTasks.count=comTaskExecutions.size();
         info.communicationTasks.communicationsTasks= ComTaskExecutionInfo.from(comTaskExecutions, thesaurus);
 
-        info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool().getId(), connectionTask.getComPortPool().getName());
+        info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
         info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),null);
         info.connectionType = ConnectionTypeRule.getConnectionTypeName(connectionTask.getConnectionType().getClass()).orNull();
         info.connectionMethod = new IdWithNameInfo();
+        info.connectionMethod.id = connectionTask.getPartialConnectionTask().getId();
         info.connectionMethod.name = connectionTask.getPartialConnectionTask().getName();
         if (connectionTask.isDefault()) {
             info.connectionMethod.name+="( "+thesaurus.getString("default", "default")+" )";
         }
         ComServer executingComServer = connectionTask.getExecutingComServer();
         if (executingComServer!=null) {
-            info.comServer = new IdWithNameInfo(executingComServer.getId(), executingComServer.getName());
+            info.comServer = new IdWithNameInfo(executingComServer);
         }
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;

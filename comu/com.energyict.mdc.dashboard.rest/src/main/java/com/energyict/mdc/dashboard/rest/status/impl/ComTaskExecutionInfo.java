@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+import com.energyict.mdc.tasks.ComTask;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,10 +33,10 @@ public class ComTaskExecutionInfo {
 
     public static ComTaskExecutionInfo from(ComTaskExecution comTaskExecution, Thesaurus thesaurus) throws Exception {
         ComTaskExecutionInfo info = new ComTaskExecutionInfo();
-        info.name=null;
+        info.name=buildName(comTaskExecution.getComTasks());
         info.device=new IdWithNameInfo(comTaskExecution.getDevice().getmRID(), comTaskExecution.getDevice().getName());
-        info.deviceConfiguration=new IdWithNameInfo(comTaskExecution.getDevice().getDeviceConfiguration().getId(), comTaskExecution.getDevice().getDeviceConfiguration().getName());
-        info.deviceType=new IdWithNameInfo(comTaskExecution.getDevice().getDeviceType().getId(), comTaskExecution.getDevice().getDeviceType().getName());
+        info.deviceConfiguration=new IdWithNameInfo(comTaskExecution.getDevice());
+        info.deviceType=new IdWithNameInfo(comTaskExecution.getDevice().getDeviceType());
         if (comTaskExecution instanceof ScheduledComTaskExecution) {
             ComSchedule comSchedule = ((ScheduledComTaskExecution) comTaskExecution).getComSchedule();
             info.comScheduleName=comSchedule.getName();
@@ -51,6 +52,24 @@ public class ComTaskExecutionInfo {
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
 
         return info;
+    }
+
+    /**
+     * Turns list of names A,B,C into "A + B + C"
+     * @param comTasks
+     * @return
+     */
+
+    private static String buildName(List<ComTask> comTasks) {
+        StringBuilder name = new StringBuilder();
+        for (ComTask comTask : comTasks) {
+            if (name.length()>0) {
+                name.append(" + ");
+            }
+            name.append(comTask.getName());
+        }
+
+        return null;
     }
 
     public static List<ComTaskExecutionInfo> from(List<ComTaskExecution> comTaskExecutions, Thesaurus thesaurus) throws Exception {
