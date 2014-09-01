@@ -1,0 +1,24 @@
+{
+    "data": [
+        {
+            "name": "FakeName1",
+            "localizedValue": "FakeValue1"
+        },
+        {
+            "name": "FakeName2",
+            "localizedValue": "FakeValue2"
+        },
+        {
+            "name": "FakeName3",
+            "localizedValue": "FakeValue3"
+        },
+        {
+            "name": "FakeName4",
+            "localizedValue": "FakeValue4"
+        },
+        {
+            "name": "FakeName5",
+            "localizedValue": "FakeValue5"
+        }
+    ]
+}

@@ -7,7 +7,8 @@ Ext.define('Dsh.view.widget.SideFilter', {
     ui: 'medium',
     requires: [
         'Uni.component.filter.view.Filter',
-        'Dsh.store.ConnectionCurrentStates'
+        'Dsh.store.ConnectionCurrentStates',
+        'Dsh.view.widget.common.SideFilterCombo'
     ],
     items: [
         {
@@ -18,51 +19,51 @@ Ext.define('Dsh.view.widget.SideFilter', {
                 align: 'stretch'
             },
             defaults: {
-                xtype: 'combobox',
+                xtype: 'side-filter-combo',
                 labelAlign: 'top'
             },
             items: [
                 {
+                    itemId: 'device-group',
                     name: 'deviceGroup',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group')
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
+                    url: 'http://localhost:8080/apps/dashboard/app/fakeData/BaseFilterFake.json'
                 },
                 {
+                    itemId: 'current-state',
                     name: 'currentState',
-                    store: 'Dsh.store.ConnectionCurrentStates',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.currentState', 'DSH', 'Current state'),
-                    displayField: 'localizedValue',
-                    valueField: 'name',
-                    forceSelection: false,
-                    editable: false,
-                    allowBlank: true,
-                    multiSelect: true,
-                    queryMode: 'local',
-                    triggerAction: 'all',
-                    listConfig: {
-                        getInnerTpl: function () {
-                            return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {name} </div>';
-                        }
-                    }
+                    url: 'http://localhost:8080/apps/dashboard/app/fakeData/CurrentStateFilterFake.json'
                 },
                 {
+                    itemId: 'latest-status',
                     name: 'latestStatus',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestStatus', 'DSH', 'Latest status')
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestStatus', 'DSH', 'Latest status'),
+                    url: 'http://localhost:8080/apps/dashboard/app/fakeData/BaseFilterFake.json'
                 },
                 {
+                    itemId: 'latest-result',
                     name: 'latestResult',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result')
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result'),
+                    url: 'http://localhost:8080/apps/dashboard/app/fakeData/BaseFilterFake.json'
                 },
                 {
+                    itemId: 'comport-pool',
                     name: 'comPortPool',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.comPortPool', 'DSH', 'Communication port pool')
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.comPortPool', 'DSH', 'Communication port pool'),
+                    url: 'http://localhost:8080/apps/dashboard/app/fakeData/BaseFilterFake.json'
                 },
                 {
+                    itemId: 'connection-type',
                     name: 'connectionType',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Connection type')
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Connection type'),
+                    url: 'http://localhost:8080/apps/dashboard/app/fakeData/BaseFilterFake.json'
                 },
                 {
+                    itemId: 'device-type',
                     name: 'deviceType',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceType', 'DSH', 'Device type')
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceType', 'DSH', 'Device type'),
+                    url: 'http://localhost:8080/apps/dashboard/app/fakeData/BaseFilterFake.json'
                 }
             ],
             dockedItems: [
