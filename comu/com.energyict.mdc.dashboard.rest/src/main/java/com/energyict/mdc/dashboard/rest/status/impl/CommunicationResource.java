@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -45,12 +46,14 @@ public class CommunicationResource {
     private final Thesaurus thesaurus;
     private final DeviceDataService deviceDataService;
     private final SchedulingService schedulingService;
+    private final TaskService taskService;
 
     @Inject
-    public CommunicationResource(Thesaurus thesaurus, DeviceDataService deviceDataService, SchedulingService schedulingService) {
+    public CommunicationResource(Thesaurus thesaurus, DeviceDataService deviceDataService, SchedulingService schedulingService, TaskService taskService) {
         this.thesaurus = thesaurus;
         this.deviceDataService = deviceDataService;
         this.schedulingService = schedulingService;
+        this.taskService = taskService;
     }
 
     @GET
@@ -86,6 +89,12 @@ public class CommunicationResource {
             filter.comSchedules.addAll(getObjectsByIdFromList(comScheduleIds, schedulingService.findAllSchedules()));
         }
 
+        filter.comTasks = new HashSet<>();
+        if (filterProperties.containsKey(COM_TASKS)) {
+            String[] comTaskIds = filterProperties.get(COM_TASKS).split(",");
+            filter.comTasks.addAll(getObjectsByIdFromList(comTaskIds, taskService.findAllComTasks()));
+        }
+
         if (filterProperties.containsKey(START_INTERVAL_FROM) || filterProperties.containsKey(START_INTERVAL_TO)) {
             Date start=null;
             Date end=null;
@@ -110,8 +119,6 @@ public class CommunicationResource {
             filter.lastSessionEnd=new Interval(start, end);
         }
 
-
-
         return filter;
     }
 
@@ -120,7 +127,7 @@ public class CommunicationResource {
         for (H object : objects) {
             String objectIdString = ""+object.getId();
             for (String id : ids) {
-                if (objectIdString.equals(id)) {
+                if (objectIdString.equals(id.trim())) {
                     selectedObjects.add(object);
                 }
             }

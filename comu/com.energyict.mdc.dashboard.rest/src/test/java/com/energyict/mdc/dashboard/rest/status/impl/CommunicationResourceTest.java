@@ -30,6 +30,8 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.google.common.base.Optional;
 import java.util.Arrays;
@@ -80,6 +82,8 @@ public class CommunicationResourceTest extends JerseyTest {
     private DeviceDataService deviceDataService;
     @Mock
     private SchedulingService schedulingService;
+    @Mock
+    private TaskService taskService;
 
     @Before
     public void setupMocks () {
@@ -119,6 +123,7 @@ public class CommunicationResourceTest extends JerseyTest {
                 bind(thesaurus).to(Thesaurus.class);
                 bind(deviceDataService).to(DeviceDataService.class);
                 bind(schedulingService).to(SchedulingService.class);
+                bind(taskService).to(TaskService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
                 bind(BreakdownFactory.class).to(BreakdownFactory.class);
@@ -178,6 +183,23 @@ public class CommunicationResourceTest extends JerseyTest {
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().comSchedules).contains(comSchedule2).contains(comSchedule3).hasSize(2);
+    }
+
+    @Test
+    public void testComTasksAddedToFilter() throws Exception {
+        ComTask comTask1 = mock(ComTask.class);
+        when(comTask1.getId()).thenReturn(11L);
+        ComTask comTask2 = mock(ComTask.class);
+        when(comTask2.getId()).thenReturn(12L);
+        ComTask comTask3 = mock(ComTask.class);
+        when(comTask3.getId()).thenReturn(13L);
+        when(taskService.findAllComTasks()).thenReturn(Arrays.asList(comTask1, comTask2, comTask3));
+
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comTasks", "13,12")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+
+        ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
+        verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().comTasks).contains(comTask2).contains(comTask3).hasSize(2);
     }
 
     @Test
