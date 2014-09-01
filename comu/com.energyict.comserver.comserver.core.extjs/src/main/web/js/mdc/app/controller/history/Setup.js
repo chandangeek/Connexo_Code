@@ -991,7 +991,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                         },
                                         data: {
                                             title: 'Logbook data',
-                                            route: 'data'
+                                            route: 'data',
+                                            controller: 'Mdc.controller.setup.DeviceLogbookData',
+                                            action: 'showOverview'
                                         }
                                     }
                                 }
