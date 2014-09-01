@@ -1,7 +1,5 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.elster.jupiter.orm.callback.InstallService;
-import com.energyict.mdc.common.rest.AutoCloseDatabaseConnection;
 import com.energyict.mdc.common.rest.Installer;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -13,6 +11,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
@@ -43,7 +42,7 @@ public class MdcPluggableRestApplication extends Application implements InstallS
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(AutoCloseDatabaseConnection.class,
+        return ImmutableSet.of(
                 TransactionWrapper.class,
                 ConstraintViolationExceptionMapper.class,
                 DeviceCommunicationProtocolsResource.class,
