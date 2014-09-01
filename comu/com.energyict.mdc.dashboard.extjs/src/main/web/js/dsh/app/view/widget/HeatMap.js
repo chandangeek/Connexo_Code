@@ -20,7 +20,6 @@ Ext.define('Dsh.view.widget.HeatMap', {
         },
         '->'
     ],
-
     items: {
         xtype: 'box',
         minHeight: 400,
@@ -30,7 +29,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
     setChartData: function (data) {
         var me = this;
         me.chart.series[0].setData([], true);
-       Ext.defer(me.chart.series[0].setData(data, true), 100)
+        me.chart.series[0].setData(data, true);
     },
 
     setXAxis: function (categories, title) {
@@ -52,7 +51,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
         store.each(function (rec) {
             Ext.each(rec.data.data, function (item) {
                 var count = item.count,
-                    value = count == 0 ? count : count.toString();
+                    value = (count == 0 ? count.toString() : count);
                 data.push([x, y, value]);
                 ++y;
             });
@@ -86,7 +85,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
             xTitle = '',
             store = Ext.getStore('Dsh.store.ConnectionResultsStore');
         this.callParent(arguments);
-        store.on('load', function (store, records) {
+        store.on('load', function () {
             me.loadChart(store, xTitle)
         });
         var combo = me.getCombo(),

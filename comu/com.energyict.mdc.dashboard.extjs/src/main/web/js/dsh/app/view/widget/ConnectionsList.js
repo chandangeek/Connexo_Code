@@ -82,8 +82,9 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             },
             {
                 itemId: 'action',
-                xtype: 'uni-actioncolumn',
-                items: 'Dsh.view.widget.ActionMenu'
+                xtype: 'uni-actioncolumn'
+//                ,
+//                items: 'Dsh.view.widget.ActionMenu'
             }
         ]
     },
@@ -95,20 +96,21 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             store: 'Dsh.store.ConnectionTasks',
             displayMsg: Uni.I18n.translate('connection.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} connections'),
             displayMoreMsg: Uni.I18n.translate('connection.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} connections'),
-            emptyMsg: Uni.I18n.translate('connection.widget.details.emptyMsg', 'DSH', 'There are no connections to display'),
-            items: [
-                '->',
-                {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.title.bulkActions', 'DSH', 'Choose columns'),
-                    action: 'bulkchangesissues'
-                },
-                {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.title.bulkActions', 'DSH', 'Bulk action'),
-                    action: 'bulkchangesissues'
-                }
-            ]
+            emptyMsg: Uni.I18n.translate('connection.widget.details.emptyMsg', 'DSH', 'There are no connections to display')
+//            ,
+//            items: [
+//                '->',
+//                {
+//                    xtype: 'button',
+//                    text: Uni.I18n.translate('general.title.bulkActions', 'DSH', 'Choose columns'),
+//                    action: 'choosecolumnsaction'
+//                },
+//                {
+//                    xtype: 'button',
+//                    text: Uni.I18n.translate('general.title.bulkActions', 'DSH', 'Bulk action'),
+//                    action: 'bulkchangesissues'
+//                }
+//            ]
         },
         {
             itemId: 'pagingtoolbarbottom',

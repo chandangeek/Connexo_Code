@@ -7,14 +7,14 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
         type: 'column'
     },
     tools: [
-        {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
-            menu: {
-                xtype: 'dsh-action-menu'
-            }
-        }
+//        {
+//            xtype: 'button',
+//            text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
+//            iconCls: 'x-uni-action-iconD',
+//            menu: {
+//                xtype: 'dsh-action-menu'
+//            }
+//        }
     ],
     items: [
         {

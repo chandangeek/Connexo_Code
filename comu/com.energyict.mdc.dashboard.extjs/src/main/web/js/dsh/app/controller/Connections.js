@@ -3,11 +3,13 @@ Ext.define('Dsh.controller.Connections', {
     models: [
         'Dsh.model.ConnectionTask',
         'Dsh.model.CommTasks',
-        'Dsh.model.CommunicationTask'
+        'Dsh.model.CommunicationTask',
+        'Dsh.model.ConnectionCurrentState'
     ],
     stores: [
         'Dsh.store.ConnectionTasks',
-        'Dsh.store.CommunicationTasks'
+        'Dsh.store.CommunicationTasks',
+        'Dsh.store.ConnectionCurrentStates'
     ],
     views: [
         'Dsh.view.Connections',

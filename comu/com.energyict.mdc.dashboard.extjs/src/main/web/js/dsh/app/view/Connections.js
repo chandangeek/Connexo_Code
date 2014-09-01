@@ -1,11 +1,11 @@
 Ext.define('Dsh.view.Connections', {
     extend: 'Uni.view.container.ContentContainer',
-    //   extend: 'Ext.container.Container',
     alias: 'widget.connections-details',
     itemId: 'connectionsdetails',
     requires: [
         'Dsh.view.widget.ConnectionsList',
-        'Dsh.view.widget.PreviewConnection'
+        'Dsh.view.widget.PreviewConnection',
+        'Dsh.view.widget.SideFilter'
     ],
     content: [
         {
@@ -40,6 +40,11 @@ Ext.define('Dsh.view.Connections', {
         {
             xtype: 'container',
             itemId: 'communicationcontainer'
+        }
+    ],
+    side: [
+        {
+            xtype: 'dsh-side-filter'
         }
     ],
     initComponent: function () {

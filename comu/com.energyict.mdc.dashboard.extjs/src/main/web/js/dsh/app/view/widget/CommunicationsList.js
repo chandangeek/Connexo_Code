@@ -73,8 +73,8 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
             },
             {
                 itemId: 'action',
-                xtype: 'uni-actioncolumn',
-                items: 'Dsh.view.widget.ActionMenu'
+                xtype: 'uni-actioncolumn'
+//                ,items: 'Dsh.view.widget.ActionMenu'
             }
         ]
     }
