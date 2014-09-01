@@ -173,23 +173,24 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     previewCommunicationSchedule: function () {
-        var communicationSchedules = this.getCommunicationSchedulesGrid().getSelectionModel().getSelection();
-        var me = this;
-        if (communicationSchedules.length == 1) {
-            this.getCommunicationSchedulePreviewForm().loadRecord(communicationSchedules[0]);
-            me.getCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').removeAll();
-            if (communicationSchedules[0].comTaskUsages().data.items.length === 0) {
-                me.getCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
-                    xtype: 'displayfield'
-                });
-            } else {
-                Ext.each(communicationSchedules[0].comTaskUsages().data.items, function (comTaskUsage) {
-                    me.getCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
-                        xtype: 'displayfield',
-                        value: '<a>' + comTaskUsage.get('name') + '</a>'
-                    })
-                });
-            }
+        var communicationSchedule = this.getCommunicationSchedulesGrid().getSelectionModel().getLastSelected(),
+            preview = this.getCommunicationSchedulePreview(),
+            previewForm = this.getCommunicationSchedulePreviewForm();
+
+        preview.setTitle(communicationSchedule.get('name'));
+        previewForm.loadRecord(communicationSchedule);
+        previewForm.down('#comTaskPreviewContainer').removeAll();
+        if (communicationSchedule.comTaskUsages().data.items.length === 0) {
+            previewForm.down('#comTaskPreviewContainer').add({
+                xtype: 'displayfield'
+            });
+        } else {
+            Ext.each(communicationSchedule.comTaskUsages().data.items, function (comTaskUsage) {
+                previewForm.down('#comTaskPreviewContainer').add({
+                    xtype: 'displayfield',
+                    value: '<a>' + comTaskUsage.get('name') + '</a>'
+                })
+            });
         }
     },
 
@@ -285,10 +286,14 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     addCommunicationTasksToSchedule: function () {
-        var selection = this.getCommunicationTaskGrid().getSelectionModel().getSelection(),
+        var grid =  this.getCommunicationTaskGrid(),
             form = this.getCommunicationScheduleEditForm(),
-            hasComTasks;
+            hasComTasks,
+            selection;
 
+        grid.isAllSelected() && grid.getSelectionModel().selectAll();
+
+        selection = grid.getSelectionModel().getSelection();
         this.record.comTaskUsages().add(selection);
         this.comTaskStore.remove(selection);
         this.getCommunicationScheduleEditForm().down('#comTasksOnForm').reconfigure(this.record.comTaskUsages());

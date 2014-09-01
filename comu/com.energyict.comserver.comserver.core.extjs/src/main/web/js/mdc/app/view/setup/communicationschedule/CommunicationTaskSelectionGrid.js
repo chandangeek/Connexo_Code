@@ -11,7 +11,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
     ],
     radioHidden: true,
     bottomToolbarHidden: true,
-    height: 300,
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
             'communicationtask.communicationTask',
@@ -29,5 +28,27 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
             fixed: true,
             flex: 0.9
         }
-    ]
+    ],
+
+    initComponent: function () {
+        var me = this;
+
+        me.callParent(arguments);
+        me.getSelectionGroupType().on('change', me.onChangeSelection, me);
+    },
+
+    onChangeSelection: function () {
+        var me = this,
+            selectionModel = me.view.getSelectionModel(),
+            selection = selectionModel.getSelection(),
+            comTaskWindow = me.up('#addCommunicationTaskWindow'),
+            preview = comTaskWindow.down('addCommunicationTaskPreview');
+
+        if (!me.isAllSelected() && selection.length != 0) {
+            preview.show();
+        } else {
+            preview.hide();
+        }
+    }
+
 });

@@ -296,6 +296,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     removeDeviceType: function (btn, text, opt) {
         if (btn === 'confirm') {
             var deviceTypeToDelete = opt.config.deviceTypeToDelete;
+            var me = opt.config.me;
 
             deviceTypeToDelete.destroy({
                 success: function () {
