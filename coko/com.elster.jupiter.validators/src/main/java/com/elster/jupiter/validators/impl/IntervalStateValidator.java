@@ -108,7 +108,7 @@ class IntervalStateValidator extends AbstractValidator {
         return Arrays.asList(INTERVAL_FLAGS);
     }
     
-    private class IntervalFlag implements ListValueEntry {
+    class IntervalFlag implements ListValueEntry {
         
         private Flag flag;
         private String id;
