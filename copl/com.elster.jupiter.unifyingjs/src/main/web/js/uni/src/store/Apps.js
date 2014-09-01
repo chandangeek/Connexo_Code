@@ -22,7 +22,7 @@ Ext.define('Uni.store.Apps', {
         {
             name: 'Lorem ipsum',
             icon: 'connexo',
-            url: '#'
+            url: '/apps/master/index.html'
         },
         {
             name: 'Vivamus consequat',
