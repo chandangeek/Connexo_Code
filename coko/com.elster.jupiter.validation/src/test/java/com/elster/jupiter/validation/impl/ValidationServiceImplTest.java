@@ -28,7 +28,6 @@ import com.elster.jupiter.util.time.ProgrammableClock;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.MeterActivationValidation;
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
@@ -186,13 +185,7 @@ public class ValidationServiceImplTest {
         }
         if (!validationRules.isEmpty()) {
             when(allValidationRuleQuery.select(any(Condition.class))).thenReturn(validationRules);
-            final List<? extends ValidationRule> stuff = new ArrayList<>(validationRules);
-            when(validationRuleSet.getRules()).then(new Answer<Object>() {
-                @Override
-                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    return stuff;
-                }
-            });
+            doReturn(validationRules).when(validationRuleSet).getRules();
         }
     }
 
