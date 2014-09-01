@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.web;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
@@ -55,20 +54,6 @@ public class ComServlet extends HttpServlet {
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.serviceProvider = serviceProvider;
-    }
-
-    public void service (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            super.service(request, response);
-        }
-        finally {
-            this.endService(request, response);
-        }
-    }
-
-    private void endService(HttpServletRequest request , HttpServletResponse response) {
-        // Return the connection to the pool
-        Environment.DEFAULT.get().closeConnection();
     }
 
     @Override

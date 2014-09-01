@@ -11,6 +11,8 @@ import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
 
+import com.elster.jupiter.transaction.Transaction;
+
 import java.util.Calendar;
 
 /**
@@ -45,10 +47,25 @@ public abstract class ScheduledJobImpl extends JobExecution {
 
     @Override
     protected ComPortRelatedComChannel findOrCreateComChannel() throws ConnectionException {
-        return new ComPortRelatedComChannelImpl(
-                        this.getConnectionTask().connect(this.getComPort()),
-                        this.getComPort(),
-                        this.getServiceProvider().hexService());
+        try {
+            return this.getServiceProvider().transactionService().execute(new Transaction<ComPortRelatedComChannel>() {
+                @Override
+                public ComPortRelatedComChannel perform() {
+                    try {
+                        return new ComPortRelatedComChannelImpl(
+                                getConnectionTask().connect(getComPort()),
+                                getComPort(),
+                                getServiceProvider().hexService());
+                    }
+                    catch (ConnectionException e) {
+                        throw new LocalConnectionException(e);
+                    }
+                }
+            });
+        }
+        catch (LocalConnectionException e) {
+            throw e.getCause();
+        }
     }
 
     @Override
@@ -139,4 +156,14 @@ public abstract class ScheduledJobImpl extends JobExecution {
         }
     }
 
+    private class LocalConnectionException extends RuntimeException {
+        private LocalConnectionException(ConnectionException cause) {
+            super(cause);
+        }
+
+        @Override
+        public ConnectionException getCause() {
+            return (ConnectionException) super.getCause();
+        }
+    }
 }

@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.FakeServiceProvider;
+import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -28,6 +29,7 @@ import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
+import com.elster.jupiter.transaction.impl.TransactionServiceImpl;
 import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.protocols.mdc.services.impl.HexServiceImpl;
 import org.hamcrest.BaseMatcher;
@@ -87,6 +89,7 @@ public class InboundCommunicationHandlerStatisticsTest {
         this.serviceProvider.setIssueService(new IssueServiceImpl(clock));
         this.serviceProvider.setHexService(new HexServiceImpl());
         this.serviceProvider.setDeviceDataService(this.deviceDataService);
+        this.serviceProvider.setTransactionService(new FakeTransactionService());
         when(this.deviceDataService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Date.class))).thenReturn(comSessionBuilder);
         ServiceProvider.instance.set(this.serviceProvider);
     }
