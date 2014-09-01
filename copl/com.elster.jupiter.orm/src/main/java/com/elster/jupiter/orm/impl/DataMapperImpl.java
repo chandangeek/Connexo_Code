@@ -262,6 +262,13 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	@Override
 	// note that this will not fill back auto increment columns.
 	public void persist(List<T> objects)  {
+		if (objects.isEmpty()) {
+			return;
+		}
+		if (objects.size() == 1) {
+			persist(objects.get(0));
+			return;
+		}
 		preventIfChild();
 		// do not cache object at this time, as tx may rollback
 		try {
@@ -312,6 +319,13 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	
 	@Override
 	public void update(List<T> objects , String... fieldNames)  {
+		if (objects.isEmpty()) {
+			return;
+		}
+		if (objects.size() == 1) {
+			update(objects.get(0),fieldNames);
+			return;
+		}
 		update(objects,getUpdateColumns(fieldNames));
 	}
 	
