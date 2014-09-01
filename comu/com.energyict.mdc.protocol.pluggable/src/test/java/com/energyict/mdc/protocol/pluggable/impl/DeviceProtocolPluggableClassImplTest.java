@@ -128,7 +128,6 @@ public class DeviceProtocolPluggableClassImplTest {
 
     private DataModel dataModel;
     private InMemoryBootstrapModule bootstrapModule;
-    private Connection toClose;
 
     @Before
     public void initializeDatabase() throws SQLException {
@@ -162,6 +161,7 @@ public class DeviceProtocolPluggableClassImplTest {
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
             dataModel = ((ProtocolPluggableServiceImpl) protocolPluggableService).getDataModel();
+            createOracleMetaDataTables(dataModel.getConnection(true));
             ctx.commit();
         }
         Environment environment = injector.getInstance(Environment.class);
@@ -192,8 +192,6 @@ public class DeviceProtocolPluggableClassImplTest {
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(applicationContext.getTranslator()).thenReturn(translator);
         environment.setApplicationContext(applicationContext);
-        toClose = environment.getConnection();
-        createOracleMetaDataTables(toClose);
     }
 
     private static void createOracleMetaDataTables(Connection connection) throws SQLException {
@@ -236,7 +234,6 @@ public class DeviceProtocolPluggableClassImplTest {
                 }
             });
         }
-        toClose.close();
         bootstrapModule.deactivate();
     }
 
