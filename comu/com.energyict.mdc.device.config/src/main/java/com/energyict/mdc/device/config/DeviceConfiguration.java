@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config;
 
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.HasId;
@@ -10,7 +11,6 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
-
 import java.util.List;
 import java.util.Set;
 
@@ -18,7 +18,7 @@ import java.util.Set;
  * User: gde
  * Date: 5/11/12
  */
-public interface DeviceConfiguration extends HasId, DeviceCommunicationConfiguration {
+public interface DeviceConfiguration extends HasId, HasName, DeviceCommunicationConfiguration {
 
 
     /**
