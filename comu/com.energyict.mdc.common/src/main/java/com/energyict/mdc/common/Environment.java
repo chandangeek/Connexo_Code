@@ -28,8 +28,6 @@ public interface Environment extends FormatProvider {
 
     public Connection getConnection ();
 
-    public Connection getUnwrappedConnection ();
-
     public String getProperty (String key, String defaultValue);
 
     public String getProperty (String key);

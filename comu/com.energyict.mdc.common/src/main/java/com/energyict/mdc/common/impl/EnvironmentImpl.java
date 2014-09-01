@@ -1,7 +1,6 @@
 package com.energyict.mdc.common.impl;
 
 import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.BusinessException;
@@ -13,7 +12,6 @@ import com.energyict.mdc.common.Transaction;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
-import oracle.jdbc.OracleConnection;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,16 +20,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -201,11 +194,6 @@ public class EnvironmentImpl implements Environment {
     @Override
     public Connection getConnection () {
         return this.getTransactionContext().getConnection();
-    }
-
-    @Override
-    public Connection getUnwrappedConnection () {
-        return new ConnectionUnwrapper().unwrap(this.getConnection());
     }
 
     @Override
@@ -385,68 +373,6 @@ public class EnvironmentImpl implements Environment {
         protected GlobalNamedObjects () {
             super(Collections.synchronizedMap(new HashMap<String, Object>()));
         }
-    }
-
-    private class ConnectionUnwrapper {
-
-        public OracleConnection unwrap (Connection connection) {
-            if (connection == null) {
-                return null;
-            }
-            if (connection instanceof OracleConnection) {
-                return (OracleConnection) connection;
-            }
-            try {
-                DatabaseMetaData metaData = connection.getMetaData();
-                if (metaData != null) {
-                    Connection metaDataConnection = metaData.getConnection();
-                    OracleConnection unwrapped = this.unwrap(metaDataConnection);
-                    if (unwrapped != null) {
-                        return unwrapped;
-                    }
-                }
-                else {
-                /* No metadata provided, try to find a related connection
-                 * via getter methods and unwrap the result. */
-                    Connection related = this.findWrappedConnection(connection);
-                    if (related != null) {
-                        return this.unwrap(related);
-                    }
-                }
-            }
-            catch (SQLException e) {
-                throw new ApplicationException("Cannot unwrap connection");
-            }
-            throw new ApplicationException("Cannot unwrap connection");
-        }
-
-        private Connection findWrappedConnection (Connection connection) {
-            for (Method method : this.getConnectionGetterMethods(connection)) {
-                try {
-                    return (java.sql.Connection) (method.invoke(connection));
-                }
-                catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
-                    // Happy to ignore this and continue with the other getter methods
-                }
-            }
-            return null;
-        }
-
-        private List<Method> getConnectionGetterMethods (Connection connection) {
-            List<Method> methods = new ArrayList<>();
-            for (Method method : connection.getClass().getMethods()) {
-                if (this.isConnectionGetterMethod(method)) {
-                    methods.add(method);
-                }
-            }
-            return methods;
-        }
-
-        private boolean isConnectionGetterMethod (Method method) {
-            return method.getReturnType().isAssignableFrom(Connection.class)
-                    && method.getParameterTypes().length == 0;
-        }
-
     }
 
 }

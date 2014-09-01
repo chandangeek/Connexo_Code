@@ -2,10 +2,10 @@ package com.energyict.mdc.common.impl;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.DatabaseException;
-import com.energyict.mdc.common.JmsSessionContext;
 import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.common.TransactionResource;
 import com.energyict.mdc.common.TransactionSequenceException;
+
 import com.elster.jupiter.transaction.TransactionService;
 
 import javax.sql.DataSource;
@@ -18,7 +18,6 @@ import java.sql.SQLException;
 public class TransactionContext {
 
     private int nestCount = 0;
-    private JmsSessionContext jmsSessionContext;
     private DataSource dataSource;
     private Connection connection;
 
@@ -55,19 +54,11 @@ public class TransactionContext {
             success = true;
         }
         finally {
-            try {
-                if (success) {
-                    resource.commit();
-                }
-                else {
-                    this.doRollback(resource);
-                }
+            if (success) {
+                resource.commit();
             }
-            finally {
-                if (jmsSessionContext != null) {
-                    jmsSessionContext.close();
-                    jmsSessionContext = null;
-                }
+            else {
+                this.doRollback(resource);
             }
         }
     }
@@ -101,13 +92,6 @@ public class TransactionContext {
         return this.nestCount == 0;
     }
 
-    public JmsSessionContext getJmsSessionContext () {
-        if (jmsSessionContext == null) {
-            jmsSessionContext = new JmsSessionContext();
-        }
-        return jmsSessionContext;
-    }
-
     public Connection getConnection () {
         if (this.isFinished() && ((this.connection == null || this.isClosed(this.connection)))) {
             this.obtainConnection();
@@ -121,15 +105,6 @@ public class TransactionContext {
         }
         catch (SQLException e) {
             // Really?
-            throw new DatabaseException(e);
-        }
-    }
-
-    public Connection getRelationConnection () {
-        try {
-            return this.dataSource.getConnection();
-        }
-        catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
