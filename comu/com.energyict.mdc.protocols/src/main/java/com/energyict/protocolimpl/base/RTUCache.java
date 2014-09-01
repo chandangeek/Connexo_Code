@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.common.BusinessException;
-
 import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.io.IOException;
@@ -26,7 +24,7 @@ public class RTUCache {
         return Bus.getOrmClient().getCacheObject(this.deviceId);
     }
 
-    public synchronized void setBlob(final Object cacheObject) throws SQLException, BusinessException {
+    public synchronized void setBlob(final Object cacheObject) throws SQLException {
         Bus.getOrmClient().setCacheObject(this.deviceId, cacheObject);
 	}
 

@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Transaction;
 
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
@@ -27,17 +26,35 @@ public class RtuDLMS {
     }
 
     public void saveObjectList(final int confProgChange, final UniversalObject[] universalObject) throws BusinessException, SQLException {
-        Transaction tr = new Transaction() {
-            public Object doExecute() throws SQLException {
+        try {
+            Bus.getOrmClient().execute(new VoidTransaction() {
+                @Override
+                protected void doPerform() {
+                    try {
+                        RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
+                        rtuCache.saveObjectList(universalObject);
+                        RtuDLMS.this.setConfProgChange(confProgChange);
+                    }
+                    catch (SQLException e) {
+                        throw new LocalSQLException(e);
+                    }
+                }
+            });
+        }
+        catch (LocalSQLException e) {
+            throw e.getCause();
+        }
+    }
 
-                RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-                rtuCache.saveObjectList(universalObject);
-                RtuDLMS.this.setConfProgChange(confProgChange);
+    private class LocalSQLException extends RuntimeException {
+        private LocalSQLException(SQLException cause) {
+            super(cause);
+        }
 
-                return null;
-            }
-        };
-        Environment.DEFAULT.get().execute(tr);
+        @Override
+        public SQLException getCause() {
+            return (SQLException) super.getCause();
+        }
     }
 
 }

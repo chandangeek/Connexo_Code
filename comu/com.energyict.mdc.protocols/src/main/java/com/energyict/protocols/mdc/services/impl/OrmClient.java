@@ -2,6 +2,7 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.mdc.common.BusinessException;
 
+import com.elster.jupiter.transaction.Transaction;
 import com.energyict.dlms.UniversalObject;
 
 import java.io.IOException;
@@ -27,5 +28,7 @@ public interface OrmClient {
     public UniversalObject[] getUniversalObjectList (int deviceId) throws SQLException;
 
     public void saveUniversalObjectList(int deviceId, UniversalObject... universalObjects) throws SQLException;
+
+    public <T> T execute(Transaction<T> transaction);
 
 }

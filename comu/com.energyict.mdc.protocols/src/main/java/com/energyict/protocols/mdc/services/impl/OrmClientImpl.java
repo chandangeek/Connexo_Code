@@ -5,6 +5,7 @@ import com.energyict.mdc.common.NotFoundException;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -297,6 +298,11 @@ public class OrmClientImpl implements OrmClient {
         try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
             statement.executeUpdate();
         }
+    }
+
+    @Override
+    public <T> T execute(Transaction<T> transaction) {
+        return this.transactionService.execute(transaction);
     }
 
     private boolean isIntegrityConstraintViolation(SQLException e) {
