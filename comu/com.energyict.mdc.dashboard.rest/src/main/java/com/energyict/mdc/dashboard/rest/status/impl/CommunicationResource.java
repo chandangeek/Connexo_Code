@@ -6,6 +6,7 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
@@ -46,13 +47,15 @@ public class CommunicationResource {
     private final Thesaurus thesaurus;
     private final DeviceDataService deviceDataService;
     private final SchedulingService schedulingService;
+    private final DeviceConfigurationService deviceConfigurationService;
     private final TaskService taskService;
 
     @Inject
-    public CommunicationResource(Thesaurus thesaurus, DeviceDataService deviceDataService, SchedulingService schedulingService, TaskService taskService) {
+    public CommunicationResource(Thesaurus thesaurus, DeviceDataService deviceDataService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService) {
         this.thesaurus = thesaurus;
         this.deviceDataService = deviceDataService;
         this.schedulingService = schedulingService;
+        this.deviceConfigurationService = deviceConfigurationService;
         this.taskService = taskService;
     }
 
@@ -94,6 +97,13 @@ public class CommunicationResource {
             String[] comTaskIds = filterProperties.get(COM_TASKS).split(",");
             filter.comTasks.addAll(getObjectsByIdFromList(comTaskIds, taskService.findAllComTasks()));
         }
+
+        filter.deviceTypes = new HashSet<>();
+        if (filterProperties.containsKey(DEVICE_TYPES)) {
+            String[] deviceTypeIds = filterProperties.get(DEVICE_TYPES).split(",");
+            filter.deviceTypes.addAll(getObjectsByIdFromList(deviceTypeIds, deviceConfigurationService.findAllDeviceTypes().find()));
+        }
+
 
         if (filterProperties.containsKey(START_INTERVAL_FROM) || filterProperties.containsKey(START_INTERVAL_TO)) {
             Date start=null;

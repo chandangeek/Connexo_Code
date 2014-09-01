@@ -13,7 +13,10 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
@@ -83,6 +86,8 @@ public class CommunicationResourceTest extends JerseyTest {
     @Mock
     private SchedulingService schedulingService;
     @Mock
+    private DeviceConfigurationService deviceConfigurationService;
+    @Mock
     private TaskService taskService;
 
     @Before
@@ -123,6 +128,7 @@ public class CommunicationResourceTest extends JerseyTest {
                 bind(thesaurus).to(Thesaurus.class);
                 bind(deviceDataService).to(DeviceDataService.class);
                 bind(schedulingService).to(SchedulingService.class);
+                bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(taskService).to(TaskService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
@@ -139,23 +145,23 @@ public class CommunicationResourceTest extends JerseyTest {
         super.configureClient(config);
     }
 
-//    @Test
-//    public void testDeviceTypesAddedToFilter() throws Exception {
-//        DeviceType deviceType1 = mock(DeviceType.class);
-//        DeviceType deviceType2 = mock(DeviceType.class);
-//        DeviceType deviceType3 = mock(DeviceType.class);
-//
-//        when(deviceConfigurationService.findDeviceType(101L)).thenReturn(deviceType1);
-//        when(deviceConfigurationService.findDeviceType(102L)).thenReturn(deviceType2);
-//        when(deviceConfigurationService.findDeviceType(103L)).thenReturn(deviceType3);
-//
-//        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("deviceTypes", "101,102,103")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
-//
-//        ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
-//        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
-//        assertThat(captor.getValue().deviceTypes).contains(deviceType1).contains(deviceType2).contains(deviceType3).hasSize(3);
-//
-//    }
+    @Test
+    public void testDeviceTypesAddedToFilter() throws Exception {
+        DeviceType deviceType1 = mock(DeviceType.class);
+        when(deviceType1.getId()).thenReturn(101L);
+        DeviceType deviceType2 = mock(DeviceType.class);
+        when(deviceType2.getId()).thenReturn(201L);
+        DeviceType deviceType3 = mock(DeviceType.class);
+        when(deviceType3.getId()).thenReturn(301L);
+
+        Finder<DeviceType> deviceTypeFinder = mockFinder(Arrays.asList(deviceType1, deviceType2, deviceType3));
+        when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("deviceTypes", "201,301,101")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+
+        ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
+        verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().deviceTypes).contains(deviceType1).contains(deviceType2).contains(deviceType3).hasSize(3);
+    }
 
     @Test
     public void testCurrentStateAddedToFilter() throws Exception {
@@ -363,4 +369,17 @@ public class CommunicationResourceTest extends JerseyTest {
 
 
     }
+
+    private <T> Finder<T> mockFinder(List<T> list) {
+        Finder<T> finder = mock(Finder.class);
+
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.defaultSortColumn(anyString())).thenReturn(finder);
+        when(finder.find()).thenReturn(list);
+        return finder;
+    }
+
+
 }
