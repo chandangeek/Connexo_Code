@@ -1,13 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.topology;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -15,7 +16,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -30,7 +30,7 @@ public class XemexMeterTopology extends MeterTopology {
     /**
      * A List of localComposedCosemObjects containing the attributes to construct the serialNumber of the devices
      */
-    private List<DLMSAttribute> cMbusDLMSAttributes = new ArrayList<DLMSAttribute>();
+    private List<DLMSAttribute> cMbusDLMSAttributes = new ArrayList<>();
 
     public XemexMeterTopology(AbstractSmartNtaProtocol protocol) {
         super(protocol);
@@ -44,7 +44,7 @@ public class XemexMeterTopology extends MeterTopology {
 
     @Override
     protected ComposedCosemObject constructDiscoveryComposedCosemObject() {
-        List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+        List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientDeviceID2ObisCode, MeterTopology.ObisCodeBFieldIndex, (byte) i);
             UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(getProtocol().getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
@@ -63,14 +63,10 @@ public class XemexMeterTopology extends MeterTopology {
         // get an MbusDeviceMap
         this.mbusMap = getMbusMapper();
 
-        if (this.mbusMap.size() > 0) {
-            try {
-                // check if all the mbus devices are configured in EIServer
-                checkToUpdateMbusMeters(mbusMap);
-                checkForDisappearedMbusMeters(mbusMap);
-            } finally {
-                ProtocolTools.closeConnection();
-            }
+        if (!this.mbusMap.isEmpty()) {
+            // check if all the mbus devices are configured in EIServer
+            checkToUpdateMbusMeters(mbusMap);
+            checkForDisappearedMbusMeters(mbusMap);
         }
 
         StringBuilder sb = new StringBuilder();
@@ -90,7 +86,7 @@ public class XemexMeterTopology extends MeterTopology {
             if (getProtocol().getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
                 try {
                     mbusSerial = getDiscoveryComposedCosemObject().getAttribute(this.cMbusDLMSAttributes.get(i - 1)).getOctetString().stringValue();
-                    if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
+                    if ((mbusSerial != null) && (!"".equalsIgnoreCase(mbusSerial)) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
                     }
                 } catch (IOException e) {
@@ -107,9 +103,7 @@ public class XemexMeterTopology extends MeterTopology {
         BaseDevice gatewayDevice = getRtuFromDatabaseBySerialNumber();
         if (gatewayDevice != null) {
             List<BaseDevice> mbusSlaves = gatewayDevice.getPhysicalConnectedDevices();
-            Iterator<BaseDevice> it = mbusSlaves.iterator();
-            while (it.hasNext()) {
-                BaseDevice mbus = it.next();
+            for (BaseDevice mbus : mbusSlaves) {
                 if (!mbusMap.contains(new DeviceMapping(mbus.getSerialNumber()))) {
                     log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device - detaching from gateway.");
                     mbus.setPhysicalGateway(null);
@@ -117,4 +111,5 @@ public class XemexMeterTopology extends MeterTopology {
             }
         }
     }
+
 }

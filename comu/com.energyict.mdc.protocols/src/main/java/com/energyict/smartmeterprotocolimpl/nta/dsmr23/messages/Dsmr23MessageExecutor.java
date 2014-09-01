@@ -1190,7 +1190,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     private BaseDevice getRtuFromDatabaseBySerialNumber() {
         String serial = this.protocol.getSerialNumber();
         DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serial);
-        ProtocolTools.closeConnection();
         return deviceIdentifier.findDevice();
     }
 

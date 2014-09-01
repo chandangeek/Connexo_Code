@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -15,6 +16,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -31,10 +33,12 @@ import javax.inject.Inject;
 public class DeviceProtocolServiceImpl implements DeviceProtocolService, InstallService {
 
     private volatile DataModel dataModel;
+    private volatile TransactionService transactionService;
     private volatile IssueService issueService;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private volatile OrmClient ormClient;
 
     public DeviceProtocolServiceImpl() {
         super();
@@ -43,6 +47,15 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Activate
     public void activate() {
         this.dataModel.register(getModule());
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Bus.clearOrmClient(this.ormClient);
+        Bus.clearClock(this.clock);
+        Bus.clearIssueService(this.issueService);
+        Bus.clearMdcReadingTypeUtilService(this.mdcReadingTypeUtilService);
+        Bus.clearThesaurus(this.thesaurus);
     }
 
     @Inject
@@ -100,9 +113,26 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     }
 
     @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+        this.createOrmClientIfAllDependenciesHaveBeenResolved();
+    }
+
+    @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(DeviceProtocolService.COMPONENT_NAME, "DeviceProtocol service 1");
-        this.dataModel = dataModel;
+        this.dataModel = ormService.newDataModel(DeviceProtocolService.COMPONENT_NAME, "DeviceProtocol service 1");
+        this.createOrmClientIfAllDependenciesHaveBeenResolved();
+    }
+
+    private void createOrmClientIfAllDependenciesHaveBeenResolved() {
+        if (this.transactionService != null && this.dataModel != null) {
+            this.setOrmClient(new OrmClientImpl(this.dataModel, this.transactionService));
+        }
+    }
+
+    private void setOrmClient(OrmClient ormClient) {
+        this.ormClient = ormClient;
+        Bus.setOrmClient(ormClient);
     }
 
     @Reference
@@ -125,4 +155,5 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     public void install() {
         new Installer(this.dataModel, this.thesaurus).install(true);
     }
+
 }
