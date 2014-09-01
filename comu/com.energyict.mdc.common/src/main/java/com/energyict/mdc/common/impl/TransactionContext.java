@@ -8,8 +8,6 @@ import com.energyict.mdc.common.TransactionSequenceException;
 
 import com.elster.jupiter.transaction.TransactionService;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -18,12 +16,9 @@ import java.sql.SQLException;
 public class TransactionContext {
 
     private int nestCount = 0;
-    private DataSource dataSource;
-    private Connection connection;
 
-    public TransactionContext (DataSource dataSource) {
+    public TransactionContext() {
         super();
-        this.dataSource = dataSource;
     }
 
     public boolean begin () throws SQLException {
@@ -85,28 +80,10 @@ public class TransactionContext {
                 throw new DatabaseException(e);
             }
         }
-        this.closeConnection();
     }
 
     public boolean isFinished () {
         return this.nestCount == 0;
-    }
-
-    public Connection getConnection () {
-        if (this.isFinished() && ((this.connection == null || this.isClosed(this.connection)))) {
-            this.obtainConnection();
-        }
-        return this.connection;
-    }
-
-    private boolean isClosed(Connection connection) {
-        try {
-            return connection.isClosed();
-        }
-        catch (SQLException e) {
-            // Really?
-            throw new DatabaseException(e);
-        }
     }
 
     public <T> T execute (Transaction<T> transaction, TransactionService transactionService, TransactionResource resource) throws SQLException, BusinessException {
@@ -136,7 +113,6 @@ public class TransactionContext {
                     @Override
                     public T perform () {
                         try {
-                            obtainConnection();
                             return transaction.doExecute();
                         }
                         catch (BusinessException e) {
@@ -144,9 +120,6 @@ public class TransactionContext {
                         }
                         catch (SQLException e) {
                             throw new RuntimeSQLException(e);
-                        }
-                        finally {
-                            closeConnection();
                         }
                     }
                 });
@@ -161,29 +134,6 @@ public class TransactionContext {
         else {
             // Nested transaction
             return transaction.doExecute();
-        }
-    }
-
-    private void obtainConnection () {
-        try {
-            this.connection = this.dataSource.getConnection();
-        }
-        catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    void closeConnection () {
-        try {
-            if (this.connection != null) {
-                /* Close the Jupiter connection that was created
-                 * for the purpose of this transaction. */
-                this.connection.close();
-                this.connection = null;
-            }
-        }
-        catch (SQLException e) {
-            throw new RuntimeSQLException(e);
         }
     }
 

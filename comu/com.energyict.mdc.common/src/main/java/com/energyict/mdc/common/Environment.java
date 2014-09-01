@@ -1,6 +1,5 @@
 package com.energyict.mdc.common;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
@@ -22,19 +21,13 @@ public interface Environment extends FormatProvider {
 
     public void put (String name, Object value, boolean global);
 
-    public void closeConnection ();
-
     public void close ();
-
-    public Connection getConnection ();
 
     public String getProperty (String key, String defaultValue);
 
     public String getProperty (String key);
 
     public <T> T execute (Transaction<T> transaction) throws BusinessException, SQLException;
-
-    public boolean isInTransaction ();
 
     public BusinessObjectFactory findFactory (String name);
 

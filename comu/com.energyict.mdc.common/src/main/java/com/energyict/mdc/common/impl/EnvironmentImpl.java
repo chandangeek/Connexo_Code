@@ -20,7 +20,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormatSymbols;
 import java.util.Collections;
@@ -170,13 +169,6 @@ public class EnvironmentImpl implements Environment {
     }
 
     @Override
-    public void closeConnection () {
-        if (!this.isInTransaction()) {
-            this.getTransactionContext().closeConnection();
-        }
-    }
-
-    @Override
     public void close () {
         this.getTransactionContext().close(this.getEventManager());
         this.transactionContextHolder.remove();
@@ -189,11 +181,6 @@ public class EnvironmentImpl implements Environment {
         if (this.globalNamedObjects != null) {
             this.globalNamedObjects.clear();
         }
-    }
-
-    @Override
-    public Connection getConnection () {
-        return this.getTransactionContext().getConnection();
     }
 
     @Override
@@ -218,20 +205,7 @@ public class EnvironmentImpl implements Environment {
 
     @Override
     public <T> T execute (Transaction<T> transaction) throws BusinessException, SQLException {
-        if (!this.isInTransaction()) {
-            /* Close the connection that was used outside of the transaction context
-             * to avoid Connection leakage.
-             * In the Jupiter context, a new Connection is created
-             * once a transaction context is setup. */
-            getTransactionContext().closeConnection();
-        }
         return getTransactionContext().execute(transaction, this.getTransactionService(), this.getEventManager());
-    }
-
-    @Override
-    public boolean isInTransaction () {
-        TransactionContext transactionContext = this.transactionContextHolder.get();
-        return transactionContext != null && !transactionContext.isFinished();
     }
 
     private FactoryFinder findFactoryFinder () {
@@ -284,7 +258,7 @@ public class EnvironmentImpl implements Environment {
     }
 
     private TransactionContext newTransactionContext () {
-        return new TransactionContext(this.dataSource);
+        return new TransactionContext();
     }
 
     private BusinessEventManager getEventManager () {
