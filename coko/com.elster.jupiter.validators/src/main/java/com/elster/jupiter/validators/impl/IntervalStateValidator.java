@@ -1,13 +1,5 @@
 package com.elster.jupiter.validators.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -30,7 +22,15 @@ import com.elster.jupiter.validators.MessageSeeds;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-public class IntervalStateValidator extends AbstractValidator {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+class IntervalStateValidator extends AbstractValidator {
     
     static final String INTERVAL_FLAGS = "intervalFlags";
 
@@ -108,7 +108,7 @@ public class IntervalStateValidator extends AbstractValidator {
         return Arrays.asList(INTERVAL_FLAGS);
     }
     
-    class IntervalFlag implements ListValueEntry {
+    private class IntervalFlag implements ListValueEntry {
         
         private Flag flag;
         private String id;
@@ -138,7 +138,7 @@ public class IntervalStateValidator extends AbstractValidator {
         }
     }
     
-    class PossibleIntervalFlags implements FindById<IntervalFlag> {
+    private class PossibleIntervalFlags implements FindById<IntervalFlag> {
         
         private final IntervalFlag[] flags = {
             new IntervalFlag(Flag.BADTIME, "badTime", "Bad time"),

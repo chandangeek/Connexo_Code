@@ -1,13 +1,5 @@
 package com.elster.jupiter.validators.impl;
 
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import org.joda.time.DateTimeConstants;
-
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -21,15 +13,19 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import org.joda.time.DateTimeConstants;
+
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This Validator will interpret Intervals as being closed. i.e. start and end time are included in the interval. So when validating missing readings for a five minute interval over a period of five minutes will expect 2 readings.
  * <p/>
- * Copyrights EnergyICT
- * Date: 10/07/2014
- * Time: 14:29
  */
-public class MissingValuesValidator extends AbstractValidator {
+class MissingValuesValidator extends AbstractValidator {
 
     private static final String READING_QUALITY_TYPE_CODE = "3.5.259";
     
