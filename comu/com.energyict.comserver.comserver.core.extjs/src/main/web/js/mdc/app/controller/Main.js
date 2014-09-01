@@ -77,7 +77,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceLoadProfileChannels',
         'Mdc.controller.setup.DeviceLoadProfileOverview',
         'Mdc.controller.setup.DeviceLoadProfileData',
-        'Mdc.controller.setup.DeviceLoadProfiles'
+        'Mdc.controller.setup.DeviceLoadProfiles',
+        'Mdc.controller.setup.DeviceLogbooks'
     ],
 
     config: {

@@ -961,6 +961,40 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 }
                             }
+                        },
+                        logbooks: {
+                            title: 'Logbooks',
+                            route: 'logbooks',
+                            controller: 'Mdc.controller.setup.DeviceLogbooks',
+                            action: 'showView',
+                            items: {
+                                logbook: {
+                                    title: 'Logbook',
+                                    route: '{logbookId}',
+                                    controller: 'Mdc.controller.setup.DeviceLoadProfileOverview',
+                                    action: 'showOverview',
+                                    redirect: 'devices/device/loadprofiles/loadprofile/overview',
+
+                                    callback: function (route) {
+                                        this.getApplication().on('logbookOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+
+                                    },
+                                    items: {
+                                        overview: {
+                                            title: 'Overview',
+                                            route: 'overview'
+                                        },
+                                        data: {
+                                            title: 'Logbook data',
+                                            route: 'data'
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
