@@ -2,7 +2,6 @@ package com.energyict.mdc.dynamic.relation.impl;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;
 import com.energyict.mdc.dynamic.relation.CanLock;
@@ -56,7 +55,15 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
     }
 
     public Relation execute() throws BusinessException, SQLException {
-        return Environment.DEFAULT.get().execute(this);
+        try {
+            return this.perform();
+        }
+        catch (LocalBusinessException e) {
+            throw e.getCause();
+        }
+        catch (LocalSQLException e) {
+            throw e.getCause();
+        }
     }
 
     private void lock() {
@@ -81,11 +88,20 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
         }
     }
 
-    public Relation doExecute() throws BusinessException, SQLException {
+    @Override
+    public Relation perform() {
         lock();
-        validate();
-        checkViolations();
-        return insertRelation();
+        try {
+            validate();
+            checkViolations();
+            return insertRelation();
+        }
+        catch (BusinessException e) {
+            throw new LocalBusinessException(e);
+        }
+        catch (SQLException e) {
+            throw new LocalSQLException(e);
+        }
     }
 
     private void validate() throws BusinessException {
@@ -307,4 +323,27 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
             return null;
         }
     }
+
+    private class LocalSQLException extends RuntimeException {
+        private LocalSQLException(SQLException cause) {
+            super(cause);
+        }
+
+        @Override
+        public SQLException getCause() {
+            return (SQLException) super.getCause();
+        }
+    }
+
+    private class LocalBusinessException extends RuntimeException {
+        private LocalBusinessException(BusinessException cause) {
+            super(cause);
+        }
+
+        @Override
+        public BusinessException getCause() {
+            return (BusinessException) super.getCause();
+        }
+    }
+
 }

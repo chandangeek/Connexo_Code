@@ -1,19 +1,20 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.common.BusinessObject;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
+
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -36,7 +37,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     private volatile DataModel dataModel;
     private volatile OrmClient ormClient;
     private volatile Thesaurus thesaurus;
-    private volatile Environment environment;
+    private volatile TransactionService transactionService;
 
     private volatile PropertySpecService propertySpecService;
 
@@ -45,11 +46,11 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     }
 
     @Inject
-    public RelationServiceImpl(OrmService ormService, NlsService nlsService, Environment environment, PropertySpecService propertySpecService) {
+    public RelationServiceImpl(TransactionService transactionService, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService) {
         this();
+        this.setTransactionService(transactionService);
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
-        this.setEnvironment(environment);
         this.setPropertySpecService(propertySpecService);
         this.activate();
         this.install();
@@ -59,6 +60,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
         return new AbstractModule() {
             @Override
             public void configure() {
+                bind(TransactionService.class).toInstance(transactionService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
@@ -67,8 +69,8 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     }
 
     @Reference
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Reference
@@ -113,7 +115,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Override
     public RelationType createRelationType(RelationTypeShadow shadow, PropertySpecService propertySpecService) {
-        RelationTypeImpl relationType = new RelationTypeImpl(this.dataModel, this.thesaurus);
+        RelationTypeImpl relationType = new RelationTypeImpl(this.dataModel, this.transactionService, this.thesaurus);
         relationType.init(shadow, propertySpecService);
         return relationType;
     }

@@ -38,6 +38,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -57,7 +58,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class RelationTypeImpl extends PersistentNamedObject implements RelationType, PersistenceAware {
 
-    private Thesaurus thesaurus;
+    private final TransactionService transactionService;
+    private final Thesaurus thesaurus;
     private final List<RelationAttributeType> attributeTypes = new ArrayList<>();
     private final List<Constraint> constraints = new ArrayList<>();
     private boolean active;
@@ -70,9 +72,14 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     private boolean system;
 
     @Inject
-    public RelationTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
+    public RelationTypeImpl(DataModel dataModel, TransactionService transactionService,Thesaurus thesaurus) {
         super(dataModel);
+        this.transactionService = transactionService;
         this.thesaurus = thesaurus;
+    }
+
+    TransactionService getTransactionService() {
+        return transactionService;
     }
 
     @Override

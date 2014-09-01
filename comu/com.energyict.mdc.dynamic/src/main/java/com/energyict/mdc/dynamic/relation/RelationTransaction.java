@@ -1,8 +1,8 @@
 package com.energyict.mdc.dynamic.relation;
 
+import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.dynamic.VersionedDynamicAttributeOwner;
 
 import java.sql.SQLException;

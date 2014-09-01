@@ -5,6 +5,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.impl.RelationServiceImpl;
+
+import com.elster.jupiter.transaction.TransactionService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -20,6 +22,7 @@ public class MdcDynamicModule extends AbstractModule {
     protected void configure() {
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
+        requireBinding(TransactionService.class);
         requireBinding(com.elster.jupiter.properties.PropertySpecService.class);
 
         bind(PropertySpecService.class).to(PropertySpecServiceImpl.class).in(Scopes.SINGLETON);
