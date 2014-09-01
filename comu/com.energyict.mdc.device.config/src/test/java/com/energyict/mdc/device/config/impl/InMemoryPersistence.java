@@ -301,21 +301,6 @@ public class InMemoryPersistence {
         return applicationContext;
     }
 
-    public static String query(String sql) {
-        Connection connection = Environment.DEFAULT.get().getConnection();
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            ResultSet resultSet = statement.executeQuery();
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new ResultSetPrinter(new PrintStream(out)).print(resultSet);
-            return new String(out.toByteArray());
-        }
-        catch (SQLException e) {
-            StringWriter stringWriter = new StringWriter();
-            e.printStackTrace(new PrintWriter(stringWriter));
-            return stringWriter.toString();
-        }
-    }
-
     public Injector getInjector() {
         return injector;
     }
