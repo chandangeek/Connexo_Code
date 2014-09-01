@@ -3,6 +3,9 @@ package com.elster.jupiter.metering.impl;
 import static com.elster.jupiter.util.conditions.Where.*;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
@@ -163,6 +166,18 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     public List<EndDeviceEventRecord> getDeviceEvents(Interval interval, List<EndDeviceEventType> eventTypes) {
     	Condition condition = inInterval(interval).and(where("eventType").in(eventTypes));
         return dataModel.query(EndDeviceEventRecord.class).select(condition,Order.ascending("createdDateTime"));
+    }
+    
+    public List<EndDeviceEventRecord> getDeviceEvents(Interval interval, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
+        final String anyNumberPattern = "[0-9]{1,3}";
+        StringBuilder regExp = new StringBuilder();
+        regExp.append("^").append(anyNumberPattern).append("\\.");
+        regExp.append(domain != null ? domain.getValue() : anyNumberPattern).append("\\.");
+        regExp.append(subDomain != null ? subDomain.getValue() : anyNumberPattern).append("\\.");
+        regExp.append(eventOrAction != null ? eventOrAction.getValue() : anyNumberPattern).append("$");
+        
+        Condition condition = inInterval(interval).and(where("eventType.mRID").matches(regExp.toString(), "i"));
+        return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(condition, Order.descending("createdDateTime"));
     }
     
     private Condition inInterval(Interval interval) {
