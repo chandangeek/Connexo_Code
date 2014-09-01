@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
     alias: 'widget.deviceConnectionMethodEdit',
     itemId: 'deviceConnectionMethodEdit',
     edit: false,
+    modal: true,
 
     requires: [
         'Mdc.store.ConnectionTypes',
