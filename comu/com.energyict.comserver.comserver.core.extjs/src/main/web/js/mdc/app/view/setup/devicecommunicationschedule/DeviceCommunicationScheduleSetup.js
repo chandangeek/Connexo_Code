@@ -30,52 +30,65 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationSchedu
             {
                 ui: 'large',
                 xtype: 'panel',
-                title: Uni.I18n.translate('deviceCommunicationSchedule.communicationSchedules', 'MDC', 'Communication schedules'),
+                cls: 'no-side-padding',
+                title: Uni.I18n.translate('deviceCommunicationSchedule.communicationPlanning', 'MDC', 'Communication planning'),
                 items: [
                     {
                         xtype: 'panel',
-                        title: Uni.I18n.translate('deviceCommunicationSchedule.sharedCommunicationSchedules', 'MDC', 'Shared communication schedules'),
+                        title: Uni.I18n.translate('deviceCommunicationSchedule.recurringCommunication', 'MDC', 'Recurring communication'),
                         ui: 'medium',
-                        header:{
-                            titlePosition: 0,
-                            items:[{
-                                xtype:'button',
-                                text: Uni.I18n.translate('deviceCommunicationSchedule.addSharedCommunicationSchedule', 'MDC', 'Add shared communication schedule'),
-                                ui: 'action',
-                                action: 'addSharedCommunicationSchedule',
-                                itemId: 'addSharedCommunicationScheduleButton'
-                            }]
-                        },
+                        cls: 'no-side-padding',
                         items: [
                             {
-                                xtype: 'contentcontainer',
-                                layout: {
-                                    type: 'vbox',
-                                    align: 'stretch'
+                                xtype: 'panel',
+                                title: Uni.I18n.translate('deviceCommunicationSchedule.sharedCommunicationSchedules', 'MDC', 'Shared communication schedules'),
+                                ui: 'small',
+                                cls: 'no-side-padding',
+                                header:{
+                                    titlePosition: 0,
+                                    items:[{
+                                        xtype:'button',
+                                        text: Uni.I18n.translate('deviceCommunicationSchedule.addSharedCommunicationSchedule', 'MDC', 'Add shared communication schedule'),
+                                        ui: 'action',
+                                        action: 'addSharedCommunicationSchedule',
+                                        itemId: 'addSharedCommunicationScheduleButton'
+                                    }]
                                 },
-                                itemId: 'sharedDeviceCommunicationScheduleSetupPanel'
+                                items: [
+                                    {
+                                        xtype: 'contentcontainer',
+                                        layout: {
+                                            type: 'vbox',
+                                            align: 'stretch'
+                                        },
+                                        itemId: 'sharedDeviceCommunicationScheduleSetupPanel'
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'panel',
+                                title: Uni.I18n.translate('deviceCommunicationSchedule.individualCommunicationSchedules', 'MDC', 'Individual communication schedules'),
+                                ui: 'small',
+                                cls: 'no-side-padding',
+                                items: [
+                                    {
+                                        xtype: 'contentcontainer',
+                                        layout: {
+                                            type: 'vbox',
+                                            align: 'stretch'
+                                        },
+                                        itemId: 'individualDeviceCommunicationScheduleSetupPanel'
+                                    }
+                                ]
                             }
                         ]
                     },
+
                     {
                         xtype: 'panel',
-                        title: Uni.I18n.translate('deviceCommunicationSchedule.individualCommunicationSchedules', 'MDC', 'Individual communication schedules'),
+                        title: Uni.I18n.translate('deviceCommunicationSchedule.nonRecurringCommunication', 'MDC', 'Non recurring communication'),
                         ui: 'medium',
-                        items: [
-                            {
-                                xtype: 'contentcontainer',
-                                layout: {
-                                    type: 'vbox',
-                                    align: 'stretch'
-                                },
-                                itemId: 'individualDeviceCommunicationScheduleSetupPanel'
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'panel',
-                        title: Uni.I18n.translate('deviceCommunicationSchedule.onRequestCommunicationSchedules', 'MDC', 'Only on request communication schedules'),
-                        ui: 'medium',
+                        cls: 'no-side-padding',
                         items: [
                             {
                                 xtype: 'contentcontainer',

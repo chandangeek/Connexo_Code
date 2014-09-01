@@ -961,6 +961,41 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 }
                             }
+                        },
+                        logbooks: {
+                            title: 'Logbooks',
+                            route: 'logbooks',
+                            controller: 'Mdc.controller.setup.DeviceLogbooks',
+                            action: 'showView',
+                            items: {
+                                logbook: {
+                                    title: 'Logbook',
+                                    route: '{logbookId}',
+                                    controller: 'Mdc.controller.setup.DeviceLogbookOverview',
+                                    action: 'showOverview',
+                                    redirect: 'devices/device/logbooks/logbook/overview',
+                                    callback: function (route) {
+                                        this.getApplication().on('logbookOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+
+                                    },
+                                    items: {
+                                        overview: {
+                                            title: 'Overview',
+                                            route: 'overview',
+                                            controller: 'Mdc.controller.setup.DeviceLogbookOverview',
+                                            action: 'showOverview'
+                                        },
+                                        data: {
+                                            title: 'Logbook data',
+                                            route: 'data'
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

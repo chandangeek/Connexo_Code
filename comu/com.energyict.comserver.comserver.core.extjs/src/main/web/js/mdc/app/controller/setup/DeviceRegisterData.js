@@ -22,7 +22,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         'RegisterData',
         'NumericalRegisterData',
         'BillingRegisterData',
-        'TextRegisterData'
+        'TextRegisterData',
+        'FlagsRegisterData'
     ],
 
     refs: [

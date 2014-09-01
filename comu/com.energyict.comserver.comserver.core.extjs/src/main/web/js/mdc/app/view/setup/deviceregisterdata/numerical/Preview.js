@@ -21,13 +21,17 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
         },
         items: [
             {
+                xtype:'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.general', 'MDC', 'General'),
+                labelAlign: 'top',
+                layout: 'vbox',
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 200
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
+                        fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                         name: 'timeStamp',
                         format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
@@ -35,7 +39,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         }
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('device.registerData.amount', 'MDC', 'Amount'),
+                        fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
+                        name: 'reportedDateTime',
+                        format: 'M j, Y \\a\\t G:i',
+                        renderer: function (value) {
+                            return Ext.util.Format.date(value, this.format);
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                         name: 'value',
                         renderer: function (value) {
                             var form  = this.up('form'),
@@ -43,24 +55,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                             if (record) {
                                 return value + ' ' + record.get('unitOfMeasure');
                             }
-                        }
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('device.registerData.rawValue', 'MDC', 'Raw value'),
-                        name: 'rawValue',
-                        renderer: function (value) {
-                            var form  = this.up('form'),
-                                record = form.getRecord();
-                            if (record) {
-                                return value + ' ' + record.get('unitOfMeasure');
-                            }
-                        }
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('device.registerData.validationStatus', 'MDC', 'Validation status'),
-                        name: 'validationStatus',
-                        renderer: function (value, metaData, record) {
-                            return Uni.I18n.translate(value, 'MDC', value)
                         }
                     },
                     {

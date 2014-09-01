@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
     alias: 'widget.deviceConnectionMethodEdit',
     itemId: 'deviceConnectionMethodEdit',
     edit: false,
+    modal: true,
 
     requires: [
         'Mdc.store.ConnectionTypes',
@@ -317,6 +318,17 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             if (this.direction === 'Outbound') {
                 this.down('#addEditButton').action = 'addDeviceOutboundConnectionMethod';
+                this.down('#scheduleField').setValue({
+                    every: {
+                        count: 0,
+                        timeUnit: 'minutes'
+                    },
+                    lastDay: false,
+                    offset: {
+                        count: 0,
+                        timeUnit: 'seconds'
+                    }
+                });
             } else if (this.direction === 'Inbound') {
                 this.down('#addEditButton').action = 'addDeviceInboundConnectionMethod';
                 this.down('#connectionStrategyComboBox').setVisible(false);

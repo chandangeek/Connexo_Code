@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Preview', {
                         layout: 'vbox',
                         defaults: {
                             xtype: 'displayfield',
-                            labelWidth: 150
+                            labelWidth: 200
                         },
                         items: [
                             {
@@ -42,11 +42,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Preview', {
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
-                                name: 'lastReading',
+                                name: 'reportedDateTime',
                                 format: 'M j, Y \\a\\t G:i',
                                 renderer: function (value) {
-                                    if (!Ext.isEmpty(value.reportedDateTime)) {
-                                        return Ext.util.Format.date(new Date(value.reportedDateTime), this.format);
+                                    if (!Ext.isEmpty(value)) {
+                                        return Ext.util.Format.date(new Date(value), this.format);
                                     }
 
                                     return Uni.I18n.translate('deviceregisterconfiguration.latestReading.notspecified', 'MDC', '-')

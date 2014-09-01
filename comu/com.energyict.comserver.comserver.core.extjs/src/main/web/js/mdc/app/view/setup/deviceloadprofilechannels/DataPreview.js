@@ -61,16 +61,14 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
                 name: 'value',
                 renderer: function (value, metaData, record) {
-                    return value + ' ' + measurementType;
+                    return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
+
                 }
             }, {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
                 name: 'delta',
                 renderer: function (value, metaData, record) {
-                    if (!value) {
-                        value = 0;
-                    }
-                    return value + ' ' + measurementType;
+                    return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType: '';
                 }
             });
         } else {
@@ -79,7 +77,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
                     name: 'value',
                     renderer: function (value, metaData, record) {
-                        return value + ' ' + measurementType;
+                        return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
                     }
                 });
         }
