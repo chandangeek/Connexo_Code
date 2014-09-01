@@ -27,8 +27,6 @@ public interface Environment extends FormatProvider {
 
     public String getProperty (String key);
 
-    public <T> T execute (Transaction<T> transaction) throws BusinessException, SQLException;
-
     public BusinessObjectFactory findFactory (String name);
 
     public BusinessObjectFactory findFactory (int factoryId);

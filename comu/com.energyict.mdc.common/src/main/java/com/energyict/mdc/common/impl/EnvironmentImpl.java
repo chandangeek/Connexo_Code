@@ -8,10 +8,8 @@ import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryFinder;
 import com.energyict.mdc.common.FormatPreferences;
-import com.energyict.mdc.common.Transaction;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -19,7 +17,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.text.DecimalFormatSymbols;
 import java.util.Collections;
@@ -50,20 +47,10 @@ public class EnvironmentImpl implements Environment {
     private ThreadLocal<NamedObjects> localNamedObjectsHolder;
 
     /**
-     * The {@link TransactionContext} that is forced to be unique per thread.
-     */
-    private ThreadLocal<TransactionContext> transactionContextHolder = new ThreadLocal<>();
-
-    /**
      * The {@link BusinessEventManager} that is forced to be unique per thread.
      */
     private ThreadLocal<BusinessEventManager> eventManagerHolder;
 
-    /**
-     * The Jupiter DataSource from which Connections are acquired.
-     */
-    private volatile DataSource dataSource;
-    private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile BundleContext context;
 
@@ -77,10 +64,8 @@ public class EnvironmentImpl implements Environment {
     }
 
     @Inject
-    public EnvironmentImpl(DataSource dataSource, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, BundleContext bundleContext) {
+    public EnvironmentImpl(ThreadPrincipalService threadPrincipalService, BundleContext bundleContext) {
         this();
-        this.dataSource = dataSource;
-        this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
         this.activate(bundleContext);
     }
@@ -91,23 +76,6 @@ public class EnvironmentImpl implements Environment {
                 return getApplicationContext().createEventManager();
             }
         };
-    }
-
-    @SuppressWarnings("unused")
-    @Reference
-    public void setDataSource (DataSource dataSource) {
-        LOGGER.fine("DataSource is being injected into the MDC environment: " + dataSource);
-        this.dataSource = dataSource;
-    }
-
-    public TransactionService getTransactionService () {
-        return transactionService;
-    }
-
-    @Reference
-    public void setTransactionService (TransactionService transactionService) {
-        LOGGER.fine("Transaction service is being injected into the MDC environment: " + transactionService);
-        this.transactionService = transactionService;
     }
 
     public ThreadPrincipalService getThreadPrincipalService () {
@@ -170,11 +138,6 @@ public class EnvironmentImpl implements Environment {
 
     @Override
     public void close () {
-        this.getTransactionContext().close(this.getEventManager());
-        this.transactionContextHolder.remove();
-        if (this.eventManagerHolder != null) {
-            this.eventManagerHolder.remove();
-        }
         if (this.localNamedObjectsHolder != null) {
             this.localNamedObjectsHolder.remove();
         }
@@ -201,11 +164,6 @@ public class EnvironmentImpl implements Environment {
     @Override
     public String getProperty (String key) {
         return this.context.getProperty(key);
-    }
-
-    @Override
-    public <T> T execute (Transaction<T> transaction) throws BusinessException, SQLException {
-        return getTransactionContext().execute(transaction, this.getTransactionService(), this.getEventManager());
     }
 
     private FactoryFinder findFactoryFinder () {
@@ -246,19 +204,6 @@ public class EnvironmentImpl implements Environment {
     @Override
     public char getGroupingSeparator () {
         return getDecimalFormatSymbols().getGroupingSeparator();
-    }
-
-    private TransactionContext getTransactionContext () {
-        TransactionContext transactionContext = this.transactionContextHolder.get();
-        if (transactionContext == null) {
-            transactionContext = this.newTransactionContext();
-            transactionContextHolder.set(transactionContext);
-        }
-        return transactionContext;
-    }
-
-    private TransactionContext newTransactionContext () {
-        return new TransactionContext();
     }
 
     private BusinessEventManager getEventManager () {

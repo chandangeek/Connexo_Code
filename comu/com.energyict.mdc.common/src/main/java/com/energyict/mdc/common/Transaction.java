@@ -6,8 +6,6 @@
 
 package com.energyict.mdc.common;
 
-import com.energyict.mdc.common.BusinessException;
-
 import java.sql.SQLException;
 
 /**
