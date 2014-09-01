@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.model;
 
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import java.util.Date;
@@ -36,7 +38,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (16:42)
  */
-public interface ComServer {
+public interface ComServer extends HasId, HasName {
     static final String CHANGES_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.changesInterPollDelay";
     static final String SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.schedulingInterPollDelay";
     /**
