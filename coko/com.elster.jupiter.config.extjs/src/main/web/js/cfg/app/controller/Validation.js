@@ -709,10 +709,10 @@ Ext.define('Cfg.controller.Validation', {
         me.getRuleSetOverview() ? me.fromRuleSetOverview = true : me.fromRuleSetOverview = false;
         switch (item.action) {
             case 'viewRuleSet':
-                location.href = '#/administration/validation/rulesets/' + me.ruleSetId;
+                location.href = '#/administration/validation/rulesets/' + record.get('id');
                 break;
             case 'editRuleSet':
-                location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/edit';
+                location.href = '#/administration/validation/rulesets/' + record.get('id') + '/edit';
                 break;
             case 'deleteRuleSet':
                 me.checkIfRuleSetIsInUse(record);
@@ -724,7 +724,7 @@ Ext.define('Cfg.controller.Validation', {
         var me = this;
 
         Ext.Ajax.request({
-            url: '/api/val/validation/' + me.ruleSetId + '/usage',
+            url: '/api/val/validation/' + ruleSet.get('id') + '/usage',
             method: 'GET',
             success: function (operation) {
                 var jsonIsInUse = operation.responseText;
