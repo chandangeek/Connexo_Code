@@ -116,7 +116,7 @@ public class CommunicationResource {
     }
 
     private <H extends HasId> Collection<H> getObjectsByIdFromList(String[] ids, List<H> objects) {
-        ArrayList<H> selectedObjects = new ArrayList<H>(ids.length);
+        List<H> selectedObjects = new ArrayList<>(ids.length);
         for (H object : objects) {
             String objectIdString = ""+object.getId();
             for (String id : ids) {
