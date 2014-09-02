@@ -24,6 +24,7 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -62,6 +63,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     private volatile EventService eventService;
     private volatile NlsService nlsService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile UserService userService;
     private Thesaurus thesaurus;
 
     public EngineModelServiceImpl() {
@@ -69,19 +71,20 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Inject
-    public EngineModelServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService) {
+    public EngineModelServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService, UserService userService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setProtocolPluggableService(protocolPluggableService);
+        this.setUserService(userService);
         this.activate();
         this.install();
     }
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.thesaurus, this.eventService).install(true);
+        new Installer(this.dataModel, this.thesaurus, this.eventService, this.userService).install(true);
     }
 
     @Reference
@@ -108,6 +111,11 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         this.protocolPluggableService = pluggableService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     Module getModule() {
         return new AbstractModule() {
             @Override
@@ -122,6 +130,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
                 bind(UDPBasedInboundComPort.class).to(UDPBasedInboundComPortImpl.class);
                 bind(OutboundComPort.class).to(OutboundComPortImpl.class);
                 bind(ComPortPoolMember.class).to(ComPortPoolMemberImpl.class);
+                bind(UserService.class).toInstance(userService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
