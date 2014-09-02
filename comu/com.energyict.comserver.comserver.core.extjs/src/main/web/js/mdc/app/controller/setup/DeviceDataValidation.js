@@ -54,7 +54,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             }
         });
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/devicevalidation',
+            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
             method: 'GET',
             success: function () {
                 var widget = Ext.widget('deviceDataValidationRulesSetMainView', { mRID: mRID });

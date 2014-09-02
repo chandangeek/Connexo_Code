@@ -30,7 +30,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         {ref: 'sharedCommunicationScheduleGrid', selector: '#sharedCommunicationScheduleGrid'},
         {ref: 'onRequestCommunicationScheduleGrid', selector: '#onRequestComtaskGrid'},
         {ref: 'individualCommunicationScheduleGrid', selector: '#individualComtaskGrid'},
-        {ref: 'scheduleField', selector: '#scheduleField'}
+        {ref: 'scheduleField', selector: '#scheduleField'},
+        {ref: 'overlapWarning', selector: '#overlapWarning'},
+        {ref: 'addButton', selector: '#addButton'}
+
     ],
 
     init: function () {
@@ -107,6 +110,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                         shared: shared
                     };
                     widget.down('#sharedDeviceCommunicationScheduleSetupPanel').getCenterContainer().add(sharedGrid);
+                } else {
+                    var msg = {
+                        xtype: 'displayfield',
+                        value: Uni.I18n.translate('deviceCommunicationSchedule.noSharedCommunicationSchedules', 'MDC', 'The device does not use shared communication schedules.')
+                    };
+                    widget.down('#sharedDeviceCommunicationScheduleSetupPanel').getCenterContainer().add(msg);
                 }
 
                 //add individual component
@@ -116,6 +125,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                         individual: individual
                     };
                     widget.down('#individualDeviceCommunicationScheduleSetupPanel').getCenterContainer().add(individualGrid);
+                } else {
+                    var msg = {
+                        xtype: 'displayfield',
+                        value: Uni.I18n.translate('deviceCommunicationSchedule.noIndividualCommunicationSchedules', 'MDC', 'The device does not use individual communication schedules.')
+                    };
+                    widget.down('#individualDeviceCommunicationScheduleSetupPanel').getCenterContainer().add(msg);
                 }
 
                 //add on request component
@@ -125,6 +140,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                         onRequest: adHocComTasks
                     };
                     widget.down('#onRequestDeviceCommunicationScheduleSetupPanel').getCenterContainer().add(onRequestGrid);
+                }  else {
+                    var msg = {
+                        xtype: 'displayfield',
+                        value: Uni.I18n.translate('deviceCommunicationSchedule.noOnRequestCommunicationSchedules', 'MDC', 'There are no communication tasks that only run on request.')
+                    };
+                    widget.down('#onRequestDeviceCommunicationScheduleSetupPanel').getCenterContainer().add(msg);
                 }
 
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -160,7 +181,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         availableScheduleStore.load({
             callback: function () {
                 me.getApplication().fireEvent('changecontentevent', widget);
-                if(availableScheduleStore.getCount()===0){
+                if (availableScheduleStore.getCount() === 0) {
                     widget.down('#addSharedScheduleButtonForm').setVisible(false);
                 } else {
                     widget.down('#addSharedScheduleButtonForm').setVisible(true);
@@ -173,6 +194,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var communicationSchedules = this.getAddSharedCommunicationScheduleGrid().getSelectionModel().getSelection();
         var me = this;
         if (communicationSchedules.length == 1) {
+            me.getOverlapWarning().setVisible(false);
+            me.getAddButton().setDisabled(false);
             this.getAddSharedCommunicationSchedulePreview().setTitle(communicationSchedules[0].get('name'));
             this.getAddSharedCommunicationSchedulePreview().setVisible(true);
             this.getAddSharedCommunicationSchedulePreviewForm().loadRecord(communicationSchedules[0]);
@@ -190,6 +213,21 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 });
             }
 
+        } else {
+           var valuesToCheck = [];
+           Ext.each(communicationSchedules,function(item){
+               valuesToCheck.push.apply(valuesToCheck,item.get('comTaskUsages'));
+           });
+           debugger;
+           if(_.uniq(valuesToCheck,function(item){
+               return item.id;
+           }).length===valuesToCheck.length){
+              me.getOverlapWarning().setVisible(false);
+               me.getAddButton().setDisabled(false);
+           } else {
+               me.getOverlapWarning().setVisible(true);
+               me.getAddButton().setDisabled(true);
+           }
         }
     },
 
@@ -217,7 +255,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         });
     },
 
-    removeSharedCommunicationScheduleConfirmation: function(){
+    removeSharedCommunicationScheduleConfirmation: function () {
         var me = this;
         var record = this.getSharedCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
         Ext.create('Uni.view.window.Confirmation').show({
@@ -276,7 +314,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         widget.show();
     },
 
-    removeCommunicationScheduleConfirmation: function(){
+    removeCommunicationScheduleConfirmation: function () {
         var me = this;
         var record = this.getIndividualCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
         Ext.create('Uni.view.window.Confirmation').show({
@@ -296,7 +334,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         });
     },
 
-    removeCommunicationSchedule: function(record){
+    removeCommunicationSchedule: function (record) {
         var me = this;
         var jsonData;
         var request = {};
