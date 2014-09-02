@@ -5,13 +5,18 @@ Ext.define('Dsh.view.Connections', {
     requires: [
         'Dsh.view.widget.ConnectionsList',
         'Dsh.view.widget.PreviewConnection',
-        'Dsh.view.widget.SideFilter'
+        'Dsh.view.widget.SideFilter',
+        'Dsh.view.widget.FilterPanel'
     ],
     content: [
         {
             xtype: 'panel',
             ui: 'large',
             title: Uni.I18n.translate('workspace.dataCommunication.connections.title', 'DSH', 'Connections'),
+        },
+        {
+            xtype: 'connections-filter-panel',
+            itemId: 'dshconnectionsfilterpanel'
         },
         {
             xtype: 'preview-container',
@@ -44,7 +49,8 @@ Ext.define('Dsh.view.Connections', {
     ],
     side: [
         {
-            xtype: 'dsh-side-filter'
+            xtype: 'dsh-side-filter',
+            itemId: 'dshconnectionssidefilter'
         }
     ],
     initComponent: function () {

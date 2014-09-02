@@ -71,12 +71,12 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     dock: 'bottom',
                     items: [
                         {
-                            text: Uni.I18n.translate('searchItems.searchAll', 'MDC', 'Apply'),
+                            text: Uni.I18n.translate('', 'DSH', 'Apply'),
                             ui: 'action',
                             action: 'applyfilter'
                         },
                         {
-                            text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Clear all'),
+                            text: Uni.I18n.translate('', 'DSH', 'Clear all'),
                             action: 'clearfilter'
                         }
                     ]

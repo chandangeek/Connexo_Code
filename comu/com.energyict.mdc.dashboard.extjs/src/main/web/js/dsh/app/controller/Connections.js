@@ -39,6 +39,14 @@ Ext.define('Dsh.controller.Connections', {
         {
             ref: 'commTasksTitle',
             selector: '#comtaskstitlepanel'
+        },
+        {
+            ref: 'filterPanel',
+            selector: '#dshconnectionsfilterpanel'
+        },
+        {
+            ref: 'sideFilterForm',
+            selector: '#dshconnectionssidefilter filter-form'
         }
     ],
     init: function () {
@@ -48,6 +56,9 @@ Ext.define('Dsh.controller.Connections', {
             },
             '#communicationsdetails': {
                 selectionchange: this.onCommunicationSelectionChange
+            },
+            '#dshconnectionssidefilter button[action=applyfilter]': {
+                click: this.applyFilter
             }
         });
         this.callParent(arguments);
@@ -75,7 +86,7 @@ Ext.define('Dsh.controller.Connections', {
             record = selected[0],
             preview = me.getConnectionPreview(),
             commTasksData = record.get('communicationTasks').communicationTasks,
-            commTasks = Ext.create('Ext.data.Store', {model: 'Dsh.model.CommunicationTask',data: commTasksData});
+            commTasks = Ext.create('Ext.data.Store', {model: 'Dsh.model.CommunicationTask', data: commTasksData});
         preview.loadRecord(record);
         preview.setTitle(record.get('title'));
         me.getCommunicationContainer().removeAll(true);
@@ -101,5 +112,10 @@ Ext.define('Dsh.controller.Connections', {
         });
         me.getCommTasksTitle().setTitle(Uni.I18n.translate('communication.widget.details.commTasksOf', 'DSH', 'Communication tasks of') + ' ' + record.get('title'));
         me.getCommunicationList().getSelectionModel().select(0);
+    },
+
+    applyFilter: function () {
+        console.log(this.getSideFilterForm().getValues());
+        this.getFilterPanel().addFilterBtn('type','Type', 'Some type')
     }
 });
