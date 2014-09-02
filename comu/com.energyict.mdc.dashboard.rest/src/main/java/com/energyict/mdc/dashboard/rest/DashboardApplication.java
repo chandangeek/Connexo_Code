@@ -18,6 +18,8 @@ import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
 import com.energyict.mdc.dashboard.rest.status.impl.BreakdownFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionInfoFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapResource;
+import com.energyict.mdc.dashboard.rest.status.impl.CommunicationResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
@@ -130,6 +132,8 @@ public class DashboardApplication extends Application implements InstallService 
                 DashboardFieldResource.class,
                 ConnectionResource.class,
                 ConnectionHeatMapResource.class,
+                CommunicationResource.class,
+                CommunicationHeatMapResource.class,
                 DeviceConfigurationService.class // This service is here intentionally: needed for the ComServerStatusResource apparently: this will create an osgi warning: A provider com.energyict.mdc.device.config.DeviceConfigurationService registered in SERVER runtime does not implement any provider interfaces applicable in the SERVER runtime. Due to constraint configuration problems the provider com.energyict.mdc.device.config.DeviceConfigurationService will be ignored.
         );
     }
