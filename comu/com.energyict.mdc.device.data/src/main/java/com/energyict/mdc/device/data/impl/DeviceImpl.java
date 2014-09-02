@@ -29,6 +29,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
@@ -105,6 +106,13 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -120,12 +128,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -1108,8 +1110,11 @@ public class DeviceImpl implements Device {
             }
             Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
-                // Todo: process the reading qualities, adding them somehow to the LoadProfileReading
-                this.validationService.getValidationStatus(koreChannel.get(), meterReadings);
+                List<DataValidationStatus> validationStatus = this.validationService.getValidationStatus(koreChannel.get(), meterReadings);
+                for (DataValidationStatus status : validationStatus) {
+                    LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(status.getReadingTimestamp());
+                    loadProfileReading.setDataValidationStatus(mdcChannel, status);
+                }
             }
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());

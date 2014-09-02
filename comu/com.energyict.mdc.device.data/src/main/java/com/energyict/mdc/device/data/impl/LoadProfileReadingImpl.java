@@ -2,8 +2,10 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfileReading;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +13,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Represents a measurement/reading of all channels of a load profile in a given interval
@@ -19,7 +20,8 @@ import java.util.Set;
  */
 public class LoadProfileReadingImpl implements LoadProfileReading {
     private Interval interval;
-    private Map<Channel, BigDecimal> map = new HashMap<>();
+    private Map<Channel, BigDecimal> values = new HashMap<>();
+    private Map<Channel, DataValidationStatus> states = new HashMap<>();
     private Date readingTime;
     private final List<ProfileStatus.Flag> flags = new ArrayList<>();
 
@@ -34,12 +36,21 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
     }
 
     public void setChannelData(Channel channel, BigDecimal value) {
-        map.put(channel, value);
+        values.put(channel, value);
+    }
+
+    public void setDataValidationStatus(Channel channel, DataValidationStatus status) {
+        states.put(channel, status);
     }
 
     @Override
-    public Set<Map.Entry<Channel, BigDecimal>> getChannelValues() {
-        return map.entrySet();
+    public Map<Channel, BigDecimal> getChannelValues() {
+        return Collections.unmodifiableMap(values);
+    }
+
+    @Override
+    public Map<Channel, DataValidationStatus> getChannelValidationStates() {
+        return Collections.unmodifiableMap(states);
     }
 
     @Override
