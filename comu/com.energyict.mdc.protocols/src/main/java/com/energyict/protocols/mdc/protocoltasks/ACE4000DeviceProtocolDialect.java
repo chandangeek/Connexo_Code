@@ -1,10 +1,12 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,11 +34,11 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec retriesPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(RETRIES_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     @Override

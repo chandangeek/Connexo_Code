@@ -56,18 +56,6 @@ public class PropertySpecBuilder<T> {
     }
 
     /**
-     * Creates a new PropertySpecBuilder for values of the specified
-     * domain that are managed with the speciied {@link ValueFactory}.
-     *
-     * @param referenceDomainClass The domain that is referred to
-     * @param valueDomain The ValueDomain
-     * @return The PropertySpecBuilder
-     */
-    public static <D> PropertySpecBuilder<D> forReference (Class<D> referenceDomainClass, ValueDomain valueDomain, AttributeValueSelectionMode selectionMode) {
-        return new PropertySpecBuilder<>(referenceDomainClass, valueDomain, selectionMode);
-    }
-
-    /**
      * Sets the name of the {@link PropertySpec} that is being constructed.
      *
      * @param specName The name of the PropertySpec
@@ -134,11 +122,6 @@ public class PropertySpecBuilder<T> {
     private PropertySpecBuilder (Class<T> domainClass, ValueFactory<T> valueFactory) {
         super();
         this.propertySpecAccessor = new BasicPropertySpecAccessor<>(new BasicPropertySpec<>(INITIAL_SPEC_NAME, valueFactory, new ValueDomain(domainClass)));
-    }
-
-    private PropertySpecBuilder (Class<T> domainClass, ValueDomain valueDomain, AttributeValueSelectionMode selectionMode) {
-        super();
-        this.propertySpecAccessor = new BasicPropertySpecAccessor<T>(new ReferencePropertySpec(INITIAL_SPEC_NAME, valueDomain, selectionMode));
     }
 
     private interface PropertySpecAccessor<T> {

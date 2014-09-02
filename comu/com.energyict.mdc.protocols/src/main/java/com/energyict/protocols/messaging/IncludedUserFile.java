@@ -194,13 +194,6 @@ final class IncludedUserFile implements UserFile {
     /**
      * {@inheritDoc}
      */
-    public final TypeId getTypeId() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public final String displayString() {
         return null;
     }

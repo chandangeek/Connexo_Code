@@ -2,11 +2,12 @@ package com.energyict.protocols.mdc.channels.serial.modem;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.energyict.protocols.mdc.services.impl.Bus;
+
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -145,39 +146,39 @@ public class TypedPaknetModemProperties extends AbstractPaknetModemProperties im
     }
 
     public static PropertySpec atModemInitStringSpec() {
-        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(MODEM_INIT_STRINGS, DEFAULT_MODEM_INIT_STRINGS);
+        return Bus.getPropertySpecService().stringPropertySpec(MODEM_INIT_STRINGS, false, DEFAULT_MODEM_INIT_STRINGS);
     }
 
     public static PropertySpec atCommandTriesSpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(COMMAND_TRIES, DEFAULT_COMMAND_TRIES);
+        return Bus.getPropertySpecService().bigDecimalPropertySpec(COMMAND_TRIES, false, DEFAULT_COMMAND_TRIES);
     }
 
     public static PropertySpec atCommandTimeoutSpec() {
-        return OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec(COMMAND_TIMEOUT, DEFAULT_COMMAND_TIMEOUT);
+        return Bus.getPropertySpecService().timeDurationPropertySpec(COMMAND_TIMEOUT, false, DEFAULT_COMMAND_TIMEOUT);
     }
 
     public static PropertySpec delayBeforeSendSpec() {
-        return OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec(DELAY_BEFORE_SEND, DEFAULT_DELAY_BEFORE_SEND);
+        return Bus.getPropertySpecService().timeDurationPropertySpec(DELAY_BEFORE_SEND, false, DEFAULT_DELAY_BEFORE_SEND);
     }
 
     public static PropertySpec delayAfterConnectSpec() {
-        return OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec(DELAY_AFTER_CONNECT, DEFAULT_DELAY_AFTER_CONNECT);
+        return Bus.getPropertySpecService().timeDurationPropertySpec(DELAY_AFTER_CONNECT, false, DEFAULT_DELAY_AFTER_CONNECT);
     }
 
     public static PropertySpec atConnectTimeoutSpec() {
-        return OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+        return Bus.getPropertySpecService().timeDurationPropertySpec(CONNECT_TIMEOUT, false, DEFAULT_CONNECT_TIMEOUT);
     }
 
     public static PropertySpec atCommandPrefixSpec() {
-        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(MODEM_DIAL_PREFIX, DEFAULT_MODEM_DIAL_PREFIX);
+        return Bus.getPropertySpecService().stringPropertySpec(MODEM_DIAL_PREFIX, false, DEFAULT_MODEM_DIAL_PREFIX);
     }
 
     public static PropertySpec dtrToggleDelaySpec() {
-        return OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec(DTR_TOGGLE_DELAY, DEFAULT_DTR_TOGGLE_DELAY);
+        return Bus.getPropertySpecService().timeDurationPropertySpec(DTR_TOGGLE_DELAY, false, DEFAULT_DTR_TOGGLE_DELAY);
     }
 
     public static PropertySpec phoneNumberSpec() {
-        return RequiredPropertySpecFactory.newInstance().stringPropertySpec(PHONE_NUMBER_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(PHONE_NUMBER_PROPERTY_NAME, true, new StringFactory());
     }
 
 }

@@ -1,7 +1,6 @@
 package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
@@ -14,6 +13,7 @@ import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 
+import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
@@ -105,8 +105,8 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs () {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(TIMEOUT_KEY));
-        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(RETRIES_KEY));
+        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(TIMEOUT_KEY, false, new BigDecimalFactory()));
+        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(RETRIES_KEY, false, new BigDecimalFactory()));
         return propertySpecs;
     }
 

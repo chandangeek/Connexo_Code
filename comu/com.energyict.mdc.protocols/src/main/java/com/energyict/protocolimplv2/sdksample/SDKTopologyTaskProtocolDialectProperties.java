@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,10 +48,11 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     }
 
     private PropertySpec<String> getSlaveOneSerialNumber() {
-        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(slaveOneSerialNumberPropertyName);
+        return Bus.getPropertySpecService().basicPropertySpec(slaveOneSerialNumberPropertyName, false, new StringFactory());
     }
 
     public PropertySpec getSlaveTwoSerialNumber() {
-        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(slaveTwoSerialNumberPropertyName);
+        return Bus.getPropertySpecService().basicPropertySpec(slaveTwoSerialNumberPropertyName, false, new StringFactory());
     }
+
 }

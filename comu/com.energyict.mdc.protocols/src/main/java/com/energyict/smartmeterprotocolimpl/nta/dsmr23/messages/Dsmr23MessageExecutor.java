@@ -1,5 +1,28 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.MeterData;
+import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
+import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.lookups.Lookup;
+import com.energyict.mdc.protocol.api.lookups.LookupEntry;
+
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
@@ -43,31 +66,6 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.data.MeterData;
-import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
-import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.lookups.Lookup;
-import com.energyict.mdc.protocol.api.lookups.LookupEntry;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
@@ -520,8 +518,8 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     }
 
     private UserFile findUserFile(int id) {
-        IdBusinessObjectFactory<UserFile> factory = (IdBusinessObjectFactory<UserFile>) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id());
-        return factory.get(id);
+        // Todo: port UserFile to jupiter, return null as the previous code would have returned null too.
+        return null;
     }
 
     private void setGPRSCredentials(MessageHandler messageHandler) throws IOException {
@@ -651,8 +649,8 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     }
 
     private Code findCode(String codeTable) {
-        IdBusinessObjectFactory<Code> factory = (IdBusinessObjectFactory<Code>) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id());
-        return factory.get(Integer.parseInt(codeTable));
+        // Todo: port Code to jupiter, return null as the previous code would have returned null too.
+        return null;
     }
 
     protected void upgradeCalendar(MessageHandler messageHandler) throws IOException {
@@ -726,8 +724,8 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     }
 
     private Lookup findLookup(int lookupId) {
-        IdBusinessObjectFactory<Lookup> factory = (IdBusinessObjectFactory<Lookup>) Environment.DEFAULT.get().findFactory(FactoryIds.LOOKUP.id());
-        return factory.get(lookupId);
+        // Todo: Lookup will NOT be ported to jupiter
+        throw new UnsupportedOperationException("Looku is not longer supported by Jupiter");
     }
 
     protected void loadLimitConfiguration(MessageHandler messageHandler) throws IOException {

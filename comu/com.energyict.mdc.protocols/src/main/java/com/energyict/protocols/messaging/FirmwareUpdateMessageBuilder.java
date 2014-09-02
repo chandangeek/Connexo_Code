@@ -93,8 +93,8 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
     }
 
     private UserFile findUserFile(int userFileId) {
-        IdBusinessObjectFactory<UserFile> factory = (IdBusinessObjectFactory<UserFile>) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id());
-        return factory.get(userFileId);
+        // Todo: port UserFile to jupiter, return null as the previous code would have returned null too.
+        return null;
     }
 
     protected static String getMessageNodeTag() {

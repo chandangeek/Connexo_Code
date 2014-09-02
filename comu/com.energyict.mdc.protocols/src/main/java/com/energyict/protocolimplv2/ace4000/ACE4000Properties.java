@@ -1,8 +1,11 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
+
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -31,9 +34,10 @@ public class ACE4000Properties {
     }
 
     public List<PropertySpec> getPropertySpecs () {
+        PropertySpecService propertySpecService = Bus.getPropertySpecService();
         List<PropertySpec> optional = new ArrayList<>();
-        optional.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(TIMEOUT));
-        optional.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(RETRIES));
+        optional.add(propertySpecService.basicPropertySpec(TIMEOUT, false, new BigDecimalFactory()));
+        optional.add(propertySpecService.basicPropertySpec(RETRIES, false, new BigDecimalFactory()));
         return optional;
     }
 
@@ -44,4 +48,5 @@ public class ACE4000Properties {
     public int getRetries() {
         return properties.getIntegerProperty(RETRIES, DEFAULT_RETRIES).intValue();
     }
+
 }

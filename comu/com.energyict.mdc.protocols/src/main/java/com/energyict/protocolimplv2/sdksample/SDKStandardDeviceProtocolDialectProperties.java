@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
     }
 
     private PropertySpec getDoSomeThingPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().booleanPropertySpec(doSomeThingPropertyName);
+        return Bus.getPropertySpecService().basicPropertySpec(doSomeThingPropertyName, false, new BooleanFactory());
     }
 
     @Override

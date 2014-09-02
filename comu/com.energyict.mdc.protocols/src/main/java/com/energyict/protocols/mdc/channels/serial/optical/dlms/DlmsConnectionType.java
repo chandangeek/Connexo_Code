@@ -1,13 +1,11 @@
 package com.energyict.protocols.mdc.channels.serial.optical.dlms;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.ConnectionType;
+
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
@@ -72,44 +70,24 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     abstract PropertySpec getServerMacAddress();
 
     final PropertySpec getServerMacAddress(boolean required){
-        if (required) {
-            return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, DEFAULT_SERVER_MAC_ADDRESS);
-        }
-        else {
-            return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, DEFAULT_SERVER_MAC_ADDRESS);
-        }
+        return this.getPropertySpecService().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, required, DEFAULT_SERVER_MAC_ADDRESS);
     }
 
     abstract PropertySpec getServerUpperMacAddress();
 
     final PropertySpec getServerUpperMacAddress(boolean required){
-        if (required) {
-            return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, DEFAULT_SERVER_UPPER_MAC_ADDRESS);
-        }
-        else {
-            return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, DEFAULT_SERVER_UPPER_MAC_ADDRESS);
-        }
+        return this.getPropertySpecService().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, required, DEFAULT_SERVER_UPPER_MAC_ADDRESS);
     }
 
     abstract PropertySpec getServerLowerMacAddress();
 
     final PropertySpec getServerLowerMacAddress(boolean required) {
-        if (required) {
-            return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
-        }
-        else {
-            return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
-        }
+        return this.getPropertySpecService().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, required, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
     }
 
     abstract PropertySpec getConnectionPropertySpec();
     final PropertySpec getConnectionPropertySpec(boolean required) {
-        if (required) {
-            return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, DEFAULT_CONNECTION);
-        }
-        else {
-            return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, DEFAULT_CONNECTION);
-        }
+        return this.getPropertySpecService().bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, required, DEFAULT_CONNECTION);
     }
 
     @Override

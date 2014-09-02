@@ -1,9 +1,5 @@
 package com.energyict.protocolimplv2.nta.elster;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -14,12 +10,18 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
+
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocolimplv2.common.TempDeviceMessageSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocols.mdc.protocoltasks.Dsmr23DeviceProtocolDialect;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
@@ -140,7 +142,7 @@ public class AM100 extends AbstractNtaProtocol {
     }
 
     private PropertySpec forcedToReadCachePropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().booleanPropertySpec(PROP_FORCEDTOREADCACHE);
+        return Bus.getPropertySpecService().basicPropertySpec(PROP_FORCEDTOREADCACHE, false, new BooleanFactory());
     }
 
     private boolean isForcedToReadCache() {

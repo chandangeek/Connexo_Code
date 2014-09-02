@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
+import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -25,6 +26,12 @@ import java.util.Collection;
 public class ConnectionTypeServiceImpl implements ConnectionTypeService {
 
     private volatile PropertySpecService propertySpecService;
+
+    @Inject
+    public ConnectionTypeServiceImpl(PropertySpecService propertySpecService) {
+        super();
+        this.setPropertySpecService(propertySpecService);
+    }
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;

@@ -4,10 +4,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -35,12 +32,15 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.ArrayList;
@@ -126,11 +126,15 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
+        PropertySpecService propertySpecService = Bus.getPropertySpecService();
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(OptionalPropertySpecFactory.newInstance().stringPropertySpec("SDKStringProperty"));
+        propertySpecs.add(propertySpecService.basicPropertySpec("SDKStringProperty", false, new StringFactory()));
         propertySpecs.add(
-                RequiredPropertySpecFactory.newInstance()
-                        .obisCodePropertySpecWithValuesExhaustive("SDKObisCodeProperty", ObisCode.fromString("1.0.1.8.0.255"),
+                propertySpecService.
+                        obisCodePropertySpecWithValuesExhaustive(
+                                "SDKObisCodeProperty",
+                                true,
+                                ObisCode.fromString("1.0.1.8.0.255"),
                                 ObisCode.fromString("1.0.1.8.1.255"),
                                 ObisCode.fromString("1.0.1.8.2.255"),
                                 ObisCode.fromString("1.0.2.8.0.255"),

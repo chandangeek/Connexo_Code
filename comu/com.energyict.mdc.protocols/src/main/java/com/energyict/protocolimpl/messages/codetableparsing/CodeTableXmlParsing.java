@@ -435,8 +435,8 @@ public class CodeTableXmlParsing {
      * @return the desired CodeTable
      */
     protected static Code getCode(int id) {
-        IdBusinessObjectFactory factory = (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id());
-        return (Code) factory.get(id);
+        // Todo: port Code to jupiter, return null as the previous code would have returned null too.
+        return null;
     }
 
     /**

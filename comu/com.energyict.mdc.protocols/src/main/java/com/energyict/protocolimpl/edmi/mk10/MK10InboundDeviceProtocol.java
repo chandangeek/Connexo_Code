@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
@@ -11,6 +10,7 @@ import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 
+import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
@@ -168,9 +168,10 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
+        PropertySpecService propertySpecService = Bus.getPropertySpecService();
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(TIMEOUT_KEY));
-        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(RETRIES_KEY));
+        propertySpecs.add(propertySpecService.basicPropertySpec(TIMEOUT_KEY, false, new BigDecimalFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec(RETRIES_KEY, false, new BigDecimalFactory()));
         return propertySpecs;
     }
 

@@ -1,12 +1,13 @@
 package com.energyict.protocols.mdc.channels.serial.optical.dlms;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -97,7 +98,7 @@ public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
     }
 
     PropertySpec getConnectionPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, BigDecimal.ZERO);
+        return this.getPropertySpecService().bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, false, BigDecimal.ZERO);
     }
 
 }

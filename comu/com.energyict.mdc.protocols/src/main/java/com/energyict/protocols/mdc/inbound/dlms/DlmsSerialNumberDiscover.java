@@ -1,5 +1,13 @@
 package com.energyict.protocols.mdc.inbound.dlms;
 
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.ObisCodeValueFactory;
+import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+
+import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
@@ -9,12 +17,6 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 import com.energyict.protocols.mdc.inbound.dlms.aso.SimpleApplicationServiceObject;
@@ -179,9 +181,9 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     @Override
     public List<PropertySpec> getPropertySpecs () {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS));
-        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS));
-        propertySpecs.add(OptionalPropertySpecFactory.newInstance().obisCodePropertySpec(DEVICE_ID_OBISCODE_KEY));
+        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false, new BigDecimalFactory()));
+        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS, false, new BigDecimalFactory()));
+        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(DEVICE_ID_OBISCODE_KEY, false, new ObisCodeValueFactory()));
         return propertySpecs;
     }
 

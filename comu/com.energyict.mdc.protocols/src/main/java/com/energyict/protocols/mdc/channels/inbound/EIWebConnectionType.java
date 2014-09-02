@@ -1,14 +1,16 @@
 package com.energyict.protocols.mdc.channels.inbound;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -39,11 +41,11 @@ public class EIWebConnectionType implements ServerConnectionType {
     }
 
     private PropertySpec ipAddressPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(IP_ADDRESS_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(IP_ADDRESS_PROPERTY_NAME, false, new StringFactory());
     }
 
     private PropertySpec macAddressPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(MAC_ADDRESS_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(MAC_ADDRESS_PROPERTY_NAME, false, new StringFactory());
     }
 
     protected TypedProperties getAllProperties() {

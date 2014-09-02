@@ -1,11 +1,14 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,31 +43,31 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec retriesPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(RETRIES_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec delayAfterErrorPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec forcedDelayPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(FORCED_DELAY_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(FORCED_DELAY_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec addressPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(ADDRESS_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(ADDRESS_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec sendEndOfSessionPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().booleanPropertySpec(SEND_END_OF_SESSION_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(SEND_END_OF_SESSION_PROPERTY_NAME, false, new BooleanFactory());
     }
 
     private PropertySpec maxAllowedInvalidProfileResponsesPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     @Override

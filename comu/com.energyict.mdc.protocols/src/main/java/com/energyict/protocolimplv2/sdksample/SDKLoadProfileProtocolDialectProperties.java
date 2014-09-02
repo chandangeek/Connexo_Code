@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.ObisCodeValueFactory;
+
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +51,7 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
     }
 
     private PropertySpec<ObisCode> getNotSupportedLoadProfileObisCodePropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().obisCodePropertySpec(notSupportedLoadProfileObisCodePropertyName);
+        return Bus.getPropertySpecService().basicPropertySpec(notSupportedLoadProfileObisCodePropertyName, false, new ObisCodeValueFactory());
     }
+
 }

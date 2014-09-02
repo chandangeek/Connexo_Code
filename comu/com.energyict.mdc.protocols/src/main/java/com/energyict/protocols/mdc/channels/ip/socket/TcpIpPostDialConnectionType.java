@@ -1,11 +1,14 @@
 package com.energyict.protocols.mdc.channels.ip.socket;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -111,15 +114,15 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     private PropertySpec postDialDelayPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(POST_DIAL_DELAY);
+        return Bus.getPropertySpecService().basicPropertySpec(POST_DIAL_DELAY, false, new BigDecimalFactory());
     }
 
     private PropertySpec postDialRetriesPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(POST_DIAL_TRIES);
+        return Bus.getPropertySpecService().basicPropertySpec(POST_DIAL_TRIES, false, new BigDecimalFactory());
     }
 
     private PropertySpec postDialCommandPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(POST_DIAL_COMMAND);
+        return Bus.getPropertySpecService().basicPropertySpec(POST_DIAL_COMMAND, false, new StringFactory());
     }
 
     @Override

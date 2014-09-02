@@ -1,11 +1,13 @@
 package com.energyict.protocols.mdc.channels.ip;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,11 +33,11 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec portNumberPropertySpec() {
-        return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(PORT_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(PORT_PROPERTY_NAME, true, new BigDecimalFactory());
     }
 
     private PropertySpec connectionTimeOutPropertySpec() {
-        return OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME);
+        return Bus.getPropertySpecService().basicPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME, false, new TimeDurationValueFactory());
     }
 
     protected int portNumberPropertyValue() {
