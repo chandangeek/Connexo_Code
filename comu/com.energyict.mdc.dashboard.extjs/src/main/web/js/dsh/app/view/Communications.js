@@ -3,6 +3,7 @@ Ext.define('Dsh.view.Communications', {
     //   extend: 'Ext.container.Container',
     alias: 'widget.communications-details',
     itemId: 'communicationsdetails',
+    overflowY: 'auto',
     requires: [
         'Dsh.view.widget.CommunicationsList',
         'Dsh.view.widget.PreviewCommunication'

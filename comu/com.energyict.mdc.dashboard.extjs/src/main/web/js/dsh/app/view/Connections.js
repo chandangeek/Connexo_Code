@@ -2,6 +2,7 @@ Ext.define('Dsh.view.Connections', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.connections-details',
     itemId: 'connectionsdetails',
+    overflowY: 'auto',
     requires: [
         'Dsh.view.widget.ConnectionsList',
         'Dsh.view.widget.PreviewConnection',
