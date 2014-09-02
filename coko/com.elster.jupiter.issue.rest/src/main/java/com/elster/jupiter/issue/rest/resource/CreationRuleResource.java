@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
 import com.elster.jupiter.issue.rest.transactions.CreateCreationRuleTransaction;
 import com.elster.jupiter.issue.rest.transactions.EditCreationRuleTransaction;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -11,6 +12,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -30,6 +32,7 @@ public class CreationRuleResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_CREATION_RULE)
     public Response getCreationRules(@BeanParam StandardParametersBean params){
         validateMandatory(params, START, LIMIT);
 
@@ -47,6 +50,7 @@ public class CreationRuleResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_CREATION_RULE)
     public Response getCreationRule(@PathParam(ID) long id){
         Optional<CreationRule> rule = getIssueCreationService().findCreationRule(id);
         if (!rule.isPresent()){
@@ -57,6 +61,7 @@ public class CreationRuleResource extends BaseResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed(Privileges.DELETE_CREATION_RULE)
     public Response deleteCreationRule(@PathParam("id") long id, @QueryParam("version") long version){
         if(version == 0){
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -81,6 +86,7 @@ public class CreationRuleResource extends BaseResource {
     }
 
     @POST
+    @RolesAllowed(Privileges.CREATE_CREATION_RULE)
     public Response addCreationRule(CreationRuleInfo rule){
         getTransactionService().execute(new CreateCreationRuleTransaction(getIssueService(), getIssueCreationService(), getIssueActionService(), rule));
         return Response.status(Response.Status.CREATED).build();
@@ -88,6 +94,7 @@ public class CreationRuleResource extends BaseResource {
 
     @PUT
     @Path("/{id}")
+    @RolesAllowed(Privileges.UPDATE_CREATION_RULE)
     public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule){
         rule.setId(id);
         getTransactionService().execute(new EditCreationRuleTransaction(getIssueService(), getIssueCreationService(), getIssueActionService(), rule));

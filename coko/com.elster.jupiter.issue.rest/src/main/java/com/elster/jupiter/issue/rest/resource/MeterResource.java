@@ -2,11 +2,13 @@ package com.elster.jupiter.issue.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.device.MeterShortInfo;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,6 +30,7 @@ public class MeterResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getMeters(@BeanParam StandardParametersBean params) {
         validateMandatory(params, START, LIMIT);
         // We shouldn't return anything if the 'like' parameter is absent or it is an empty string.
@@ -52,6 +55,7 @@ public class MeterResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getMeter(@PathParam(ID) long id){
         Optional<Meter> meterRef = getMeteringService().findMeter(id);
         if(!meterRef.isPresent()){

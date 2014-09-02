@@ -2,10 +2,12 @@ package com.elster.jupiter.issue.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.IssueStatusInfo;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,6 +27,7 @@ public class StatusResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getStatuses() {
         Query<IssueStatus> query = getIssueService().query(IssueStatus.class);
         List<IssueStatus> statuses = query.select(Condition.TRUE);
@@ -40,6 +43,7 @@ public class StatusResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getStatus(@PathParam(ID) long id){
         Optional<IssueStatus> statusRef = getIssueService().findStatus(id);
         if(!statusRef.isPresent()){

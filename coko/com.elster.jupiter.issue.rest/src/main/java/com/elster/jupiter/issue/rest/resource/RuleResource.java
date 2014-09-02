@@ -3,6 +3,7 @@ package com.elster.jupiter.issue.rest.resource;
 import com.elster.jupiter.issue.rest.response.AssignmentRuleInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfo;
 import com.elster.jupiter.issue.rest.response.cep.ParameterInfo;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.ParameterDefinition;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
@@ -10,6 +11,7 @@ import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -39,6 +41,7 @@ public class RuleResource extends BaseResource{
     @GET
     @Path("/assign")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ASSIGNMENT_RULE)
     public Response getAssignmentRules(){
         List<AssignmentRule> assignmentRules = issueAssignmentService.getAssignmentRuleQuery().select(Condition.TRUE);
         return ok(assignmentRules, AssignmentRuleInfo.class).build();
@@ -53,6 +56,7 @@ public class RuleResource extends BaseResource{
     @GET
     @Path("/templates")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_CREATION_RULE)
     public Response getCreationRulesTemplates(@BeanParam StandardParametersBean params){
         validateMandatory(params, ISSUE_TYPE);
 
@@ -76,6 +80,7 @@ public class RuleResource extends BaseResource{
     @GET
     @Path("/templates/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_CREATION_RULE)
     public Response getTemplate(@PathParam(ID) String id){
         Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
         if (!template.isPresent()){
@@ -89,6 +94,7 @@ public class RuleResource extends BaseResource{
     @Path("/templates/{" + ID + "}/parameters")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_CREATION_RULE)
     public Response getAllParametersValues(@PathParam(ID) String id, Map<String, Object> paramValues){
         Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
         if (!template.isPresent()){
@@ -108,6 +114,7 @@ public class RuleResource extends BaseResource{
     @Path("/templates/{" + ID + "}/parameters/{" + KEY + "}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_CREATION_RULE)
     public Response getSingleParametersValues(@PathParam(ID) String id, @PathParam(KEY) String key, Map<String, Object> paramValues){
         Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
         if (!template.isPresent()){

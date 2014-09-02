@@ -1,9 +1,11 @@
 package com.elster.jupiter.issue.rest.resource;
 
 import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.util.conditions.Condition;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -24,6 +26,7 @@ public class IssueTypeResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getIssueTypes(){
         List<IssueType> issueTypes = getIssueService().query(IssueType.class).select(Condition.TRUE);
         return ok(issueTypes, IssueTypeInfo.class).build();

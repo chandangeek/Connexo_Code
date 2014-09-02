@@ -14,6 +14,7 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.rest.transactions.CloseIssuesTransaction;
 import com.elster.jupiter.issue.rest.transactions.CreateCommentTransaction;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.GroupQueryBuilder;
 import com.elster.jupiter.metering.EndDevice;
@@ -22,6 +23,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -56,6 +58,7 @@ public class IssueResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getAllIssues(@BeanParam StandardParametersBean params) {
         validateMandatory(params, ISSUE_TYPE, START, LIMIT);
         Class<? extends BaseIssue> apiClass = getQueryApiClass(params);
@@ -86,6 +89,7 @@ public class IssueResource extends BaseResource {
     @GET
     @Path("/groupedlist")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getGroupedList(@BeanParam StandardParametersBean params) {
         validateMandatory(params, ISSUE_TYPE, START, LIMIT, FIELD);
         List<GroupByReasonEntity> resultList = Collections.<GroupByReasonEntity>emptyList();
@@ -115,6 +119,7 @@ public class IssueResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getIssueById(@PathParam(ID) long id) {
         Optional<Issue> issue = getIssueService().findIssue(id, true);
         if (!issue.isPresent()) {
@@ -132,6 +137,7 @@ public class IssueResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}/comments")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getComments(@PathParam(ID) long id, @BeanParam StandardParametersBean params) {
         Condition condition = where("issueId").isEqualTo(id);
         Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
@@ -143,6 +149,7 @@ public class IssueResource extends BaseResource {
     @Path("/{" + ID + "}/comments")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.COMMENT_ISSUE)
     public Response postComment(@PathParam("id") long id, CreateCommentRequest request, @Context SecurityContext securityContext) {
         User author = (User)securityContext.getUserPrincipal();
         if (request.getComment() == null) {
@@ -156,6 +163,7 @@ public class IssueResource extends BaseResource {
     @Path("/close")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CLOSE_ISSUE)
     public RootEntity closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext){
         User author = (User)securityContext.getUserPrincipal();
         ActionInfo info = getTransactionService().execute(new CloseIssuesTransaction(request, getIssueService(), author, getThesaurus()));
@@ -166,6 +174,7 @@ public class IssueResource extends BaseResource {
     @Path("/assign")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ASSIGN_ISSUE)
     public RootEntity assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext){
         User author = (User)securityContext.getUserPrincipal();
         ActionInfo info = getTransactionService().execute(new AssignIssueTransaction(request, getIssueService(), author, getThesaurus()));
@@ -175,6 +184,7 @@ public class IssueResource extends BaseResource {
     @PUT
     @Path("{" + ID + "}/action")
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ACTION_ISSUE)
     public Response performAction(@PathParam(ID) long id, PerformActionRequest request) {
         Optional<Issue> issue = getIssueService().findIssue(id, true);
         if (!issue.isPresent()) {

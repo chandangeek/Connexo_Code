@@ -2,11 +2,13 @@ package com.elster.jupiter.issue.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -27,6 +29,7 @@ public class ReasonResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getReasons(@BeanParam StandardParametersBean params) {
         validateMandatory(params, ISSUE_TYPE);
         IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orNull();
@@ -51,6 +54,7 @@ public class ReasonResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getReason(@PathParam(ID) long id){
         Optional<IssueReason> reasonRef = getIssueService().findReason(id);
         if(!reasonRef.isPresent()){

@@ -3,11 +3,13 @@ package com.elster.jupiter.issue.rest.resource;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionPhaseInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionTypeInfo;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.util.conditions.Condition;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -32,6 +34,7 @@ public class ActionResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getAllActionTypes(@BeanParam StandardParametersBean params){
         validateMandatory(params, ISSUE_TYPE);
         IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orNull();
@@ -54,6 +57,7 @@ public class ActionResource extends BaseResource {
     @GET
     @Path("/phases")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_ISSUE)
     public Response getAllActionPhases(){
         List<CreationRuleActionPhaseInfo> availablePhases = new ArrayList<>();
         for (CreationRuleActionPhase phase : CreationRuleActionPhase.values()) {
