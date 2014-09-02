@@ -32,7 +32,7 @@ public class LoadProfileDataInfo {
                 channelIntervalInfo.intervalFlags.add(thesaurus.getString(flag.name(), flag.name()));
             }
 
-            for (Map.Entry<Channel, BigDecimal> entry : loadProfileReading.getChannelValues()) {
+            for (Map.Entry<Channel, BigDecimal> entry : loadProfileReading.getChannelValues().entrySet()) {
                 channelIntervalInfo.channelData.put(entry.getKey().getId(), entry.getValue());
             }
             channelData.add(channelIntervalInfo);
