@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -36,16 +37,18 @@ public class BpmServiceImpl implements BpmService, InstallService {
     private volatile JsonService jsonService;
     private volatile AppService appService;
     private volatile Thesaurus thesaurus;
+    private volatile UserService userService;
 
     public BpmServiceImpl(){
     }
 
     @Inject
-    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, AppService appService) {
+    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, AppService appService, UserService userService) {
         setOrmService(ormService);
         setMessageService(messageService);
         setAppService(appService);
         setJsonService(jsonService);
+        setUserService(userService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -62,6 +65,7 @@ public class BpmServiceImpl implements BpmService, InstallService {
                 bind(AppService.class).toInstance(appService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(UserService.class).toInstance(userService);
                 bind(BpmService.class).toInstance(BpmServiceImpl.this);
             }
         });
@@ -73,7 +77,7 @@ public class BpmServiceImpl implements BpmService, InstallService {
 
     @Override
     public void install() {
-        new InstallerImpl().install(messageService, appService);
+        new InstallerImpl().install(messageService, appService, userService);
 
     }
 
@@ -95,6 +99,11 @@ public class BpmServiceImpl implements BpmService, InstallService {
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Reference

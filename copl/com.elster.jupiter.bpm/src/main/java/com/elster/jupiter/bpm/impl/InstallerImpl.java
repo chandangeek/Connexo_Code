@@ -2,9 +2,11 @@ package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.users.UserService;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,7 +16,9 @@ public class InstallerImpl {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
-    public void install(MessageService messageService, AppService appService) {
+    public void install(MessageService messageService, AppService appService, UserService userService) {
+        createPrivileges(userService);
+        assignPrivilegesToDefaultRoles(userService);
         createBPMQueue(messageService);
     }
 
@@ -29,5 +33,14 @@ public class InstallerImpl {
         }
     }
 
+    private void createPrivileges(UserService userService) {
+        userService.createResourceWithPrivileges("SYS", "bpm.businessProcesses", "bpm.businessProcesses.description", new String[] {Privileges.VIEW_BPM});
+    }
+
+    private void assignPrivilegesToDefaultRoles(UserService userService) {
+        userService.grantGroupWithPrivilege(userService.DEFAULT_ADMIN_ROLE, new String[] {Privileges.VIEW_BPM});
+        userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.VIEW_BPM});
+        userService.grantGroupWithPrivilege(userService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_BPM});
+    }
 
 }
