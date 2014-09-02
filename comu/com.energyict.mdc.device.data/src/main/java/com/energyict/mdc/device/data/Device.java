@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.HasId;
@@ -49,7 +50,7 @@ import java.util.TimeZone;
  * Date: 19/12/12
  * Time: 10:35
  */
-public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasId {
+public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasId, HasName {
 
     void save();
 

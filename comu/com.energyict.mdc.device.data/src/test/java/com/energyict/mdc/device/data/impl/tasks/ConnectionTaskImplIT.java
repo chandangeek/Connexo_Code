@@ -1,14 +1,32 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.energyict.mdc.common.*;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
-import com.energyict.mdc.device.data.tasks.*;
-import com.energyict.mdc.engine.model.*;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
+import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -18,18 +36,20 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.time.UtcInstant;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Provides code reuse opportunities for test classes
@@ -110,23 +130,17 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     @BeforeClass
     public static void registerConnectionTypePluggableClasses () {
-        try {
-            Environment.DEFAULT.get().execute(new Transaction<Object>() {
-                @Override
-                public Object doExecute() {
-                    outboundNoParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class);
-                    inboundNoParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(InboundNoParamsConnectionTypeImpl.class);
-                    inboundIpConnectionTypePluggableClass = registerConnectionTypePluggableClass(InboundIpConnectionTypeImpl.class);
-                    outboundIpConnectionTypePluggableClass = registerConnectionTypePluggableClass(OutboundIpConnectionTypeImpl.class);
-                    modemConnectionTypePluggableClass = registerConnectionTypePluggableClass(ModemConnectionType.class);
-                    modemNoParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(ModemNoParamsConnectionTypeImpl.class);
-                    return null;
-                }
-            });
-        }
-        catch (BusinessException | SQLException e) {
-            // Not thrown by the transaction
-        }
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                outboundNoParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class);
+                inboundNoParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(InboundNoParamsConnectionTypeImpl.class);
+                inboundIpConnectionTypePluggableClass = registerConnectionTypePluggableClass(InboundIpConnectionTypeImpl.class);
+                outboundIpConnectionTypePluggableClass = registerConnectionTypePluggableClass(OutboundIpConnectionTypeImpl.class);
+                modemConnectionTypePluggableClass = registerConnectionTypePluggableClass(ModemConnectionType.class);
+                modemNoParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(ModemNoParamsConnectionTypeImpl.class);
+            }
+        });
     }
 
     protected void refreshConnectionTypePluggableClasses () {
@@ -162,39 +176,27 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     @AfterClass
     public static void deleteConnectionTypePluggableClasses () {
-        try {
-            Environment.DEFAULT.get().execute(new Transaction<Object>() {
-                @Override
-                public Object doExecute() {
-                    outboundNoParamsConnectionTypePluggableClass.delete();
-                    inboundNoParamsConnectionTypePluggableClass.delete();
-                    inboundIpConnectionTypePluggableClass.delete();
-                    outboundIpConnectionTypePluggableClass.delete();
-                    modemConnectionTypePluggableClass.delete();
-                    modemNoParamsConnectionTypePluggableClass.delete();
-                    return null;
-                }
-            });
-        }
-        catch (BusinessException | SQLException e) {
-            // Not thrown by the transaction
-        }
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                outboundNoParamsConnectionTypePluggableClass.delete();
+                inboundNoParamsConnectionTypePluggableClass.delete();
+                inboundIpConnectionTypePluggableClass.delete();
+                outboundIpConnectionTypePluggableClass.delete();
+                modemConnectionTypePluggableClass.delete();
+                modemNoParamsConnectionTypePluggableClass.delete();
+            }
+        });
     }
 
     @AfterClass
     public static void deleteDiscoveryProtocolPluggableClasses () {
-        try {
-            Environment.DEFAULT.get().execute(new Transaction<Object>() {
-                @Override
-                public Object doExecute() {
-                    discoveryProtocolPluggableClass.delete();
-                    return null;
-                }
-            });
-        }
-        catch (BusinessException | SQLException e) {
-            // Not thrown by the transaction
-        }
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                discoveryProtocolPluggableClass.delete();
+            }
+        });
     }
 
     @BeforeClass
@@ -206,22 +208,16 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     @AfterClass
     public static void deleteComPortPools () {
-        try {
-            Environment.DEFAULT.get().execute(new Transaction<Object>() {
-                @Override
-                public Object doExecute() {
-                    deleteComPortPool(outboundTcpipComPortPool);
-                    deleteComPortPool(outboundTcpipComPortPool2);
-                    deleteComPortPool(inboundTcpipComPortPool);
-                    deleteComPortPool(inboundTcpipComPortPool2);
-                    deleteComPortPool(outboundModemComPortPool);
-                    return null;
-                }
-            });
-        }
-        catch (BusinessException | SQLException e) {
-            // Not thrown by the transaction
-        }
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                deleteComPortPool(outboundTcpipComPortPool);
+                deleteComPortPool(outboundTcpipComPortPool2);
+                deleteComPortPool(inboundTcpipComPortPool);
+                deleteComPortPool(inboundTcpipComPortPool2);
+                deleteComPortPool(outboundModemComPortPool);
+            }
+        });
     }
 
     private static void deleteComPortPool(ComPortPool comPortPool) {
@@ -231,51 +227,33 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     public static void registerDiscoveryProtocolPluggableClasses() {
-        try {
-            Environment.DEFAULT.get().execute(new Transaction<Object>() {
-                @Override
-                public Object doExecute() {
-                    discoveryProtocolPluggableClass = registerDiscoveryProtocolPluggableClass(SimpleDiscoveryProtocol.class);
-                    return null;
-                }
-            });
-        }
-        catch (BusinessException | SQLException e) {
-            // Not thrown by the transaction
-        }
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                discoveryProtocolPluggableClass = registerDiscoveryProtocolPluggableClass(SimpleDiscoveryProtocol.class);
+            }
+        });
     }
 
     private static void createIpComPortPools() {
-        try {
-            Environment.DEFAULT.get().execute(new Transaction<Object>() {
-                @Override
-                public Object doExecute() {
-                    outboundTcpipComPortPool = createOutboundIpComPortPool("TCP/IP out(1)");
-                    outboundTcpipComPortPool2 = createOutboundIpComPortPool("TCP/IP out(2)");
-                    inboundTcpipComPortPool = createInboundIpComPortPool("TCP/IP in(1)");
-                    inboundTcpipComPortPool2 = createInboundIpComPortPool("TCP/IP in(2)");
-                    return null;
-                }
-            });
-        }
-        catch (BusinessException | SQLException e) {
-            // Not thrown by the transaction
-        }
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                outboundTcpipComPortPool = createOutboundIpComPortPool("TCP/IP out(1)");
+                outboundTcpipComPortPool2 = createOutboundIpComPortPool("TCP/IP out(2)");
+                inboundTcpipComPortPool = createInboundIpComPortPool("TCP/IP in(1)");
+                inboundTcpipComPortPool2 = createInboundIpComPortPool("TCP/IP in(2)");
+            }
+        });
     }
 
     private static void createModemComPortPools() {
-        try {
-            Environment.DEFAULT.get().execute(new Transaction<Object>() {
-                @Override
-                public Object doExecute() {
-                    outboundModemComPortPool = createOutboundModemComPortPool("Modem out(1)");
-                    return null;
-                }
-            });
-        }
-        catch (BusinessException | SQLException e) {
-            // Not thrown by the transaction
-        }
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                outboundModemComPortPool = createOutboundModemComPortPool("Modem out(1)");
+            }
+        });
     }
 
     private static OutboundComPortPool createOutboundIpComPortPool(String name) {

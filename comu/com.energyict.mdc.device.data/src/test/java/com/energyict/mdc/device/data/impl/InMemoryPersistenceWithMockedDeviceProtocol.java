@@ -43,8 +43,8 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bootstrap.h2.impl.ResultSetPrinter;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -80,20 +80,11 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import javax.inject.Inject;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.security.Principal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
@@ -279,32 +270,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public SchedulingService getSchedulingService() {
         return schedulingService;
-    }
-
-    public static String query(String sql) {
-        Connection connection = Environment.DEFAULT.get().getConnection();
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            ResultSet resultSet = statement.executeQuery();
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new ResultSetPrinter(new PrintStream(out)).print(resultSet);
-            return new String(out.toByteArray());
-        } catch (SQLException e) {
-            StringWriter stringWriter = new StringWriter();
-            e.printStackTrace(new PrintWriter(stringWriter));
-            return stringWriter.toString();
-        }
-    }
-
-    public static String update(String sql) {
-        Connection connection = Environment.DEFAULT.get().getConnection();
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            int numberOfRows = statement.executeUpdate();
-            return "Updated " + numberOfRows + " row(s).";
-        } catch (SQLException e) {
-            StringWriter stringWriter = new StringWriter();
-            e.printStackTrace(new PrintWriter(stringWriter));
-            return stringWriter.toString();
-        }
     }
 
     private class MockModule extends AbstractModule {

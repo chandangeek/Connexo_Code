@@ -1,42 +1,11 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bootstrap.h2.impl.ResultSetPrinter;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -63,27 +32,57 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.impl.DefaultClock;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -203,9 +202,9 @@ public class InMemoryIntegrationPersistence {
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.dataModel = this.deviceDataService.getDataModel();
             initializeFactoryProviders();
+            createOracleAliases(dataModel.getConnection(true));
             ctx.commit();
         }
-        createOracleAliases();
     }
 
     private void initializeFactoryProviders() {
@@ -220,23 +219,22 @@ public class InMemoryIntegrationPersistence {
         });
     }
 
-    private static void createOracleAliases() throws SQLException {
-        try (PreparedStatement preparedStatement = Environment.DEFAULT.get().getConnection().prepareStatement(
+    private void createOracleAliases(Connection connection) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(
                 "CREATE VIEW IF NOT EXISTS USER_TABLES AS select table_name from INFORMATION_SCHEMA.TABLES where table_schema = 'PUBLIC'"
         )) {
             preparedStatement.execute();
         }
-        try (PreparedStatement preparedStatement = Environment.DEFAULT.get().getConnection().prepareStatement(
+        try (PreparedStatement preparedStatement = connection.prepareStatement(
                 "CREATE VIEW IF NOT EXISTS USER_IND_COLUMNS AS select index_name, table_name, column_name, ordinal_position AS column_position from INFORMATION_SCHEMA.INDEXES where table_schema = 'PUBLIC'"
         )) {
             preparedStatement.execute();
         }
-        try (PreparedStatement preparedStatement = Environment.DEFAULT.get().getConnection().prepareStatement(
+        try (PreparedStatement preparedStatement = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS USER_SEQUENCES ( SEQUENCE_NAME VARCHAR2 (30) NOT NULL, MIN_VALUE NUMBER, MAX_VALUE NUMBER, INCREMENT_BY NUMBER NOT NULL, CYCLE_FLAG VARCHAR2 (1), ORDER_FLAG VARCHAR2 (1), CACHE_SIZE NUMBER NOT NULL, LAST_NUMBER NUMBER NOT NULL)"
         )) {
             preparedStatement.execute();
         }
-        Environment.DEFAULT.get().closeConnection();
     }
 
     private void initializeMocks(String testName) {
@@ -261,7 +259,6 @@ public class InMemoryIntegrationPersistence {
                 deactivate(bootstrapModule);
             }
         }
-        Environment.DEFAULT.get().close();
     }
 
     private void deactivate(Object bootstrapModule) {
@@ -335,31 +332,27 @@ public class InMemoryIntegrationPersistence {
         return propertySpecService;
     }
 
-    public static String query(String sql) {
-        Connection connection = Environment.DEFAULT.get().getConnection();
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            ResultSet resultSet = statement.executeQuery();
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new ResultSetPrinter(new PrintStream(out)).print(resultSet);
-            return new String(out.toByteArray());
-        }
-        catch (SQLException e) {
-            StringWriter stringWriter = new StringWriter();
-            e.printStackTrace(new PrintWriter(stringWriter));
-            return stringWriter.toString();
+    public int update(SqlBuilder sqlBuilder) throws SQLException {
+        try (PreparedStatement statement = sqlBuilder.getStatement(this.dataModel.getConnection(true))) {
+            return statement.executeUpdate();
         }
     }
 
-    public static String update(String sql) {
-        Connection connection = Environment.DEFAULT.get().getConnection();
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            int numberOfRows = statement.executeUpdate();
-            return "Updated " + numberOfRows + " row(s).";
+    public String update(String sql) {
+        try {
+            Connection connection = this.dataModel.getConnection(true);
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                int numberOfRows = statement.executeUpdate();
+                return "Updated " + numberOfRows + " row(s).";
+            }
+            catch (SQLException e) {
+                StringWriter stringWriter = new StringWriter();
+                e.printStackTrace(new PrintWriter(stringWriter));
+                return stringWriter.toString();
+            }
         }
         catch (SQLException e) {
-            StringWriter stringWriter = new StringWriter();
-            e.printStackTrace(new PrintWriter(stringWriter));
-            return stringWriter.toString();
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
