@@ -30,6 +30,9 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             '#filteritemid button[action=clear]': {
                 click: this.clearCriteria
             },
+            '#sideFilter filter-form': {
+                applyfilter: this.searchClick
+            },
             '#sortitemid button[action=clear]': {
                 click: this.clearSort
             },

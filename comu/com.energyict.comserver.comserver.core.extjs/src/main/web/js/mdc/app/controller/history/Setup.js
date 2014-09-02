@@ -866,7 +866,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceDataValidationMainView'
                         },
                         communicationschedules: {
-                            title: 'Communication schedule',
+                            title: 'Communication plan',
                             route: 'communicationschedules',
                             controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
                             action: 'showDeviceCommunicationScheduleView',
@@ -991,7 +991,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                         },
                                         data: {
                                             title: 'Logbook data',
-                                            route: 'data'
+                                            route: 'data',
+                                            controller: 'Mdc.controller.setup.DeviceLogbookData',
+                                            action: 'showOverview'
                                         }
                                     }
                                 }

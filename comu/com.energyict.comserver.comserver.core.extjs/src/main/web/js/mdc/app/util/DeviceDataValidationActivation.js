@@ -59,7 +59,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 }
             });
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/devicevalidation',
+            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);

@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSchedulePopUp', {
     items: [
         {
             xtype: 'container',
+            margin: '10px',
             items: [
                 {
                     xtype: 'form',
@@ -72,7 +73,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSchedulePopUp', {
                     fieldLabel: '&nbsp',
                     labelWidth: 250,
                     layout: {
-                        type: 'hbox',
+                        type: 'hbox'
                    //     align: 'stretch'
                     },
                     width: '100%',

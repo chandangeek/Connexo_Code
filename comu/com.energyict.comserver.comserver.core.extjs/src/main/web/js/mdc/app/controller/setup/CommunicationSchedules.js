@@ -286,10 +286,14 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     addCommunicationTasksToSchedule: function () {
-        var selection = this.getCommunicationTaskGrid().getSelectionModel().getSelection(),
+        var grid =  this.getCommunicationTaskGrid(),
             form = this.getCommunicationScheduleEditForm(),
-            hasComTasks;
+            hasComTasks,
+            selection;
 
+        grid.isAllSelected() && grid.getSelectionModel().selectAll();
+
+        selection = grid.getSelectionModel().getSelection();
         this.record.comTaskUsages().add(selection);
         this.comTaskStore.remove(selection);
         this.getCommunicationScheduleEditForm().down('#comTasksOnForm').reconfigure(this.record.comTaskUsages());

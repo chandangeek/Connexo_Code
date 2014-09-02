@@ -22,6 +22,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                 header: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
                 dataIndex: 'temporalExpression',
                 renderer: function (value, metadata) {
+                    metadata.tdAttr = 'data-qtip="' + Mdc.util.ScheduleToStringConverter.convert(value) + '"';
                     switch (value.every.timeUnit) {
                         case 'months':
                             return Uni.I18n.translate('general.monthly', 'MDC', 'Monthly');
