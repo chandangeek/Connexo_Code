@@ -320,7 +320,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                 this.down('#addEditButton').action = 'addDeviceOutboundConnectionMethod';
                 this.down('#scheduleField').setValue({
                     every: {
-                        count: 0,
+                        count: 5,
                         timeUnit: 'minutes'
                     },
                     lastDay: false,
