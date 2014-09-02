@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Bundle-Activator: com.elster.jupiter.system.app.Activator
+Private-Package: com.elster.jupiter.system.app
+-include: -../development.bnd

@@ -1,0 +1,9 @@
+{
+    "name": "SystemApp",
+
+    "requires": [
+        "UnifyingJS"
+    ],
+
+    "id": "7cde7b38-a4d1-4e19-aed4-8b4b3e92293e"
+}
