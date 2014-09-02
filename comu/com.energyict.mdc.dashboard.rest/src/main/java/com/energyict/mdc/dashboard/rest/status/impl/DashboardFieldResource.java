@@ -55,4 +55,10 @@ public class DashboardFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("lifecycleStatuses", "lifecycleStatus", new ConnectionTaskLifecycleStatusAdaptor().getClientSideValues());
     }
 
+    @GET
+    @Path("/completioncodes")
+    @Produces("application/json")
+    public Object getCompletionCodes() {
+        return asJsonArrayObjectWithTranslation("completionCodes", "completionCode", new CompletionCodeAdapter().getClientSideValues());    }
+
 }
