@@ -218,7 +218,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             this.getScheduleField().setVisible(false);
             this.getConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(true);
         }
-        this.getScheduleField().clear();
     },
 
     addOutboundConnectionMethod: function () {

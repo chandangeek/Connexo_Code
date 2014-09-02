@@ -328,6 +328,18 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
             }
         } else {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
+            var me = this;
+            this.down('#scheduleField').setValue({
+                every: {
+                    count: 5,
+                    timeUnit: 'minutes'
+                },
+                lastDay: false,
+                offset: {
+                    count: 0,
+                    timeUnit: 'seconds'
+                }
+            });
             if (this.direction === 'Outbound') {
                 this.down('#addEditButton').action = 'addOutboundConnectionMethod';
             } else if (this.direction === 'Inbound') {
