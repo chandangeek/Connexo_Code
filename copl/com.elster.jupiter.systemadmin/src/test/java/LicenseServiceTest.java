@@ -1,6 +1,7 @@
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.license.InvalidLicenseException;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -11,6 +12,8 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
@@ -67,9 +70,10 @@ public class LicenseServiceTest {
     @BeforeClass
     public static void setUp() {
         injector = Guice.createInjector(inMemoryBootstrapModule, licenseModule,
-                new OrmModule(), new TransactionModule(), new PubSubModule(), new ThreadSecurityModule(), new UtilModule());
+                new OrmModule(), new TransactionModule(), new PubSubModule(), new ThreadSecurityModule(), new UtilModule(), new DomainUtilModule(), new UserModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             getLicenseService();
+            getUserService();
             ctx.commit();
         }
     }
@@ -80,6 +84,10 @@ public class LicenseServiceTest {
 
     private TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
+    }
+
+    private static UserService getUserService() {
+        return injector.getInstance(UserService.class);
     }
 
     @AfterClass
