@@ -30,11 +30,4 @@ public interface BusinessObject extends BusinessObjectProxy {
      */
     public BusinessObjectFactory getFactory();
 
-    /**
-     * Returns the type ID of this business object.
-     *
-     * @return The type ID of this business object.
-     */
-    public TypeId getTypeId();
-
 }

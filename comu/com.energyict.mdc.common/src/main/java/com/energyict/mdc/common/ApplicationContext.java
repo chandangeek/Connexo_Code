@@ -3,11 +3,8 @@ package com.energyict.mdc.common;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Logger;
 
-public class ApplicationContext implements FactoryFinder {
-
-    private static Logger logger = Logger.getLogger(ApplicationContext.class.getName());
+public class ApplicationContext {
 
     private final List<ApplicationComponent> components = new ArrayList<>();
     private Locale locale;
@@ -32,40 +29,6 @@ public class ApplicationContext implements FactoryFinder {
         return mainComponent.createEventManager();
     }
 
-    public BusinessObjectFactory findFactory(String name) {
-        BusinessObjectFactory result = null;
-        for (ApplicationComponent each : components) {
-            try {
-                result = each.findFactory(name);
-            } catch (Exception ex) {
-                logger.finest("Did not find factory for " + name + " in module " + each.getName() + ". Looking in next module...");
-            }
-            if (result != null) {
-                return result;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<ProtectableFactory> getProtectableFactories() {
-        List<ProtectableFactory> factories = new ArrayList<>();
-        for (ApplicationComponent component : components) {
-            factories.addAll(component.getProtectableFactories());
-        }
-        return factories;
-    }
-
-    public List<BusinessObjectFactory> getReferenceableFactories() {
-        List<BusinessObjectFactory> factories = new ArrayList<>();
-        for (ApplicationComponent component : components) {
-            factories.addAll(component.getReferenceableFactories());
-        }
-        return factories;
-    }
-
     public Translator getTranslator() {
         if (translator == null) {
             translator = newTranslator();
@@ -82,17 +45,6 @@ public class ApplicationContext implements FactoryFinder {
             result.addErrorCodesBundle(each.getErrorCodeBundleName());
         }
         return result;
-    }
-
-    public BusinessObjectFactory findFactory(int factoryId) {
-        BusinessObjectFactory result;
-        for (ApplicationComponent each : components) {
-            result = each.findFactory(factoryId);
-            if (result != null) {
-                return result;
-            }
-        }
-        return null;
     }
 
     public Locale getLocale() {

@@ -1,8 +1,6 @@
 package com.energyict.mdc.common;
 
-import java.util.List;
-
-public interface ApplicationComponent extends FactoryFinder {
+public interface ApplicationComponent {
 
     String getLabelBundleName();
 
@@ -15,9 +13,5 @@ public interface ApplicationComponent extends FactoryFinder {
     String getName();
 
     void setApplicationContext(ApplicationContext applicationContext);
-
-    List<SystemParameterSpec> getSystemParameterSpecs();
-
-    List<Upgrader> getUpgraders();
 
 }

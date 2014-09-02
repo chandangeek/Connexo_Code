@@ -4,9 +4,7 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessEvent;
 import com.energyict.mdc.common.BusinessEventManager;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryFinder;
 import com.energyict.mdc.common.FormatPreferences;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -164,20 +162,6 @@ public class EnvironmentImpl implements Environment {
     @Override
     public String getProperty (String key) {
         return this.context.getProperty(key);
-    }
-
-    private FactoryFinder findFactoryFinder () {
-        return getApplicationContext();
-    }
-
-    @Override
-    public BusinessObjectFactory findFactory (String name) {
-        return findFactoryFinder().findFactory(name);
-    }
-
-    @Override
-    public BusinessObjectFactory findFactory (int factoryId) {
-        return findFactoryFinder().findFactory(factoryId);
     }
 
     @Override

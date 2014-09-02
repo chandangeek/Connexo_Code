@@ -27,10 +27,6 @@ public interface Environment extends FormatProvider {
 
     public String getProperty (String key);
 
-    public BusinessObjectFactory findFactory (String name);
-
-    public BusinessObjectFactory findFactory (int factoryId);
-
     public FormatPreferences getFormatPreferences ();
 
     public DecimalFormatSymbols getDecimalFormatSymbols ();
