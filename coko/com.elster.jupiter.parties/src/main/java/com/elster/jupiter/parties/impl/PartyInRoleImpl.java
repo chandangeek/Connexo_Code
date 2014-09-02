@@ -44,10 +44,6 @@ public class PartyInRoleImpl implements PartyInRole {
 		return this;
 	}
 	
-	static PartyInRoleImpl from(DataModel dataModel, Party party, PartyRole role, Interval interval) {
-		return dataModel.getInstance(PartyInRoleImpl.class).init(party, role, interval);
-	}
-	
 	@Override
 	public long getId() {
 		return id;

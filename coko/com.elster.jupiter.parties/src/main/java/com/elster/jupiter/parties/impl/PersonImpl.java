@@ -3,6 +3,7 @@ package com.elster.jupiter.parties.impl;
 import static com.elster.jupiter.util.Checks.is;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 
 import com.elster.jupiter.cbo.TelephoneNumber;
@@ -24,8 +25,8 @@ public final class PersonImpl extends PartyImpl implements Person {
 	private String specialNeed;
 	
 	@Inject
-	PersonImpl(DataModel dataModel, EventService eventService) {
-		super(dataModel,eventService);
+	PersonImpl(DataModel dataModel, EventService eventService,Provider<PartyInRoleImpl> partyInRoleProvider, Provider<PartyRepresentationImpl> partyRepresentationProvider) {
+		super(dataModel,eventService, partyInRoleProvider, partyRepresentationProvider);
 	}
 
     /**
@@ -40,10 +41,6 @@ public final class PersonImpl extends PartyImpl implements Person {
         return this;
     }
 	
-	static PersonImpl from(DataModel dataModel, String firstName, String lastName) {
-		return dataModel.getInstance(PersonImpl.class).init(firstName, lastName);
-	}
-
     private void validateLastName(String name) {
         if (is(name).emptyOrOnlyWhiteSpace()) {
             throw new IllegalArgumentException("Last name cannot be empty.");

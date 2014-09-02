@@ -36,12 +36,11 @@ public class PartyRepresentationTest {
     @SuppressWarnings("unchecked")
 	@Before
     public void setUp() {
-    	when(dataModel.getInstance(PartyRepresentationImpl.class)).thenReturn(new PartyRepresentationImpl(clock, userService)).thenThrow(IllegalStateException.class);
     }
 
     @Test
     public void testCreation() {
-    	PartyRepresentation rep =  PartyRepresentationImpl.from(dataModel, party, user, Interval.startAt(new Date()));
+    	PartyRepresentation rep =  new PartyRepresentationImpl(clock,userService).init(party, user, Interval.startAt(new Date()));
     	assertThat(rep.getParty()).isEqualTo(party);
     }
 }

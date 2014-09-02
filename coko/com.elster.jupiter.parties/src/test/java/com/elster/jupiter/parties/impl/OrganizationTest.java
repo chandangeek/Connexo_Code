@@ -19,6 +19,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+import com.google.inject.util.Providers;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OrganizationTest {
@@ -34,18 +35,10 @@ public class OrganizationTest {
     private EventService eventService;
     @Mock
     private PartyRole role;
-    
-	@SuppressWarnings("unchecked")
-	@Before
-    public void setUp() {
-    	when(dataModel.getInstance(OrganizationImpl.class)).thenReturn(new OrganizationImpl(dataModel, eventService)).thenThrow(IllegalStateException.class);
-    	when(dataModel.getInstance(PartyRepresentationImpl.class)).thenReturn(new PartyRepresentationImpl(clock, userService)).thenThrow(IllegalStateException.class);
-    	when(dataModel.getInstance(PartyInRoleImpl.class)).thenReturn(new PartyInRoleImpl(clock)).thenThrow(IllegalStateException.class);
-    }
    
 	@Test
     public void testCreation() {
-		Party party =  OrganizationImpl.from(dataModel,"EICT");
+		Party party =  new OrganizationImpl(dataModel, eventService, Providers.of(new PartyInRoleImpl(clock)),Providers.of(new PartyRepresentationImpl(clock, userService))).init("EICT");
     	assertThat(party.getPartyInRoles(Interval.sinceEpoch())).isEmpty();
     	assertThat(party.getCurrentDelegates()).isEmpty();
     	Date now = new Date();

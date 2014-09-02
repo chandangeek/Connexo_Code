@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -66,11 +67,15 @@ abstract class PartyImpl implements Party {
   
    	private final DataModel dataModel;
    	private final EventService eventService;
+   	private final Provider<PartyInRoleImpl> partyInRoleProvider;
+   	private final Provider<PartyRepresentationImpl> partyRepresentationProvider;
    	
    	@Inject
-   	PartyImpl(DataModel dataModel, EventService eventService) {
+   	PartyImpl(DataModel dataModel, EventService eventService,Provider<PartyInRoleImpl> partyInRoleProvider, Provider<PartyRepresentationImpl> partyRepresentationProvider) {
    		this.dataModel = dataModel;
    		this.eventService = eventService;
+   		this.partyInRoleProvider = partyInRoleProvider;
+   		this.partyRepresentationProvider = partyRepresentationProvider;
    	}
 
     @Override
@@ -186,7 +191,8 @@ abstract class PartyImpl implements Party {
     public PartyRepresentation appointDelegate(User user, Date start) {
         Interval interval = Interval.startAt(start);
         validateAddingDelegate(user, interval);
-        PartyRepresentationImpl representation = PartyRepresentationImpl.from(dataModel, this, user, interval);
+        PartyRepresentationImpl representation = partyRepresentationProvider.get();
+        representation.init(this, user, interval);
         representations.add(representation);
         touch();
         return representation;
@@ -217,7 +223,8 @@ abstract class PartyImpl implements Party {
 
     @Override
     public PartyInRoleImpl assumeRole(PartyRole role, Date start) {
-        PartyInRoleImpl candidate = PartyInRoleImpl.from(dataModel, this, role, Interval.startAt(start));
+        PartyInRoleImpl candidate = partyInRoleProvider.get();
+        candidate.init(this, role, Interval.startAt(start));
         validateAddingRole(candidate);
         partyInRoles.add(candidate);
         touch();

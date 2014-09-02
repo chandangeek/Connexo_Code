@@ -41,16 +41,12 @@ final class PartyRepresentationImpl implements PartyRepresentation {
     	this.userService = userService;
     }
     
-	private PartyRepresentationImpl init(PartyImpl party, User delegate, Interval interval) {
+	PartyRepresentationImpl init(PartyImpl party, User delegate, Interval interval) {
 		this.party.set(party);
 		this.delegateUser = Objects.requireNonNull(delegate);
 		this.delegate = delegate.getName();
         this.interval = Objects.requireNonNull(interval);
         return this;
-	}
-
-	static PartyRepresentationImpl from (DataModel dataModel, PartyImpl party, User delegate, Interval interval) {
-		return dataModel.getInstance(PartyRepresentationImpl.class).init(party, delegate,interval);
 	}
 	
     @Override

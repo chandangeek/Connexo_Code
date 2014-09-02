@@ -158,12 +158,12 @@ public class PartyServiceImpl implements PartyService, InstallService {
 
     @Override
     public Organization newOrganization(String mRID) {
-    	return OrganizationImpl.from(dataModel, mRID);
+    	return dataModel.getInstance(OrganizationImpl.class).init(mRID);
     }
 
     @Override
     public Person newPerson(String firstName, String lastName) {
-    	return PersonImpl.from(dataModel,firstName,lastName);
+    	return dataModel.getInstance(PersonImpl.class).init(firstName,lastName);
     }
 
     @Reference
