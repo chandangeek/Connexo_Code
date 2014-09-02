@@ -1,5 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
@@ -8,10 +12,6 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
@@ -21,7 +21,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -48,12 +47,12 @@ public class MeterTopology implements MasterMeter {
     /**
      * A List of localComposedCosemObjects containing the attributes to construct the serialNumber of the devices
      */
-    private List<ComposedMbusSerialNumber> cMbusSerialNumbers = new ArrayList<ComposedMbusSerialNumber>();
+    private List<ComposedMbusSerialNumber> cMbusSerialNumbers = new ArrayList<>();
 
     /**
      * A list of MbusMeter <CODE>DeviceMappings</CODE>
      */
-    protected List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
+    protected List<DeviceMapping> mbusMap = new ArrayList<>();
 
     private BaseDevice rtu;
 
@@ -76,7 +75,7 @@ public class MeterTopology implements MasterMeter {
      * @return the constructed composedObject for requesting MbusSerialNumber-data
      */
     protected ComposedCosemObject constructDiscoveryComposedCosemObject() {
-        List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+        List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
@@ -101,13 +100,8 @@ public class MeterTopology implements MasterMeter {
         // get an MbusDeviceMap
         this.mbusMap = getMbusMapper();
 
-        if (this.mbusMap.size() > 0) {
-            try {
-                // check if all the mbus devices are configured in EIServer
-                checkToUpdateMbusMeters(mbusMap);
-            } finally {
-                ProtocolTools.closeConnection();
-            }
+        if (!this.mbusMap.isEmpty()) {
+            checkToUpdateMbusMeters(mbusMap);
         }
 
         StringBuilder sb = new StringBuilder();
@@ -128,7 +122,7 @@ public class MeterTopology implements MasterMeter {
      */
     protected List<DeviceMapping> getMbusMapper() throws ConnectionException {
         String mbusSerial;
-        List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
+        List<DeviceMapping> mbusMap = new ArrayList<>();
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
@@ -138,7 +132,7 @@ public class MeterTopology implements MasterMeter {
                     Unsigned32 identification = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getIdentificationNumber()).getUnsigned32();
                     Unsigned8 deviceType = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getDeviceType()).getUnsigned8();
                     mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
-                    if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
+                    if ((mbusSerial != null) && (!"".equalsIgnoreCase(mbusSerial)) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
                     }
                 } catch (IOException e) {
@@ -225,16 +219,9 @@ public class MeterTopology implements MasterMeter {
      * @param mbusDeviceMap a List of Mbus DeviceMappings
      */
     protected void checkToUpdateMbusMeters(List<DeviceMapping> mbusDeviceMap) {
-
         for (DeviceMapping deviceMapping : mbusDeviceMap) {
             if (!ignoreZombieMbusDevice.equals(deviceMapping.getSerialNumber())) {
-                try {
-                    findOrCreateMbusDevice(deviceMapping.getSerialNumber());
-                } catch (SQLException e) {
-                    log(Level.SEVERE, "Could not create MbusDevice - " + e.getMessage());
-                } catch (BusinessException e) {
-                    log(Level.SEVERE, "Could not create MbusDevice - " + e.getMessage());
-                }
+                findOrCreateMbusDevice(deviceMapping.getSerialNumber());
             }
         }
     }
@@ -244,10 +231,8 @@ public class MeterTopology implements MasterMeter {
      *
      * @param serialNumber the serialnumber of the MbusDevice
      * @return the requested Mbus Device
-     * @throws SQLException      if a database error occurs
-     * @throws BusinessException when a business related error occurs
      */
-    private BaseDevice findOrCreateMbusDevice(String serialNumber) throws SQLException, BusinessException {
+    private BaseDevice findOrCreateMbusDevice(String serialNumber) {
         DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
         BaseDevice mbusRtu = deviceIdentifier.findDevice();
         // Check if gateway has changed, and update if it has

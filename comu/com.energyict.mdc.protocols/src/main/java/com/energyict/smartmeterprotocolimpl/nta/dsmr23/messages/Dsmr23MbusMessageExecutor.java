@@ -435,7 +435,6 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
                 return devices.get(0);
             }
         }
-        ProtocolTools.closeConnection();
         return null;
     }
 

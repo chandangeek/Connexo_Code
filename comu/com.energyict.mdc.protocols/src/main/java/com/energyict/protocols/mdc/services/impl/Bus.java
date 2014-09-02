@@ -23,6 +23,7 @@ public final class Bus {
     private static AtomicReference<PropertySpecService> propertySpecServiceProvider = new AtomicReference<>();
     private static AtomicReference<MdcReadingTypeUtilService> mdcReadingTypeUtilServiceProvider = new AtomicReference<>();
     private static AtomicReference<Thesaurus> thesaurusProvider = new AtomicReference<>();
+    private static AtomicReference<OrmClient> ormClientProvider = new AtomicReference<>();
 
     public static IssueService getIssueService() {
         return issueServiceProvider.get();
@@ -34,6 +35,18 @@ public final class Bus {
 
     public static void clearIssueService(IssueService old) {
         issueServiceProvider.compareAndSet(old, null);
+    }
+
+    public static OrmClient getOrmClient() {
+        return ormClientProvider.get();
+    }
+
+    public static void setOrmClient(OrmClient ormClient) {
+        ormClientProvider.set(ormClient);
+    }
+
+    public static void clearOrmClient(OrmClient old) {
+        ormClientProvider.compareAndSet(old, null);
     }
 
     public static Clock getClock() {

@@ -95,7 +95,6 @@ public abstract class AbstractInboundFrame {
     private boolean findDevice() {
         this.serialNumberPlaceHolder.setSerialNumber(getInboundParameters().getSerialNumber());
         device = getDeviceIdentifierBySerialNumberPlaceHolder().findDevice();
-        Environment.DEFAULT.get().closeConnection();
         return device != null;
     }
 

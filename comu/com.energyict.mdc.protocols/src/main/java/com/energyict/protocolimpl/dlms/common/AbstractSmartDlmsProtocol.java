@@ -1,16 +1,15 @@
 package com.energyict.protocolimpl.dlms.common;
 
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.common.Transaction;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
@@ -244,16 +243,10 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     @Override
     public void updateCache(final int rtuid, final Object cacheObject) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
-            Transaction tr = new Transaction() {
-                public Object doExecute() throws BusinessException, SQLException {
-                    DLMSCache dc = (DLMSCache) cacheObject;
-                    if (dc.contentChanged()) {
-                        new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
-                    }
-                    return null;
-                }
-            };
-            Environment.DEFAULT.get().execute(tr);
+            DLMSCache dc = (DLMSCache) cacheObject;
+            if (dc.contentChanged()) {
+                new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
+            }
         } else {
             throw new BusinessException("invalid RtuId!");
         }

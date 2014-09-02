@@ -1,14 +1,9 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -19,6 +14,11 @@ import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.g3.events.G3Events;
@@ -26,6 +26,7 @@ import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
 import com.energyict.protocolimpl.dlms.g3.profile.G3Profile;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 import com.energyict.protocolimpl.messaging.messages.AnnotatedFWUpdateMessageBuilder;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
 import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
@@ -283,17 +284,37 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
     @Override
     public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
-            Transaction tr = new Transaction() {
-                public Object doExecute() throws BusinessException, SQLException {
-                    G3Cache dc = (G3Cache) cacheObject;
-                    new RTUCache(rtuid).setBlob(dc);
-                    //new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
-                    return null;
-                }
-            };
-            Environment.DEFAULT.get().execute(tr);
+            try {
+                Bus.getOrmClient().execute(new VoidTransaction() {
+                    @Override
+                    protected void doPerform() {
+                        try {
+                            G3Cache dc = (G3Cache) cacheObject;
+                            new RTUCache(rtuid).setBlob(dc);
+                        }
+                        catch (SQLException e) {
+                            throw new LocalSQLException(e);
+                        }
+                    }
+                });
+            }
+            catch (LocalSQLException e) {
+                throw e.getCause();
+            }
         } else {
             throw new BusinessException("invalid RtuId!");
         }
     }
+
+    private class LocalSQLException extends RuntimeException {
+        private LocalSQLException(SQLException cause) {
+            super(cause);
+        }
+
+        @Override
+        public SQLException getCause() {
+            return (SQLException) super.getCause();
+        }
+    }
+
 }
