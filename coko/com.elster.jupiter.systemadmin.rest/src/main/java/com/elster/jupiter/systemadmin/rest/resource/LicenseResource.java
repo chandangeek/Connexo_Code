@@ -1,6 +1,7 @@
 package com.elster.jupiter.systemadmin.rest.resource;
 
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.security.Privileges;
 import com.elster.jupiter.systemadmin.rest.response.ActionInfo;
 import com.elster.jupiter.systemadmin.rest.response.LicenseInfo;
 import com.elster.jupiter.systemadmin.rest.response.LicenseListInfo;
@@ -10,6 +11,7 @@ import com.google.common.base.Optional;
 import org.glassfish.jersey.media.multipart.*;
 
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -24,6 +26,7 @@ public class LicenseResource extends BaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_LICENSE)
     public LicenseListInfo getLicenseList() {
         List<License> resultList  = new ArrayList<>();
         List<String> applKeyList =  getLicenseService().getLicensedApplicationKeys();
@@ -39,6 +42,7 @@ public class LicenseResource extends BaseResource {
     @GET
     @Path("/{applicationkey}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_LICENSE)
     public RootEntity getLicenseById(@PathParam("applicationkey") String tag) {
         Optional<License> licenseRef = getLicenseService().getLicenseForApplication(tag);
         LicenseInfo info = new LicenseInfo();
@@ -54,6 +58,7 @@ public class LicenseResource extends BaseResource {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPLOAD_LICENSE)
     public Response uploadLicense(@FormDataParam("uploadField") InputStream fileInputStream,
                                   @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
         SignedObject signedObject = null;
