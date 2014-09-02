@@ -17,6 +17,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
@@ -41,17 +42,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-
+import java.security.Principal;
+import java.sql.SQLException;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.security.Principal;
-import java.sql.SQLException;
-
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -74,6 +70,7 @@ public class InMemoryPersistence {
     private EventService eventService;
     private NlsService nlsService;
     private DataModel dataModel;
+    private UserService userService;
 
     private ConnectionTypeService connectionTypeService;
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
@@ -159,6 +156,7 @@ public class InMemoryPersistence {
         this.applicationContext = mock(ApplicationContext.class);
         this.deviceCacheMarshallingService = mock(DeviceCacheMarshallingService.class);
         this.licenseService = mock(LicenseService.class);
+        this.userService = mock(UserService.class);
         Translator translator = mock(Translator.class);
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
@@ -180,7 +178,7 @@ public class InMemoryPersistence {
                         this.deviceProtocolSecurityService,
                         this.inboundDeviceProtocolService,
                         this.connectionTypeService,
-                        this.deviceCacheMarshallingService, licenseService, licensedProtocolService);
+                        this.deviceCacheMarshallingService, licenseService, licensedProtocolService, userService);
         return this.protocolPluggableService.getDataModel();
     }
 
