@@ -152,8 +152,27 @@ public class UserServiceImpl implements UserService, InstallService {
     }
 
     @Override
-    public Resource createResource(String componentName, String privilegeName, String description) {
-        ResourceImpl result = ResourceImpl.from(dataModel, componentName, privilegeName, description);
+    public void createResourceWithPrivileges(String application, String name, String description, String[] privileges) {
+        Optional<Resource> found = findResource(name);
+        Resource resource = found.isPresent() ? found.get() : createResource(application, name, description);
+
+        for(String privilege : privileges){
+            resource.createPrivilege(privilege);
+        }
+    }
+
+    @Override
+    public void grantGroupWithPrivilege(String groupName, String[] privileges) {
+        Optional<Group> group = findGroup(groupName);
+        if (group.isPresent()) {
+            for(String privilege : privileges){
+                group.get().grant(privilege);
+            }
+        }
+    }
+
+    private Resource createResource(String application, String name, String description){
+        ResourceImpl result = ResourceImpl.from(dataModel, application, name, description);
         result.persist();
 
         return result;

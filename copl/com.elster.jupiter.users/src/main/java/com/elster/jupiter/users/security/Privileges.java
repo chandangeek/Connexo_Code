@@ -7,12 +7,12 @@ public interface Privileges {
     String DELETE_GROUP = "privilege.delete.group";
     String VIEW_GROUP = "privilege.view.group";
 
-    String CREATE_DOMAIN = "privilege.create.domain";
-    String UPDATE_DOMAIN = "privilege.update.domain";
-    String DELETE_DOMAIN = "privilege.delete.domain";
+    // To be added in the future
+    //String CREATE_DOMAIN = "privilege.create.domain";
+    //String UPDATE_DOMAIN = "privilege.update.domain";
+    //String DELETE_DOMAIN = "privilege.delete.domain";
     String VIEW_DOMAIN = "privilege.view.domain";
 
     String UPDATE_USER = "privilege.update.user";
     String VIEW_USER = "privilege.view.user";
-
 }

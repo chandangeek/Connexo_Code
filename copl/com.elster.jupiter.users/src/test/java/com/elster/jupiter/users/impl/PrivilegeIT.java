@@ -9,15 +9,14 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.util.UtilModule;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.assertj.guava.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -91,15 +90,18 @@ public class PrivilegeIT {
             protected void doPerform() {
                 UserService userService = injector.getInstance(UserService.class);
 
-                Resource resource = userService.createResource("USR", "User", "Test user resource");
+                userService.createResourceWithPrivileges("USR", "User", "Test user resource", new String[] {"Test privilege"});
 
                 Optional<Resource> found = userService.findResource("User");
 
-                assertThat(found).contains(resource);
+                assertThat(found.isPresent());
+                assertThat(found.get()).isInstanceOf(Resource.class);
                 assertThat(found.get().getComponentName()).isEqualTo("USR");
                 assertThat(found.get().getName()).isEqualTo("User");
                 assertThat(found.get().getDescription()).isEqualTo("Test user resource");
-                assertThat(found.get().getPrivileges()).isEmpty();
+                assertThat(found.get().getPrivileges()).hasSize(1);
+                assertThat(found.get().getPrivileges().get(0)).isInstanceOf(Privilege.class);
+                assertThat(found.get().getPrivileges().get(0).getName()).isEqualTo("Test privilege");
             }
         });
     }

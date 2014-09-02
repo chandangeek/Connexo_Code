@@ -52,11 +52,11 @@ public class ResourceImpl implements Resource {
     }
 
     @Override
-    public Privilege createPrivilege(String name) {
-        PrivilegeImpl result = PrivilegeImpl.from(dataModel, name, this);
-        result.persist();
-
-        return result;
+    public void createPrivilege(String name) {
+        if(privileges == null || !privileges.contains(name)){
+            PrivilegeImpl result = PrivilegeImpl.from(dataModel, name, this);
+            result.persist();
+        }
     }
 
     @Override

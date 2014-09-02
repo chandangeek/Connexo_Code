@@ -1,11 +1,10 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.security.Resources;
-import com.google.common.base.Optional;
+import com.elster.jupiter.users.security.Privileges;
 
+import java.lang.reflect.Field;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,8 +34,13 @@ public class InstallerImpl {
 	private void createMasterData() {
         try{
             InternalDirectoryImpl directory = createDirectory();
-            GroupImpl administrators = createAdministrators();
-            createAdmin(directory, administrators);
+
+            GroupImpl administrators = createRole(UserService.DEFAULT_ADMIN_ROLE, "Administrative privileges");
+            GroupImpl meterExperts = createRole(UserService.DEFAULT_METER_EXPERT_ROLE, "Full meter management privileges");
+            GroupImpl meterOperators = createRole(UserService.DEFAULT_METER_OPERATOR_ROLE, "Meter operation privileges");
+
+            grantSystemAdministratorPrivileges(administrators);
+            createAdministratorUser(directory, new GroupImpl[] {administrators, meterExperts, meterOperators});
         }
         catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
@@ -50,51 +54,35 @@ public class InstallerImpl {
         return directory;
     }
 
-    private GroupImpl createAdministrators() {
-		GroupImpl group = GroupImpl.from(dataModel, "Administrators", "Administrative privileges");
-		group.save();
-        grantAllPrivileges(group);
-
-		return group;
-	}
+    private GroupImpl createRole(String name, String description){
+        GroupImpl group = GroupImpl.from(dataModel, name, description);
+        group.save();
+        return group;
+    }
 	
-	private void createAdmin(InternalDirectoryImpl directory, GroupImpl administrators) {
-        UserImpl user = directory.newUser("admin", "System Administrator", true);
+	private void createAdministratorUser(InternalDirectoryImpl directory, GroupImpl[] roles) {
+        UserImpl user = directory.newUser("admin", "System administrator", true);
 
 		user.setPassword("admin");
 		user.save();
-		user.join(administrators);
+        for(GroupImpl role : roles){
+		    user.join(role);
+        }
 	}
 
-    private Resource getOrCreateResource(UserService userService, Resources item) {
-        Optional<Resource> found = userService.findResource(item.getName());
-        if(found.isPresent()){
-            return found.get();
-        }
-        else {
-            return userService.createResource(dataModel.getName(), item.getName(), item.getDescription());
-        }
-    }
-	
-	private void createPrivileges(UserService userService) {
-        for(Resources item : Resources.values()){
-            Resource resource = getOrCreateResource(userService, item);
-
-            for(String privilege : item.getPrivileges()){
-                try{
-                    resource.createPrivilege(privilege);
-                }
-                catch (Exception e) {
-                    this.logger.log(Level.WARNING, e.getMessage(), e);
-                }
-            }
-        }
+    private void createPrivileges(UserService userService) {
+        userService.createResourceWithPrivileges("SYS", "user.users", "user.users.description", new String[] {Privileges.VIEW_USER, Privileges.UPDATE_USER});
+        userService.createResourceWithPrivileges("SYS", "group.groups", "group.groups.description", new String[] {Privileges.VIEW_GROUP, Privileges.CREATE_GROUP, Privileges.UPDATE_GROUP, Privileges.DELETE_GROUP});
+        userService.createResourceWithPrivileges("SYS", "domain.domains", "domain.domains.description", new String[] {Privileges.VIEW_DOMAIN});
     }
 
-    private void grantAllPrivileges(GroupImpl group){
-        for(Resources item : Resources.values()){
-            for(String privilege : item.getPrivileges()){
-                group.grant(privilege);
+	private void grantSystemAdministratorPrivileges(GroupImpl group){
+        Field[] fields = Privileges.class.getFields();
+        for (Field each : fields) {
+            try {
+                group.grant((String) each.get(null));
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
         }
     }

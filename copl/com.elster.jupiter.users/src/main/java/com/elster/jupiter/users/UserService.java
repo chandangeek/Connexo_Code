@@ -9,6 +9,10 @@ public interface UserService {
 
     String COMPONENTNAME = "USR";
 
+    String DEFAULT_ADMIN_ROLE = "Administrators";
+    String DEFAULT_METER_EXPERT_ROLE = "Meter expert";
+    String DEFAULT_METER_OPERATOR_ROLE = "Meter operator";
+
     User createUser(String name, String description);
 
     User createApacheDirectoryUser(String name, String domain);
@@ -17,7 +21,9 @@ public interface UserService {
 
     Group createGroup(String name, String description);
 
-    Resource createResource(String componentName, String name, String description);
+    void createResourceWithPrivileges(String application, String name, String description, String[] privileges);
+
+    void grantGroupWithPrivilege(String roleName, String[] privileges);
 
     Optional<User> findUser(String authenticationName);
 
