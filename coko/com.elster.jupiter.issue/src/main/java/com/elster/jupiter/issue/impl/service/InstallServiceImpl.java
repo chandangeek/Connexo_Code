@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.service.*;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -14,6 +15,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -100,10 +102,23 @@ public class InstallServiceImpl implements InstallService {
     }
     @Override
     public final void install() {
+        createPrivileges();
+        assignPrivilegesToDefaultRoles();
         new Installer(dataModel, thesaurus, issueService, issueCreationService).install(true);
         createIssueOverdueTask();
     }
 
+    private void createPrivileges() {
+        this.userService.createResourceWithPrivileges("SYS", "issue.issues", "issue.issues.description",  new String[] {Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
+        this.userService.createResourceWithPrivileges("SYS", "creationRule.creationRules", "creationRule.creationRules.description", new String[] {Privileges.CREATE_CREATION_RULE, Privileges.UPDATE_CREATION_RULE, Privileges.DELETE_CREATION_RULE, Privileges.VIEW_CREATION_RULE});
+        this.userService.createResourceWithPrivileges("SYS", "assignmentRule.assignmentRules", "assignmentRule.assignmentRules.description", new String[] {Privileges.VIEW_ASSIGNMENT_RULE});
+    }
+
+    private void assignPrivilegesToDefaultRoles() {
+        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.CREATE_CREATION_RULE, Privileges.UPDATE_CREATION_RULE, Privileges.DELETE_CREATION_RULE, Privileges.VIEW_CREATION_RULE, Privileges.VIEW_ASSIGNMENT_RULE,
+                Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
+        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
+    }
 
     private void createIssueOverdueTask(){
         DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
