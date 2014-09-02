@@ -1,12 +1,8 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceSubDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
-
 import java.util.logging.Level;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 public enum MessageSeeds implements MessageSeed {
 

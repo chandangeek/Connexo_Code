@@ -5,9 +5,9 @@ import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -117,58 +117,26 @@ public class MasterDataApplication extends Application implements InstallService
             List<Translation> translations = new ArrayList<>();
             for (EndDeviceType endDeviceType : EndDeviceType.values()) {
                 SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.REST, EndDeviceType.class.getSimpleName() + endDeviceType.getMnemonic()).defaultMessage(endDeviceType.getMnemonic());
-                translations.add(toTranslation(nlsKey, Locale.ENGLISH, endDeviceType.getMnemonic()));
+                translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, endDeviceType.getMnemonic()));
             }
             
             for (EndDeviceDomain endDeviceDomain : EndDeviceDomain.values()) {
                 SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.REST, EndDeviceDomain.class.getSimpleName() + endDeviceDomain.getMnemonic()).defaultMessage(endDeviceDomain.getMnemonic());
-                translations.add(toTranslation(nlsKey, Locale.ENGLISH, endDeviceDomain.getMnemonic()));
+                translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, endDeviceDomain.getMnemonic()));
             }
             
             for (EndDeviceSubDomain endDeviceSubDomain : EndDeviceSubDomain.values()) {
                 SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.REST, EndDeviceSubDomain.class.getSimpleName() + endDeviceSubDomain.getMnemonic()).defaultMessage(endDeviceSubDomain.getMnemonic());
-                translations.add(toTranslation(nlsKey, Locale.ENGLISH, endDeviceSubDomain.getMnemonic()));
+                translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, endDeviceSubDomain.getMnemonic()));
             }
             
             for (EndDeviceEventorAction endDeviceEventorAction : EndDeviceEventorAction.values()) {
                 SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.REST, EndDeviceEventorAction.class.getSimpleName() + endDeviceEventorAction.getMnemonic()).defaultMessage(endDeviceEventorAction.getMnemonic());
-                translations.add(toTranslation(nlsKey, Locale.ENGLISH, endDeviceEventorAction.getMnemonic()));
+                translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, endDeviceEventorAction.getMnemonic()));
             }
             thesaurus.addTranslations(translations);
         } catch (Exception e) {
             logger.severe(e.getMessage());
-        }
-    }
-
-    private Translation toTranslation(SimpleNlsKey nlsKey, Locale locale, String translation) {
-        return new SimpleTranslation(nlsKey, locale, translation);
-    }
-    
-    private static class SimpleTranslation implements Translation {
-
-        private final SimpleNlsKey nlsKey;
-        private final Locale locale;
-        private final String translation;
-
-        private SimpleTranslation(SimpleNlsKey nlsKey, Locale locale, String translation) {
-            this.nlsKey = nlsKey;
-            this.locale = locale;
-            this.translation = translation;
-        }
-
-        @Override
-        public NlsKey getNlsKey() {
-            return nlsKey;
-        }
-
-        @Override
-        public Locale getLocale() {
-            return locale;
-        }
-
-        @Override
-        public String getTranslation() {
-            return translation;
         }
     }
 
