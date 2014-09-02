@@ -7,7 +7,8 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
 
     models: [
         'Mdc.model.Device',
-        'Mdc.model.LogbookOfDevice'
+        'Mdc.model.LogbookOfDevice',
+        'Mdc.model.LogbookOfDeviceDataFilter'
     ],
 
     stores: [
@@ -18,6 +19,14 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
         {
             ref: 'page',
             selector: 'deviceLogbookData'
+        },
+        {
+            ref: 'filterForm',
+            selector: 'deviceLogbookData #deviceLogbookDataSideFilterForm'
+        },
+        {
+            ref: 'filterView',
+            selector: 'deviceLogbookData #deviceLogbookDataTopFilter'
         }
     ],
 
@@ -27,6 +36,21 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
         this.control({
             'deviceLogbookData #deviceLogbookDataGrid': {
                 select: this.showPreview
+            },
+            'deviceLogbookData #deviceLogbookDataSideFilterApplyBtn': {
+                click: this.applyFilter
+            },
+            'deviceLogbookData #deviceLogbookDataSideFilterResetBtn': {
+                click: this.applyFilter
+            },
+            'deviceLogbookData #deviceLogbookDataTopFilter #Reset': {
+                click: this.applyFilter
+            },
+            'deviceLogbookData #deviceLogbookDataTopFilter tag-button': {
+                closeclick: this.removeFilterItem
+            },
+            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=intervalStart]': {
+                change: this.changeFilterByIntervalStart
             }
         });
     },
@@ -35,12 +59,14 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
         var me = this,
             logbookModel = me.getModel('Mdc.model.LogbookOfDevice'),
             dataStore = me.getStore('Mdc.store.LogbookOfDeviceData'),
+            dataStoreProxy = dataStore.getProxy(),
             widget;
 
-        dataStore.getProxy().setUrl({
+        dataStoreProxy.setUrl({
             mRID: mRID,
             logbookId: logbookId
         });
+        dataStoreProxy.extraParams = {};
 
         widget = Ext.widget('deviceLogbookData', {
             router: me.getController('Uni.controller.history.Router')
@@ -67,5 +93,53 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
 
         preview.setTitle(Uni.I18n.formatDate('devicelogbooks.eventDate.dateFormat', record.get('eventDate'), 'MDC', 'M d, Y H:i:s'));
         preview.down('#deviceLogbookDataPreviewForm').loadRecord(record);
+    },
+
+    applyFilter: function (button) {
+        var me = this,
+            reset = button.action !== 'filter',
+            filterModel = Ext.create('Mdc.model.LogbookOfDeviceDataFilter'),
+            dataStore = me.getStore('Mdc.store.LogbookOfDeviceData'),
+            dataStoreProxy = dataStore.getProxy(),
+            filterForm = me.getFilterForm();
+
+        reset && filterForm.loadRecord(filterModel);
+
+        if (filterForm.getForm().isValid()) {
+            dataStoreProxy.extraParams = {};
+
+            if (!reset) {
+                filterForm.updateRecord(filterModel);
+                Ext.iterate(filterModel.getData(), function (key, value) {
+                    Ext.isDate(value) && (value = value.getTime());
+                    value && dataStoreProxy.setExtraParam(key, value);
+                });
+            }
+
+            me.getFilterView().addButtons(filterModel);
+            me.resetGridToolbars();
+            dataStore.loadPage(1);
+        }
+    },
+
+    removeFilterItem: function (button) {
+        var me = this,
+            filterForm = me.getFilterForm();
+
+        filterForm.down('[name=' + button.target + ']').reset();
+
+        me.applyFilter({action: 'filter'});
+    },
+
+    changeFilterByIntervalStart: function (intervalStartField, newValue) {
+        this.getFilterForm().down('[name=intervalEnd]').setMinValue(newValue);
+    },
+
+    resetGridToolbars: function () {
+        var me = this,
+            page = me.getPage();
+
+        page.down('#deviceLogbookDataGrid pagingtoolbartop').totalCount = 0;
+        page.down('#deviceLogbookDataGrid pagingtoolbarbottom').resetPaging();
     }
 });
