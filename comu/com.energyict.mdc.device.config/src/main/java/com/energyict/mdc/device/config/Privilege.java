@@ -20,13 +20,6 @@ public interface Privilege extends IdBusinessObject {
     UserAction getAction();
 
     /**
-     * Get the {@link TypeId TypeId} the action is allowed on.
-     *
-     * @return The object type specified by its TypeId.
-     */
-    TypeId getTypeId();
-
-    /**
      * Get the {@link Role Role} the privilege is defined for.
      *
      * @return The role this privilege is defined for.

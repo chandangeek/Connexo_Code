@@ -49,26 +49,6 @@ public class Installer {
         }
         createEventTypes();
         createTranslations();
-        createPrivileges();
-    }
-
-    private void createPrivileges() {
-        Resource resource = null;
-        try {
-            resource = userService.createResource(DeviceConfigurationService.COMPONENTNAME, "Device", "");
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-        }
-
-        if(resource != null){
-            for (DeviceSecurityUserAction userAction : DeviceSecurityUserAction.values()) {
-                try {
-                    resource.createPrivilege(userAction.name());
-                } catch (Exception e) {
-                    logger.severe(e.getMessage());
-                }
-            }
-        }
     }
 
     private void createTranslations() {

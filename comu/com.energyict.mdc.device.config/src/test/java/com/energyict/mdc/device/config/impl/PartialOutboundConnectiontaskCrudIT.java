@@ -233,7 +233,6 @@ public class PartialOutboundConnectiontaskCrudIT {
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(applicationContext.getTranslator()).thenReturn(translator);
-        when(applicationContext.findFactory(5011)).thenReturn(businessObjectFactory);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>absent());
         initializeDatabase(false);
