@@ -111,6 +111,8 @@ public class ConnectionTaskHeatMapResourceTest extends JerseyTest {
                 bind(engineModelService).to(EngineModelService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
+                bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class);
+                bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class);
             }
         });
         return resourceConfig;

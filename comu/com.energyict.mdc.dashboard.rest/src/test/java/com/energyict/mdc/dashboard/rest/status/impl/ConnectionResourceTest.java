@@ -28,6 +28,8 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
@@ -140,6 +142,8 @@ public class ConnectionResourceTest extends JerseyTest {
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
                 bind(BreakdownFactory.class).to(BreakdownFactory.class);
                 bind(OverviewFactory.class).to(OverviewFactory.class);
+                bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class);
+                bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class);
             }
         });
         return resourceConfig;
@@ -352,6 +356,9 @@ public class ConnectionResourceTest extends JerseyTest {
         when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(new Date());
         when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(new Date());
         when(deviceDataService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
+        ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
+        when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
+        when(deviceDataService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
         Map<String, Object> map = target("/connections").queryParam("start",0).queryParam("limit", 10).request().get(Map.class);
 
         assertThat(map).containsKey("total");

@@ -11,9 +11,11 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -52,14 +54,16 @@ public class CommunicationResource {
     private final SchedulingService schedulingService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final TaskService taskService;
+    private final ComTaskExecutionInfoFactory comTaskExecutionInfoFactory;
 
     @Inject
-    public CommunicationResource(Thesaurus thesaurus, DeviceDataService deviceDataService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService) {
+    public CommunicationResource(Thesaurus thesaurus, DeviceDataService deviceDataService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory) {
         this.thesaurus = thesaurus;
         this.deviceDataService = deviceDataService;
         this.schedulingService = schedulingService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.taskService = taskService;
+        this.comTaskExecutionInfoFactory = comTaskExecutionInfoFactory;
     }
 
     @GET
@@ -72,7 +76,8 @@ public class CommunicationResource {
         List<ComTaskExecution> communicationTasksByFilter = deviceDataService.findComTaskExecutionsByFilter(filter, queryParameters.getStart(), queryParameters.getLimit() + 1);
         List<ComTaskExecutionInfo> comTaskExecutionInfos = new ArrayList<>(communicationTasksByFilter.size());
         for (ComTaskExecution comTaskExecution : communicationTasksByFilter) {
-            comTaskExecutionInfos.add(ComTaskExecutionInfo.from(comTaskExecution, thesaurus));
+            Optional<ComTaskExecutionSession> lastSession = deviceDataService.findLastSessionFor(comTaskExecution);
+            comTaskExecutionInfos.add(comTaskExecutionInfoFactory.from(comTaskExecution, lastSession, comTaskExecution.getConnectionTask()));
         }
 
         return Response.ok(PagedInfoList.asJson("communicationTasks", comTaskExecutionInfos, queryParameters)).build();

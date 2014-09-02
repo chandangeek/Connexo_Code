@@ -56,14 +56,16 @@ public class ConnectionResource {
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
 
     @Inject
-    public ConnectionResource(Thesaurus thesaurus, DeviceDataService deviceDataService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService) {
+    public ConnectionResource(Thesaurus thesaurus, DeviceDataService deviceDataService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory) {
         this.thesaurus = thesaurus;
         this.deviceDataService = deviceDataService;
         this.engineModelService = engineModelService;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.connectionTaskInfoFactory = connectionTaskInfoFactory;
     }
 
     @GET
@@ -92,7 +94,7 @@ public class ConnectionResource {
             Optional<ComSession> lastComSession = connectionTask.getLastComSession();
             List<ComTaskExecution> comTaskExecutions = deviceDataService.findComTaskExecutionsByConnectionTask(connectionTask);
             Collections.sort(comTaskExecutions, COM_TASK_EXECUTION_COMPARATOR);
-            connectionTaskInfos.add(ConnectionTaskInfo.from(connectionTask, lastComSession, comTaskExecutions, thesaurus));
+            connectionTaskInfos.add(connectionTaskInfoFactory.from(connectionTask, lastComSession, comTaskExecutions));
         }
 
         return Response.ok(PagedInfoList.asJson("connectionTasks", connectionTaskInfos, queryParameters)).build();

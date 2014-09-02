@@ -17,9 +17,11 @@ import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
 import com.energyict.mdc.dashboard.rest.status.impl.BreakdownFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
+import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.dashboard.rest.status.impl.OverviewFactory;
@@ -28,6 +30,8 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashSet;
@@ -56,6 +60,8 @@ public class DashboardApplication extends Application implements InstallService 
     private volatile DeviceDataService deviceDataService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile SchedulingService schedulingService;
+    private volatile TaskService taskService;
     private volatile TransactionService transactionService;
 
     @Reference
@@ -97,6 +103,16 @@ public class DashboardApplication extends Application implements InstallService 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @Override
@@ -145,8 +161,12 @@ public class DashboardApplication extends Application implements InstallService 
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(transactionService).to(TransactionService.class);
+            bind(schedulingService).to(SchedulingService.class);
+            bind(taskService).to(TaskService.class);
             bind(BreakdownFactory.class).to(BreakdownFactory.class);
             bind(OverviewFactory.class).to(OverviewFactory.class);
+            bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class);
+            bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class);
         }
     }
 
