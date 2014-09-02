@@ -17,6 +17,8 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
@@ -73,6 +75,7 @@ public class InMemoryPersistence {
     private OrmService ormService;
     private EventService eventService;
     private NlsService nlsService;
+    private UserService userService;
     private DataModel dataModel;
 
     private ConnectionTypeService connectionTypeService;
@@ -105,6 +108,7 @@ public class InMemoryPersistence {
                 new UtilModule(),
                 new NlsModule(),
                 new DomainUtilModule(),
+                new UserModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
@@ -118,6 +122,7 @@ public class InMemoryPersistence {
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
+            this.userService = injector.getInstance(UserService.class);
             this.pluggableService = injector.getInstance(PluggableService.class);
             this.relationService = injector.getInstance(RelationService.class);
             this.issueService = injector.getInstance(IssueService.class);
@@ -155,6 +160,7 @@ public class InMemoryPersistence {
         this.inboundDeviceProtocolService = mock(InboundDeviceProtocolService.class);
         this.connectionTypeService = mock(ConnectionTypeService.class);
         this.licensedProtocolService = mock(LicensedProtocolService.class);
+        this.userService = mock(UserService.class);
         this.legacySecurityPropertyConverter = mock(LegacySecurityPropertyConverter.class);
         this.applicationContext = mock(ApplicationContext.class);
         this.deviceCacheMarshallingService = mock(DeviceCacheMarshallingService.class);
@@ -180,7 +186,7 @@ public class InMemoryPersistence {
                         this.deviceProtocolSecurityService,
                         this.inboundDeviceProtocolService,
                         this.connectionTypeService,
-                        this.deviceCacheMarshallingService, licenseService, licensedProtocolService);
+                        this.deviceCacheMarshallingService, licenseService, licensedProtocolService, userService);
         return this.protocolPluggableService.getDataModel();
     }
 

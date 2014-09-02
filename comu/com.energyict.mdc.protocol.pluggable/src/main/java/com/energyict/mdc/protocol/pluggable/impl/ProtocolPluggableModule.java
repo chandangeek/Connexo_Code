@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -35,6 +36,7 @@ public class ProtocolPluggableModule extends AbstractModule {
         requireBinding(LicenseService.class);
         requireBinding(LicensedProtocolService.class);
         requireBinding(IssueService.class);
+        requireBinding(UserService.class);
         requireBinding(DeviceCacheMarshallingService.class);
 
         bind(ProtocolPluggableService.class).to(ProtocolPluggableServiceImpl.class).in(Scopes.SINGLETON);

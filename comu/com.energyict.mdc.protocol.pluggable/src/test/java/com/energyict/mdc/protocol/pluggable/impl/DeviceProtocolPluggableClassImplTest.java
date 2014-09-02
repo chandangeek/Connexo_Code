@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
@@ -154,7 +155,8 @@ public class DeviceProtocolPluggableClassImplTest {
                 new MdcCommonModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
-                new ProtocolPluggableModule());
+                new ProtocolPluggableModule(),
+                new UserModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(OrmService.class);
             transactionService = injector.getInstance(TransactionService.class);

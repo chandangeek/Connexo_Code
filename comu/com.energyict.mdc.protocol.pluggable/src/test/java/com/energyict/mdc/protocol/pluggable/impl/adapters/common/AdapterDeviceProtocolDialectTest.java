@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.elster.jupiter.users.impl.UserModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
@@ -99,6 +100,7 @@ public class AdapterDeviceProtocolDialectTest {
                 new TransactionModule(),
                 new UtilModule(),
                 new NlsModule(),
+                new UserModule(),
                 new DomainUtilModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
