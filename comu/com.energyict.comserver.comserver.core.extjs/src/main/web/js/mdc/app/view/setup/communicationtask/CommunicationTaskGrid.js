@@ -65,7 +65,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
                     },
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task'),
+                        text: Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration'),
                         margin: '0 5',
                         hrefTarget: '',
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/create'

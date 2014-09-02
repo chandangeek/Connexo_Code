@@ -233,7 +233,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 //                                                                id: -1
 //                                                            }
 //                                                        })
-                                                        var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task');
+                                                        var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration');
                                                         widget.down('#communicationTaskEditForm').setTitle(title);
 //                                                        widget.setValues(communicationTask);
                                                         widget.setLoading(false);
