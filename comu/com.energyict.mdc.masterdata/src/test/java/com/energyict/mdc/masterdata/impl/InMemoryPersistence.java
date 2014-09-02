@@ -20,6 +20,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
@@ -67,6 +68,7 @@ public class InMemoryPersistence {
     private EventService eventService;
     private MeteringService meteringService;
     private NlsService nlsService;
+    private UserService userService;
     private MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private MasterDataServiceImpl masterDataService;
     private DataModel dataModel;
@@ -89,6 +91,7 @@ public class InMemoryPersistence {
                 new TransactionModule(showSqlLogging),
                 new UtilModule(),
                 new NlsModule(),
+                new UserModule(),
                 new DomainUtilModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
@@ -102,6 +105,7 @@ public class InMemoryPersistence {
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
+            this.userService = injector.getInstance(UserService.class);
             this.environment = injector.getInstance(Environment.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
@@ -113,7 +117,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createNewMasterDataService(boolean createDefaults) {
-        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.mdcReadingTypeUtilService, createDefaults);
+        this.masterDataService = new MasterDataServiceImpl(this.ormService, this.eventService, this.nlsService, this.meteringService, this.mdcReadingTypeUtilService, this.userService, createDefaults);
         return this.masterDataService.getDataModel();
     }
 
