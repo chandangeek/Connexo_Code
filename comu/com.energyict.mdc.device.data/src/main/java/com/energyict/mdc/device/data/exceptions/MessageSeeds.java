@@ -73,7 +73,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_SECURITY_PROPERTY_SET_DELETION(2043, Keys.VETO_SECURITY_PROPERTY_SET_DELETION, "The security property set {0} of device configuration {1} cannot be deleted because at least one device of that configuration still has security property values for it", SEVERE),
     UNIQUE_ADDHOC_COMTASKS_PER_DEVICE(2044, Keys.UNIQUE_ADDHOC_COMTASKS_PER_DEVICE, "The communication task is not unique for device", SEVERE),
     DUPLICATE_COMTASK_SCHEDULING(2045, Keys.DUPLICATE_COMTASK_SCHEDULING, "One or more communication tasks in the communication schedule are already scheduled on the device with a master communication schedule", SEVERE),
-    COMTASK_CONFIGURATION_INCONSISTENT(2046, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The configuration settings (i.e. connection method, protocol dialect, security set and urgency) of all communication tasks contained in a communication schedule should be the same", SEVERE),
+    COMTASK_CONFIGURATION_INCONSISTENT(2046, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The communication tasks in the communication schedule doesn't have the same connection method, security set, protocol dialect and/or urgency", SEVERE),
     COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION(2047, Keys.COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION, "A mismatch between device configuration and the communication schedule (one or more communication tasks defined in the communication schedule is not available on the device configuration of the device)", SEVERE),
     COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2048, Keys.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not delete communication schedule {0} because it is not owned by device", Level.SEVERE),
     ;

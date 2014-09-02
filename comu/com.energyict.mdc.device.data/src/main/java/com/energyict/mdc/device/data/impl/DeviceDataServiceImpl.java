@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
@@ -146,6 +147,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     private volatile SchedulingService schedulingService;
     private volatile MessageService messagingService;
     private volatile SecurityPropertyService securityPropertyService;
+    private volatile UserService userService;
 
     public DeviceDataServiceImpl() {
     }
@@ -156,7 +158,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                                  EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService,
                                  MeteringService meteringService, ValidationService validationService,
                                  SchedulingService schedulingService, MessageService messageService,
-                                 SecurityPropertyService securityPropertyService) {
+                                 SecurityPropertyService securityPropertyService, UserService userService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -171,6 +173,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         this.setSchedulingService(schedulingService);
         this.setMessagingService(messageService);
         this.setSecurityPropertyService(securityPropertyService);
+        this.setUserService(userService);
         this.activate();
         this.install(true);
     }
@@ -1004,6 +1007,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         this.securityPropertyService = securityPropertyService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -1022,6 +1030,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(MessageService.class).toInstance(messagingService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
@@ -1037,7 +1046,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, this.thesaurus, messagingService).install(exeuteDdl);
+        new Installer(this.dataModel, this.eventService, this.thesaurus, messagingService, this.userService).install(exeuteDdl);
     }
 
     @Override
