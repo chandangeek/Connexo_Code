@@ -8,10 +8,13 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.security.Privileges;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.util.ArrayList;
@@ -36,14 +39,16 @@ public class Installer {
     private final MeteringService meteringService;
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private final MasterDataService masterDataService;
+    private final UserService userService;
 
-    public Installer(DataModel dataModel, Thesaurus thesaurus, EventService eventService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, MasterDataService masterDataService) {
+    public Installer(DataModel dataModel, Thesaurus thesaurus, EventService eventService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, MasterDataService masterDataService) {
         super();
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.eventService = eventService;
         this.meteringService = meteringService;
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
+        this.userService = userService;
         this.masterDataService = masterDataService;
     }
 
@@ -56,9 +61,28 @@ public class Installer {
         }
         createEventTypes();
         createTranslations();
+        createPrivileges();
+        assignPrivilegesToDefaultRoles();
         if (createDefaults) {
             this.createDefaults();
         }
+    }
+
+    private void createPrivileges() {
+        this.userService.createResourceWithPrivileges("MDC", "loadProfileType.loadProfileTypes", "loadProfileType.loadProfileTypes.description", new String[] {Privileges.DELETE_LOAD_PROFILE_TYPE, Privileges.VIEW_LOAD_PROFILE_TYPE});
+        this.userService.createResourceWithPrivileges("MDC", "registerGroup.registerGroups", "registerGroup.registerGroups.description", new String[] {Privileges.CREATE_REGISTER_GROUP, Privileges.UPDATE_REGISTER_GROUP, Privileges.DELETE_REGISTER_GROUP, Privileges.VIEW_REGISTER_GROUP});
+        this.userService.createResourceWithPrivileges("MDC", "registerType.registerTypes", "registerType.registerTypes.description", new String[] {Privileges.CREATE_REGISTER_TYPE, Privileges.UPDATE_REGISTER_TYPE, Privileges.DELETE_REGISTER_TYPE, Privileges.VIEW_REGISTER_TYPE});
+        this.userService.createResourceWithPrivileges("MDC", "phenomenon.phenomenons", "phenomenon.phenomenons.description", new String[] {Privileges.VIEW_PHENOMENON});
+    }
+
+    private void assignPrivilegesToDefaultRoles() {
+        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {
+                Privileges.DELETE_LOAD_PROFILE_TYPE, Privileges.VIEW_LOAD_PROFILE_TYPE,
+                Privileges.VIEW_PHENOMENON,
+                Privileges.CREATE_REGISTER_GROUP, Privileges.UPDATE_REGISTER_GROUP, Privileges.DELETE_REGISTER_GROUP, Privileges.VIEW_REGISTER_GROUP,
+                Privileges.CREATE_REGISTER_TYPE, Privileges.UPDATE_REGISTER_TYPE, Privileges.DELETE_REGISTER_TYPE, Privileges.VIEW_REGISTER_TYPE,
+        });
+        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_LOAD_PROFILE_TYPE, Privileges.VIEW_PHENOMENON});
     }
 
     private void createDefaults() {
