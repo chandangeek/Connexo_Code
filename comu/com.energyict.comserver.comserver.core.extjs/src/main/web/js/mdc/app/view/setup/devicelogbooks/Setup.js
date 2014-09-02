@@ -41,7 +41,6 @@ Ext.define('Mdc.view.setup.devicelogbooks.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'deviceLogbooksGrid',
-                        mRID: me.mRID,
                         router: me.router
                     },
                     emptyComponent: {

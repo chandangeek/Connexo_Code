@@ -963,13 +963,13 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         logbooks: {
-                            title: 'Logbooks',
+                            title: Uni.I18n.translate('router.logbooks', 'MDC', 'Logbooks'),
                             route: 'logbooks',
                             controller: 'Mdc.controller.setup.DeviceLogbooks',
                             action: 'showView',
                             items: {
                                 logbook: {
-                                    title: 'Logbook',
+                                    title: Uni.I18n.translate('router.logbook', 'MDC', 'Logbook'),
                                     route: '{logbookId}',
                                     controller: 'Mdc.controller.setup.DeviceLogbookOverview',
                                     action: 'showOverview',
@@ -984,13 +984,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                     },
                                     items: {
                                         overview: {
-                                            title: 'Overview',
+                                            title: Uni.I18n.translate('router.overview', 'MDC', 'Overview'),
                                             route: 'overview',
                                             controller: 'Mdc.controller.setup.DeviceLogbookOverview',
                                             action: 'showOverview'
                                         },
                                         data: {
-                                            title: 'Logbook data',
+                                            title: Uni.I18n.translate('router.logbookData', 'MDC', 'Logbook data'),
                                             route: 'data',
                                             controller: 'Mdc.controller.setup.DeviceLogbookData',
                                             action: 'showOverview'
