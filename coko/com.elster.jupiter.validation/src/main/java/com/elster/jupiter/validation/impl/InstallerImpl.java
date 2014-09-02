@@ -50,8 +50,8 @@ public class InstallerImpl {
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.VIEW_VALIDATION_RULE, Privileges.CREATE_VALIDATION_RULE, Privileges.UPDATE_VALIDATION_RULE, Privileges.DELETE_VALIDATION_RULE, Privileges.ACTIVATE_VALIDATION_RULE});
-        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_VALIDATION_RULE});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.VIEW_VALIDATION_RULE, Privileges.CREATE_VALIDATION_RULE, Privileges.UPDATE_VALIDATION_RULE, Privileges.DELETE_VALIDATION_RULE, Privileges.ACTIVATE_VALIDATION_RULE});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_VALIDATION_RULE});
     }
 
     private void createEventTypes() {
