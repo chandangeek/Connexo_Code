@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
@@ -49,7 +48,6 @@ public class CommunicationResource {
     private static final String FINISH_INTERVAL_FROM = "finishIntervalFrom";
     private static final String FINISH_INTERVAL_TO = "finishIntervalTo";
 
-    private final Thesaurus thesaurus;
     private final DeviceDataService deviceDataService;
     private final SchedulingService schedulingService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -57,8 +55,7 @@ public class CommunicationResource {
     private final ComTaskExecutionInfoFactory comTaskExecutionInfoFactory;
 
     @Inject
-    public CommunicationResource(Thesaurus thesaurus, DeviceDataService deviceDataService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory) {
-        this.thesaurus = thesaurus;
+    public CommunicationResource(DeviceDataService deviceDataService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory) {
         this.deviceDataService = deviceDataService;
         this.schedulingService = schedulingService;
         this.deviceConfigurationService = deviceConfigurationService;
