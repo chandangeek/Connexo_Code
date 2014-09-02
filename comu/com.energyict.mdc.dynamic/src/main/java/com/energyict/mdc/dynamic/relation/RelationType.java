@@ -168,17 +168,6 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
     public String getObsoleteAttributeTableName();
 
     /**
-     * Add a new attribute to this relation type
-     *
-     * @param fieldName   the internal name of the field
-     * @param displayName the name used for displaying the field
-     * @param factory     the type factory for the type
-     * @throws SQLException      if a database error occured.
-     * @throws BusinessException if a business error occured.
-     */
-    public void addAttribute(String fieldName, String displayName, ValueFactory factory) throws BusinessException, SQLException;
-
-    /**
      * returns the receiver's display name (which can - in contrast to the name
      * - contain whatever characters you want)
      *
@@ -187,7 +176,7 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
     public String getDisplayName();
 
     /**
-     * tests if the receiver is a default relation of the FolderType
+     * Tests if the receiver is a default relation of the FolderType.
      *
      * @return true if the receiver is a default relation of the FolderType,
      *         false otherwise

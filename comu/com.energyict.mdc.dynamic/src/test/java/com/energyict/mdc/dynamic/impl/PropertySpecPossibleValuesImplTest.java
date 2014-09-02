@@ -1,10 +1,13 @@
 package com.energyict.mdc.dynamic.impl;
 
 import org.junit.*;
+import org.junit.runner.*;
 
 import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
 
 import java.util.Arrays;
+
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -14,7 +17,8 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-19 (16:19)
  */
-public class PropertySpecPossibleValuesImplTest extends AbstractPropertySpecTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PropertySpecPossibleValuesImplTest {
 
     @Test
     public void testDefaultConstructor () {

@@ -474,14 +474,6 @@ public class RelationImpl implements Relation {
     /**
      * {@inheritDoc}
      */
-    public final TypeId getTypeId() {
-        return this.getRelationType().getTargetTypeId();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public final BusinessObjectFactory getFactory() {
         return this.relationType;

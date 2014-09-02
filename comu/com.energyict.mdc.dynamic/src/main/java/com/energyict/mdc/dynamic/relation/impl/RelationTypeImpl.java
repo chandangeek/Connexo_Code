@@ -4,12 +4,7 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.DatabaseException;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.common.PropertiesMetaData;
 import com.energyict.mdc.common.ShadowList;
-import com.energyict.mdc.common.SoftTypeId;
-import com.energyict.mdc.common.TypeId;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
@@ -36,8 +31,6 @@ import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableList;
 
@@ -56,7 +49,7 @@ import java.util.Map;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class RelationTypeImpl extends PersistentNamedObject implements RelationType, PersistenceAware {
+public class RelationTypeImpl extends PersistentNamedObject implements RelationType {
 
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
@@ -68,7 +61,6 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     private Date modDate;
     private int lockAttributeTypeId;
     private RelationAttributeType lockAttributeType;
-    private TypeId typeId;
     private boolean system;
 
     @Inject
@@ -93,19 +85,8 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     @Override
-    public void postLoad() {
-        this.typeId = new SoftTypeId(FactoryIds.RELATION_TYPE.id(), this.getId());
-    }
-
-    @Override
     protected DataMapper<RelationType> getDataMapper() {
         return Bus.getServiceLocator().getOrmClient().getRelationTypeFactory();
-    }
-
-    @Override
-    protected void postNew() {
-        super.postNew();
-        this.postLoad();
     }
 
     @Override
@@ -377,27 +358,8 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return ImmutableList.copyOf(this.attributeTypes);
     }
 
-    public void addAttribute(String fieldName, String attDisplayName, ValueFactory factory) {
-        this.addAttribute(fieldName, factory, factory.getObjectFactoryId());
-    }
-
-    private void addAttribute(String fieldName, ValueFactory factory, int objectFactoryId) {
-        RelationAttributeTypeShadow shadow = new RelationAttributeTypeShadow();
-        shadow.setValueFactoryClass(factory.getClass());
-        shadow.setName(fieldName);
-        shadow.setRelationTypeId(this.getId());
-        shadow.setObjectFactoryId(objectFactoryId);
-        this.doAddAttribute(shadow, factory);
-    }
-
     private RelationAttributeType doAddAttribute(RelationAttributeTypeShadow shadow, PropertySpecService propertySpecService) {
         RelationAttributeType attributeType = this.createAttributeType(shadow, propertySpecService);
-        new RelationTypeDdlGenerator(this.getDataModel(), this, this.thesaurus, true).addAttributeColumn(attributeType);
-        return attributeType;
-    }
-
-    private RelationAttributeType doAddAttribute(RelationAttributeTypeShadow shadow, ValueFactory valueFactory) {
-        RelationAttributeType attributeType = this.createAttributeType(shadow, valueFactory);
         new RelationTypeDdlGenerator(this.getDataModel(), this, this.thesaurus, true).addAttributeColumn(attributeType);
         return attributeType;
     }
@@ -666,13 +628,6 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return relationAttributeType;
     }
 
-    public RelationAttributeType createAttributeType(RelationAttributeTypeShadow raShadow, ValueFactory valueFactory) {
-        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this.getDataModel(), this, this.thesaurus, raShadow.getName(), valueFactory);
-        relationAttributeType.init(this, raShadow);
-        this.attributeTypes.add(relationAttributeType);
-        return relationAttributeType;
-    }
-
     public void deleteAttributeType(RelationAttributeType raType) {
         this.deleteAttributeType((RelationAttributeTypeImpl) raType);
     }
@@ -692,24 +647,12 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return this.getBaseFactory().find(id);
     }
 
-    public List<Relation> findAll() {
-        throw new ApplicationException("Call to findAll() on Rel not supported");
-    }
-
     public Relation findByPrimaryKey(Serializable key) {
         return this.getBaseFactory().findByPrimaryKey(key);
     }
 
     public Relation findByHandle(byte[] handle) {
         return this.getBaseFactory().findByHandle(handle);
-    }
-
-    public Class getShadowClass() {
-        throw new ApplicationException("Call to getShadowClass() on RelationTypeImpl not supported");
-    }
-
-    public PropertiesMetaData getPropertiesMetaData() {
-        return null;
     }
 
     @Override
@@ -740,10 +683,6 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     @Override
     public String toString() {
         return this.getCustomDisplayName();
-    }
-
-    public IdBusinessObjectFactory getMetaTypeFactory() {
-        return null;
     }
 
     public RelationTransaction newRelationTransaction() {
@@ -778,20 +717,6 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
 
     Date getModDate() {
         return this.modDate;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final BusinessObjectFactory getSubtypeFactory() {
-        return this.getMetaTypeFactory();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final TypeId getTargetTypeId() {
-        return this.typeId;
     }
 
     /**

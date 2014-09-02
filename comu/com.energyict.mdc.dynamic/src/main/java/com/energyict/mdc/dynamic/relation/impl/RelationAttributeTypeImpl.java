@@ -4,10 +4,8 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
-import com.energyict.mdc.dynamic.LegacyReferenceFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.CompositeAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.DefaultAttributeTypeDetective;
@@ -250,10 +248,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
 
     private ValueFactory newValueFactory (String valueFactoryClassName, int objectFactoryId) {
         try {
-            if (valueFactoryClassName.equals(LegacyReferenceFactory.class.getCanonicalName())) {
-                return new LegacyReferenceFactory((IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(objectFactoryId));
-            }
-            else if (valueFactoryClassName.equals(JupiterReferenceFactory.class.getCanonicalName())) {
+            if (valueFactoryClassName.equals(JupiterReferenceFactory.class.getCanonicalName())) {
                 PropertySpec propertySpec =
                         this.propertySpecService.referencePropertySpec(
                                 valueFactoryClassName,  // Don't care as we are only interested in the ValueFactory
@@ -261,7 +256,9 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
                                 FactoryIds.forId(objectFactoryId));
                 return propertySpec.getValueFactory();
             }
-            return (ValueFactory) Class.forName(valueFactoryClassName).newInstance();
+            else {
+                return (ValueFactory) Class.forName(valueFactoryClassName).newInstance();
+            }
         }
         catch (ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
             throw new ValueFactoryCreationException(this.thesaurus, ex, valueFactoryClassName);

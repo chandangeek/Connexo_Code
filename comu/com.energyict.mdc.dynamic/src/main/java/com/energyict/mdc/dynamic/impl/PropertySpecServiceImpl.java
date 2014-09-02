@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 
 import org.osgi.service.component.annotations.Activate;
@@ -30,6 +31,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 
 /**
  * Provides an implementation for the {@link PropertySpecService} interface
@@ -45,19 +47,14 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     private volatile Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
     private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
-    
+
     public PropertySpecServiceImpl() {
     }
 
     @Inject
     public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec) {
-        super();
+        this();
         this.setBasicPropertySpecService(basicPropertySpec);
-    }
-    
-    @Activate
-    public void activate(){
-
     }
 
     @Override
@@ -101,17 +98,33 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
+    public PropertySpec<TimeDuration> timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue) {
+        return PropertySpecBuilderImpl.
+                forClass(new TimeDurationValueFactory()).
+                name(name).
+                setDefaultValue(defaultValue).
+                finish();
+    }
+
+    @Override
     public PropertySpec<ObisCode> obisCodePropertySpecWithValues(String name, boolean required, ObisCode... values) {
+        return this.obisCodePropertySpecWithValues(name, required, false, values);
+    }
+
+    @Override
+    public PropertySpec<ObisCode> obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values) {
+        return this.obisCodePropertySpecWithValues(name, required, true, values);
+    }
+
+    private PropertySpec<ObisCode> obisCodePropertySpecWithValues(String name, boolean required, boolean exhaustive, ObisCode... values) {
         PropertySpecBuilder<ObisCode> builder = PropertySpecBuilderImpl.forClass(new ObisCodeValueFactory());
         if (required) {
             builder.markRequired();
         }
+        if (exhaustive) {
+            builder.markExhaustive();
+        }
         return builder.name(name).addValues(values).finish();
-    }
-
-    @Override
-    public <T extends IdBusinessObject> PropertySpec<T> referencePropertySpec(String name, boolean required, IdBusinessObjectFactory<T> valueFactory) {
-        return new LegacyReferencePropertySpec<>(name, required, valueFactory);
     }
 
     @Override
@@ -140,7 +153,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
             finders.put(finder.getClass(), finder);
         }
     }
-    
+
     @Reference
     public void setBasicPropertySpecService(com.elster.jupiter.properties.PropertySpecService propertySpecService) {
         this.basicPropertySpecService = propertySpecService;
@@ -151,9 +164,10 @@ public class PropertySpecServiceImpl implements PropertySpecService {
             this.finders.remove(finder);
         }
     }
-    
+
     @Override
     public <T extends ListValueEntry> PropertySpec<ListValue<T>> listValuePropertySpec(String name, boolean required, FindById<T> finder, T... values) {
         return basicPropertySpecService.listValuePropertySpec(name, required, finder, values);
     }
+
 }

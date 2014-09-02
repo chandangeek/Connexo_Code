@@ -1,19 +1,13 @@
 package com.energyict.mdc.dynamic.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.dynamic.JupiterReferenceFactory;
-import com.energyict.mdc.dynamic.LegacyReferenceFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Provides building services for {@link PropertySpec}s.
@@ -59,33 +53,6 @@ public class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
      */
     public static <D> PropertySpecBuilder<D> forClass(ValueFactory<D> valueFactory) {
         return new PropertySpecBuilderImpl<>(valueFactory);
-    }
-
-    /**
-     * Creates a new PropertySpecBuilder for {@link IdBusinessObject}s that are
-     * managed with the specified {@link IdBusinessObjectFactory}.
-     *
-     * @param factory The factory that provides persistence services for the reference type
-     * @return The PropertySpecBuilder
-     */
-    @SuppressWarnings("unchecked")
-    public static <D extends IdBusinessObject> PropertySpecBuilder<D> forReference (IdBusinessObjectFactory<D> factory) {
-        ValueFactory<D> referenceFactory = new LegacyReferenceFactory<>(factory);
-        return new PropertySpecBuilderImpl<>(referenceFactory);
-    }
-
-    /**
-     * Creates a new PropertySpecBuilder for {@link com.energyict.mdc.common.HasId}s that are
-     * findable by the specified {@link com.energyict.mdc.common.CanFindByLongPrimaryKey}.
-     *
-     * @param finder the finder that can provider D
-     * @param <D> the object type to find
-     * @return the PropertySpecBuilder
-     */
-    public static <D extends HasId> PropertySpecBuilder<D> forIdReference (CanFindByLongPrimaryKey<D> finder) {
-        ValueFactory<D> finderFactory = new JupiterReferenceFactory<>(finder);
-        return new PropertySpecBuilderImpl<>(finderFactory);
-
     }
 
     @Override

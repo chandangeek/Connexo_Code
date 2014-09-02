@@ -8,6 +8,7 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
 
 /**
  * Provides services to build {@link PropertySpec}s.
@@ -18,7 +19,9 @@ import com.energyict.mdc.common.ObisCode;
 public interface PropertySpecService extends com.elster.jupiter.properties.PropertySpecService {
 
     public AtomicReference<PropertySpecService> INSTANCE = new AtomicReference<>();
-    
+
+    public PropertySpec<TimeDuration> timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue);
+
     /**
      * Creates a {@link PropertySpec} for an {@link ObisCode} value which only allows the given values.
      *
@@ -29,7 +32,7 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      */
     public PropertySpec<ObisCode> obisCodePropertySpecWithValues(String name, boolean required, ObisCode... values);
 
-    public <T extends IdBusinessObject> PropertySpec<T> referencePropertySpec (String name, boolean required, IdBusinessObjectFactory<T> valueFactory);
+    public PropertySpec<ObisCode> obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values);
 
     /**
      * Creates a {@link PropertySpec} that references objects provided by the
@@ -42,5 +45,6 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      */
     public PropertySpec referencePropertySpec (String name, boolean required, FactoryIds factoryId);
 
-    void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
+    public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
+
 }

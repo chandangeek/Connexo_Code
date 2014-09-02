@@ -46,11 +46,6 @@ public abstract class PersistentIdObject implements IdBusinessObject {
     }
 
     @Override
-    public TypeId getTypeId() {
-        return this.getFactory().getTargetTypeId();
-    }
-
-    @Override
     public BusinessObject getBusinessObject() {
         return this;
     }
