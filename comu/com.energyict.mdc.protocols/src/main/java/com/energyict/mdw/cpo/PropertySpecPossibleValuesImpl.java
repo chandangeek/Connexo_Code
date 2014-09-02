@@ -53,7 +53,7 @@ public class PropertySpecPossibleValuesImpl<T> implements PropertySpecPossibleVa
         this();
         this.defaultValue = defaultValue;
         this.exhaustive = exhaustive;
-        this.allValues.add(defaultValue);
+        //this.allValues.add(defaultValue);
         this.allValues.addAll(this.copyUniqueWithRespectForOrder(otherValues, otherValues.size()));
     }
 
