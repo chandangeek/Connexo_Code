@@ -12,6 +12,8 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.device.config.security.Privileges;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -50,25 +52,24 @@ public class Installer {
         createEventTypes();
         createTranslations();
         createPrivileges();
+        assignPrivilegesToDefaultRoles();
     }
 
     private void createPrivileges() {
-        Resource resource = null;
-        try {
-            resource = userService.createResource(DeviceConfigurationService.COMPONENTNAME, "Device", "");
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-        }
+        this.userService.createResourceWithPrivileges("MDC", "deviceConfiguration.deviceConfigurations", "deviceConfiguration.deviceConfigurations.description", new String[] {Privileges.CREATE_DEVICE_CONFIGURATION, Privileges.UPDATE_DEVICE_CONFIGURATION, Privileges.DELETE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION, Privileges.ACTIVATE_DEVICE_CONFIGURATION});
+        this.userService.createResourceWithPrivileges("MDC", "deviceType.deviceTypes", "deviceType.deviceTypes.description", new String[] {Privileges.CREATE_DEVICE_TYPE, Privileges.UPDATE_DEVICE_TYPE, Privileges.DELETE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE});
+        this.userService.createResourceWithPrivileges("MDC", "loadProfileConfiguration.loadProfileConfigurations", "loadProfileConfiguration.loadProfileConfigurations.description", new String[] {Privileges.CREATE_LOAD_PROFILE_CONFIG, Privileges.UPDATE_LOAD_PROFILE_CONFIG, Privileges.DELETE_LOAD_PROFILE_CONFIG, Privileges.VIEW_LOAD_PROFILE_CONFIG});
+        this.userService.createResourceWithPrivileges("MDC", "registerConfiguration.registerConfigurations", "registerConfiguration.registerConfigurations.description", new String[] {Privileges.CREATE_REGISTER_CONFIG, Privileges.UPDATE_REGISTER_CONFIG, Privileges.DELETE_REGISTER_CONFIG, Privileges.VIEW_REGISTER_CONFIG});
+    }
 
-        if(resource != null){
-            for (DeviceSecurityUserAction userAction : DeviceSecurityUserAction.values()) {
-                try {
-                    resource.createPrivilege(userAction.name());
-                } catch (Exception e) {
-                    logger.severe(e.getMessage());
-                }
-            }
-        }
+    private void assignPrivilegesToDefaultRoles() {
+        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {
+                Privileges.CREATE_DEVICE_CONFIGURATION, Privileges.UPDATE_DEVICE_CONFIGURATION, Privileges.DELETE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION, Privileges.ACTIVATE_DEVICE_CONFIGURATION,
+                Privileges.CREATE_DEVICE_TYPE, Privileges.UPDATE_DEVICE_TYPE, Privileges.DELETE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE,
+                Privileges.CREATE_LOAD_PROFILE_CONFIG, Privileges.UPDATE_LOAD_PROFILE_CONFIG, Privileges.DELETE_LOAD_PROFILE_CONFIG, Privileges.VIEW_LOAD_PROFILE_CONFIG,
+                Privileges.CREATE_REGISTER_CONFIG, Privileges.UPDATE_REGISTER_CONFIG, Privileges.DELETE_REGISTER_CONFIG, Privileges.VIEW_REGISTER_CONFIG
+        });
+        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_LOAD_PROFILE_CONFIG, Privileges.VIEW_DEVICE_TYPE, Privileges.VIEW_LOAD_PROFILE_CONFIG});
     }
 
     private void createTranslations() {
