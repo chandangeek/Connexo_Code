@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.api.legacy.dynamic;
 
 import com.energyict.mdc.common.BusinessObjectFactory;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypeId;
@@ -17,18 +16,9 @@ import java.io.Serializable;
 public class ValueDomain implements Serializable {
 
     private Class valueType;
-
     private boolean reference;
-
     private TypeId[] referenceableTypes = new TypeId[0];
-
-    private String lookupName;
-
     private transient BusinessObjectFactory factory;
-
-    private int factoryId;
-
-    private int attributeId;
 
     /**
      * Create a ValueDomain with just a value type. (i.e. no referenced objects, no lookup value).
@@ -39,7 +29,6 @@ public class ValueDomain implements Serializable {
         this.valueType = valueType;
         this.reference = false;
         this.referenceableTypes = new TypeId[0];
-        this.lookupName = null;
     }
 
     /**
@@ -52,7 +41,6 @@ public class ValueDomain implements Serializable {
         this.valueType = valueType;
         this.reference = false;
         this.referenceableTypes = new TypeId[0];
-        this.lookupName = lookupName;
     }
 
     /**
@@ -66,21 +54,6 @@ public class ValueDomain implements Serializable {
         this.valueType = valueType;
         this.reference = true;
         this.referenceableTypes = referenceableTypes;
-        this.lookupName = null;
-    }
-
-    /**
-     * Alternative constructor providing the factory id and attribute id instead of the class
-     * this allows working in a lazy way and only building the full domain properties when asked for it
-     *
-     * @param factId      ID of the business object factory
-     * @param attributeId ID of the attribute, used to lazy fetch allowed subtypes if needed
-     */
-    public ValueDomain(int factId, int attributeId) {
-        this.factoryId = factId;
-        this.attributeId = attributeId;
-        this.reference = true;
-        this.lookupName = null;
     }
 
     /**
@@ -89,11 +62,8 @@ public class ValueDomain implements Serializable {
      * @param factory      the business object factory
      */
     public ValueDomain(BusinessObjectFactory factory) {
-        this.factoryId = factory.getId();
         this.factory = factory;
-        this.attributeId = 0;
         this.reference = true;
-        this.lookupName = null;
     }
 
     /**
@@ -127,46 +97,13 @@ public class ValueDomain implements Serializable {
         return referenceableTypes;
     }
 
-    /**
-     * Get the name of the lookup field in case the attribute contains a lookup value.
-     *
-     * @return The name of the lookup field.
-     */
-    public String getLookupName() {
-        return lookupName;
-    }
-
-    /**
-     * Get the main type id. This is the hard type id of the possible soft types.
-     *
-     * @return The main TypeId
-     */
-    public TypeId getAnyTypeId() {
-        return Environment.DEFAULT.get().findFactory(getValueType().getName()).getTargetTypeId();
-    }
-
     public BusinessObjectFactory getFactory() {
-        if (!reference) {
+        if (this.reference) {
+            return factory;
+        }
+        else {
             return null;
         }
-        if (factory == null) {
-            if (factoryId > 0) {
-                factory = Environment.DEFAULT.get().findFactory(factoryId);
-            } else {
-                factory = getAnyTypeId().getFactory();
-            }
-        }
-        return factory;
-    }
-
-    public int getFactoryId() {
-        if (!reference) {
-            return 0;
-        }
-        if (factoryId == 0) {
-            factoryId = getFactory().getId();
-        }
-        return factoryId;
     }
 
     public boolean isValidReference(IdBusinessObject object) {
