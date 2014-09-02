@@ -571,7 +571,7 @@ Ext.define('Cfg.controller.Validation', {
         this.getRuleOverview() ? me.fromRulePreview = true : me.fromRulePreview = false;
         switch (item.action) {
             case 'view':
-                location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId;
+                location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.get('id');
                 break;
             case 'activateRule':
                 me.deactivateRule(record);
@@ -580,7 +580,7 @@ Ext.define('Cfg.controller.Validation', {
                 me.deactivateRule(record);
                 break;
             case 'editRule':
-                location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId + '/edit';
+                location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.get('id') + '/edit';
                 break;
             case 'deleteRule':
                 me.showDeleteConfirmation(record);
@@ -665,7 +665,7 @@ Ext.define('Cfg.controller.Validation', {
         }
         view.setLoading('Removing...');
         Ext.Ajax.request({
-            url: '/api/val/validation/rules/' + self.ruleSetId + '?id=' + self.ruleId,
+            url: '/api/val/validation/rules/' + rule.get('ruleSetId') + '?id=' + rule.get('id'),
             method: 'DELETE',
             success: function () {
                 if (self.getRulePreviewContainer()) {
@@ -683,11 +683,11 @@ Ext.define('Cfg.controller.Validation', {
                         }
                     });
                 } else if (self.getRuleOverview()) {
-                    location.href = '#/administration/validation/rulesets/' + self.ruleSetId + '/rules';
+                    location.href = '#/administration/validation/rulesets/' + rule.get('ruleSetId') + '/rules';
                 } else {
                     grid.getStore().load({
                         params: {
-                            id: self.ruleSetId
+                            id: rule.get('ruleSetId')
                         }
                     });
                 }
