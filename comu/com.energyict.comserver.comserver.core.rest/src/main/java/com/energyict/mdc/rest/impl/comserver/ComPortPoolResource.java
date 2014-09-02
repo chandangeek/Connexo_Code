@@ -6,12 +6,14 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.engine.model.*;
+import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -58,6 +60,7 @@ public class ComPortPoolResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ComPortPoolInfo<?> getComPortPool(@PathParam("id") long id) {
         Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
         if (comPortPool.isPresent()) {
@@ -69,6 +72,7 @@ public class ComPortPoolResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public PagedInfoList getAllComPortPools(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
         List<ComPortPoolInfo<?>> comPortPoolInfos = new ArrayList<>();
         List<ComPortPool> comPortPools = new ArrayList<>();
@@ -122,6 +126,7 @@ public class ComPortPoolResource {
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_COMSERVER)
     public Response deleteComPortPool(@PathParam("id") long id) {
         Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
         if (!comPortPool.isPresent()) {
@@ -134,6 +139,7 @@ public class ComPortPoolResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_COMSERVER)
     public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
         ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), protocolPluggableService);
         comPortPool.save();
@@ -150,6 +156,7 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_COMSERVER)
     public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") long id, ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
         Optional<ComPortPool> comPortPool = Optional.fromNullable(engineModelService.findComPortPool(id));
         if (!comPortPool.isPresent()) {
@@ -167,6 +174,7 @@ public class ComPortPoolResource {
     }
 
     @Path("/{comPortPoolId}/comports")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ComPortPoolComPortResource getComPortResource() {
         return comPortPoolComPortResourceProvider.get();
     }

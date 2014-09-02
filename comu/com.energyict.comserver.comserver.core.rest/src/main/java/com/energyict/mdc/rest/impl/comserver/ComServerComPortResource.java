@@ -4,8 +4,10 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.model.*;
+import com.energyict.mdc.engine.model.security.Privileges;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -25,6 +27,7 @@ public class ComServerComPortResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public PagedInfoList getComPorts(@PathParam("comServerId") long comServerId, @BeanParam QueryParameters queryParameters) {
         ComServer comServer = findComServerOrThrowException(comServerId);
         List<ComPort> comPorts = ListPager.of(comServer.getComPorts(), new Comparator<ComPort>() {
@@ -46,6 +49,7 @@ public class ComServerComPortResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ComPortInfo getComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id) {
         ComServer comServer = findComServerOrThrowException(comServerId);
         ComPort comPort = findComPortOrThrowException(comServer, id);
@@ -55,6 +59,7 @@ public class ComServerComPortResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_COMSERVER)
     public ComPortInfo createOutboundComPort(@PathParam("comServerId") long comServerId, ComPortInfo comPortInfo) {
         ComServer comServer = findComServerOrThrowException(comServerId);
         ComPort newComPort = comPortInfo.createNew(comServer, engineModelService);
@@ -65,6 +70,7 @@ public class ComServerComPortResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_COMSERVER)
     public ComPortInfo updateOutboundComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id, ComPortInfo comPortInfo) {
         ComServer comServer = findComServerOrThrowException(comServerId);
         ComPort comPort = findComPortOrThrowException(comServer, id);
@@ -75,6 +81,7 @@ public class ComServerComPortResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed(Privileges.UPDATE_COMSERVER)
     public Response removeComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id) {
         ComServer comServer = findComServerOrThrowException(comServerId);
         findComPortOrThrowException(comServer, id);

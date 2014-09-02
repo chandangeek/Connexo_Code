@@ -3,6 +3,7 @@ package com.energyict.mdc.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.FieldResource;
+import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;
 import com.energyict.mdc.rest.impl.comserver.ComPortTypeAdapter;
 import com.energyict.mdc.rest.impl.comserver.FlowControlAdapter;
@@ -12,6 +13,7 @@ import com.energyict.mdc.rest.impl.comserver.NrOfStopBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.ParitiesAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -31,12 +33,14 @@ public class ComServerFieldResource extends FieldResource {
 
     @GET
     @Path("/logLevel")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getLogLevelValues() {
         return asJsonArrayObjectWithTranslation("logLevels", "logLevel", new LogLevelAdapter().getClientSideValues());
     }
 
     @GET
     @Path("/timeUnit")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getTimeUnits() {
         final List<Object> timeUnitStrings = new ArrayList<>();
         int[] timeDurations = new int[] {
@@ -59,36 +63,42 @@ public class ComServerFieldResource extends FieldResource {
 
     @GET
     @Path("/comPortType")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getComPortTypes() {
         return asJsonArrayObjectWithTranslation("comPortTypes", "comPortType", new ComPortTypeAdapter().getClientSideValues());
     }
 
     @GET
     @Path("/parity")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getParities() {
         return asJsonArrayObjectWithTranslation("parities", "parity", new ParitiesAdapter().getClientSideValues());
     }
 
     @GET
     @Path("/flowControl")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getFlowControls() {
         return asJsonArrayObjectWithTranslation("flowControls", "flowControl", new FlowControlAdapter().getClientSideValues());
     }
 
     @GET
     @Path("/nrOfDataBits")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getNrOfDataBits() {
         return asJsonArrayObjectWithTranslation("nrOfDataBits", "nrOfDataBits", new NrOfDataBitsAdapter().getClientSideValues());
     }
 
     @GET
     @Path("/nrOfStopBits")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getNrOfStopBits() {
         return asJsonArrayObjectWithTranslation("nrOfStopBits", "nrOfStopBits", new NrOfStopBitsAdapter().getClientSideValues());
     }
 
     @GET
     @Path("/baudRate")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getBaudRate() {
         return asJsonArrayObjectWithTranslation("baudRates", "baudRate", new BaudrateAdapter().getClientSideValues());
     }

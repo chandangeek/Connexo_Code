@@ -4,8 +4,10 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.model.*;
+import com.energyict.mdc.engine.model.security.Privileges;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -25,6 +27,7 @@ public class ComPortPoolComPortResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public PagedInfoList getComPorts(@PathParam("comPortPoolId") long comPortPoolId, @BeanParam QueryParameters queryParameters) {
         ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
         List<ComPort> comPorts = new ArrayList<>(comPortPool.getComPorts());
@@ -47,6 +50,7 @@ public class ComPortPoolComPortResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ComPortInfo getComPort(@PathParam("comPortPoolId") long comPortPoolId, @PathParam("id") long id) {
         ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
         ComPort comPort = findComPortOrThrowException(comPortPool, id);
@@ -55,6 +59,7 @@ public class ComPortPoolComPortResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed(Privileges.UPDATE_COMSERVER)
     public Response removeComPort(@PathParam("comPortPoolId") long comPortPoolId, @PathParam("id") long id) {
         ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
         removeComPortFromComPortPool(comPortPool, id);

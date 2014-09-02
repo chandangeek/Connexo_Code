@@ -6,10 +6,12 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.security.Privileges;
 import com.google.common.base.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -32,6 +34,7 @@ public class ComPortResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public PagedInfoList getComPorts(@BeanParam JsonQueryFilter comPortFilter, @BeanParam QueryParameters queryParameters) {
         List<ComPortInfo> comPortInfos = new ArrayList<>();
         if (!comPortFilter.getFilterProperties().isEmpty()) {
@@ -62,6 +65,7 @@ public class ComPortResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ComPortInfo getComPort(@PathParam("id") long id) {
         Optional<ComPort> comPort = Optional.fromNullable(engineModelService.findComPort(id));
         if (!comPort.isPresent()) {

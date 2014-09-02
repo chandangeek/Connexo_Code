@@ -5,6 +5,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.security.Privileges;
 import com.google.common.base.Optional;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -44,6 +46,7 @@ public class ComServerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public PagedInfoList getComServers(@BeanParam QueryParameters queryParameters) {
         List<ComServerInfo<?>> comServers = new ArrayList<>();
         List<ComServer> allComServers = this.getSortedComServers(queryParameters);
@@ -71,6 +74,7 @@ public class ComServerResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ComServerInfo<?> getComServer(@PathParam("id") long id) {
         Optional<ComServer> comServer = engineModelService.findComServer(id);
         if (!comServer.isPresent()) {
@@ -83,6 +87,7 @@ public class ComServerResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.DELETE_COMSERVER)
     public Response deleteComServer(@PathParam("id") long id) {
         try {
             Optional<ComServer> comServer = engineModelService.findComServer(id);
@@ -99,6 +104,7 @@ public class ComServerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_COMSERVER)
     public Response createComServer(ComServerInfo<ComServer> comServerInfo) {
         ComServer comServer = comServerInfo.createNew(engineModelService);
         comServerInfo.writeTo(comServer,engineModelService);
@@ -124,6 +130,7 @@ public class ComServerResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_COMSERVER)
     public ComServerInfo updateComServer(@PathParam("id") long id, ComServerInfo<ComServer> comServerInfo) {
         Optional<ComServer> comServer = engineModelService.findComServer(id);
         if (!comServer.isPresent()) {
@@ -150,6 +157,7 @@ public class ComServerResource {
     }
 
     @Path("/{comServerId}/comports")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ComServerComPortResource getComPortResource() {
         return comServerComPortResourceProvider.get();
     }
