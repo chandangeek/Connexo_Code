@@ -1,4 +1,4 @@
 -classpath: target/classes 
 -dsannotations: *
-Export-Package: com.elster.jupiter.validation
+Export-Package: com.elster.jupiter.validation,com.elster.jupiter.validation.security
 Private-Package: com.elster.jupiter.validation.impl

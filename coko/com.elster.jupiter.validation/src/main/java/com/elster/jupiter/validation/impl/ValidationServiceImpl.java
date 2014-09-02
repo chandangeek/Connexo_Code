@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Upcast;
 import com.elster.jupiter.util.comparators.NullSafeOrdering;
 import com.elster.jupiter.util.conditions.Condition;
@@ -80,18 +81,20 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
     private volatile List<ValidationRuleSetResolver> ruleSetResolvers = new ArrayList<>();
+    private volatile UserService userService;
 
     public ValidationServiceImpl() {
     }
 
     @Inject
-    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService) {
+    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService) {
         this.clock = clock;
         this.eventService = eventService;
         this.meteringService = meteringService;
         setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
+        setUserService(userService);
         activate();
         install();
     }
@@ -109,6 +112,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
                 bind(ValidatorCreator.class).toInstance(new DefaultValidatorCreator());
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(UserService.class).toInstance(userService);
             }
         });
     }
@@ -119,7 +123,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, eventService, thesaurus).install(true, true);
+        new InstallerImpl(dataModel, eventService, thesaurus, userService).install(true, true);
     }
 
     @Reference
@@ -153,6 +157,11 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
