@@ -9,8 +9,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.events.EventType;
+import com.energyict.mdc.scheduling.security.Privileges;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -30,12 +33,14 @@ public class Installer {
     private final DataModel dataModel;
     private final EventService eventService;
     private final Thesaurus thesaurus;
+    private final UserService userService;
 
-    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus, UserService userService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+        this.userService = userService;
     }
 
     public void install(boolean executeDdl) {
@@ -44,8 +49,18 @@ public class Installer {
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
+        createPrivileges();
+        assignPrivilegesToDefaultRoles();
         createEventTypes();
         createTranslations();
+    }
+
+    private void createPrivileges() {
+        this.userService.createResourceWithPrivileges("MDC", "schedule.schedules", "schedule.schedules.description", new String[] {Privileges.CREATE_SCHEDULE, Privileges.UPDATE_SCHEDULE, Privileges.DELETE_SCHEDULE, Privileges.VIEW_SCHEDULE});
+    }
+
+    private void assignPrivilegesToDefaultRoles() {
+        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.CREATE_SCHEDULE, Privileges.UPDATE_SCHEDULE, Privileges.DELETE_SCHEDULE, Privileges.VIEW_SCHEDULE});
     }
 
     private void createTranslations() {

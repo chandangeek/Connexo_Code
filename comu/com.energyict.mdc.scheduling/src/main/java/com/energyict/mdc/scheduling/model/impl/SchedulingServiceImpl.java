@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -42,17 +43,19 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
     private volatile TaskService tasksService;
+    private volatile UserService userService;
 
     public SchedulingServiceImpl() {
     }
 
     @Inject
-    public SchedulingServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, TaskService tasksService) {
+    public SchedulingServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, TaskService tasksService, UserService userService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
         setNlsService(nlsService);
         setTasksService(tasksService);
+        setUserService(userService);
         activate();
         this.install();
     }
@@ -81,6 +84,11 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
         this.tasksService = tasksService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
@@ -88,7 +96,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus, this.userService).install(true);
     }
 
     private Module getModule() {
@@ -100,6 +108,7 @@ public class SchedulingServiceImpl implements SchedulingService, InstallService 
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(TaskService.class).toInstance(tasksService);
+                bind(UserService.class).toInstance(userService);
                 bind(SchedulingService.class).toInstance(SchedulingServiceImpl.this);
             }
         };
