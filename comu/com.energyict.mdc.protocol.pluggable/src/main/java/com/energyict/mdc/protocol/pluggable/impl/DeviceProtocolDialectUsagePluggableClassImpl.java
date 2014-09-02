@@ -122,9 +122,6 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
         shadow.setRequired(isRequired);
         ValueFactory valueFactory = propertySpec.getValueFactory();
         shadow.setValueFactoryClass(valueFactory.getClass());
-        if (valueFactory.isReference()) {
-            shadow.setObjectFactoryId(Environment.DEFAULT.get().findFactory(valueFactory.getValueType().getName()).getId());
-        }
         return shadow;
     }
 

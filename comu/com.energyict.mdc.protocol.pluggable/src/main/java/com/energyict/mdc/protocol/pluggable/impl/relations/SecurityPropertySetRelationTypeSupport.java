@@ -113,10 +113,6 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         ValueFactory valueFactory = propertySpec.getValueFactory();
         Class<? extends ValueFactory> valueFactoryClass = valueFactory.getClass();
         shadow.setValueFactoryClass(valueFactoryClass);
-        if (valueFactory.isReference()) {
-            BusinessObjectFactory businessObjectFactory = Environment.DEFAULT.get().findFactory(valueFactory.getValueType().getName());
-            shadow.setObjectFactoryId(businessObjectFactory.getId());
-        }
         return shadow;
     }
 

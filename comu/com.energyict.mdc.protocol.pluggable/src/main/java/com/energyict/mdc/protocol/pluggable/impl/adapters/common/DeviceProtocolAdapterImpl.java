@@ -1,14 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.DLMSCache;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.dynamic.PropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -24,6 +18,11 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.energyict.dlms.DLMSCache;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -216,42 +215,20 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
         return result;
     }
 
-    private PropertySpec deviceTimeZonePropertySpec(boolean required) {
-        PropertySpecFactory factory;
-        if (required) {
-            factory = RequiredPropertySpecFactory.newInstance();
-        }
-        else {
-            factory = OptionalPropertySpecFactory.newInstance();
-        }
-        return factory.stringPropertySpec(DEVICE_TIMEZONE_PROPERTY_NAME);
+    private PropertySpec<String> deviceTimeZonePropertySpec(boolean required) {
+        return this.propertySpecService.basicPropertySpec(DEVICE_TIMEZONE_PROPERTY_NAME, required, new StringFactory());
     }
 
-    private PropertySpec nodeAddressPropertySpec(boolean required) {
-        if (required) {
-            return RequiredPropertySpecFactory.newInstance().stringPropertySpec(MeterProtocol.NODEID);
-        }
-        else {
-            return OptionalPropertySpecFactory.newInstance().stringPropertySpec(MeterProtocol.NODEID);
-        }
+    private PropertySpec<String> nodeAddressPropertySpec(boolean required) {
+        return this.propertySpecService.basicPropertySpec(MeterProtocol.NODEID, required, new StringFactory());
     }
 
-    private PropertySpec deviceIdPropertySpec(boolean required) {
-        if (required) {
-            return RequiredPropertySpecFactory.newInstance().stringPropertySpec(MeterProtocol.ADDRESS);
-        }
-        else {
-            return OptionalPropertySpecFactory.newInstance().stringPropertySpec(MeterProtocol.ADDRESS);
-        }
+    private PropertySpec<String> deviceIdPropertySpec(boolean required) {
+        return this.propertySpecService.basicPropertySpec(MeterProtocol.ADDRESS, required, new StringFactory());
     }
 
-    private PropertySpec callHomeIdPropertySpec(boolean required) {
-        if (required) {
-            return RequiredPropertySpecFactory.newInstance().stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
-        }
-        else {
-            return OptionalPropertySpecFactory.newInstance().stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
-        }
+    private PropertySpec<String> callHomeIdPropertySpec(boolean required) {
+        return this.propertySpecService.basicPropertySpec(CALL_HOME_ID_PROPERTY_NAME, required, new StringFactory());
     }
 
     protected abstract AbstractDeviceProtocolSecuritySupportAdapter getSecuritySupportAdapter();

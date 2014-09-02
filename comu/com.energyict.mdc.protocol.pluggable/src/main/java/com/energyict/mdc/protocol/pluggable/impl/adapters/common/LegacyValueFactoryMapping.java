@@ -1,7 +1,17 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.dynamic.DateFactory;
+import com.energyict.mdc.dynamic.Ean13Factory;
+import com.energyict.mdc.dynamic.Ean18Factory;
+import com.energyict.mdc.dynamic.HexStringFactory;
+import com.energyict.mdc.dynamic.LargeStringFactory;
+import com.energyict.mdc.dynamic.ObisCodeValueFactory;
+import com.energyict.mdc.dynamic.PasswordFactory;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TimeOfDayFactory;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
@@ -9,19 +19,8 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
 
-import com.energyict.mdc.dynamic.DateAndTimeFactory;
-import com.energyict.mdc.dynamic.DateFactory;
-import com.energyict.mdc.dynamic.Ean13Factory;
-import com.energyict.mdc.dynamic.Ean18Factory;
-import com.energyict.mdc.dynamic.HexStringFactory;
-import com.energyict.mdc.dynamic.LargeStringFactory;
-import com.energyict.mdc.dynamic.LegacyReferenceFactory;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
-import com.energyict.mdc.dynamic.PasswordFactory;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
-import com.energyict.mdc.dynamic.TimeOfDayFactory;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides mapping services from the lecacy {@link com.energyict.mdc.protocol.api.legacy.dynamic.ValueFactory}
@@ -75,7 +74,6 @@ public class LegacyValueFactoryMapping {
         temp.add(new ValueFactoryPair<>(BooleanFactory.class, com.energyict.mdw.dynamicattributes.BooleanFactory.class));
         temp.add(new ValueFactoryPair<>(ThreeStateFactory.class, com.energyict.mdw.dynamicattributes.ThreeStateFactory.class));
         temp.add(new ValueFactoryPair<>(PasswordFactory.class, com.energyict.mdw.dynamicattributes.PasswordFactory.class));
-        temp.add(new ValueFactoryPair<>(LegacyReferenceFactory.class, com.energyict.mdw.dynamicattributes.ReferenceFactory.class));
         temp.add(new ValueFactoryPair<>(ObisCodeValueFactory.class, com.energyict.mdw.dynamicattributes.ObisCodeValueFactory.class));
         mappings = temp;
     }

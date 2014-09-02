@@ -1,14 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
@@ -20,7 +17,6 @@ import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -41,11 +37,14 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolWithTestProp
 import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -62,14 +61,13 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-
 import org.joda.time.DateMidnight;
-import org.mockito.Mock;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -83,6 +81,7 @@ import java.util.List;
 
 import org.junit.*;
 import org.junit.runner.*;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -167,16 +166,11 @@ public class DeviceProtocolPluggableClassImplTest {
         Environment environment = injector.getInstance(Environment.class);
         environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
         ApplicationContext applicationContext = mock(ApplicationContext.class);
-        IdBusinessObjectFactory deviceProtocolDialectFactory = mock(IdBusinessObjectFactory.class);
-        when(deviceProtocolDialectFactory.getInstanceType()).thenReturn(DeviceProtocolDialect.class);
-        when(applicationContext.findFactory(FactoryIds.DEVICE_PROTOCOL_DIALECT.id())).thenReturn(deviceProtocolDialectFactory);
 
         if (Environment.DEFAULT.get().getApplicationContext() != null) {
             fail("Application context was not cleaned up properly by previous test");
-            if (Environment.DEFAULT.get().getApplicationContext().findFactory(FactoryIds.CODE.id()) != null) {
-                fail("Code Factory was not cleaned up properly by previous test");
-            }
         }
+        Bus.setPropertySpecService(propertySpecService);
         propertySpecService.addFactoryProvider(new ReferencePropertySpecFinderProvider() {
             @Override
             public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {

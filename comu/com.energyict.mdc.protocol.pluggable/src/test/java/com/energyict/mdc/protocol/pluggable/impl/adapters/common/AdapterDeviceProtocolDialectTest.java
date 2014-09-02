@@ -4,9 +4,7 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -27,7 +25,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -227,19 +227,19 @@ public class AdapterDeviceProtocolDialectTest {
     }
 
     private PropertySpec<String> getRequiredPropertySpec () {
-        return RequiredPropertySpecFactory.newInstance().stringPropertySpec(REQUIRED_PROPERTY_NAME);
+        return new PropertySpecServiceImpl().basicPropertySpec(REQUIRED_PROPERTY_NAME, true, new StringFactory());
     }
 
     private PropertySpec<String> getOptionalPropertySpec () {
-        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(OPTIONAL_PROPERTY_NAME);
+        return new PropertySpecServiceImpl().basicPropertySpec(OPTIONAL_PROPERTY_NAME, false, new StringFactory());
     }
 
-    private PropertySpec getFirstRemovableProperty () {
-        return RequiredPropertySpecFactory.newInstance().stringPropertySpec(REQUIRED_PROPERTY_NAME);
+    private PropertySpec<String> getFirstRemovableProperty () {
+        return new PropertySpecServiceImpl().basicPropertySpec(REQUIRED_PROPERTY_NAME, true, new StringFactory());
     }
 
     private PropertySpec getSecondRemovableProperty () {
-        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(FIRST_ADDITIONAL_PROPERTY_NAME);
+        return new PropertySpecServiceImpl().basicPropertySpec(FIRST_ADDITIONAL_PROPERTY_NAME, false, new StringFactory());
     }
 
     private class MockModule extends AbstractModule {
