@@ -5,8 +5,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
@@ -53,6 +55,15 @@ public class ComTaskExecutionInfoFactory {
             info.comScheduleName=comSchedule.getName();
             if (comSchedule.getTemporalExpression()!=null) {
                 info.comScheduleFrequency = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
+            }
+        } else {
+            if (comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
+                Optional<NextExecutionSpecs> nextExecutionSpecs = comTaskExecution.getNextExecutionSpecs();
+                info.comScheduleName=thesaurus.getString(MessageSeeds.INDIVIDUAL.getKey(), MessageSeeds.INDIVIDUAL.getKey());
+                if (nextExecutionSpecs.isPresent()) {
+                    info.comScheduleFrequency = TemporalExpressionInfo.from(nextExecutionSpecs.get().getTemporalExpression());
+                }
+
             }
         }
         info.urgency = comTaskExecution.getExecutionPriority();

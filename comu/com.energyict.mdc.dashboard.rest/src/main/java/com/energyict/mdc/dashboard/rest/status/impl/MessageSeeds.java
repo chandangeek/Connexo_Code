@@ -47,8 +47,9 @@ public enum MessageSeeds implements MessageSeed {
     MINIMIZE_CONNECTIONS(37, "minimizeConnections", "Minimize connections"),
     PER_COMMUNICATION_TASK(38, "PerCommunicationTask", "Per communication task"),
     PER_COMMUNICATION_SCHEDULE(39, "PerCommunicationSchedule", "Per communication schedule"),
-
+    INDIVIDUAL(40, "Individual", "Individual"),
     ;
+
 
     private final int number;
     private final String key;
