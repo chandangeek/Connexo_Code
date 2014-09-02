@@ -3,9 +3,11 @@ package com.elster.jupiter.license.impl;
 import com.elster.jupiter.license.InvalidLicenseException;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.license.security.Privileges;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -37,13 +39,15 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
 
     private volatile DataModel dataModel;
     private volatile OrmService ormService;
+    private volatile UserService userService;
 
     public LicenseServiceImpl() {
     }
 
     @Inject
-    public LicenseServiceImpl(OrmService ormService) {
+    public LicenseServiceImpl(OrmService ormService, UserService userService) {
         setOrmService(ormService);
+        setUserService(userService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -52,6 +56,16 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
 
     public void install() {
         dataModel.install(true, true);
+        createPrivileges();
+        assignPrivilegesToDefaultRoles();
+    }
+
+    private void createPrivileges() {
+        this.userService.createResourceWithPrivileges("SYS", "license.license", "license.license.description", new String[] {Privileges.VIEW_LICENSE, Privileges.UPLOAD_LICENSE});
+    }
+
+    private void assignPrivilegesToDefaultRoles() {
+        this.userService.grantGroupWithPrivilege(userService.DEFAULT_ADMIN_ROLE, new String[] {Privileges.UPLOAD_LICENSE, Privileges.VIEW_LICENSE});
     }
 
     @Reference
@@ -63,6 +77,12 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
         }
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+
     @Activate
     public void activate() {
         dataModel.register(getModule());
@@ -73,6 +93,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
             @Override
             protected void configure() {
                 bind(DataModel.class).toInstance(dataModel);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
