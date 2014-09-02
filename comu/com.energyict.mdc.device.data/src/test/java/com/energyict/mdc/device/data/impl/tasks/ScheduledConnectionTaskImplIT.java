@@ -1237,11 +1237,9 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void makeObsoleteWhenSomeOneElseMadeItObsoleteTest() throws SQLException {
         final ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("makeObsoleteWhenSomeOneElseMadeItObsoleteTest");
         connectionTask.save();
-        try (PreparedStatement statement = this.getUpdateObsoleteDateSqlBuilder(connectionTask.getId()).getStatement(Environment.DEFAULT.get().getConnection())) {
-            int updateCount = statement.executeUpdate();
-            if (updateCount != 1) {
-                throw new SQLException("updated zero rows");
-            }
+        int updateCount = inMemoryPersistence.update(this.getUpdateObsoleteDateSqlBuilder(connectionTask.getId()));
+        if (updateCount != 1) {
+            throw new SQLException("updated zero rows");
         }
 
         // Business method

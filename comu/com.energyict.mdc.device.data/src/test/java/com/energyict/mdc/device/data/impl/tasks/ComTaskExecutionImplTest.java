@@ -578,7 +578,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         AdHocComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         AdHocComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
-        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set comport = " + outboundComPort.getId() + " where id = " + comTaskExecution.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set comport = " + outboundComPort.getId() + " where id = " + comTaskExecution.getId());
 
         // Business method
         comTaskExecution.makeObsolete();
@@ -598,7 +598,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         comTaskExecutionBuilder.connectionTask(connectionTask);
         AdHocComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
-        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
 
         // Business method
         comTaskExecution.makeObsolete();
@@ -619,7 +619,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
-        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
 
         // Business method
         comTaskExecution.makeObsolete();
@@ -681,8 +681,8 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         AdHocComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = 1 where id = " + comTaskExecution.getId());
-        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = 1 where id = " + comTaskExecution.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
         ComTaskExecution reloadedComTaskExecution = reloadAdHocComTaskExecution(device, comTaskExecution);
 
         // Business method
@@ -706,8 +706,8 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         long future = inMemoryPersistence.getClock().now().getTime() + 1000000000000L;  // let's just hope it won't take that long until this test is finished
-        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = " + future + " where id = " + comTaskExecution.getId());
-        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = " + future + " where id = " + comTaskExecution.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
         ComTaskExecution reloadedComTaskExecution = reloadAdHocComTaskExecution(device, comTaskExecution);
 
         // Business method

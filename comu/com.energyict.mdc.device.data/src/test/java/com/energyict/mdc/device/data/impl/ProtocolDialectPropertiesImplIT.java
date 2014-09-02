@@ -1,15 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -53,6 +44,15 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,12 +62,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -84,7 +80,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest {
 
-    private static final int PROTOCOL_DIALECT_PROPERTIES_ID = 6514;
     private static final String REQUIRED_PROPERTY_NAME_D1 = "ThisIsTheRequiredPropertyName";
     private static final String REQUIRED_PROPERTY_VALUE = "lmskdjfsmldkfjsqlmdkfj";
     private static final String OPTIONAL_PROPERTY_NAME_D1 = "ThisIsTheOptionalPropertyName";
@@ -112,33 +107,25 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Mock
     private DeviceProtocolDialect deviceProtocolDialect;
 
-    private Interval relationActivePeriod = new Interval(new Date(), null);
-
     @BeforeClass
     public static void setupDeviceProtocolAndDeviceConfiguration () {
-        try {
-            Environment.DEFAULT.get().execute(new Transaction<Object>() {
-                @Override
-                public Object doExecute() {
-                    registerDeviceProtocol();
-                    deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(ProtocolDialectPropertiesImplIT.class.getSimpleName(), deviceProtocolPluggableClass);
-                    deviceType.setDeviceUsageType(DeviceUsageType.METER);
-                    DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(ProtocolDialectPropertiesImplIT.class.getName());
-                    deviceConfiguration = deviceConfigurationBuilder.add();
-                    deviceType.save();
-                    deviceConfiguration.activate();
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                registerDeviceProtocol();
+                deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(ProtocolDialectPropertiesImplIT.class.getSimpleName(), deviceProtocolPluggableClass);
+                deviceType.setDeviceUsageType(DeviceUsageType.METER);
+                DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(ProtocolDialectPropertiesImplIT.class.getName());
+                deviceConfiguration = deviceConfigurationBuilder.add();
+                deviceType.save();
+                deviceConfiguration.activate();
 
-                    DeviceCommunicationConfiguration deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
-                    deviceCommunicationConfiguration.save();
-                    protocolDialect1ConfigurationProperties = deviceCommunicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
-                    protocolDialect2ConfigurationProperties = deviceCommunicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(1);
-                    return null;
-                }
-            });
-        }
-        catch (BusinessException | SQLException e) {
-            // Not thrown by the transaction
-        }
+                DeviceCommunicationConfiguration deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
+                deviceCommunicationConfiguration.save();
+                protocolDialect1ConfigurationProperties = deviceCommunicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+                protocolDialect2ConfigurationProperties = deviceCommunicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(1);
+            }
+        });
     }
 
     public static void registerDeviceProtocol () {
@@ -155,18 +142,12 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     @AfterClass
     public static void deleteDeviceProtocol () {
-        try {
-            Environment.DEFAULT.get().execute(new Transaction<Object>() {
-                @Override
-                public Object doExecute() {
-                    deviceProtocolPluggableClass.delete();
-                    return null;
-                }
-            });
-        }
-        catch (BusinessException | SQLException e) {
-            // Not thrown by the transaction
-        }
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                deviceProtocolPluggableClass.delete();
+            }
+        });
     }
 
     @Before

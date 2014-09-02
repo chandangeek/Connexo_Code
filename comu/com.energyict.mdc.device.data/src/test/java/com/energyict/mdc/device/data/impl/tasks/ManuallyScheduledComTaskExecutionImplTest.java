@@ -505,7 +505,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
         ManuallyScheduledComTaskExecutionBuilder comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties, temporalExpression);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
-        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set comport = " + outboundComPort.getId() + " where id = " + comTaskExecution.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set comport = " + outboundComPort.getId() + " where id = " + comTaskExecution.getId());
 
         // Business method
         comTaskExecution.makeObsolete();
@@ -526,7 +526,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
         comTaskExecutionBuilder.connectionTask(connectionTask);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
-        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
 
         // Business method
         comTaskExecution.makeObsolete();
@@ -548,7 +548,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         inMemoryPersistence.getDeviceDataService().setDefaultConnectionTask(connectionTask);
-        InMemoryIntegrationPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
 
         // Business method
         comTaskExecution.makeObsolete();
