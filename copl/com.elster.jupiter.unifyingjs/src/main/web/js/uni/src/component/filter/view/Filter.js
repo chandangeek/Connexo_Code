@@ -55,7 +55,7 @@
 Ext.define('Uni.component.filter.view.Filter', {
     extend: 'Ext.form.Panel',
     alias: 'widget.filter-form',
-
+    applyKey: 13,
     /**
      * @override
      *
@@ -190,5 +190,16 @@ Ext.define('Uni.component.filter.view.Filter', {
         }
 
         return this;
+    },
+
+    initComponent: function () {
+        var me = this;
+        me.callParent(arguments);
+        me.on('afterrender', function (form) {
+            var el = form.getEl();
+            el.on('keypress', function (e, t) {
+                (e.getKey() == me.applyKey) && (me.fireEvent('applyfilter', {me: me, key: me.applyKey, t: t}));
+            })
+        })
     }
 });
