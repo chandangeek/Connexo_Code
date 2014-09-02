@@ -241,19 +241,19 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 },
                                                 //Communication tasks routes
                                                 comtaskenablements: {
-                                                    title: 'Communication tasks',
+                                                    title: 'Communication task configurations',
                                                     route: 'comtaskenablements',
                                                     controller: 'Mdc.controller.setup.CommunicationTasks',
                                                     action: 'showCommunicationTasks',
                                                     items: {
                                                         create: {
-                                                            title: 'Add communication task',
+                                                            title: 'Add communication task configuration',
                                                             route: 'create',
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
                                                             action: 'showAddCommunicationTaskView'
                                                         },
                                                         edit: {
-                                                            title: 'Edit communication task',
+                                                            title: 'Edit communication task configuration',
                                                             route: '{comTaskEnablementId}/edit',
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
                                                             action: 'showEditCommunicationTaskView',
