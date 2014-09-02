@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.DataVault;
 import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdc.common.NotFoundException;
@@ -115,6 +116,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile DeviceCacheMarshallingService deviceCacheMarshallingService;
     private volatile LicenseService licenseService;
     private volatile TransactionService transactionService;
+    private volatile UserService userService;
 
     private volatile boolean active = false;
     private List<ReferencePropertySpecFinderProvider> factoryProviders = new ArrayList<>();
@@ -136,7 +138,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             DeviceProtocolMessageService deviceProtocolMessageService,
             DeviceProtocolSecurityService deviceProtocolSecurityService,
             InboundDeviceProtocolService inboundDeviceProtocolService,
-            ConnectionTypeService connectionTypeService, DeviceCacheMarshallingService deviceCacheMarshallingService, LicenseService licenseService, LicensedProtocolService licensedProtocolService) {
+            ConnectionTypeService connectionTypeService, DeviceCacheMarshallingService deviceCacheMarshallingService, LicenseService licenseService, LicensedProtocolService licensedProtocolService, UserService userService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -145,6 +147,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setPropertySpecService(propertySpecService);
         this.setRelationService(relationService);
         this.setPluggableService(pluggableService);
+        this.setUserService(userService);
         this.addDeviceProtocolService(deviceProtocolService);
         this.addDeviceProtocolMessageService(deviceProtocolMessageService);
         this.addDeviceProtocolSecurityService(deviceProtocolSecurityService);
@@ -579,6 +582,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.pluggableService = pluggableService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
         this.deviceProtocolServices.add(deviceProtocolService);
@@ -767,6 +775,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
                 bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
                 bind(LicenseService.class).toInstance(licenseService);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
@@ -961,7 +970,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus, this.userService).install(true, true);
     }
 
     private class TemporaryUnSecureDataVaultProvider implements DataVaultProvider {

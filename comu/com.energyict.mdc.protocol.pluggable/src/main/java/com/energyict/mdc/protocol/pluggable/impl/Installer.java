@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityAdapterMappingImpl;
@@ -15,6 +16,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMapping;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingImpl;
+import com.energyict.mdc.protocol.pluggable.security.Privileges;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,12 +42,14 @@ public class Installer {
     private final DataModel dataModel;
     private final EventService eventService;
     private final Thesaurus thesaurus;
+    private final UserService userService;
 
-    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus, UserService userService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+        this.userService = userService;
     }
 
     public void install(boolean executeDdl, boolean createMasterData) {
@@ -58,11 +62,22 @@ public class Installer {
         catch (Exception e) {
             e.printStackTrace();
         }
+        createPrivileges();
+        assignPrivilegesToDefaultRoles();
         createSecurityAdapterMappings();
         createMessageAdapterMappings();
         createCapabilityMappings();
         createEventTypes();
         createTranslations();
+    }
+
+    private void createPrivileges() {
+        this.userService.createResourceWithPrivileges("MDC", "protocol.protocols", "protocol.protocols.description", new String[] {Privileges.CREATE_PROTOCOL, Privileges.UPDATE_PROTOCOL, Privileges.DELETE_PROTOCOL, Privileges.VIEW_PROTOCOL});
+    }
+
+    private void assignPrivilegesToDefaultRoles() {
+        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.CREATE_PROTOCOL, Privileges.UPDATE_PROTOCOL, Privileges.DELETE_PROTOCOL, Privileges.VIEW_PROTOCOL});
+        this.userService.grantGroupWithPrivilege(userService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_PROTOCOL});
     }
 
     private void createCapabilityMappings() {
