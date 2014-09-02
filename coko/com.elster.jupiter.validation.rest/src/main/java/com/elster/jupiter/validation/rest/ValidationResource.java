@@ -12,10 +12,12 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.security.Privileges;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -54,6 +56,7 @@ public class ValidationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
     public ValidationRuleSetInfos getValidationRuleSets(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<ValidationRuleSet> list = queryRuleSets(params);
@@ -75,6 +78,7 @@ public class ValidationResource {
     @GET
     @Path("/rules/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
     public ValidationRuleInfos getValidationRules(@PathParam("id") long id, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         Optional<ValidationRuleSet> optional = Bus.getValidationService().getValidationRuleSet(id);
@@ -100,6 +104,7 @@ public class ValidationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_VALIDATION_RULE)
     public ValidationRuleSetInfo createValidationRuleSet(final ValidationRuleSetInfo info) {
         return new ValidationRuleSetInfo(Bus.getTransactionService().execute(new Transaction<ValidationRuleSet>() {
             @Override
@@ -112,6 +117,7 @@ public class ValidationResource {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_VALIDATION_RULE)
     public ValidationRuleSetInfo updateValidationRuleSet(@PathParam("id") long id, final ValidationRuleSetInfo info, @Context SecurityContext securityContext) {
         info.id = id;
         Bus.getTransactionService().execute(new VoidTransaction() {
@@ -133,6 +139,7 @@ public class ValidationResource {
     @GET
     @Path("/{id}/usage")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
     public Response getValidationRuleSetUsage(@PathParam("id") final long id, @Context final SecurityContext securityContext) {
         ValidationRuleSet validationRuleSet = fetchValidationRuleSet(id, securityContext);
         return Response.status(Response.Status.OK).entity(Bus.getValidationService().isValidationRuleSetInUse(validationRuleSet)).build();
@@ -141,6 +148,7 @@ public class ValidationResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.DELETE_VALIDATION_RULE)
     public Response deleteValidationRuleSet(@PathParam("id") final long id, @Context final SecurityContext securityContext) {
         Bus.getTransactionService().execute(new VoidTransaction() {
             @Override
@@ -158,6 +166,7 @@ public class ValidationResource {
     @POST
     @Path("/rules/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_VALIDATION_RULE)
     public ValidationRuleInfos addRule(@PathParam("id") final long id, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
         ValidationRuleInfos result = new ValidationRuleInfos();
         result.add(Bus.getTransactionService().execute(new Transaction<ValidationRule>() {
@@ -186,6 +195,7 @@ public class ValidationResource {
     @PUT
     @Path("/rules/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_VALIDATION_RULE)
     public ValidationRuleInfos editRule(@PathParam("id") final long id, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
         ValidationRuleInfos result = new ValidationRuleInfos();
         result.add(Bus.getTransactionService().execute(new Transaction<ValidationRule>() {
@@ -233,6 +243,7 @@ public class ValidationResource {
     @DELETE
     @Path("/rules/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.DELETE_VALIDATION_RULE)
     public Response removeRule(@PathParam("id") final long id, @QueryParam("id") final long ruleId) {
         Bus.getTransactionService().execute(new Transaction<ValidationRule>() {
             @Override
@@ -256,6 +267,7 @@ public class ValidationResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
     public ValidationRuleSetInfo getValidationRuleSet(@PathParam("id") long id, @Context SecurityContext securityContext) {
         ValidationRuleSet validationRuleSet = fetchValidationRuleSet(id, securityContext);
         return new ValidationRuleSetInfo(validationRuleSet);
@@ -273,6 +285,7 @@ public class ValidationResource {
     @GET
     @Path("/actions")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
     public ValidationActionInfos getAvailableValidationActions(@Context UriInfo uriInfo) {
         ValidationActionInfos infos = new ValidationActionInfos();
         ValidationAction[] actions = ValidationAction.values();
@@ -286,6 +299,7 @@ public class ValidationResource {
     @GET
     @Path("/readingtypes/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
     public ReadingTypeInfos getReadingTypesForRule(@PathParam("id") long id) {
         ReadingTypeInfos infos = new ReadingTypeInfos();
         Optional<ValidationRule> optional = Bus.getValidationService().getValidationRule(id);
@@ -303,6 +317,7 @@ public class ValidationResource {
     @GET
     @Path("/validators")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
     public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
         ValidatorInfos infos = new ValidatorInfos();
         List<Validator> toAdd = Bus.getValidationService().getAvailableValidators();
