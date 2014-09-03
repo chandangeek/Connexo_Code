@@ -8,6 +8,7 @@ import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
+import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
