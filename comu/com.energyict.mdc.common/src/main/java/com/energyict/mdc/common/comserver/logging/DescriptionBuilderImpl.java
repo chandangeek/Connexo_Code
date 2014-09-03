@@ -1,5 +1,8 @@
 package com.energyict.mdc.common.comserver.logging;
 
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,37 +72,19 @@ public class DescriptionBuilderImpl implements DescriptionBuilder {
 
     @Override
     public String toString () {
+        Holder<String> separator = HolderBuilder.first("").andThen(PROPERTY_SEPARATOR);
         StringBuilder builder = new StringBuilder(this.title);
         if (!this.propertyBuilders.isEmpty()) {
             builder.append(" {");
-            ListAppendMode appendMode = ListAppendMode.FIRST;
             for (PropertyDescriptionBuilder propertyBuilder : this.propertyBuilders) {
-                appendMode.startOn(builder, PROPERTY_SEPARATOR);
+                builder.append(separator.get());
                 builder.append(propertyBuilder);
-                appendMode = ListAppendMode.REMAINING;
             }
             builder.append("}");
         }
         return builder.toString();
     }
 
-    private enum ListAppendMode {
-        FIRST {
-            @Override
-            protected void startOn (StringBuilder builder, String separator) {
-                // Nothing to append before the first message
-            }
-        },
-        REMAINING {
-            @Override
-            protected void startOn (StringBuilder builder, String separator) {
-                builder.append(separator);
-            }
-        };
-
-        protected abstract void startOn (StringBuilder builder, String separator);
-
-    }
     private class SimplePropertyDescriptionBuilder implements PropertyDescriptionBuilder {
         private StringBuilder builder;
 
@@ -292,13 +277,12 @@ public class DescriptionBuilderImpl implements DescriptionBuilder {
 
         @Override
         public String toString () {
+            Holder<String> separator = HolderBuilder.first("").andThen(", ");
             StringBuilder builder = new StringBuilder(this.propertyName);
             builder.append(PROPERTY_NAME_VALUE_SEPARATOR);
-            ListAppendMode appendMode = ListAppendMode.FIRST;
             for (SimplePropertyDescriptionBuilder valueBuilder : this.valueBuilders) {
-                appendMode.startOn(builder, PROPERTY_VALUE_SEPARATOR);
+                builder.append(separator.get());
                 builder.append(valueBuilder.toString());
-                appendMode = ListAppendMode.REMAINING;
             }
             return builder.toString();
         }
