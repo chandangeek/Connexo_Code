@@ -81,6 +81,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
         me.down('#summaries-0').removeAll(true);
         me.down('#summaries-1').removeAll(true);
         store.each(function (item, idx) {
+            item.counters().sort({ property: 'total', direction: 'DESC' });
             var panel = Ext.create('Ext.panel.Panel', {
                 tbar: {
                     xtype: 'container',
@@ -130,14 +131,11 @@ Ext.define('Dsh.view.widget.Breakdown', {
                                     pending: record.get('pendingCount'),
                                     success: record.get('successCount')
                                 };
-                                var limit = _.reduce(data, function (memo, item) {
-                                    return memo + item;
-                                }, 0);
                                 var bar = Ext.widget('stacked-bar', {
-                                    limit: limit,
+                                    limit: record.get('total'),
                                     total: item.get('total'),
                                     count: data,
-                                    label: limit
+                                    label: record.get('total')
                                 });
                                 bar.render(view.getEl().down('#bar-' + pos));
                                 var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
