@@ -802,7 +802,11 @@ Ext.define('Cfg.controller.Validation', {
 
         me.getApplication().fireEvent('changecontentevent', rulesContainerWidget);
         rulesContainerWidget.setLoading(true);
-
+        Cfg.model.ValidationRuleSet.load(ruleSetId, {
+            success: function (ruleSet) {
+                me.getApplication().fireEvent('loadRuleSet', ruleSet);
+            }
+        });
         var rulesStore = me.getValidationRulesStore();
         rulesStore.load({
             params: {
