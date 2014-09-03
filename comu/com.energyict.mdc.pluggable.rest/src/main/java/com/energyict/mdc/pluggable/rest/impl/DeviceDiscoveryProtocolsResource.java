@@ -2,6 +2,9 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -32,6 +35,7 @@ public class DeviceDiscoveryProtocolsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_PROTOCOL)
     public DeviceDiscoveryProtocolsInfo getDeviceDiscoveryProtocols() {
         DeviceDiscoveryProtocolsInfo deviceDiscoveryProtocolsInfo = new DeviceDiscoveryProtocolsInfo();
         for (InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass : this.protocolPluggableService.findAllInboundDeviceProtocolPluggableClass()) {
@@ -43,6 +47,7 @@ public class DeviceDiscoveryProtocolsResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_PROTOCOL)
     public DeviceDiscoveryProtocolInfo getDeviceDiscoveryProtocol(@PathParam("id") long id) {
         return new DeviceDiscoveryProtocolInfo(this.protocolPluggableService.findInboundDeviceProtocolPluggableClass(id));
     }
@@ -50,6 +55,7 @@ public class DeviceDiscoveryProtocolsResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.DELETE_PROTOCOL)
     public Response deleteDeviceDiscoveryProtocol(@PathParam("id") long id) {
         try {
             this.protocolPluggableService.deleteInboundDeviceProtocolPluggableClass(id);
@@ -63,6 +69,7 @@ public class DeviceDiscoveryProtocolsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_PROTOCOL)
     public DeviceDiscoveryProtocolInfo createDeviceDiscoveryProtocol(DeviceDiscoveryProtocolInfo deviceDiscoveryProtocolInfo) throws WebApplicationException {
         try {
             InboundDeviceProtocolPluggableClass pluggableClass = this.protocolPluggableService.newInboundDeviceProtocolPluggableClass(deviceDiscoveryProtocolInfo.name, deviceDiscoveryProtocolInfo.javaClassName);
@@ -77,6 +84,7 @@ public class DeviceDiscoveryProtocolsResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_PROTOCOL)
     public DeviceDiscoveryProtocolInfo updateDeviceDiscoveryProtocol(@PathParam("id") long id, DeviceDiscoveryProtocolInfo deviceDiscoveryProtocolInfo) throws WebApplicationException {
         try {
             InboundDeviceProtocolPluggableClass pluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClass(id);
