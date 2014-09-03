@@ -1,6 +1,4 @@
 Ext.define('SystemApp.Application', {
-    name: 'SystemApp',
-
     extend: 'Ext.app.Application',
 
     controllers: [

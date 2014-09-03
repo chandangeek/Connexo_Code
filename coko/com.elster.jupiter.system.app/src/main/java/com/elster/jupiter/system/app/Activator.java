@@ -17,6 +17,7 @@ public class Activator implements BundleActivator {
 
     public void start(BundleContext bundleContext) throws Exception {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/js/system", new BundleResolver(bundleContext), new DefaultStartPage("Pulse App"));
+//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.system.app/src/main/web/js/system", new FileResolver(), new DefaultStartPage("Pulse App"));
         registration = bundleContext.registerService(HttpResource.class, resource, null);
     }
 
