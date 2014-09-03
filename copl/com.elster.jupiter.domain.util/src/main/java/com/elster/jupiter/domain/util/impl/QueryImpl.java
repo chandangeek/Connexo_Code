@@ -1,14 +1,14 @@
 package com.elster.jupiter.domain.util.impl;
 
+import java.util.Date;
+import java.util.List;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.google.common.base.Optional;
-
-import java.util.Date;
-import java.util.List;
 
 class QueryImpl<T> implements Query<T> {
 
@@ -40,7 +40,7 @@ class QueryImpl<T> implements Query<T> {
 
     @Override
     public Subquery asSubquery(Condition condition, String... fieldNames) {
-        return new SubqueryImpl(queryExecutor.asFragment(condition, fieldNames));
+        return queryExecutor.asSubquery(condition, fieldNames);
     }
 
     @Override
