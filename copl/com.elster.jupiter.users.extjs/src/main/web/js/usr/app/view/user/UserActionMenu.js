@@ -9,7 +9,8 @@ Ext.define('Usr.view.user.UserActionMenu', {
         {
             text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
             itemId: 'editUser',
-            action: 'edit'
+            action: 'edit',
+            hidden: Uni.Auth.hasNoPrivilege('privilege.update.user')
         }
     ]
 });

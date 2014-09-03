@@ -9,7 +9,8 @@ Ext.define('Usr.view.group.GroupActionMenu', {
         {
             text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
             itemId: 'editGroup',
-            action: 'edit'
+            action: 'edit',
+            hidden: Uni.Auth.hasNoPrivilege('privilege.update.group')
         }
     ]
 });

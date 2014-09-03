@@ -48,7 +48,8 @@ Ext.define('Usr.view.group.List', {
                     '->',
                     {
                         text: Uni.I18n.translate('group.create', 'USM', 'Add role'),
-                        action: 'createGroup'
+                        action: 'createGroup',
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.create.group')
                     }
                 ]
             },

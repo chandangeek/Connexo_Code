@@ -49,7 +49,8 @@ Ext.define('Usr.controller.Main', {
             text: 'User management',
             glyph: 'settings',
             portal: 'usermanagement',
-            index: -10
+            index: -10,
+            hidden: Uni.Auth.hasNoPrivilege('privilege.view.user') & Uni.Auth.hasNoPrivilege('privilege.view.group')
         });
 
         Uni.store.MenuItems.add(menuItem);
@@ -61,11 +62,13 @@ Ext.define('Usr.controller.Main', {
             items: [
                 {
                     text: 'Users',
-                    href: '#usermanagement/users'
+                    href: '#usermanagement/users',
+                    hidden: Uni.Auth.hasNoPrivilege('privilege.view.user')
                 },
                 {
                     text: 'Roles',
-                    href: '#usermanagement/roles'
+                    href: '#usermanagement/roles',
+                    hidden: Uni.Auth.hasNoPrivilege('privilege.view.group')
                 }
             ]
         });
