@@ -12,27 +12,27 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                 baseCls: 'x-panel-header-text-container-large',
                 html: me.wTitle
             },
-            {
-                xtype: 'combobox',
-                style: {
-                    float: 'left',
-                    marginTop: '18px'
-                },
-                fieldLabel: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'for device group'),
-                labelWidth: 150,
-                displayField: 'group',
-                valueField: 'id',
-                value: 1,
-                store: Ext.create('Ext.data.Store', {
-                    fields: ['id', 'group'],
-                    data: [ //TODO: set real store
-                        { 'id': 1, 'group': 'North region' },
-                        { 'id': 2, 'group': 'South region' },
-                        { 'id': 3, 'group': 'West region' },
-                        { 'id': 4, 'group': 'East region' }
-                    ]
-                })
-            },
+//            {
+//                xtype: 'combobox',
+//                style: {
+//                    float: 'left',
+//                    marginTop: '18px'
+//                },
+//                fieldLabel: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'for device group'),
+//                labelWidth: 150,
+//                displayField: 'group',
+//                valueField: 'id',
+//                value: 1,
+//                store: Ext.create('Ext.data.Store', {
+//                    fields: ['id', 'group'],
+//                    data: [ //TODO: set real store
+//                        { 'id': 1, 'group': 'North region' },
+//                        { 'id': 2, 'group': 'South region' },
+//                        { 'id': 3, 'group': 'West region' },
+//                        { 'id': 4, 'group': 'East region' }
+//                    ]
+//                })
+//            },
             {
                 xtype: 'fieldcontainer',
                 layout: 'hbox',
