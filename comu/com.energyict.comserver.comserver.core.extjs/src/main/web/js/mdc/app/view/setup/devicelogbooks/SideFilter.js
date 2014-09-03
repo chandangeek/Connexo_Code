@@ -14,30 +14,64 @@ Ext.define('Mdc.view.setup.devicelogbooks.SideFilter', {
         title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
         ui: 'filter',
         defaults: {
-          anchor: '100%'
+            xtype: 'combobox',
+            labelAlign: 'top',
+            forceSelection: true,
+            anchor: '100%',
+            queryMode: 'local',
+            displayField: 'localizedValue'
         },
         items: [
             {
-                xtype: 'component',
-                html: '<h4>' + Uni.I18n.translate('devicelogbooks.eventDate', 'MDC', 'Event date') + '</h4>'
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('devicelogbooks.eventDate', 'MDC', 'Event date'),
+                layout: 'form',
+                margin: '0 0 25 0',
+                defaults: {
+                    xtype: 'datefield',
+                    labelAlign: 'top',
+                    invalidText: Uni.I18n.translate('devicelogbooks.sideFilter.datefield.invalidText', 'MDC', 'Invalid date format. Please enter the date in the format \'dd/mm/yyyy\''),
+                    emptyText: '        /        /',
+                    maxValue: new Date(),
+                    anchor: '100%'
+                },
+                items: [
+                    {
+
+                        itemId: 'deviceLogbookDataFilterIntervalStart',
+                        name: 'intervalStart',
+                        fieldLabel: Uni.I18n.translate('general.between', 'MDC', 'Between')
+                    },
+                    {
+                        itemId: 'deviceLogbookDataFilterIntervalEnd',
+                        name: 'intervalEnd',
+                        fieldLabel: Uni.I18n.translate('general.and', 'MDC', 'and').toLowerCase()
+                    }
+                ]
             },
             {
-                xtype: 'datefield',
-                itemId: 'deviceLogbookDataFilterIntervalStart',
-                name: 'intervalStart',
-                fieldLabel: Uni.I18n.translate('general.between', 'MDC', 'Between'),
-                labelAlign: 'top',
-                invalidText: Uni.I18n.translate('devicelogbooks.sideFilter.datefield.invalidText', 'MDC', 'Invalid date format. Please enter the date in the format \'dd/mm/yyyy\''),
-                maxValue: new Date()
+                itemId: 'deviceLogbookDataFilterDomain',
+                name: 'domain',
+                fieldLabel: Uni.I18n.translate('devicelogbooks.domain', 'MDC', 'Domain'),
+                emptyText: Uni.I18n.translate('devicelogbooks.selectDomain', 'MDC', 'Select a domain'),
+                store: 'Mdc.store.Domains',
+                valueField: 'domain'
             },
             {
-                xtype: 'datefield',
-                itemId: 'deviceLogbookDataFilterIntervalEnd',
-                name: 'intervalEnd',
-                fieldLabel: Uni.I18n.translate('general.and', 'MDC', 'and').toLowerCase(),
-                labelAlign: 'top',
-                invalidText: Uni.I18n.translate('devicelogbooks.sideFilter.datefield.invalidText', 'MDC', 'Invalid date format. Please enter the date in the format \'dd/mm/yyyy\''),
-                maxValue: new Date()
+                itemId: 'deviceLogbookDataFilterSubDomain',
+                name: 'subDomain',
+                fieldLabel: Uni.I18n.translate('devicelogbooks.subDomain', 'MDC', 'Subdomain'),
+                emptyText: Uni.I18n.translate('devicelogbooks.selectSubdomain', 'MDC', 'Select a subdomain'),
+                store: 'Mdc.store.Subdomains',
+                valueField: 'subDomain'
+            },
+            {
+                itemId: 'deviceLogbookDataFilterEventOrAction',
+                name: 'eventOrAction',
+                fieldLabel: Uni.I18n.translate('devicelogbooks.eventOrAction', 'MDC', 'Event or action'),
+                emptyText: Uni.I18n.translate('devicelogbooks.selectEventOrAction', 'MDC', 'Select an event or action'),
+                store: 'Mdc.store.EventsOrActions',
+                valueField: 'eventOrAction'
             }
         ],
         dockedItems: [

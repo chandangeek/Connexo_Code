@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
             },
             {
                 xtype: 'obis-column',
-                dataIndex: 'obisCode',
+                dataIndex: 'overruledObisCode',
                 flex: 1
             },
             {
