@@ -4,7 +4,7 @@
 Ext.define('SystemApp.controller.Main', {
     extend: 'Uni.controller.AppController',
 
-    applicationTitle: 'Connexo Pulse',
+    applicationTitle: 'Connexo System Admin',
 
     packages: [
         {
@@ -16,6 +16,6 @@ Ext.define('SystemApp.controller.Main', {
             name: 'Usm',
             controller: 'Usr.controller.Main',
             path: '../../apps/usm/app'
-        },
+        }
     ]
 });
