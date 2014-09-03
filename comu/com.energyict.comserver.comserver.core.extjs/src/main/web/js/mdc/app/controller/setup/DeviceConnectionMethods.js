@@ -265,14 +265,24 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     showScheduleField: function (combobox, objList) {
+        this.getScheduleField().clear();
         if (objList[0].get('connectionStrategy') === 'minimizeConnections') {
             this.getScheduleField().setVisible(true);
+             this.getScheduleField().setValue({
+                 every: {
+                     count: 5,
+                     timeUnit: 'minutes'
+                 },
+                 offset: {
+                     count: 0,
+                     timeUnit: 'seconds'
+                 }
+             });
             this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(false);
         } else {
             this.getScheduleField().setVisible(false);
             this.getDeviceConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(true);
         }
-        this.getScheduleField().clear();
     },
 
     addDeviceOutboundConnectionMethod: function () {
