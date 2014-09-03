@@ -209,7 +209,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         Ext.each(json.errors, function (error) {
-                            if (error.id === 'temporalExpression.every') {
+                            if (error.id === 'nextExecutionSpecs.temporalExpression.every') {
                                 error.id = 'temporalExpression';
                             }
                         });
