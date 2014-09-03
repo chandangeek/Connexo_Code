@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
@@ -11,6 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BeanParam;
@@ -42,6 +44,7 @@ public class BulkScheduleResource {
 
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.SCHEDULE_DEVICE)
     public Response addComScheduleToDeviceSet(BulkRequestInfo request, @BeanParam StandardParametersBean queryParameters){
         BulkAction action = new BulkAction() {
             @Override
@@ -55,6 +58,7 @@ public class BulkScheduleResource {
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.SCHEDULE_DEVICE)
     public Response deleteComScheduleFromDeviceSet(BulkRequestInfo request, @BeanParam StandardParametersBean queryParameters){
         BulkAction action = new BulkAction() {
             @Override

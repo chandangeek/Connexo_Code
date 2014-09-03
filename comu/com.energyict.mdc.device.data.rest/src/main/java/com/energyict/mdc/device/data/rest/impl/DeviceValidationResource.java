@@ -11,6 +11,7 @@ import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -21,8 +22,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
-import com.google.common.util.concurrent.Striped;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -37,8 +38,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 
 public class DeviceValidationResource {
     private final ResourceHelper resourceHelper;
@@ -48,7 +47,6 @@ public class DeviceValidationResource {
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
-    private final Striped<ReadWriteLock> stripedLock = Striped.readWriteLock(32);
 
     @Inject
     public DeviceValidationResource(ResourceHelper resourceHelper, ValidationService validationService, DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
@@ -63,6 +61,7 @@ public class DeviceValidationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
     public Response getValidationRulsetsForDevice(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         List<DeviceValidationRuleSetInfo> result = new ArrayList<>();
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -100,6 +99,7 @@ public class DeviceValidationResource {
     @Path("/{validationRuleSetId}/status")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_VALIDATION_RULE)
     public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId, boolean status) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
@@ -130,16 +130,34 @@ public class DeviceValidationResource {
     @Path("/validationstatus")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        DeviceValidationStatusInfo deviceValidationStatusInfo = new DeviceValidationStatusInfo();
-        deviceValidationStatusInfo.isActive = validationService.validationEnabled(getMeterFor(device));
+        DeviceValidationStatusInfo deviceValidationStatusInfo = determineStatus(getMeterFor(device));
         return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
+    }
+
+    private DeviceValidationStatusInfo determineStatus(Meter meter) {
+        return new DeviceValidationStatusInfo(validationService.validationEnabled(meter), getLastChecked(meter), meter.hasData());
+    }
+
+    private Date getLastChecked(Meter meter) {
+        List<? extends MeterActivation> meterActivations = new ArrayList<>(meter.getMeterActivations());    // getMeterActivations returns ImmutableList
+        Collections.reverse(meterActivations);
+        for (MeterActivation meterActivation : meterActivations) {
+
+            Optional<Date> lastChecked = validationService.getLastChecked(meterActivation);
+            if (lastChecked.isPresent()) {
+                return lastChecked.get();
+            }
+        }
+        return clock.now();
     }
 
     @Path("/validationstatus")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_VALIDATION_RULE)
     public Response setValidationFeatureStatus(@PathParam("mRID") String mrid, DeviceValidationStatusInfo deviceValidationStatusInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
@@ -158,13 +176,10 @@ public class DeviceValidationResource {
                 if (meterActivation.isEffective(lastCheckedDate) || meterActivation.getInterval().startsAfter(lastCheckedDate)) {
                     Optional<Date> meterActivationLastChecked = validationService.getLastChecked(meterActivation);
                     if (meterActivation.isCurrent()) {
-                        Date maxDate = meterActivationLastChecked.or(meterActivation.getStart());
-                        if (lastCheckedDate.after(maxDate)) {
-                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastCkecked", maxDate);
+                        if (meterActivationLastChecked.isPresent() && lastCheckedDate.after(meterActivationLastChecked.get())) {
+                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastCkecked", meterActivationLastChecked.get());
                         }
-                        if (meterActivationLastChecked.isPresent()) {
-                            validationService.updateLastChecked(meterActivation, lastCheckedDate);
-                        }
+                        validationService.updateLastChecked(meterActivation, lastCheckedDate);
                     } else {
                         Date lastCheckedDateToSet = smallest(meterActivationLastChecked.or(meterActivation.getStart()), lastCheckedDate);
                         validationService.updateLastChecked(meterActivation, lastCheckedDateToSet);
@@ -189,6 +204,7 @@ public class DeviceValidationResource {
     @Path("/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.VALIDATE_DEVICE)
     public Response validateDeviceData(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
@@ -201,51 +217,6 @@ public class DeviceValidationResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @Path("/devicevalidation")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response activateValidationFeatureOnDevice(@PathParam("mRID") String mrid) {
-        Lock lock = stripedLock.get(mrid).writeLock(); // we use striped locking to improve concurrency.
-        lock.lock();
-        try {
-            Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-            Meter meter = findOrCreateMeter(device);
-            validationService.activateValidation(meter);
-            return Response.ok(determineStatus(meter)).build();
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    private Meter findOrCreateMeter(Device device) {
-        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        Meter meter;
-        Optional<Meter> meterRef = amrSystem.findMeter(String.valueOf(device.getId()));
-        if (meterRef.isPresent()) {
-            meter = meterRef.get();
-        } else {
-            meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
-            meter.save();
-        }
-        return meter;
-    }
-
-    private DeviceValidationStatusInfo determineStatus(Meter meter) {
-        return new DeviceValidationStatusInfo(validationService.validationEnabled(meter), getLastChecked(meter), meter.hasData());
-    }
-
-    private Date getLastChecked(Meter meter) {
-        List<? extends MeterActivation> meterActivations = new ArrayList<>(meter.getMeterActivations());    // getMeterActivations returns ImmutableList
-        Collections.reverse(meterActivations);
-        for (MeterActivation meterActivation : meterActivations) {
-
-            Optional<Date> lastChecked = validationService.getLastChecked(meterActivation);
-            if (lastChecked.isPresent()) {
-                return lastChecked.get();
-            }
-        }
-        return clock.now();
-    }
 
     private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
         Optional<ValidationRuleSet> rulesetRef = validationService.getValidationRuleSet(validationRuleSetId);
@@ -257,13 +228,15 @@ public class DeviceValidationResource {
 
 
     private Meter getMeterFor(Device device) {
-        Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(1);
-        Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
-        if (!meterRef.isPresent()) {
-            throw new IllegalArgumentException("Validation feature on device " + device.getmRID() +
-                    " wasn't initialized properly. Please request feature initialization using GET request on " +
-                    "\"api/ddr/devices/{MRID}/validationrulesets/devicevalidation\" first of all.");
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        Meter meter;
+        Optional<Meter> meterRef = amrSystem.findMeter(String.valueOf(device.getId()));
+        if (meterRef.isPresent()) {
+            meter = meterRef.get();
+        } else {
+            meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
+            meter.save();
         }
-        return meterRef.get();
+        return meter;
     }
 }

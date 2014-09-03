@@ -7,12 +7,11 @@ import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.masterdata.rest.EndDeviceEventTypeInfo;
 
 public class LogBookInfo {
 
@@ -26,7 +25,7 @@ public class LogBookInfo {
     public EndDeviceEventTypeInfo lastEventType;
     public Date lastReading;
 
-    public static LogBookInfo from(LogBook logBook, NlsService nlsService) {
+    public static LogBookInfo from(LogBook logBook, Thesaurus thesaurus) {
         LogBookInfo info = new LogBookInfo();
         info.id = logBook.getId();
         info.name = logBook.getLogBookType().getName();
@@ -38,18 +37,18 @@ public class LogBookInfo {
         if (lastLogBookDate != null) {
             info.lastEventDate = lastLogBookDate;
             List<EndDeviceEventRecord> endDeviceEvents = logBook.getEndDeviceEvents(new Interval(lastLogBookDate, lastLogBookDate));
-            if (endDeviceEvents.size() > 0) {
+            if (!endDeviceEvents.isEmpty()) {
                 EndDeviceEventRecord lastRecord = endDeviceEvents.get(0);
-                info.lastEventType = EndDeviceEventTypeInfo.from(lastRecord.getEventType(), nlsService);
+                info.lastEventType = EndDeviceEventTypeInfo.from(lastRecord.getEventType(), thesaurus);
             }
         }
         return info;
     }
 
-    public static List<LogBookInfo> from(List<LogBook> logBooks, NlsService nlsService) {
+    public static List<LogBookInfo> from(List<LogBook> logBooks, Thesaurus thesaurus) {
         List<LogBookInfo> infos = new ArrayList<>(logBooks.size());
         for (LogBook logBook : logBooks) {
-            infos.add(from(logBook, nlsService));
+            infos.add(from(logBook, thesaurus));
         }
         return infos;
     }
