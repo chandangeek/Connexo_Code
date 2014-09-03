@@ -34,6 +34,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -72,6 +73,7 @@ public class DeviceApplication extends Application implements InstallService{
     private volatile SchedulingService schedulingService;
     private volatile ValidationService validationService;
     private volatile MeteringService meteringService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile Clock clock;
 
     @Override
@@ -92,7 +94,8 @@ public class DeviceApplication extends Application implements InstallService{
                 BulkScheduleResource.class,
                 ComtaskExecutionResource.class,
                 LogBookResource.class,
-                DeviceFieldResource.class
+                DeviceFieldResource.class,
+                DeviceGroupResource.class
         );
     }
 
@@ -171,6 +174,11 @@ public class DeviceApplication extends Application implements InstallService{
     }
 
     @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
     public void setClockService(Clock clock) {
         this.clock = clock;
     }
@@ -232,6 +240,7 @@ public class DeviceApplication extends Application implements InstallService{
             bind(schedulingService).to(SchedulingService.class);
             bind(validationService).to(ValidationService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(clock).to(Clock.class);
         }
     }
