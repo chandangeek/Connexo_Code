@@ -1,0 +1,17 @@
+{
+    "deviceGroup": "Fake device group",
+    "currentState": "Fake current state",
+    "latestStatus": "Fake latest status",
+    "latestResult": "Fake latest result",
+    "comPortPool": "Fake communication port pool",
+    "connectionType": "Fake connection type",
+    "deviceType": "Fake device type",
+    "startedBetween": {
+        "from": "2014-09-02 20:15:36",
+        "to": "2014-09-02 21:15:36"
+    },
+    "finishedBetween": {
+        "from": "2014-09-02 22:15:36",
+        "to": "2014-09-02 23:15:36"
+    }
+}
