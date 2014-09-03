@@ -2,7 +2,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
     extend: 'Uni.view.grid.BulkSelection',
     alias: 'widget.communicationTaskSelectionGrid',
     overflowY: 'auto',
-    itemId: 'communicationTaskSelectionGrid',
+    itemId: 'communicationTaskGridFromSchedule',
+    store: 'CommunicationTasks',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
@@ -32,23 +33,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
 
     initComponent: function () {
         var me = this;
-
         me.callParent(arguments);
-        me.getSelectionGroupType().on('change', me.onChangeSelection, me);
-    },
-
-    onChangeSelection: function () {
-        var me = this,
-            selectionModel = me.view.getSelectionModel(),
-            selection = selectionModel.getSelection(),
-            comTaskWindow = me.up('#addCommunicationTaskWindow'),
-            preview = comTaskWindow.down('addCommunicationTaskPreview');
-
-        if (!me.isAllSelected() && selection.length != 0) {
-            preview.show();
-        } else {
-            preview.hide();
-        }
     }
-
 });
