@@ -14,7 +14,6 @@ Ext.define('Mdc.view.setup.devicelogbooks.SubMenuPanel', {
             xtype: 'navigationSubMenu',
             itemId: 'deviceLogbookSubMenu',
             ui: 'side-menu',
-            width: 310,
             items: [
                 {
                     text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),

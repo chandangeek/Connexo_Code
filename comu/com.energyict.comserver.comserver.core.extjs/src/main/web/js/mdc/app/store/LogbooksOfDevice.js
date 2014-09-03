@@ -10,6 +10,7 @@ Ext.define('Mdc.store.LogbooksOfDevice', {
             type: 'json',
             root: 'data'
         },
+        timeout: 300000,
 
         setUrl: function (mRID) {
             this.url = this.urlTpl.replace('{mRID}', mRID);

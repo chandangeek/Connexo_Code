@@ -77,12 +77,10 @@ Ext.define('Mdc.view.setup.devicelogbooks.DataPreview', {
                             infoTooltip: Uni.I18n.translate('devicelogbooks.eventLogId.tooltip', 'MDC', 'Identifier of the event on the device')
                         },
                         {
-                            xtype: 'displayfield-with-info-icon',
                             fieldLabel: Uni.I18n.translate('devicelogbooks.readingDate', 'MDC', 'Reading date'),
                             name: 'readingDate',
-                            infoTooltip: Uni.I18n.translate('devicelogbooks.readingDate.tooltip', 'MDC', 'The moment when the data was read out'),
-                            beforeRenderer: function (value) {
-                                return value ? Uni.I18n.formatDate('devicelogbooks.readingDate.dateFormat', value, 'MDC', 'M d, Y H:i') : '';
+                            renderer: function (value) {
+                                return value ? Uni.I18n.formatDate('devicelogbooks.readingDate.dateFormat', value, 'MDC', 'M d, Y H:i:s') : '';
                             }
                         }
                     ]

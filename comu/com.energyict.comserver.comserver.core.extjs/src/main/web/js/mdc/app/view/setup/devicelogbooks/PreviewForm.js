@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.PreviewForm', {
     },
     items: [
         {
-            fieldLabel: Uni.I18n.translate('devicelogbooks.preview.name', 'MDC', 'Name'),
+            fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
             name: 'name'
         },
         {
@@ -26,17 +26,17 @@ Ext.define('Mdc.view.setup.devicelogbooks.PreviewForm', {
             name: 'lastEventType'
         },
         {
-            fieldLabel: Uni.I18n.translate('devicelogbooks.preview.lastEventDate', 'MDC', 'Last event date'),
+            fieldLabel: Uni.I18n.translate('devicelogbooks.lastEventDate', 'MDC', 'Last event date'),
             name: 'lastEventDate',
             renderer: function (value) {
-                return value ? Uni.I18n.formatDate('devicelogbooks.preview.lastEventDate.dateFormat', value, 'UNI', 'F d Y, H:i:s') : '';
+                return value ? Uni.I18n.formatDate('devicelogbooks.preview.lastEventDate.dateFormat', value, 'MDC', 'F d Y, H:i:s') : '';
             }
         },
         {
-            fieldLabel: Uni.I18n.translate('devicelogbooks.preview.lastReading', 'MDC', 'Last reading'),
+            fieldLabel: Uni.I18n.translate('devicelogbooks.lastReading', 'MDC', 'Last reading'),
             name: 'lastReading',
             renderer: function (value) {
-                return value ? Uni.I18n.formatDate('devicelogbooks.preview.lastReading.dateFormat', value, 'UNI', 'F d Y H:i:s') : '';
+                return value ? Uni.I18n.formatDate('devicelogbooks.preview.lastReading.dateFormat', value, 'MDC', 'F d Y, H:i:s') : '';
             }
         }
     ]

@@ -16,10 +16,10 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('devicelogbooks.grid.name', 'MDC', 'Logbook'),
+                header: Uni.I18n.translate('devicelogbooks.logbook', 'MDC', 'Logbook'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('devices/device/logbooks/logbook/overview').buildUrl({mRID: me.mRID, logbookId: record.get('id')});
+                    var url = me.router.getRoute('devices/device/logbooks/logbook/overview').buildUrl({logbookId: record.get('id')});
                     return '<a href="' + url + '">' + value + '</a>';
                 },
                 flex: 1
@@ -35,10 +35,10 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('devicelogbooks.grid.lastEventDate', 'MDC', 'Last event date'),
+                header: Uni.I18n.translate('devicelogbooks.lastEventDate', 'MDC', 'Last event date'),
                 dataIndex: 'lastEventDate',
                 renderer: function (value) {
-                    return value ? Uni.I18n.formatDate('devicelogbooks.preview.lastEventDate.dateFormat', value, 'UNI', 'F d Y, H:i:s') : '';
+                    return value ? Uni.I18n.formatDate('devicelogbooks.preview.lastEventDate.dateFormat', value, 'MDC', 'F d Y, H:i:s') : '';
                 },
                 flex: 1
             },

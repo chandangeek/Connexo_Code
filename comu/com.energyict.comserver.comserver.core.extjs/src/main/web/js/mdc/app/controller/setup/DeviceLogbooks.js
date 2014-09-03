@@ -74,7 +74,11 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
                 break;
         }
 
-        route && (route = router.getRoute(route));
-        route && route.forward(routeParams);
+        if (route) {
+            route = router.getRoute(route);
+            if (route) {
+                route.forward(routeParams);
+            }
+        }
     }
 });

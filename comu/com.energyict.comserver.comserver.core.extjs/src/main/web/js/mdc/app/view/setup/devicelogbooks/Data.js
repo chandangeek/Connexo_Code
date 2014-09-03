@@ -4,6 +4,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.Data', {
     itemId: 'deviceLogbookData',
     requires: [
         'Mdc.view.setup.devicelogbooks.SubMenuPanel',
+        'Mdc.view.setup.devicelogbooks.SideFilter',
+        'Mdc.view.setup.devicelogbooks.TopFilter',
         'Mdc.view.setup.devicelogbooks.DataSortingToolbar',
         'Mdc.view.setup.devicelogbooks.DataTableView'
     ],
@@ -14,6 +16,12 @@ Ext.define('Mdc.view.setup.devicelogbooks.Data', {
         ui: 'large',
         title: Uni.I18n.translate('devicelogbooks.data.header', 'MDC', 'Logbook data'),
         items: [
+            {
+                xtype: 'deviceLogbookDataTopFilter'
+            },
+            {
+                xtype: 'menuseparator'
+            },
             {
                 xtype: 'deviceLogbookDataSortingToolbar'
             },
@@ -37,6 +45,9 @@ Ext.define('Mdc.view.setup.devicelogbooks.Data', {
                 {
                     xtype: 'deviceLogbookSubMenuPanel',
                     router: me.router
+                },
+                {
+                    xtype: 'deviceLogbookDataSideFilter'
                 }
             ]
         };
