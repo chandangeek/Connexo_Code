@@ -14,6 +14,8 @@ import com.energyict.mdc.dynamic.relation.RelationSearchFilter;
 import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.dynamic.relation.RelationType;
 
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
 import org.joda.time.DateTimeConstants;
 
 import java.io.Serializable;
@@ -117,13 +119,12 @@ public final class RelationFactory {
     }
 
     private void appendColumnsForInsert(com.elster.jupiter.util.sql.SqlBuilder builder, boolean ignoreObsoleteDate) {
+        Holder<String> separator = HolderBuilder.first("").andThen(", ");
         List<String> columnNames = this.getColumnNames();
-        ListAppendMode appendMode = ListAppendMode.FIRST;
         for (String columnName : columnNames) {
             if (!ignoreObsoleteDate || !columnName.equalsIgnoreCase("obsoletedate")) {
-                appendMode.startOn(builder);
+                builder.append(separator.get());
                 builder.append(columnName);
-                appendMode = ListAppendMode.REMAINING;
             }
         }
     }
@@ -133,9 +134,9 @@ public final class RelationFactory {
         if (ignoreObsoleteDate) {
             columnNames.remove("obsoletedate");
         }
-        ListAppendMode appendMode = ListAppendMode.FIRST;
+        Holder<String> separator = HolderBuilder.first("").andThen(", ");
         for (String columnName : columnNames) {
-            appendMode.startOn(builder);
+            builder.append(separator.get());
             switch (columnName) {
                 case "id": {
                     builder.addInt(relation.getId());
@@ -171,7 +172,6 @@ public final class RelationFactory {
                     this.bindAttributeValue(builder, this.relationType.getAttributeType(columnName), relation.get(columnName));
                 }
             }
-            appendMode = ListAppendMode.REMAINING;
         }
     }
 
@@ -522,10 +522,10 @@ public final class RelationFactory {
     }
 
     private void appendBasicSelectClause(StringBuilder builder, String columnPrefix) {
+        Holder<String> separator = HolderBuilder.first("").andThen(", ");
         List<String> columnNames = this.getColumnNames();
-        ListAppendMode appendMode = ListAppendMode.FIRST;
         for (String columnName : columnNames) {
-            appendMode.startOn(builder);
+            builder.append(separator.get());
             if (columnName.equalsIgnoreCase("obsoletedate")) {
                 builder.append("null ");
                 builder.append(columnName);
@@ -534,7 +534,6 @@ public final class RelationFactory {
                 builder.append(columnPrefix);
                 builder.append(columnName);
             }
-            appendMode = ListAppendMode.REMAINING;
         }
     }
 
@@ -542,12 +541,11 @@ public final class RelationFactory {
         StringBuilder builder = new StringBuilder("select ");
         List<String> columnNames = this.getColumnNames();
         String tableNameDot = "r.";
-        ListAppendMode appendMode = ListAppendMode.FIRST;
+        Holder<String> separator = HolderBuilder.first("").andThen(", ");
         for (String columnName : columnNames) {
-            appendMode.startOn(builder);
+            builder.append(separator.get());
             builder.append(tableNameDot);
             builder.append(columnName);
-            appendMode = ListAppendMode.REMAINING;
         }
         builder.append(" from ");
         this.unionSql(builder);
