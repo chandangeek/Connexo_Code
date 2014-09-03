@@ -254,7 +254,9 @@ public enum TableSpecs {
                     composition().
                     onDelete(CASCADE).
                     add();
-            table.unique("U_DTC_REGISTERTYPE_IN_CONFIG").on(deviceConfiguration, registerType);
+            table.unique("U_DTC_REGISTERTYPE_IN_CONFIG").
+                    on(deviceConfiguration, registerType).
+                    add();
         }
     },
 
