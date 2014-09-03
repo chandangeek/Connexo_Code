@@ -871,16 +871,11 @@ public class DeviceResourceTest extends JerseyTest {
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.CORRUPTED));
         when(loadProfileReading.getReadingTime()).thenReturn(new Date());
         when(loadProfileReading.getInterval()).thenReturn(interval);
-        when(loadProfileReading.getChannelValues()).thenAnswer(new Answer<Map<Channel, BigDecimal>>() {
-            @Override
-            public Map<Channel, BigDecimal> answer(InvocationOnMock invocationOnMock) throws Throwable {
-                Map<Channel, BigDecimal> map= new HashMap<>();
-                for (Channel channel : loadProfile.getChannels()) {
-                    map.put(channel, BigDecimal.TEN);
-                }
-                return map;
-            }
-        });
+        Map<Channel, BigDecimal> map= new HashMap<>();
+        for (Channel channel : loadProfile.getChannels()) {
+            map.put(channel, BigDecimal.TEN);
+        }
+        when(loadProfileReading.getChannelValues()).thenReturn(map);
         return loadProfileReading;
     }
 
