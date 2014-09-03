@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.searchitems.bulk.Step5ViewDevices', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.searchitems-bulk-step5-viewdevices',
-    title: Uni.I18n.translate('searchItems.bulk.step5viewdevicestitle', 'MDC', 'Bulk action - step 5 of 5: Status - View devices'),
+    title: Uni.I18n.translate('searchItems.bulk.step5viewdevicestitle', 'MDC', 'Bulk action - Step 5 of 5: Status - View devices'),
     ui: 'large',
     name: 'statusPageViewDevices',
     items: [

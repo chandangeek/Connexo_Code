@@ -181,13 +181,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             connectionStrategies: connectionStrategiesStore,
             direction: direction
         });
-        debugger;
-     /*   me.getScheduleField().setValue({
-            every: {
-                count: 5,
-                timeUnit: 'minutes'
-            }
-        });*/
         widget.setLoading(true);
         me.getApplication().fireEvent('changecontentevent', widget);
         deviceModel.load(mrid, {

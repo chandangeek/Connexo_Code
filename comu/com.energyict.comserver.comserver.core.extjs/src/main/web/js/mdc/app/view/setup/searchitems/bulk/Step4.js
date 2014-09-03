@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
     alias: 'widget.searchitems-bulk-step4',
     bodyCls: 'isu-bulk-wizard-no-border',
     name: 'confirmPage',
-    title: Uni.I18n.translate('searchItems.bulk.step4title', 'MDC', 'Bulk action - step 4 of 5: Confirmation'),
+    title: Uni.I18n.translate('searchItems.bulk.step4title', 'MDC', 'Bulk action - Step 4 of 5: Confirmation'),
     ui: 'large',
     tbar: {
         xtype: 'panel',

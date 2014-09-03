@@ -30,7 +30,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         {ref: 'comTaskPanel', selector: '#comTaskPanel'},
         {ref: 'addCommunicationTaskPreview', selector: '#addCommunicationTaskPreview'},
         {ref: 'comTaskCommands', selector: '#comtaskCommands'},
-        {ref: 'addComTaskWindow', selector: '#addCommunicationTaskWindow'},
+        {ref: 'addComTaskWindow', selector: '#addCommunicationTaskWindow'}
     ],
 
     record: null,
@@ -128,6 +128,11 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     widget.down('#noComTasksSelectedMsg').hide();
                     widget.down('#comTasksOnForm').show();
                     widget.down('#communicationScheduleEditForm').down('#comTasksOnForm').reconfigure(communicationSchedule.comTaskUsages());
+                    if (communicationSchedule.get('isInUse')){
+                        widget.down('#addCommunicationTaskButton').disable();
+                    } else {
+                        widget.down('#addCommunicationTaskButton').enable();
+                    }
                     me.initComTaskStore(communicationSchedule.comTaskUsages());
                 },
                 failure: function () {
@@ -209,7 +214,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         Ext.each(json.errors, function (error) {
-                            if (error.id === 'temporalExpression.every') {
+                            if (error.id === 'nextExecutionSpecs.temporalExpression.every') {
                                 error.id = 'temporalExpression';
                             }
                         });
