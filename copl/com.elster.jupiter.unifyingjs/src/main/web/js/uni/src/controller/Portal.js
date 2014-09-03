@@ -94,11 +94,11 @@ Ext.define('Uni.controller.Portal', {
             store = Uni.store.MenuItems;
 
         store.each(function (item) {
-                var portal = item.get('portal'),
-                    title = item.get('text');
+            var portal = item.get('portal'),
+                title = item.get('text');
 
             if (!Ext.isEmpty(portal)) {
-                crossroads.addRoute('/'+ portal, function () {
+                crossroads.addRoute('/' + portal, function () {
                     me.showPortalOverview(portal, title);
                 });
             }

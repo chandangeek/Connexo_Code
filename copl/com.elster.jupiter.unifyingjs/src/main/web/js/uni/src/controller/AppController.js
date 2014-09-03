@@ -89,16 +89,19 @@ Ext.define('Uni.controller.AppController', {
 
     loadDependencies: function () {
         for (var i = 0; i < this.packages.length; i++) {
-            var pkg = this.packages[i];
+            var pkg = this.packages[i],
+                controller = pkg.controller;
 
             // <debug>
             Ext.Loader.setPath(pkg.name, pkg.path);
             // </debug>
 
-            try {
-                this.getController(pkg.controller);
-            } catch (ex) {
-                console.log('Could not load the \'' + pkg.name + '\' bundle.');
+            if (typeof controller !== 'undefined' && !Ext.isEmpty(controller)) {
+                try {
+                    this.getController(controller);
+                } catch (ex) {
+                    console.log('Could not load the \'' + pkg.name + '\' bundle.');
+                }
             }
         }
     }
