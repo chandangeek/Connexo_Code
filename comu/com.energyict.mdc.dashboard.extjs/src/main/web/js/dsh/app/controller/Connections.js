@@ -60,21 +60,28 @@ Ext.define('Dsh.controller.Connections', {
             },
             '#dshconnectionssidefilter button[action=applyfilter]': {
                 click: this.applyFilter
+            },
+            '#dshconnectionssidefilter': {
+                afterrender: this.loadFilterValues
             }
         });
         this.callParent(arguments);
     },
     showOverview: function () {
         var me = this,
-            widget = Ext.widget('connections-details'),
-            model = new Dsh.model.Filter;
+            widget = Ext.widget('connections-details');
         this.getApplication().fireEvent('changecontentevent', widget);
-        Dsh.model.Filter.load(0, {
-            callback: function (record) {
-                me.getSideFilterForm().loadRecord(record);
-            }
-        });
+    },
 
+    loadFilterValues: function () {
+        var me = this;
+        Ext.defer(function () {
+                Dsh.model.Filter.load(0, {
+                    callback: function (record) {
+                        me.getSideFilterForm().loadRecord(record)
+                    }
+                });
+            }, 3500)
     },
 
     onCommunicationSelectionChange: function (grid, selected) {

@@ -22,7 +22,9 @@ Ext.define('Dsh.util.FilterProxy', {
             var fObj = {};
             fObj.property = key;
             fObj.value = filterData[key];
-            qArray.push(fObj)
+            if (!Ext.isEmpty(fObj.value)) {
+                qArray.push(fObj)
+            }
         }
         qObject.filter = qArray;
         router.getRoute(router.currentRoute).forward(null, qObject);
@@ -30,7 +32,7 @@ Ext.define('Dsh.util.FilterProxy', {
     getQueryParams: function (operation) {
         var router = master.app.getController('Uni.controller.history.Router'),
             filterParams = router.queryParams.filter,
-            model = new Dsh.model.Filter,
+            model = Ext.create('Dsh.model.Filter'),
             filters = Ext.JSON.decode(filterParams);
         Ext.each(filters, function (filter) {
             model.set(filter['property'], filter['value']);
