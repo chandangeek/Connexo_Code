@@ -3,7 +3,8 @@ Ext.define('Dsh.controller.Connections', {
     models: [
         'Dsh.model.ConnectionTask',
         'Dsh.model.CommTasks',
-        'Dsh.model.CommunicationTask'
+        'Dsh.model.CommunicationTask',
+        'Dsh.model.Filter'
     ],
     stores: [
         'Dsh.store.ConnectionTasks',
@@ -46,7 +47,7 @@ Ext.define('Dsh.controller.Connections', {
         },
         {
             ref: 'sideFilterForm',
-            selector: '#dshconnectionssidefilter filter-form'
+            selector: '#dshconnectionssidefilter form'
         }
     ],
     init: function () {
@@ -64,8 +65,16 @@ Ext.define('Dsh.controller.Connections', {
         this.callParent(arguments);
     },
     showOverview: function () {
-        var widget = Ext.widget('connections-details');
+        var me = this,
+            widget = Ext.widget('connections-details'),
+            model = new Dsh.model.Filter;
         this.getApplication().fireEvent('changecontentevent', widget);
+        Dsh.model.Filter.load(0, {
+            callback: function (record) {
+                me.getSideFilterForm().loadRecord(record);
+            }
+        });
+
     },
 
     onCommunicationSelectionChange: function (grid, selected) {
@@ -76,7 +85,7 @@ Ext.define('Dsh.controller.Connections', {
             config: record.data.deviceConfiguration,
             devType: record.data.deviceType
         };
-        record.data.title = record.data.name + ' on ' + record.data.device.name
+        record.data.title = record.data.name + ' on ' + record.data.device.name;
         preview.setTitle(record.data.title);
         preview.loadRecord(record);
     },
@@ -115,7 +124,8 @@ Ext.define('Dsh.controller.Connections', {
     },
 
     applyFilter: function () {
-        console.log(this.getSideFilterForm().getValues());
-        this.getFilterPanel().addFilterBtn('type','Type', 'Some type')
+        this.getSideFilterForm().updateRecord();
+        var model = this.getSideFilterForm().getRecord();
+        model.save()
     }
 });

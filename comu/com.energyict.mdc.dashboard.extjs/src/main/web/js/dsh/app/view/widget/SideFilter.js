@@ -12,7 +12,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
     ui: 'medium',
     items: [
         {
-            xtype: 'filter-form',
+            xtype: 'form',
             ui: 'filter',
             layout: {
                 type: 'vbox',
