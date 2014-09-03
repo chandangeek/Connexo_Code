@@ -23,22 +23,11 @@ public abstract class ReadingInfo<R extends Reading, S extends RegisterSpec> {
     public Long timeStamp;
     @JsonProperty("reportedDateTime")
     public Long reportedDateTime;
-    @JsonProperty("validationStatus")
-    @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
-    public ValidationStatus validationStatus;
 
     public ReadingInfo() {}
 
     public ReadingInfo(R reading, S registerSpec) {
         this.timeStamp = reading.getTimeStamp().getTime();
         this.reportedDateTime = reading.getReportedDateTime().getTime();
-        this.validationStatus = ValidationStatus.NOT_VALIDATED;
-        if(reading.isValidated()) {
-            if(reading.getReadingQualities().size() == 1 && reading.getReadingQualities().get(0).getTypeCode().equals(ReadingQualityType.MDM_VALIDATED_OK_CODE)) {
-                this.validationStatus = ValidationStatus.OK;
-            } else {
-                this.validationStatus = ValidationStatus.SUSPECT;
-            }
-        }
     }
 }
