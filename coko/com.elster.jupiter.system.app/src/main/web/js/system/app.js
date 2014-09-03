@@ -2,7 +2,8 @@ Ext.onReady(function () {
     var loader = Ext.create('Uni.Loader'),
         translationsQueue = [
             'USR',
-            'USM'
+            'USM',
+            'SAM'
         ];
 
     loader.initI18n(translationsQueue);

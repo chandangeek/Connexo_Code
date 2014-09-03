@@ -16,6 +16,11 @@ Ext.define('SystemApp.controller.Main', {
             name: 'Usm',
             controller: 'Usr.controller.Main',
             path: '../../apps/usm/app'
+        },
+        {
+            name: 'Sam',
+            controller: 'Sam.controller.Main',
+            path: '../../apps/sam/app'
         }
     ]
 });
