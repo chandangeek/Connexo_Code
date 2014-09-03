@@ -44,7 +44,7 @@ public class ConnectionTaskInfoFactory {
 
         info.latestStatus=new LatestStatusInfo();
         info.latestStatus.id =connectionTask.getStatus();
-        info.latestStatus.displayValue=thesaurus.getString(CONNECTION_TASK_LIFECYCLE_STATUS_ADAPTOR.marshal(connectionTask.getStatus()), null);
+        info.latestStatus.displayValue=thesaurus.getString(CONNECTION_TASK_LIFECYCLE_STATUS_ADAPTOR.marshal(connectionTask.getStatus()), CONNECTION_TASK_LIFECYCLE_STATUS_ADAPTOR.marshal(connectionTask.getStatus()));
 
         if (lastComSessionOptional.isPresent()) {
             ComSession comSession = lastComSessionOptional.get();
@@ -69,7 +69,7 @@ public class ConnectionTaskInfoFactory {
         info.communicationTasks.communicationsTasks= comTaskExecutionInfoFactory.get().from(comTaskExecutions);
 
         info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
-        info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),null);
+        info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),connectionTask.getConnectionType().getDirection().name());
         info.connectionType = ConnectionTypeRule.getConnectionTypeName(connectionTask.getConnectionType().getClass()).orNull();
         info.connectionMethod = new IdWithNameInfo();
         info.connectionMethod.id = connectionTask.getPartialConnectionTask().getId();
@@ -87,7 +87,9 @@ public class ConnectionTaskInfoFactory {
             info.connectionStrategy.id=scheduledConnectionTask.getConnectionStrategy();
             info.connectionStrategy.displayValue=thesaurus.getString(CONNECTION_STRATEGY_ADAPTER.marshal(scheduledConnectionTask.getConnectionStrategy()), scheduledConnectionTask.getConnectionStrategy().name());
             ComWindow communicationWindow = scheduledConnectionTask.getCommunicationWindow();
-            info.window= communicationWindow.getStart()+" - "+communicationWindow.getEnd();
+            if (communicationWindow!=null) {
+                info.window = communicationWindow.getStart() + " - " + communicationWindow.getEnd();
+            }
             info.nextExecution=scheduledConnectionTask.getPlannedNextExecutionTimestamp();
         }
         return info;

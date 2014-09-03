@@ -45,13 +45,13 @@ public class ConnectionHeatMapInfo {
                     for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : counters) {
                         TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
                         taskCounterInfo.id = successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget());
-                        taskCounterInfo.displayName = thesaurus.getString(successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget()), null);
+                        taskCounterInfo.displayName = thesaurus.getString(successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget()), successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget()));
                         taskCounterInfo.count = successIndicatorCounter.getCount();
                         heatMapRowInfo.data.add(taskCounterInfo);
                     }
                     TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
                     taskCounterInfo.id = MessageSeeds.AT_LEAST_ONE_FAILED.getKey();
-                    taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.AT_LEAST_ONE_FAILED.getKey(), null);
+                    taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.AT_LEAST_ONE_FAILED.getKey(), MessageSeeds.AT_LEAST_ONE_FAILED.getKey());
                     taskCounterInfo.count = counters.getAtLeastOneTaskFailedCount();
                     heatMapRowInfo.data.add(taskCounterInfo);
                 }

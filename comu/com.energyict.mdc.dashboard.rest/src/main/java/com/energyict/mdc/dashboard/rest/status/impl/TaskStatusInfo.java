@@ -15,6 +15,6 @@ class TaskStatusInfo {
 
     TaskStatusInfo(TaskStatus taskStatus, Thesaurus thesaurus) throws Exception {
         this.id=taskStatus;
-        this.displayValue=thesaurus.getString(TASK_STATUS_ADAPTER.marshal(taskStatus),null);
+        this.displayValue=thesaurus.getString(TASK_STATUS_ADAPTER.marshal(taskStatus),TASK_STATUS_ADAPTER.marshal(taskStatus));
     }
 }

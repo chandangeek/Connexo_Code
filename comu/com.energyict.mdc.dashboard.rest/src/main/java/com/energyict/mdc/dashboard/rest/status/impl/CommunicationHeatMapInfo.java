@@ -44,7 +44,7 @@ public class CommunicationHeatMapInfo {
                     for (Counter<CompletionCode> completionCodeCounter : counters) {
                         TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
                         taskCounterInfo.id = completionCodeAdapter.marshal(completionCodeCounter.getCountTarget());
-                        taskCounterInfo.displayName = thesaurus.getString(completionCodeAdapter.marshal(completionCodeCounter.getCountTarget()), null);
+                        taskCounterInfo.displayName = thesaurus.getString(completionCodeAdapter.marshal(completionCodeCounter.getCountTarget()), completionCodeAdapter.marshal(completionCodeCounter.getCountTarget()));
                         taskCounterInfo.count = completionCodeCounter.getCount();
                         heatMapRowInfo.data.add(taskCounterInfo);
                     }

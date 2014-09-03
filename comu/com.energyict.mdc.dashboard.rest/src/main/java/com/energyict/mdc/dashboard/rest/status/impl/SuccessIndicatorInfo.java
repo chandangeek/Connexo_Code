@@ -17,6 +17,6 @@ class SuccessIndicatorInfo {
 
     SuccessIndicatorInfo(ComSession.SuccessIndicator successIndicator, Thesaurus thesaurus) throws Exception {
         this.id=successIndicator;
-        this.displayValue=thesaurus.getString(SUCCESS_INDICATOR_ADAPTER.marshal(successIndicator), null);
+        this.displayValue=thesaurus.getString(SUCCESS_INDICATOR_ADAPTER.marshal(successIndicator), SUCCESS_INDICATOR_ADAPTER.marshal(successIndicator));
     }
 }
