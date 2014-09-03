@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.users.impl.UserModule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TimeDuration;
@@ -98,9 +100,11 @@ public class WebSocketQueryApiServiceTest {
                 new NlsModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
+                new DomainUtilModule(),
                 new MdcCommonModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
+                new UserModule(),
                 new TransactionModule(false),
                 new EngineModelModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {

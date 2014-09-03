@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.users.impl.UserModule;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
@@ -67,9 +69,11 @@ public class ComPortParserTest {
                 new NlsModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
+                new DomainUtilModule(),
                 new MdcCommonModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
+                new UserModule(),
                 new TransactionModule(false),
                 new EngineModelModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
