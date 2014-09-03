@@ -3,6 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -13,7 +14,9 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.google.common.base.Optional;
+
 import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 

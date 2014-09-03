@@ -31,7 +31,9 @@ public class ConnectionSummaryData {
         }
 
         for (Counter<TaskStatus> taskStatusCounter : taskStatusOverview) {
-            counts.put(taskStatusCounter.getCountTarget(), taskStatusCounter.getCount());
+            long taskStatusCount = taskStatusCounter.getCount();
+            counts.put(taskStatusCounter.getCountTarget(), taskStatusCount);
+            total += taskStatusCount;
         }
         return counts;
     }

@@ -1,6 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+
 import java.util.Date;
 import java.util.List;
 
