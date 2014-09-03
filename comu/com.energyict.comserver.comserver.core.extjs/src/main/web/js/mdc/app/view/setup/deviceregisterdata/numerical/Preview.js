@@ -1,6 +1,9 @@
 Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.deviceregisterreportpreview-numerical',
+    requires: [
+        'Mdc.view.setup.deviceregisterdata.ValidationPreview'
+    ],
     itemId: 'deviceregisterreportpreview',
     title: '',
     frame: true,
@@ -62,6 +65,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         name: 'multiplier'
                     }
                 ]
+            },
+            {
+                xtype: 'deviceregisterreportpreview-validation'
             }
         ]
     }

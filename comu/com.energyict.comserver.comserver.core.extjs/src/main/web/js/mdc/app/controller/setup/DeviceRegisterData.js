@@ -15,7 +15,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         'setup.deviceregisterdata.billing.Preview',
         'setup.deviceregisterdata.flags.Setup',
         'setup.deviceregisterdata.flags.Grid',
-        'setup.deviceregisterdata.flags.Preview'
+        'setup.deviceregisterdata.flags.Preview',
+        'setup.deviceregisterdata.ValidationPreview'
     ],
 
     stores: [

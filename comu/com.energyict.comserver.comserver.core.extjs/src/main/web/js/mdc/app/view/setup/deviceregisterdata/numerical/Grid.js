@@ -20,7 +20,19 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 header: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                 dataIndex: 'value',
                 renderer: function (value, metaData, record) {
-                    return value + ' ' + record.get('unitOfMeasure');
+                    switch (record.get('validationResult')) {
+                        case 'validationStatus.notValidated':
+                            return '<span style="vertical-align: middle"><img style="height: 13px" src="../mdc/resources/images/Not-validated.png"/>&nbsp;&nbsp;&nbsp;'
+                                + value + ' ' + record.get('unitOfMeasure') + '</span>';
+                            break;
+                        case 'validationStatus.ok':
+                            return value + ' ' + record.get('unitOfMeasure');
+                            break;
+                        case 'validationStatus.suspect':
+                            return '<span style="vertical-align: middle"><img style="height: 13px" src="../mdc/resources/images/Suspect.png"/>&nbsp;&nbsp;&nbsp;'
+                                + value + ' ' + record.get('unitOfMeasure') + '</span>';
+                            break;
+                    }
                 },
                 flex: 3
             },
