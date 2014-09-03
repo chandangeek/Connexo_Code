@@ -38,16 +38,19 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.scheduling.TemporalExpression;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -1551,6 +1554,20 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ConnectionTask reloadedConnectionTask = inMemoryPersistence.getDeviceDataService().findScheduledConnectionTask(connectionTask.getId()).get();
 
         assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    @Transactional
+    public void testConnectWithOtherProperties() throws SQLException, BusinessException, ConnectionException {
+        String name = "testConnectWithOtherProperties";
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        connectionTask.save();
+        ConnectionTaskProperty connectionTaskProperty = mock(ConnectionTaskProperty.class);
+
+        // business method
+        connectionTask.connect(mock(ComPort.class), Arrays.asList(connectionTaskProperty));
+
+        // Asserts: see expected exception rule
     }
 
 /* Todo: Enable once communication session objects have been ported to this bundle

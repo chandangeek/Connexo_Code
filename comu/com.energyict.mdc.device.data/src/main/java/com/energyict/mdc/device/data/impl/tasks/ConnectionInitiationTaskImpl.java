@@ -11,6 +11,7 @@ import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -20,7 +21,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.util.List;
 
 /**
@@ -38,8 +38,19 @@ public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<Par
 
     @Override
     public ComChannel connect(ComPort comPort) throws ConnectionException {
-        List<ConnectionProperty> connectionTaskProperties = this.toConnectionProperties(this.getProperties());
-        return this.getConnectionType().connect(connectionTaskProperties);
+        return this.connect(this.getProperties(), new TrustingConnectionTaskPropertyValidator());
+    }
+
+    @Override
+    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
+        return this.connect(properties, new MistrustingConnectionTaskPropertyValidator());
+    }
+
+    private ComChannel connect(List<ConnectionTaskProperty> properties, ConnectionTaskPropertyValidator validator) throws ConnectionException {
+        validator.validate(properties);
+        ConnectionType connectionType = this.getConnectionType();
+        List<ConnectionProperty> connectionProperties = this.toConnectionProperties(this.getProperties());
+        return connectionType.connect(connectionProperties);
     }
 
     @Override
