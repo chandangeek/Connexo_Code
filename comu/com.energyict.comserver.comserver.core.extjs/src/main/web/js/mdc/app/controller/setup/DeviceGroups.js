@@ -48,9 +48,6 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             this.getDeviceGroupPreviewForm().loadRecord(deviceGroups[0]);
             this.getDeviceGroupPreview().setTitle(deviceGroups[0].get('name'));
         }
-        this.getSearchCriteriaContainer().items.add(
-
-        )
     },
 
     back: function () {
