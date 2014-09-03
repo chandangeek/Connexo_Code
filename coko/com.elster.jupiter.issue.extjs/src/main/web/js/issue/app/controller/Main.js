@@ -13,6 +13,7 @@ Ext.define('Isu.controller.Main', {
 
     controllers: [
         'Isu.controller.history.Workspace',
+        'Isu.controller.history.Administration',
         'Isu.controller.Issues',
         'Isu.controller.AssignIssues',
         'Isu.controller.CloseIssues',
@@ -20,9 +21,7 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.MessageWindow',
         'Isu.controller.IssueAssignmentRules',
         'Isu.controller.IssueCreationRules',
-        'Isu.controller.history.Workspace',
         'Isu.controller.IssueDetail',
-        'Isu.controller.history.Administration',
         'Isu.controller.AdministrationDataCollection',
         'Isu.controller.NotifySend'
     ],
@@ -74,7 +73,10 @@ Ext.define('Isu.controller.Main', {
 
         Uni.store.MenuItems.add(administrationItem);
 
-        var router = me.getController('Uni.controller.history.Router');
+        var router = me.getController('Uni.controller.history.Router'),
+            historian0 = me.getController('Isu.controller.history.Workspace'), // Forces route registration.
+            historian1 = me.getController('Isu.controller.history.Administration'); // Forces route registration.
+
         var datacollection = Ext.create('Uni.model.PortalItem', {
             title: 'Data collection',
             portal: 'workspace',
