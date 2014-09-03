@@ -6,7 +6,7 @@ Ext.define('Uni.view.navigation.Logo', {
     xtype: 'uni-nav-logo',
     ui: 'navigationlogo',
 
-    text: 'Connexo Multi Sense',
+    text: 'Connexo',
 
     action: 'home',
     scale: 'medium',

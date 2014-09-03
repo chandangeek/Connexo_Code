@@ -15,31 +15,68 @@ Ext.define('Uni.controller.AppController', {
         {
             ref: 'contentPanel',
             selector: 'viewport > #contentPanel'
+        },
+        {
+            ref: 'logo',
+            selector: 'viewport uni-nav-logo'
         }
     ],
 
     /**
      * @cfg {String} applicationTitle
+     *
+     * The title to be used across the application.
      */
     applicationTitle: 'Connexo',
 
     /**
      * @cfg {Object[]} packages
      *
-     * TODO Example code.
+     * The packages that need to be loaded in by the application.
+     *
+     * @example
+     *     {
+     *         name: 'Cfg',
+     *         controller: 'Cfg.controller.Main',
+     *         path: '../../apps/cfg/app'
+     *     },
+     *     {
+     *         name: 'Mdc',
+     *         controller: 'Mdc.controller.Main',
+     *         path: '../../apps/mdc/app'
+     *     }
      */
     packages: [],
 
     init: function () {
         var me = this;
 
-        // Makes crossroads ignore state so that applications that don't use crossroads have no influence on crossroads' behavior.
-        crossroads.ignoreState = true;
+        me.initCrossroads();
 
         me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
-        // TODO Set the title logo.
         me.getApplication().on('changecontentevent', me.showContent, me);
+
         me.loadDependencies();
+        me.callParent(arguments);
+    },
+
+    /**
+     * Makes crossroads ignore state so that applications that don't use crossroads
+     * have no influence on crossroads' behavior.
+     */
+    initCrossroads: function () {
+        crossroads.ignoreState = true;
+    },
+
+    onLaunch: function () {
+        var me = this,
+            logo = me.getLogo();
+
+        if (logo.rendered) {
+            logo.setText(me.applicationTitle);
+        } else {
+            logo.text = me.applicationTitle;
+        }
 
         me.callParent(arguments);
     },
