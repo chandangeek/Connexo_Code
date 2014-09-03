@@ -66,7 +66,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     chooseAction: function (menu, item) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            routeParams = router.routeparams,
+            routeParams = router.arguments,
             route;
 
         routeParams.loadProfileId = menu.record.getId();

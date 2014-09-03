@@ -109,6 +109,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                             me.clearOffsetValues();
                             me.adjustOffsetGui(newValue);
                             me.onItemChange();
+                            me.fireEvent('schedulefieldupdated');
                         },
                         scope: me
                     }

@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
     columns: {
         items: [
             {
-                header: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
+                header: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'timeStamp',
                 xtype: 'datecolumn',
                 format: 'M j, Y \\a\\t G:i',
@@ -17,28 +17,12 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('device.registerData.amount', 'MDC', 'Amount'),
+                header: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                 dataIndex: 'value',
                 renderer: function (value, metaData, record) {
-                    return value + ' ' + record.get('unitOfMeasure')
+                    return value + ' ' + record.get('unitOfMeasure');
                 },
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('device.registerData.rawValue', 'MDC', 'Raw value'),
-                dataIndex: 'rawValue',
-                renderer: function (value, metaData, record) {
-                    return value + ' ' + record.get('unitOfMeasure')
-                },
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('device.registerData.validationStatus', 'MDC', 'Validation status'),
-                dataIndex: 'validationStatus',
-                renderer: function (value) {
-                    return Uni.I18n.translate(value, 'MDC', value)
-                },
-                flex: 1
+                flex: 3
             },
             {
                 xtype: 'uni-actioncolumn'

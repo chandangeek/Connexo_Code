@@ -6,6 +6,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'readingTime', dateFormat: 'time', type: 'date'},
         {name: 'value', type: 'auto'},
         {name: 'rawValue', type: 'auto'},
+        {name: 'delta', type: 'auto'},
         {name: 'multiplier', type: 'int', useNull: true},
         {name: 'intervalFlags', type: 'auto'},
         {

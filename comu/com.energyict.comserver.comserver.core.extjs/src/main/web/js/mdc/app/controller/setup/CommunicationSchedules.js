@@ -23,12 +23,14 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         {ref: 'communicationScheduleEdit', selector: '#communicationScheduleEdit'},
         {ref: 'communicationSchedulesGrid', selector: '#communicationSchedulesGrid'},
         {ref: 'communicationSchedulePreview', selector: '#communicationSchedulePreview'},
+        {ref: 'communicationScheduleView', selector: '#CommunicationSchedulesSetup'},
         {ref: 'communicationSchedulePreviewForm', selector: '#communicationSchedulePreviewForm'},
         {ref: 'communicationScheduleEditForm', selector: '#communicationScheduleEditForm'},
         {ref: 'communicationTaskGrid', selector: '#communicationTaskGridFromSchedule'},
         {ref: 'comTaskPanel', selector: '#comTaskPanel'},
         {ref: 'addCommunicationTaskPreview', selector: '#addCommunicationTaskPreview'},
-        {ref: 'comTaskCommands', selector: '#comtaskCommands'}
+        {ref: 'comTaskCommands', selector: '#comtaskCommands'},
+        {ref: 'addComTaskWindow', selector: '#addCommunicationTaskWindow'},
     ],
 
     record: null,
@@ -65,7 +67,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             },
             '#addCommunicationTaskButtonForm button[action=addAction]': {
                 click: this.addCommunicationTasksToSchedule
-            }, '#addCommunicationTaskButtonForm button[action=cancelAction]': {
+            },
+            '#addCommunicationTaskButtonForm button[action=cancelAction]': {
                 click: this.cancelAddCommunicationTasksToSchedule
             },
             '#communicationTaskGridFromSchedule': {
@@ -172,23 +175,24 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     previewCommunicationSchedule: function () {
-        var communicationSchedules = this.getCommunicationSchedulesGrid().getSelectionModel().getSelection();
-        var me = this;
-        if (communicationSchedules.length == 1) {
-            this.getCommunicationSchedulePreviewForm().loadRecord(communicationSchedules[0]);
-            me.getCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').removeAll();
-            if (communicationSchedules[0].comTaskUsages().data.items.length === 0) {
-                me.getCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
-                    xtype: 'displayfield'
-                });
-            } else {
-                Ext.each(communicationSchedules[0].comTaskUsages().data.items, function (comTaskUsage) {
-                    me.getCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
-                        xtype: 'displayfield',
-                        value: '<a>' + comTaskUsage.get('name') + '</a>'
-                    })
-                });
-            }
+        var communicationSchedule = this.getCommunicationSchedulesGrid().getSelectionModel().getLastSelected(),
+            preview = this.getCommunicationSchedulePreview(),
+            previewForm = this.getCommunicationSchedulePreviewForm();
+
+        preview.setTitle(communicationSchedule.get('name'));
+        previewForm.loadRecord(communicationSchedule);
+        previewForm.down('#comTaskPreviewContainer').removeAll();
+        if (communicationSchedule.comTaskUsages().data.items.length === 0) {
+            previewForm.down('#comTaskPreviewContainer').add({
+                xtype: 'displayfield'
+            });
+        } else {
+            Ext.each(communicationSchedule.comTaskUsages().data.items, function (comTaskUsage) {
+                previewForm.down('#comTaskPreviewContainer').add({
+                    xtype: 'displayfield',
+                    value: '<a>' + comTaskUsage.get('name') + '</a>'
+                })
+            });
         }
     },
 
@@ -217,18 +221,34 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     addCommunicationTask: function () {
-        var me = this;
+        var grid =  this.getCommunicationTaskGrid(),
+            preview = this.getAddCommunicationTaskPreview(),
+            allItemsRadioField = grid.down('radiogroup').down('radiofield[inputValue=allItems]');
+
+        grid.getSelectionModel().deselectAll();
+        !grid.isAllSelected() && allItemsRadioField.setValue(true);
+
         this.getCommunicationScheduleEdit().down('#card').getLayout().setActiveItem(1);
         this.getAddCommunicationTaskPreview().setVisible(false);
     },
 
     deleteComTask: function (comTask) {
-        var form = this.getCommunicationScheduleEditForm(),
+        var me = this,
+            form = this.getCommunicationScheduleEditForm(),
+            recordsAlreadyPresented = [],
             hasComTasks;
 
-        this.record.comTaskUsages().remove(comTask);
-        this.comTaskStore.add(comTask);
-        hasComTasks = this.record.comTaskUsages().getCount() ? true : false;
+        me.record.comTaskUsages().remove(comTask);
+        me.record.comTaskUsages().each(function (record) {
+            recordsAlreadyPresented.push(record);
+        });
+        me.comTaskStore.add(comTask);
+        me.comTaskStore.load({
+            callback: function() {
+                me.comTaskStore.remove(recordsAlreadyPresented);
+            }
+        });
+        hasComTasks = me.record.comTaskUsages().getCount() ? true : false;
         form.down('#noComTasksSelectedMsg').setVisible(!hasComTasks);
         form.down('#comTasksOnForm').setVisible(hasComTasks);
     },
@@ -263,18 +283,35 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     removeCommunicationSchedule: function (btn, text, opt) {
         if (btn === 'confirm') {
-            var communicationScheduleToDelete = opt.config.communicationScheduleToDelete;
-            var store = this.getCommunicationSchedulesGrid().getStore();
-            store.remove(communicationScheduleToDelete);
-            store.sync();
+            var me = this,
+                page = me.getCommunicationScheduleView(),
+                communicationScheduleToDelete = opt.config.communicationScheduleToDelete,
+                store = this.getCommunicationSchedulesGrid().getStore(),
+                gridToolbarTop = me.getCommunicationSchedulesGrid().down('pagingtoolbartop');
+
+            page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
+            communicationScheduleToDelete.destroy({
+                callback: function (model, operation) {
+                    page.setLoading(false);
+                    if (operation.wasSuccessful()) {
+                        gridToolbarTop.totalCount = 0;
+                        store.loadPage(1);
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.removed', 'MDC', 'Communication schedule successfully removed'));
+                    }
+                }
+            });
         }
     },
 
     addCommunicationTasksToSchedule: function () {
-        var selection = this.getCommunicationTaskGrid().getSelectionModel().getSelection(),
+        var grid =  this.getCommunicationTaskGrid(),
             form = this.getCommunicationScheduleEditForm(),
-            hasComTasks;
+            hasComTasks,
+            selection;
 
+        grid.isAllSelected() && grid.getSelectionModel().selectAll();
+
+        selection = grid.getSelectionModel().getSelection();
         this.record.comTaskUsages().add(selection);
         this.comTaskStore.remove(selection);
         this.getCommunicationScheduleEditForm().down('#comTasksOnForm').reconfigure(this.record.comTaskUsages());

@@ -70,12 +70,13 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 required: true,
                                 items: [
                                     {
-                                        xtype: 'component',
+                                        xtype: 'displayfield',
                                         itemId: 'noComTasksSelectedMsg',
-                                        html: '<span style="color: grey"><i>' + Uni.I18n.translate('communicationschedule.noComTaskSelected', 'MDC', 'No communication tasks selected yet') + '</i></span>',
+                                        name: 'comTaskUsages',
+                                        value: '<span style="color: grey"><i>' + Uni.I18n.translate('communicationschedule.noComTaskSelected', 'MDC', 'No communication tasks selected yet') + '</i></span>',
                                         style: {
-                                            marginBottom: '8px',
-                                            marginTop: '7px'
+                                            marginTop: '4px',
+                                            marginBottom: '0px'
                                         }
                                     },
                                     {
@@ -97,7 +98,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                             {
                                                 xtype: 'actioncolumn',
                                                 iconCls: 'icon-delete',
-                                                width: 40,
+                                                width: 55,
                                                 items: [
                                                     {
                                                         tooltip: 'Remove',

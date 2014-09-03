@@ -211,14 +211,24 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showScheduleField: function (combobox, objList) {
+        this.getScheduleField().clear();
         if (objList[0].get('connectionStrategy') === 'minimizeConnections') {
             this.getScheduleField().setVisible(true);
+            this.getScheduleField().setValue({
+                every: {
+                    count: 5,
+                    timeUnit: 'minutes'
+                },
+                offset: {
+                    count: 0,
+                    timeUnit: 'seconds'
+                }
+            });
             this.getConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(false);
         } else {
             this.getScheduleField().setVisible(false);
             this.getConnectionMethodEditView().down('form').down('#allowSimultaneousConnections').setVisible(true);
         }
-        this.getScheduleField().clear();
     },
 
     addOutboundConnectionMethod: function () {
@@ -263,7 +273,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         if (record) {
             record.set(values);
             if (values.connectionStrategy === 'asSoonAsPossible') {
-                record.set('nextExecutionSpecs', null);
+                record.set('temporalExpression', null);
             }
             if(!values.hasOwnProperty('comWindowStart')){
                 record.set('comWindowStart', 0);
@@ -438,7 +448,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             connectionMethod.set('isDefault', true);
         }
         if (connectionMethod.get('connectionStrategy') === 'asSoonAsPossible' || connectionMethod.get('direction') === 'Inbound') {
-            connectionMethod.set('nextExecutionSpecs', null);
+            connectionMethod.set('temporalExpression', null);
         }
 
 //        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);

@@ -241,19 +241,19 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 },
                                                 //Communication tasks routes
                                                 comtaskenablements: {
-                                                    title: 'Communication tasks',
+                                                    title: 'Communication task configurations',
                                                     route: 'comtaskenablements',
                                                     controller: 'Mdc.controller.setup.CommunicationTasks',
                                                     action: 'showCommunicationTasks',
                                                     items: {
                                                         create: {
-                                                            title: 'Add communication task',
+                                                            title: 'Add communication task configuration',
                                                             route: 'create',
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
                                                             action: 'showAddCommunicationTaskView'
                                                         },
                                                         edit: {
-                                                            title: 'Edit communication task',
+                                                            title: 'Edit communication task configuration',
                                                             route: '{comTaskEnablementId}/edit',
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
                                                             action: 'showEditCommunicationTaskView',
@@ -871,6 +871,22 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
                             action: 'showDeviceDataValidationMainView'
                         },
+                        communicationschedules: {
+                            title: 'Communication plan',
+                            route: 'communicationschedules',
+                            controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
+                            action: 'showDeviceCommunicationScheduleView',
+                            items: {
+
+                                add: {
+                                    title: 'Add shared Communication schedules',
+                                    route: 'add',
+                                    controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
+                                    action: 'addSharedCommunicationSchedule'
+                                }
+
+                            }
+                        },
                         loadprofiles: {
                             title: 'Load profiles',
                             route: 'loadprofiles',
@@ -947,6 +963,43 @@ Ext.define('Mdc.controller.history.Setup', {
                                         validation: {
                                             title: 'Load profile validation',
                                             route: 'validation'
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        logbooks: {
+                            title: Uni.I18n.translate('router.logbooks', 'MDC', 'Logbooks'),
+                            route: 'logbooks',
+                            controller: 'Mdc.controller.setup.DeviceLogbooks',
+                            action: 'showView',
+                            items: {
+                                logbook: {
+                                    title: Uni.I18n.translate('router.logbook', 'MDC', 'Logbook'),
+                                    route: '{logbookId}',
+                                    controller: 'Mdc.controller.setup.DeviceLogbookOverview',
+                                    action: 'showOverview',
+                                    redirect: 'devices/device/logbooks/logbook/overview',
+                                    callback: function (route) {
+                                        this.getApplication().on('logbookOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+
+                                    },
+                                    items: {
+                                        overview: {
+                                            title: Uni.I18n.translate('router.overview', 'MDC', 'Overview'),
+                                            route: 'overview',
+                                            controller: 'Mdc.controller.setup.DeviceLogbookOverview',
+                                            action: 'showOverview'
+                                        },
+                                        data: {
+                                            title: Uni.I18n.translate('router.logbookData', 'MDC', 'Logbook data'),
+                                            route: 'data',
+                                            controller: 'Mdc.controller.setup.DeviceLogbookData',
+                                            action: 'showOverview'
                                         }
                                     }
                                 }

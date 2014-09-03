@@ -221,21 +221,21 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 protocolDialectsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
                                                 protocolDialectsStore.load({
                                                     callback: function() {
-                                                        protocolDialectsStore.add(Ext.create('Mdc.model.ProtocolDialect', {
-                                                            id: -1,
-                                                            name: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Use the default protocol dialect')
-                                                        }));
-                                                        var communicationTask = Ext.create('Mdc.model.CommunicationTaskConfig', {
-                                                            partialConnectionTask: {
-                                                                id: -1
-                                                            },
-                                                            protocolDialectConfigurationProperties: {
-                                                                id: -1
-                                                            }
-                                                        })
-                                                        var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task');
+//                                                        protocolDialectsStore.add(Ext.create('Mdc.model.ProtocolDialect', {
+//                                                            id: -1,
+//                                                            name: Uni.I18n.translate('communicationtasks.form.selectProtocolDialectConfigurationProperties', 'MDC', 'Use the default protocol dialect')
+//                                                        }));
+//                                                        var communicationTask = Ext.create('Mdc.model.CommunicationTaskConfig', {
+//                                                            partialConnectionTask: {
+//                                                                id: -1
+//                                                            },
+//                                                            protocolDialectConfigurationProperties: {
+//                                                                id: -1
+//                                                            }
+//                                                        })
+                                                        var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration');
                                                         widget.down('#communicationTaskEditForm').setTitle(title);
-                                                        widget.setValues(communicationTask);
+//                                                        widget.setValues(communicationTask);
                                                         widget.setLoading(false);
                                                     }
                                                 });
@@ -307,7 +307,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 }
                                                 var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit') + ' ' + comTaskName;
                                                 widget.down('#communicationTaskEditForm').setTitle(title);
-                                                widget.down('#enableScheduleFieldItem').fireEvent('change', null, false, false);
                                                 widget.setValues(communicationTask);
                                                 widget.setLoading(false);
                                             }

@@ -3,12 +3,13 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
     alias: 'widget.deviceLoadProfileChannelDataPreview',
     itemId: 'deviceLoadProfileChannelDataPreview',
     requires: [
-        'Mdc.view.setup.deviceloadprofilechannels.DataActionMenu'
+        'Mdc.view.setup.deviceloadprofilechannels.DataActionMenu',
+        'Uni.form.field.IntervalFlagsDisplay'
     ],
     layout: 'fit',
     frame: true,
 
-    channels: null,
+    channelRecord: null,
 
     tools: [
         {
@@ -22,14 +23,23 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
         }
     ],
 
-    items: {
-        xtype: 'form',
-        itemId: 'deviceLoadProfileChannelDataPreviewForm',
-        defaults: {
-            xtype: 'displayfield',
-            labelWidth: 200
-        },
-        items: [
+    initComponent: function () {
+        var me = this,
+            readingType = me.channelRecord.get('cimReadingType'),
+            measurementType = me.channelRecord.get('unitOfMeasure_formatted'),
+            accumulationBehavior;
+
+        me.items = {
+            xtype: 'form',
+            itemId: 'deviceLoadProfileChannelDataPreviewForm',
+            defaults: {
+                xtype: 'displayfield',
+                labelWidth: 200
+            }
+        };
+
+
+        me.items.items = [
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
                 name: 'interval_formatted'
@@ -37,54 +47,50 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
                 name: 'readingTime_formatted'
-            },
-            {
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                name: 'value'
-            },
+            }
+        ];
+
+        //Getting 4th magic number of a reading type to understand if it holds cumulative values or not
+        if (readingType) {
+            accumulationBehavior = readingType.split('.')[3];
+        }
+
+        // 1 means cumulative
+        if (accumulationBehavior && accumulationBehavior == 1) {
+            me.items.items.push({
+                fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
+                name: 'value',
+                renderer: function (value, metaData, record) {
+                    return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
+
+                }
+            }, {
+                fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
+                name: 'delta',
+                renderer: function (value, metaData, record) {
+                    return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType: '';
+                }
+            });
+        } else {
+            me.items.items.push(
+                {
+                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
+                    name: 'value',
+                    renderer: function (value, metaData, record) {
+                        return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
+                    }
+                });
+        }
+
+        me.items.items.push(
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.multiplier', 'MDC', 'Multiplier'),
                 name: 'multiplier'
             },
             {
-                xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.intervalFlags', 'MDC', 'Interval flags'),
-                layout: 'hbox',
-                items: [
-                    {
-                        xtype: 'displayfield',
-                        name: 'intervalFlags',
-                        margin: '3 0 0 0',
-                        renderer: function (data) {
-                            var result = '',
-                                tooltip = '',
-                                icon = this.nextSibling('button');
-                            if (Ext.isArray(data) && data.length) {
-                                result = data.length;
-                                Ext.Array.each(data, function (value, index) {
-                                    index++;
-                                    tooltip += Uni.I18n.translate('deviceloadprofiles.flag', 'MDC', 'Flag') + ' ' + index + ': ' + value + '<br>';
-                                });
-                                icon.setTooltip(tooltip);
-                                icon.show();
-                            } else {
-                                icon.hide();
-                            }
-                            return result;
-                        }
-                    },
-                    {
-                        xtype: 'button',
-                        tooltip: '',
-                        iconCls: 'icon-info-small',
-                        ui: 'blank',
-                        itemId: 'intervalFlagsHelp',
-                        shadow: false,
-                        margin: '6 0 0 10',
-                        width: 16
-                    }
-                ]
-            }
-        ]
+                xtype: 'interval-flags-displayfield'
+            });
+
+        me.callParent(arguments);
     }
 });

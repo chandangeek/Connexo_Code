@@ -189,7 +189,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             dataStore.each(function (record) {
                 Ext.iterate(record.get('channelData'), function (key, value) {
                     if (channelDataArrays[key]) {
-                        channelDataArrays[key].unshift([record.get('interval').end, value])
+                        channelDataArrays[key].unshift([record.get('interval').end, value]);
                     }
                 });
             });
@@ -259,7 +259,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             interval = me.loadProfileModel.get('interval'),
             dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getById(interval.count + interval.timeUnit),
             all = dataIntervalAndZoomLevels.get('all'),
-            intervalStart = dataIntervalAndZoomLevels.getIntervalStart(me.loadProfileModel.get('lastReading')),
+            intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime())),
             durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
 
         durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));

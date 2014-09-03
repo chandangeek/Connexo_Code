@@ -20,9 +20,10 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter', {
     ],
 
     getFilterQueryParams: function () {
-        var queryParams;
+        var duration = this.get('duration'),
+            queryParams;
 
-        this.setIntervalEnd();
+        this.set('intervalEnd', moment(this.get('intervalStart')).add(duration.get('timeUnit'), duration.get('count')).valueOf());
 
         queryParams = this.getData(false);
 
@@ -30,36 +31,5 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter', {
         delete queryParams.id;
 
         return queryParams;
-    },
-
-    setIntervalEnd: function () {
-        var intervalStartDate = new Date(this.get('intervalStart')),
-            intervalStartDateTime = intervalStartDate.getTime(),
-            duration = this.get('duration'),
-            count = duration.get('count'),
-            intervalEnd;
-
-        switch (duration.get('timeUnit')) {
-            case 'minutes':
-                intervalEnd = intervalStartDateTime + count * 60000;
-                break;
-            case 'hours':
-                intervalEnd = intervalStartDateTime + count * 1440000;
-                break;
-            case 'days':
-                intervalEnd = intervalStartDateTime + count * 86400000;
-                break;
-            case 'weeks':
-                intervalEnd = intervalStartDateTime + count * 604800000;
-                break;
-            case 'months':
-                intervalEnd = intervalStartDateTime.setMonth(intervalStartDateTime.getMonth() + count);
-                break;
-            case 'years':
-                intervalEnd = intervalStartDateTime.setFullYear(intervalStartDateTime.getFullYear() + count);
-                break;
-        }
-
-        return this.set('intervalEnd', intervalEnd);
     }
 });

@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('communicationtasks.communicationtasks', 'MDC', 'Communication tasks'),
+                title: Uni.I18n.translate('communicationtasks.communicationtasks', 'MDC', 'Communication task configurations'),
                 items: [
                     {
                         xtype: 'preview-container',
@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
                             ],
                             stepItems: [
                                 {
-                                    text: Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task'),
+                                    text: Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration'),
                                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/create'
                                 }
                             ]

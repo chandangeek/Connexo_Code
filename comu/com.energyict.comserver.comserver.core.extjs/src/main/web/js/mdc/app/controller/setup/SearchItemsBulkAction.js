@@ -164,7 +164,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
     nextClick: function () {
         var layout = this.getSearchItemsWizard().getLayout();
-
         this.changeContent(layout.getNext(), layout.getActiveItem()) && this.getNavigationMenu().moveNextStep();
     },
 
@@ -363,7 +362,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
 
                 errorPanel = currentCmp.down('#step3-errors');
-                validation = me.schedules.length || me.getSchedulesGrid().isAllSelected();
+                validation = me.schedules.length;
                 break;
         }
 
