@@ -3,7 +3,8 @@ Ext.define('Dsh.controller.Connections', {
     models: [
         'Dsh.model.ConnectionTask',
         'Dsh.model.CommTasks',
-        'Dsh.model.CommunicationTask'
+        'Dsh.model.CommunicationTask',
+        'Dsh.model.Filter'
     ],
     stores: [
         'Dsh.store.ConnectionTasks',
@@ -39,6 +40,14 @@ Ext.define('Dsh.controller.Connections', {
         {
             ref: 'commTasksTitle',
             selector: '#comtaskstitlepanel'
+        },
+        {
+            ref: 'filterPanel',
+            selector: '#dshconnectionsfilterpanel'
+        },
+        {
+            ref: 'sideFilterForm',
+            selector: '#dshconnectionssidefilter form'
         }
     ],
     init: function () {
@@ -48,13 +57,31 @@ Ext.define('Dsh.controller.Connections', {
             },
             '#communicationsdetails': {
                 selectionchange: this.onCommunicationSelectionChange
+            },
+            '#dshconnectionssidefilter button[action=applyfilter]': {
+                click: this.applyFilter
+            },
+            '#dshconnectionssidefilter': {
+                afterrender: this.loadFilterValues
             }
         });
         this.callParent(arguments);
     },
     showOverview: function () {
-        var widget = Ext.widget('connections-details');
+        var me = this,
+            widget = Ext.widget('connections-details');
         this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    loadFilterValues: function () {
+        var me = this;
+        Ext.defer(function () {
+                Dsh.model.Filter.load(0, {
+                    callback: function (record) {
+                        me.getSideFilterForm().loadRecord(record)
+                    }
+                });
+            }, 3500)
     },
 
     onCommunicationSelectionChange: function (grid, selected) {
@@ -65,7 +92,7 @@ Ext.define('Dsh.controller.Connections', {
             config: record.data.deviceConfiguration,
             devType: record.data.deviceType
         };
-        record.data.title = record.data.name + ' on ' + record.data.device.name
+        record.data.title = record.data.name + ' on ' + record.data.device.name;
         preview.setTitle(record.data.title);
         preview.loadRecord(record);
     },
@@ -75,7 +102,7 @@ Ext.define('Dsh.controller.Connections', {
             record = selected[0],
             preview = me.getConnectionPreview(),
             commTasksData = record.get('communicationTasks').communicationTasks,
-            commTasks = Ext.create('Ext.data.Store', {model: 'Dsh.model.CommunicationTask',data: commTasksData});
+            commTasks = Ext.create('Ext.data.Store', {model: 'Dsh.model.CommunicationTask', data: commTasksData});
         preview.loadRecord(record);
         preview.setTitle(record.get('title'));
         me.getCommunicationContainer().removeAll(true);
@@ -101,5 +128,11 @@ Ext.define('Dsh.controller.Connections', {
         });
         me.getCommTasksTitle().setTitle(Uni.I18n.translate('communication.widget.details.commTasksOf', 'DSH', 'Communication tasks of') + ' ' + record.get('title'));
         me.getCommunicationList().getSelectionModel().select(0);
+    },
+
+    applyFilter: function () {
+        this.getSideFilterForm().updateRecord();
+        var model = this.getSideFilterForm().getRecord();
+        model.save()
     }
 });
