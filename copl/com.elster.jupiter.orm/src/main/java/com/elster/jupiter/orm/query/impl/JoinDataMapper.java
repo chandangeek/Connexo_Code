@@ -17,6 +17,7 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +65,18 @@ public abstract class JoinDataMapper<T> {
 		return result;
 	}
 
+	final List<ColumnAndAlias> getColumnAndAliases(String fieldName) {
+		FieldMapping mapping = getTable().getFieldMapping(fieldName);
+		if (mapping == null) {
+			return Collections.emptyList();
+		}
+		List<ColumnAndAlias> result = new ArrayList<>();
+		for (Column column : mapping.getColumns()) {
+			result.add(new ColumnAndAlias((ColumnImpl) column,getAlias()));
+		}
+		return result;
+	}
+	
 	final ColumnAndAlias getColumnAndAlias(String fieldName) {
 		ColumnImpl column = getTable().getColumnForField(fieldName);
 		return column == null ? null : new ColumnAndAlias(column,getAlias());

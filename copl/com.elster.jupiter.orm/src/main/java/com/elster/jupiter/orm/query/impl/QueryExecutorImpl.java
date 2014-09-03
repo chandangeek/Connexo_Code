@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
@@ -54,6 +55,11 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 		return root.getType(fieldName);
 	}
 
+	@Override
+	public Subquery asSubquery(Condition condition, String ... fieldNames) {
+		return new SubqueryImpl(asFragment(condition,fieldNames));
+	}
+	
 	@Override
 	public SqlFragment asFragment(Condition condition, String[] fieldNames) {
 		return new JoinExecutor<>(root.copy(),getEffectiveDate()).getSqlBuilder(condition, fieldNames);		

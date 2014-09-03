@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.fields.impl.ColumnMapping;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
 import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;

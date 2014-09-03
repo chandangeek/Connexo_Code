@@ -34,13 +34,20 @@ final class JoinExecutor<T> {
 	SqlBuilder getSqlBuilder(Condition condition , String[] fieldNames) {
 		builder = new SqlBuilder();
 		JoinTreeMarker.on(root).visit(condition);
-		ColumnAndAlias[] columnAndAliases = new ColumnAndAlias[fieldNames.length];
-		for (int i = 0 ; i < fieldNames.length ; i++) {
-			columnAndAliases[i] = root.getColumnAndAliasForField(fieldNames[i]);
+		List<String> selectColumns = new ArrayList<>();
+		for (String name : fieldNames) {
+			List<ColumnAndAlias> columnAndAliases = root.getColumnAndAliases(name);
+			if (columnAndAliases == null) {
+				selectColumns.add(name);
+			} else {
+				for (ColumnAndAlias columnAndAlias : columnAndAliases) {
+					selectColumns.add(columnAndAlias.toString());
+				}
+			}
 		}
 		root.prune();
 		JoinTreeMarker.on(root).visit(condition);
-		appendSelectClause(columnAndAliases);
+		appendSelectClause(selectColumns);
 		appendWhereClause(builder, condition , " where ");
 		appendOrderByClause(builder, null);
 		return from == 0 ? builder : builder.asPageBuilder(from, to);
@@ -65,15 +72,15 @@ final class JoinExecutor<T> {
 		root.appendFromClause(builder,null,false);		
 	}
 	
-	private void appendSelectClause(ColumnAndAlias[] columnAndAliases) {
+	private void appendSelectClause(List<String> selectColumns) {
 		builder.append("select ");
-		if (columnAndAliases.length == 0) {
+		if (selectColumns.isEmpty()) {
 			builder.append(" NULL ");
 		} else {
 			String separator = "";
-			for (ColumnAndAlias columnAndAlias : columnAndAliases) {
+			for (String selectColumn : selectColumns) {
 				builder.append(separator);
-				builder.append(columnAndAlias.toString());
+				builder.append(selectColumn);
 				separator = ", ";
 			}
 		}

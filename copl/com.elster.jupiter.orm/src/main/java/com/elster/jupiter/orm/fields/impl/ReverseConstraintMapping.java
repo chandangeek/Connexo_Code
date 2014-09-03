@@ -1,5 +1,9 @@
 package com.elster.jupiter.orm.fields.impl;
 
+import java.util.Collections;
+import java.util.List;
+
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
@@ -28,6 +32,11 @@ public class ReverseConstraintMapping extends ConstraintMapping {
 	@Override
 	public SqlFragment asContainsFragment(Contains contains, String alias) {
 		throw new UnsupportedOperationException();		
+	}
+	
+	@Override
+	public List<? extends Column> getColumns() {
+		return Collections.emptyList();
 	}
 	
 

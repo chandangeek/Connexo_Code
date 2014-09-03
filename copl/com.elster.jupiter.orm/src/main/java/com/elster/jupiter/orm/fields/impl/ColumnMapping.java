@@ -1,21 +1,22 @@
-package com.elster.jupiter.orm.impl;
+package com.elster.jupiter.orm.fields.impl;
 
-import com.elster.jupiter.orm.fields.impl.ColumnComparisonFragment;
-import com.elster.jupiter.orm.fields.impl.ColumnContainsFragment;
-import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
-import com.elster.jupiter.orm.fields.impl.FieldMapping;
+import java.util.List;
+
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.google.common.collect.ImmutableList;
  
-class ColumnMapping extends FieldMapping {
+public class ColumnMapping extends FieldMapping {
 	private final ColumnImpl column;
 	
-	ColumnMapping(ColumnImpl column) {
+	public ColumnMapping(ColumnImpl column) {
 		this.column = column;
 	}
 
-	ColumnImpl getColumn() {
+	public ColumnImpl getColumn() {
 		return column;
 	}
 
@@ -39,6 +40,10 @@ class ColumnMapping extends FieldMapping {
 		return new ColumnContainsFragment(column, contains, alias);
 	}
 	
+	@Override
+	public List<? extends Column> getColumns() {
+		return ImmutableList.of(column);
+	}
 	
 	
 }

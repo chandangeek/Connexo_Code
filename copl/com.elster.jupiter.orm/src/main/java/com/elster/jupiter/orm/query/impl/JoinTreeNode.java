@@ -107,6 +107,15 @@ final class JoinTreeNode<T>  {
 		return columnAndAlias == null ? null : columnAndAlias.getColumn();
 	}
 	
+	final List<ColumnAndAlias> getColumnAndAliases(String fieldName) {
+		return execute(fieldName , new JoinTreeAction<List<ColumnAndAlias>>(true,false) {
+			@Override
+			List<ColumnAndAlias> invoke(String fieldName, JoinDataMapper<?> value) {
+				return value.getColumnAndAliases(fieldName);
+			}
+		});
+	}
+	
 	final ColumnAndAlias getColumnAndAliasForField(String fieldName) {
 		return execute(fieldName , new JoinTreeAction<ColumnAndAlias>(true,false) {
 			@Override
