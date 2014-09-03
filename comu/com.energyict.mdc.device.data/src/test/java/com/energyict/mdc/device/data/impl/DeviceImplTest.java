@@ -1025,18 +1025,24 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Ignore // TODO blocked by JP-5155 and JP-5157
     public void testGetLoadProfileData() {
         BigDecimal readingValue = new BigDecimal(5432.32);
         Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
-        IntervalBlockImpl intervalBlock = new IntervalBlockImpl(forwardEnergyReadingType.getMRID());
-        intervalBlock.addIntervalReading(new IntervalReadingImpl(new Date(1406884500000L), readingValue)); // 1/8/2014 9:15
-        MeterReadingImpl meterReading = new MeterReadingImpl();
-        meterReading.addIntervalBlock(intervalBlock);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
+        String code = ReadingTypeCodeBuilder
+                .of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .flow(FlowDirection.FORWARD)
+                .measure(MeasurementKind.ENERGY)
+                .period(TimeAttribute.MINUTE15)
+                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
+        IntervalBlockImpl intervalBlock = new IntervalBlockImpl(code);
+        intervalBlock.addIntervalReading(new IntervalReadingImpl(new Date(1406884500000L), readingValue)); // 1/8/2014 9:15
+        MeterReadingImpl meterReading = new MeterReadingImpl();
+        meterReading.addIntervalBlock(intervalBlock);
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
