@@ -2,8 +2,11 @@ Ext.onReady(function () {
     var loader = Ext.create('Uni.Loader'),
         translationsQueue = [
             'CFG',
+            'USM',
             'MDC',
-            'USM'
+            'ISU',
+            'DVI',
+            'DSH'
         ];
 
     loader.initI18n(translationsQueue);
