@@ -13,7 +13,7 @@ Ext.define('Mdc.model.RegisterData', {
             name: 'suspect_rules',
             persist: false,
             mapping: function (data) {
-                if (data.suspectReason) {
+                if (!Ext.isEmpty(data.suspectReason)) {
                     var str = '',
                         prop,
                         failEqualDataValue,
@@ -54,6 +54,8 @@ Ext.define('Mdc.model.RegisterData', {
                         }
                     });
                     return str;
+                } else {
+                    return '';
                 }
             }
         }
