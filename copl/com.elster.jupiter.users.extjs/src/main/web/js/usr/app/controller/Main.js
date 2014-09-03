@@ -43,10 +43,10 @@ Ext.define('Usr.controller.Main', {
 
     init: function () {
         var me = this;
-        this.initNavigation();
+        me.initNavigation();
 
         var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: 'User management',
+            text: Uni.I18n.translate('general.userManagement', 'USR', 'User management'),
             glyph: 'settings',
             portal: 'usermanagement',
             index: -10,
@@ -56,18 +56,18 @@ Ext.define('Usr.controller.Main', {
         Uni.store.MenuItems.add(menuItem);
 
         var users = Ext.create('Uni.model.PortalItem', {
-            title: 'User management',
+            title: Uni.I18n.translate('general.userManagement', 'USR', 'User management'),
             portal: 'usermanagement',
             route: 'usermanagement',
             items: [
                 {
-                    text: 'Users',
-                    href: '#usermanagement/users',
+                    text: Uni.I18n.translate('general.users', 'USR', 'Users'),
+                    href: '#/usermanagement/users',
                     hidden: Uni.Auth.hasNoPrivilege('privilege.view.user')
                 },
                 {
-                    text: 'Roles',
-                    href: '#usermanagement/roles',
+                    text: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
+                    href: '#/usermanagement/roles',
                     hidden: Uni.Auth.hasNoPrivilege('privilege.view.group')
                 }
             ]
