@@ -1,14 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
-import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -1077,21 +1075,16 @@ public class DeviceImpl implements Device {
         return Lists.reverse(loadProfileReadings);
     }
     
-    List<EndDeviceEventRecord> getLogBookDeviceEvents(LogBook logBook, Interval interval, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
+    List<EndDeviceEventRecord> getLogBookDeviceEventsByFilter(LogBook logBook, EndDeviceEventRecordFilterSpecification filter) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        List<EndDeviceEventRecord> endDeviceEventRecords = new ArrayList<>();
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                List<EndDeviceEventRecord> deviceEvents = meter.get().getDeviceEvents(interval, domain, subDomain, eventOrAction);
-                for (EndDeviceEventRecord deviceEvent : deviceEvents) {
-                    if (deviceEvent.getLogBookId() == logBook.getId()) {
-                        endDeviceEventRecords.add(deviceEvent);
-                    }
-                }
+                filter.logBookId = logBook.getId();
+                return meter.get().getDeviceEventsByFilter(filter);
             }
         }
-        return endDeviceEventRecords;
+        return Collections.emptyList();
     }
 
     /**
