@@ -1,13 +1,9 @@
-package com.elster.jupiter.issue.tests;
-
-import com.energyict.mdc.device.data.DeviceDataService;
+package com.energyict.mdc.issue.tests;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.issue.datacollection.impl.IssueDataCollectionModule;
-import com.elster.jupiter.issue.datacollection.impl.install.InstallServiceImpl;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
@@ -35,9 +31,15 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
+import com.energyict.mdc.issue.datacollection.impl.install.InstallServiceImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
@@ -45,8 +47,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import javax.validation.MessageInterpolator;
-
-import org.junit.*;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

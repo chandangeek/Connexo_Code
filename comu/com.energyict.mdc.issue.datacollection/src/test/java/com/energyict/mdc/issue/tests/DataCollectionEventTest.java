@@ -1,14 +1,13 @@
-package com.elster.jupiter.issue.tests;
+package com.energyict.mdc.issue.tests;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.datacollection.DataCollectionEvent;
-import com.elster.jupiter.issue.datacollection.impl.ModuleConstants;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
-
+import com.energyict.mdc.issue.datacollection.DataCollectionEvent;
+import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;

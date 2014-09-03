@@ -1,10 +1,7 @@
-package com.elster.jupiter.issue.tests;
+package com.energyict.mdc.issue.tests;
 
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.issue.datacollection.MeterReadingIssueEvent;
-import com.elster.jupiter.issue.datacollection.impl.ModuleConstants;
-import com.elster.jupiter.issue.datacollection.impl.TrendPeriodUnit;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
@@ -12,6 +9,9 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.energyict.mdc.issue.datacollection.MeterReadingIssueEvent;
+import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.impl.TrendPeriodUnit;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -27,17 +27,16 @@ import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 public class MeterReadingIssueEventTest extends BaseTest {
-    
+
     private String readingTypeCode;
     private ReadingType readingType;
     private TransactionContext context;
     private Meter meter;
-    
+
     @Before
-    public void setUp(){
+    public void setUp() {
         readingTypeCode = ReadingTypeCodeBuilder
                 .of(ELECTRICITY_SECONDARY_METERED)
                 .flow(FORWARD)
@@ -47,24 +46,24 @@ public class MeterReadingIssueEventTest extends BaseTest {
                 .period(TimeAttribute.MINUTE15)
                 .code();
         readingType = getOrmService().getDataModel("MTR").get().mapper(ReadingType.class).getOptional(readingTypeCode).get();
-        
+
         AmrSystem amrSystem = getMeteringService().findAmrSystem(ModuleConstants.MDC_AMR_SYSTEM_ID).get();
         meter = amrSystem.newMeter("test device");
         context = getTransactionService().getContext();
         meter.save();
     }
-    
+
     @After
     public void tearDown() {
         context.close();
     }
-    
+
     @Test
     public void testNoReadings() {
         MeterReadingIssueEvent event = new MeterReadingIssueEvent(meter, readingType, null, null);
         assertThat(event.computeMaxSlope(1, TrendPeriodUnit.HOURS.getId())).isEqualTo(0.0);
     }
-    
+
     @Test
     public void testOnlyOneReading() {
         MeterReadingImpl meterReading = new MeterReadingImpl();
@@ -107,7 +106,7 @@ public class MeterReadingIssueEventTest extends BaseTest {
         MeterReadingIssueEvent event = new MeterReadingIssueEvent(meter, readingType, null, null);
         assertThat(event.computeMaxSlope(2, TrendPeriodUnit.HOURS.getId())).isEqualTo(4.0);
     }
-    
+
     @Test
     public void testComputeMaxSlopeForLimitedPeriod() {
         DateTime now = getCurrentDateTime();
