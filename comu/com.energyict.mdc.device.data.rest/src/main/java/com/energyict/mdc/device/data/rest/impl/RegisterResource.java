@@ -6,7 +6,9 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.security.Privileges;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -33,6 +35,7 @@ public class RegisterResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE)
     public PagedInfoList getRegisters(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<Register> registers = ListPager.of(device.getRegisters(), new Comparator<Register>() {
@@ -48,6 +51,7 @@ public class RegisterResource {
     @GET
     @Path("/{registerId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE)
     public RegisterInfo getRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register register = resourceHelper.findRegisterOrThrowException(device, registerId);

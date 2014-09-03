@@ -11,6 +11,7 @@ import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -22,6 +23,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -59,6 +61,7 @@ public class DeviceValidationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
     public Response getValidationRulsetsForDevice(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         List<DeviceValidationRuleSetInfo> result = new ArrayList<>();
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -96,6 +99,7 @@ public class DeviceValidationResource {
     @Path("/{validationRuleSetId}/status")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_VALIDATION_RULE)
     public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId, boolean status) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
@@ -126,6 +130,7 @@ public class DeviceValidationResource {
     @Path("/validationstatus")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_VALIDATION_RULE)
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceValidationStatusInfo deviceValidationStatusInfo = determineStatus(getMeterFor(device));
@@ -152,6 +157,7 @@ public class DeviceValidationResource {
     @Path("/validationstatus")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_VALIDATION_RULE)
     public Response setValidationFeatureStatus(@PathParam("mRID") String mrid, DeviceValidationStatusInfo deviceValidationStatusInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
@@ -198,6 +204,7 @@ public class DeviceValidationResource {
     @Path("/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.VALIDATE_DEVICE)
     public Response validateDeviceData(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
