@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -13,11 +12,6 @@ public class AdapterTest {
     @Test
     public void testCompletionCodeAdapterHasValueForEveryServerValue() throws Exception {
         testAdapter(new CompletionCodeAdapter(), CompletionCode.values());
-    }
-
-    @Test
-    public void testTaskStatusAdapterHasValueForEveryServerValue() throws Exception {
-        testAdapter(new TaskStatusAdapter(), TaskStatus.values());
     }
 
     @Test
