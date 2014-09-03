@@ -3,12 +3,10 @@ package com.elster.jupiter.metering.impl;
 import static com.elster.jupiter.util.conditions.Where.*;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
-import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
-import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -168,15 +166,16 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         return dataModel.query(EndDeviceEventRecord.class).select(condition,Order.ascending("createdDateTime"));
     }
     
-    public List<EndDeviceEventRecord> getDeviceEvents(Interval interval, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
+    @Override
+    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
         final String anyNumberPattern = "[0-9]{1,3}";
         StringBuilder regExp = new StringBuilder();
         regExp.append("^").append(anyNumberPattern).append("\\.");
-        regExp.append(domain != null ? domain.getValue() : anyNumberPattern).append("\\.");
-        regExp.append(subDomain != null ? subDomain.getValue() : anyNumberPattern).append("\\.");
-        regExp.append(eventOrAction != null ? eventOrAction.getValue() : anyNumberPattern).append("$");
-        
-        Condition condition = inInterval(interval).and(where("eventType.mRID").matches(regExp.toString(), "i"));
+        regExp.append(filter.domain != null ? filter.domain.getValue() : anyNumberPattern).append("\\.");
+        regExp.append(filter.subDomain != null ? filter.subDomain.getValue() : anyNumberPattern).append("\\.");
+        regExp.append(filter.eventOrAction != null ? filter.eventOrAction.getValue() : anyNumberPattern).append("$");
+
+        Condition condition = inInterval(filter.interval).and(where("logBookId").isEqualTo(filter.logBookId)).and(where("eventType.mRID").matches(regExp.toString(), "i"));
         return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(condition, Order.descending("createdDateTime"));
     }
     
