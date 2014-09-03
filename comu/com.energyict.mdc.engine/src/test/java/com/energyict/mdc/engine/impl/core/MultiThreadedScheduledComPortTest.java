@@ -91,7 +91,9 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.doThrow;
@@ -425,7 +427,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
-        when(this.simultaneousConnectionTask1.connect(comPort)).thenReturn(this.comChannel);
+        when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ComJob> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.toComJob(this.mockComTask(i + 1, this.simultaneousConnectionTask1)));
@@ -477,7 +479,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         // Force the connection to fail
-        doThrow(ConnectionException.class).when(this.simultaneousConnectionTask1).connect(comPort);
+        doThrow(ConnectionException.class).when(this.simultaneousConnectionTask1).connect(eq(comPort), anyList());
         final List<ComJob> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.toComJob(this.mockComTask(i + 1, this.simultaneousConnectionTask1)));
@@ -526,7 +528,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
-        when(this.serialConnectionTask1.connect(comPort)).thenReturn(this.comChannel);
+        when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ServerComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.mockComTask(i + 1, this.serialConnectionTask1));
@@ -579,7 +581,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         // Force the connection to fail
-        doThrow(ConnectionException.class).when(this.serialConnectionTask1).connect(comPort);
+        doThrow(ConnectionException.class).when(this.serialConnectionTask1).connect(eq(comPort), anyList());
         final List<ServerComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.mockComTask(i + 1, this.serialConnectionTask1));
@@ -628,7 +630,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
-        when(this.simultaneousConnectionTask1.connect(comPort)).thenReturn(this.comChannel);
+        when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ComJob> noWork = new ArrayList<>(0);
         final List<ComJob> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
@@ -678,7 +680,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
-        when(this.serialConnectionTask1.connect(comPort)).thenReturn(this.comChannel);
+        when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ServerComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.mockComTask(i + 1, this.serialConnectionTask1));
@@ -729,7 +731,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyInt())).thenReturn(false);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(false);
-        when(this.simultaneousConnectionTask1.connect(comPort)).thenReturn(this.comChannel);
+        when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ComJob> noWork = new ArrayList<>(0);
         final List<ComJob> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
@@ -778,7 +780,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyInt())).thenReturn(false);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(false);
-        when(this.serialConnectionTask1.connect(comPort)).thenReturn(this.comChannel);
+        when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ServerComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.mockComTask(i + 1, this.serialConnectionTask1));
@@ -828,7 +830,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
-        doThrow(ConnectionException.class).when(this.serialConnectionTask1).connect(comPort);
+        doThrow(ConnectionException.class).when(this.serialConnectionTask1).connect(eq(comPort), anyList());
         final List<ServerComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.mockComTask(i + 1, this.serialConnectionTask1));

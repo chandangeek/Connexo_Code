@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
@@ -219,7 +220,7 @@ public abstract class JobExecution implements ScheduledJob {
      * @return the ComChannel that will be used during the execution of the tasks.
      * @throws ConnectionException
      */
-    protected abstract ComPortRelatedComChannel findOrCreateComChannel() throws ConnectionException;
+    protected abstract ComPortRelatedComChannel findOrCreateComChannel(ConnectionTaskPropertyProvider connectionTaskPropertyProvider) throws ConnectionException;
 
     protected DeviceCommandExecutor getDeviceCommandExecutor() {
         return deviceCommandExecutor;

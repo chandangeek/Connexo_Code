@@ -11,7 +11,6 @@ import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.elster.jupiter.util.time.StopWatch;
-import org.joda.time.DateTimeConstants;
 import org.joda.time.Duration;
 
 import java.io.ByteArrayOutputStream;
@@ -33,9 +32,9 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     private ComPort comPort;
     private ByteArrayOutputStream bytesReadForLogging;
     private ByteArrayOutputStream bytesWrittenForLogging;
-    private StopWatch talking;
-    private Counters sessionCounters = new Counters();
-    private Counters taskSessionCounters = new Counters();
+    private final StopWatch talking;
+    private final Counters sessionCounters = new Counters();
+    private final Counters taskSessionCounters = new Counters();
 
     public ComPortRelatedComChannelImpl(ComChannel comChannel, HexService hexService) {
         super();
@@ -225,7 +224,9 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
 
     @Override
     public void close() {
-        this.comChannel.close();
+        if (this.comChannel != null) {
+            this.comChannel.close();
+        }
         this.talking.stop();
         this.logRemainingBytes();
     }

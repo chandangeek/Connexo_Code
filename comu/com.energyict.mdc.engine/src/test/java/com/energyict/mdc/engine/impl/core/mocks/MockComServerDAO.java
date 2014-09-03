@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.core.ComJob;
@@ -262,6 +263,12 @@ public class MockComServerDAO implements ComServerDAO {
 //    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
 //        return null;
 //    }
+
+
+    @Override
+    public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask) {
+        return connectionTask.getProperties();
+    }
 
     @Override
     public synchronized ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {

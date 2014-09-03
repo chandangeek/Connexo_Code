@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
@@ -15,9 +14,12 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
@@ -53,10 +55,9 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -210,6 +211,16 @@ public class ComServerDAOImpl implements ComServerDAO {
     public List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice offlineDevice, InboundComPort comPort) {
         Device device = getDeviceDataService().findDeviceById(offlineDevice.getId());
         return getDeviceDataService().getPlannedComTaskExecutionsFor(comPort, device);
+    }
+
+    @Override
+    public List<ConnectionTaskProperty> findProperties(final ConnectionTask connectionTask) {
+        return this.serviceProvider.transactionService().execute(new Transaction<List<ConnectionTaskProperty>>() {
+            @Override
+            public List<ConnectionTaskProperty> perform() {
+                return connectionTask.getProperties();
+            }
+        });
     }
 
     @Override

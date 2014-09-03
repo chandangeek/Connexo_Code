@@ -1,8 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -10,8 +11,6 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
-
-import com.elster.jupiter.transaction.Transaction;
 
 import java.util.Calendar;
 
@@ -46,26 +45,11 @@ public abstract class ScheduledJobImpl extends JobExecution {
     }
 
     @Override
-    protected ComPortRelatedComChannel findOrCreateComChannel() throws ConnectionException {
-        try {
-            return this.getServiceProvider().transactionService().execute(new Transaction<ComPortRelatedComChannel>() {
-                @Override
-                public ComPortRelatedComChannel perform() {
-                    try {
-                        return new ComPortRelatedComChannelImpl(
-                                getConnectionTask().connect(getComPort()),
-                                getComPort(),
-                                getServiceProvider().hexService());
-                    }
-                    catch (ConnectionException e) {
-                        throw new LocalConnectionException(e);
-                    }
-                }
-            });
-        }
-        catch (LocalConnectionException e) {
-            throw e.getCause();
-        }
+    protected ComPortRelatedComChannel findOrCreateComChannel(ConnectionTaskPropertyProvider propertyProvider) throws ConnectionException {
+        return new ComPortRelatedComChannelImpl(
+                getConnectionTask().connect(getComPort(), propertyProvider.getProperties()),
+                getComPort(),
+                getServiceProvider().hexService());
     }
 
     @Override

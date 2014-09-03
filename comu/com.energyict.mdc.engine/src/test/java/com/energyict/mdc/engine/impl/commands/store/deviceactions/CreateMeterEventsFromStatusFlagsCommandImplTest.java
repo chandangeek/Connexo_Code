@@ -5,6 +5,7 @@ import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
@@ -282,7 +283,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         }
 
         @Override
-        protected ComPortRelatedComChannel findOrCreateComChannel() throws ConnectionException {
+        protected ComPortRelatedComChannel findOrCreateComChannel(ConnectionTaskPropertyProvider connectionTaskPropertyProvider) throws ConnectionException {
             return null;
         }
 

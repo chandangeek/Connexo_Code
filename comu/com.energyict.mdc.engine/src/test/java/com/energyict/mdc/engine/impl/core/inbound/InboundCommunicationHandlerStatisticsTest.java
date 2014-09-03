@@ -4,6 +4,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -37,6 +38,7 @@ import org.hamcrest.Description;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -45,6 +47,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.longThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -114,7 +118,7 @@ public class InboundCommunicationHandlerStatisticsTest {
         OutboundComPort comPort = mock(OutboundComPort.class);
         OutboundConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
-        when(connectionTask.connect(comPort)).thenReturn(new SystemOutComChannel());
+        when(connectionTask.connect(eq(comPort), anyList())).thenReturn(new SystemOutComChannel());
         ComTaskExecution comTask = mock(ComTaskExecution.class);
         when(comTask.getConnectionTask()).thenReturn(connectionTask);
         ComServer comServer = mock(OnlineComServer.class);
@@ -149,7 +153,7 @@ public class InboundCommunicationHandlerStatisticsTest {
         byte[] helloWorldBytes = "Hello world".getBytes();
         byte[] replyBytes = "Reply for hello world message".getBytes();
         comChannel.whenReadFromBuffer(replyBytes);
-        when(connectionTask.connect(comPort)).thenReturn(comChannel);
+        when(connectionTask.connect(eq(comPort), anyList())).thenReturn(comChannel);
         ComTaskExecution comTask = mock(ComTaskExecution.class);
         when(comTask.getConnectionTask()).thenReturn(connectionTask);
         ComServer comServer = mock(OnlineComServer.class);

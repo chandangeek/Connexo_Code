@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -232,7 +233,7 @@ public class RescheduleBehaviorForAsapTest {
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         JobExecution jobExecution = mock(JobExecution.class);
         ComPortRelatedComChannel comPortRelatedComChannel = mock(ComPortRelatedComChannel.class);
-        when(jobExecution.findOrCreateComChannel()).thenReturn(comPortRelatedComChannel);
+        when(jobExecution.findOrCreateComChannel(any(ConnectionTaskPropertyProvider.class))).thenReturn(comPortRelatedComChannel);
         when(jobExecution.getComServerDAO()).thenReturn(this.comServerDAO);
         ExecutionContext executionContext =
                 new ExecutionContext(

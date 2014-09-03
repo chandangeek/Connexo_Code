@@ -8,6 +8,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
@@ -136,6 +137,12 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     @Override
     public List<ComTaskExecution> findExecutableInboundComTasks (OfflineDevice device, InboundComPort comPort) {
         return null;
+    }
+
+    @Override
+    public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask) {
+        // Todo: delegate to the other side
+        return connectionTask.getProperties();
     }
 
     @Override

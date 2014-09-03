@@ -7,6 +7,7 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
 import com.energyict.mdc.engine.model.ComPort;
@@ -112,6 +113,15 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @return The List of ComTaskExecutions that are ready to be executed
      */
     public List<ComTaskExecution> findExecutableInboundComTasks (OfflineDevice device, InboundComPort comPort);
+
+    /**
+     * Finds the {@link ConnectionTaskProperty connection properties}
+     * for the specified {@link ConnectionTask}.
+     *
+     * @param connectionTask The ConnectionTask
+     * @return The List of ConnectionTaskProperty
+     */
+    public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask);
 
     /**
      * Attempts to lock the ScheduledConnectionTask for

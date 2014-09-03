@@ -344,6 +344,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
                 } else {
                     workerFailed(this, causeOfFailure);
                 }
+                threadPrincipalService.clear();
             }
         }
     }

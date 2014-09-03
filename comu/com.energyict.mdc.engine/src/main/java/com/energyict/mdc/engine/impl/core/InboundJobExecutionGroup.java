@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
@@ -38,7 +39,7 @@ public class InboundJobExecutionGroup extends JobExecution {
     }
 
     @Override
-    protected ComPortRelatedComChannel findOrCreateComChannel() throws ConnectionException {
+    protected ComPortRelatedComChannel findOrCreateComChannel(ConnectionTaskPropertyProvider connectionTaskPropertyProvider) throws ConnectionException {
         return this.inboundDiscoveryContext.getComChannel();
     }
 

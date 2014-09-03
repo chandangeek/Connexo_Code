@@ -8,6 +8,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -131,6 +132,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
 //    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
 //        return null;
 //    }
+
+    @Override
+    public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask) {
+        return this.actual.findProperties(connectionTask);
+    }
 
     @Override
     public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
@@ -338,6 +344,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
 //        public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
 //            return null;
 //        }
+
+        @Override
+        public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask) {
+            return null;
+        }
 
         @Override
         public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {

@@ -71,6 +71,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -198,7 +199,7 @@ public class JobExecutionTest {
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        when(connectionTask.connect(comPort)).thenReturn(new VoidComChannel());
+        when(connectionTask.connect(eq(comPort), anyList())).thenReturn(new VoidComChannel());
         doNothing().when(comServerDAO).executionCompleted(comTaskExecution);
         when(comPort.getComServer()).thenReturn(this.comServer);
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
@@ -475,6 +476,7 @@ public class JobExecutionTest {
                         jobExecution,
                         this.connectionTask,
                         this.comPort,
+                        false,
                         this.serviceProvider);
         executionContext.setLogger(logger);
         return executionContext;

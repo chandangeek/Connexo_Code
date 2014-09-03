@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -82,6 +83,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     private ComCommandLogger comCommandLogger;
     private ComPort comPort;
     private ConnectionTask<?, ?> connectionTask;
+    private ConnectionTaskPropertyCache connectionTaskPropertyCache = new ConnectionTaskPropertyCache();
     private ComTaskExecution comTaskExecution;
     private Logger logger;
 
@@ -103,7 +105,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.serviceProvider = serviceProvider;
         this.sessionBuilder = serviceProvider.deviceDataService().buildComSession(this.connectionTask, this.connectionTask.getComPortPool(), this.comPort, serviceProvider.clock().now());
         if (logConnectionProperties && this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
-            this.addConnectionPropertiesAsJournalEntries(this.connectionTask);
+            this.addConnectionPropertiesAsJournalEntries();
         }
         this.logger = Logger.getAnonymousLogger();  // Start with an anonymous one, refine it later
     }
@@ -189,7 +191,7 @@ public final class ExecutionContext implements JournalEntryFactory {
             this.connecting = new StopWatch();
             this.executing = new StopWatch();
             this.executing.stop();  // Do not auto start but start it manually as soon as execution starts.
-            this.setComPortRelatedComChannel(this.jobExecution.findOrCreateComChannel());
+            this.setComPortRelatedComChannel(this.jobExecution.findOrCreateComChannel(this.connectionTaskPropertyCache));
             this.getComServerDAO().executionStarted(this.connectionTask, this.comPort.getComServer());
             return this.jobExecution.isConnected();
         }
@@ -325,8 +327,9 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
-    private void addConnectionPropertiesAsJournalEntries(ConnectionTask<?, ?> connectionTask) {
-        List<ConnectionTaskProperty> connectionProperties = connectionTask.getProperties();
+    private void addConnectionPropertiesAsJournalEntries() {
+        List<ConnectionTaskProperty> connectionProperties = this.getConnectionTaskProperties();
+        this.connectionTaskPropertyCache.setProperties(connectionProperties);
         if (!connectionProperties.isEmpty()) {
             StringBuilder builder = new StringBuilder("Connection properties: ");
             Holder<String> separator = HolderBuilder.first("").andThen(", ");
@@ -336,6 +339,10 @@ public final class ExecutionContext implements JournalEntryFactory {
             }
             sessionBuilder.addJournalEntry(now(), builder.toString(), null);
         }
+    }
+
+    private List<ConnectionTaskProperty> getConnectionTaskProperties() {
+        return this.getComServerDAO().findProperties(this.connectionTask);
     }
 
     private void addProtocolDialectPropertiesAsJournalEntries(ComTaskExecution comTaskExecution) {
@@ -475,4 +482,26 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
         return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, this.serviceProvider.issueService());
     }
+
+    private class ConnectionTaskPropertyCache implements ConnectionTaskPropertyProvider {
+        private List<ConnectionTaskProperty> properties;
+
+        @Override
+        public List<ConnectionTaskProperty> getProperties() {
+            if (this.properties == null) {
+                this.setProperties(getConnectionTaskProperties());
+            }
+            return this.properties;
+        }
+
+        public void setProperties(List<ConnectionTaskProperty> properties) {
+            this.properties = properties;
+        }
+
+        @Override
+        public TypedProperties getTypedProperties() {
+            return TypedProperties.empty();
+        }
+    }
+
 }
