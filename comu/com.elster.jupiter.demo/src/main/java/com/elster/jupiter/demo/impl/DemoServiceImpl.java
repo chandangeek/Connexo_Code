@@ -12,6 +12,8 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.*;
 import com.energyict.mdc.masterdata.*;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -28,6 +30,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
+import org.joda.time.DateTimeConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -64,17 +67,19 @@ public class DemoServiceImpl implements DemoService {
     public static final String LOG_BOOK_TYPES_POWER_FAILURES = "Power Failures";
     public static final String LOG_BOOK_TYPES_FRAUD_DETECTIONS = "Fraud Detections";
 
-    public static final String COM_TASK_READ_ALL = "ReadAll";
-    public static final String COM_TASK_FORCE_CLOCK = "Force Clock";
-    public static final String COM_TASK_READ_DAILY = "Read Daily";
+    public static final String COM_TASK_READ_ALL = "Read all";
+    public static final String COM_TASK_FORCE_CLOCK = "Force clock";
+    public static final String COM_TASK_READ_DAILY = "Read daily";
     public static final String COM_TASK_TOPOLOGY = "Topology";
-    public static final String COM_TASK_READ_REGISTER_DATA = "Read Register data";
-    public static final String COM_TASK_READ_LOAD_PROFILE_DATA = "Read LoadProfile data";
+    public static final String COM_TASK_READ_REGISTER_BILLING_DATA = "Read register billing data";
+    public static final String COM_TASK_READ_LOAD_PROFILE_DATA = "Read load profile data";
 
     public static final String OUTBOUND_TCP_POOL_NAME = "Outbound TCP Pool";
 
-    public static final String COM_SCHEDULE_READ_DEFAULT_GROUP_DAILY = "Read default group daily";
-    public static final String COM_SCHEDULE_READ_TARIFFS_MOUNTHLY = "Read tariffs mounthly";
+    public static final String COM_SCHEDULE_DAILY_READ_ALL = "Daily read all";
+    public static final String COM_SCHEDULE_MOUNTHLY_BILLING_DATA = "Mounthly billing data";
+
+    private static final String[] DEVICE_TYPES_NAMES = {"Elster AS1440", "Elster AS3000", "Landis+Gyr ZMD", "Actaris SL7000", "Siemens 7ED", "Iskra 382"};
 
     private final Boolean rethrowExceptions;
     private volatile EngineModelService engineModelService;
@@ -87,8 +92,6 @@ public class DemoServiceImpl implements DemoService {
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceDataService deviceDataService;
     private volatile SchedulingService schedulingService;
-
-    private int deviceTypeCount = 0;
 
     public DemoServiceImpl() {
         rethrowExceptions = Boolean.FALSE;
@@ -133,7 +136,7 @@ public class DemoServiceImpl implements DemoService {
                 InboundComPortPool inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool 099");
                 createInboundServletPort("Inbound Servlet 099", 4444, comServer, inboundServletComPortPool);
 
-                comServer = createComServer(comServerName);
+                comServer = createComServer(comServerName.toUpperCase());
                 outboundTCPPort = createOutboundTcpComPort("Outbound TCP", comServer);
                 store.getOutboundComPortPools().put(OUTBOUND_TCP_POOL_NAME,createOutboundTcpComPortPool(OUTBOUND_TCP_POOL_NAME, outboundTCPPort));
                 inboundServletComPortPool = createInboundServletComPortPool("Inbound Servlet Pool");
@@ -335,10 +338,13 @@ public class DemoServiceImpl implements DemoService {
         topology.save();
         store.getComTasks().put(COM_TASK_TOPOLOGY, topology);
 
-        ComTask readRegisterData = taskService.newComTask(COM_TASK_READ_REGISTER_DATA);
-        readRegisterData.createRegistersTask().registerGroups(Collections.singletonList(store.getRegisterGroups().get(REGISTER_GROUP_DEFAULT_GROUP))).add();
+        ComTask readRegisterData = taskService.newComTask(COM_TASK_READ_REGISTER_BILLING_DATA);
+        List<RegisterGroup> regGroupsToComTask = new ArrayList<>(2);
+        regGroupsToComTask.add(store.getRegisterGroups().get(REGISTER_GROUP_TARIFF_1));
+        regGroupsToComTask.add(store.getRegisterGroups().get(REGISTER_GROUP_TARIFF_2));
+        readRegisterData.createRegistersTask().registerGroups(regGroupsToComTask).add();
         readRegisterData.save();
-        store.getComTasks().put(COM_TASK_READ_REGISTER_DATA, readRegisterData);
+        store.getComTasks().put(COM_TASK_READ_REGISTER_BILLING_DATA, readRegisterData);
 
         ComTask readLoadProfileData = taskService.newComTask(COM_TASK_READ_LOAD_PROFILE_DATA);
         readLoadProfileData.createLoadProfilesTask().loadProfileTypes(new ArrayList<LoadProfileType>(store.getLoadProfileTypes().values())).add();
@@ -348,12 +354,13 @@ public class DemoServiceImpl implements DemoService {
 
     private void createCommunicationSchedules(Store store){
         System.out.println("==> Creating Communication Schedules...");
-        createCommunicationSchedule(store, COM_SCHEDULE_READ_DEFAULT_GROUP_DAILY, COM_TASK_READ_REGISTER_DATA, TimeDuration.days(1));
-        createCommunicationSchedule(store, COM_SCHEDULE_READ_TARIFFS_MOUNTHLY, COM_TASK_READ_DAILY, TimeDuration.months(1));
+        createCommunicationSchedule(store, COM_SCHEDULE_DAILY_READ_ALL, COM_TASK_READ_ALL, TimeDuration.days(1));
+        createCommunicationSchedule(store, COM_SCHEDULE_MOUNTHLY_BILLING_DATA, COM_TASK_READ_REGISTER_BILLING_DATA, TimeDuration.months(1));
     }
 
     private void createCommunicationSchedule(Store store, String comScheduleName, String taskName, TimeDuration every) {
-        ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleName, new TemporalExpression(every), new UtcInstant(new Date())).build();
+        long timeBefore = System.currentTimeMillis() - every.getMilliSeconds() - DateTimeConstants.MILLIS_PER_DAY;
+        ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleName, new TemporalExpression(every), new UtcInstant(timeBefore)).build();
         comSchedule.addComTask(store.getComTasks().get(taskName));
         comSchedule.save();
         store.getComSchedules().put(comScheduleName, comSchedule);
@@ -361,14 +368,14 @@ public class DemoServiceImpl implements DemoService {
 
     public void createDeviceTypes(Store store) {
         for (int i=0; i < 6; i++){
-            createDeviceType(store);
+            createDeviceType(store, i);
         }
     }
 
-    public void createDeviceType(Store store) {
+    public void createDeviceType(Store store, int deviceTypeCount) {
         System.out.println("==> Creating Create device types...");
         DeviceProtocolPluggableClass webRTUprotocol = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(WebRTUKP.class.getName()).get(0);
-        DeviceType deviceType = deviceConfigurationService.newDeviceType("Elster AMR " + String.format("%03d", ++deviceTypeCount), webRTUprotocol);
+        DeviceType deviceType = deviceConfigurationService.newDeviceType(DEVICE_TYPES_NAMES[deviceTypeCount], webRTUprotocol);
         deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
         deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
         deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
@@ -411,7 +418,7 @@ public class DemoServiceImpl implements DemoService {
         addConnectionMethodToDeviceConfiguration(store, configuration);
         createSecurityPropertySetForDeviceConfiguration(configuration);
         setProtocolDialectConfigurationProperties(configuration);
-        enableComTasksOnDeviceConfiguration(configuration, store, COM_TASK_READ_DAILY, COM_TASK_TOPOLOGY, COM_TASK_READ_REGISTER_DATA);
+        enableComTasksOnDeviceConfiguration(configuration, store, COM_TASK_READ_DAILY, COM_TASK_TOPOLOGY, COM_TASK_READ_REGISTER_BILLING_DATA, COM_TASK_READ_ALL);
         configureChannelsForLoadProfileSpec(configuration);
         configuration.activate();
         configuration.save();
@@ -435,6 +442,7 @@ public class DemoServiceImpl implements DemoService {
     private ProtocolDialectConfigurationProperties setProtocolDialectConfigurationProperties(DeviceConfiguration configuration) {
         ProtocolDialectConfigurationProperties configurationProperties = configuration.getProtocolDialectConfigurationPropertiesList().get(0);
         configurationProperties.setProperty("NTASimulationTool", "1");
+        configurationProperties.setProperty("SecurityLevel", "0:0");
         configurationProperties.save();
         return configurationProperties;
     }
@@ -470,7 +478,7 @@ public class DemoServiceImpl implements DemoService {
 
         createSecurityPropertySetForDeviceConfiguration(configuration);
         setProtocolDialectConfigurationProperties(configuration);
-        enableComTasksOnDeviceConfiguration(configuration, store, COM_TASK_READ_ALL, COM_TASK_READ_DAILY, COM_TASK_READ_REGISTER_DATA);
+        enableComTasksOnDeviceConfiguration(configuration, store, COM_TASK_READ_ALL, COM_TASK_READ_DAILY, COM_TASK_READ_REGISTER_BILLING_DATA);
         configureChannelsForLoadProfileSpec(configuration);
         configuration.activate();
         configuration.save();
@@ -485,7 +493,7 @@ public class DemoServiceImpl implements DemoService {
 
     private void addConnectionMethodToDeviceConfiguration(Store store, DeviceConfiguration configuration) {
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp");
-        configuration.getCommunicationConfiguration()
+        PartialScheduledConnectionTask connectionTask = configuration.getCommunicationConfiguration()
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
                 .addProperty("host", store.getProperties().get("host"))
@@ -517,10 +525,24 @@ public class DemoServiceImpl implements DemoService {
         device.setSerialNumber(serialNumber);
         calendar.set(2014, 1, 1);
         device.setYearOfCertification(calendar.getTime());
-        device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_READ_DEFAULT_GROUP_DAILY)).add();
-        device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_READ_TARIFFS_MOUNTHLY)).add();
+        device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_DAILY_READ_ALL)).add();
+        device.newScheduledComTaskExecution(store.getComSchedules().get(COM_SCHEDULE_MOUNTHLY_BILLING_DATA)).add();
         device.save();
+        addConnectionMethodToDevice(store, configuration, device);
+    }
 
+    private void addConnectionMethodToDevice(Store store, DeviceConfiguration configuration, Device device) {
+        PartialScheduledConnectionTask connectionTask = configuration.getCommunicationConfiguration().getPartialOutboundConnectionTasks().get(0);
+        ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
+                .setComPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .setNextExecutionSpecsFrom(null)
+                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                .setProperty("host", store.getProperties().get("host"))
+                .setProperty("portNumber", new BigDecimal(4059))
+                .setSimultaneousConnectionsAllowed(false)
+                .add();
+        deviceDataService.setDefaultConnectionTask(deviceConnectionTask);
     }
 
     @Reference
