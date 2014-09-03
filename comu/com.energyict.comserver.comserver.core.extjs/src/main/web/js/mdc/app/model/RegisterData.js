@@ -47,7 +47,7 @@ Ext.define('Mdc.model.RegisterData', {
                         } else {
                             prop = '';
                         }
-                        if (rule.name === 'Removed rule') {
+                        if (rule.name === 'removed rule') {
                             str += rule.name + '<br>';
                         } else {
                             str += '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>' + prop + '<br>';
