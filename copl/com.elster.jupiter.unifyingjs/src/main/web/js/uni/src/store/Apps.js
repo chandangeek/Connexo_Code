@@ -10,29 +10,10 @@ Ext.define('Uni.store.Apps', {
 
     proxy: {
         type: 'ajax',
-        url: '/api/apps',
+        url: '/api/apps/apps',
         reader: {
             type: 'json',
             root: ''
         }
-    },
-
-    // TODO Remove the test data when the REST interface is ready.
-    data: [
-        {
-            name: 'Lorem ipsum',
-            icon: 'connexo',
-            url: '/apps/master/index.html'
-        },
-        {
-            name: 'Vivamus consequat',
-            icon: 'devices',
-            url: '#'
-        },
-        {
-            name: 'Pellentesque varius',
-            icon: '',
-            url: '#'
-        }
-    ]
+    }
 });
