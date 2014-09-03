@@ -7,6 +7,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigurationComparator;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -14,6 +15,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.google.common.base.Optional;
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
@@ -41,6 +43,7 @@ public class RegisterConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_REGISTER_CONFIG)
     public PagedInfoList getRegisterConfigs(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -52,12 +55,14 @@ public class RegisterConfigurationResource {
     @GET
     @Path("/{registerId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_REGISTER_CONFIG)
     public RegisterConfigInfo getRegisterConfigs(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerId") long registerId) {
         return RegisterConfigInfo.from(findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerId));
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_REGISTER_CONFIG)
     public Response createRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, RegisterConfigInfo registerConfigInfo) {
         // Todo: find out if a numerical or a textual register needs to be created
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -89,6 +94,7 @@ public class RegisterConfigurationResource {
     @PUT
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_REGISTER_CONFIG)
     public RegisterConfigInfo updateRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerConfigId, RegisterConfigInfo registerConfigInfo) {
         RegisterSpec registerSpec = findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerConfigId);
         RegisterType registerType = registerConfigInfo.registerType ==null?null:resourceHelper.findRegisterTypeByIdOrThrowException(registerConfigInfo.registerType);
@@ -106,6 +112,7 @@ public class RegisterConfigurationResource {
     @DELETE
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.DELETE_REGISTER_CONFIG)
     public Response deleteRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerTypeId) {
         RegisterSpec registerSpec = findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerTypeId);
         registerSpec.getDeviceConfiguration().deleteRegisterSpec(registerSpec);

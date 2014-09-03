@@ -17,12 +17,14 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -83,6 +85,7 @@ public class DeviceConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("deviceTypeId") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<DeviceConfiguration> deviceConfigurations;
@@ -103,6 +106,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public DeviceConfigurationInfo getDeviceConfigurationsById(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
@@ -116,6 +120,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/logbookconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public Response getDeviceConfigurationsLogBookConfigurations(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -150,6 +155,7 @@ public class DeviceConfigurationResource {
     @POST
     @Path("/{deviceConfigurationId}/logbookconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
     public Response createLogBooksSpecForDeviceConfiguartion(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -172,6 +178,7 @@ public class DeviceConfigurationResource {
     @DELETE
     @Path("/{deviceConfigurationId}/logbookconfigurations/{logBookSpecId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
     public Response deleteLogBooksSpecFromDeviceConfiguartion(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -196,6 +203,7 @@ public class DeviceConfigurationResource {
     @Path("/{deviceConfigurationId}/logbookconfigurations/{logBookSpecId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
     public Response editLogBookSpecForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -216,6 +224,7 @@ public class DeviceConfigurationResource {
     @DELETE
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.DELETE_DEVICE_CONFIGURATION)
     public Response deleteDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -226,6 +235,7 @@ public class DeviceConfigurationResource {
     @PUT
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
     public DeviceConfigurationInfo updateDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo deviceConfigurationInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -243,6 +253,7 @@ public class DeviceConfigurationResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_DEVICE_CONFIGURATION)
     public DeviceConfigurationInfo createDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, DeviceConfigurationInfo deviceConfigurationInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(deviceConfigurationInfo.name).
@@ -290,6 +301,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/comtasks")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public PagedInfoList getComTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         return comTaskEnablementResourceProvider.get().getComTasks(deviceTypeId, deviceConfigurationId, queryParameters, uriInfo);
     }
@@ -297,6 +309,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/registers/{registerId}/validationrules")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public Response getValidationRulesForRegister(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -312,6 +325,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/channels/{channelId}/validationrules")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public Response getValidationRulesForChannel(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -327,6 +341,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/loadprofiles/{loadProfileId}/validationrules")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public Response getValidationRulesForLoadProfile(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -344,6 +359,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/validationrulesets")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public Response getValidationsRuleSets(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -362,6 +378,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/linkablevalidationrulesets")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public Response getLinkableValidationsRuleSets(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -385,6 +402,7 @@ public class DeviceConfigurationResource {
     @DELETE
     @Path("/{deviceConfigurationId}/validationrulesets/{validationRuleSetId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public Response deleteValidationRuleSetFromDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -402,6 +420,7 @@ public class DeviceConfigurationResource {
     @POST
     @Path("/{deviceConfigurationId}/validationrulesets")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
     public Response addRuleSetsToDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,

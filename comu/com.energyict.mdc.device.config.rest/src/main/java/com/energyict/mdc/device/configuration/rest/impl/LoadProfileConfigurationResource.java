@@ -6,12 +6,14 @@ import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -35,6 +37,7 @@ public class LoadProfileConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_LOAD_PROFILE_CONFIG)
     public Response getLoadProfileSpecsForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -53,6 +56,7 @@ public class LoadProfileConfigurationResource {
     @GET
     @Path("/available")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_LOAD_PROFILE_CONFIG)
     public Response getAvailableLoadProfileSpecsForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -66,6 +70,7 @@ public class LoadProfileConfigurationResource {
     @GET
     @Path("/{loadProfileSpecId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_LOAD_PROFILE_CONFIG)
     public Response getLoadProfileSpec(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -78,6 +83,7 @@ public class LoadProfileConfigurationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_LOAD_PROFILE_CONFIG)
     public Response createLoadProfileSpecForDeviceConfiguartion(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -101,6 +107,7 @@ public class LoadProfileConfigurationResource {
     @Path("/{loadProfileSpecId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_LOAD_PROFILE_CONFIG)
     public Response editLoadProfileSpecOnDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -118,6 +125,7 @@ public class LoadProfileConfigurationResource {
     @DELETE
     @Path("/{loadProfileSpecId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.DELETE_LOAD_PROFILE_CONFIG)
     public Response deleteLoadProfileSpecFromDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -133,6 +141,7 @@ public class LoadProfileConfigurationResource {
     @GET
     @Path("{loadProfileSpecId}/channels")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_LOAD_PROFILE_CONFIG)
     public Response getAllChannelsForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -147,6 +156,7 @@ public class LoadProfileConfigurationResource {
     @GET
     @Path("{loadProfileSpecId}/channels/{channelId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_LOAD_PROFILE_CONFIG)
     public Response getChannelForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -164,6 +174,7 @@ public class LoadProfileConfigurationResource {
     @Path("{loadProfileSpecId}/channels")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_LOAD_PROFILE_CONFIG)
     public Response createChannelForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -189,6 +200,7 @@ public class LoadProfileConfigurationResource {
     @Path("{loadProfileSpecId}/channels/{channelId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_LOAD_PROFILE_CONFIG)
     public Response editChannelSpecOnDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -217,6 +229,7 @@ public class LoadProfileConfigurationResource {
     @DELETE
     @Path("{loadProfileSpecId}/channels/{channelId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_LOAD_PROFILE_CONFIG)
     public Response deleteChannelSpecFromDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -233,6 +246,7 @@ public class LoadProfileConfigurationResource {
     @GET
     @Path("{loadProfileSpecId}/measurementTypes")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_LOAD_PROFILE_CONFIG)
     public Response getAvailableMeasurementTypesForChannel(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,

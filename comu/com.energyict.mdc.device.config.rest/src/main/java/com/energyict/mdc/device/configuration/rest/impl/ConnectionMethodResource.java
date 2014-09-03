@@ -9,6 +9,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -65,6 +67,7 @@ public class ConnectionMethodResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public PagedInfoList getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                               @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                               @BeanParam QueryParameters queryParameters,
@@ -103,6 +106,7 @@ public class ConnectionMethodResource {
     @GET
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public ConnectionMethodInfo<?> getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                                      @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                                      @PathParam("connectionMethodId") long connectionMethodId,
@@ -115,6 +119,7 @@ public class ConnectionMethodResource {
 
     @DELETE
     @Path("/{connectionMethodId}")
+    @RolesAllowed(Privileges.DELETE_DEVICE_CONFIGURATION)
     public Response deleteConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                             @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                             @PathParam("connectionMethodId") long connectionMethodId) {
@@ -128,6 +133,7 @@ public class ConnectionMethodResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_DEVICE_CONFIGURATION)
     public Response createConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                            @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                            @Context UriInfo uriInfo,
@@ -142,6 +148,7 @@ public class ConnectionMethodResource {
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
     public Response updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                                        @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                                        @PathParam("connectionMethodId") long connectionMethodId,

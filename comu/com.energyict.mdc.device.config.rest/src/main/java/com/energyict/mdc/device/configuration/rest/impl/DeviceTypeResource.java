@@ -13,6 +13,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
@@ -26,6 +27,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -78,6 +80,7 @@ public class DeviceTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_TYPE)
     public PagedInfoList getAllDeviceTypes(@BeanParam QueryParameters queryParameters) {
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
         List<DeviceType> allDeviceTypes = deviceTypeFinder.from(queryParameters).find();
@@ -88,6 +91,7 @@ public class DeviceTypeResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.DELETE_DEVICE_TYPE)
     public Response deleteDeviceType(@PathParam("id") long id) throws SQLException, BusinessException {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         deviceType.delete();
@@ -98,6 +102,7 @@ public class DeviceTypeResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_DEVICE_TYPE)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.deviceProtocolPluggableClassName);
         if (Checks.is(deviceTypeInfo.deviceProtocolPluggableClassName).emptyOrOnlyWhiteSpace()) {
@@ -115,6 +120,7 @@ public class DeviceTypeResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_DEVICE_TYPE)
     public DeviceTypeInfo updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         deviceType.setName(deviceTypeInfo.name);
@@ -129,6 +135,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_TYPE)
     public DeviceTypeInfo findDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes());
@@ -143,6 +150,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/logbooktypes")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_TYPE)
     public Response getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<LogBookType> resultLogBookTypes = deviceType.getLogBookTypes();
@@ -172,6 +180,7 @@ public class DeviceTypeResource {
     @POST
     @Path("/{id}/logbooktypes")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_DEVICE_TYPE)
     public Response addLogBookTypesForDeviceType(@PathParam("id") long id, List<Long> ids) {
         if (ids.isEmpty()) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOGBOOK_TYPE_ID_FOR_ADDING);
@@ -193,6 +202,7 @@ public class DeviceTypeResource {
     @DELETE
     @Path("/{id}/logbooktypes/{lbid}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_DEVICE_TYPE)
     public Response deleteLogbookTypeFromDeviceType(@PathParam("id") long id, @PathParam("lbid") long lbid) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Optional<LogBookType> logBookTypeRef = masterDataService.findLogBookType(lbid);
@@ -226,6 +236,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_TYPE)
     public PagedInfoList getRegisterTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         String available = availableFilter.getFilterProperties().get("available");
@@ -274,6 +285,7 @@ public class DeviceTypeResource {
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_DEVICE_TYPE)
     public List<RegisterTypeInfo> linkRegisterTypesToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
 
@@ -287,6 +299,7 @@ public class DeviceTypeResource {
     @DELETE
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_DEVICE_TYPE)
     public Response unlinkRegisterTypesFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         if (getRegisterTypeById(deviceType.getRegisterTypes(), registerTypeId)==null) {

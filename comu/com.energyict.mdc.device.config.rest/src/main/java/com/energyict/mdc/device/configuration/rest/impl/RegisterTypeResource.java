@@ -14,7 +14,10 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 
+import com.energyict.mdc.masterdata.security.Privileges;
 import com.google.common.base.Optional;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -47,6 +50,7 @@ public class RegisterTypeResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_REGISTER_TYPE)
     public PagedInfoList getRegisterTypes(@BeanParam QueryParameters queryParameters) {
         List<RegisterType> registerTypes = this.masterDataService.findAllRegisterTypes().from(queryParameters).find();
         List<RegisterTypeInfo> registerTypeInfos = new ArrayList<>();
@@ -59,6 +63,7 @@ public class RegisterTypeResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_REGISTER_TYPE)
     public RegisterTypeInfo getRegisterType(@PathParam("id") long id) {
         RegisterType registerType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
         return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
@@ -66,6 +71,7 @@ public class RegisterTypeResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed(Privileges.DELETE_REGISTER_TYPE)
     public Response deleteRegisterType(@PathParam("id") long id) {
         MeasurementType measurementType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
         measurementType.delete();
@@ -75,6 +81,7 @@ public class RegisterTypeResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_REGISTER_TYPE)
     public RegisterTypeInfo createRegisterType(RegisterTypeInfo registerTypeInfo) {
         ReadingType readingType = findReadingType(registerTypeInfo);
         Optional<Phenomenon> phenomenon = findPhenomenonOrThrowException(registerTypeInfo);
@@ -102,6 +109,7 @@ public class RegisterTypeResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_REGISTER_TYPE)
     public RegisterTypeInfo updateRegisterType(@PathParam("id") long id, RegisterTypeInfo registerTypeInfo) {
         RegisterType registerType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
         Optional<Phenomenon> phenomenon = findPhenomenonOrThrowException(registerTypeInfo);

@@ -6,7 +6,9 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
+import com.energyict.mdc.masterdata.security.Privileges;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -43,6 +45,7 @@ public class RegisterGroupResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_REGISTER_GROUP)
     public PagedInfoList getRegisterGroups(@BeanParam QueryParameters queryParameters) {
         List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups().from(queryParameters).find();
         List<RegisterGroupInfo> registerGroupInfos = new ArrayList<>();
@@ -56,6 +59,7 @@ public class RegisterGroupResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_REGISTER_GROUP)
     public RegisterGroupInfo getRegisterGroup(@PathParam("id") long id) {
         return new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
     }
@@ -63,6 +67,7 @@ public class RegisterGroupResource {
     @GET
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_REGISTER_GROUP)
     public PagedInfoList getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
         List<RegisterTypeInfo> registerTypeInfos = registerGroupInfo.registerTypes;
@@ -74,6 +79,7 @@ public class RegisterGroupResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed(Privileges.DELETE_REGISTER_GROUP)
     public Response deleteRegisterGroup(@PathParam("id") long id) {
         RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
         group.removeRegisterTypes();
@@ -84,6 +90,7 @@ public class RegisterGroupResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_REGISTER_GROUP)
     public RegisterGroupInfo createRegisterGroup(RegisterGroupInfo registerGroupInfo, @Context UriInfo uriInfo) {
         RegisterGroup newGroup = this.masterDataService.newRegisterGroup(registerGroupInfo.name);
         newGroup.save();
@@ -96,6 +103,7 @@ public class RegisterGroupResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_REGISTER_GROUP)
     public RegisterGroupInfo updateRegisterGroup(@PathParam("id") long id, RegisterGroupInfo registerGroupInfo, @Context UriInfo uriInfo) {
         boolean modified = false;
         RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
