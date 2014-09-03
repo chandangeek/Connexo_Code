@@ -14,6 +14,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
         {
             xtype: 'filter-form',
             ui: 'filter',
+//            hydrator: 'Dsh.util.FilterHydrator',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -64,19 +65,19 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     name: 'deviceType',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceType', 'DSH', 'Device type'),
                     url: 'http://localhost:8080/apps/dashboard/app/fakeData/BaseFilterFake.json'
-                },
-                {
-                    xtype: 'side-filter-date-time',
-                    itemId: 'started-between',
-                    name: 'startedBetween',
-                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.startedBetween', 'DSH', 'Started between')
-                },
-                {
-                    xtype: 'side-filter-date-time',
-                    itemId: 'finished-between',
-                    name: 'finishedBetween',
-                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.finishedBetween', 'DSH', 'Finished between')
                 }
+//                {
+//                    xtype: 'side-filter-date-time',
+//                    itemId: 'started-between',
+//                    name: 'startedBetween',
+//                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.startedBetween', 'DSH', 'Started between')
+//                },
+//                {
+//                    xtype: 'side-filter-date-time',
+//                    itemId: 'finished-between',
+//                    name: 'finishedBetween',
+//                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.finishedBetween', 'DSH', 'Finished between')
+//                }
             ],
             dockedItems: [
                 {

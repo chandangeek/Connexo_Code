@@ -1,5 +1,5 @@
 Ext.define('Dsh.view.widget.common.DateTimeField', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.form.FieldSet',
     alias: 'widget.datetime-field',
     layout: {
         type: 'vbox',
@@ -13,11 +13,14 @@ Ext.define('Dsh.view.widget.common.DateTimeField', {
     items: [
         {
             xtype: 'datefield',
+            name: 'date',
             editable: false
         },
         {
-            xtype: 'fieldcontainer',
-            fieldLabel: '&nbsp;',
+            xtype: 'fieldset',
+            name: 'hoursMinutes',
+//            fieldLabel: '&nbsp;',
+            style: 'padding-left: 30px',
             layout: 'hbox',
             defaultType: 'numberfield',
             defaults: {
@@ -38,6 +41,7 @@ Ext.define('Dsh.view.widget.common.DateTimeField', {
             },
             items: [
                 {
+                    name: 'hours',
                     maxValue: 23,
                     style: {
                         marginRight: '5px'
@@ -48,6 +52,7 @@ Ext.define('Dsh.view.widget.common.DateTimeField', {
                     }
                 },
                 {
+                    name: 'minutes',
                     maxValue: 59,
                     style: {
                         marginLeft: '5px'
