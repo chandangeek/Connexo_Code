@@ -19,6 +19,10 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
         return queryProviderName;
     }
 
+    public boolean isDynamic() {
+        return this instanceof QueryEndDeviceGroup;
+    }
+
     public void setQueryProviderName(String queryProviderName) {
         this.queryProviderName = queryProviderName;
     }

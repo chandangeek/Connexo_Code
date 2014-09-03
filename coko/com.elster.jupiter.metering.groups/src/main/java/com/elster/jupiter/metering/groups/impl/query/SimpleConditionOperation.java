@@ -45,4 +45,12 @@ public class SimpleConditionOperation extends ConditionOperation {
     public Condition toCondition(Condition... conditions) {
         return Operator.EQUAL.compare(fieldName, values);
     }
+
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public Object[] getValues() {
+        return values;
+    }
 }

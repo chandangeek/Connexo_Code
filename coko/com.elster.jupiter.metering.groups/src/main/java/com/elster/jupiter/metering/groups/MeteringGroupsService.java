@@ -3,6 +3,8 @@ package com.elster.jupiter.metering.groups;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
+import java.util.List;
+
 public interface MeteringGroupsService {
     String COMPONENTNAME = "MTG";
 
@@ -30,4 +32,6 @@ public interface MeteringGroupsService {
     EndDeviceQueryProvider getEndDeviceQueryProvider(String name);
 
     void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider);
+
+    public List<EndDeviceGroup> findEndDeviceGroups();
 }

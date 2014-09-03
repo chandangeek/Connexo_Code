@@ -5,7 +5,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.metering.groups.SearchCriteria;
 import com.elster.jupiter.metering.groups.impl.query.QueryBuilder;
+import com.elster.jupiter.metering.groups.impl.query.SimpleConditionOperation;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
@@ -104,5 +106,24 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
             operations.add((EndDeviceQueryBuilderOperation) builderOperation);
         }
         return operations;
+    }
+
+    public List<SearchCriteria> getSearchCriteria() {
+        List<SearchCriteria> result = new ArrayList<SearchCriteria>();
+        List<EndDeviceQueryBuilderOperation> operations = getOperations();
+        for (EndDeviceQueryBuilderOperation operation : operations) {
+            if (operation instanceof SimpleConditionOperation) {
+                SimpleConditionOperation condition = (SimpleConditionOperation) operation;
+                String fieldName = condition.getFieldName();
+                Object[] possibleValues = condition.getValues();
+                List values = new ArrayList();
+                for (Object object : possibleValues) {
+                    values.add(object);
+                }
+                SearchCriteria searchCriteriaInfo = new SearchCriteria(fieldName, values);
+                result.add(searchCriteriaInfo);
+            }
+        }
+        return result;
     }
 }

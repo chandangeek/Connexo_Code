@@ -117,6 +117,13 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Override
+    public List<EndDeviceGroup> findEndDeviceGroups() {
+        return dataModel.mapper(EndDeviceGroup.class).find();
+    }
+
+
+
+    @Override
     public Optional<EndDeviceGroup> findEndDeviceGroup(String mRID) {
         List<EndDeviceGroup> found = dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUAL.compare("mRID", mRID));
         return found.isEmpty() ? Optional.<EndDeviceGroup>absent() : Optional.of(found.get(0));

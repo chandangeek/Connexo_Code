@@ -20,6 +20,10 @@ public interface EndDeviceGroup {
 
     void setName(String name);
 
+    String getName();
+
+    String getMRID();
+
     void setMRID(String mrid);
 
     void setDescription(String description);
@@ -27,6 +31,8 @@ public interface EndDeviceGroup {
     void setAliasName(String aliasName);
 
     void setQueryProviderName(String queryProviderName);
+
+    boolean isDynamic();
 
 
     void save();
