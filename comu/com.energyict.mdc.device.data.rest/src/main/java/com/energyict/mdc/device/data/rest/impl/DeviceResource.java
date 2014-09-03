@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -26,6 +28,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -85,6 +88,8 @@ public class DeviceResource {
         this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
         this.comTaskExecutionResourceProvider = comTaskExecutionResourceProvider;
     }
+
+
 	
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
