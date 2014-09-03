@@ -64,10 +64,7 @@ public class MasterDataApplication extends Application implements InstallService
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
-                LocalizedExceptionMapper.class,
-                EndDeviceDomainResource.class,
-                EndDeviceSubDomainResource.class,
-                EndDeviceEventOrActionResource.class
+                LocalizedExceptionMapper.class
         );
     }
 
