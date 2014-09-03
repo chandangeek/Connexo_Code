@@ -34,8 +34,12 @@ Ext.define('Mdc.model.RegisterData', {
                                     prop = ' - ' + Uni.I18n.translate('device.registerData.failEqualData', 'MDC', 'Fail equal data') + ': ' + failEqualDataValue;
                                     break;
                                 case 'Interval state':
-                                    Ext.Array.each(rule.properties[0].propertyValueInfo.value, function (item) {
-                                        intervalFlagsValue += item + ', ';
+                                    Ext.Array.each(rule.properties[0].propertyValueInfo.value, function (idValue) {
+                                        Ext.Array.each(rule.properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues, function (item) {
+                                            if (idValue === item.id) {
+                                                intervalFlagsValue += item.name + ', ';
+                                            }
+                                        });
                                     });
                                     intervalFlagsValue = intervalFlagsValue.slice(0, -2);
                                     prop = ' - ' + Uni.I18n.translate('deviceloadprofiles.intervalFlags', 'MDC', 'Interval flags') + ': ' + intervalFlagsValue;
