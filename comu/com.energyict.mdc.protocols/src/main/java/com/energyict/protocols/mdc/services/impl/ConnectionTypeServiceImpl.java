@@ -27,9 +27,14 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
 
     private volatile PropertySpecService propertySpecService;
 
+    // Need default constructor for OSGi framework
+    public ConnectionTypeServiceImpl() {
+        super();
+    }
+
     @Inject
     public ConnectionTypeServiceImpl(PropertySpecService propertySpecService) {
-        super();
+        this();
         this.setPropertySpecService(propertySpecService);
     }
 
