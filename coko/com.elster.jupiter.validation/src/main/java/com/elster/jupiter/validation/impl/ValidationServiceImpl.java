@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -58,6 +57,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -402,15 +402,8 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         Query<IValidationRule> ruleQuery = getAllValidationRuleQuery();
         for (ChannelValidation channelValidation : channelValidations) {
             ValidationRuleSet ruleSet = channelValidation.getMeterActivationValidation().getRuleSet();
-            final Channel channel = channelValidation.getChannel();
             List<IValidationRule> validationRules = ruleQuery.select(Operator.EQUAL.compare("ruleSetId", ruleSet.getId()));
-            rules.addAll(FluentIterable.from(validationRules).filter(new Predicate<IValidationRule>() {
-                @Override
-                public boolean apply(IValidationRule input) {
-                    Set<ReadingType> validatedReadingTypes = input.getReadingTypes();
-                    return validatedReadingTypes.contains(channel.getMainReadingType()) || (channel.getBulkQuantityReadingType().isPresent() && validatedReadingTypes.contains(channel.getBulkQuantityReadingType().get()));
-                }
-            }).toSet());
+            rules.addAll(validationRules);
         }
         return Multimaps.index(rules, new Function<IValidationRule, ReadingQualityType>() {
             @Override
@@ -442,9 +435,23 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     private DataValidationStatus createDataValidationStatusListFor(Date timeStamp, boolean completelyValidated, List<ReadingQualityRecord> qualities, ListMultimap<ReadingQualityType, IValidationRule> validationRuleMap) {
         DataValidationStatusImpl validationStatus = new DataValidationStatusImpl(timeStamp, completelyValidated);
         for (ReadingQualityRecord quality : qualities) {
-            validationStatus.addReadingQuality(quality, validationRuleMap.get(quality.getType()));
+            validationStatus.addReadingQuality(quality, filterDuplicates(validationRuleMap.get(quality.getType())));
         }
         return validationStatus;
+    }
+
+    private List<IValidationRule> filterDuplicates(List<IValidationRule> iValidationRules) {
+        Map<String, IValidationRule> filter = new HashMap<>();
+        for (IValidationRule iValidationRule : iValidationRules) {
+            if (filter.containsKey(iValidationRule.getImplementation())) {
+                if (iValidationRule.getObsoleteDate() != null) {
+                    filter.put(iValidationRule.getImplementation(), iValidationRule);
+                }
+            } else {
+                filter.put(iValidationRule.getImplementation(), iValidationRule);
+            }
+        }
+        return new ArrayList<>(filter.values());
     }
 
     private Interval getInterval(List<? extends BaseReading> readings) {
