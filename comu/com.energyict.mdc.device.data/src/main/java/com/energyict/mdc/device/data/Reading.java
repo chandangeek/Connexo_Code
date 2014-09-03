@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingType;
 
@@ -44,5 +45,7 @@ public interface Reading {
      * @return The List of ReadingQuality
      */
     public List<ReadingQuality> getReadingQualities();
+
+    ReadingRecord getActualReading();
 
 }
