@@ -52,7 +52,7 @@ Ext.define('Mdc.model.RegisterData', {
                             prop = '';
                         }
                         if (rule.name === 'removed rule') {
-                            str += rule.name + '<br>';
+                            str += Uni.I18n.translate('device.registerData.removedRule', 'MDC', 'removed rule') + '<br>';
                         } else {
                             str += '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>' + prop + '<br>';
                         }
