@@ -53,37 +53,5 @@ public class NumericalReadingInfo extends ReadingInfo<NumericalReading, Numerica
             this.validationResult = getValidationResult(reading);
             this.suspectReason = getSuspectReason(dataValidationStatus);
         }
-
-    }
-
-    private ValidationStatus getValidationResult(NumericalReading reading) {
-        ValidationStatus validationResult = ValidationStatus.NOT_VALIDATED;
-        if(reading.isValidated()) {
-            if(reading.getReadingQualities().size() == 1 && reading.getReadingQualities().get(0).getTypeCode().equals(ReadingQualityType.MDM_VALIDATED_OK_CODE)) {
-                validationResult = ValidationStatus.OK;
-            } else {
-                validationResult = ValidationStatus.SUSPECT;
-            }
-        }
-        return validationResult;
-    }
-
-    private List<ValidationRuleInfo> getSuspectReason(DataValidationStatus dataValidationStatus) {
-        Collection<ReadingQualityRecord> readingQualityRecords = dataValidationStatus.getReadingQualities();
-        Collection<ValidationRule> validationRules = new ArrayList<>();
-        for(ReadingQualityRecord record : readingQualityRecords) {
-            validationRules.addAll(dataValidationStatus.getOffendedValidationRule(record));
-        }
-        List<ValidationRuleInfo> validationRuleInfos = new ArrayList<>(validationRules.size());
-        for(ValidationRule validationRule : validationRules) {
-            if(validationRule.getObsoleteDate() == null) {
-                validationRuleInfos.add(new ValidationRuleInfo(validationRule));
-            } else {
-                ValidationRuleInfo validationRuleInfo = new ValidationRuleInfo();
-                validationRuleInfo.name = "removed rule";
-                validationRuleInfos.add(validationRuleInfo);
-            }
-        }
-        return validationRuleInfos;
     }
 }
