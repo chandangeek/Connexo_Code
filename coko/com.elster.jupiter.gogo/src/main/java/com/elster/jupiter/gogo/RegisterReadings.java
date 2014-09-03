@@ -131,7 +131,7 @@ public class RegisterReadings {
         BigDecimal readingValue = new BigDecimal(this.random.nextDouble()).multiply(BigDecimal.TEN).multiply(BigDecimal.TEN);
         Date eventEnd = new Date(readingTimestamp.getTime() + DateTimeConstants.MILLIS_PER_DAY);
         ReadingImpl reading = new ReadingImpl(readingTypeMRID, readingValue, eventEnd);
-        reading.setInterval(readingTimestamp, eventEnd);
+        reading.setTimePeriod(readingTimestamp, eventEnd);
         return reading;
     }
 

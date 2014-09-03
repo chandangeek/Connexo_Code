@@ -150,7 +150,7 @@ public class MeteringCommands {
                     System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
                 }
 
-            } catch (ParseException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
