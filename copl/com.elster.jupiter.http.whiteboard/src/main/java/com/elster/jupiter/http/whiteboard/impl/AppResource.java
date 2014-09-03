@@ -12,15 +12,15 @@ import java.util.List;
 public class AppResource {
 	@Inject
 	private WhiteBoard whiteBoard;
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<AppInfo> getPages() {
 		List<AppInfo> result = new ArrayList<>();
 
-        result.add(appInfo("Lorem ipsum", "connexo", "/apps/mdc/index.html"));
-        result.add(appInfo("Dolor amet", "devices", "/apps/system/index.html"));
-        result.add(appInfo("Alea iacta est", null, "/apps/validation/index.html"));
+        // TODO Register these pages from within the apps.
+        result.add(appInfo("Connexo System Admin", "connexo", "/apps/systemadmin/index.html"));
+        result.add(appInfo("Connexo Multi Sense", "connexo", "/apps/multisense/index.html"));
 
 		return result;
 	}
