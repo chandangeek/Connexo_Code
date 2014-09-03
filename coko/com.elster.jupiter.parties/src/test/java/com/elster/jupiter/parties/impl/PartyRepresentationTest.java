@@ -2,11 +2,9 @@ package com.elster.jupiter.parties.impl;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import java.util.Date;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -32,11 +30,6 @@ public class PartyRepresentationTest {
     Clock clock;
     @Mock
     UserService userService;
-    
-    @SuppressWarnings("unchecked")
-	@Before
-    public void setUp() {
-    }
 
     @Test
     public void testCreation() {

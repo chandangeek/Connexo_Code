@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;

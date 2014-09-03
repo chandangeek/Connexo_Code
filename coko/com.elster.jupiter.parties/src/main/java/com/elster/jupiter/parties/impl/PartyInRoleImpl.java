@@ -1,6 +1,12 @@
 package com.elster.jupiter.parties.impl;
 
-import com.elster.jupiter.orm.DataModel;
+import static com.google.common.base.Objects.toStringHelper;
+
+import java.util.Date;
+import java.util.Objects;
+
+import javax.inject.Inject;
+
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
@@ -9,13 +15,6 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
-
-import static com.google.common.base.Objects.*;
-
-import java.util.Date;
-import java.util.Objects;
-
-import javax.inject.Inject;
 
 public class PartyInRoleImpl implements PartyInRole {
 	
