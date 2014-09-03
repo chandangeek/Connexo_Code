@@ -235,6 +235,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         if (date == null) {
             throw new IllegalArgumentException("Last Checked Date is absent");
         }
+        manageMeterActivationValidations(meterActivation);
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(meterActivation);
         for (IMeterActivationValidation validation : validations) {
             validation.updateLastChecked(date);
