@@ -20,7 +20,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -32,8 +31,6 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/devices")
 public class DeviceResource {
@@ -47,11 +44,12 @@ public class DeviceResource {
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
+    private final Provider<LogBookResource> logBookResourceProvider;
     private final Provider<DeviceValidationResource> deviceValidationResourceProvider;
     private final Provider<RegisterResource> registerResourceProvider;
     private final Provider<BulkScheduleResource> bulkScheduleResourceProvider;
+    private final Provider<ComtaskExecutionResource> comTaskExecutionResourceProvider;
     private final ExceptionFactory exceptionFactory;
-    private final Thesaurus thesaurus;
 
     @Inject
     public DeviceResource(
@@ -64,10 +62,13 @@ public class DeviceResource {
             EngineModelService engineModelService,
             MdcPropertyUtils mdcPropertyUtils,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
-            Provider<LoadProfileResource> loadProfileResourceProvider, Provider<RegisterResource> registerResourceProvider,
+            Provider<LoadProfileResource> loadProfileResourceProvider,
+            Provider<LogBookResource> logBookResourceProvider,
+            Provider<RegisterResource> registerResourceProvider,
             ExceptionFactory exceptionFactory,
             Provider<DeviceValidationResource> deviceValidationResourceProvider,
             Provider<BulkScheduleResource> bulkScheduleResourceProvider,
+            Provider<ComtaskExecutionResource> comTaskExecutionResourceProvider,
             Thesaurus thesaurus) {
 
         this.resourceHelper = resourceHelper;
@@ -80,11 +81,12 @@ public class DeviceResource {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileResourceProvider = loadProfileResourceProvider;
+        this.logBookResourceProvider = logBookResourceProvider;
         this.registerResourceProvider = registerResourceProvider;
         this.deviceValidationResourceProvider = deviceValidationResourceProvider;
         this.exceptionFactory = exceptionFactory;
         this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
-        this.thesaurus = thesaurus;
+        this.comTaskExecutionResourceProvider = comTaskExecutionResourceProvider;
     }
 
 
@@ -247,9 +249,19 @@ public class DeviceResource {
     public LoadProfileResource getLoadProfileResource() {
         return loadProfileResourceProvider.get();
     }
+    
+    @Path("/{mRID}/logbooks")
+    public LogBookResource getLogBookResource() {
+        return logBookResourceProvider.get();
+    }
 
     @Path("/schedules")
     public BulkScheduleResource getBulkScheduleResource() {
         return bulkScheduleResourceProvider.get();
+    }
+
+    @Path("/{mRID}/schedules")
+    public ComtaskExecutionResource getComTaskExecutionResource() {
+        return comTaskExecutionResourceProvider.get();
     }
 }

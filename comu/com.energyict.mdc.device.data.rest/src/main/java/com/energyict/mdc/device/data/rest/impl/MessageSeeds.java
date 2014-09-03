@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.configuration.rest.impl.DeviceConfigurationApplication;
+
 import java.text.MessageFormat;
 import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
@@ -20,6 +21,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_DATE(22, "InvalidDate", "Date should be less or equal to {0}"),
     NO_SUCH_LOAD_PROFILE_ON_DEVICE(23, "NoSuchLoadProfile", "Device {0} has no load profile {1}"),
     NO_SUCH_CHANNEL_ON_LOAD_PROFILE(30, "NoSuchChannel", "Load profile {0} has no channel {1}"),
+    NO_SUCH_LOG_BOOK_ON_DEVICE(24, "NoSuchLogBook", "Device {0} has no log book {1}"),
+    
     POWERDOWN(31, ProfileStatus.Flag.POWERDOWN.name(), "Power down"),
     POWERUP(32, ProfileStatus.Flag.POWERUP.name(), "Power up"),
     SHORTLONG(33, ProfileStatus.Flag.SHORTLONG.name(), "Short long"),
@@ -40,6 +43,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_ERROR(58, ProfileStatus.Flag.DEVICE_ERROR.name(), "Device error"),
     BATTERY_LOW(59, ProfileStatus.Flag.BATTERY_LOW.name(), "Battery low"),
     TEST(60, ProfileStatus.Flag.TEST.name(), "Test"),
+    NULL_DATE(61, "NullDate", "Date must be filled in"),
+    DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(62, "DeactivateValidationRuleSetNotPossible", "Deactivate of validation rule set {0} is currently not possible.")
 
     ;
 

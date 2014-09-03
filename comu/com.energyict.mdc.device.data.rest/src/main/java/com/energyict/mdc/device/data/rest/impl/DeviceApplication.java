@@ -78,6 +78,8 @@ public class DeviceApplication extends Application implements InstallService{
                 DeviceValidationResource.class,
                 LoadProfileResource.class,
                 BulkScheduleResource.class,
+                ComtaskExecutionResource.class,
+                LogBookResource.class,
                 DeviceGroupResource.class
         );
     }
@@ -157,11 +159,6 @@ public class DeviceApplication extends Application implements InstallService{
     }
 
     @Reference
-    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
-        this.meteringGroupsService = meteringGroupsService;
-    }
-
-    @Reference
     public void setClockService(Clock clock) {
         this.clock = clock;
     }
@@ -195,7 +192,6 @@ public class DeviceApplication extends Application implements InstallService{
             bind(schedulingService).to(SchedulingService.class);
             bind(validationService).to(ValidationService.class);
             bind(meteringService).to(MeteringService.class);
-            bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(clock).to(Clock.class);
         }
     }

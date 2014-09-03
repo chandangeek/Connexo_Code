@@ -1,8 +1,57 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+
+import org.assertj.core.data.MapEntry;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.TestProperties;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -30,6 +79,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -37,51 +87,15 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.rest.EndDeviceEventTypeInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
-import org.assertj.core.data.MapEntry;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.MapMaker;
 
 /**
  * Created by bvn on 6/19/14.
@@ -132,6 +146,7 @@ public class DeviceResourceTest extends JerseyTest {
                 ResourceHelper.class,
                 DeviceResource.class,
                 LoadProfileResource.class,
+                LogBookResource.class,
                 BulkScheduleResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
@@ -619,6 +634,247 @@ public class DeviceResourceTest extends JerseyTest {
         assertThat(interval.get("start")).isEqualTo(startTime);
         assertThat(interval.get("end")).isEqualTo(startTime+900);
     }
+    
+    @Test
+    public void testGetAllLogBooksReturnsEmptyList() {
+        Device device = mock(Device.class);
+        when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
+        Map response = target("/devices/mrid/logbooks").queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        
+        assertThat(response)
+            .contains(MapEntry.entry("total", 0))
+            .containsKey("data");
+    }
+    
+    @Test
+    public void testGetAllLogBooks() {
+        Date lastLogBook = new Date();
+        Date lastReading = new Date();
+        
+        Device device = mock(Device.class);
+        List<LogBook> logBooks = new ArrayList<>();
+        logBooks.add(mockLogBook("C_LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", lastLogBook, lastReading));
+        logBooks.add(mockLogBook("B_LogBook", 2L, "0.0.0.0.0.3", "0.0.0.0.0.4", lastLogBook, lastReading));
+        logBooks.add(mockLogBook("A_LogBook", 3L, "0.0.0.0.0.5", "0.0.0.0.0.6", lastLogBook, lastReading));
+
+        when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(device.getLogBooks()).thenReturn(logBooks);
+        
+        Map response = target("/devices/mrid/logbooks").queryParam("start", 0).queryParam("limit", 2).request().get(Map.class);
+        
+        assertThat(response)
+            .contains(MapEntry.entry("total", 3))
+            .containsKey("data");
+        
+        assertThat((List)response.get("data")).hasSize(2);
+        
+        Map logBookInfo1 = (Map) ((List)response.get("data")).get(0);
+        assertThat(logBookInfo1)
+            .contains(MapEntry.entry("id", 3))
+            .contains(MapEntry.entry("name", "A_LogBook"))
+            .contains(MapEntry.entry("obisCode", "0.0.0.0.0.5"))
+            .contains(MapEntry.entry("overruledObisCode", "0.0.0.0.0.6"))
+            .contains(MapEntry.entry("lastEventDate", lastLogBook.getTime()))
+            .contains(MapEntry.entry("lastReading", lastReading.getTime()));
+        
+        Map logBookInfo2 = (Map) ((List)response.get("data")).get(1);
+        assertThat(logBookInfo2)
+            .contains(MapEntry.entry("id", 2))
+            .contains(MapEntry.entry("name", "B_LogBook"))
+            .contains(MapEntry.entry("obisCode", "0.0.0.0.0.3"))
+            .contains(MapEntry.entry("overruledObisCode", "0.0.0.0.0.4"))
+            .contains(MapEntry.entry("lastEventDate", lastLogBook.getTime()))
+            .contains(MapEntry.entry("lastReading", lastReading.getTime()));
+    }
+    
+    @Test
+    public void testGetLogBookById() {
+        Date lastLogBook = new Date();
+        Date lastReading = new Date();
+        
+        Device device = mock(Device.class);
+        LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", lastLogBook, lastReading);
+        EndDeviceEventRecord endDeviceEvent = mock(EndDeviceEventRecord.class);
+        EndDeviceEventType endDeviceEventType = mock(EndDeviceEventType.class);
+        
+        when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
+        when(logBook.getEndDeviceEvents(Matchers.any(Interval.class))).thenReturn(Arrays.asList(endDeviceEvent));
+        when(endDeviceEvent.getEventType()).thenReturn(endDeviceEventType);
+        when(endDeviceEventType.getMRID()).thenReturn("0.2.38.57");
+        when(endDeviceEventType.getType()).thenReturn(EndDeviceType.NA);
+        when(endDeviceEventType.getDomain()).thenReturn(EndDeviceDomain.BATTERY);
+        when(endDeviceEventType.getSubDomain()).thenReturn(EndDeviceSubDomain.VOLTAGE);
+        when(endDeviceEventType.getEventOrAction()).thenReturn(EndDeviceEventorAction.DECREASED);
+        when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
+        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                return (String) invocation.getArguments()[1];
+            }
+        });
+        
+        LogBookInfo info = target("/devices/mrid/logbooks/1").request().get(LogBookInfo.class);
+        
+        assertThat(info.id).isEqualTo(1);
+        assertThat(info.name).isEqualTo("LogBook");
+        assertThat(info.obisCode).isEqualTo(ObisCode.fromString("0.0.0.0.0.1"));
+        assertThat(info.overruledObisCode).isEqualTo(ObisCode.fromString("0.0.0.0.0.2"));
+        assertThat(info.lastEventDate).isEqualTo(lastLogBook);
+        assertThat(info.lastReading).isEqualTo(lastReading);
+        
+        EndDeviceEventTypeInfo eventType = info.lastEventType;
+        assertThat(eventType.code).isEqualTo("0.2.38.57");
+        assertThat(eventType.deviceType.id).isEqualTo(0);
+        assertThat(eventType.deviceType.name).isEqualTo("NA");
+        assertThat(eventType.domain.id).isEqualTo(2);
+        assertThat(eventType.domain.name).isEqualTo("Battery");
+        assertThat(eventType.subDomain.id).isEqualTo(38);
+        assertThat(eventType.subDomain.name).isEqualTo("Voltage");
+        assertThat(eventType.eventOrAction.id).isEqualTo(57);
+        assertThat(eventType.eventOrAction.name).isEqualTo("Decreased");
+    }
+    
+    @Test
+    public void testGetLogBookByIdNotFound() {
+        Device device = mock(Device.class);
+        LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
+        
+        when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
+        
+        Response response = target("/devices/mrid/logbooks/134").request().get();
+        
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+    
+    @Test
+    public void testGetLogBookDataIncorrectIntervalParameter() {
+        Device device = mock(Device.class);
+        LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
+        
+        when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
+        
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("intervalStart", 2).queryParam("intervalEnd", 1).request().get();
+        
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+    
+    @Test
+    public void testGetLogBookDataInvalidDomainParameter() {
+        Device device = mock(Device.class);
+        LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
+        
+        when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
+        
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("domain", 100500).request().get();
+        
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+    
+    @Test
+    public void testGetLogBookDataInvalidSubDomainParameter() {
+        Device device = mock(Device.class);
+        LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
+        
+        when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
+        
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("subDomain", 100500).request().get();
+        
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+    
+    @Test
+    public void testGetLogBookDataInvalidEventOrActionParameter() {
+        Device device = mock(Device.class);
+        LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
+        
+        when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
+        
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("eventOrAction", 100500).request().get();
+        
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+    
+    @Test
+    public void testGetLogBookData() {
+        Date start = new Date();
+        Date end = new Date();
+        String message = "Message";
+        int eventLogId = 13;
+        String deviceCode = "DeviceEventType";
+        String eventTypeCode = "0.2.1.4";
+        EndDeviceType type = EndDeviceType.NA;
+        EndDeviceDomain domain = EndDeviceDomain.BATTERY;
+        EndDeviceSubDomain subDomain = EndDeviceSubDomain.ACCESS;
+        EndDeviceEventorAction eventorAction = EndDeviceEventorAction.ACTIVATED;
+        
+        Device device = mock(Device.class);
+        LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
+        EndDeviceEventRecord endDeviceEventRecord = mock(EndDeviceEventRecord.class);
+        EndDeviceEventType endDeviceType = mock(EndDeviceEventType.class);
+        
+        when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
+        List<EndDeviceEventRecord> records = new ArrayList<>();
+        records.add(endDeviceEventRecord);
+        when(logBook.getEndDeviceEvents(new Interval(start, end), domain, subDomain, eventorAction)).thenReturn(records);
+        when(endDeviceEventRecord.getCreatedDateTime()).thenReturn(start);
+        when(endDeviceEventRecord.getModTime()).thenReturn(end);
+        when(endDeviceEventRecord.getDescription()).thenReturn(message);
+        when(endDeviceEventRecord.getLogBookPosition()).thenReturn(eventLogId);
+        when(endDeviceEventRecord.getEventType()).thenReturn(endDeviceType);
+        when(endDeviceEventRecord.getDeviceEventType()).thenReturn(deviceCode);
+        when(endDeviceType.getMRID()).thenReturn(eventTypeCode);
+        when(endDeviceType.getType()).thenReturn(type);
+        when(endDeviceType.getDomain()).thenReturn(domain);
+        when(endDeviceType.getSubDomain()).thenReturn(subDomain);
+        when(endDeviceType.getEventOrAction()).thenReturn(eventorAction);
+        
+        when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
+        when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                return (String) invocation.getArguments()[1];
+            }
+        });
+        
+        Map<?, ?> response = target("/devices/mrid/logbooks/1/data")
+                .queryParam("intervalStart", start.getTime())
+                .queryParam("intervalEnd", end.getTime())
+                .queryParam("domain", domain.getValue())
+                .queryParam("subDomain", subDomain.getValue())
+                .queryParam("eventOrAction", eventorAction.getValue()).request().get(Map.class);
+        
+        assertThat(response.get("total")).isEqualTo(1);
+                
+        List<?> infos = (List<?>) response.get("data");
+        assertThat(infos).hasSize(1);
+        assertThat((Map<?, ?>) infos.get(0))
+            .contains(MapEntry.entry("eventDate", start.getTime()))
+            .contains(MapEntry.entry("deviceCode", deviceCode))
+            .contains(MapEntry.entry("eventLogId", eventLogId))
+            .contains(MapEntry.entry("readingDate", start.getTime()))
+            .contains(MapEntry.entry("message", message));
+        
+        Map<?, ?> eventType = (Map<?, ?>) ((Map<?, ?>)infos.get(0)).get("eventType");
+        assertThat(eventType).contains(MapEntry.entry("code", eventTypeCode));
+        Map<?, ?> deviceTypeMap = (Map<?, ?>) eventType.get("deviceType");
+        assertThat(deviceTypeMap).contains(MapEntry.entry("id", type.getValue())).contains(MapEntry.entry("name", type.getMnemonic()));
+        
+        Map<?, ?> domainTypeMap = (Map<?, ?>) eventType.get("domain");
+        assertThat(domainTypeMap).contains(MapEntry.entry("id", domain.getValue())).contains(MapEntry.entry("name", domain.getMnemonic()));
+                
+        Map<?, ?> subDomainMap = (Map<?, ?>) eventType.get("subDomain");
+        assertThat(subDomainMap).contains(MapEntry.entry("id", subDomain.getValue())).contains(MapEntry.entry("name", subDomain.getMnemonic()));
+                
+        Map<?, ?> eventOrActionMap = (Map<?, ?>) eventType.get("eventOrAction");
+        assertThat(eventOrActionMap).contains(MapEntry.entry("id", eventorAction.getValue())).contains(MapEntry.entry("name", eventorAction.getMnemonic()));
+    }
 
     private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Interval interval) {
         LoadProfileReading loadProfileReading = mock(LoadProfileReading.class);
@@ -668,5 +924,20 @@ public class DeviceResourceTest extends JerseyTest {
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         return loadProfile1;
+    }
+    
+    private LogBook mockLogBook(String name, long id, String obis, String overruledObis, Date lastLogBook, Date lastReading) {
+        LogBookType logBookType = mock(LogBookType.class);
+        when(logBookType.getName()).thenReturn(name);
+        
+        LogBook logBook = mock(LogBook.class);
+        when(logBook.getId()).thenReturn(id);
+        when(logBook.getLogBookType()).thenReturn(logBookType);
+        when(logBookType.getObisCode()).thenReturn(ObisCode.fromString(obis));
+        when(logBook.getDeviceObisCode()).thenReturn(ObisCode.fromString(overruledObis));
+        when(logBook.getLastLogBook()).thenReturn(lastLogBook);
+        when(logBook.getLatestEventAdditionDate()).thenReturn(lastReading);
+        
+        return logBook;
     }
 }
