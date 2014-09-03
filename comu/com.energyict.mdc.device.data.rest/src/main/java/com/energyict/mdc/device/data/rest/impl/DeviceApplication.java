@@ -1,6 +1,39 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+
+import javax.ws.rs.core.Application;
+
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.SimpleTranslation;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -14,33 +47,14 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 @Component(name = "com.energyict.ddr.rest", service = { Application.class, InstallService.class }, immediate = true, property = {"alias=/ddr", "name="+DeviceApplication.COMPONENT_NAME})
 public class DeviceApplication extends Application implements InstallService{
 
+    private final Logger logger = Logger.getLogger(DeviceApplication.class.getName());
+    
     public static final String COMPONENT_NAME = "DDR";
 
     private volatile MasterDataService masterDataService;
@@ -77,7 +91,8 @@ public class DeviceApplication extends Application implements InstallService{
                 LoadProfileResource.class,
                 BulkScheduleResource.class,
                 ComtaskExecutionResource.class,
-                LogBookResource.class
+                LogBookResource.class,
+                DeviceFieldResource.class
         );
     }
 
@@ -164,6 +179,34 @@ public class DeviceApplication extends Application implements InstallService{
     public void install() {
         Installer installer = new Installer();
         installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
+        createTranslations();
+    }
+    
+    private void createTranslations() {
+        try {
+            Map<String, Translation> translations = new HashMap<>();
+
+            for (EndDeviceType type : EndDeviceType.values()) {
+                SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.REST, type.toString()).defaultMessage(type.getMnemonic());
+                translations.put(type.toString(), SimpleTranslation.translation(nlsKey, Locale.ENGLISH, type.getMnemonic()));
+            }
+            for (EndDeviceDomain domain : EndDeviceDomain.values()) {
+                SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.REST, domain.toString()).defaultMessage(domain.getMnemonic());
+                translations.put(domain.toString(), SimpleTranslation.translation(nlsKey, Locale.ENGLISH, domain.getMnemonic()));
+            }
+            for (EndDeviceSubDomain subDomain : EndDeviceSubDomain.values()) {
+                SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.REST, subDomain.toString()).defaultMessage(subDomain.getMnemonic());
+                translations.put(subDomain.toString(), SimpleTranslation.translation(nlsKey, Locale.ENGLISH, subDomain.getMnemonic()));
+            }
+            for (EndDeviceEventorAction eventOrAction : EndDeviceEventorAction.values()) {
+                SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.REST, eventOrAction.toString()).defaultMessage(eventOrAction.getMnemonic());
+                translations.put(eventOrAction.toString(), SimpleTranslation.translation(nlsKey, Locale.ENGLISH, eventOrAction.getMnemonic()));
+            }
+
+            thesaurus.addTranslations(translations.values());
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
+        }
     }
 
     class HK2Binder extends AbstractBinder {

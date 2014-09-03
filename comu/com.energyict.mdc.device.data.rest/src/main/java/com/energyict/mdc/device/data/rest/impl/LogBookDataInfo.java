@@ -5,8 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.masterdata.rest.EndDeviceEventTypeInfo;
+import com.elster.jupiter.nls.Thesaurus;
 
 public class LogBookDataInfo {
     
@@ -17,13 +16,13 @@ public class LogBookDataInfo {
     public Date readingDate;
     public String message;
     
-    public static List<LogBookDataInfo> from(List<EndDeviceEventRecord> endDeviceEventRecords, NlsService nlsService) {
+    public static List<LogBookDataInfo> from(List<EndDeviceEventRecord> endDeviceEventRecords, Thesaurus thesaurus) {
         List<LogBookDataInfo> infos = new ArrayList<>(endDeviceEventRecords.size());
         for(EndDeviceEventRecord record : endDeviceEventRecords) {
             LogBookDataInfo info = new LogBookDataInfo();
             
             info.eventDate = record.getCreatedDateTime();
-            info.eventType = EndDeviceEventTypeInfo.from(record.getEventType(), nlsService);
+            info.eventType = EndDeviceEventTypeInfo.from(record.getEventType(), thesaurus);
             info.deviceCode = record.getDeviceEventType();
             info.eventLogId = record.getLogBookPosition();
             info.readingDate = record.getModTime() != null ? record.getModTime() : record.getCreateTime();

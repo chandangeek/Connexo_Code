@@ -47,6 +47,7 @@ import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -88,14 +89,12 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.rest.EndDeviceEventTypeInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
-import com.google.common.collect.MapMaker;
 
 /**
  * Created by bvn on 6/19/14.
@@ -756,7 +755,7 @@ public class DeviceResourceTest extends JerseyTest {
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("intervalStart", 2).queryParam("intervalEnd", 1).request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'intervalStart','value':2},{'property':'intervalEnd','value':1}]").request().get();
         
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -769,7 +768,7 @@ public class DeviceResourceTest extends JerseyTest {
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("domain", 100500).request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'domain','value':'100500'}]").request().get();
         
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -782,7 +781,7 @@ public class DeviceResourceTest extends JerseyTest {
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("subDomain", 100500).request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'subDomain','value':'100500'}]").request().get();
         
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -795,7 +794,7 @@ public class DeviceResourceTest extends JerseyTest {
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("eventOrAction", 100500).request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'eventOrAction','value':'100500'}]").request().get();
         
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -822,7 +821,7 @@ public class DeviceResourceTest extends JerseyTest {
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         List<EndDeviceEventRecord> records = new ArrayList<>();
         records.add(endDeviceEventRecord);
-        when(logBook.getEndDeviceEvents(new Interval(start, end), domain, subDomain, eventorAction)).thenReturn(records);
+        when(logBook.getEndDeviceEventsByFilter(Matchers.<EndDeviceEventRecordFilterSpecification>any())).thenReturn(records);
         when(endDeviceEventRecord.getCreatedDateTime()).thenReturn(start);
         when(endDeviceEventRecord.getModTime()).thenReturn(end);
         when(endDeviceEventRecord.getDescription()).thenReturn(message);
@@ -844,11 +843,11 @@ public class DeviceResourceTest extends JerseyTest {
         });
         
         Map<?, ?> response = target("/devices/mrid/logbooks/1/data")
-                .queryParam("intervalStart", start.getTime())
-                .queryParam("intervalEnd", end.getTime())
-                .queryParam("domain", domain.getValue())
-                .queryParam("subDomain", subDomain.getValue())
-                .queryParam("eventOrAction", eventorAction.getValue()).request().get(Map.class);
+                .queryParam("filter", "[{'property':'intervalStart','value':1},"
+                                     + "{'property':'intervalEnd','value':2},"
+                                     + "{'property':'domain','value':'BATTERY'},"
+                                     + "{'property':'subDomain','value':'ACCESS'},"
+                                     + "{'property':'eventOrAction','value':'ACTIVATED'}]").request().get(Map.class);
         
         assertThat(response.get("total")).isEqualTo(1);
                 
