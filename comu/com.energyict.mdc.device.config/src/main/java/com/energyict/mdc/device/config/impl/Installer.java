@@ -15,6 +15,7 @@ import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.security.Privileges;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -52,6 +53,7 @@ public class Installer {
         createEventTypes();
         createTranslations();
         createPrivileges();
+        createDTCPrivileges();
         assignPrivilegesToDefaultRoles();
     }
 
@@ -60,6 +62,16 @@ public class Installer {
         this.userService.createResourceWithPrivileges("MDC", "deviceType.deviceTypes", "deviceType.deviceTypes.description", new String[] {Privileges.CREATE_DEVICE_TYPE, Privileges.UPDATE_DEVICE_TYPE, Privileges.DELETE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE});
         this.userService.createResourceWithPrivileges("MDC", "loadProfileConfiguration.loadProfileConfigurations", "loadProfileConfiguration.loadProfileConfigurations.description", new String[] {Privileges.CREATE_LOAD_PROFILE_CONFIG, Privileges.UPDATE_LOAD_PROFILE_CONFIG, Privileges.DELETE_LOAD_PROFILE_CONFIG, Privileges.VIEW_LOAD_PROFILE_CONFIG});
         this.userService.createResourceWithPrivileges("MDC", "registerConfiguration.registerConfigurations", "registerConfiguration.registerConfigurations.description", new String[] {Privileges.CREATE_REGISTER_CONFIG, Privileges.UPDATE_REGISTER_CONFIG, Privileges.DELETE_REGISTER_CONFIG, Privileges.VIEW_REGISTER_CONFIG});
+    }
+
+    private void createDTCPrivileges() {
+        List<String> privileges = new ArrayList<>();
+        for (DeviceSecurityUserAction userAction : DeviceSecurityUserAction.values()) {
+            privileges.add(userAction.name());
+        }
+        String[] privilegesList = new String[privileges.size()];
+        privilegesList = privileges.toArray(privilegesList);
+        this.userService.createResourceWithPrivileges("DTC", "DTC", "compatibility.with.EIServer", privilegesList);
     }
 
     private void assignPrivilegesToDefaultRoles() {
