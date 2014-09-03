@@ -21,7 +21,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
-import com.google.common.util.concurrent.Striped;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -37,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.locks.ReadWriteLock;
 
 public class DeviceValidationResource {
     private final ResourceHelper resourceHelper;
@@ -172,13 +170,10 @@ public class DeviceValidationResource {
                 if (meterActivation.isEffective(lastCheckedDate) || meterActivation.getInterval().startsAfter(lastCheckedDate)) {
                     Optional<Date> meterActivationLastChecked = validationService.getLastChecked(meterActivation);
                     if (meterActivation.isCurrent()) {
-                        Date maxDate = meterActivationLastChecked.or(meterActivation.getStart());
-                        if (lastCheckedDate.after(maxDate)) {
-                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastCkecked", maxDate);
+                        if (meterActivationLastChecked.isPresent() && lastCheckedDate.after(meterActivationLastChecked.get())) {
+                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastCkecked", meterActivationLastChecked.get());
                         }
-                        if (meterActivationLastChecked.isPresent()) {
-                            validationService.updateLastChecked(meterActivation, lastCheckedDate);
-                        }
+                        validationService.updateLastChecked(meterActivation, lastCheckedDate);
                     } else {
                         Date lastCheckedDateToSet = smallest(meterActivationLastChecked.or(meterActivation.getStart()), lastCheckedDate);
                         validationService.updateLastChecked(meterActivation, lastCheckedDateToSet);
