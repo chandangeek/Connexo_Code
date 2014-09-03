@@ -82,7 +82,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             required: true,
                             allowBlank: false,
                             labelAlign: 'right',
-                            forceSelection: false,
+                            forceSelection: true,
                             emptyText: Uni.I18n.translate('validation.selectARule', 'CFG', 'Select a rule') + '...',
                             labelWidth: 260,
                             width: 600
