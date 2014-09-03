@@ -23,12 +23,21 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow', {
             title: Uni.I18n.translate('communicationschedule.addCommunicationTasks', 'MDC', 'Add communication tasks'),
             items: [
                 {
-                    xtype: 'communicationTaskSelectionGrid',
-                    itemId: 'communicationTaskGridFromSchedule',
-                    store: 'CommunicationTasks'
-                },
-                {
-                    xtype: 'addCommunicationTaskPreview'
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'communicationTaskSelectionGrid'
+                    },
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('communicationschedule.communicationtasks.empty.title', 'MDC', 'No communication tasks found'),
+                        reasons: [
+                            Uni.I18n.translate('communicationschedule.communicationtasks.empty.list.item1', 'MDC', 'No communication tasks have been defined yet.'),
+                            Uni.I18n.translate('communicationschedule.communicationtasks.empty.list.item2', 'MDC', 'All presented communication tasks already added to communication schedule.')
+                        ]
+                    },
+                    previewComponent: {
+                        xtype: 'addCommunicationTaskPreview'
+                    }
                 },
                 {
                     xtype: 'form',

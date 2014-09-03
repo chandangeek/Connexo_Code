@@ -29,7 +29,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         {ref: 'communicationTaskGrid', selector: '#communicationTaskGridFromSchedule'},
         {ref: 'comTaskPanel', selector: '#comTaskPanel'},
         {ref: 'addCommunicationTaskPreview', selector: '#addCommunicationTaskPreview'},
-        {ref: 'comTaskCommands', selector: '#comtaskCommands'}
+        {ref: 'comTaskCommands', selector: '#comtaskCommands'},
+        {ref: 'addComTaskWindow', selector: '#addCommunicationTaskWindow'},
     ],
 
     record: null,
@@ -66,7 +67,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             },
             '#addCommunicationTaskButtonForm button[action=addAction]': {
                 click: this.addCommunicationTasksToSchedule
-            }, '#addCommunicationTaskButtonForm button[action=cancelAction]': {
+            },
+            '#addCommunicationTaskButtonForm button[action=cancelAction]': {
                 click: this.cancelAddCommunicationTasksToSchedule
             },
             '#communicationTaskGridFromSchedule': {
@@ -219,18 +221,34 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     addCommunicationTask: function () {
-        var me = this;
+        var grid =  this.getCommunicationTaskGrid(),
+            preview = this.getAddCommunicationTaskPreview(),
+            allItemsRadioField = grid.down('radiogroup').down('radiofield[inputValue=allItems]');
+
+        grid.getSelectionModel().deselectAll();
+        !grid.isAllSelected() && allItemsRadioField.setValue(true);
+
         this.getCommunicationScheduleEdit().down('#card').getLayout().setActiveItem(1);
         this.getAddCommunicationTaskPreview().setVisible(false);
     },
 
     deleteComTask: function (comTask) {
-        var form = this.getCommunicationScheduleEditForm(),
+        var me = this,
+            form = this.getCommunicationScheduleEditForm(),
+            recordsAlreadyPresented = [],
             hasComTasks;
 
-        this.record.comTaskUsages().remove(comTask);
-        this.comTaskStore.add(comTask);
-        hasComTasks = this.record.comTaskUsages().getCount() ? true : false;
+        me.record.comTaskUsages().remove(comTask);
+        me.record.comTaskUsages().each(function (record) {
+            recordsAlreadyPresented.push(record);
+        });
+        me.comTaskStore.add(comTask);
+        me.comTaskStore.load({
+            callback: function() {
+                me.comTaskStore.remove(recordsAlreadyPresented);
+            }
+        });
+        hasComTasks = me.record.comTaskUsages().getCount() ? true : false;
         form.down('#noComTasksSelectedMsg').setVisible(!hasComTasks);
         form.down('#comTasksOnForm').setVisible(hasComTasks);
     },
