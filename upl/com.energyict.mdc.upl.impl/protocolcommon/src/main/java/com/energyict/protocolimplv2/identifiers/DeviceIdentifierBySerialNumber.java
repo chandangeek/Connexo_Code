@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
-import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
+import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 
 import javax.xml.bind.annotation.XmlAttribute;
