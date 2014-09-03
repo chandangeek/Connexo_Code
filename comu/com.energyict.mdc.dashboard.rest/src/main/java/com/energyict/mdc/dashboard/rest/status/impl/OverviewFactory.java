@@ -32,14 +32,15 @@ public class OverviewFactory {
 
     public <C> TaskSummaryInfo createOverview(String overviewBreakdownName, DashboardCounters<C> dashboardCounters, FilterOption alias, MapBasedXmlAdapter<C> adapter) throws Exception {
         TaskSummaryInfo info = new TaskSummaryInfo();
-        info.displayName =overviewBreakdownName;
-        info.alias=alias;
-        info.counters=new ArrayList<>();
+        info.displayName = overviewBreakdownName;
+        info.alias = alias;
+        info.counters = new ArrayList<>();
         for (Counter<C> taskStatusCounter : dashboardCounters) {
             TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-            taskCounterInfo.id=adapter.marshal(taskStatusCounter.getCountTarget());
-            taskCounterInfo.displayName=thesaurus.getString(adapter.marshal(taskStatusCounter.getCountTarget()), adapter.marshal(taskStatusCounter.getCountTarget()));
-            taskCounterInfo.count=taskStatusCounter.getCount();
+            taskCounterInfo.id = adapter.marshal(taskStatusCounter.getCountTarget());
+            taskCounterInfo.displayName = thesaurus.getString(adapter.marshal(taskStatusCounter.getCountTarget()), adapter.marshal(taskStatusCounter.getCountTarget()));
+            taskCounterInfo.count = taskStatusCounter.getCount();
+            info.total += taskCounterInfo.count;
             info.counters.add(taskCounterInfo);
         }
 

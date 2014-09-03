@@ -84,6 +84,7 @@ class HeatMapRowInfo {
 }
 
 class TaskSummaryInfo {
+    public long total;
     public String displayName;
     public FilterOption alias;
     public List<TaskCounterInfo> counters;
