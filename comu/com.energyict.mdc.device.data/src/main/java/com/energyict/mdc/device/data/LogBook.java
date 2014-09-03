@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
-import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
@@ -38,7 +36,7 @@ public interface LogBook extends BaseLogBook, HasId {
 
     List<EndDeviceEventRecord> getEndDeviceEvents(Interval interval);
     
-    List<EndDeviceEventRecord> getEndDeviceEvents(Interval interval, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction);
+    List<EndDeviceEventRecord> getEndDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
 
     /**
      * Defines an <i>update</i> component to update a {@link com.energyict.mdc.device.data.LogBook} implementation

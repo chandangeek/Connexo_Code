@@ -55,7 +55,8 @@ public abstract class ReadingImpl implements Reading {
         return this.actualReading.getReadingType();
     }
 
-    protected ReadingRecord getActualReading() {
+    @Override
+    public ReadingRecord getActualReading() {
         return this.actualReading;
     }
 
