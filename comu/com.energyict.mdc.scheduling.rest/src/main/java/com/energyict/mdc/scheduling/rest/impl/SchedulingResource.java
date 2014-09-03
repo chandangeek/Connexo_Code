@@ -16,6 +16,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
+import com.energyict.mdc.scheduling.security.Privileges;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -24,6 +25,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -59,6 +61,7 @@ public class SchedulingResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_SCHEDULE)
     public PagedInfoList getSchedules(@BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         String mrid = queryFilter.getFilterProperties().get("mrid");
         String available = queryFilter.getFilterProperties().get("available");
@@ -185,6 +188,7 @@ public class SchedulingResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_SCHEDULE)
     public ComScheduleInfo getSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         return ComScheduleInfo.from(comSchedule, isInUse(comSchedule));
@@ -201,6 +205,7 @@ public class SchedulingResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.CREATE_SCHEDULE)
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
                 comScheduleInfo.startDate==null?null:new UtcInstant(comScheduleInfo.startDate)).mrid(comScheduleInfo.mRID).build();
@@ -214,6 +219,7 @@ public class SchedulingResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.DELETE_SCHEDULE)
     public Response deleteSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         if (this.isInUse(comSchedule)) {
@@ -228,6 +234,7 @@ public class SchedulingResource {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.UPDATE_SCHEDULE)
     public ComScheduleInfo updateSchedules(@PathParam("id") long id, ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         comSchedule.setName(comScheduleInfo.name);
@@ -272,6 +279,7 @@ public class SchedulingResource {
     @GET
     @Path("/{id}/comTasks")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_SCHEDULE)
     public Response getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         if (queryFilter.getFilterProperties().containsKey("available") && queryFilter.getProperty("available", new BooleanAdapter())) {
@@ -285,6 +293,7 @@ public class SchedulingResource {
     @Path("/preview")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_SCHEDULE)
     public Response generatePreviewForSchedule(PreviewInfo previewInfo) {
         if (previewInfo.temporalExpression==null) {
             throw new LocalizedFieldValidationException(MessageSeeds.CAN_NOT_BE_EMPTY, "temporalExpression");
