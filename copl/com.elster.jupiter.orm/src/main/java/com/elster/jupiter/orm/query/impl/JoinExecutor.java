@@ -102,16 +102,26 @@ final class JoinExecutor<T> {
 		builder.append(" order by ");
 		String separator = "";
 		for (Order each : orderBy) {
-			builder.append(separator);
-			builder.append(each.getClause(getOrderBy(each.getName())));
-			builder.space();
-			separator = ", ";
+			separator = appendOrder(builder,each,separator);
 		}				
 	}
 		
-	private String getOrderBy(String fieldName) {
-		ColumnAndAlias columnAndAlias = root.getColumnAndAliasForField(fieldName);
-		return columnAndAlias == null ? fieldName : columnAndAlias.toString();		
+	private String appendOrder(SqlBuilder builder, Order order,String separator) {
+		List<ColumnAndAlias> columnAndAliases = root.getColumnAndAliases(order.getName());
+		if (columnAndAliases == null || columnAndAliases.isEmpty()) {
+			builder.append(separator);
+			separator = ", ";
+			builder.append(order.getClause(order.getName()));
+			builder.space();
+		} else {
+			for (ColumnAndAlias columnAndAlias : columnAndAliases) {
+				builder.append(separator);
+				separator = ", ";
+				builder.append(order.getClause(columnAndAlias.toString()));
+				builder.space();
+			}
+		}
+		return separator;		
 	}
 
     List<T> select(Condition condition,Order[] orderBy , boolean eager, String[] exceptions) throws SQLException {

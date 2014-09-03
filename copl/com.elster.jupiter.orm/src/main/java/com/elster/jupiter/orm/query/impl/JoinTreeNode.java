@@ -104,7 +104,7 @@ final class JoinTreeNode<T>  {
 	
 	final ColumnImpl getColumnForField(String fieldName) {
 		ColumnAndAlias columnAndAlias = getColumnAndAliasForField(fieldName);
-		return columnAndAlias == null ? null : columnAndAlias.getColumn();
+		return columnAndAlias == null ? null : (ColumnImpl) columnAndAlias.getColumn();
 	}
 	
 	final List<ColumnAndAlias> getColumnAndAliases(String fieldName) {

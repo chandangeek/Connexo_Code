@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.elster.jupiter.orm.Column;
@@ -192,10 +193,19 @@ public class DataMapperReader<T> implements TupleParser<T> {
             builder.append(" order by ");
             String separator = "";
             for (Order each : orders) {
-                builder.append(separator);
-                Column column = getColumnForField(each.getName());
-                builder.append(each.getClause(column == null ? each.getName() : column.getName(getAlias())));
-                separator = ", ";
+                FieldMapping fieldMapping = this.getTable().getFieldMapping(each.getName());
+                List<? extends Column> columns = fieldMapping == null ? Collections.<Column>emptyList() : fieldMapping.getColumns();
+                if (columns.isEmpty()) {
+                	builder.append(separator);
+                	separator = ", ";
+                	builder.append(each.getClause(each.getName()));
+                } else {
+                	for (Column column : columns) {
+                		builder.append(separator);
+                    	separator = ", ";
+                    	builder.append(each.getClause(column.getName(getAlias())));
+                	}
+                }
             }
         }
         builder.space();
@@ -283,10 +293,6 @@ public class DataMapperReader<T> implements TupleParser<T> {
 	
 	private List<ColumnImpl> getPrimaryKeyColumns() {
 		return getTable().getPrimaryKeyColumns();
-	}
-	
-	private Column getColumnForField(String fieldName) {
-		return getTable().getColumnForField(fieldName);
 	}
 	
 	private void addFragments(List<SqlFragment> fragments, String fieldName , Object value) {
