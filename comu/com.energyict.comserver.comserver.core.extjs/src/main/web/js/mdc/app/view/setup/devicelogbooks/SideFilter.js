@@ -40,12 +40,12 @@ Ext.define('Mdc.view.setup.devicelogbooks.SideFilter', {
 
                         itemId: 'deviceLogbookDataFilterIntervalStart',
                         name: 'intervalStart',
-                        fieldLabel: Uni.I18n.translate('general.between', 'MDC', 'Between')
+                        fieldLabel: Uni.I18n.translate('general.from', 'MDC', 'From')
                     },
                     {
                         itemId: 'deviceLogbookDataFilterIntervalEnd',
                         name: 'intervalEnd',
-                        fieldLabel: Uni.I18n.translate('general.and', 'MDC', 'and').toLowerCase()
+                        fieldLabel: Uni.I18n.translate('general.to', 'MDC', 'To')
                     }
                 ]
             },

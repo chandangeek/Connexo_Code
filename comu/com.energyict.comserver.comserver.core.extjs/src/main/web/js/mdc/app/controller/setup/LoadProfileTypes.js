@@ -171,6 +171,12 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         success: function () {
                             me.handleSuccessRequest('Load profile type saved');
                         },
+                        failure: function(response){
+                            var json = Ext.decode(response.responseText);
+                            if (json && json.errors) {
+                                form.markInvalid(json.errors);
+                            }
+                        },
                         callback: function () {
                             preloader.destroy();
                         }
@@ -188,6 +194,12 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         jsonData: jsonValues,
                         success: function () {
                             me.handleSuccessRequest('Load profile type saved');
+                        },
+                        failure: function(response){
+                            var json = Ext.decode(response.responseText);
+                            if (json && json.errors) {
+                                form.markInvalid(json.errors);
+                            }
                         },
                         callback: function () {
                             preloader.destroy();

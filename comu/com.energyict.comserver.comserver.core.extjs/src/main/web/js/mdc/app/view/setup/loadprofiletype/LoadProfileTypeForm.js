@@ -57,7 +57,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeForm', {
                         {
                             xtype: 'obis-field',
                             fieldLabel: 'OBIS code',
-                            name: 'obisCode'
+                            name: 'obisCode',
+                            msgTarget: 'under'
                         },
                         {
                             xtype: 'fieldcontainer',
