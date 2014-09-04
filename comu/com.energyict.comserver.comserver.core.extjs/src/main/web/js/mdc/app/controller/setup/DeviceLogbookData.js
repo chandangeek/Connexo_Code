@@ -152,6 +152,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
 
         page.down('#deviceLogbookDataGrid pagingtoolbartop').totalCount = 0;
         page.down('#deviceLogbookDataGrid pagingtoolbarbottom').resetPaging();
+        page.down('#deviceLogbookDataGrid pagingtoolbarbottom').updateQueryString();
     },
 
     changeComboFilter: function (combo, newValue) {
