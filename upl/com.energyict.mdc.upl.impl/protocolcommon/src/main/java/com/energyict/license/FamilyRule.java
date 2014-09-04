@@ -20,8 +20,8 @@ public enum FamilyRule implements ProtocolFamily {
 
     TEST(1),                // Test
     EDMI(2),                // EDMI MK10 CommandLine
-    IDIS_GATEWAY(3),        // Elster IDIS DLMS
-    IDIS_P1(4),             // IDIS DLMS
+    ELSTER_IDIS(3),         // Elster IDIS DLMS
+    ELSTER_IDIS_P1(4),      // ELSTER IDIS DLMS (P1)
     ELSTER_MULTI_FREQ(5),   // Elster SFSK PLC (MF) DLMS
     ELSTER_IEC(7),          // Elster AS220/AS1440 IEC1107
     ELSTER_AM100(8),        // Elster AM100 (PRE-NTA) DLMS

@@ -54,8 +54,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     S4_DGCOM(26, "com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.S4"),
     G3B(27, "com.energyict.protocolimpl.dlms.elgama.G3B"),
     JANZC280(28, "com.energyict.protocolimpl.dlms.JanzC280.JanzC280"),
-    IDIS(29, "com.energyict.protocolimpl.dlms.idis.IDIS", FamilyRule.IDIS_GATEWAY, FamilyRule.IDIS_P1),
-    IDIS_MBUS(30, "com.energyict.protocolimpl.dlms.idis.IDISMBus", FamilyRule.IDIS_GATEWAY, FamilyRule.IDIS_P1),
+    IDIS(29, "com.energyict.protocolimpl.dlms.idis.IDIS", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P1),
+    IDIS_MBUS(30, "com.energyict.protocolimpl.dlms.idis.IDISMBus", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P1),
     WAVE_THERM(31, "com.energyict.protocolimpl.coronis.wavetherm.WaveTherm", FamilyRule.CORONIS),
     PROMETER(32, "com.energyict.protocolimpl.iec1107.cewe.prometer.Prometer"),
     GEKV(33, "com.energyict.protocolimpl.ge.kv.GEKV"),
@@ -221,11 +221,11 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ACE4000_OUTBOUND(191, "com.energyict.protocolimplv2.ace4000.ACE4000Outbound", FamilyRule.ACTARIS),
     ACE4000_MBUS(192, "com.energyict.protocolimplv2.ace4000.ACE4000MBus", FamilyRule.ACTARIS),
     SDK_DEVICE_PROTOCOL(193, "test.com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", FamilyRule.TEST),
-    RTU_PLUS_IDIS(194, "com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer", FamilyRule.IDIS_GATEWAY),
+    RTU_PLUS_IDIS(194, "com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer", FamilyRule.ELSTER_IDIS),
     AS220_GAS(195, "com.energyict.protocolimpl.dlms.as220.GasDevice", FamilyRule.ELSTER_MULTI_FREQ),
 
     // Rtu+ Server
-    RtuServer(196, "com.energyict.rtuprotocol.RtuServer", FamilyRule.EICT_RTU_EMS, FamilyRule.ELSTER_MULTI_FREQ, FamilyRule.IDIS_P1),
+    RtuServer(196, "com.energyict.rtuprotocol.RtuServer", FamilyRule.EICT_RTU_EMS, FamilyRule.ELSTER_MULTI_FREQ, FamilyRule.ELSTER_IDIS),
 
     EIWEB_DEVICE_PROTOCOL(197, "com.energyict.protocolimplv2.eict.eiweb.EIWeb", FamilyRule.EICT_RTU_EMS),
     EIMETER_FLEX_SLAVE_MODULE(198, "com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule"),
@@ -244,7 +244,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     WATCHTALK_MBUS(211, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.MbusDevice", FamilyRule.EICT_NTA),
     EK280_DLMS(212, "com.elster.protocolimpl.dlms.EK280"),
     CUBE350(213, "com.energyict.protocolimpl.modbus.northerndesign.cube350.Cube350", FamilyRule.EICT_RTU_EMS),
-    RTU_PLUS_EIWEBPLUS(214, "com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer", FamilyRule.EICT_RTU_EMS),
+    RTU_PLUS_EIWEBPLUS(214, "com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer", FamilyRule.EICT_RTU_EMS, FamilyRule.ELSTER_IDIS),
     SDK_SMART_SAMPLE_PROTOCOL(215, "test.com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol", FamilyRule.TEST),
     ELSTER_GARNET_CONCENTRATOR(216, "com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator", FamilyRule.ELSTER_GARNET),
     ELSTER_GARNET_AC100C(217, "com.energyict.protocolimplv2.elster.garnet.A100C", FamilyRule.ELSTER_GARNET),
@@ -266,7 +266,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ELSTER_A1_THEMISPLUS(10014, "com.elster.genericprotocolimpl.dlms.a1.A1"),
     ELSTER_EK155(10015, "com.energyict.genericprotocolimpl.elster.ek155.EK155"),
     ELSTER_EK280(10016, "com.elster.genericprotocolimpl.dlms.ek280.EK280"),
-    IDIS_RTUPLUSSERVER(10017, "com.energyict.genericprotocolimpl.rtuplusserver.idis.RtuPlusServer", FamilyRule.IDIS_GATEWAY),
+    IDIS_RTUPLUSSERVER(10017, "com.energyict.genericprotocolimpl.rtuplusserver.idis.RtuPlusServer", FamilyRule.ELSTER_IDIS),
 
     //Not released, only technical class
     JEM10(20001, "com.energyict.protocolimpl.ametek.Jem10"),
