@@ -22,6 +22,9 @@ public class PropertySpecServiceDependency {
 
     private volatile PropertySpecService propertySpecService;
 
+    public PropertySpecServiceDependency() {
+    }
+
     @Inject
     public PropertySpecServiceDependency(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
