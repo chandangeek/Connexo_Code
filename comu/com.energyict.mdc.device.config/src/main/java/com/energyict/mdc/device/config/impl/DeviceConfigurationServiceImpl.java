@@ -405,6 +405,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+        initPrivileges();
     }
 
     @Reference
@@ -444,6 +445,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public void install() {
         new Installer(this.dataModel, this.eventService, this.thesaurus, userService).install(true);
+        initPrivileges();
     }
 
     @Reference
@@ -578,4 +580,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet) {
         return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class))).getLinkableDeviceConfigurations(validationRuleSet);
     }
+
+    private void initPrivileges() {
+        privileges.clear();
+        List<Resource> resources = userService.getResources(COMPONENTNAME);
+        for(Resource resource : resources){
+            for(Privilege privilege : resource.getPrivileges()){
+                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forName(privilege.getName());
+                if (found.isPresent()) {
+                    privileges.put(found.get(), privilege);
+                }
+            }
+        }
+    }
+
 }

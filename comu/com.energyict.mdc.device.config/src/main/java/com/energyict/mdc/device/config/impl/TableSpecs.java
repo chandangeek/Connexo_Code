@@ -231,7 +231,7 @@ public enum TableSpecs {
             table.map(RegisterSpecImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            Column registerTypeId = table.column("REGISTERTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column registerType = table.column("REGISTERTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecFields.NUMBER_OF_DIGITS.fieldName()).add();
             table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").insert("sysdate").update("sysdate").add();
             table.column("DEVICEOBISCODE").varChar().map("overruledObisCodeString").add();
@@ -242,7 +242,7 @@ public enum TableSpecs {
             table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).map("multiplierMode").add();
             table.primaryKey("PK_DTC_REGISTERSPEC").on(id).add();
             table.foreignKey("FK_DTC_REGISTERSPEC_REGMAP").
-                    on(registerTypeId).
+                    on(registerType).
                     references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE").
                     map(RegisterSpecFields.REGISTER_TYPE.fieldName()).
                     add();
@@ -253,6 +253,9 @@ public enum TableSpecs {
                     reverseMap("registerSpecs").
                     composition().
                     onDelete(CASCADE).
+                    add();
+            table.unique("U_DTC_REGISTERTYPE_IN_CONFIG").
+                    on(deviceConfiguration, registerType).
                     add();
         }
     },
