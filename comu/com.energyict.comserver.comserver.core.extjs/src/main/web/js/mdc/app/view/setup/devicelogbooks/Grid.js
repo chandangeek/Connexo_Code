@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
                 header: Uni.I18n.translate('devicelogbooks.logbook', 'MDC', 'Logbook'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('devices/device/logbooks/logbook/overview').buildUrl({logbookId: record.get('id')});
+                    var url = me.router.getRoute('devices/device/logbooks/logbook/data').buildUrl({logbookId: record.get('id')});
                     return '<a href="' + url + '">' + value + '</a>';
                 },
                 flex: 1
