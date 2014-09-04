@@ -137,7 +137,13 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
         var me = this,
             filterForm = me.getFilterForm();
 
-        filterForm.down('[name=' + button.target + ']').reset();
+        if (Ext.isArray(button.target)) {
+            Ext.Array.each(button.target, function (target) {
+                filterForm.down('[name=' + target + ']').reset();
+            });
+        } else {
+            filterForm.down('[name=' + button.target + ']').reset();
+        }
 
         me.applyFilter({action: 'filter'});
     },

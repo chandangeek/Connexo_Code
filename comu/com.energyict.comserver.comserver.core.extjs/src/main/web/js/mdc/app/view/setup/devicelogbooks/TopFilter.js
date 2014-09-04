@@ -15,27 +15,25 @@ Ext.define('Mdc.view.setup.devicelogbooks.TopFilter', {
             intervalEnd = filterModel.get('intervalEnd'),
             domain = filterModel.get('domain'),
             subDomain = filterModel.get('subDomain'),
-            eventOrAction = filterModel.get('eventOrAction');
+            eventOrAction = filterModel.get('eventOrAction'),
+            eventDateText;
 
         container.removeAll();
 
-        if (intervalStart) {
+        if (intervalStart || intervalEnd) {
+            eventDateText = Uni.I18n.translate('devicelogbooks.eventDate', 'MDC', 'Event date') + ': ';
+            if (intervalStart) {
+                eventDateText += Uni.I18n.translate('general.from', 'MDC', 'From') + ' '
+                    + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalStart, 'MDC', 'd/m/Y') + ' ';
+            }
+            if (intervalEnd) {
+                eventDateText += (intervalStart ? Uni.I18n.translate('general.to', 'MDC', 'to').toLowerCase() : Uni.I18n.translate('general.to', 'MDC', 'To')) + ' '
+                    + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalEnd, 'MDC', 'd/m/Y');
+            }
             container.add(Ext.create('Skyline.button.TagButton', {
-                itemId: 'filter-by-intervalStart',
-                text: Uni.I18n.translate('devicelogbooks.eventDate', 'MDC', 'Event date')
-                    + ' ' + Uni.I18n.translate('general.start', 'MDC', 'start').toLowerCase() + ': '
-                    + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalStart, 'MDC', 'd/m/Y'),
-                target: 'intervalStart'
-            }));
-        }
-
-        if (intervalEnd) {
-            container.add(Ext.create('Skyline.button.TagButton', {
-                itemId: 'filter-by-intervalEnd',
-                text: Uni.I18n.translate('devicelogbooks.eventDate', 'MDC', 'Event date')
-                    + ' ' + Uni.I18n.translate('general.end', 'MDC', 'end').toLowerCase() + ': '
-                    + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalEnd, 'MDC', 'd/m/Y'),
-                target: 'intervalEnd'
+                itemId: 'filter-by-eventDate',
+                text: eventDateText,
+                target: ['intervalStart', 'intervalEnd']
             }));
         }
 
