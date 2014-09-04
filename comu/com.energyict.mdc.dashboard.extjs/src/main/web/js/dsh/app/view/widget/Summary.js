@@ -48,7 +48,7 @@ Ext.define('Dsh.view.widget.Summary', {
                                         limit: record.get('count'),
                                         total: view.total,
                                         count: data.get('count'),
-                                        label: Math.round(!view.total ? 0 : data.get('count') * 100 / record.get('count')) + '% (' + data.get('count') + ')'
+                                        label: !record.get('count') ? 0 : Math.round(!view.total ? 0 : data.get('count') * 100 / record.get('count')) + '% (' + data.get('count') + ')'
                                     });
                                     bar.render(view.getEl().down('#bar-' + pos + '-' + (idx + 1)));
                                     var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
