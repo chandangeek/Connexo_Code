@@ -460,7 +460,7 @@ public class DemoServiceImpl implements DemoService {
                 .setOverflowValue(new BigDecimal(99999999))
                 .setNumberOfDigits(8)
                 .setMultiplier(new BigDecimal(1))
-                .setNumberOfFractionDigits(0).add();
+                .setNumberOfFractionDigits(0);
     }
 
     private void createSimpleDeviceConfiguration(Store store, DeviceType deviceType) {

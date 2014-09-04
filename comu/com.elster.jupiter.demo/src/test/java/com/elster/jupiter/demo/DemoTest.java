@@ -1,22 +1,5 @@
 package com.elster.jupiter.demo;
 
-import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.impl.DeviceDataModule;
-import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.impl.EngineModule;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -42,10 +25,28 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.impl.EngineModule;
+import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
 import com.energyict.protocols.mdc.channels.serial.SerialComponentServiceImpl;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
+import com.energyict.protocols.mdc.services.impl.PropertySpecServiceDependency;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import com.google.common.base.Optional;
@@ -55,6 +56,9 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeZone;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -63,8 +67,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -196,7 +198,8 @@ public class DemoTest {
 
     private void fixMissedDynamicReference() {
         // Register device factory provider
+        injector.getInstance(PropertySpecServiceDependency.class);
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
-        propertySpecService.addFactoryProvider(injector.getInstance(DeviceDataServiceImpl.class));
+        propertySpecService.addFactoryProvider((DeviceDataServiceImpl)injector.getInstance(DeviceDataService.class));
     }
 }
