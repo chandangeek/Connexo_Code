@@ -1381,7 +1381,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         Finder<ComTaskExecutionSession> page =
                 DefaultFinder.
                         of(ComTaskExecutionSession.class, condition, this.dataModel).
-                        sorted(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName(), false).
+                        sorted(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName(), false).
                         paged(1, 1);
         List<ComTaskExecutionSession> allSessions = page.find();
         if (allSessions.isEmpty()) {

@@ -8,10 +8,11 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import org.joda.time.DateTimeConstants;
 
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -163,11 +164,10 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     }
 
     private void appendEnumValues(Set<? extends Enum> values) {
-        ListAppendMode appendMode = ListAppendMode.FIRST;
+        Holder<String> separator = HolderBuilder.first("").andThen(", ");
         for (Enum value : values) {
-            appendMode.startOn(this);
+            this.append(separator.get());
             this.append(String.valueOf(value.ordinal()));
-            appendMode = ListAppendMode.REMAINING;
         }
     }
 
@@ -176,24 +176,6 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
             this.appendWhereOrAnd();
             this.appendIntervalWhereClause(TableSpecs.DDC_CONNECTIONTASK.name(), "LASTCOMMUNICATIONSTART", this.lastSessionStart);
         }
-    }
-
-    private enum ListAppendMode {
-        FIRST {
-            @Override
-            protected void startOn (ConnectionTaskFilterSqlBuilder builder) {
-                // Nothing to append before the first message
-            }
-        },
-        REMAINING {
-            @Override
-            protected void startOn (ConnectionTaskFilterSqlBuilder builder) {
-                builder.append(", ");
-            }
-        };
-
-        protected abstract void startOn (ConnectionTaskFilterSqlBuilder sqlBuilder);
-
     }
 
 }

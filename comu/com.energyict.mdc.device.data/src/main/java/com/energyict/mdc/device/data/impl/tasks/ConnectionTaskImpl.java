@@ -540,16 +540,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private ConnectionTaskProperty newPropertyFor(Relation relation, RelationAttributeType attributeType) {
-        return new ConnectionTaskPropertyImpl(relation, attributeType.getName(), this.getPluggableClass());
+        return new ConnectionTaskPropertyImpl(this, relation, attributeType.getName(), this.getPluggableClass());
     }
 
     private ConnectionTaskProperty newInheritedPropertyFor(String propertyName, Object propertyValue) {
-        return new ConnectionTaskPropertyImpl(propertyName, propertyValue, this.always(), this.getPluggableClass());
+        return new ConnectionTaskPropertyImpl(this, propertyName, propertyValue, this.always(), this.getPluggableClass());
     }
 
     @Override
     public ConnectionTaskProperty newProperty(String name, Object value, Date activeDate) {
-        ConnectionTaskPropertyImpl property = new ConnectionTaskPropertyImpl(name);
+        ConnectionTaskPropertyImpl property = new ConnectionTaskPropertyImpl(this, name);
         property.setValue(value);
         property.setActivePeriod(new Interval(activeDate, null));
         return property;
@@ -767,7 +767,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         for (String propertyName : partialProperties.propertyNames()) {
             allProperties.add(
                     new ConnectionTaskPropertyImpl(
-                            propertyName,
+                            this, propertyName,
                             partialProperties.getProperty(propertyName),
                             this.always(),
                             this.getPartialConnectionTask().getPluggableClass())
@@ -903,4 +903,62 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.status = status;
     }
 
+    /**
+     * Validates that {@link ConnectionTaskProperty connection task properties}
+     * that are provided at connection time, were originally returned by
+     * the connection task that is connecting.
+     */
+    protected interface ConnectionTaskPropertyValidator {
+
+        public void validate(List<ConnectionTaskProperty> properties);
+
+    }
+
+    /**
+     * Provides an implementation for the {@link ConnectionTaskPropertyValidator} interface
+     * that is created by the connection task, knowing for sure that the {@link ConnectionTaskProperty connection task properties}
+     * originate from itself.
+     */
+    protected class TrustingConnectionTaskPropertyValidator implements ConnectionTaskPropertyValidator {
+        @Override
+        public void validate(List<ConnectionTaskProperty> properties) {
+            // This class trusts that the properties come from the connection task
+        }
+    }
+
+    /**
+     * Provides an implementation for the {@link ConnectionTaskPropertyValidator} interface
+     * for {@link ConnectionTaskProperty connection task properties} that were provided
+     * by an external party and can therefore NOT be trusted.
+     */
+    protected class MistrustingConnectionTaskPropertyValidator implements ConnectionTaskPropertyValidator {
+
+        @Override
+        public void validate(List<ConnectionTaskProperty> properties) {
+            for (ConnectionTaskProperty property : properties) {
+                this.validate(property);
+            }
+        }
+
+        private void validate(ConnectionTaskProperty property) {
+            try {
+                this.validate((ConnectionTaskPropertyImpl) property);
+            }
+            catch (ClassCastException e) {
+                // property is not of the correct class, cannot have been created by this connection task
+                throw illegalArgumentException(property);
+            }
+        }
+
+        private void validate(ConnectionTaskPropertyImpl property) {
+            if (!property.relatesTo(ConnectionTaskImpl.this)) {
+                throw illegalArgumentException(property);
+            }
+        }
+
+        private IllegalArgumentException illegalArgumentException(ConnectionTaskProperty property) {
+            return new IllegalArgumentException("Connection task property " + property.getName() + " was not created by this connection task");
+        }
+
+    }
 }

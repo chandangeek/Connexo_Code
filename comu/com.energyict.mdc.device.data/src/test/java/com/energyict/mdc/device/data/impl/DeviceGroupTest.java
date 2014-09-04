@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -65,6 +67,7 @@ import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.assertj.core.api.Assertions;
 import org.joda.time.DateTime;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
@@ -90,7 +93,10 @@ public class DeviceGroupTest {
 
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
 
-    private static final String ED_MRID = " ( ";
+    private static final String ED_MRID = "mrid1";
+    private static final String ED_MRID2 = "mrid2";
+    private static final String DEVICE_NAME1 = "devicename1";
+    private static final String DEVICE_NAME2 = "devicename2";
     private Injector injector;
 
     private static final String DEVICE_TYPE_NAME = "DeviceTypeName";
@@ -234,13 +240,13 @@ public class DeviceGroupTest {
     }
 
     @Test
-    public void testPersistence() {
+    public void testPersistenceDynamicGroup() {
         EndDevice endDevice;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
 
             DeviceDataService deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
-            Device device = deviceDataService.newDevice(getDeviceConfiguration(), "name", ED_MRID);
+            Device device = deviceDataService.newDevice(getDeviceConfiguration(), DEVICE_NAME1, ED_MRID);
             device.save();
             endDevice = meteringService.findAmrSystem(1).get().newMeter(String.valueOf(device.getId()), ED_MRID);
             endDevice.save();
@@ -256,13 +262,13 @@ public class DeviceGroupTest {
 
             QueryEndDeviceGroup queryEndDeviceGroup =
                     meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
-            queryEndDeviceGroup.setMRID("mine");
+            queryEndDeviceGroup.setMRID("dynamic");
             queryEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPRVIDER);
             queryEndDeviceGroup.save();
             ctx.commit();
         }
 
-        Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup("mine");
+        Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup("dynamic");
         assertThat(found).isPresent();
         assertThat(found.get()).isInstanceOf(QueryEndDeviceGroup.class);
         QueryEndDeviceGroup group = (QueryEndDeviceGroup) found.get();
@@ -271,7 +277,56 @@ public class DeviceGroupTest {
         assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
     }
 
+    @Test
+    public void testPersistenceStaticGroup() {
+        EndDevice endDevice = null;
+        try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            MeteringService meteringService = injector.getInstance(MeteringService.class);
+            DeviceDataService deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
+            Device device = deviceDataService.newDevice(getDeviceConfiguration(), DEVICE_NAME2, ED_MRID2);
+            device.save();
+            endDevice = meteringService.findAmrSystem(1).get().newMeter(String.valueOf(device.getId()), ED_MRID2);
+            endDevice.save();
+            ctx.commit();
+        }
+
+        MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("enumerated");
+            enumeratedEndDeviceGroup.setMRID("enumerated");
+            enumeratedEndDeviceGroup.add(endDevice, Interval.sinceEpoch());
+            enumeratedEndDeviceGroup.save();
+            ctx.commit();
+        }
+
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+
+            Condition conditionDevice =
+                    Condition.TRUE.and(where("deviceConfiguration.deviceType.name").isEqualTo(DEVICE_TYPE_NAME));
+
+
+            QueryEndDeviceGroup queryEndDeviceGroup =
+                    meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
+            queryEndDeviceGroup.setMRID("dynamic");
+            queryEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPRVIDER);
+            queryEndDeviceGroup.save();
+            ctx.commit();
+        }
+
+        List<EndDeviceGroup> allDevicesGroups = meteringGroupsService.findEndDeviceGroups();
+        Assertions.assertThat(allDevicesGroups).hasSize(2);
+
+        Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup("enumerated");
+        assertThat(found).isPresent();
+        assertThat(found.get()).isInstanceOf(EnumeratedEndDeviceGroup.class);
+        EnumeratedEndDeviceGroup group = (EnumeratedEndDeviceGroup) found.get();
+        List<EndDevice> members = group.getMembers(new DateTime(2014, 1, 23, 14, 54).toDate());
+        assertThat(members).hasSize(1);
+        assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
+    }
+
     private DeviceConfiguration getDeviceConfiguration() {
+
         DeviceType deviceType = injector.getInstance(DeviceConfigurationService.class).newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("DeviceConfiguration");
 

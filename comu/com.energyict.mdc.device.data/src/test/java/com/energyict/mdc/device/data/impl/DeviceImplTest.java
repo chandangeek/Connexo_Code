@@ -1,6 +1,15 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -15,8 +24,18 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.BillingReading;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
@@ -30,13 +49,22 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.base.Optional;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import org.fest.assertions.core.Condition;
 import org.joda.time.DateTimeConstants;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestRule;
-
-import java.math.BigDecimal;
-import java.util.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
@@ -114,12 +142,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     }
 
     private void setupReadingTypes() {
-        String code = ReadingTypeCodeBuilder
-                .of(Commodity.ELECTRICITY_SECONDARY_METERED)
-                .accumulate(Accumulation.BULKQUANTITY)
-                .flow(FlowDirection.FORWARD)
-                .measure(MeasurementKind.ENERGY)
-                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
+        String code = getForwardEnergyReadingTypeCodeBuilder().code();
         this.forwardEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         this.forwardEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(forwardEnergyReadingType).getObisCode();
         String code2 = ReadingTypeCodeBuilder
@@ -1025,23 +1048,42 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Ignore // TODO blocked by JP-5155 and JP-5157
     public void testGetLoadProfileData() {
-        BigDecimal readingValue = new BigDecimal(5432.32);
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
-        IntervalBlockImpl intervalBlock = new IntervalBlockImpl(forwardEnergyReadingType.getMRID());
-        intervalBlock.addIntervalReading(new IntervalReadingImpl(new Date(1406884500000L), readingValue)); // 1/8/2014 9:15
-        MeterReadingImpl meterReading = new MeterReadingImpl();
-        meterReading.addIntervalBlock(intervalBlock);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(TimeAttribute.MINUTE15)
+                .code();
+        IntervalBlockImpl intervalBlock = new IntervalBlockImpl(code);
+        Date readingTimeStamp = new Date(1406884500000L);// 1/8/2014 9:15
+        intervalBlock.addIntervalReading(new IntervalReadingImpl(readingTimeStamp, readingValue));
+        IntervalBlockImpl intervalBlock2 = new IntervalBlockImpl(code);
+        Date previousReadingTimeStamp = new Date(1406883600000L);// 1/8/2014 9:00
+        intervalBlock2.addIntervalReading(new IntervalReadingImpl(previousReadingTimeStamp, BigDecimal.ZERO));
+        MeterReadingImpl meterReading = new MeterReadingImpl();
+        meterReading.addIntervalBlock(intervalBlock);
+        meterReading.addIntervalBlock(intervalBlock2);
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        Collection<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
         assertThat(readings).hasSize(24 * 4);
+        assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(dayEnd);
+        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(dayStart);
+        for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
+            if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
+                assertThat(reading.getChannelValues()).hasSize(1);
+                for (Map.Entry<Channel, BigDecimal> channelBigDecimalEntry : reading.getChannelValues()) {
+                    assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
+                    assertThat(channelBigDecimalEntry.getValue()).isEqualTo(readingValue);
+                }
+
+            }
+        }
     }
 
     @Test
@@ -1060,38 +1102,16 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Ignore // TODO blocked by JP-5155 and JP-5157
-    public void testGetLoadProfileDataMidInterval() {
-        BigDecimal readingValue = new BigDecimal(5432.32);
-        Date readingTimeStamp = new Date(1406884422000L); // 8/1/2014, 09:13:42 AM
-        Date dayStart = new Date(1406851800000L); // Fri, 01 Aug 2014 00:10:00 GMT
-        Date dayEnd = new Date(1406854200000L); // Sat, 02 Aug 2014 00:50:00 GMT
-        com.elster.jupiter.metering.readings.Reading reading = new com.elster.jupiter.metering.readings.beans.ReadingImpl(forwardEnergyReadingType.getMRID(), readingValue, readingTimeStamp);
-        MeterReadingImpl meterReading = new MeterReadingImpl();
-        meterReading.addReading(reading);
-        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
-        device.save();
-        device.store(meterReading);
-
-        Device reloadedDevice = getReloadedDevice(device);
-        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
-        assertThat(readings).hasSize(3);
-        assertThat(readings.get(1).getInterval().getStart()).isEqualTo(new Date(1406853000000L)); // Fri, 01 Aug 2014 00:30:00 GMT
-        assertThat(readings.get(2).getInterval().getStart()).isEqualTo(new Date(1406852100000L)); // Fri, 01 Aug 2014 00:15:00 GMT
-    }
-
-    @Test
-    @Transactional
-    @Ignore // TODO blocked by JP-5155 and JP-5157
     public void testGetLoadProfileDataDST() {
         BigDecimal readingValue = new BigDecimal(5432.32);
-        Date readingTimeStamp = new Date(1406884422000L); // 8/1/2014, 09:13:42 AM
+        Date readingTimeStamp = new Date(1396144800000L); // 3/30/2014, 02:00:00 AM
         Date dayStart = new Date(1396137600000L); // 3/30/2014, 1:00:00 AM
         Date dayEnd = new Date(1396159200000L); // 3/30/2014, 8:00:00 AM !! 6 hours later!!
-        com.elster.jupiter.metering.readings.Reading reading = new com.elster.jupiter.metering.readings.beans.ReadingImpl(forwardEnergyReadingType.getMRID(), readingValue, readingTimeStamp);
+        String code = getForwardEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).code();
         MeterReadingImpl meterReading = new MeterReadingImpl();
-        meterReading.addReading(reading);
+        IntervalBlockImpl intervalBlock = new IntervalBlockImpl(code);
+        intervalBlock.addIntervalReading(new IntervalReadingImpl(readingTimeStamp, readingValue));
+        meterReading.addIntervalBlock(intervalBlock);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
         Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
@@ -1123,11 +1143,10 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     private DeviceConfiguration createDeviceConfigurationWithTwoChannelSpecs() {
         RegisterType registerType1 = createRegisterTypeIfMissing("ChannelType1", forwardEnergyObisCode, unit1, forwardEnergyReadingType, 0);
         RegisterType registerType2 = createRegisterTypeIfMissing("ChannelType2", reverseEnergyObisCode, unit2, reverseEnergyReadingType, 0);
-        registerType2.save();
         loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileType", loadProfileObisCode, interval);
+        loadProfileType.save();
         ChannelType channelTypeForRegisterType1 = loadProfileType.createChannelTypeForRegisterType(registerType1);
         ChannelType channelTypeForRegisterType2 = loadProfileType.createChannelTypeForRegisterType(registerType2);
-        loadProfileType.save();
         deviceType.addLoadProfileType(loadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
@@ -1152,17 +1171,32 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         return measurementType;
     }
 
-    private ChannelType createChannelTypeIfMissing(RegisterType registerType, TimeDuration timeDuration, ReadingType readingType) {
-        Optional<ChannelType> xRegisterType = inMemoryPersistence.getMasterDataService().findChannelTypeByReadingType(readingType);
+    private ChannelType createChannelTypeIfMissing(RegisterType registerType, LoadProfileType loadProfileType) {
+        Optional<ChannelType> channelTypeOptional = inMemoryPersistence.getMasterDataService().findChannelTypeByTemplateRegisterAndInterval(registerType, loadProfileType.getInterval());
         ChannelType channelType;
-        if (xRegisterType.isPresent()) {
-            channelType = xRegisterType.get();
+        if (channelTypeOptional.isPresent()) {
+            channelType = channelTypeOptional.get();
+            for (ChannelType type : loadProfileType.getChannelTypes()) {
+                if (type.getId()==channelType.getId()) {
+                    return type;
+                }
+            }
         }
         else {
-            channelType = inMemoryPersistence.getMasterDataService().newChannelType(registerType, timeDuration, readingType);
+            channelType = loadProfileType.createChannelTypeForRegisterType(registerType);
             channelType.save();
         }
         return channelType;
     }
+
+    private ReadingTypeCodeBuilder getForwardEnergyReadingTypeCodeBuilder() {
+        return ReadingTypeCodeBuilder
+                .of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .flow(FlowDirection.FORWARD)
+                .measure(MeasurementKind.ENERGY)
+                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
+    }
+
 
 }

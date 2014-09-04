@@ -1,23 +1,25 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
+
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Models a {@link ConnectionType} for TCP/IP taht does not support
+ * Models a {@link ConnectionType} for TCP/IP that does not support
  * multiple connections and that is designed for unit testing purposes only.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -56,11 +58,11 @@ public abstract class IpConnectionType implements ServerConnectionType {
     }
 
     private PropertySpec ipAddressPropertySpec () {
-        return RequiredPropertySpecFactory.newInstance().stringPropertySpec(IP_ADDRESS_PROPERTY_NAME);
+        return this.propertySpecService.basicPropertySpec(IP_ADDRESS_PROPERTY_NAME, true, new StringFactory());
     }
 
     private PropertySpec portNumberPropertySpec () {
-        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PORT_PROPERTY_NAME);
+        return this.propertySpecService.basicPropertySpec(PORT_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
      @Override
