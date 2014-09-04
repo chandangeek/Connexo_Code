@@ -872,7 +872,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceDataValidationMainView'
                         },
                         communicationschedules: {
-                            title: 'Communication plan',
+                            title: 'Communication planning',
                             route: 'communicationschedules',
                             controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
                             action: 'showDeviceCommunicationScheduleView',
@@ -884,6 +884,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                     controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
                                     action: 'addSharedCommunicationSchedule'
                                 }
+
+                            }
+                        },
+                        communicationtasks: {
+                            title: 'Communication tasks',
+                            route: 'communicationtasks',
+                            controller: 'Mdc.controller.setup.DeviceCommunicationTasks',
+                            action: 'showDeviceCommunicationTasksView',
+                            items: {
+//                                add: {
+//                                    title: 'Add shared Communication schedules',
+//                                    route: 'add',
+//                                    controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
+//                                    action: 'addSharedCommunicationSchedule'
+//                                }
 
                             }
                         },

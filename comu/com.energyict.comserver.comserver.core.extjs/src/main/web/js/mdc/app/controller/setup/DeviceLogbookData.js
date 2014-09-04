@@ -12,7 +12,10 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
     ],
 
     stores: [
-        'Mdc.store.LogbookOfDeviceData'
+        'Mdc.store.LogbookOfDeviceData',
+        'Mdc.store.Domains',
+        'Mdc.store.Subdomains',
+        'Mdc.store.EventsOrActions'
     ],
 
     refs: [
@@ -51,6 +54,15 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
             },
             'deviceLogbookData #deviceLogbookDataSideFilterForm [name=intervalStart]': {
                 change: this.changeFilterByIntervalStart
+            },
+            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=domain]': {
+                change: this.changeComboFilter
+            },
+            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=subDomain]': {
+                change: this.changeComboFilter
+            },
+            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=eventOrAction]': {
+                change: this.changeComboFilter
             }
         });
     },
@@ -103,19 +115,18 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
             dataStoreProxy = dataStore.getProxy(),
             filterForm = me.getFilterForm();
 
-        reset && filterForm.loadRecord(filterModel);
+        if (reset) {
+            Ext.Array.each(filterForm.query('[isFormField=true]'), function (field) {
+                field.reset();
+            });
+            dataStoreProxy.extraParams = {};
+        }
 
         if (filterForm.getForm().isValid()) {
-            dataStoreProxy.extraParams = {};
-
             if (!reset) {
                 filterForm.updateRecord(filterModel);
-                Ext.iterate(filterModel.getData(), function (key, value) {
-                    Ext.isDate(value) && (value = value.getTime());
-                    value && dataStoreProxy.setExtraParam(key, value);
-                });
+                dataStoreProxy.setExtraParam('filter', filterModel.getFilterQueryParams());
             }
-
             me.getFilterView().addButtons(filterModel);
             me.resetGridToolbars();
             dataStore.loadPage(1);
@@ -126,7 +137,13 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
         var me = this,
             filterForm = me.getFilterForm();
 
-        filterForm.down('[name=' + button.target + ']').reset();
+        if (Ext.isArray(button.target)) {
+            Ext.Array.each(button.target, function (target) {
+                filterForm.down('[name=' + target + ']').reset();
+            });
+        } else {
+            filterForm.down('[name=' + button.target + ']').reset();
+        }
 
         me.applyFilter({action: 'filter'});
     },
@@ -141,5 +158,12 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
 
         page.down('#deviceLogbookDataGrid pagingtoolbartop').totalCount = 0;
         page.down('#deviceLogbookDataGrid pagingtoolbarbottom').resetPaging();
+        page.down('#deviceLogbookDataGrid pagingtoolbarbottom').updateQueryString();
+    },
+
+    changeComboFilter: function (combo, newValue) {
+        if (!newValue) {
+            combo.reset();
+        }
     }
 });

@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.PreviewForm', {
         },
         {
             xtype: 'obis-displayfield',
-            name: 'obisCode'
+            name: 'overruledObisCode'
         },
         {
             xtype: 'last-event-type-displayfield',
