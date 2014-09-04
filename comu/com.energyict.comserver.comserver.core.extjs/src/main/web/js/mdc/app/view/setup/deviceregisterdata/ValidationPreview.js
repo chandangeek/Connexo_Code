@@ -26,10 +26,12 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
             fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'MDC', 'Data validated'),
             name: 'dataValidated',
             renderer: function (value) {
-                if (value) {
+                if (value === true) {
                     return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
-                } else {
+                } else if (value === false) {
                     return Uni.I18n.translate('general.no', 'MDC', 'No');
+                } else {
+                    return '';
                 }
             }
         },
@@ -46,6 +48,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
                         break;
                     case 'validationStatus.suspect':
                         return Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + '&nbsp;&nbsp;&nbsp;<img style="vertical-align: middle; height: 13px" src="../mdc/resources/images/Suspect.png"/>';
+                        break;
+                    default:
+                        return '';
                         break;
                 }
             }
