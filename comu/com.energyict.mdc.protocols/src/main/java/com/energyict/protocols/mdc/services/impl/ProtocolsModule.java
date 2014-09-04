@@ -43,6 +43,7 @@ public class ProtocolsModule extends AbstractModule {
         bind(SocketService.class).to(SocketServiceImpl.class).in(Scopes.SINGLETON);
         bind(HexService.class).to(HexServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceCacheMarshallingService.class).to(DeviceCacheMarshallingServiceImpl.class).in(Scopes.SINGLETON);
+        bind(PropertySpecServiceDependency.class).in(Scopes.SINGLETON);
     }
 
 }

@@ -7,6 +7,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+
 /**
  * Sole purpose is to have OSGi inject the {@link PropertySpecService}
  * so that I can publish it on a bus for the various enum classes
@@ -19,6 +21,12 @@ import org.osgi.service.component.annotations.Reference;
 public class PropertySpecServiceDependency {
 
     private volatile PropertySpecService propertySpecService;
+
+    @Inject
+    public PropertySpecServiceDependency(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+        activate();
+    }
 
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
