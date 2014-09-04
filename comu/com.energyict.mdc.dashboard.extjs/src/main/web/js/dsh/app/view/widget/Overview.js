@@ -38,7 +38,7 @@ Ext.define('Dsh.view.widget.Overview', {
                     xtype: 'dataview',
                     itemId: item.get('alias') + '-dataview',
                     itemSelector: 'tbody.item',
-                    total: item.get('total') || me.total,
+                    total: item.counters().getTotalCount() || me.total,
                     store: item.counters(),
                     tpl:
                         '<table>' +
@@ -63,7 +63,7 @@ Ext.define('Dsh.view.widget.Overview', {
 
                                 var bar = Ext.widget('bar', {
                                     limit: record.get('count'),
-                                    total: item.get('total') || view.total,
+                                    total: view.total,
                                     count: record.get('count'),
                                     label: record.get('count')
                                 }).render(view.getEl().down('#bar-' + pos));
