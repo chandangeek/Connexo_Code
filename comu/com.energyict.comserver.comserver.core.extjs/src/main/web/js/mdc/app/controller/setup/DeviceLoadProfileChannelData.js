@@ -223,7 +223,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             value && dataStoreProxy.setExtraParam(key, value);
         });
 
-        page.setLoading(true);
+        page.down('#deviceLoadProfileChannelGraphView').isVisible() && page.setLoading(true);
         page.down('#deviceLoadProfileChannelDataTopFilter').addButtons(filterModel);
         dataStore.load();
     },
