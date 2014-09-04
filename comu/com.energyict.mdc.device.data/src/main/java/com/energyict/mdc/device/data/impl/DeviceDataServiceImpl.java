@@ -1414,11 +1414,13 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask() {
-        SqlBuilder sqlBuilder = new SqlBuilder("select count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate DESC) successIndicator from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select count(*) from ");
+        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+        sqlBuilder.append(" where id in (select connectiontask from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate DESC) successIndicator from ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
         sqlBuilder.append(" cs where cs.SUCCESSINDICATOR = 0 and exists (select * from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0) group by connectiontask) t");
+        sqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0) group by connectiontask) t) and nextexecutiontimestamp is not null and obsolete_date is null");
         try (PreparedStatement stmnt = sqlBuilder.prepare(this.dataModel.getConnection(false))) {
             try (ResultSet resultSet = stmnt.executeQuery()) {
                 while (resultSet.next()) {
