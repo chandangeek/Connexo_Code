@@ -17,7 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.Map;
 
-@Component(name = "com.elster.jupiter.issue.datacollection.SlopeDetectionRuleTemplate", property = {"uuid=" + SlopeDetectionRuleTemplate.SLOPE_DETECTION_ID}, service = CreationRuleTemplate.class, immediate = true)
+@Component(name = "com.energyict.mdc.issue.datacollection.SlopeDetectionRuleTemplate", property = {"uuid=" + SlopeDetectionRuleTemplate.SLOPE_DETECTION_ID}, service = CreationRuleTemplate.class, immediate = true)
 public class SlopeDetectionRuleTemplate extends AbstractTemplate {
     public static final String SLOPE_DETECTION_ID = "7b1c7ccc-f248-47c6-81f3-18d123870133";
 
@@ -66,8 +66,8 @@ public class SlopeDetectionRuleTemplate extends AbstractTemplate {
     @Override
     public String getContent() {
         return
-            "package com.elster.jupiter.issue.datacollection;\n" +
-            "import com.elster.jupiter.issue.datacollection.MeterReadingIssueEvent; \n" +
+                "package com.energyict.mdc.issue.datacollection;\n" +
+                        "import com.energyict.mdc.issue.datacollection.MeterReadingIssueEvent; \n" +
             "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService; \n" +
             "rule \"Slope detection @{ruleId}\"\n" +
             "when\n" +

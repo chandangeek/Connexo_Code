@@ -12,7 +12,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.issue.datacollection.EventAggregationRuleTemplate", property = {"uuid=" + EventAggregationRuleTemplate.TEMPLATE_UUID}, service = CreationRuleTemplate.class, immediate = true)
+@Component(name = "com.energyict.mdc.issue.datacollection.EventAggregationRuleTemplate", property = {"uuid=" + EventAggregationRuleTemplate.TEMPLATE_UUID}, service = CreationRuleTemplate.class, immediate = true)
 public class EventAggregationRuleTemplate extends AbstractTemplate {
     
     public static final String TEMPLATE_UUID = "2f20a62e-3361-33c9-afc4-2f68618a6af7";
@@ -51,8 +51,8 @@ public class EventAggregationRuleTemplate extends AbstractTemplate {
 
     @Override
     public String getContent() {
-        return  "package com.elster.jupiter.issue.datacollection\n" +
-                "import com.elster.jupiter.issue.datacollection.impl.AbstractEvent;\n" +
+        return "package com.energyict.mdc.issue.datacollection\n" +
+                "import com.energyict.mdc.issue.datacollection.impl.AbstractEvent;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Events from meters of concentrator @{ruleId}\"\n"+
                 "when\n"+

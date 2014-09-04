@@ -11,7 +11,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.issue.datacollection.BasicDatacollectionRuleTemplate", property = {"uuid=" + BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID}, service = CreationRuleTemplate.class, immediate = true)
+@Component(name = "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate", property = {"uuid=" + BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID}, service = CreationRuleTemplate.class, immediate = true)
 public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
 
     public static final String BASIC_TEMPLATE_UUID = "e29b-41d4-a716";
@@ -50,8 +50,8 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
 
     @Override
     public String getContent() {
-        return  "package com.elster.jupiter.issue.datacollection\n" +
-                "import com.elster.jupiter.issue.datacollection.impl.AbstractEvent;\n" +
+        return "package com.energyict.mdc.issue.datacollection\n" +
+                "import com.energyict.mdc.issue.datacollection.impl.AbstractEvent;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Basic datacollection rule @{ruleId}\"\n"+
                 "when\n"+
