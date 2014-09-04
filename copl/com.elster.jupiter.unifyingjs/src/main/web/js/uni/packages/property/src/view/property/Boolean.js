@@ -18,21 +18,27 @@ Ext.define('Uni.property.view.property.Boolean', {
         return this.down('checkbox');
     },
 
+    setValue: function (value) {
+        if (!this.isEdit) {
+             value = value ? 'Yes' : 'No';
+        }
+        this.callParent([value]);
+    },
+
     getDisplayCmp: function () {
         var me = this;
 
         return {
-            xtype: 'checkbox',
-            readOnly: true,
+            xtype: 'displayfield',
             name: this.getName(),
-            itemId: me.key + 'checkbox',
+            itemId: me.key + 'displayfield',
             width: me.width,
-            cls: 'check',
             msgTarget: 'under'
-        };
+        }
     },
 
+
     getDisplayField: function () {
-        return this.down('checkbox');
+        return this.down('displayfield');
     }
 });
