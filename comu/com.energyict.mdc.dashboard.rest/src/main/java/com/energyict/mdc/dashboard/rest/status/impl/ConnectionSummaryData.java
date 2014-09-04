@@ -22,6 +22,10 @@ public class ConnectionSummaryData {
 
         failed=counts.get(TaskStatus.Failed)+counts.get(TaskStatus.NeverCompleted);
         pending=counts.get(TaskStatus.Pending)+counts.get(TaskStatus.Busy)+counts.get(TaskStatus.Retrying);
+        total=counts.get(TaskStatus.Retrying)+counts.get(TaskStatus.Busy)+counts.get(TaskStatus.Pending)+counts.get(TaskStatus.Failed)+counts.get(TaskStatus.NeverCompleted)+counts.get(TaskStatus.Waiting);
+        success=counts.get(TaskStatus.Waiting);
+        atLeastOneTaskFailed=99; // TODO
+        allTasksSuccessful=success-atLeastOneTaskFailed;
     }
 
     private Map<TaskStatus, Long> getTaskStatusCountsAsMap(TaskStatusOverview taskStatusOverview) {
