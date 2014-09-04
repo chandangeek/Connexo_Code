@@ -18,6 +18,7 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.engine.model.security.Privileges;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +30,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -73,6 +76,7 @@ public class ConnectionResource {
     @GET
     @Path("/connectiontypepluggableclasses")
     @Produces("application/json")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getConnectionTypeValues() {
         List<IdWithNameInfo> names = new ArrayList<>();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : this.protocolPluggableService.findAllConnectionTypePluggableClasses()) {
@@ -85,6 +89,7 @@ public class ConnectionResource {
 
     @GET
     @Consumes("application/json")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
         if (queryParameters.getStart()==null || queryParameters.getLimit()==null) {

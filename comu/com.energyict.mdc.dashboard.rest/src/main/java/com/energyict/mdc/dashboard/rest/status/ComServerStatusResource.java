@@ -2,6 +2,9 @@ package com.energyict.mdc.dashboard.rest.status;
 
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
+import com.energyict.mdc.engine.model.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -31,6 +34,7 @@ public class ComServerStatusResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ComServerStatusInfo getComServerStatus(@Context UriInfo uriInfo) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path(ComServerStatusResource.class).host("{host}");
         ComServerStatus status = this.statusService.getStatus();

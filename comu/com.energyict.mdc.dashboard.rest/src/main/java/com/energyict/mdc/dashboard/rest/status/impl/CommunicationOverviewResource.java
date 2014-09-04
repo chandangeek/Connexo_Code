@@ -7,6 +7,9 @@ import com.energyict.mdc.dashboard.ComTaskBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
+import com.energyict.mdc.engine.model.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -36,6 +39,7 @@ public class CommunicationOverviewResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public CommunicationOverviewInfo getCommunicationOverview() throws Exception {
         TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview();
         ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview();

@@ -4,6 +4,9 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.engine.status.ComServerType;
+import com.energyict.mdc.engine.model.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +51,7 @@ public class ComServerStatusSummaryResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ComServerStatusSummaryInfo getComServerStatusSummary(@Context UriInfo uriInfo) {
         Client jerseyClient = this.newJerseyClient();
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path(ComServerStatusResource.class).host("{host}");

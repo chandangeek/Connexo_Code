@@ -3,6 +3,9 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.dashboard.DashboardService;
+import com.energyict.mdc.engine.model.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -33,6 +36,7 @@ public class ConnectionHeatMapResource {
     @GET
     @Consumes("application/json")
     @Produces("application/json")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ConnectionHeatMapInfo getConnectionHeatMap(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
         if (!jsonQueryFilter.getFilterProperties().containsKey("breakdown")) {
             Response.status(Response.Status.BAD_REQUEST).build();

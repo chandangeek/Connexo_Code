@@ -5,6 +5,9 @@ import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
+import com.energyict.mdc.engine.model.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -27,6 +30,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/breakdown")
     @Produces("application/json")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getBreakdownValues() {
         return asJsonArrayObjectWithTranslation("breakdowns", "breakdown", new BreakdownOptionAdapter().getClientSideValues());
     }
@@ -34,6 +38,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/taskstatus")
     @Produces("application/json")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getTaskStatusValues() {
         return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", new TaskStatusAdapter().getClientSideValues());
     }
@@ -41,6 +46,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/successindicator")
     @Produces("application/json")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getLatestResultValues() {
         return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new SuccessIndicatorAdapter().getClientSideValues());
     }
@@ -48,6 +54,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/lifecyclestatus")
     @Produces("application/json")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getLifecycleStatus() {
         return asJsonArrayObjectWithTranslation("lifecycleStatuses", "lifecycleStatus", new ConnectionTaskLifecycleStatusAdaptor().getClientSideValues());
     }
