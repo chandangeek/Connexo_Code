@@ -20,12 +20,12 @@ Ext.define('Mdc.model.RegisterData', {
                         intervalFlagsValue = '';
                     Ext.Array.each(data.suspectReason, function (rule) {
                         if (!Ext.isEmpty(rule.properties)) {
-                            switch (rule.displayName) {
-                                case 'Threshold violation':
+                            switch (rule.implementation) {
+                                case 'com.elster.jupiter.validators.impl.ThresholdValidator':
                                     prop = ' - ' + rule.properties[0].key.charAt(0).toUpperCase() + rule.properties[0].key.substring(1) + ': ' + rule.properties[0].propertyValueInfo.value + ', ' +
                                         rule.properties[1].key.charAt(0).toUpperCase() + rule.properties[1].key.substring(1) + ': ' + rule.properties[1].propertyValueInfo.value;
                                     break;
-                                case 'Register increase':
+                                case 'com.elster.jupiter.validators.impl.RegisterIncreaseValidator':
                                     if (rule.properties[0].propertyValueInfo.value) {
                                         failEqualDataValue = Uni.I18n.translate('general.yes', 'MDC', 'Yes');
                                     } else {
@@ -33,7 +33,7 @@ Ext.define('Mdc.model.RegisterData', {
                                     }
                                     prop = ' - ' + Uni.I18n.translate('device.registerData.failEqualData', 'MDC', 'Fail equal data') + ': ' + failEqualDataValue;
                                     break;
-                                case 'Interval state':
+                                case 'com.elster.jupiter.validators.impl.IntervalStateValidator':
                                     Ext.Array.each(rule.properties[0].propertyValueInfo.value, function (idValue) {
                                         Ext.Array.each(rule.properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues, function (item) {
                                             if (idValue === item.id) {
