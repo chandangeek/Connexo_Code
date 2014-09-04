@@ -127,7 +127,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     }
 
     private void appendLastSessionClause(String connectionTaskTableName) {
-        this.append(", (select cs.connectiontask, MAX(cs.successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate) successIndicator from ");
+        this.append(", (select cs.connectiontask, MAX(cs.successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate DESC) successIndicator from ");
         this.append(TableSpecs.DDC_COMSESSION.name());
         this.append(" cs where ");
         boolean clauseAppended = this.appendLastSessionStatusClause();
