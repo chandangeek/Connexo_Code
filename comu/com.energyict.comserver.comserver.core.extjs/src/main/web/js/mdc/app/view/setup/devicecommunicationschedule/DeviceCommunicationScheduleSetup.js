@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationSchedu
                                 },
                                 items: [
                                     {
-                                        xtype: 'contentcontainer',
+                                        xtype: 'container',
                                         layout: {
                                             type: 'vbox',
                                             align: 'stretch'
@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationSchedu
                                 cls: 'no-side-padding',
                                 items: [
                                     {
-                                        xtype: 'contentcontainer',
+                                        xtype: 'container',
                                         layout: {
                                             type: 'vbox',
                                             align: 'stretch'
@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationSchedu
                         cls: 'no-side-padding',
                         items: [
                             {
-                                xtype: 'contentcontainer',
+                                xtype: 'container',
                                 layout: {
                                     type: 'vbox',
                                     align: 'stretch'
