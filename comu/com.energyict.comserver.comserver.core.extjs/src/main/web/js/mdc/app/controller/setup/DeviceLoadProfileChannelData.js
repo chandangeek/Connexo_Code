@@ -113,6 +113,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                     me.showReadingsCount(dataStore);
                     me.showGraphView(record);
                     widget.setLoading(false);
+                    widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfileChannelTableView').isVisible() && dataStore.count());
                 }, me);
 
                 me.setDefaults();
@@ -171,9 +172,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 }
             });
             series.push(seriesObject);
+            container.down('#graphContainer').show();
+            container.down('#emptyGraphMessage').hide();
             container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
         } else {
-            container.drawEmptyList();
+            container.down('#graphContainer').hide();
+            container.down('#emptyGraphMessage').show();
         }
         me.getPage().doLayout();
     },
