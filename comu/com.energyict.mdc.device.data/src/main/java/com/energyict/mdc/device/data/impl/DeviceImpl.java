@@ -1019,7 +1019,7 @@ public class DeviceImpl implements Device {
         Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Optional<Meter> holder = this.findKoreMeter(amrSystem.get());
-            if (!holder.isPresent()) {
+            if (holder.isPresent()) {
                 holder.get().delete();
             }
         }
