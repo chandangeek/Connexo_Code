@@ -32,6 +32,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                             return '<span style="vertical-align: middle"><img style="height: 13px" src="../mdc/resources/images/Suspect.png"/>&nbsp;&nbsp;&nbsp;'
                                 + value + ' ' + record.get('unitOfMeasure') + '</span>';
                             break;
+                        default:
+                            return value + record.get('unitOfMeasure');
+                            break;
                     }
                 },
                 flex: 3
