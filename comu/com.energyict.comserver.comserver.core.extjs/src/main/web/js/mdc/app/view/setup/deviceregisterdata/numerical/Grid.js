@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                                 + value + ' ' + record.get('unitOfMeasure') + '</span>';
                             break;
                         default:
-                            return value + record.get('unitOfMeasure');
+                            return value + ' ' + record.get('unitOfMeasure');
                             break;
                     }
                 },

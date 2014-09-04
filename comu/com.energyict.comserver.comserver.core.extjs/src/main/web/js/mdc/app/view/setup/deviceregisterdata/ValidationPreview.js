@@ -26,9 +26,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
             fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'MDC', 'Data validated'),
             name: 'dataValidated',
             renderer: function (value) {
-                if (value === true) {
+                if (value == true) {
                     return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
-                } else if (value === false) {
+                } else if (value == false) {
                     return Uni.I18n.translate('general.no', 'MDC', 'No');
                 } else {
                     return '';

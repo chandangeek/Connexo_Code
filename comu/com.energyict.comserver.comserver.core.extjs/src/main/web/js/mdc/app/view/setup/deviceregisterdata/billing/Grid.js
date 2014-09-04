@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                                 + value + ' ' + record.get('unitOfMeasure') + '</span>';
                             break;
                         default:
-                            return value + record.get('unitOfMeasure');
+                            return value + ' ' + record.get('unitOfMeasure');
                             break;
                     }
                 },
