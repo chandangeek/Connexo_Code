@@ -1,22 +1,23 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.junit.*;
+import org.junit.rules.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
@@ -37,9 +38,9 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     private void setupStringPropertyWithName(String name) {
-        PropertySpec<String> stringPropertySpec = OptionalPropertySpecFactory.newInstance().stringPropertySpec(name);
+        PropertySpec<String> stringPropertySpec = new PropertySpecServiceImpl().basicPropertySpec(name, false, new StringFactory());
         List<PropertySpec> propertySpecs = deviceProtocol.getPropertySpecs();
-        if(propertySpecs == null){
+        if (propertySpecs == null) {
             propertySpecs = new ArrayList<>();
         }
         propertySpecs.add(stringPropertySpec);
@@ -149,7 +150,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
     public void createWithNullInfoTypeTest() {
         String name = "MyProperty";
         String value = "MyValueOfTheProperty";
-        PropertySpec<String> stringPropertySpec = OptionalPropertySpecFactory.newInstance().stringPropertySpec(name);
+        PropertySpec<String> stringPropertySpec = new PropertySpecServiceImpl().basicPropertySpec(name, false, new StringFactory());
         when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(stringPropertySpec));
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
         device.setProperty(name, value);

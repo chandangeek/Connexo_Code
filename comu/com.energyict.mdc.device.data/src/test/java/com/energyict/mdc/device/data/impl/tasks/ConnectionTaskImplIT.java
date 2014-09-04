@@ -179,14 +179,20 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                outboundNoParamsConnectionTypePluggableClass.delete();
-                inboundNoParamsConnectionTypePluggableClass.delete();
-                inboundIpConnectionTypePluggableClass.delete();
-                outboundIpConnectionTypePluggableClass.delete();
-                modemConnectionTypePluggableClass.delete();
-                modemNoParamsConnectionTypePluggableClass.delete();
+                delete(outboundNoParamsConnectionTypePluggableClass);
+                delete(inboundNoParamsConnectionTypePluggableClass);
+                delete(inboundIpConnectionTypePluggableClass);
+                delete(outboundIpConnectionTypePluggableClass);
+                delete(modemConnectionTypePluggableClass);
+                delete(modemNoParamsConnectionTypePluggableClass);
             }
         });
+    }
+
+    private static void delete(ConnectionTypePluggableClass connectionTypePluggableClass) {
+        if (connectionTypePluggableClass != null) {
+            connectionTypePluggableClass.delete();
+        }
     }
 
     @AfterClass
@@ -194,9 +200,15 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                discoveryProtocolPluggableClass.delete();
+                delete(discoveryProtocolPluggableClass);
             }
         });
+    }
+
+    private static void delete(InboundDeviceProtocolPluggableClass discoveryProtocolPluggableClass) {
+        if (discoveryProtocolPluggableClass != null) {
+            discoveryProtocolPluggableClass.delete();
+        }
     }
 
     @BeforeClass

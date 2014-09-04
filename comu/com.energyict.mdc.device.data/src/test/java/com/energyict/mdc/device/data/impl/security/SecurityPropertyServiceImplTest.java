@@ -299,8 +299,6 @@ public class SecurityPropertyServiceImplTest {
             when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
             when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
             when(this.applicationContext.getTranslator()).thenReturn(translator);
-            when(this.applicationContext.findFactory(FactoryIds.DEVICE.id())).thenReturn(mock(IdBusinessObjectFactory.class));
-            when(this.applicationContext.findFactory(FactoryIds.SECURITY_SET.id())).thenReturn(mock(IdBusinessObjectFactory.class));
             this.bundleContext = mock(BundleContext.class);
             this.eventAdmin = mock(EventAdmin.class);
             this.principal = mock(Principal.class);

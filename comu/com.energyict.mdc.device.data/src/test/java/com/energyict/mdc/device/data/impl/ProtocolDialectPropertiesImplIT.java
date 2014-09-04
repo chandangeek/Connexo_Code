@@ -10,7 +10,6 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.dynamic.relation.Relation;
@@ -49,6 +48,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
@@ -761,15 +762,15 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         }
 
         private PropertySpec<String> requiredPropertySpec () {
-            return RequiredPropertySpecFactory.newInstance().stringPropertySpec(REQUIRED_PROPERTY_NAME_D1);
+            return new PropertySpecServiceImpl().basicPropertySpec(REQUIRED_PROPERTY_NAME_D1, true, new StringFactory());
         }
 
         private PropertySpec<String> optionalPropertySpec () {
-            return OptionalPropertySpecFactory.newInstance().stringPropertySpec(OPTIONAL_PROPERTY_NAME_D1, OPTIONAL_PROPERTY_VALUE);
+            return new PropertySpecServiceImpl().stringPropertySpec(OPTIONAL_PROPERTY_NAME_D1, false, OPTIONAL_PROPERTY_VALUE);
         }
 
         private PropertySpec<String> optionalWithLongNamePropertySpec () {
-            return OptionalPropertySpecFactory.newInstance().stringPropertySpec(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1);
+            return new PropertySpecServiceImpl().basicPropertySpec(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1, false, new StringFactory());
         }
 
     }
@@ -814,7 +815,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         }
 
         private PropertySpec<String> optionalPropertySpec () {
-            return OptionalPropertySpecFactory.newInstance().stringPropertySpec(OPTIONAL_PROPERTY_NAME_D2);
+            return new PropertySpecServiceImpl().basicPropertySpec(OPTIONAL_PROPERTY_NAME_D2, false, new StringFactory());
         }
 
     }

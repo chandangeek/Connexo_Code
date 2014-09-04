@@ -15,16 +15,25 @@ import com.energyict.mdc.pluggable.PluggableClass;
  */
 public class ConnectionTaskPropertyImpl extends PluggableClassUsagePropertyImpl<ConnectionType> implements ConnectionTaskProperty {
 
-    public ConnectionTaskPropertyImpl (String name) {
+    private final ConnectionTaskImpl connectionTask;
+
+    public ConnectionTaskPropertyImpl(ConnectionTaskImpl connectionTask, String name) {
         super(name);
+        this.connectionTask = connectionTask;
     }
 
-    public ConnectionTaskPropertyImpl (Relation relation, String name, PluggableClass pluggableClass) {
+    public ConnectionTaskPropertyImpl(ConnectionTaskImpl connectionTask, Relation relation, String name, PluggableClass pluggableClass) {
         super(relation, name, pluggableClass);
+        this.connectionTask = connectionTask;
     }
 
-    public ConnectionTaskPropertyImpl (String name, Object value, Interval activePeriod, PluggableClass pluggableClass) {
+    public ConnectionTaskPropertyImpl(ConnectionTaskImpl connectionTask, String name, Object value, Interval activePeriod, PluggableClass pluggableClass) {
         super(name, value, activePeriod, pluggableClass, true);
+        this.connectionTask = connectionTask;
+    }
+
+    public boolean relatesTo(ConnectionTaskImpl connectionTask) {
+        return this.connectionTask.getId() == connectionTask.getId();
     }
 
 }

@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -591,6 +592,16 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public ComChannel connect(ComPort comPort) throws ConnectionException {
+        return this.connect(comPort, this.getProperties(), new TrustingConnectionTaskPropertyValidator());
+    }
+
+    @Override
+    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
+        return this.connect(comPort, properties, new MistrustingConnectionTaskPropertyValidator());
+    }
+
+    private ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties, ConnectionTaskPropertyValidator validator) throws ConnectionException {
+        validator.validate(properties);
         ConnectionType connectionType = this.getConnectionType();
         List<ConnectionProperty> connectionProperties = this.toConnectionProperties(this.getProperties());
         connectionProperties.add(new ComPortNameProperty(comPort));

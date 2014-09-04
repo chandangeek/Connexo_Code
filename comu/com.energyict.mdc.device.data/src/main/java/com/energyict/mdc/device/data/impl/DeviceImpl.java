@@ -1,37 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -104,6 +72,38 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -114,7 +114,6 @@ import org.joda.time.Period;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -350,6 +349,7 @@ public class DeviceImpl implements Device {
         deleteConnectionTasks();
         // TODO delete messages
         // TODO delete security properties
+        this.deleteKoreMeterIfExists();
         this.getDataMapper().remove(this);
     }
 
@@ -1015,6 +1015,16 @@ public class DeviceImpl implements Device {
         }
     }
 
+    private void deleteKoreMeterIfExists() {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> holder = this.findKoreMeter(amrSystem.get());
+            if (holder.isPresent()) {
+                holder.get().delete();
+            }
+        }
+    }
+
     private Optional<AmrSystem> getMdcAmrSystem() {
         return this.meteringService.findAmrSystem(1);
     }
@@ -1074,7 +1084,7 @@ public class DeviceImpl implements Device {
         }
         return Lists.reverse(loadProfileReadings);
     }
-    
+
     List<EndDeviceEventRecord> getLogBookDeviceEventsByFilter(LogBook logBook, EndDeviceEventRecordFilterSpecification filter) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
@@ -1107,11 +1117,8 @@ public class DeviceImpl implements Device {
             }
             Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
-                List<DataValidationStatus> validationStatus = this.validationService.getValidationStatus(koreChannel.get(), meterReadings);
-                for (DataValidationStatus status : validationStatus) {
-                    LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(status.getReadingTimestamp());
-                    loadProfileReading.setDataValidationStatus(mdcChannel, status);
-                }
+                // Todo: process the reading qualities, adding them somehow to the LoadProfileReading
+                this.validationService.getValidationStatus(koreChannel.get(), meterReadings);
             }
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
