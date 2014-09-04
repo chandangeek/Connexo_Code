@@ -38,7 +38,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         {ref: 'rulesForRegisterConfigGrid', selector: 'validation-rules-for-registerconfig-grid'},
         {ref: 'rulesForRegisterConfigPreview', selector: 'register-config-and-rules-preview-container > #rulesForRegisterConfigPreview'},
 
-        {ref: 'validationRulesForRegisterConfigPreview', selector: 'register-config-and-rules-preview-container validation-rule-preview'}
+        {ref: 'validationRulesForRegisterConfigPreview', selector: 'register-config-and-rules-preview-container validation-rule-preview'},
+        {ref: 'registerConfigNumberPanel', selector: '#registerConfigNumberPanel'}
     ],
 
     deviceTypeId: null,
@@ -127,6 +128,11 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: registerConfigs[0].getId()});
 
             me.getRulesForRegisterConfigGrid().down('pagingtoolbartop').totalCount = -1;
+            if (registerConfig.get('asText')) {
+                me.getRegisterConfigNumberPanel().hide();
+            } else {
+                me.getRegisterConfigNumberPanel().show();
+            }
             me.getRegisterConfigValidationRulesStore().load();
         }
     },

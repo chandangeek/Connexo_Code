@@ -61,16 +61,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                             },
                             {
                                 xtype: 'obis-displayfield',
-                                name: 'obisCode'
-                            },
-                            {
-                                xtype: 'obis-displayfield',
                                 name: 'overruledObisCode',
-                                fieldLabel: Uni.I18n.translate('registerConfig.overruledObisCode', 'MDC', 'Overruled OBIS code')
-                            },
-                            {
-                                name: 'unitOfMeasure',
-                                fieldLabel: Uni.I18n.translate('registerConfig.unit', 'MDC', 'Unit of measure')
+                                fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code')
                             },
                             {
                                 name: 'timeOfUse',
@@ -89,6 +81,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                             xtype: 'displayfield',
                             labelWidth: 150
                         },
+                        itemId: 'registerConfigNumberPanel',
                         items: [
                             {
                                 name: 'overflow',
