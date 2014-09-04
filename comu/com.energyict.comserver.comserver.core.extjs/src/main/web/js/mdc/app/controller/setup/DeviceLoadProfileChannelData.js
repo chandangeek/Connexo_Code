@@ -113,7 +113,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                     me.showReadingsCount(dataStore);
                     me.showGraphView(record);
                     widget.setLoading(false);
-                    widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfileChannelTableView').isVisible() && dataStore.count());
+                    widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfileChannelTableView').isVisible() && dataStore.count());
                 }, me);
 
                 me.setDefaults();

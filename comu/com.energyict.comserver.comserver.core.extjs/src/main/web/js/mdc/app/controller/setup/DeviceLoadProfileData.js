@@ -94,7 +94,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 dataStore.on('load', function () {
                     me.showReadingsCount(dataStore);
                     me.showGraphView(record);
-                    widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
+                    widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
                     widget.setLoading(false);
                 }, me);
 
@@ -119,6 +119,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             channelDataArrays = {},
             seriesToYAxisMap = {},
             intervalLengthInMs,
+            axisBacklash,
             lineCount,
             intervalRecord,
             zoomLevels,
@@ -155,6 +156,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
         lineCount = measurementTypeOrder.length;
         step = (100 / lineCount | 0) - 1;
+        axisBacklash = (4 -lineCount) > 0 ? (4 -lineCount) : 0;
 
         Ext.Array.each(channels, function (channel, index) {
             var yAxisObject = {
@@ -176,7 +178,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 yAxisObject['offset'] = 0;
             }
             yAxisObject['top'] = currentAxisTopValue + '%';
-            currentAxisTopValue += step + 2;
+            currentAxisTopValue += step + 2 + axisBacklash;
             yAxisObject['title'] = {
                 rotation: 0,
                 align: 'high',
