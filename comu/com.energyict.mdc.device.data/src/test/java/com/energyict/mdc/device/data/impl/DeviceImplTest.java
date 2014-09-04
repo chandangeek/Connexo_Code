@@ -30,6 +30,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.BillingReading;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -54,6 +55,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import org.fest.assertions.core.Condition;
 import org.joda.time.DateTimeConstants;
@@ -1047,7 +1049,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testGetLoadProfileData() {
-        BigDecimal readingValue = new BigDecimal(5432.32);
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
@@ -1057,14 +1059,31 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = new IntervalBlockImpl(code);
-        intervalBlock.addIntervalReading(new IntervalReadingImpl(new Date(1406884500000L), readingValue)); // 1/8/2014 9:15
+        Date readingTimeStamp = new Date(1406884500000L);// 1/8/2014 9:15
+        intervalBlock.addIntervalReading(new IntervalReadingImpl(readingTimeStamp, readingValue));
+        IntervalBlockImpl intervalBlock2 = new IntervalBlockImpl(code);
+        Date previousReadingTimeStamp = new Date(1406883600000L);// 1/8/2014 9:00
+        intervalBlock2.addIntervalReading(new IntervalReadingImpl(previousReadingTimeStamp, BigDecimal.ZERO));
         MeterReadingImpl meterReading = new MeterReadingImpl();
         meterReading.addIntervalBlock(intervalBlock);
+        meterReading.addIntervalBlock(intervalBlock2);
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        Collection<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
         assertThat(readings).hasSize(24 * 4);
+        assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(dayEnd);
+        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(dayStart);
+        for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
+            if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
+                assertThat(reading.getChannelValues()).hasSize(1);
+                for (Map.Entry<Channel, BigDecimal> channelBigDecimalEntry : reading.getChannelValues()) {
+                    assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
+                    assertThat(channelBigDecimalEntry.getValue()).isEqualTo(readingValue);
+                }
+
+            }
+        }
     }
 
     @Test

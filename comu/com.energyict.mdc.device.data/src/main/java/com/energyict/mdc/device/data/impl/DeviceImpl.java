@@ -1143,14 +1143,13 @@ public class DeviceImpl implements Device {
     private Map<Date, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval interval) {
         Map<Date, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         Period period = Period.seconds(loadProfile.getInterval().getSeconds());
-        DateTime floor = new DateTime(interval.getStart().getTime() - (interval.getStart().getTime() % period.toStandardDuration().getMillis()));
-        DateTime timeIndex = floor.plus(period);
-        DateTime endTime = new DateTime(interval.getEnd().getTime());
-        while (timeIndex.compareTo(endTime) <= 0) {
+        DateTime timeIndex = new DateTime(interval.getStart().getTime() - (interval.getStart().getTime() % period.toStandardDuration().getMillis()));
+        final DateTime endTime = new DateTime(interval.getEnd().getTime());
+        while (timeIndex.compareTo(endTime) < 0) {
             DateTime intervalEnd = timeIndex.plus(period);
             LoadProfileReadingImpl value = new LoadProfileReadingImpl();
             value.setInterval(new Interval(timeIndex.toDate(), intervalEnd.toDate()));
-            loadProfileReadingMap.put(timeIndex.toDate(), value);
+            loadProfileReadingMap.put(intervalEnd.toDate(), value);
             timeIndex = intervalEnd;
         }
         return loadProfileReadingMap;
