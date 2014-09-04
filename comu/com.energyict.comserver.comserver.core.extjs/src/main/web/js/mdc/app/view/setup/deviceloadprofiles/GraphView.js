@@ -3,6 +3,22 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
     alias: 'widget.deviceLoadProfilesGraphView',
     itemId: 'deviceLoadProfilesGraphView',
 
+    items: [
+        {
+            xtype: 'container',
+            itemId: 'graphContainer'
+
+        },
+        {
+            xtype: 'no-items-found-panel',
+            hidden: true,
+            itemId: 'emptyGraphMessage',
+            title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
+            reasons: [
+                Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.') ]
+        }
+    ],
+
 
     drawGraph: function (title, yAxis, series, channels, seriesToYAxisMap, intervalLength, zoomLevels) {
         var me = this;
@@ -21,7 +37,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
 
             chart: {
                 height: 320 + 150 * yAxis.length ,
-                renderTo: me.el.dom
+                renderTo: me.down('#graphContainer').el.dom
             },
 
             credits: {
@@ -188,18 +204,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
         });
 
         chart.setSize(chart.chartWidth, 320 + 150 * visibleYAxises.length );
-    },
-
-    drawEmptyList: function () {
-        this.removeAll(true);
-        this.add(
-            {
-                xtype: 'no-items-found-panel',
-                title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
-                reasons: [
-                    Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.') ]
-            });
-
     },
 
     initComponent: function () {
