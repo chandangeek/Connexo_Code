@@ -1,24 +1,25 @@
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.Global;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
-import java.util.Date;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+
+import java.util.Date;
+
+import org.junit.*;
+import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,13 +51,18 @@ public class ComScheduleImplTest extends PersistenceTest {
         comScheduleBuilder.mrid("xyz");
         ComSchedule comSchedule = comScheduleBuilder.build();
         comSchedule.addComTask(simpleComTask);
+
+        // Business method
         comSchedule.save();
+
+        // Asserts
         Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrievedSchedule.isPresent()).isTrue();
         assertThat(retrievedSchedule.get().getName()).isEqualTo("name");
         assertThat(retrievedSchedule.get().getmRID()).isEqualTo("xyz");
         assertThat(retrievedSchedule.get().getTemporalExpression().getEvery()).isEqualTo(TEN_MINUTES);
         assertThat(retrievedSchedule.get().getTemporalExpression().getOffset()).isEqualTo(TWENTY_SECONDS);
+        assertThat(retrievedSchedule.get().isObsolete()).isFalse();
     }
 
     @Test
@@ -334,6 +340,20 @@ public class ComScheduleImplTest extends PersistenceTest {
         ComSchedule updating = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId()).get();
         updating.removeComTask(simpleComTask);
         updating.save();
+    }
+
+    @Test
+    @Transactional
+    public void testMakeObsolete() throws Exception {
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("testMakeObsolete", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), new UtcInstant(new Date())).build();
+        comSchedule.addComTask(simpleComTask);
+        comSchedule.save();
+
+        // Business method
+        comSchedule.makeObsolete();
+
+        // Asserts
+        assertThat(comSchedule.isObsolete()).isTrue();
     }
 
     private TemporalExpression temporalExpression(TimeDuration ... td) {

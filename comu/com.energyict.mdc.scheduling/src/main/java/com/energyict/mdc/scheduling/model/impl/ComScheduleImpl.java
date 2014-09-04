@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.Global;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.TemporalExpression;
@@ -41,7 +40,7 @@ import javax.validation.constraints.Size;
 
 @UniqueName(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}")
 @UniqueMRID(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}")
-public class ComScheduleImpl implements ComSchedule, HasId {
+public class ComScheduleImpl implements ComSchedule {
 
     private final Clock clock;
     private final SchedulingService schedulingService;
@@ -83,7 +82,7 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     private String name;
     @Size(max= Global.DEFAULT_DB_STRING_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
     private String mRID;
-    @Size(min=1, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND+"}")
+    @Size(min=1, groups = { NotObsolete.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND+"}")
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
     @IsPresent
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
@@ -165,8 +164,12 @@ public class ComScheduleImpl implements ComSchedule, HasId {
     @Override
     public void save() {
         Save actionToPerform = Save.action(this.getId());
-        // So all fields will be validated at the same time
-        actionToPerform.validate(dataModel, this);
+        if (this.isObsolete()) {
+            actionToPerform.validate(dataModel, this, Obsolete.class);
+        }
+        else {
+            actionToPerform.validate(dataModel, this, NotObsolete.class);
+        }
         this.nextExecutionSpecs.get().save();
 
         if (Save.UPDATE.equals(actionToPerform)) {
@@ -189,8 +192,18 @@ public class ComScheduleImpl implements ComSchedule, HasId {
         this.comTaskUsages.clear();
         this.eventService.postEvent(EventType.COMSCHEDULES_BEFORE_OBSOLETE.topic(), this);
         this.obsoleteDate = this.clock.now();
-        Save.UPDATE.save(this.dataModel, this, Save.Update.class);
+        Save.UPDATE.save(this.dataModel, this, Obsolete.class);
         this.eventService.postEvent(EventType.COMSCHEDULES_OBSOLETED.topic(), this);
+    }
+
+    @Override
+    public boolean isObsolete() {
+        return this.obsoleteDate != null;
+    }
+
+    @Override
+    public Date getObsoleteDate() {
+        return this.obsoleteDate;
     }
 
     @Override
@@ -314,5 +327,9 @@ public class ComScheduleImpl implements ComSchedule, HasId {
         }
         return false;
     }
+
+    private interface NotObsolete {}
+
+    private interface Obsolete {}
 
 }

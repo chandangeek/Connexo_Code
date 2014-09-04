@@ -39,7 +39,25 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
 
     public void delete();
 
+    /**
+     * Makes this ComSchedule obsolete, i.e. it will appear as it no longer exists.
+     */
     public void makeObsolete();
+
+    /**
+     * Indicates if this ComSchedule is marked as deleted.
+     *
+     * @return A flag that indicates if this ComSchedule is marked as deleted
+     */
+    public boolean isObsolete();
+
+    /**
+     * Gets the date when this ComSchedule was made obsolete.
+     *
+     * @return The date when this ComSchedule was made obsolete
+     *         or <code>null</code> when this ComSchedule is not obsolete at all.
+     */
+    public Date getObsoleteDate();
 
     public UtcInstant getStartDate();
 
