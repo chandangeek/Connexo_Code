@@ -13,7 +13,8 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     ],
 
     stores: [
-        'Mdc.store.Devices'
+        'Mdc.store.Devices',
+        'Mdc.store.DeviceConfigurations'
     ],
 
     refs: [
