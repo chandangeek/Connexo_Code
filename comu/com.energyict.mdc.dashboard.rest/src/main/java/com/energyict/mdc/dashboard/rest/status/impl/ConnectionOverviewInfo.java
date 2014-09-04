@@ -36,8 +36,6 @@ public class ConnectionOverviewInfo {
     };
 
     @JsonIgnore
-    private Thesaurus thesaurus;
-    @JsonIgnore
     private static final TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
     @JsonIgnore
     private static final SuccessIndicatorAdapter successIndicatorAdapter = new SuccessIndicatorAdapter();
@@ -60,7 +58,6 @@ public class ConnectionOverviewInfo {
             BreakdownFactory breakdownFactory,
             OverviewFactory overviewFactory,
             Thesaurus thesaurus) throws Exception {
-        this.thesaurus = thesaurus;
 
         connectionSummary = ConnectionSummaryInfo.from(connectionSummaryData, thesaurus);
 
@@ -117,6 +114,5 @@ enum FilterOption {
 enum BreakdownOption {
     connectionType,
     deviceType,
-    comPortPool,
-    comTask, comSchedule
+    comPortPool
 }

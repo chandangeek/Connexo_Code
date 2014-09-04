@@ -21,10 +21,9 @@ public class BreakdownFactory {
         }
     };
 
-    public <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters, BreakdownOption alias) {
+    public <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters) {
         BreakdownSummaryInfo info = new BreakdownSummaryInfo();
         info.displayName=name;
-        info.alias=alias;
         info.total=breakdownCounters.getTotalCount();
         info.totalSuccessCount=breakdownCounters.getTotalSuccessCount();
         info.totalPendingCount=breakdownCounters.getTotalPendingCount();
@@ -40,6 +39,12 @@ public class BreakdownFactory {
             info.counters.add(taskBreakdownInfo);
         }
 
+        return info;
+    }
+
+    public <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters, BreakdownOption alias) {
+        BreakdownSummaryInfo info = this.createBreakdown(name, breakdownCounters);
+        info.alias=alias;
         return info;
     }
 
