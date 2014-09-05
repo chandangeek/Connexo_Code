@@ -8,7 +8,10 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.pluggable.security.Privileges;
+
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -36,6 +39,7 @@ public class ProtocolDialectResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_PROTOCOL)
     public PagedInfoList getProtocolDialects(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<ProtocolDialectConfigurationProperties> pagedDialectProtocols = ListPager.of(device.getProtocolDialects(), new ProtocolDialectComparator()).from(queryParameters).find();
@@ -46,6 +50,7 @@ public class ProtocolDialectResource {
     @GET
     @Path("/{protocolDialectId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_PROTOCOL)
     public ProtocolDialectInfo getProtocolDialects(@PathParam("mRID") String mRID, @PathParam("protocolDialectId") long protocolDialectId, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(mRID, protocolDialectId);

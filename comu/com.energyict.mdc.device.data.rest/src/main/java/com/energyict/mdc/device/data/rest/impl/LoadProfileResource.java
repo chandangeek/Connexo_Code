@@ -10,9 +10,12 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.security.Privileges;
+
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -44,6 +47,7 @@ public class LoadProfileResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getAllLoadProfiles(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<LoadProfile> allLoadProfiles = device.getLoadProfiles();
@@ -55,6 +59,7 @@ public class LoadProfileResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lpid}")
+    @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getLoadProfile(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = findLoadProfileOrThrowException(device, loadProfileId, mrid);
@@ -64,6 +69,7 @@ public class LoadProfileResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lpid}/data")
+    @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getLoadProfileData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = findLoadProfileOrThrowException(device, loadProfileId, mrid);
@@ -80,6 +86,7 @@ public class LoadProfileResource {
     @GET
     @Path("{lpid}/channels")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannels(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = findLoadProfileOrThrowException(device, loadProfileId, mrid);
@@ -90,6 +97,7 @@ public class LoadProfileResource {
     @GET
     @Path("{lpid}/channels/{channelid}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannel(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = findLoadProfileOrThrowException(device, loadProfileId, mrid);
@@ -100,6 +108,7 @@ public class LoadProfileResource {
     @GET
     @Path("{lpid}/channels/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = findLoadProfileOrThrowException(device, loadProfileId, mrid);

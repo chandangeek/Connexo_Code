@@ -44,7 +44,14 @@ public enum MessageSeeds implements MessageSeed {
     BATTERY_LOW(59, ProfileStatus.Flag.BATTERY_LOW.name(), "Battery low"),
     TEST(60, ProfileStatus.Flag.TEST.name(), "Test"),
     NULL_DATE(61, "NullDate", "Date must be filled in"),
-    DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(62, "DeactivateValidationRuleSetNotPossible", "Deactivate of validation rule set {0} is currently not possible.")
+    DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(62, "DeactivateValidationRuleSetNotPossible", "Deactivate of validation rule set {0} is currently not possible."),
+    PENDING(63, "Pending", "Pending"),
+    FAILED(64, "Failed", "Failed"),
+    BUSY(65, "Busy", "Busy"),
+    ON_HOLD(66, "OnHold", "On hold"),
+    RETRYING(67, "Retrying", "Retrying"),
+    NEVER_COMPLETED(68, "NeverCompleted", "Never completed"),
+    WAITING(69, "Waiting", "Waiting"),
 
     ;
 
