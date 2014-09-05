@@ -15,7 +15,7 @@ public class ConnectionSummaryInfo {
     private final static TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
 
     public long total;
-    public FilterOption alias=FilterOption.state;
+    public FilterOption alias=FilterOption.currentStates;
     public List<? super TaskCounterInfo> counters = new ArrayList<>();
 
     public static ConnectionSummaryInfo from(ConnectionSummaryData connectionSummaryData, Thesaurus thesaurus) throws Exception {

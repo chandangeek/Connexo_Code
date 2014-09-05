@@ -45,15 +45,6 @@ public class ConnectionResource {
 
     private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
 
-    private static final String TASK_STATUSES = "currentStates";
-    private static final String COM_PORT_POOLS = "comPortPools";
-    private static final String CONNECTION_TYPES = "connectionTypes";
-    private static final String DEVICE_TYPES = "deviceTypes";
-    private static final String START_INTERVAL_FROM = "startIntervalFrom";
-    private static final String START_INTERVAL_TO = "startIntervalTo";
-    private static final String FINISH_INTERVAL_FROM = "finishIntervalFrom";
-    private static final String FINISH_INTERVAL_TO = "finishIntervalTo";
-
     private final DeviceDataService deviceDataService;
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -107,16 +98,16 @@ public class ConnectionResource {
         ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
         filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
         Map<String, String> filterProperties = jsonQueryFilter.getFilterProperties();
-        if (filterProperties.containsKey(TASK_STATUSES)) {
-            String[] taskStatuses = filterProperties.get(TASK_STATUSES).split(",");
+        if (filterProperties.containsKey(FilterOption.currentStates.name())) {
+            String[] taskStatuses = filterProperties.get(FilterOption.currentStates.name()).split(",");
             for (String taskStatus : taskStatuses) {
                 filter.taskStatuses.add(TASK_STATUS_ADAPTER.unmarshal(taskStatus));
             }
         }
 
         filter.comPortPools = new HashSet<>();
-        if (filterProperties.containsKey(COM_PORT_POOLS)) {
-            String[] comPortPoolIds = filterProperties.get(COM_PORT_POOLS).split(",");
+        if (filterProperties.containsKey(HeatMapBreakdownOption.comPortPools.name())) {
+            String[] comPortPoolIds = filterProperties.get(HeatMapBreakdownOption.comPortPools.name()).split(",");
             // already optimized
             for (ComPortPool comPortPool : engineModelService.findAllComPortPools()) {
                 String comPortPoolIdString = ""+comPortPool.getId();
@@ -129,46 +120,44 @@ public class ConnectionResource {
         }
 
         filter.connectionTypes = new HashSet<>();
-        if (filterProperties.containsKey(CONNECTION_TYPES)) {
-            List<String> connectionTypeIds = Arrays.asList(filterProperties.get(CONNECTION_TYPES).split(","));
+        if (filterProperties.containsKey(HeatMapBreakdownOption.connectionTypes.name())) {
+            List<String> connectionTypeIds = Arrays.asList(filterProperties.get(HeatMapBreakdownOption.connectionTypes.name()).split(","));
             for (String connectionTypeId : connectionTypeIds) {
                 filter.connectionTypes.add(protocolPluggableService.findConnectionTypePluggableClass(Integer.parseInt(connectionTypeId)));
             }
         }
 
         filter.deviceTypes = new HashSet<>();
-        if (filterProperties.containsKey(DEVICE_TYPES)) {
-            List<String> deviceTypeIds = Arrays.asList(filterProperties.get(DEVICE_TYPES).split(","));
+        if (filterProperties.containsKey(HeatMapBreakdownOption.deviceTypes.name())) {
+            List<String> deviceTypeIds = Arrays.asList(filterProperties.get(HeatMapBreakdownOption.deviceTypes.name()).split(","));
             for (String deviceTypeId : deviceTypeIds) {
                 filter.deviceTypes.add(deviceConfigurationService.findDeviceType(Integer.parseInt(deviceTypeId)));
             }
         }
 
-        if (filterProperties.containsKey(START_INTERVAL_FROM) || filterProperties.containsKey(START_INTERVAL_TO)) {
+        if (filterProperties.containsKey(FilterOption.startIntervalFrom.name()) || filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
             Date start=null;
             Date end=null;
-            if (filterProperties.containsKey(START_INTERVAL_FROM)) {
-                start=new Date(Long.parseLong(filterProperties.get(START_INTERVAL_FROM)));
+            if (filterProperties.containsKey(FilterOption.startIntervalFrom.name())) {
+                start=new Date(Long.parseLong(filterProperties.get(FilterOption.startIntervalFrom.name())));
             }
-            if (filterProperties.containsKey(START_INTERVAL_TO)) {
-                end=new Date(Long.parseLong(filterProperties.get(START_INTERVAL_TO)));
+            if (filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
+                end=new Date(Long.parseLong(filterProperties.get(FilterOption.startIntervalTo.name())));
             }
             filter.lastSessionStart=new Interval(start, end);
         }
 
-        if (filterProperties.containsKey(FINISH_INTERVAL_FROM) || filterProperties.containsKey(FINISH_INTERVAL_TO)) {
+        if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name()) || filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
             Date start=null;
             Date end=null;
-            if (filterProperties.containsKey(FINISH_INTERVAL_FROM)) {
-                start=new Date(Long.parseLong(filterProperties.get(FINISH_INTERVAL_FROM)));
+            if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name())) {
+                start=new Date(Long.parseLong(filterProperties.get(FilterOption.finishIntervalFrom.name())));
             }
-            if (filterProperties.containsKey(FINISH_INTERVAL_TO)) {
-                end=new Date(Long.parseLong(filterProperties.get(FINISH_INTERVAL_TO)));
+            if (filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
+                end=new Date(Long.parseLong(filterProperties.get(FilterOption.finishIntervalTo.name())));
             }
             filter.lastSessionEnd=new Interval(start, end);
         }
-
-
 
         return filter;
     }

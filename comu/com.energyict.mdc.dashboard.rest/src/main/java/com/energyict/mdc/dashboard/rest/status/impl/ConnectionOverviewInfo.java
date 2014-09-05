@@ -62,21 +62,21 @@ public class ConnectionOverviewInfo {
         connectionSummary = ConnectionSummaryInfo.from(connectionSummaryData, thesaurus);
 
         overviews=new ArrayList<>(2);
-        overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.state, taskStatusAdapter)); // JP-4278
-        overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResult, successIndicatorAdapter)); // JP-4280
+        overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.currentStates, taskStatusAdapter)); // JP-4278
+        overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResults, successIndicatorAdapter)); // JP-4280
         overviewFactory.sortAllOverviews(overviews);
 
         breakdowns=new ArrayList<>(3);
-        breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), MessageSeeds.PER_COMMUNICATION_POOL.getDefaultFormat()), comPortPoolBreakdown, BreakdownOption.comPortPool)); // JP-4281
-        breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), MessageSeeds.PER_CONNECTION_TYPE.getDefaultFormat()), connectionTypeBreakdown, BreakdownOption.connectionType)); // JP-4283
-        breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_DEVICE_TYPE.getKey(), MessageSeeds.PER_DEVICE_TYPE.getDefaultFormat()), deviceTypeBreakdown, BreakdownOption.deviceType)); // JP-4284
+        breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), MessageSeeds.PER_COMMUNICATION_POOL.getDefaultFormat()), comPortPoolBreakdown, FilterOption.comPortPools)); // JP-4281
+        breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), MessageSeeds.PER_CONNECTION_TYPE.getDefaultFormat()), connectionTypeBreakdown, FilterOption.connectionTypes)); // JP-4283
+        breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_DEVICE_TYPE.getKey(), MessageSeeds.PER_DEVICE_TYPE.getDefaultFormat()), deviceTypeBreakdown, FilterOption.deviceTypes)); // JP-4284
         breakdownFactory.sortAllBreakdowns(breakdowns);
     }
 }
 
 class HeatMapRowInfo {
     public String displayValue;
-    public BreakdownOption alias;
+    public FilterOption alias;
     public Long id;
     public List<TaskCounterInfo> data;
 }
@@ -90,7 +90,7 @@ class TaskSummaryInfo {
 
 class BreakdownSummaryInfo {
     public String displayName;
-    public BreakdownOption alias;
+    public FilterOption alias;
     public long total;
     public long totalSuccessCount;
     public long totalPendingCount;
@@ -107,12 +107,34 @@ class TaskBreakdownInfo {
 }
 
 enum FilterOption {
-    state,
-    latestResult
+    currentStates,
+    latestResults,
+    comTasks,
+    comSchedules,
+    startIntervalFrom,
+    startIntervalTo,
+    finishIntervalFrom,
+    finishIntervalTo,
+    connectionTypes,
+    deviceTypes,
+    comPortPools,
 }
 
-enum BreakdownOption {
-    connectionType,
-    deviceType,
-    comPortPool
+/**
+ * The possible options to have data displayed in Heatmaps
+ */
+enum HeatMapBreakdownOption {
+    connectionTypes(FilterOption.connectionTypes),
+    deviceTypes(FilterOption.deviceTypes),
+    comPortPools(FilterOption.comPortPools);
+
+    private final FilterOption filterOption;
+
+    HeatMapBreakdownOption(FilterOption connectionTypes) {
+        filterOption = connectionTypes;
+    }
+
+    public FilterOption filterOption() {
+        return filterOption;
+    }
 }

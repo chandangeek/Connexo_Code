@@ -18,7 +18,6 @@ import com.energyict.mdc.tasks.TaskService;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -34,20 +33,8 @@ import javax.ws.rs.core.Response;
 @Path("/communications")
 public class CommunicationResource {
 
-    private static final Comparator<ComTaskExecution> COM_TASK_EXECUTION_COMPARATOR = new ComTaskExecutionComparator();
-
     private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
     private static final CompletionCodeAdapter COMPLETION_CODE_ADAPTER = new CompletionCodeAdapter();
-
-    private static final String TASK_STATUSES = "currentStates";
-    private static final String LATEST_RESULTS = "latestResults";
-    private static final String COM_SCHEDULES = "comSchedules";
-    private static final String COM_TASKS = "comTasks";
-    private static final String DEVICE_TYPES = "deviceTypes";
-    private static final String START_INTERVAL_FROM = "startIntervalFrom";
-    private static final String START_INTERVAL_TO = "startIntervalTo";
-    private static final String FINISH_INTERVAL_FROM = "finishIntervalFrom";
-    private static final String FINISH_INTERVAL_TO = "finishIntervalTo";
 
     private final DeviceDataService deviceDataService;
     private final SchedulingService schedulingService;
@@ -86,60 +73,60 @@ public class CommunicationResource {
         Map<String, String> filterProperties = jsonQueryFilter.getFilterProperties();
 
         filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
-        if (filterProperties.containsKey(TASK_STATUSES)) {
-            String[] taskStatuses = filterProperties.get(TASK_STATUSES).split(",");
+        if (filterProperties.containsKey(FilterOption.currentStates.name())) {
+            String[] taskStatuses = filterProperties.get(FilterOption.currentStates.name()).split(",");
             for (String taskStatus : taskStatuses) {
                 filter.taskStatuses.add(TASK_STATUS_ADAPTER.unmarshal(taskStatus));
             }
         }
 
         filter.latestResults = EnumSet.noneOf(CompletionCode.class);
-        if (filterProperties.containsKey(LATEST_RESULTS)) {
-            String[] latestResults = filterProperties.get(LATEST_RESULTS).split(",");
+        if (filterProperties.containsKey(FilterOption.latestResults.name())) {
+            String[] latestResults = filterProperties.get(FilterOption.latestResults.name()).split(",");
             for (String completionCode : latestResults) {
                 filter.latestResults.add(COMPLETION_CODE_ADAPTER.unmarshal(completionCode));
             }
         }
 
         filter.comSchedules = new HashSet<>();
-        if (filterProperties.containsKey(COM_SCHEDULES)) {
-            String[] comScheduleIds = filterProperties.get(COM_SCHEDULES).split(",");
+        if (filterProperties.containsKey(FilterOption.comSchedules.name())) {
+            String[] comScheduleIds = filterProperties.get(FilterOption.comSchedules.name()).split(",");
             filter.comSchedules.addAll(getObjectsByIdFromList(comScheduleIds, schedulingService.findAllSchedules()));
         }
 
         filter.comTasks = new HashSet<>();
-        if (filterProperties.containsKey(COM_TASKS)) {
-            String[] comTaskIds = filterProperties.get(COM_TASKS).split(",");
+        if (filterProperties.containsKey(FilterOption.comTasks.name())) {
+            String[] comTaskIds = filterProperties.get(FilterOption.comTasks.name()).split(",");
             filter.comTasks.addAll(getObjectsByIdFromList(comTaskIds, taskService.findAllComTasks()));
         }
 
         filter.deviceTypes = new HashSet<>();
-        if (filterProperties.containsKey(DEVICE_TYPES)) {
-            String[] deviceTypeIds = filterProperties.get(DEVICE_TYPES).split(",");
+        if (filterProperties.containsKey(HeatMapBreakdownOption.deviceTypes.name())) {
+            String[] deviceTypeIds = filterProperties.get(HeatMapBreakdownOption.deviceTypes.name()).split(",");
             filter.deviceTypes.addAll(getObjectsByIdFromList(deviceTypeIds, deviceConfigurationService.findAllDeviceTypes().find()));
         }
 
 
-        if (filterProperties.containsKey(START_INTERVAL_FROM) || filterProperties.containsKey(START_INTERVAL_TO)) {
+        if (filterProperties.containsKey(FilterOption.startIntervalFrom.name()) || filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
             Date start=null;
             Date end=null;
-            if (filterProperties.containsKey(START_INTERVAL_FROM)) {
-                start=new Date(Long.parseLong(filterProperties.get(START_INTERVAL_FROM)));
+            if (filterProperties.containsKey(FilterOption.startIntervalFrom.name())) {
+                start=new Date(Long.parseLong(filterProperties.get(FilterOption.startIntervalFrom.name())));
             }
-            if (filterProperties.containsKey(START_INTERVAL_TO)) {
-                end=new Date(Long.parseLong(filterProperties.get(START_INTERVAL_TO)));
+            if (filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
+                end=new Date(Long.parseLong(filterProperties.get(FilterOption.startIntervalTo.name())));
             }
             filter.lastSessionStart=new Interval(start, end);
         }
 
-        if (filterProperties.containsKey(FINISH_INTERVAL_FROM) || filterProperties.containsKey(FINISH_INTERVAL_TO)) {
+        if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name()) || filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
             Date start=null;
             Date end=null;
-            if (filterProperties.containsKey(FINISH_INTERVAL_FROM)) {
-                start=new Date(Long.parseLong(filterProperties.get(FINISH_INTERVAL_FROM)));
+            if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name())) {
+                start=new Date(Long.parseLong(filterProperties.get(FilterOption.finishIntervalFrom.name())));
             }
-            if (filterProperties.containsKey(FINISH_INTERVAL_TO)) {
-                end=new Date(Long.parseLong(filterProperties.get(FINISH_INTERVAL_TO)));
+            if (filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
+                end=new Date(Long.parseLong(filterProperties.get(FilterOption.finishIntervalTo.name())));
             }
             filter.lastSessionEnd=new Interval(start, end);
         }

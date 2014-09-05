@@ -21,13 +21,14 @@ public class BreakdownFactory {
         }
     };
 
-    public <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters) {
+    public <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters, FilterOption alias) {
         BreakdownSummaryInfo info = new BreakdownSummaryInfo();
-        info.displayName=name;
-        info.total=breakdownCounters.getTotalCount();
-        info.totalSuccessCount=breakdownCounters.getTotalSuccessCount();
-        info.totalPendingCount=breakdownCounters.getTotalPendingCount();
-        info.totalFailedCount =breakdownCounters.getTotalFailedCount();
+        info.alias=alias;
+        info.displayName= name;
+        info.total= breakdownCounters.getTotalCount();
+        info.totalSuccessCount= breakdownCounters.getTotalSuccessCount();
+        info.totalPendingCount= breakdownCounters.getTotalPendingCount();
+        info.totalFailedCount = breakdownCounters.getTotalFailedCount();
         info.counters=new ArrayList<>();
         for (TaskStatusBreakdownCounter<C> counter : breakdownCounters) {
             TaskBreakdownInfo taskBreakdownInfo = new TaskBreakdownInfo();
@@ -39,12 +40,6 @@ public class BreakdownFactory {
             info.counters.add(taskBreakdownInfo);
         }
 
-        return info;
-    }
-
-    public <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters, BreakdownOption alias) {
-        BreakdownSummaryInfo info = this.createBreakdown(name, breakdownCounters);
-        info.alias=alias;
         return info;
     }
 

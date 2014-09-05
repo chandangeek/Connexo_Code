@@ -20,6 +20,7 @@ public class CommunicationHeatMapInfo {
     private static final CompletionCodeAdapter completionCodeAdapter = new CompletionCodeAdapter();
     private static final CompletionCodeTaskCounterInfoComparator completionCodeTaskCounterInfoComparator = new CompletionCodeTaskCounterInfoComparator();
 
+    public HeatMapBreakdownOption breakdown;
     public List<HeatMapRowInfo> heatMap;
 
     public CommunicationHeatMapInfo() {
@@ -27,18 +28,19 @@ public class CommunicationHeatMapInfo {
 
     public <H extends HasName & HasId> CommunicationHeatMapInfo(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus)
             throws Exception {
+        this.breakdown = HeatMapBreakdownOption.deviceTypes;
         this.heatMap=new ArrayList<>();
-        this.heatMap.addAll(createHeatMap(heatMap, thesaurus));
+        this.heatMap.addAll(createHeatMap(heatMap, breakdown.filterOption(), thesaurus));
     }
 
-    private <H extends HasName & HasId> List<HeatMapRowInfo> createHeatMap(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus) throws Exception {
+    private <H extends HasName & HasId> List<HeatMapRowInfo> createHeatMap(CommunicationTaskHeatMap heatMap, FilterOption alias, Thesaurus thesaurus) throws Exception {
         List<HeatMapRowInfo> heatMapInfoList = new ArrayList<>();
         if (heatMap!=null) {
             for (CommunicationTaskHeatMapRow row : heatMap) {
                 HeatMapRowInfo heatMapRowInfo = new HeatMapRowInfo();
                 heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
                 heatMapRowInfo.id = row.getTarget().getId(); // ID of the object
-                heatMapRowInfo.alias = BreakdownOption.deviceType; // Type of object
+                heatMapRowInfo.alias = alias; // Type of object
                 heatMapRowInfo.data = new ArrayList<>();
                 for (ComCommandCompletionCodeOverview counters : row) {
                     for (Counter<CompletionCode> completionCodeCounter : counters) {

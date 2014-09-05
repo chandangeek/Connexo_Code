@@ -173,7 +173,7 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
         when(dashboardService.getConnectionTasksDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
 
 
-        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("filter", ExtjsFilter.filter("breakdown", BreakdownOption.deviceType.name())).request().get(ConnectionOverviewInfo.class);
+        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("filter", ExtjsFilter.filter("breakdown", HeatMapBreakdownOption.deviceTypes.name())).request().get(ConnectionOverviewInfo.class);
 
         Comparator<TaskCounterInfo> counterInfoComparator = new Comparator<TaskCounterInfo>() {
             @Override

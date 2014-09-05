@@ -7,11 +7,11 @@ import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
  *
  * Created by bvn on 7/31/14.
  */
-public class BreakdownOptionAdapter extends MapBasedXmlAdapter<BreakdownOption> {
+public class BreakdownOptionAdapter extends MapBasedXmlAdapter<HeatMapBreakdownOption> {
 
     public BreakdownOptionAdapter() {
-        for (BreakdownOption breakdownOption : BreakdownOption.values()) {
-            register(breakdownOption.name(), breakdownOption);
+        for (HeatMapBreakdownOption heatMapBreakdownOption : HeatMapBreakdownOption.values()) {
+            register(heatMapBreakdownOption.name(), heatMapBreakdownOption);
         }
         register("",null);
     }

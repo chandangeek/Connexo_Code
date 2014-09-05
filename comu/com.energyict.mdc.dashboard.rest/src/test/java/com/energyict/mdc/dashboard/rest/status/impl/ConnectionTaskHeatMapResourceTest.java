@@ -136,7 +136,7 @@ public class ConnectionTaskHeatMapResourceTest extends JerseyTest {
         ConnectionTaskDeviceTypeHeatMap heatMap = createDeviceTypeHeatMap();
         when(dashboardService.getConnectionsDeviceTypeHeatMap()).thenReturn(heatMap);
 
-        Map<String, Object> map = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter("breakdown", "deviceType")).request().get(Map.class);
+        Map<String, Object> map = target("/connectionheatmap").queryParam("filter", ExtjsFilter.filter("breakdown", "deviceTypes")).request().get(Map.class);
 
         assertThat(map).containsKey("heatMap");
         assertThat(map).containsKey("breakdown");

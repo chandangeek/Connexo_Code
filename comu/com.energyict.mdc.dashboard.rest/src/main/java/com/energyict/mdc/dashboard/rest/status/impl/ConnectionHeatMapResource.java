@@ -41,10 +41,10 @@ public class ConnectionHeatMapResource {
         if (!jsonQueryFilter.getFilterProperties().containsKey("breakdown")) {
             Response.status(Response.Status.BAD_REQUEST).build();
         }
-        BreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
+        HeatMapBreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
 
         return new ConnectionHeatMapInfo(
-                breakdown==BreakdownOption.comPortPool?dashboardService.getConnectionsComPortPoolHeatMap():(breakdown==BreakdownOption.connectionType?dashboardService.getConnectionTypeHeatMap():dashboardService.getConnectionsDeviceTypeHeatMap()),
+                breakdown== HeatMapBreakdownOption.comPortPools?dashboardService.getConnectionsComPortPoolHeatMap():(breakdown== HeatMapBreakdownOption.connectionTypes?dashboardService.getConnectionTypeHeatMap():dashboardService.getConnectionsDeviceTypeHeatMap()),
                 breakdown,
                 thesaurus);
     }
