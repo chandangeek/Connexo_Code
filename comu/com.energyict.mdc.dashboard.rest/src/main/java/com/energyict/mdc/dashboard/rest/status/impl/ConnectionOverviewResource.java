@@ -7,6 +7,7 @@ import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -27,13 +28,15 @@ public class ConnectionOverviewResource {
     private final DashboardService dashboardService;
     private final OverviewFactory overviewFactory;
     private final BreakdownFactory breakdownFactory;
+    private final DeviceDataService deviceDataService;
 
     @Inject
-    public ConnectionOverviewResource(Thesaurus thesaurus, DashboardService dashboardService, OverviewFactory overviewFactory, BreakdownFactory breakdownFactory) {
+    public ConnectionOverviewResource(Thesaurus thesaurus, DashboardService dashboardService, OverviewFactory overviewFactory, BreakdownFactory breakdownFactory, DeviceDataService deviceDataService) {
         this.thesaurus = thesaurus;
         this.dashboardService = dashboardService;
         this.overviewFactory = overviewFactory;
         this.breakdownFactory = breakdownFactory;
+        this.deviceDataService = deviceDataService;
     }
 
     @GET
@@ -46,7 +49,7 @@ public class ConnectionOverviewResource {
         ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
         ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown();
-        ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(taskStatusOverview);
+        ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(taskStatusOverview, deviceDataService);
 
         return new ConnectionOverviewInfo(connectionSummaryData, taskStatusOverview, comSessionSuccessIndicatorOverview,
                 comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, breakdownFactory, overviewFactory,
