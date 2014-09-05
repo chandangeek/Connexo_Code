@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.rest;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ public class ValidationRuleInfo {
 
     public long id;
     public boolean active;
+    public boolean deleted;
     public String implementation; //validator classname
     public String displayName; // readable name
     public String name;
@@ -26,6 +28,7 @@ public class ValidationRuleInfo {
         implementation = validationRule.getImplementation();
         displayName = validationRule.getDisplayName();
         name = validationRule.getName();
+        deleted = validationRule.isObsolete();
         ruleSet = new ValidationRuleSetInfo(validationRule.getRuleSet());
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(validationRule.getPropertySpecs(), validationRule.getProps());
         for (ReadingType readingType : validationRule.getReadingTypes()) {
@@ -41,6 +44,13 @@ public class ValidationRuleInfo {
         return infos;
     }
 
+    public static List<ValidationRuleInfo> from(DataValidationStatus dataValidationStatus) {
+        List<ValidationRuleInfo> validationRuleInfos = new ArrayList<>();
+        for (ValidationRule validationRule : dataValidationStatus.getOffendedRules()) {
+            validationRuleInfos.add(new ValidationRuleInfo(validationRule));
+        }
+        return validationRuleInfos;
+    }
 
     public ValidationRuleInfo() {
     }
