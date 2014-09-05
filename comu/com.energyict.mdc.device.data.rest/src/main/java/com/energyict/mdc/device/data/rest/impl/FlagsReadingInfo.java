@@ -11,7 +11,7 @@ public class FlagsReadingInfo extends ReadingInfo<FlagsReading, NumericalRegiste
     public FlagsReadingInfo() {}
 
     public FlagsReadingInfo(FlagsReading reading, NumericalRegisterSpec registerSpec) {
-        super(reading, registerSpec);
+        super(reading, registerSpec, null);
         this.value = reading.getFlags();
     }
 }

@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
@@ -18,9 +16,9 @@ public class ReadingInfoFactory {
 
     public static ReadingInfo asInfo(Reading reading, RegisterSpec registerSpec, boolean isValidationStatusActive, DataValidationStatus dataValidationStatus) {
         if (reading instanceof BillingReading) {
-            return new BillingReadingInfo((BillingReading)reading, (NumericalRegisterSpec)registerSpec, isValidationStatusActive, dataValidationStatus);
+            return new BillingReadingInfo((BillingReading)reading, (NumericalRegisterSpec)registerSpec, isValidationStatusActive, dataValidationStatus, null);
         } else if(reading instanceof NumericalReading) {
-            return new NumericalReadingInfo((NumericalReading)reading, (NumericalRegisterSpec)registerSpec, isValidationStatusActive, dataValidationStatus);
+            return new NumericalReadingInfo((NumericalReading)reading, (NumericalRegisterSpec)registerSpec, isValidationStatusActive, dataValidationStatus, null);
         } else if(reading instanceof TextReading) {
             return new TextReadingInfo((TextReading)reading, (TextualRegisterSpec)registerSpec);
         } else if(reading instanceof FlagsReading) {

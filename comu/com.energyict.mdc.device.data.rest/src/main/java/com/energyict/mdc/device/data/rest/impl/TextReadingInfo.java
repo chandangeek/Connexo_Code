@@ -11,7 +11,7 @@ public class TextReadingInfo extends ReadingInfo<TextReading, TextualRegisterSpe
     public TextReadingInfo() {}
 
     public TextReadingInfo(TextReading reading, TextualRegisterSpec registerSpec) {
-        super(reading, registerSpec);
+        super(reading, registerSpec, null);
         this.value = reading.getValue();
     }
 }

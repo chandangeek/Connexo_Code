@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -34,12 +36,14 @@ public class LoadProfileResource {
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
     private final Provider<ChannelResource> channelResourceProvider;
+    private final ValidationEvaluator evaluator;
 
     @Inject
-    public LoadProfileResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Provider<ChannelResource> channelResourceProvider) {
+    public LoadProfileResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Provider<ChannelResource> channelResourceProvider, ValidationService validationService) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.channelResourceProvider = channelResourceProvider;
+        this.evaluator = validationService.getEvaluator();
     }
 
     @GET
@@ -73,7 +77,7 @@ public class LoadProfileResource {
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
             List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();
-            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(paginatedLoadProfileData, thesaurus);
+            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(paginatedLoadProfileData, thesaurus, evaluator);
             PagedInfoList pagedInfoList = PagedInfoList.asJson("data", infos, queryParameters);
             return Response.ok(pagedInfoList).build();
         }

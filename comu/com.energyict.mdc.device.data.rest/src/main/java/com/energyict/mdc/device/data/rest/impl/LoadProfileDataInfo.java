@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationEvaluator;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -23,15 +24,15 @@ public class LoadProfileDataInfo {
     public Date readingTime;
     public List<String> intervalFlags;
 
-    public static List<LoadProfileDataInfo> from(List<? extends LoadProfileReading> loadProfileReadings, Thesaurus thesaurus) {
+    public static List<LoadProfileDataInfo> from(List<? extends LoadProfileReading> loadProfileReadings, Thesaurus thesaurus, ValidationEvaluator evaluator) {
         List<LoadProfileDataInfo> channelData = new ArrayList<>();
         for (LoadProfileReading loadProfileReading : loadProfileReadings) {
-            channelData.add(getLoadProfileDataInfo(loadProfileReading, thesaurus));
+            channelData.add(getLoadProfileDataInfo(loadProfileReading, thesaurus, evaluator));
         }
         return channelData;
     }
 
-    private static LoadProfileDataInfo getLoadProfileDataInfo(LoadProfileReading loadProfileReading, Thesaurus thesaurus) {
+    private static LoadProfileDataInfo getLoadProfileDataInfo(LoadProfileReading loadProfileReading, Thesaurus thesaurus, ValidationEvaluator evaluator) {
         LoadProfileDataInfo channelIntervalInfo = new LoadProfileDataInfo();
         channelIntervalInfo.interval= IntervalInfo.from(loadProfileReading.getInterval());
         channelIntervalInfo.readingTime=loadProfileReading.getReadingTime();
@@ -45,7 +46,7 @@ public class LoadProfileDataInfo {
         }
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
-            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), new ValidationInfo(entry.getValue()));
+            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), new ValidationInfo(entry.getValue(), evaluator));
         }
         
         return channelIntervalInfo;
