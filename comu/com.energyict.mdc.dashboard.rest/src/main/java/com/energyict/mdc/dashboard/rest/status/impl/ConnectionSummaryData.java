@@ -1,8 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.Counter;
-import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,15 +17,15 @@ public class ConnectionSummaryData {
     private long failed;
     private long total;
 
-    public ConnectionSummaryData(TaskStatusOverview taskStatusOverview, DeviceDataService deviceDataService) {
+    public ConnectionSummaryData(TaskStatusOverview taskStatusOverview, long atLeastOneTaskFailed) {
         Map<TaskStatus, Long> counts = getTaskStatusCountsAsMap(taskStatusOverview);
 
         failed=counts.get(TaskStatus.Failed)+counts.get(TaskStatus.NeverCompleted);
         pending=counts.get(TaskStatus.Pending)+counts.get(TaskStatus.Busy)+counts.get(TaskStatus.Retrying);
         total=counts.get(TaskStatus.Retrying)+counts.get(TaskStatus.Busy)+counts.get(TaskStatus.Pending)+counts.get(TaskStatus.Failed)+counts.get(TaskStatus.NeverCompleted)+counts.get(TaskStatus.Waiting);
         success=counts.get(TaskStatus.Waiting);
-        atLeastOneTaskFailed=deviceDataService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
-        allTasksSuccessful=success-atLeastOneTaskFailed;
+        this.atLeastOneTaskFailed =atLeastOneTaskFailed;
+        allTasksSuccessful=success - this.atLeastOneTaskFailed;
     }
 
     private Map<TaskStatus, Long> getTaskStatusCountsAsMap(TaskStatusOverview taskStatusOverview) {

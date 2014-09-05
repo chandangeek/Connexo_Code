@@ -49,7 +49,7 @@ public class ConnectionOverviewResource {
         ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
         ConnectionTypeBreakdown connectionTypeBreakdown = dashboardService.getConnectionTypeBreakdown();
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown();
-        ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(taskStatusOverview, deviceDataService);
+        ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(taskStatusOverview, deviceDataService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
 
         return new ConnectionOverviewInfo(connectionSummaryData, taskStatusOverview, comSessionSuccessIndicatorOverview,
                 comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, breakdownFactory, overviewFactory,

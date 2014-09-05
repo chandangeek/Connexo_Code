@@ -2,14 +2,11 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,19 +19,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionSummaryDataTest {
 
-    @Mock
-    DeviceDataService deviceDataService;
-
-    @Before
-    public void setUp() throws Exception {
-
-    }
-
     @Test
     public void testSummaryCalculation() throws Exception {
-        when(deviceDataService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask()).thenReturn(99L);
-
-        ConnectionSummaryData data = new ConnectionSummaryData(createConnectionStatusOverview(), deviceDataService);
+        ConnectionSummaryData data = new ConnectionSummaryData(createConnectionStatusOverview(), 99L);
         assertThat(data.getFailed()).isEqualTo(56);
         assertThat(data.getPending()).isEqualTo(472);
         assertThat(data.getSuccess()).isEqualTo(113);
