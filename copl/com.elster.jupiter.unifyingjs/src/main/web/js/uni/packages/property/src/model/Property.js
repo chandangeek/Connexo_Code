@@ -102,7 +102,7 @@ Ext.define('Uni.property.model.Property', {
                 propertyValue.set('value', '');
             }
         }
-        if (isDefaultValue) {
+        if (isDefaultValue || (typeof me.raw['propertyValueInfo'] === 'undefined')) {
             me.set('isInheritedOrDefaultValue', true);
         } else {
             me.set('isInheritedOrDefaultValue', false);
