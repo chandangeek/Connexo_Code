@@ -30,7 +30,7 @@ public class ConnectionSummaryInfo {
 
         successfulConnections=new SubTaskCounterInfo();
         successfulConnections.count=connectionSummaryData.getSuccess();
-        successfulConnections.id="TBD"; // TODO
+        successfulConnections.id=TASK_STATUS_ADAPTER.marshal(TaskStatus.Waiting);
         successfulConnections.displayName=thesaurus.getString(MessageSeeds.SUCCESS.getKey(),"Success");
         info.counters.add(successfulConnections);
 
