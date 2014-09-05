@@ -14,7 +14,8 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.issue.datacollection.MeterReadingEventHandlerFactory", service = MessageHandlerFactory.class, property = {"subscriber=" + ModuleConstants.AQ_METER_READING_EVENT_SUBSC, "destination=" + EventService.JUPITER_EVENTS}, immediate = true)
+@Component(name = "com.energyict.mdc.issue.datacollection.MeterReadingEventHandlerFactory", service = MessageHandlerFactory.class,
+        property = {"subscriber=" + ModuleConstants.AQ_METER_READING_EVENT_SUBSC, "destination=" + EventService.JUPITER_EVENTS}, immediate = true)
 public class MeterReadingEventHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile IssueCreationService issueCreationService;
