@@ -36,13 +36,13 @@ public class ConnectionSummaryInfo {
 
         connectionsWithAllTasksSuccessful=new TaskCounterInfo();
         connectionsWithAllTasksSuccessful.count=connectionSummaryData.getAllTasksSuccessful();
-        connectionsWithAllTasksSuccessful.id="TBD"; // TODO
+        connectionsWithAllTasksSuccessful.id=null; // not navigable
         connectionsWithAllTasksSuccessful.displayName=thesaurus.getString(MessageSeeds.ALL_TASKS_SUCCESSFUL.getKey(),"All tasks successful");
         successfulConnections.counters.add(connectionsWithAllTasksSuccessful);
 
         connectionsWithFailingTasks=new TaskCounterInfo();
         connectionsWithFailingTasks.count=connectionSummaryData.getAtLeastOneTaskFailed();
-        connectionsWithFailingTasks.id="TBD"; // TODO
+        connectionsWithFailingTasks.id=null; // not navigable
         connectionsWithFailingTasks.displayName=thesaurus.getString(MessageSeeds.AT_LEAST_ONE_FAILED.getKey(),"At least one task failed");
         successfulConnections.counters.add(connectionsWithFailingTasks);
 
