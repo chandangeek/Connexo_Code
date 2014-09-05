@@ -1,8 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMap;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMapRow;
@@ -21,26 +19,28 @@ public class CommunicationHeatMapInfo {
     private static final CompletionCodeTaskCounterInfoComparator completionCodeTaskCounterInfoComparator = new CompletionCodeTaskCounterInfoComparator();
 
     public HeatMapBreakdownOption breakdown;
+    public FilterOption alias;
     public List<HeatMapRowInfo> heatMap;
 
     public CommunicationHeatMapInfo() {
     }
 
-    public <H extends HasName & HasId> CommunicationHeatMapInfo(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus)
+    public CommunicationHeatMapInfo(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus)
             throws Exception {
         this.breakdown = HeatMapBreakdownOption.deviceTypes;
+        this.alias = breakdown.filterOption();
         this.heatMap=new ArrayList<>();
-        this.heatMap.addAll(createHeatMap(heatMap, breakdown.filterOption(), thesaurus));
+        this.heatMap.addAll(createHeatMap(heatMap,thesaurus));
     }
 
-    private <H extends HasName & HasId> List<HeatMapRowInfo> createHeatMap(CommunicationTaskHeatMap heatMap, FilterOption alias, Thesaurus thesaurus) throws Exception {
+    private List<HeatMapRowInfo> createHeatMap(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus) throws Exception {
         List<HeatMapRowInfo> heatMapInfoList = new ArrayList<>();
         if (heatMap!=null) {
             for (CommunicationTaskHeatMapRow row : heatMap) {
                 HeatMapRowInfo heatMapRowInfo = new HeatMapRowInfo();
                 heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
                 heatMapRowInfo.id = row.getTarget().getId(); // ID of the object
-                heatMapRowInfo.alias = alias; // Type of object
+                heatMapRowInfo.alias = FilterOption.latestResults; // Type of object
                 heatMapRowInfo.data = new ArrayList<>();
                 for (ComCommandCompletionCodeOverview counters : row) {
                     for (Counter<CompletionCode> completionCodeCounter : counters) {
