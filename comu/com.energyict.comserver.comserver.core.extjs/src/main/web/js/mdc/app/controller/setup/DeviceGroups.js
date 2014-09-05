@@ -33,9 +33,49 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         this.control({
             '#deviceGroupsGrid': {
                 selectionchange: this.previewDeviceGroup
-            }
+            }/*,
+             '#deviceGroupsGrid actioncolumn': {
+             deleteDeviceGroup: this.deleteDeviceGroup
+             },
+             '#deviceGroupPreview menuitem[action=deleteDeviceGroup]': {
+             click: this.deleteDeviceGroupFromPreview
+             }    */
         });
     },
+
+    /*deleteDeviceGroup: function (deviceGroupToDelete) {
+     var me = this;
+     var msg = msg = Uni.I18n.translate('deviceGroup.deleteDeviceGroup', 'MDC', 'The device group will no longer be available.');
+
+     Ext.create('Uni.view.window.Confirmation').show({
+     msg: msg,
+     title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + deviceGroupToDelete.get('name') + '?',
+     config: {
+     deviceGroupToDelete: deviceGroupToDelete,
+     me: me
+     },
+     fn: me.removeDeviceGroup
+     });
+     },
+
+     removeDeviceGroup: function (btn, text, opt) {
+     if (btn === 'confirm') {
+     var deviceGroupToDelete = opt.config.deviceGroupToDelete;
+     var me = opt.config.me;
+
+     deviceGroupToDelete.destroy({
+     success: function () {
+     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.acknowlegment.removed', 'MDC', 'Device group removed') );
+     location.href = '#/devices/devicegroups/';
+     }
+     });
+
+     }
+     },
+
+     deleteDeviceGroupFromPreview: function () {
+     this.deleteDeviceGroup(this.getDeviceGroupsGrid().getSelectionModel().getSelection()[0]);
+     },  */
 
     showDeviceGroups: function () {
         var widget = Ext.widget('deviceGroupSetup');
@@ -45,8 +85,40 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
     previewDeviceGroup: function (grid, record) {
         var deviceGroups = this.getDeviceGroupsGrid().getSelectionModel().getSelection();
         if (deviceGroups.length == 1) {
-            this.getDeviceGroupPreviewForm().loadRecord(deviceGroups[0]);
-            this.getDeviceGroupPreview().setTitle(deviceGroups[0].get('name'));
+            var deviceGroup = deviceGroups[0];
+            this.getDeviceGroupPreviewForm().loadRecord(deviceGroup);
+            this.getDeviceGroupPreview().setTitle(deviceGroup.get('name'));
+            var criteria = deviceGroup.criteriaStore.data.items;
+            this.getSearchCriteriaContainer().removeAll();
+            for (var i = 0; i < criteria.length; i++) {
+                var foundCriteria = criteria[i].data;
+                var criteriaName = foundCriteria.criteriaName;
+                var criteriaValues = foundCriteria.criteriaValues;
+                if (criteriaName == 'deviceConfiguration.deviceType.name') {
+                    criteriaName = Uni.I18n.translate('deviceType.static', 'MDC', 'Device type')
+                }
+                if (criteriaName == 'mRID') {
+                    criteriaName = Uni.I18n.translate('general.mRID', 'MDC', 'MRID')
+                }
+                var criteriaValue = '';
+                for (var j = 0; j < criteriaValues.length; j++) {
+                    singleCriteriaValue = criteriaValues[j];
+                    criteriaValue = criteriaValue + singleCriteriaValue;
+                    if (j != (criteriaValues.length - 1)) {
+                        criteriaValue = criteriaValue + ', '
+                    }
+                }
+                this.getSearchCriteriaContainer().add(
+                    {
+                        xtype: 'displayfield',
+                        name: 'name',
+                        fieldLabel: criteriaName,
+                        renderer: function (value) {
+                            return criteriaValue;
+                        }
+                    }
+                )
+            };
         }
     },
 
