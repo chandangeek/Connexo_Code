@@ -55,8 +55,13 @@ public class Installer {
         } catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        this.createPrivileges();
-        this.assignPrivilegesToDefaultRoles();
+        try {
+            this.createPrivileges();
+            this.assignPrivilegesToDefaultRoles();
+        }
+        catch (Exception e) {
+            this.logger.severe(e.getMessage());
+        }
         this.createEventTypes();
         this.createTranslations();
         this.createMessageHandlers();
@@ -81,8 +86,13 @@ public class Installer {
     }
 
     private void createMessageHandlers() {
-        this.createMessageHandler(COMSCHEDULE_RECALCULATOR_MESSAGING_NAME);
-        this.createMessageHandler(COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME);
+        try {
+            this.createMessageHandler(COMSCHEDULE_RECALCULATOR_MESSAGING_NAME);
+            this.createMessageHandler(COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME);
+        }
+        catch (Exception e) {
+            this.logger.severe(e.getMessage());
+        }
     }
 
     private void createMessageHandler(String messagingName) {
