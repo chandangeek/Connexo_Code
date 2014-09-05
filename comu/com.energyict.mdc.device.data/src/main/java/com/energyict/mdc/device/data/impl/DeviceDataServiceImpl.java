@@ -1716,9 +1716,9 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append("select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
         sqlBuilder.append(" group by connectiontask)");
-        sqlBuilder.append(" and not exits (select * from ");
+        sqlBuilder.append(" and not exists (select * from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0) group by ct.comportpool, cst.successIndicator");
+        sqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0) group by ct.comportpool, cs.successIndicator");
         Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
         /* Need another similar query that selects the successful last com sessions that have at least one failing task.
          * Again for clarity's sake, the formatted SQL
@@ -1743,9 +1743,9 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         failingComTasksSqlBuilder.append("select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
         failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
         failingComTasksSqlBuilder.append(" group by connectiontask)");
-        failingComTasksSqlBuilder.append(" and cs.successindicator = 0 and exits (select * from ");
+        failingComTasksSqlBuilder.append(" and cs.successindicator = 0 and exists (select * from ");
         failingComTasksSqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        failingComTasksSqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0) group by ct.comportpool, cst.successIndicator");
+        failingComTasksSqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0) group by ct.comportpool, cs.successIndicator");
         Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters = this.fetchConnectionTypeHeatMapCounters(failingComTasksSqlBuilder);
         return this.buildComPortPoolHeatMap(partialCounters, remainingCounters);
     }
