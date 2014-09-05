@@ -94,10 +94,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 dataStore.on('load', function () {
                     me.showReadingsCount(dataStore);
                     me.showGraphView(record);
+                    widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
                     widget.setLoading(false);
                 }, me);
 
                 me.setDefaults();
+
             }
         });
     },
@@ -108,7 +110,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
             zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
             title = loadProfileRecord.get('name'),
-            interval = loadProfileRecord.get('interval').count + loadProfileRecord.get('interval').timeUnit,
             currentAxisTopValue = 2,
             currentLine = 0,
             series = [],
@@ -118,13 +119,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             channelDataArrays = {},
             seriesToYAxisMap = {},
             intervalLengthInMs,
+            axisBacklash,
             lineCount,
             intervalRecord,
             zoomLevels,
             step;
 
-        intervalRecord = zoomLevelsStore.findRecord('interval', interval);
-        intervalLengthInMs = intervalRecord.get('intervalInMs');
+        intervalRecord = zoomLevelsStore.getIntervalRecord(loadProfileRecord.get('interval'));
+        intervalLengthInMs = zoomLevelsStore.getIntervalInMs(loadProfileRecord.get('interval'));
         zoomLevels = intervalRecord.get('zoomLevels');
 
         Ext.Array.each(loadProfileRecord.get('channels'), function (channel, index) {
@@ -154,6 +156,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
         lineCount = measurementTypeOrder.length;
         step = (100 / lineCount | 0) - 1;
+        axisBacklash = (4 -lineCount) > 0 ? (4 -lineCount) : 0;
 
         Ext.Array.each(channels, function (channel, index) {
             var yAxisObject = {
@@ -175,7 +178,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 yAxisObject['offset'] = 0;
             }
             yAxisObject['top'] = currentAxisTopValue + '%';
-            currentAxisTopValue += step + 2;
+            currentAxisTopValue += step + 2 + axisBacklash;
             yAxisObject['title'] = {
                 rotation: 0,
                 align: 'high',
@@ -193,9 +196,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     }
                 });
             });
+            container.down('#graphContainer').show();
+            container.down('#emptyGraphMessage').hide();
             container.drawGraph(title, yAxis, series, channels, seriesToYAxisMap, intervalLengthInMs, zoomLevels);
         } else {
-            container.drawEmptyList();
+            container.down('#graphContainer').hide();
+            container.down('#emptyGraphMessage').show();
         }
 
         me.getPage().doLayout();
@@ -241,7 +247,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             value && dataStoreProxy.setExtraParam(key, value);
         });
 
-        page.setLoading(true);
+        page.down('#deviceLoadProfilesGraphView').isVisible() && page.setLoading(true);
         page.down('#deviceLoadProfileDataTopFilter').addButtons(filterModel);
         dataStore.load();
     },
@@ -257,10 +263,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             page = me.getPage(),
             filterModel = Ext.create('Mdc.model.LoadProfilesOfDeviceDataFilter'),
             interval = me.loadProfileModel.get('interval'),
-            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getById(interval.count + interval.timeUnit),
+            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(interval),
             all = dataIntervalAndZoomLevels.get('all'),
             intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime())),
             durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
+
+
 
         durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
 
