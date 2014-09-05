@@ -75,7 +75,7 @@ Ext.define('ExtThemeNeptune.panel.Panel', {
     }
 });
 
-Ext.define('Skyline.panel.Panel', {
+Ext.define('Uni.view.panel.Panel', {
     override: 'Ext.panel.Panel',
 
     beforeRender: function() {
@@ -109,7 +109,7 @@ Ext.define('Skyline.panel.Panel', {
     }
 });
 
-Ext.define('Skyline.panel.Header', {
+Ext.define('Uni.view.panel.Header', {
     override: 'Ext.panel.Header',
 
     headingTpl: [
@@ -485,7 +485,7 @@ Ext.define('ExtThemeNeptune.container.ButtonGroup', {
     usePlainButtons: false
 });
 
-Ext.define('Skyline.window.MessageBox', {
+Ext.define('Uni.view.window.MessageBox', {
     override: 'Ext.window.MessageBox',
     shadow: false,
 
@@ -546,7 +546,7 @@ Ext.define('Skyline.window.MessageBox', {
     Ext.MessageBox = Ext.Msg = new this();
 });
 
-Ext.define('Skyline.form.field.Text', {
+Ext.define('Uni.view.form.field.Text', {
     override: "Ext.form.field.Text",
     labelAlign: 'right',
     labelPad: 15,
@@ -554,7 +554,7 @@ Ext.define('Skyline.form.field.Text', {
     blankText: 'This is a required field'
 });
 
-Ext.define('Skyline.form.field.Base', {
+Ext.define('Uni.view.form.field.Base', {
     override: "Ext.form.field.Base",
     labelAlign: 'right',
     labelPad: 15,
@@ -579,7 +579,7 @@ Ext.define('Skyline.form.field.Base', {
 
 
 
-Ext.define('Skyline.form.field.FieldContainer', {
+Ext.define('Uni.view.form.field.FieldContainer', {
     override: "Ext.form.FieldContainer",
     labelPad: 15,
     getLabelCls: function () {
@@ -594,12 +594,12 @@ Ext.define('Skyline.form.field.FieldContainer', {
     }
 });
 
-Ext.define('Skyline.form.Label', {
+Ext.define('Uni.view.form.Label', {
     override: 'Ext.form.Label',
     cls: 'x-form-item-label'
 });
 
-Ext.define('Skyline.form.Panel', {
+Ext.define('Uni.view.form.Panel', {
     override: 'Ext.form.Panel',
     buttonAlign: 'left',
 
@@ -628,7 +628,7 @@ Ext.define('Skyline.form.Panel', {
     }
 });
 
-Ext.define('Skyline.form.field.ComboBox', {
+Ext.define('Uni.view.form.field.ComboBox', {
     override: 'Ext.form.field.ComboBox',
 
     anyMatch: true,
@@ -664,7 +664,7 @@ Ext.define('ExtThemeNeptune.toolbar.Paging', {
     inputItemWidth: 40
 });
 
-Ext.define('Skyline.form.field.Date', {
+Ext.define('Uni.view.form.field.Date', {
     override: 'Ext.form.field.Date',
 
     format: 'd/m/Y',
@@ -730,7 +730,7 @@ Ext.define('ExtThemeNeptune.form.field.HtmlEditor', {
     defaultButtonUI: 'plain-toolbar'
 });
 
-Ext.define('Skyline.grid.Panel', {
+Ext.define('Uni.view.grid.Panel', {
     override: 'Ext.grid.Panel',
     bodyBorder: true,
     enableColumnHide: false,
@@ -744,7 +744,7 @@ Ext.define('Skyline.grid.Panel', {
     }
 });
 
-Ext.define('Skyline.view.Table', {
+Ext.define('Uni.view.view.Table', {
     override: 'Ext.view.Table',
     bodyBorder: true
 //    ,
@@ -838,7 +838,7 @@ Ext.define('ExtThemeNeptune.grid.column.RowNumberer', {
     width: 25
 });
 
-Ext.define('Skyline.grid.plugin.BufferedRenderer', {
+Ext.define('Uni.view.grid.plugin.BufferedRenderer', {
     override: 'Ext.grid.plugin.BufferedRenderer',
     rowHeight: 29, // comes from skyline theme
 
@@ -881,7 +881,7 @@ Ext.define('ExtThemeNeptune.resizer.Splitter', {
     size: 8
 });
 
-Ext.define('Skyline.menu.Item', {
+Ext.define('Uni.view.menu.Item', {
     override: 'Ext.menu.Item',
 
     setHref: function (href, target) {
@@ -987,7 +987,7 @@ Ext.define('ExtThemeNeptune.tab.Tab', {
     border: false
 });
 
-Ext.define('Skyline.button.TagButton', {
+Ext.define('Uni.view.button.TagButton', {
     extend: 'Ext.button.Split',
     alias: 'widget.tag-button',
     split: true,
@@ -1012,21 +1012,21 @@ Ext.define('Skyline.button.TagButton', {
     }
 });
 
-Ext.define('Skyline.button.SortItemButton', {
-    extend: 'Skyline.button.TagButton',
+Ext.define('Uni.view.button.SortItemButton', {
+    extend: 'Uni.view.button.TagButton',
     alias: 'widget.sort-item-btn',
     name: 'sortitembtn',
     iconCls: 'x-btn-sort-item-asc',
     sortOrder: 'asc'
 });
 
-Ext.define('Skyline.button.StepButton', {
+Ext.define('Uni.view.button.StepButton', {
     extend: 'Ext.button.Button',
     alias: 'widget.step-button',
     ui: 'step-active'
 });
 
-Ext.define('Skyline.menu.NavigationItem', {
+Ext.define('Uni.view.menu.NavigationItem', {
     extend: 'Ext.menu.Item',
     alias: 'widget.navigation-item',
     arrowCls: null,
@@ -1056,7 +1056,7 @@ Ext.define('Skyline.menu.NavigationItem', {
     ]
 });
 
-Ext.define('Skyline.menu.NavigationMenu', {
+Ext.define('Uni.view.menu.NavigationMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.navigation-menu',
     cls: 'x-navigation-menu',
@@ -1120,7 +1120,7 @@ Ext.define('Skyline.menu.NavigationMenu', {
     }
 });
 
-Ext.define('Skyline.panel.FilterToolbar', {
+Ext.define('Uni.view.panel.FilterToolbar', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.filter-toolbar',
     titlePosition: 'left',
@@ -1222,7 +1222,7 @@ Ext.define('Skyline.panel.FilterToolbar', {
     }
 });
 
-Ext.define('Skyline.panel.StepPanel', {
+Ext.define('Uni.view.panel.StepPanel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.step-panel',
     text: 'Some step text',
@@ -1352,7 +1352,7 @@ Ext.define('Skyline.panel.StepPanel', {
     }
 });
 
-Ext.define('Skyline.ux.window.Notification', {
+Ext.define('Uni.view.ux.window.Notification', {
     override: 'Ext.ux.window.Notification',
     title: false,
     position: 't',

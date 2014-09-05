@@ -9,12 +9,12 @@ Ext.Loader.addClassPathMappings({
   "Ext.Msg": "../../../../src/window/MessageBox.js",
   "ExtThemeNeptune": "../../../ext-theme-neptune/overrides",
   "Skyline": "../../overrides",
-  "Skyline.button": "../../src/button",
-  "Skyline.menu": "../../src/menu",
-  "Skyline.menu.Item": "../../overrides/menu/Item.js",
-  "Skyline.panel": "../../src/panel",
-  "Skyline.panel.Header": "../../overrides/panel/Header.js",
-  "Skyline.panel.Panel": "../../overrides/panel/Panel.js"
+  "Uni.view.button": "../../src/button",
+  "Uni.view.menu": "../../src/menu",
+  "Uni.view.menu.Item": "../../overrides/menu/Item.js",
+  "Uni.view.panel": "../../src/panel",
+  "Uni.view.panel.Header": "../../overrides/panel/Header.js",
+  "Uni.view.panel.Panel": "../../overrides/panel/Panel.js"
 });
 Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.Component": [],
@@ -33,28 +33,28 @@ Ext.ClassManager.addNameAlternateMappings({
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
   "ExtThemeNeptune.toolbar.Toolbar": [],
-  "Skyline.button.SortItemButton": [],
-  "Skyline.button.StepButton": [],
-  "Skyline.button.TagButton": [],
-  "Skyline.form.Label": [],
-  "Skyline.form.Panel": [],
-  "Skyline.form.field.Base": [],
-  "Skyline.form.field.ComboBox": [],
-  "Skyline.form.field.Date": [],
-  "Skyline.form.field.FieldContainer": [],
-  "Skyline.form.field.Text": [],
-  "Skyline.grid.Panel": [],
-  "Skyline.grid.plugin.BufferedRenderer": [],
-  "Skyline.menu.Item": [],
-  "Skyline.menu.NavigationItem": [],
-  "Skyline.menu.NavigationMenu": [],
-  "Skyline.panel.FilterToolbar": [],
-  "Skyline.panel.Header": [],
-  "Skyline.panel.Panel": [],
-  "Skyline.panel.StepPanel": [],
-  "Skyline.ux.window.Notification": [],
-  "Skyline.view.Table": [],
-  "Skyline.window.MessageBox": []
+  "Uni.view.button.SortItemButton": [],
+  "Uni.view.button.StepButton": [],
+  "Uni.view.button.TagButton": [],
+  "Uni.view.form.Label": [],
+  "Uni.view.form.Panel": [],
+  "Uni.view.form.field.Base": [],
+  "Uni.view.form.field.ComboBox": [],
+  "Uni.view.form.field.Date": [],
+  "Uni.view.form.field.FieldContainer": [],
+  "Uni.view.form.field.Text": [],
+  "Uni.view.grid.Panel": [],
+  "Uni.view.grid.plugin.BufferedRenderer": [],
+  "Uni.view.menu.Item": [],
+  "Uni.view.menu.NavigationItem": [],
+  "Uni.view.menu.NavigationMenu": [],
+  "Uni.view.panel.FilterToolbar": [],
+  "Uni.view.panel.Header": [],
+  "Uni.view.panel.Panel": [],
+  "Uni.view.panel.StepPanel": [],
+  "Uni.view.ux.window.Notification": [],
+  "Uni.view.view.Table": [],
+  "Uni.view.window.MessageBox": []
 });
 Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.Component": [],
@@ -73,42 +73,42 @@ Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.tab.Tab": [],
   "ExtThemeNeptune.toolbar.Paging": [],
   "ExtThemeNeptune.toolbar.Toolbar": [],
-  "Skyline.button.SortItemButton": [
+  "Uni.view.button.SortItemButton": [
     "widget.sort-item-btn"
   ],
-  "Skyline.button.StepButton": [
+  "Uni.view.button.StepButton": [
     "widget.step-button"
   ],
-  "Skyline.button.TagButton": [
+  "Uni.view.button.TagButton": [
     "widget.tag-button"
   ],
-  "Skyline.form.Label": [],
-  "Skyline.form.Panel": [],
-  "Skyline.form.field.Base": [],
-  "Skyline.form.field.ComboBox": [],
-  "Skyline.form.field.Date": [],
-  "Skyline.form.field.FieldContainer": [],
-  "Skyline.form.field.Text": [],
-  "Skyline.grid.Panel": [],
-  "Skyline.grid.plugin.BufferedRenderer": [],
-  "Skyline.menu.Item": [],
-  "Skyline.menu.NavigationItem": [
+  "Uni.view.form.Label": [],
+  "Uni.view.form.Panel": [],
+  "Uni.view.form.field.Base": [],
+  "Uni.view.form.field.ComboBox": [],
+  "Uni.view.form.field.Date": [],
+  "Uni.view.form.field.FieldContainer": [],
+  "Uni.view.form.field.Text": [],
+  "Uni.view.grid.Panel": [],
+  "Uni.view.grid.plugin.BufferedRenderer": [],
+  "Uni.view.menu.Item": [],
+  "Uni.view.menu.NavigationItem": [
     "widget.navigation-item"
   ],
-  "Skyline.menu.NavigationMenu": [
+  "Uni.view.menu.NavigationMenu": [
     "widget.navigation-menu"
   ],
-  "Skyline.panel.FilterToolbar": [
+  "Uni.view.panel.FilterToolbar": [
     "widget.filter-toolbar"
   ],
-  "Skyline.panel.Header": [],
-  "Skyline.panel.Panel": [],
-  "Skyline.panel.StepPanel": [
+  "Uni.view.panel.Header": [],
+  "Uni.view.panel.Panel": [],
+  "Uni.view.panel.StepPanel": [
     "widget.step-panel"
   ],
-  "Skyline.ux.window.Notification": [],
-  "Skyline.view.Table": [],
-  "Skyline.window.MessageBox": []
+  "Uni.view.ux.window.Notification": [],
+  "Uni.view.view.Table": [],
+  "Uni.view.window.MessageBox": []
 });
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/Component.js");
 Ext.Loader.loadScript("../../../ext-theme-neptune/overrides/panel/Panel.js");
