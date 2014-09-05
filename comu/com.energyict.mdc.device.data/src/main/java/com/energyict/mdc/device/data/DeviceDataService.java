@@ -524,10 +524,20 @@ public interface DeviceDataService {
     /**
      * Counts the number of {@link ConnectionTask}s whose last {@link ComSession}
      * completed successfully but has at least one failing task.
+     * Note that the status of the task is not taken into account at all.
      *
      * @return The count
      */
     public long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
+
+    /**
+     * Counts the number of {@link ConnectionTask}s that are currently waiting
+     * to be executed and whose last {@link ComSession}
+     * completed successfully but has at least one failing task.
+     *
+     * @return The count
+     */
+    public long countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
 
     /**
      * Counts the last {@link ComSession} of all {@link ConnectionTask}s,

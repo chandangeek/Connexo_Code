@@ -1414,13 +1414,34 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask() {
+        return this.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(false);
+    }
+
+    @Override
+    public long countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask() {
+        return this.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(true);
+    }
+
+    private long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(boolean waitingOnly) {
         SqlBuilder sqlBuilder = new SqlBuilder("select count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" where id in (select connectiontask from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate DESC) successIndicator from ");
+        sqlBuilder.append(" ct join ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs where cs.SUCCESSINDICATOR = 0 and exists (select * from ");
+        sqlBuilder.append(" cs on cs.connectiontask = ct.id");
+        sqlBuilder.append(" where ct.obsolete_date is null");
+        if (waitingOnly) {
+            sqlBuilder.append(" and nextexecutiontimestamp >");
+            sqlBuilder.addLong(this.asSeconds(clock.now()));
+            sqlBuilder.append(" and ct.comserver is null and ct.status = 0 and ct.currentretrycount = 0 and ct.lastExecutionFailed = 0 and ct.lastsuccessfulcommunicationend is not null");
+        }
+        else {
+            sqlBuilder.append(" and ct.nextexecutiontimestamp is not null");
+        }
+        sqlBuilder.append(" and cs.id in (select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
+        sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
+        sqlBuilder.append(" group by connectiontask) and cs.successindicator = 0 and exists (select * from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0) group by connectiontask) t) and nextexecutiontimestamp is not null and obsolete_date is null");
+        sqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0)");
         try (PreparedStatement stmnt = sqlBuilder.prepare(this.dataModel.getConnection(false))) {
             try (ResultSet resultSet = stmnt.executeQuery()) {
                 while (resultSet.next()) {
@@ -1432,6 +1453,10 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             throw new UnderlyingSQLFailedException(ex);
         }
         return 0;
+    }
+
+    private long asSeconds(Date date) {
+        return date.getTime() / DateTimeConstants.MILLIS_PER_SECOND;
     }
 
     @Override
