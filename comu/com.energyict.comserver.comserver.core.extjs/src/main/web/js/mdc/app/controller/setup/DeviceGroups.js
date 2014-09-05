@@ -94,12 +94,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                 var foundCriteria = criteria[i].data;
                 var criteriaName = foundCriteria.criteriaName;
                 var criteriaValues = foundCriteria.criteriaValues;
-                if (criteriaName == 'deviceConfiguration.deviceType.name') {
-                    criteriaName = Uni.I18n.translate('deviceType.static', 'MDC', 'Device type')
-                }
-                if (criteriaName == 'mRID') {
-                    criteriaName = Uni.I18n.translate('general.mRID', 'MDC', 'MRID')
-                }
+                criteriaName = this.translateCriteriaName(criteriaName);
                 var criteriaValue = '';
                 for (var j = 0; j < criteriaValues.length; j++) {
                     singleCriteriaValue = criteriaValues[j];
@@ -120,6 +115,22 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                 )
             };
         }
+    },
+
+    translateCriteriaName: function(criteriaName) {
+        if (criteriaName == 'deviceConfiguration.deviceType.name') {
+            criteriaName = Uni.I18n.translate('devicetype.deviceType', 'MDC', 'Device type')
+        }
+        else if (criteriaName == 'mRID') {
+            criteriaName = Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
+        }
+        else if (criteriaName == 'serialNumber') {
+            criteriaName = Uni.I18n.translate('deviceGeneralInformation.serialNumber', 'MDC', 'Serial number')
+        }
+        else if (criteriaName == 'deviceConfiguration.name') {
+            criteriaName = Uni.I18n.translate('deviceGeneralInformation.deviceConfiguration', 'MDC', 'Device configuration')
+        }
+        return criteriaName;
     },
 
     back: function () {
