@@ -103,7 +103,9 @@ public class MessageHandlerLauncherService {
     
     public void removeResource(MessageHandlerFactory factory) {
         ExecutorService executorService = executors.get(factory);
-        shutDownServiceWithCancelling(executorService);
+        if (executorService != null) {
+            shutDownServiceWithCancelling(executorService);
+        }
     }
 
     private void addMessageHandlerFactory(String subscriberName, MessageHandlerFactory factory) {
