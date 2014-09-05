@@ -15,5 +15,5 @@ Ext.define('Dsh.model.Filter', {
 //        { name: 'startedBetween', type: 'hasOne', model: 'Dsh.model.DateTimeRange', associationKey: 'startedBetween' },
 //        { name: 'finishedBetween', type: 'hasOne', model: 'Dsh.model.DateTimeRange', associationKey: 'finishedBetween' }
 //    ],
-    proxy: Ext.create('Dsh.util.FilterProxy')
+    proxy: Ext.create('Uni.data.proxy.QueryStringProxy')
 });

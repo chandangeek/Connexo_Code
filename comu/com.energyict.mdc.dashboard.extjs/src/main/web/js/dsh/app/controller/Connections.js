@@ -75,6 +75,8 @@ Ext.define('Dsh.controller.Connections', {
 
     loadFilterValues: function () {
         var me = this;
+
+        // todo: get rid of this delay
         Ext.defer(function () {
                 Dsh.model.Filter.load(0, {
                     callback: function (record) {
