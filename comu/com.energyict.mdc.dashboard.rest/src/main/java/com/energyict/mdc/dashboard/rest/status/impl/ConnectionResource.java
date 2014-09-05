@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
@@ -16,9 +15,9 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.engine.model.security.Privileges;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -56,7 +54,6 @@ public class ConnectionResource {
     private static final String FINISH_INTERVAL_FROM = "finishIntervalFrom";
     private static final String FINISH_INTERVAL_TO = "finishIntervalTo";
 
-    private final Thesaurus thesaurus;
     private final DeviceDataService deviceDataService;
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -64,8 +61,7 @@ public class ConnectionResource {
     private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
 
     @Inject
-    public ConnectionResource(Thesaurus thesaurus, DeviceDataService deviceDataService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory) {
-        this.thesaurus = thesaurus;
+    public ConnectionResource(DeviceDataService deviceDataService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory) {
         this.deviceDataService = deviceDataService;
         this.engineModelService = engineModelService;
         this.protocolPluggableService = protocolPluggableService;

@@ -20,6 +20,7 @@ import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.dashboard.impl.TaskStatusBreakdownCounterImpl;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -67,6 +68,8 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
     private Thesaurus thesaurus;
     @Mock
     private DashboardService dashboardService;
+    @Mock
+    private DeviceDataService deviceDataService;
 
     @Before
     public void setupMocks () {
@@ -138,6 +141,7 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
                 bind(nlsService).to(NlsService.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(dashboardService).to(DashboardService.class);
+                bind(deviceDataService).to(DeviceDataService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
                 bind(BreakdownFactory.class).to(BreakdownFactory.class);
