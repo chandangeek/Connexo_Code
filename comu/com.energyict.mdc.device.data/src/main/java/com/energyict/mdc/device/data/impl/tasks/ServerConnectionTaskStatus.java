@@ -85,7 +85,7 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
             super.completeFindBySqlBuilder(sqlBuilder, clock);
-            sqlBuilder.append("and (exists (select * from ");
+            sqlBuilder.append("and nextexecutiontimestamp is not null and (exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
             sqlBuilder.append(" cte where ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());

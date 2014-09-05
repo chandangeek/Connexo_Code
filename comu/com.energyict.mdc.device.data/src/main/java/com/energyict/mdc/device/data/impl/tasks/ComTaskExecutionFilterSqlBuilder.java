@@ -111,7 +111,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     private void appendLastSessionJoinClauseForComTaskExecution () {
-        this.append(", (select comtaskexec, MAX(highestPrioCompletionCode) KEEP (DENSE_RANK LAST ORDER BY startdate) ");
+        this.append(", (select comtaskexec, MAX(highestPrioCompletionCode) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) ");
         this.append(HIGHEST_PRIORITY_COMPLETION_CODE_ALIAS_NAME);
         this.append(" from ");
         this.append(TableSpecs.DDC_COMTASKEXECSESSION.name());

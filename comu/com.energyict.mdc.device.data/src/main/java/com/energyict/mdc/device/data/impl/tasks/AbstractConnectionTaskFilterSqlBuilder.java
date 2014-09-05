@@ -86,7 +86,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     private void appendLastComSessionJoinClauseForConnectionTask(String successIndicatorAliasName, String connectionTaskTableName) {
         this.append(", (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY ");
         this.append(TableSpecs.DDC_COMSESSION.name());
-        this.append(".startdate) ");
+        this.append(".startdate DESC) ");
         this.append(successIndicatorAliasName);
         this.append(" from ");
         this.append(TableSpecs.DDC_COMSESSION.name());

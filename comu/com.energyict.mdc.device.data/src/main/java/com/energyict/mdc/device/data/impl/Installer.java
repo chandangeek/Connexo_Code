@@ -55,8 +55,13 @@ public class Installer {
         } catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        this.createPrivileges();
-        this.assignPrivilegesToDefaultRoles();
+        try {
+            this.createPrivileges();
+            this.assignPrivilegesToDefaultRoles();
+        }
+        catch (Exception e) {
+            this.logger.severe(e.getMessage());
+        }
         this.createEventTypes();
         this.createTranslations();
         this.createMessageHandlers();
@@ -81,8 +86,13 @@ public class Installer {
     }
 
     private void createMessageHandlers() {
-        this.createMessageHandler(COMSCHEDULE_RECALCULATOR_MESSAGING_NAME);
-        this.createMessageHandler(COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME);
+        try {
+            this.createMessageHandler(COMSCHEDULE_RECALCULATOR_MESSAGING_NAME);
+            this.createMessageHandler(COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME);
+        }
+        catch (Exception e) {
+            this.logger.severe(e.getMessage());
+        }
     }
 
     private void createMessageHandler(String messagingName) {
@@ -97,16 +107,17 @@ public class Installer {
     }
 
     private void createTranslations() {
-        try {
-            List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-            for (MessageSeeds messageSeed : MessageSeeds.values()) {
+        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            try {
                 SimpleNlsKey nlsKey = SimpleNlsKey.key(DeviceDataService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
                 translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
             }
-            this.thesaurus.addTranslations(translations);
-        } catch (Exception e) {
-            this.logger.severe(e.getMessage());
+            catch (Exception e) {
+                this.logger.severe(e.getMessage());
+            }
         }
+        this.thesaurus.addTranslations(translations);
     }
 
     private Translation toTranslation(SimpleNlsKey nlsKey, Locale locale, String translation) {
