@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.securitysettings.SecuritySettingFiltering', {
-    extend: 'Skyline.panel.FilterToolbar',
+    extend: 'Uni.view.panel.FilterToolbar',
     alias: 'widget.securitySettingFiltering',
     title: 'Filters',
     emptyText: 'None',

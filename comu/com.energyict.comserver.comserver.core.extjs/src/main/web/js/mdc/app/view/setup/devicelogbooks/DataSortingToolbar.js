@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.devicelogbooks.DataSortingToolbar', {
-    extend: 'Skyline.panel.FilterToolbar',
+    extend: 'Uni.view.panel.FilterToolbar',
     requires: [
-        'Skyline.button.SortItemButton'
+        'Uni.view.button.SortItemButton'
     ],
     alias: 'widget.deviceLogbookDataSortingToolbar',
     itemId: 'deviceLogbookDataSortingToolbar',

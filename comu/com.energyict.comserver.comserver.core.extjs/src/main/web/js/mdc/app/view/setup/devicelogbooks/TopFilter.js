@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.devicelogbooks.TopFilter', {
-    extend: 'Skyline.panel.FilterToolbar',
+    extend: 'Uni.view.panel.FilterToolbar',
     requires: [
-        'Skyline.button.TagButton'
+        'Uni.view.button.TagButton'
     ],
     alias: 'widget.deviceLogbookDataTopFilter',
     itemId: 'deviceLogbookDataTopFilter',
@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.TopFilter', {
                 eventDateText += (intervalStart ? Uni.I18n.translate('general.to', 'MDC', 'to').toLowerCase() : Uni.I18n.translate('general.to', 'MDC', 'To')) + ' '
                     + Uni.I18n.formatDate('devicelogbooks.topFilter.tagButton.dateFormat', intervalEnd, 'MDC', 'd/m/Y');
             }
-            container.add(Ext.create('Skyline.button.TagButton', {
+            container.add(Ext.create('Uni.view.button.TagButton', {
                 itemId: 'filter-by-eventDate',
                 text: eventDateText,
                 target: ['intervalStart', 'intervalEnd']
@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.TopFilter', {
         }
 
         if (domain) {
-            container.add(Ext.create('Skyline.button.TagButton', {
+            container.add(Ext.create('Uni.view.button.TagButton', {
                 itemId: 'filter-by-domain',
                 text: Uni.I18n.translate('devicelogbooks.domain', 'MDC', 'Domain') + ': ' + domain.get('localizedValue'),
                 target: 'domain'
@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.TopFilter', {
         }
 
         if (subDomain) {
-            container.add(Ext.create('Skyline.button.TagButton', {
+            container.add(Ext.create('Uni.view.button.TagButton', {
                 itemId: 'filter-by-subDomain',
                 text: Uni.I18n.translate('devicelogbooks.subDomain', 'MDC', 'Subdomain') + ': ' + subDomain.get('localizedValue'),
                 target: 'subDomain'
@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.TopFilter', {
         }
 
         if (eventOrAction) {
-            container.add(Ext.create('Skyline.button.TagButton', {
+            container.add(Ext.create('Uni.view.button.TagButton', {
                 itemId: 'filter-by-eventOrAction',
                 text: Uni.I18n.translate('devicelogbooks.eventOrAction', 'MDC', 'Event or action') + ': ' + eventOrAction.get('localizedValue'),
                 target: 'eventOrAction'

@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSorting', {
-    extend: 'Skyline.panel.FilterToolbar',
+    extend: 'Uni.view.panel.FilterToolbar',
     alias: 'widget.securitySettingSorting',
     title: 'Sort',
         name: 'sortitemspanel',

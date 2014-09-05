@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSorting', {
-    extend: 'Skyline.panel.FilterToolbar',
+    extend: 'Uni.view.panel.FilterToolbar',
     alias: 'widget.loadProfileConfigurationSorting',
     title: 'Sort',
     name: 'sortitemspanel',

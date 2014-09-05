@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.deviceloadprofilechannels.TopFilter', {
-    extend: 'Skyline.panel.FilterToolbar',
+    extend: 'Uni.view.panel.FilterToolbar',
     alias: 'widget.deviceLoadProfileChannelDataTopFilter',
     itemId: 'deviceLoadProfileChannelDataTopFilter',
     title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),

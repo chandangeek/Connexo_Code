@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.searchitems.bulk.Navigation', {
-    extend: 'Skyline.menu.NavigationMenu',
+    extend: 'Uni.view.menu.NavigationMenu',
     alias: 'widget.searchitems-bulk-navigation',
     width: 200,
     jumpForward: false,

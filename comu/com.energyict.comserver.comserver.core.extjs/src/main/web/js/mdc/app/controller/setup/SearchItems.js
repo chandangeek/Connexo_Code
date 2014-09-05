@@ -249,7 +249,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
 
     createCriteriaButton: function (button, container, name, text) {
         if (Ext.isEmpty(button)) {
-            button = new Skyline.button.TagButton({
+            button = new Uni.view.button.TagButton({
                 text: text,
                 name: name,
                 action: 'customizeFilter'
