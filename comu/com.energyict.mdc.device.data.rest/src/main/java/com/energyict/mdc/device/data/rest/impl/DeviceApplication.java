@@ -95,6 +95,7 @@ public class DeviceApplication extends Application implements InstallService{
                 ComtaskExecutionResource.class,
                 LogBookResource.class,
                 DeviceFieldResource.class,
+                ChannelResource.class,
                 DeviceGroupResource.class
         );
     }
@@ -242,6 +243,7 @@ public class DeviceApplication extends Application implements InstallService{
             bind(meteringService).to(MeteringService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(clock).to(Clock.class);
+            bind(ChannelResource.class).to(ChannelResource.class);
         }
     }
 
