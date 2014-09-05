@@ -66,11 +66,6 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,12 +75,23 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 6/19/14.
@@ -102,7 +108,6 @@ public class DeviceResourceTest extends JerseyTest {
     private static IssueService issueService;
     private static MdcPropertyUtils mdcPropertyUtils;
     private static SchedulingService schedulingService;
-    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -137,6 +142,7 @@ public class DeviceResourceTest extends JerseyTest {
                 DeviceResource.class,
                 LoadProfileResource.class,
                 LogBookResource.class,
+                ChannelResource.class,
                 BulkScheduleResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
@@ -158,6 +164,7 @@ public class DeviceResourceTest extends JerseyTest {
                 bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
                 bind(schedulingService).to(SchedulingService.class);
+                bind(ChannelResource.class).to(ChannelResource.class);
             }
         });
         return resourceConfig;

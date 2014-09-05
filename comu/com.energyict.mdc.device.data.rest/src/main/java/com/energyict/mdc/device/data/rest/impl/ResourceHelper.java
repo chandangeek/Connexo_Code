@@ -3,15 +3,14 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.google.common.base.Optional;
-
-import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.util.List;
+import javax.inject.Inject;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -25,14 +24,6 @@ public class ResourceHelper {
         super();
         this.deviceDataService = deviceDataService;
         this.exceptionFactory = exceptionFactory;
-    }
-
-    public Device findDeviceByIdOrThrowException(long id) {
-        Device device = deviceDataService.findDeviceById(id);
-        if (device == null) {
-            throw new WebApplicationException("No device with id " + id, Response.Status.NOT_FOUND);
-        }
-        return device;
     }
 
     public Device findDeviceByMrIdOrThrowException(String mRID) {
@@ -53,6 +44,24 @@ public class ResourceHelper {
         }
 
         throw exceptionFactory.newException(MessageSeeds.NO_SUCH_REGISTER, registerId);
+    }
+
+    public LoadProfile findLoadProfileOrThrowException(Device device, long loadProfileId, String mrid) {
+        for (LoadProfile loadProfile : device.getLoadProfiles()) {
+            if (loadProfile.getId()==loadProfileId) {
+                return loadProfile;
+            }
+        }
+        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, mrid, loadProfileId);
+    }
+
+    public Channel findChannelOrThrowException(LoadProfile loadProfile, long channelId) {
+        for (Channel channel : loadProfile.getChannels()) {
+            if (channel.getChannelSpec().getId()==channelId) {
+                return channel;
+            }
+        }
+        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfile.getId(), channelId);
     }
 
     public Condition getQueryConditionForDevice(StandardParametersBean params) {
