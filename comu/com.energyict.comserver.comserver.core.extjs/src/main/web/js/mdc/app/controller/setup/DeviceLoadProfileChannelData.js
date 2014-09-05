@@ -127,7 +127,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
             zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
             channelName = channelRecord.get('name'),
-            interval = channelRecord.get('interval').count + channelRecord.get('interval').timeUnit,
             unitOfMeasure = channelRecord.get('unitOfMeasure').localizedValue,
             seriesObject = {marker: {
                 enabled: false
@@ -150,8 +149,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
 
         seriesObject['data'] = [];
 
-        intervalRecord = zoomLevelsStore.findRecord('interval', interval);
-        intervalLengthInMs = intervalRecord.get('intervalInMs');
+        intervalRecord = zoomLevelsStore.getIntervalRecord(channelRecord.get('interval'));
+        intervalLengthInMs = zoomLevelsStore.getIntervalInMs(channelRecord.get('interval'));
         zoomLevels = intervalRecord.get('zoomLevels');
 
         switch (channelRecord.get('flowUnit')) {
@@ -238,7 +237,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         var me = this,
             filterModel = Ext.create('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'),
             interval = me.channelModel.get('interval'),
-            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getById(interval.count + interval.timeUnit),
+            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(interval),
             all = dataIntervalAndZoomLevels.get('all'),
             intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.channelModel.get('lastReading') || new Date().getTime())),
             durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');

@@ -99,6 +99,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 }, me);
 
                 me.setDefaults();
+
             }
         });
     },
@@ -109,7 +110,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
             zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
             title = loadProfileRecord.get('name'),
-            interval = loadProfileRecord.get('interval').count + loadProfileRecord.get('interval').timeUnit,
             currentAxisTopValue = 2,
             currentLine = 0,
             series = [],
@@ -125,8 +125,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             zoomLevels,
             step;
 
-        intervalRecord = zoomLevelsStore.findRecord('interval', interval);
-        intervalLengthInMs = intervalRecord.get('intervalInMs');
+        intervalRecord = zoomLevelsStore.getIntervalRecord(loadProfileRecord.get('interval'));
+        intervalLengthInMs = zoomLevelsStore.getIntervalInMs(loadProfileRecord.get('interval'));
         zoomLevels = intervalRecord.get('zoomLevels');
 
         Ext.Array.each(loadProfileRecord.get('channels'), function (channel, index) {
@@ -263,10 +263,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             page = me.getPage(),
             filterModel = Ext.create('Mdc.model.LoadProfilesOfDeviceDataFilter'),
             interval = me.loadProfileModel.get('interval'),
-            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getById(interval.count + interval.timeUnit),
+            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(interval),
             all = dataIntervalAndZoomLevels.get('all'),
             intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime())),
             durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
+
+
 
         durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
 
