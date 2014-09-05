@@ -3,13 +3,9 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
+import com.google.common.collect.ImmutableList;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -43,6 +39,15 @@ public class DataValidationStatusImpl implements DataValidationStatus {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public Collection<ValidationRule> getOffendedRules() {
+        ImmutableList.Builder<ValidationRule> allOffended = ImmutableList.builder();
+        for (List<? extends ValidationRule> validationRules : qualityRecordList.values()) {
+            allOffended.addAll(validationRules);
+        }
+        return allOffended.build();
     }
 
     @Override

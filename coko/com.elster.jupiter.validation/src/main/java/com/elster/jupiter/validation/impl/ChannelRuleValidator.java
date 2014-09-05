@@ -85,7 +85,7 @@ class ChannelRuleValidator {
             saveNewReadingQuality(channel, readingRecord, readingQualityType);
             readingRecord.setProcessingFlags(ProcessStatus.Flag.SUSPECT);
         }
-        if (ValidationResult.PASS.equals(result) && existingQualityForType.isPresent()) {
+        if (ValidationResult.VALID.equals(result) && existingQualityForType.isPresent()) {
             existingQualityForType.get().delete();
             existingReadingQualities.remove(readingRecord.getTimeStamp(), existingQualityForType);
         }
@@ -98,7 +98,7 @@ class ChannelRuleValidator {
         if (ValidationResult.SUSPECT.equals(result) && !existingQualityForType.isPresent()) {
             saveNewReadingQuality(channel, timestamp, readingQualityType);
         }
-        if (ValidationResult.PASS.equals(result) && existingQualityForType.isPresent()) {
+        if (ValidationResult.VALID.equals(result) && existingQualityForType.isPresent()) {
             existingQualityForType.get().delete();
             existingReadingQualities.remove(timestamp, existingQualityForType);
         }
@@ -117,7 +117,7 @@ class ChannelRuleValidator {
 
     private Date determineLastChecked(ValidationResult result, Date lastChecked, Date timestamp) {
         Date newLastChecked = lastChecked;
-        if (!ValidationResult.SKIPPED.equals(result)) {
+        if (!ValidationResult.NOT_VALIDATED.equals(result)) {
             newLastChecked = lastChecked == null ? timestamp : Ordering.natural().max(lastChecked, timestamp);
         }
         return newLastChecked;

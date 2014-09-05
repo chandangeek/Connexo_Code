@@ -2,5 +2,5 @@ package com.elster.jupiter.validation;
 
 public enum ValidationResult {
 
-    PASS, SUSPECT, SKIPPED
+    VALID, SUSPECT, NOT_VALIDATED
 }

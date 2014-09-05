@@ -48,4 +48,6 @@ public interface ValidationRule {
     long getVersion();
 
     List<PropertySpec> getPropertySpecs();
+
+    boolean isObsolete();
 }

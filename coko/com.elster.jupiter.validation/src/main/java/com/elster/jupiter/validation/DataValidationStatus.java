@@ -18,4 +18,6 @@ public interface DataValidationStatus {
     Collection<ReadingQualityRecord> getReadingQualities();
 
     Collection<ValidationRule> getOffendedValidationRule(ReadingQualityRecord readingQuality);
+
+    Collection<ValidationRule> getOffendedRules();
 }

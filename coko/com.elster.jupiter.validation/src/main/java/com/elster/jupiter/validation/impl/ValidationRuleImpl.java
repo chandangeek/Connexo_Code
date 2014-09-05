@@ -304,6 +304,11 @@ public final class ValidationRuleImpl implements ValidationRule, IValidationRule
         });
     }
 
+    @Override
+    public boolean isObsolete() {
+        return getObsoleteDate() != null;
+    }
+
     public void save() {
         if (getId() == 0) {
             doPersist();
