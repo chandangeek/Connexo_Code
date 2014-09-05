@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
+
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -19,7 +19,6 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -33,7 +32,7 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.After;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -97,8 +96,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     public void setUp() {
         this.deviceCreator = new DeviceCreator(
                 getInjector().getInstance(DeviceConfigurationService.class),
-                getInjector().getInstance(DeviceDataService.class),
-                getInjector().getInstance(TransactionService.class));
+                getInjector().getInstance(DeviceDataService.class)
+        );
         this.loadProfileType = createLoadProfileType();
         initializeEnvironment();
     }
@@ -112,30 +111,15 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
 
     private LoadProfileType createLoadProfileType() {
-        return this.executeInTransaction(new Transaction<LoadProfileType>() {
-            @Override
-            public LoadProfileType perform() {
-                LoadProfileType loadProfileType = getInjector().getInstance(MasterDataService.class).newLoadProfileType("MyLoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15));
-                loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveImport, kiloWattHours)).get()).get());
-                loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours)).get()).get());
-                loadProfileType.save();
-                return loadProfileType;
-            }
-        });
-    }
-
-    @After
-    public void cleanup() {
-        this.deviceCreator.destroy();
-        this.executeInTransaction(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                loadProfileType.delete();
-            }
-        });
+        LoadProfileType loadProfileType = getInjector().getInstance(MasterDataService.class).newLoadProfileType("MyLoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15));
+        loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveImport, kiloWattHours)).get()).get());
+        loadProfileType.createChannelTypeForRegisterType(getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours)).get()).get());
+        loadProfileType.save();
+        return loadProfileType;
     }
 
     @Test
+    @Transactional
     public void simplePreStoreWithDataInFutureTest() {
 
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("simplePreStoreWithDataInFutureTest").loadProfileTypes(this.loadProfileType).create();
@@ -157,6 +141,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     }
 
     @Test
+    @Transactional
     public void preStoreWithPositiveUnitConversionTest() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithPositiveUnitConversionTest").loadProfileTypes(this.loadProfileType).create();
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
@@ -186,6 +171,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     }
 
     @Test
+    @Transactional
     public void preStoreWithNegativeUnitConversionTest() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithNegativeUnitConversionTest").loadProfileTypes(this.loadProfileType).create();
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
@@ -215,6 +201,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     }
 
     @Test
+    @Transactional
     public void preStoreWithOverflowExceededTest() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithOverflowExceededTest").loadProfileTypes(this.loadProfileType).create();
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
@@ -255,6 +242,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     }
 
     @Test
+    @Transactional
     public void preStoreWithPositiveScalingAndOverflowExceededTest() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithPositiveScalingAndOverflowExceededTest").loadProfileTypes(this.loadProfileType).create();
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
@@ -291,6 +279,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     }
 
     @Test
+    @Transactional
     public void preStoreWithNegativeScalingAndOverflowExceededTest() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithNegativeScalingAndOverflowExceededTest").loadProfileTypes(this.loadProfileType).create();
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
@@ -341,16 +330,6 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         when(comServerDAO.getDeviceIdentifierFor(any(LoadProfileIdentifier.class))).thenReturn(deviceIdentifier);
         doCallRealMethod().when(comServerDAO).updateLastReadingFor(any(LoadProfileIdentifier.class), any(Date.class));
         return comServerDAO;
-    }
-
-    void execute(final DeviceCommand command, final ComServerDAO comServerDAO) {
-        this.executeInTransaction(new Transaction<Object>() {
-            @Override
-            public Object perform() {
-                command.execute(comServerDAO);
-                return null;
-            }
-        });
     }
 
     CollectedLoadProfile createCollectedLoadProfile(LoadProfile loadProfile) {

@@ -19,6 +19,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -59,6 +60,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.junit.*;
+import org.junit.rules.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -77,6 +79,9 @@ import static org.mockito.Mockito.when;
 public abstract class AbstractCollectedDataIntegrationTest {
 
     private static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
+
+    @Rule
+    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
 
     private static Injector injector;
     private static InMemoryBootstrapModule bootstrapModule;

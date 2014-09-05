@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine;
 
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -54,16 +51,14 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
 
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceDataService deviceDataService;
-    private final TransactionService transactionService;
     private final DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private final DeviceProtocol deviceProtocol;
     private DeviceBuilderForTesting state;
     private Device device;
 
-    public DeviceCreator(DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService, TransactionService transactionService) {
+    public DeviceCreator(DeviceConfigurationService deviceConfigurationService, DeviceDataService deviceDataService) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceDataService = deviceDataService;
-        this.transactionService = transactionService;
         this.deviceProtocol = mock(DeviceProtocol.class);
         this.deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         initializeMocks();
@@ -108,22 +103,6 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         return device;
     }
 
-    public void destroy() {
-        this.transactionService.execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                if (device != null) {
-                    DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-                    deviceConfiguration.deactivate();
-                    DeviceType deviceType = deviceConfiguration.getDeviceType();
-                    device.delete();
-                    deviceType.removeConfiguration(deviceConfiguration);
-                    deviceType.delete();
-                }
-            }
-        });
-    }
-
     private class UnderConstruction implements DeviceBuilderForTesting {
 
         private String name;
@@ -159,16 +138,10 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
 
         @Override
         public Device create() {
-
-            return transactionService.execute(new Transaction<Device>() {
-                @Override
-                public Device perform() {
-                    DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
-                    Device device = deviceDataService.newDevice(deviceConfiguration, name, mRDI);
-                    device.save();
-                    return device;
-                }
-            });
+            DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
+            Device device = deviceDataService.newDevice(deviceConfiguration, name, mRDI);
+            device.save();
+            return device;
         }
 
         private DeviceConfiguration getDeviceConfiguration() {

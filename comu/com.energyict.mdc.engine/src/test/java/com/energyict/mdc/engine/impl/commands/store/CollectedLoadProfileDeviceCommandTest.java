@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.metering.Channel;
@@ -84,6 +85,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     private DeviceDataService deviceDataService;
 
     @Test
+    @Transactional
     public void testToJournalMessageDescriptionWithoutCollectedData() {
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceDataService)));
         CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, meterDataStoreCommand);
@@ -97,6 +99,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     }
 
     @Test
+    @Transactional
     public void testToJournalMessageDescriptionWithOneInterval() {
         Date now = new DateTime(2012, 12, 12, 12, 53, 5, 0, DateTimeZone.UTC).toDate();
         Clock frozenClock = new ProgrammableClock().frozenAt(now);
@@ -115,6 +118,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     }
 
     @Test
+    @Transactional
     public void testToJournalMessageDescriptionWithMultipleIntervalsFromOneChannel() {
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceDataService)));
         List<IntervalData> intervalData =
@@ -142,6 +146,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     }
 
     @Test
+    @Transactional
     public void testToJournalMessageDescriptionWithIntervalsFromMultipleChannels() {
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceDataService)));
         List<IntervalData> intervalData =
@@ -175,6 +180,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
 
     @Test
+    @Transactional
     public void successfulDoubleStoreTestWithSameData() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulDoubleStoreTestWithSameData").loadProfileTypes(this.loadProfileType).create();
         long deviceId = device.getId();
@@ -187,11 +193,11 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
         freezeClock(verificationTimeStamp);
-        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
-        this.execute(meterDataStoreCommand, comServerDAO);
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
+        meterDataStoreCommand.execute(comServerDAO);
 
         // Business method
-        this.execute(meterDataStoreCommand, comServerDAO);
+        meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
         List<Channel> channels = getChannels(deviceId);
@@ -219,6 +225,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     }
 
     @Test
+    @Transactional
     public void successfulStoreTest() throws SQLException, BusinessException {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreTest").loadProfileTypes(this.loadProfileType).create();
         long deviceId = device.getId();
@@ -231,8 +238,8 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         freezeClock(verificationTimeStamp);
 
         // Business method
-        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
-        this.execute(meterDataStoreCommand, comServerDAO);
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
+        meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
         List<Channel> channels = getChannels(deviceId);
@@ -260,6 +267,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     }
 
     @Test
+    @Transactional
     public void successfulStoreWithDeltaDataTest() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreWithDeltaDataTest").loadProfileTypes(this.loadProfileType).create();
         long deviceId = device.getId();
@@ -273,8 +281,8 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         freezeClock(verificationTimeStamp);
 
         // Business method
-        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
-        this.execute(meterDataStoreCommand, comServerDAO);
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
+        meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
         List<Channel> channels = getChannels(deviceId);
@@ -295,6 +303,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     }
 
     @Test
+    @Transactional
     public void successfulStoreWithUpdatedDataTest() {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreWithUpdatedDataTest").loadProfileTypes(this.loadProfileType).create();
         long deviceId = device.getId();
@@ -307,8 +316,8 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         freezeClock(verificationTimeStamp);
 
-        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
-        this.execute(meterDataStoreCommand, comServerDAO);
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
+        meterDataStoreCommand.execute(comServerDAO);
 
         List<IntervalData> updatedCollectedIntervalData = new ArrayList<>();
         List<IntervalValue> updatedIntervalList = new ArrayList<>();
@@ -322,8 +331,8 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         meterDataStoreCommand = new MeterDataStoreCommand();
         collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand);
         // Business method
-        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
-        this.execute(meterDataStoreCommand, comServerDAO);
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
+        meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
         List<Channel> channels = getChannels(deviceId);
@@ -351,6 +360,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     }
 
     @Test
+    @Transactional
     public void updateLastReadingTest() throws SQLException, BusinessException {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("updateLastReadingTest").loadProfileTypes(this.loadProfileType).create();
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
@@ -362,8 +372,8 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
 
         // Business method
-        this.execute(collectedLoadProfileDeviceCommand, comServerDAO);
-        this.execute(meterDataStoreCommand, comServerDAO);
+        collectedLoadProfileDeviceCommand.execute(comServerDAO);
+        meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
         assertThat(device.getLoadProfiles().get(0).getLastReading()).isEqualTo(intervalEndTime4);

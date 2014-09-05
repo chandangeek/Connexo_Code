@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
@@ -7,7 +8,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
@@ -18,7 +18,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.DeviceCreator;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
@@ -74,8 +73,8 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     public void setUp() {
         this.deviceCreator = new DeviceCreator(
                 getInjector().getInstance(DeviceConfigurationService.class),
-                getInjector().getInstance(DeviceDataService.class),
-                getInjector().getInstance(TransactionService.class));
+                getInjector().getInstance(DeviceDataService.class)
+        );
         initializeEnvironment();
     }
 
@@ -86,12 +85,8 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         Environment.DEFAULT.set(mockedEnvironment);
     }
 
-    @After
-    public void cleanup(){
-        this.deviceCreator.destroy();
-    }
-
     @Test
+    @Transactional
     public void successfulStoreOfSingleRegisterTest() {
         Device device = this.deviceCreator.name("successfulStoreOfSingleRegisterTest").mRDI("successfulStoreOfSingleRegisterTest").create();
         long deviceId = device.getId();
@@ -111,8 +106,8 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         when(comServerDAO.findOfflineRegister(registerIdentifier)).thenReturn(offlineRegister);
 
         // Business method
-        this.execute(collectedRegisterListDeviceCommand, comServerDAO);
-        this.execute(meterDataStoreCommand, comServerDAO);
+        collectedRegisterListDeviceCommand.execute(comServerDAO);
+        meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
         Optional<AmrSystem> amrSystem = getInjector().getInstance(MeteringService.class).findAmrSystem(1);
@@ -135,16 +130,6 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
             }
         });
         return comServerDAO;
-    }
-
-    private void execute (final DeviceCommand command, final ComServerDAO comServerDAO) {
-        this.executeInTransaction(new Transaction<Object>() {
-            @Override
-            public Object perform() {
-                command.execute(comServerDAO);
-                return null;
-            }
-        });
     }
 
     private ReadingType getReadingType(MeterActivation currentMeterActivation, String obisCode1, Unit unit) {
