@@ -97,16 +97,17 @@ public class Installer {
     }
 
     private void createTranslations() {
-        try {
-            List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-            for (MessageSeeds messageSeed : MessageSeeds.values()) {
+        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            try {
                 SimpleNlsKey nlsKey = SimpleNlsKey.key(DeviceDataService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
                 translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
             }
-            this.thesaurus.addTranslations(translations);
-        } catch (Exception e) {
-            this.logger.severe(e.getMessage());
+            catch (Exception e) {
+                this.logger.severe(e.getMessage());
+            }
         }
+        this.thesaurus.addTranslations(translations);
     }
 
     private Translation toTranslation(SimpleNlsKey nlsKey, Locale locale, String translation) {
