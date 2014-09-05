@@ -2,6 +2,49 @@ Ext.define('Mdc.store.DataIntervalAndZoomLevels', {
     extend: 'Ext.data.Store',
     model: 'Mdc.model.DataIntervalAndZoomLevels',
 
+
+    getIntervalRecord: function(interval) {
+        var intervalInMs = this.getIntervalInMs(interval),
+            neededRecord;
+
+        this.each(function(value){
+            if (intervalInMs >= value.get('intervalInMs')){
+                neededRecord = value;
+            } else {
+                return false;
+            }
+        });
+
+        return neededRecord;
+    },
+
+    getIntervalInMs: function(interval) {
+        var intervalInMs;
+
+        switch (interval.timeUnit) {
+            case 'minutes':
+                intervalInMs = interval.count * 60000;
+                break;
+            case 'hours':
+                intervalInMs = interval.count * 3600000;
+                break;
+            case 'days':
+                intervalInMs = interval.count * 86400000;
+                break;
+            case 'weeks':
+                intervalInMs = interval.count * 604800000;
+                break;
+            case 'months':
+                intervalInMs = interval.count * 2678400000;
+                break;
+            case 'years':
+                intervalInMs = interval.count * 31536000000;
+                break;
+        }
+
+        return intervalInMs
+    },
+
     data: [
         {
             interval: '1minutes',
