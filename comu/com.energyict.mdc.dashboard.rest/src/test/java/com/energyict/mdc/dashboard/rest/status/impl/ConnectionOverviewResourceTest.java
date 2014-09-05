@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -173,7 +172,7 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
         when(dashboardService.getConnectionTasksDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
 
 
-        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("filter", ExtjsFilter.filter("breakdown", HeatMapBreakdownOption.deviceTypes.name())).request().get(ConnectionOverviewInfo.class);
+        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").request().get(ConnectionOverviewInfo.class);
 
         Comparator<TaskCounterInfo> counterInfoComparator = new Comparator<TaskCounterInfo>() {
             @Override

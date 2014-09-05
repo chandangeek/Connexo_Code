@@ -22,24 +22,26 @@ public class ConnectionHeatMapInfo {
     @JsonIgnore
     private static final SuccessIndicatorAdapter successIndicatorAdapter = new SuccessIndicatorAdapter();
 
-    public List<HeatMapRowInfo> heatMap;
     @XmlJavaTypeAdapter(BreakdownOptionAdapter.class)
     public HeatMapBreakdownOption breakdown;
+    public FilterOption alias;
+    public List<HeatMapRowInfo> heatMap;
 
     public <H extends HasName & HasId> ConnectionHeatMapInfo(ConnectionTaskHeatMap<H> heatMap, HeatMapBreakdownOption breakdown, Thesaurus thesaurus)
             throws Exception {
         this.breakdown = breakdown;
         this.heatMap=new ArrayList<>();
-        createHeatMap(heatMap, breakdown.filterOption(), thesaurus);
+        this.alias=breakdown.filterOption();
+        createHeatMap(heatMap, thesaurus);
     }
 
-    private <H extends HasName & HasId> void createHeatMap(ConnectionTaskHeatMap<H> heatMap, FilterOption filter, Thesaurus thesaurus) throws Exception {
+    private <H extends HasName & HasId> void createHeatMap(ConnectionTaskHeatMap<H> heatMap, Thesaurus thesaurus) throws Exception {
         if (heatMap!=null) {
             for (ConnectionTaskHeatMapRow<H> row : heatMap) {
                 HeatMapRowInfo heatMapRowInfo = new HeatMapRowInfo();
                 heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
                 heatMapRowInfo.id = row.getTarget().getId(); // ID of the object
-                heatMapRowInfo.alias = filter; // Type of object
+                heatMapRowInfo.alias = FilterOption.latestResults; // Type of object
                 heatMapRowInfo.data = new ArrayList<>();
                 for (ComSessionSuccessIndicatorOverview counters : row) {
                     for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : counters) {
