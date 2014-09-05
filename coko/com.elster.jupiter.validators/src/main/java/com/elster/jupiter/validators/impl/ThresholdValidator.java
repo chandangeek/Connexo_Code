@@ -1,7 +1,7 @@
 package com.elster.jupiter.validators.impl;
 
-import static com.elster.jupiter.validation.ValidationResult.PASS;
-import static com.elster.jupiter.validation.ValidationResult.SKIPPED;
+import static com.elster.jupiter.validation.ValidationResult.VALID;
+import static com.elster.jupiter.validation.ValidationResult.NOT_VALIDATED;
 import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
 
 import java.math.BigDecimal;
@@ -102,9 +102,9 @@ class ThresholdValidator extends AbstractValidator {
 
     private ValidationResult validateQuantity(Quantity toValidate) {
         if (toValidate == null) {
-            return SKIPPED;
+            return NOT_VALIDATED;
         }
-        return isWithinBounds(toValidate) ? PASS : SUSPECT;
+        return isWithinBounds(toValidate) ? VALID : SUSPECT;
     }
 
     private boolean isWithinBounds(Quantity toValidate) {

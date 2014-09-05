@@ -48,7 +48,7 @@ class RegisterIncreaseValidator extends AbstractValidator {
         List<BaseReadingRecord> records = channel.getReadingsBefore(readingRecord.getTimeStamp(), 1);
         if ( records.isEmpty() ) {
             //no previous readings for this register, nothing to compare with...
-            return ValidationResult.PASS;
+            return ValidationResult.VALID;
         }
         BigDecimal previous = records.get(0).getValue();
         BigDecimal current = readingRecord.getValue();
@@ -58,14 +58,14 @@ class RegisterIncreaseValidator extends AbstractValidator {
         if (comparisonResult > 0 || comparisonResult == 0 && failEqualData) {
             return ValidationResult.SUSPECT;
         }
-        return ValidationResult.PASS;
+        return ValidationResult.VALID;
     }
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        // In order to prevent unexpected validation fails we always return PASS
+        // In order to prevent unexpected validation fails we always return VALID
         // because this validator is only for registers
-        return ValidationResult.PASS;
+        return ValidationResult.VALID;
     }
 
     @Override

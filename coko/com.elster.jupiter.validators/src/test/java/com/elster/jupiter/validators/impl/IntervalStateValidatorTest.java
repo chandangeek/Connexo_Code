@@ -74,7 +74,7 @@ public class IntervalStateValidatorTest {
         
         ValidationResult validationResult = validator.validate(intervalReadingRecord);
         
-        assertThat(validationResult).isEqualTo(ValidationResult.PASS);
+        assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
     
     @Test
@@ -84,7 +84,7 @@ public class IntervalStateValidatorTest {
         
         ValidationResult validationResult = validator.validate(intervalReadingRecord);
         
-        assertThat(validationResult).isEqualTo(ValidationResult.PASS);
+        assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
     @Test
@@ -135,6 +135,6 @@ public class IntervalStateValidatorTest {
 
         ValidationResult validationResult = validator.validate(readingRecord);
 
-        assertThat(validationResult).isEqualTo(ValidationResult.PASS);
+        assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 }

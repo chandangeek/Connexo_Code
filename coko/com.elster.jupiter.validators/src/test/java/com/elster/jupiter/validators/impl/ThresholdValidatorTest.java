@@ -78,7 +78,7 @@ public class ThresholdValidatorTest {
 
         ValidationResult validationResult = thresholdValidator.validate(intervalReadingRecord);
 
-        assertThat(validationResult).isEqualTo(ValidationResult.PASS);
+        assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class ThresholdValidatorTest {
 
         ValidationResult validationResult = thresholdValidator.validate(intervalReadingRecord);
 
-        assertThat(validationResult).isEqualTo(ValidationResult.SKIPPED);
+        assertThat(validationResult).isEqualTo(ValidationResult.NOT_VALIDATED);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class ThresholdValidatorTest {
 
         ValidationResult validationResult = thresholdValidator.validate(intervalReadingRecord);
 
-        assertThat(validationResult).isEqualTo(ValidationResult.PASS);
+        assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class ThresholdValidatorTest {
 
         ValidationResult validationResult = thresholdValidator.validate(intervalReadingRecord);
 
-        assertThat(validationResult).isEqualTo(ValidationResult.PASS);
+        assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class ThresholdValidatorTest {
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 
-        assertThat(validationResult).isEqualTo(ValidationResult.PASS);
+        assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class ThresholdValidatorTest {
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 
-        assertThat(validationResult).isEqualTo(ValidationResult.SKIPPED);
+        assertThat(validationResult).isEqualTo(ValidationResult.NOT_VALIDATED);
     }
 
     @Test
@@ -156,7 +156,7 @@ public class ThresholdValidatorTest {
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 
-        assertThat(validationResult).isEqualTo(ValidationResult.PASS);
+        assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
     @Test
@@ -165,7 +165,7 @@ public class ThresholdValidatorTest {
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 
-        assertThat(validationResult).isEqualTo(ValidationResult.PASS);
+        assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
     @Test

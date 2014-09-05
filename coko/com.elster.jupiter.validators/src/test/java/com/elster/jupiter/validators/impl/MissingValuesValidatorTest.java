@@ -105,7 +105,7 @@ public class MissingValuesValidatorTest {
 
         for (Date date : new Date[]{start, startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
             when(intervalReading.getTimeStamp()).thenReturn(date);
-            assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.PASS);
+            assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
         }
 
         assertThat(validator.finish()).isEmpty();
@@ -120,7 +120,7 @@ public class MissingValuesValidatorTest {
 
         for (Date date : new Date[]{startPlus10, startPlus20, startPlus50, startPlus40, end}) {
             when(intervalReading.getTimeStamp()).thenReturn(date);
-            assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.PASS);
+            assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
         }
 
         assertThat(validator.finish()).contains(MapEntry.entry(start, ValidationResult.SUSPECT), MapEntry.entry(startPlus30, ValidationResult.SUSPECT));
@@ -135,7 +135,7 @@ public class MissingValuesValidatorTest {
 
         for (Date date : new Date[]{start, startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
             when(intervalReading.getTimeStamp()).thenReturn(date);
-            assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.PASS);
+            assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
         }
 
         assertThat(validator.finish()).isEmpty();
@@ -150,7 +150,7 @@ public class MissingValuesValidatorTest {
 
         for (Date date : new Date[]{startPlus10, startPlus20, startPlus50, startPlus40, end}) {
             when(intervalReading.getTimeStamp()).thenReturn(date);
-            assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.PASS);
+            assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
         }
 
         assertThat(validator.finish()).contains(MapEntry.entry(start, ValidationResult.SUSPECT), MapEntry.entry(startPlus30, ValidationResult.SUSPECT));

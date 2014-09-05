@@ -93,13 +93,13 @@ class MissingValuesValidator extends AbstractValidator {
         if (openEnded && index + 1 > expectedReadings) {
             expectedReadings = index + 1;
         }
-        return ValidationResult.PASS;
+        return ValidationResult.VALID;
     }
 
     @Override
     public ValidationResult validate(ReadingRecord readingRecord) {
         // this type of validation can only verify missings on intervalreadings
-        return ValidationResult.PASS;
+        return ValidationResult.VALID;
     }
 
     @Override

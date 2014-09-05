@@ -62,12 +62,12 @@ class IntervalStateValidator extends AbstractValidator {
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
         Set<ProfileStatus.Flag> readingFlags = intervalReadingRecord.getProfileStatus().getFlags();
-        return Collections.disjoint(selectedFlags, readingFlags) ? ValidationResult.PASS : ValidationResult.SUSPECT;
+        return Collections.disjoint(selectedFlags, readingFlags) ? ValidationResult.VALID : ValidationResult.SUSPECT;
     }
 
     @Override
     public ValidationResult validate(ReadingRecord readingRecord) {
-        return ValidationResult.PASS;
+        return ValidationResult.VALID;
     }
 
     @Override
