@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.datacollection.templates.params;
+package com.energyict.mdc.issue.datacollection.impl.templates.params;
 
 import com.elster.jupiter.issue.share.cep.ParameterConstraint;
 import com.elster.jupiter.issue.share.cep.ParameterControl;

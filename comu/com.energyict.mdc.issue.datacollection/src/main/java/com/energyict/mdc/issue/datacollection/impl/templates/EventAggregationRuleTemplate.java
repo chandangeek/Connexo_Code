@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.datacollection.templates;
+package com.energyict.mdc.issue.datacollection.impl.templates;
 
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.metering.MeteringService;
@@ -6,13 +6,15 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.templates.params.EventTypeParameter;
-import com.energyict.mdc.issue.datacollection.templates.params.ThresholdParameter;
+import com.energyict.mdc.issue.datacollection.impl.templates.params.EventTypeParameter;
+import com.energyict.mdc.issue.datacollection.impl.templates.params.ThresholdParameter;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mdc.issue.datacollection.EventAggregationRuleTemplate", property = {"uuid=" + EventAggregationRuleTemplate.TEMPLATE_UUID}, service = CreationRuleTemplate.class, immediate = true)
+@Component(name = "com.energyict.mdc.issue.datacollection.EventAggregationRuleTemplate",
+        property = {"uuid=" + EventAggregationRuleTemplate.TEMPLATE_UUID},
+        service = CreationRuleTemplate.class, immediate = true)
 public class EventAggregationRuleTemplate extends AbstractTemplate {
     
     public static final String TEMPLATE_UUID = "2f20a62e-3361-33c9-afc4-2f68618a6af7";

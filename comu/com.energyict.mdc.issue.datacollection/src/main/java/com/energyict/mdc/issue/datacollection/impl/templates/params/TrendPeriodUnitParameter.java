@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.datacollection.templates.params;
+package com.energyict.mdc.issue.datacollection.impl.templates.params;
 
 import com.elster.jupiter.issue.share.cep.NumberParameterConstraint;
 import com.elster.jupiter.issue.share.cep.ParameterConstraint;
@@ -10,10 +10,11 @@ import com.energyict.mdc.issue.datacollection.impl.TrendPeriodUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrendPeriodUnitParameter extends TranslatedParameter{
+public class TrendPeriodUnitParameter extends TranslatedParameter {
     private static final ParameterConstraint CONSTRAINT = new NumberParameterConstraint();
 
     private List<Object> values;
+
     public TrendPeriodUnitParameter(Thesaurus thesaurus) {
         super(thesaurus);
         values = new ArrayList<>(TrendPeriodUnit.values().length);

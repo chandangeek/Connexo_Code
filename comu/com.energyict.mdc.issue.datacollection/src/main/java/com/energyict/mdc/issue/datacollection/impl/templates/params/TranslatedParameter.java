@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.datacollection.templates.params;
+package com.energyict.mdc.issue.datacollection.impl.templates.params;
 
 import com.elster.jupiter.issue.share.cep.AbstractParameterDefinition;
 import com.elster.jupiter.nls.Thesaurus;
@@ -15,7 +15,7 @@ public abstract class TranslatedParameter extends AbstractParameterDefinition {
         return thesaurus;
     }
 
-    protected String getString(MessageSeeds seed){
+    protected String getString(MessageSeeds seed) {
         if (seed != null) {
             return getThesaurus().getString(seed.getKey(), seed.getDefaultFormat());
         }

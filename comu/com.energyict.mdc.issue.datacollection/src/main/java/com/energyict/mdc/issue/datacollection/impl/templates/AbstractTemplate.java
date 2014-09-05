@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.datacollection.templates;
+package com.energyict.mdc.issue.datacollection.impl.templates;
 
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.ParameterDefinition;
@@ -29,7 +29,7 @@ public abstract class AbstractTemplate implements CreationRuleTemplate {
         return parameterDefinitions;
     }
 
-    protected void addParameterDefinition(ParameterDefinition definition){
+    protected void addParameterDefinition(ParameterDefinition definition) {
         if (definition != null) {
             getParameterDefinitions().put(definition.getKey(), definition);
         }
@@ -39,7 +39,7 @@ public abstract class AbstractTemplate implements CreationRuleTemplate {
         return thesaurus;
     }
 
-    protected String getString(MessageSeeds seed){
+    protected String getString(MessageSeeds seed) {
         if (seed != null) {
             return getThesaurus().getString(seed.getKey(), seed.getDefaultFormat());
         }
@@ -58,7 +58,7 @@ public abstract class AbstractTemplate implements CreationRuleTemplate {
     @Override
     public List<ParameterViolation> validate(CreationRule rule) {
         List<ParameterViolation> errors = new ArrayList<>();
-        if(rule == null){
+        if (rule == null) {
             throw new IllegalArgumentException("Rule is missing");
         }
 
@@ -75,7 +75,7 @@ public abstract class AbstractTemplate implements CreationRuleTemplate {
         return errors;
     }
 
-    protected Map<String, ParameterDefinition> getParameterDefinitionsForValidation(){
+    protected Map<String, ParameterDefinition> getParameterDefinitionsForValidation() {
         return new HashMap<>(parameterDefinitions);
     }
 }

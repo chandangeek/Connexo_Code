@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
@@ -32,8 +33,16 @@ public class Installer {
 
     private void setAQSubscriber() {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
-        destinationSpec.subscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC);
-        destinationSpec.subscribe(ModuleConstants.AQ_METER_READING_EVENT_SUBSC);
+        try {
+            destinationSpec.subscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC);
+        } catch (DuplicateSubscriberNameException e) {
+            // subscriber already exists, ignoring
+        }
+        try {
+            destinationSpec.subscribe(ModuleConstants.AQ_METER_READING_EVENT_SUBSC);
+        } catch (DuplicateSubscriberNameException e) {
+            // subscriber already exists, ignoring
+        }
     }
 
     private void setDataCollectionReasons(IssueType issueType) {

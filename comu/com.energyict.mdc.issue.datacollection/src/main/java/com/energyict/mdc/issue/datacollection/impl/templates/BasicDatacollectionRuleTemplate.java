@@ -1,4 +1,4 @@
-package com.energyict.mdc.issue.datacollection.templates;
+package com.energyict.mdc.issue.datacollection.impl.templates;
 
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.metering.MeteringService;
@@ -6,12 +6,14 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.templates.params.EventTypeParameter;
+import com.energyict.mdc.issue.datacollection.impl.templates.params.EventTypeParameter;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate", property = {"uuid=" + BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID}, service = CreationRuleTemplate.class, immediate = true)
+@Component(name = "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate",
+        property = {"uuid=" + BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID},
+        service = CreationRuleTemplate.class, immediate = true)
 public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
 
     public static final String BASIC_TEMPLATE_UUID = "e29b-41d4-a716";

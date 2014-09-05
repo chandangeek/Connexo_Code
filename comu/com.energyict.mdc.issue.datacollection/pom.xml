@@ -14,7 +14,7 @@
     <artifactId>mdc.issue.datacollection</artifactId>
     <version>${comserver.version}</version>
     <packaging>bundle</packaging>
-    <name>[MDC] com.energyict.mdc.issue.datacollection</name>
+    <name>[MDC] mdc.issue.datacollection</name>
     <description>
         Contains MDC datacollection issue templates
     </description>

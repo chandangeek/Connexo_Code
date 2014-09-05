@@ -14,7 +14,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
-@Component(name = "install", service = InstallService.class, property = "name=" + ModuleConstants.COMPONENT_NAME, immediate = true)
+@Component(name = "com.energyict.mdc.issue.datacollection.install", service = InstallService.class, property = "name=" + ModuleConstants.COMPONENT_NAME, immediate = true)
 public class InstallServiceImpl implements InstallService {
     private volatile IssueService issueService;
     private volatile MessageService messageService;
