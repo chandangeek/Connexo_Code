@@ -117,7 +117,9 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         this.executionPriority = comTaskEnablement.getPriority();
         this.plannedPriority = comTaskEnablement.getPriority();
-        this.setUseDefaultConnectionTask(comTaskEnablement.usesDefaultConnectionTask());
+        if (comTaskEnablement.usesDefaultConnectionTask() || !comTaskEnablement.hasPartialConnectionTask()) {
+            this.setUseDefaultConnectionTask(true);
+        }
     }
 
     @Override
