@@ -8,7 +8,6 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
@@ -21,8 +20,6 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.exceptions.UnknownDeviceMessageSpecClass;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -365,10 +362,6 @@ public abstract class JobExecution implements ScheduledJob {
         else if (comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
             ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = (ManuallyScheduledComTaskExecution) comTaskExecution;
             return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), manuallyScheduledComTaskExecution.getProtocolDialectConfigurationProperties());
-        }
-        else if (comTaskExecution instanceof AdHocComTaskExecution) {
-            AdHocComTaskExecution adHocComTaskExecution = (AdHocComTaskExecution) comTaskExecution;
-            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), adHocComTaskExecution.getProtocolDialectConfigurationProperties());
         }
         else {
             return TypedProperties.empty();
