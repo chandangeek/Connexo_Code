@@ -6,8 +6,10 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComServer;
@@ -35,9 +37,10 @@ public class ConnectionTaskInfoFactory {
 
     public ConnectionTaskInfo from(ConnectionTask<?, ?> connectionTask, Optional<ComSession> lastComSessionOptional, List<ComTaskExecution> comTaskExecutions) throws Exception {
         ConnectionTaskInfo info = new ConnectionTaskInfo();
-        info.device=new IdWithNameInfo(connectionTask.getDevice().getmRID(), connectionTask.getDevice().getName());
-        info.deviceType=new IdWithNameInfo(connectionTask.getDevice().getDeviceType());
-        info.deviceConfiguration=new IdWithNameInfo(connectionTask.getDevice().getDeviceConfiguration());
+        Device device = connectionTask.getDevice();
+        info.device=new IdWithNameInfo(device.getmRID(), device.getName());
+        info.deviceType=new IdWithNameInfo(device.getDeviceType());
+        info.deviceConfiguration=new IdWithNameInfo(device.getDeviceConfiguration());
         info.latestStatus=new LatestStatusInfo();
         info.latestStatus.id =connectionTask.getSuccessIndicator();
         info.latestStatus.displayValue=thesaurus.getString(SUCCESS_INDICATOR_ADAPTER.marshal(connectionTask.getSuccessIndicator()), SUCCESS_INDICATOR_ADAPTER.marshal(connectionTask.getSuccessIndicator()));
@@ -45,10 +48,8 @@ public class ConnectionTaskInfoFactory {
         if (lastComSessionOptional.isPresent()) {
             ComSession comSession = lastComSessionOptional.get();
             info.latestResult = new SuccessIndicatorInfo(comSession.getSuccessIndicator(), thesaurus);
-            for (ComTaskExecution comTaskExecution : connectionTask.getDevice().getComTaskExecutions()) {
-                if (comTaskExecution.getConnectionTask()!=null && comTaskExecution.getConnectionTask().getId()==connectionTask.getId()) {
-                    info.latestResult.retries=comTaskExecution.getCurrentTryCount();
-                }
+            if (connectionTask instanceof OutboundConnectionTask<?>) {
+                info.latestResult.retries=((OutboundConnectionTask<?>)connectionTask).getCurrentTryCount();
             }
 
             info.taskCount = new ComTaskCountInfo();

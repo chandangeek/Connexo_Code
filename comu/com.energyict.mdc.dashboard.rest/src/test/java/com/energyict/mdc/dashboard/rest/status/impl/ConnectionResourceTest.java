@@ -348,6 +348,7 @@ public class ConnectionResourceTest extends JerseyTest {
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         when(connectionTask.getSuccessIndicator()).thenReturn(ConnectionTask.SuccessIndicator.SUCCESS);
         when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.Busy);
+        when(connectionTask.getCurrentRetryCount()).thenReturn(7);
         when(comSession.getNumberOfFailedTasks()).thenReturn(401);
         when(comSession.getNumberOfSuccessFulTasks()).thenReturn(12);
         when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(3);
