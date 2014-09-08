@@ -41,7 +41,7 @@
         <profile>
             <id>sencha-build</id>
             <properties>
-                <js.dir>js/issue</js.dir>
+                <js.dir>js/systemadmin</js.dir>
             </properties>
         </profile>
     </profiles>
