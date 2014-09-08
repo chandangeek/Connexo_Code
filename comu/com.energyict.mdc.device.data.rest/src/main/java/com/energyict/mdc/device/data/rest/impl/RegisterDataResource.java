@@ -1,6 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -18,9 +24,15 @@ import com.google.common.base.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class RegisterDataResource {
 
@@ -132,7 +144,7 @@ public class RegisterDataResource {
 
     private boolean isThereChannelValidationForChannel(MeterActivationValidation validation, Channel channel) {
         for(ChannelValidation channelValidation : validation.getChannelValidations()) {
-            if(channelValidation.getChannel().equals(channel)) {
+            if (channelValidation.getChannel().equals(channel) && channelValidation.hasActiveRules()) {
                 return true;
             }
         }
