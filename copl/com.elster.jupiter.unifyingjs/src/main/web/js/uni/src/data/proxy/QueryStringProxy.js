@@ -1,10 +1,9 @@
 Ext.define('Uni.data.proxy.QueryStringProxy', {
     extend: 'Ext.data.proxy.Proxy',
     root: 'filter',
+    router: null,
 
-    router: 'null',
-
-    constructor: function(config) {
+    constructor: function (config) {
         config = config || {};
         this.callParent(arguments);
         this.router = config.router || master.app.getController('Uni.controller.history.Router');
@@ -20,27 +19,19 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
 
     read: function (operation, callback, scope) {
         var me = this,
-            router = me.router,
-            model = new me.model()
+            router = me.router
         ;
 
         operation.setStarted();
 
         if (!_.isUndefined(router.queryParams[me.root])) {
             var data = Ext.JSON.decode(router.queryParams[me.root]);
-            Ext.each(data, function (item) {
-                model.set(item['property'], item['value']);
-            });
+            var modelData = _.object(_.pluck(data, 'property'), _.pluck(data, 'value'));
+            operation.resultSet = this.reader.read(modelData);
         }
 
         operation.setCompleted();
         operation.setSuccessful();
-
-        operation.resultSet = Ext.create('Ext.data.ResultSet', {
-            records: [model],
-            total  : 1,
-            loaded : true
-        });
 
         if (typeof callback == 'function') {
             callback.call(scope || me, operation);
@@ -51,7 +42,7 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
      * removes params
      */
     destroy: function () {
-        var router = master.app.getController('Uni.controller.history.Router');
+        var router = this.router;
         delete router.queryParams[this.root];
 
         //should redirect be performed via proxy? How it will work with another models, like sorting?
@@ -59,21 +50,27 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
     },
 
     setQueryParams: function (operation, callback, model) {
-        var router = master.app.getController('Uni.controller.history.Router'),
+        var router = this.router,
             queryParams = {},
             filter = []
-        ;
+            ;
 
         operation.setStarted();
 
-        model.fields.each(function(item){
-            if (!Ext.isEmpty(model.get(item.name))) {
+        var data = this.hydrator
+                ? this.hydrator.extract(model)
+                : model.getData(model)
+            ;
+
+        _.map(data, function (item, key) {
+            if (!Ext.isEmpty(item)) {
                 filter.push({
-                    property: item.name,
-                    value: model.get(item.name)
+                    property: key,
+                    value: item
                 });
             }
         });
+
         model.commit();
 
         operation.setCompleted();
