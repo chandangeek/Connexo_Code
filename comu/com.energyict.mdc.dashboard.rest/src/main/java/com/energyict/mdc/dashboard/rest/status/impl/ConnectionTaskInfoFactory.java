@@ -79,7 +79,9 @@ public class ConnectionTaskInfoFactory {
         }
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
-            info.currentState = new TaskStatusInfo(scheduledConnectionTask.getTaskStatus(), thesaurus);
+            if (scheduledConnectionTask.getTaskStatus()!=null) {
+                info.currentState = new TaskStatusInfo(scheduledConnectionTask.getTaskStatus(), thesaurus);
+            }
             info.connectionStrategy=new ConnectionStrategyInfo();
             info.connectionStrategy.id=scheduledConnectionTask.getConnectionStrategy();
             info.connectionStrategy.displayValue=thesaurus.getString(CONNECTION_STRATEGY_ADAPTER.marshal(scheduledConnectionTask.getConnectionStrategy()), scheduledConnectionTask.getConnectionStrategy().name());
