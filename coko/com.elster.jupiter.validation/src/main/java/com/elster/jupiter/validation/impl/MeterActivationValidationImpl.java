@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -28,14 +29,14 @@ import java.util.Set;
 
 class MeterActivationValidationImpl implements IMeterActivationValidation {
 
-    private static final Ordering<ChannelValidation> ORDER_BY_LASTCHECKED_NULL_IS_GREATEST = new Ordering<ChannelValidation>() {
+    private static final Ordering<ChannelValidation> ORDER_BY_LASTCHECKED_NULL_IS_GREATEST_WITH_ACTIVE_RULES = new Ordering<ChannelValidation>() {
         @Override
         public int compare(ChannelValidation left, ChannelValidation right) {
             return NullSafeOrdering.NULL_IS_GREATEST.<Date>get().compare(getLastChecked(left), getLastChecked(right));
         }
 
         private Date getLastChecked(ChannelValidation validation) {
-            return validation == null ? null : validation.getLastChecked();
+            return validation == null || !validation.hasActiveRules() ? null : validation.getLastChecked();
         }
     };
 
@@ -140,7 +141,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public Set<ChannelValidation> getChannelValidations() {
-        return Collections.unmodifiableSet(new HashSet<>(doGetChannelValidations()));
+        return Collections.unmodifiableSet(new HashSet<ChannelValidation>(doGetChannelValidations()));
     }
 
     @Override
@@ -157,19 +158,47 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     private void validateChannel(Interval interval, Channel channel) {
         Date earliestLastChecked = null;
-        ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
-        Date lastChecked = null;
-        Interval intervalToValidate = new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), interval.getEnd());
-        for (IValidationRule validationRule : getActiveRules()) {
-            lastChecked = validationRule.validateChannel(channel, intervalToValidate);
-            if (lastChecked != null) {
-                earliestLastChecked = getEarliestDate(earliestLastChecked, lastChecked);
+        Iterable<IValidationRule> activeRules = getActiveRules();
+        if (hasApplicableRules(channel, activeRules)) {
+            ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
+            Date lastChecked = null;
+            Interval intervalToValidate = new Interval(getEarliestDate(channelValidation.getLastChecked(), interval.getStart()), interval.getEnd());
+            for (IValidationRule validationRule : activeRules) {
+                lastChecked = validationRule.validateChannel(channel, intervalToValidate);
+                if (lastChecked != null) {
+                    earliestLastChecked = getEarliestDate(earliestLastChecked, lastChecked);
+                }
+            }
+
+            if (earliestLastChecked != null) {
+                channelValidation.setLastChecked(earliestLastChecked);
+            }
+            channelValidation.setActiveRules(true);
+        } else {
+            ChannelValidationImpl channelValidation = findValidationFor(channel);
+            if (channelValidation != null) {
+                channelValidation.setActiveRules(false);
             }
         }
+    }
 
-        if (earliestLastChecked != null) {
-            channelValidation.setLastChecked(earliestLastChecked);
+    private boolean hasApplicableRules(Channel channel, Iterable<IValidationRule> activeRules) {
+        for (IValidationRule activeRule : activeRules) {
+            if (isApplicable(activeRule, channel)) {
+                return true;
+            }
         }
+        return false;
+    }
+
+    private boolean isApplicable(IValidationRule activeRule, Channel channel) {
+        Set<ReadingType> activeRuleReadingTypes = activeRule.getReadingTypes();
+        for (ReadingType readingType : channel.getReadingTypes()) {
+            if (activeRuleReadingTypes.contains(readingType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Iterable<IValidationRule> getActiveRules() {
@@ -216,9 +245,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
             for (ChannelValidation channelValidation : getChannelValidations()) {
                 Date lastDateTime = channelValidation.getChannel().getTimeSeries().getLastDateTime();
                 Date lastChecked = channelValidation.getLastChecked();
-                // with NULL_IS_GREATEST ordering, when lastChecked is null, but the validation has run for this MeterActivationValidation
-                // probably no rules are configured for the channel, so in this case the channel data is ok
-                if (dateComparator.compare(lastChecked, lastDateTime) < 0) {
+                if (channelValidation.hasActiveRules() && dateComparator.compare(lastChecked, lastDateTime) < 0) {
                     return false;
                 }
             }
@@ -228,10 +255,13 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public Date getMinLastChecked() {
-        if (lastRun != null) {
-            return ORDER_BY_LASTCHECKED_NULL_IS_GREATEST.min(getChannelValidations()).getLastChecked();
+        if (!getChannelValidations().isEmpty()) {
+            return ORDER_BY_LASTCHECKED_NULL_IS_GREATEST_WITH_ACTIVE_RULES.min(getChannelValidations()).getLastChecked();
+        } else if (lastRun != null) {
+            return lastRun.toDate();
+        } else {
+            return clock.now();
         }
-        return null;
     }
 
     @Override

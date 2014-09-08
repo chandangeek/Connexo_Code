@@ -17,6 +17,7 @@ final class ChannelValidationImpl implements ChannelValidation {
     private Reference<Channel> channel = ValueReference.absent();
     private Reference<IMeterActivationValidation> meterActivationValidation = ValueReference.absent();
     private UtcInstant lastChecked;
+    private boolean activeRules;
 
     @SuppressWarnings("unused")
     @Inject
@@ -29,6 +30,7 @@ final class ChannelValidationImpl implements ChannelValidation {
         }
         this.meterActivationValidation.set(meterActivationValidation);
         this.channel.set(channel);
+        this.activeRules = true;
         return this;
     }
 
@@ -58,6 +60,15 @@ final class ChannelValidationImpl implements ChannelValidation {
 
     public Channel getChannel() {
         return channel.get();
+    }
+
+    @Override
+    public boolean hasActiveRules() {
+        return activeRules;
+    }
+
+    void setActiveRules(boolean activeRules) {
+        this.activeRules = activeRules;
     }
 
     @Override

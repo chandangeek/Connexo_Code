@@ -24,7 +24,17 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.MeterActivationValidation;
+import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetResolver;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.ValidatorFactory;
+import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -43,7 +53,16 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -63,6 +82,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
             return (input == null ? null : input.getLastChecked());
         }
     };
+    private static final Date ETERNITY = new Date(Long.MAX_VALUE);
 
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
@@ -332,8 +352,11 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         IMeterActivationValidation meterActivationValidation = MeterActivationValidationImpl.from(dataModel, meterActivation);
         meterActivationValidation.setRuleSet(ruleSet);
 
+
         for (Channel channel : meterActivation.getChannels()) {
-            meterActivationValidation.addChannelValidation(channel);
+            if (!ruleSet.getRules(channel.getReadingTypes()).isEmpty()) {
+                meterActivationValidation.addChannelValidation(channel);
+            }
         }
 
         meterActivationValidation.save();
@@ -365,8 +388,8 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
         List<DataValidationStatus> result = new ArrayList<>(readings.size());
         if (!readings.isEmpty()) {
-            List<ChannelValidation> channelValidations = getChannelValidations(channel);
-            Date lastChecked = getMinLastChecked(FluentIterable.from(channelValidations).transform(CHANNEL_VALIDATION_LAST_CHECKED));
+            List<ChannelValidation> channelValidations = getChannelValidationsWithActiveRules(channel);
+            Date lastChecked = channelValidations.isEmpty() ? ETERNITY : getMinLastChecked(FluentIterable.from(channelValidations).transform(CHANNEL_VALIDATION_LAST_CHECKED));
             ListMultimap<ReadingQualityType, IValidationRule> validationRuleMap = getValidationRulesPerReadingQuality(channelValidations);
 
             ListMultimap<Date, ReadingQualityRecord> readingQualities = getReadingQualities(channel, getInterval(readings));
@@ -460,8 +483,8 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         });
     }
 
-    private List<ChannelValidation> getChannelValidations(Channel channel) {
-        return dataModel.mapper(ChannelValidation.class).find("channel", channel);
+    private List<ChannelValidation> getChannelValidationsWithActiveRules(Channel channel) {
+        return dataModel.mapper(ChannelValidation.class).find("channel", channel, "activeRules", true);
     }
 
     private Date getMinLastChecked(Iterable<Date> dates) {
@@ -472,7 +495,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     @Override
     public List<Validator> getAvailableValidators() {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
-        List<Validator> result = new ArrayList<Validator>();
+        List<Validator> result = new ArrayList<>();
         for (ValidatorFactory factory : validatorFactories) {
             for (String implementation : factory.available()) {
                 Validator validator = validatorCreator.getTemplateValidator(implementation);

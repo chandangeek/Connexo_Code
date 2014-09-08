@@ -13,4 +13,6 @@ public interface ChannelValidation {
     Date getLastChecked();
 
     Channel getChannel();
+
+    boolean hasActiveRules();
 }
