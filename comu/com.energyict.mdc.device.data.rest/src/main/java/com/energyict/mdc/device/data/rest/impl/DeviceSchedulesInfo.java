@@ -34,7 +34,7 @@ public class DeviceSchedulesInfo {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             if(comTaskExecution.isScheduledManually()){
                 deviceSchedulesInfos.add(DeviceSchedulesInfo.fromManual(comTaskExecution));
-            }  else if(comTaskExecution.isScheduled()){
+            }  else if(comTaskExecution.usesSharedSchedule()){
                 deviceSchedulesInfos.add(DeviceSchedulesInfo.fromScheduled(comTaskExecution));
             } else if(comTaskExecution.isAdHoc()){
                 if(!usedComtaskIds.contains(comTaskExecution.getComTasks().get(0).getId())){

@@ -89,7 +89,4 @@ public class LoadProfileResource {
         return channelResourceProvider.get();
     }
 
-
-
-
 }
