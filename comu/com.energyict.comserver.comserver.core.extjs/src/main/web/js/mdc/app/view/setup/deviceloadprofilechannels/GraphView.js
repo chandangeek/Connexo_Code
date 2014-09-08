@@ -91,6 +91,14 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
 
             tooltip: {
                 useHTML: true,
+                positioner: function (labelWidth, labelHeight, point){
+                    var xValue,
+                        yValue;
+
+                    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - labelWidth
+                    yValue = point.plotY > labelHeight ? point.plotY: labelHeight;
+                    return {x: xValue, y: yValue}
+                },
                 formatter: function () {
                     var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</b>';
                     if (intervalLength < 86400000) {
