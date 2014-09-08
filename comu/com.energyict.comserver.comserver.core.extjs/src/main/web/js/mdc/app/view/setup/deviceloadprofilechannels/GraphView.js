@@ -95,7 +95,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
                     var xValue,
                         yValue;
 
-                    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - labelWidth
+                    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - (labelWidth*2)/3;
                     yValue = point.plotY > labelHeight ? point.plotY: labelHeight;
                     return {x: xValue, y: yValue}
                 },
