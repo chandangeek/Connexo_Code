@@ -49,14 +49,12 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         if (!this.comTasks.isEmpty()) {
             this.appendWhereOrAnd();
             this.append("(discriminator =");
-            this.addString(ComTaskExecutionImpl.SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);
+            this.addString(ComTaskExecutionImpl.SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR);
             this.append("and comschedule in (select comschedule from SCH_COMTASKINCOMSCHEDULE where ");
             this.appendInClause("comtask", this.comTasks);
-            this.append(")) or ((discriminator =");
-            this.addString(ComTaskExecutionImpl.AD_HOC_COM_TASK_EXECUTION_DISCRIMINATOR);
-            this.append("or discriminator =");
+            this.append(")) or (discriminator =");
             this.addString(ComTaskExecutionImpl.MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);
-            this.append(") and ");
+            this.append(" and ");
             this.appendInClause("comtask", this.comTasks);
             this.append(")");
         }
@@ -66,7 +64,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         if (!this.comSchedules.isEmpty()) {
             this.appendWhereOrAnd();
             this.append("(discriminator =");
-            this.addString(ComTaskExecutionImpl.SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);
+            this.addString(ComTaskExecutionImpl.SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR);
             this.append(" and ");
             this.appendInClause("comschedule", this.comSchedules);
             this.append(")");

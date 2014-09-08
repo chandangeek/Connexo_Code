@@ -40,7 +40,7 @@ public class UniqueComSchedulePerDeviceValidator implements ConstraintValidator<
     }
 
     private boolean isScheduled(ComTaskExecutionImpl serverComTaskExecution) {
-        return serverComTaskExecution.isScheduled() && !serverComTaskExecution.isScheduledManually();
+        return serverComTaskExecution.usesSharedSchedule() && !serverComTaskExecution.isScheduledManually();
     }
 
 }

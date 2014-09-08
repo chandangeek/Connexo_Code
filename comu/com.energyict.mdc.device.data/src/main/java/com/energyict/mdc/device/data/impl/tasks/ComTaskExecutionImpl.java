@@ -56,15 +56,13 @@ import java.util.Map;
 @ConnectionTaskIsRequiredWhenNotUsingDefault(groups = {Save.Create.class, Save.Update.class})
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
 public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> implements ServerComTaskExecution {
-    protected static final String SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR = "0";
-    protected static final String AD_HOC_COM_TASK_EXECUTION_DISCRIMINATOR = "1";
-    protected static final String MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR = "2";
+    protected static final String SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR = "0";
+    protected static final String MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR = "1";
 
     public static final Map<String, Class<? extends ComTaskExecution>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ComTaskExecution>>of(
-                    SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR, ScheduledComTaskExecutionImpl.class,
-                    MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR, ManuallyScheduledComTaskExecutionImpl.class,
-                    AD_HOC_COM_TASK_EXECUTION_DISCRIMINATOR, AdHocComTaskExecutionImpl.class);
+                    SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR, ScheduledComTaskExecutionImpl.class,
+                    MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR, ManuallyScheduledComTaskExecutionImpl.class);
 
     private final Clock clock;
     private final DeviceDataService deviceDataService;
@@ -623,7 +621,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     public abstract boolean performsIdenticalTask(ComTaskExecutionImpl comTaskExecution);
 
     /**
-     * We don't do our own persistence, our device will take care of that
+     * We don't do our own persistence, our device will take care of that.
      */
     public void prepareForSaving() {
         this.modificationDate = this.now();
@@ -640,48 +638,42 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         }
     }
 
-    public abstract static class AbstractComTaskExecutionBuilder<B extends ComTaskExecutionBuilder<B, C>, C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionBuilder<B, C> {
+    public abstract static class AbstractComTaskExecutionBuilder<C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionBuilder<C> {
 
         private final CI comTaskExecution;
-        private final B self;
 
-        protected AbstractComTaskExecutionBuilder(CI instance, Class<B> clazz) {
+        protected AbstractComTaskExecutionBuilder(CI instance) {
             this.comTaskExecution = instance;
-            this.self = clazz.cast(this);
         }
 
         protected CI getComTaskExecution () {
             return this.comTaskExecution;
         }
 
-        protected B self () {
-            return this.self;
-        }
-
         @Override
-        public B useDefaultConnectionTask(boolean useDefaultConnectionTask) {
+        public ComTaskExecutionBuilder<C> useDefaultConnectionTask(boolean useDefaultConnectionTask) {
             this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
-            return self;
+            return this;
         }
 
         @Override
-        public B connectionTask(ConnectionTask<?, ?> connectionTask) {
+        public ComTaskExecutionBuilder<C> connectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
             this.comTaskExecution.setUseDefaultConnectionTask(false);
             this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
-            return self;
+            return this;
         }
 
         @Override
-        public B priority(int priority) {
+        public ComTaskExecutionBuilder<C> priority(int priority) {
             this.comTaskExecution.setPlannedPriority(priority);
-            return self;
+            return this;
         }
 
         @Override
-        public B ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
+        public ComTaskExecutionBuilder<C> ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
             this.comTaskExecution.setIgnoreNextExecutionSpecsForInbound(ignoreNextExecutionSpecsForInbound);
-            return self;
+            return this;
         }
 
         @Override

@@ -6,9 +6,7 @@ import com.energyict.mdc.tasks.ComTask;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -28,7 +26,7 @@ public class UniqueComTaskSchedulingValidator implements ConstraintValidator<Uni
     public boolean isValid(Device device, ConstraintValidatorContext context) {
         boolean valid = true;   // Optimistic approach ;-)
         Set<Long> comTaskIds = new HashSet<>();
-        for (ComTaskExecution comTaskExecution : this.getValidationTargets(device)) {
+        for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
             for (ComTask comTask : comTaskExecution.getComTasks()) {
                 if (comTaskIds.contains(comTask.getId())) {
                     valid = false;
@@ -39,17 +37,6 @@ public class UniqueComTaskSchedulingValidator implements ConstraintValidator<Uni
             }
         }
         return valid;
-    }
-
-    private List<ComTaskExecution> getValidationTargets (Device device) {
-        List<ComTaskExecution> all = device.getComTaskExecutions();
-        List<ComTaskExecution> targets = new ArrayList<>(all.size());
-        for (ComTaskExecution comTaskExecution : all) {
-            if (!comTaskExecution.isAdHoc()) {
-                targets.add(comTaskExecution);
-            }
-        }
-        return targets;
     }
 
 }

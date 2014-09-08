@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -74,13 +73,13 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     public static final int DEFAULT_PRIORITY = TaskPriorityConstants.DEFAULT_PRIORITY;
 
     /**
-     * Tests if this ComTaskExecution is scheduled,
-     * i.e. if it has a scheduling frequency causing it
-     * to be executed frequently at that specified frequency.
+     * Tests if this ComTaskExecution is for a {@link ComSchedule}
+     * that defines both the scheduling frequency and the
+     * actual {@link ComTask}s that will be executed.
      *
-     * @return A flag that indicates if this ComTaskExecution is scheduled
+     * @return A flag that indicates if this ComTaskExecution is for a ComSchedule
      */
-    public boolean isScheduled ();
+    public boolean usesSharedSchedule();
 
     /**
      * Tests if this ComTaskExecution is scheduled manually,
@@ -328,7 +327,7 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * Tests if this ComTaskExecution is configured to execute the ComSchedule.
      * Note that only {@link ScheduledComTaskExecution} can be configured to do this.
      *
-     * @see #isScheduled()
+     * @see #usesSharedSchedule()
      */
     public boolean executesComSchedule(ComSchedule comSchedule);
 

@@ -160,7 +160,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COMTASK_IS_REQUIRED = "comTaskIsRequired";
         public static final String COMSCHEDULE_IS_REQUIRED = "comScheduleIsRequired";
         public static final String NEXTEXECUTIONSPEC_IS_REQUIRED = "nextExecutionSpecIsRequired";
-        public static final String CONNECTIONTASK_IS_REQUIRED = "connectionTaskIsRequired";
         public static final String PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED = "protocolDialectConfigurationPropertiesAreRequired";
         public static final String COM_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE = "comTaskExecutionIsObsoleteAndCanNotBeUpdated";
         public static final String COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE = "comTaskExecutionAlreadyObsolete";

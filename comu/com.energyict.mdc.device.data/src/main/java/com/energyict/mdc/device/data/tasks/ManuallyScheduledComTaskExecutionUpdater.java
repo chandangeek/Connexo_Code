@@ -18,7 +18,16 @@ public interface ManuallyScheduledComTaskExecutionUpdater extends ComTaskExecuti
      * execution timestamp from the {@link TemporalExpression}.
      *
      * @param temporalExpression The TemporalExpression
+     * @return The ManuallyScheduledComTaskExecutionUpdater
      */
     public ManuallyScheduledComTaskExecutionUpdater scheduleAccordingTo(TemporalExpression temporalExpression);
+
+    /**
+     * Removes the schedule and transforms the ManuallyScheduledComTaskExecution
+     * into an adhoc scheduled ComTaskExecution.
+     *
+     * @return The ManuallyScheduledComTaskExecutionUpdater
+     */
+    public ManuallyScheduledComTaskExecutionUpdater removeSchedule();
 
 }

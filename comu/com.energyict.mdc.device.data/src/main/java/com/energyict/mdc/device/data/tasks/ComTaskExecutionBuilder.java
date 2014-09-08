@@ -3,9 +3,9 @@ package com.energyict.mdc.device.data.tasks;
 /**
  * Builder that supports basic value setters for a {@link ComTaskExecution}.
  */
-public interface ComTaskExecutionBuilder<B extends ComTaskExecutionBuilder<B, C>, C extends ComTaskExecution> {
+public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
 
-    B useDefaultConnectionTask(boolean useDefaultConnectionTask);
+    public ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask);
 
     /**
      * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
@@ -18,17 +18,17 @@ public interface ComTaskExecutionBuilder<B extends ComTaskExecutionBuilder<B, C>
      * @param connectionTask the ConnectionTask to set
      * @return the current updater
      */
-    B connectionTask(ConnectionTask<?, ?> connectionTask);
+    public ComTaskExecutionBuilder connectionTask(ConnectionTask<?, ?> connectionTask);
 
-    B priority(int executionPriority);
+    public ComTaskExecutionBuilder priority(int executionPriority);
 
-    B ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
+    public ComTaskExecutionBuilder ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
     /**
      * Creates the actual ComTaskExecution with the objects set in the builder.
      *
      * @return the newly created ComTaskExecution
      */
-    C add();
+    public C add();
 
 }
