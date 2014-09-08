@@ -8,6 +8,7 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import java.util.List;
  */
 public class ValidationInfo {
 
+    @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
     public ValidationStatus validationResult;
     public boolean dataValidated;
     public List<ValidationRuleInfo> validationRules;
