@@ -6,6 +6,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
  */
 enum FilterOption {
     currentStates,
+    latestStates,
     latestResults,
     comTasks,
     comSchedules,

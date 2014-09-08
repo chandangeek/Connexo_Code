@@ -43,11 +43,19 @@ public class DashboardFieldResource extends FieldResource {
     }
 
     @GET
-    @Path("/successindicator")
+    @Path("/comsessionsuccessindicators")
     @Produces("application/json")
     @RolesAllowed(Privileges.VIEW_COMSERVER)
-    public Object getLatestResultValues() {
+    public Object getComSessionSuccessIndicatorValues() {
         return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new ComSessionSuccessIndicatorAdapter().getClientSideValues());
+    }
+
+    @GET
+    @Path("/connectiontasksuccessindicators")
+    @Produces("application/json")
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    public Object getConnectionTaskSuccessIndicatorValues() {
+        return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new ConnectionTaskSuccessIndicatorAdapter().getClientSideValues());
     }
 
     @GET
