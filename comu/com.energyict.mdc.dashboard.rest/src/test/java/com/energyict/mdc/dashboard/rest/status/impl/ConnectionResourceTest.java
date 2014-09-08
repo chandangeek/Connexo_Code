@@ -231,6 +231,15 @@ public class ConnectionResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testLatestStatesAddedToFilter() throws Exception {
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("latestStates", "Success,NotApplicable,Failure")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+
+        ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().latestStatuses).contains(ConnectionTask.SuccessIndicator.SUCCESS).contains(ConnectionTask.SuccessIndicator.FAILURE).contains(ConnectionTask.SuccessIndicator.NOT_APPLICABLE).hasSize(3);
+    }
+
+    @Test
     public void testStartIntervalFromAddedToFilter() throws Exception {
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("startIntervalFrom", "1407916436000")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 

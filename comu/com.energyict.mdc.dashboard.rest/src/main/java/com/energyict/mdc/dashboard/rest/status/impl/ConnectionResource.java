@@ -44,7 +44,8 @@ public class ConnectionResource {
     private static final Comparator<ComTaskExecution> COM_TASK_EXECUTION_COMPARATOR = new ComTaskExecutionComparator();
 
     private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
-    private static final ComSessionSuccessIndicatorAdapter SUCCESS_INDICATOR_ADAPTER = new ComSessionSuccessIndicatorAdapter();
+    private static final ComSessionSuccessIndicatorAdapter COM_SESSION_SUCCESS_INDICATOR_ADAPTER = new ComSessionSuccessIndicatorAdapter();
+    private static final ConnectionTaskSuccessIndicatorAdapter CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER = new ConnectionTaskSuccessIndicatorAdapter();
 
     private final DeviceDataService deviceDataService;
     private final EngineModelService engineModelService;
@@ -132,7 +133,15 @@ public class ConnectionResource {
         if (filterProperties.containsKey(FilterOption.latestResults.name())) {
             List<String> latestResults = Arrays.asList(filterProperties.get(FilterOption.latestResults.name()).split(","));
             for (String latestResult : latestResults) {
-                filter.latestResults.add(SUCCESS_INDICATOR_ADAPTER.unmarshal(latestResult));
+                filter.latestResults.add(COM_SESSION_SUCCESS_INDICATOR_ADAPTER.unmarshal(latestResult));
+            }
+        }
+
+        filter.latestStatuses = new HashSet<>();
+        if (filterProperties.containsKey(FilterOption.latestStates.name())) {
+            List<String> latestStates = Arrays.asList(filterProperties.get(FilterOption.latestStates.name()).split(","));
+            for (String latestStatus : latestStates) {
+                filter.latestStatuses.add(CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER.unmarshal(latestStatus));
             }
         }
 
