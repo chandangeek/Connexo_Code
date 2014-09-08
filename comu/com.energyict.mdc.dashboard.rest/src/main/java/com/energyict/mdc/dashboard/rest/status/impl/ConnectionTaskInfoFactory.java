@@ -6,7 +6,6 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
-import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -14,9 +13,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.google.common.base.Optional;
-
 import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -28,13 +25,11 @@ public class ConnectionTaskInfoFactory {
     private static final ConnectionStrategyAdapter CONNECTION_STRATEGY_ADAPTER = new ConnectionStrategyAdapter();
 
     private final Thesaurus thesaurus;
-    private final DeviceDataService deviceDataService;
     private final Provider<ComTaskExecutionInfoFactory> comTaskExecutionInfoFactory;
 
     @Inject
-    public ConnectionTaskInfoFactory(Thesaurus thesaurus, DeviceDataService deviceDataService, Provider<ComTaskExecutionInfoFactory> comTaskExecutionInfoFactoryProvider) {
+    public ConnectionTaskInfoFactory(Thesaurus thesaurus, Provider<ComTaskExecutionInfoFactory> comTaskExecutionInfoFactoryProvider) {
         this.thesaurus = thesaurus;
-        this.deviceDataService = deviceDataService;
         this.comTaskExecutionInfoFactory = comTaskExecutionInfoFactoryProvider;
     }
 
@@ -43,8 +38,6 @@ public class ConnectionTaskInfoFactory {
         info.device=new IdWithNameInfo(connectionTask.getDevice().getmRID(), connectionTask.getDevice().getName());
         info.deviceType=new IdWithNameInfo(connectionTask.getDevice().getDeviceType());
         info.deviceConfiguration=new IdWithNameInfo(connectionTask.getDevice().getDeviceConfiguration());
-        info.currentState = null;// TODO wait for merge
-
         info.latestStatus=new LatestStatusInfo();
         info.latestStatus.id =connectionTask.getStatus();
         info.latestStatus.displayValue=thesaurus.getString(CONNECTION_TASK_LIFECYCLE_STATUS_ADAPTOR.marshal(connectionTask.getStatus()), CONNECTION_TASK_LIFECYCLE_STATUS_ADAPTOR.marshal(connectionTask.getStatus()));
@@ -86,6 +79,7 @@ public class ConnectionTaskInfoFactory {
         }
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
+            info.currentState = new TaskStatusInfo(scheduledConnectionTask.getTaskStatus(), thesaurus);
             info.connectionStrategy=new ConnectionStrategyInfo();
             info.connectionStrategy.id=scheduledConnectionTask.getConnectionStrategy();
             info.connectionStrategy.displayValue=thesaurus.getString(CONNECTION_STRATEGY_ADAPTER.marshal(scheduledConnectionTask.getConnectionStrategy()), scheduledConnectionTask.getConnectionStrategy().name());
