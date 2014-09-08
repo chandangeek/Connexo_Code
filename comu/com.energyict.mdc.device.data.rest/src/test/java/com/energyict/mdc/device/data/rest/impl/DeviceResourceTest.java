@@ -1,5 +1,38 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
@@ -21,38 +54,18 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.TestProperties;
+
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,20 +76,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
+
 import org.assertj.core.data.MapEntry;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -408,7 +410,7 @@ public class DeviceResourceTest extends JerseyTest {
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
 
-        ScheduledComTaskExecutionBuilder builder = mock(ScheduledComTaskExecutionBuilder.class);
+        ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = mock(ComTaskExecutionBuilder.class);
 
         Device device = mock(Device.class);
         when(device.getmRID()).thenReturn("mrid1");
@@ -435,7 +437,7 @@ public class DeviceResourceTest extends JerseyTest {
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
 
-        ScheduledComTaskExecutionBuilder builder = mock(ScheduledComTaskExecutionBuilder.class);
+        ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = mock(ComTaskExecutionBuilder.class);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getId()).thenReturn(10L);
         when(deviceType.getName()).thenReturn("Router");
@@ -631,23 +633,23 @@ public class DeviceResourceTest extends JerseyTest {
         assertThat(interval.get("start")).isEqualTo(startTime);
         assertThat(interval.get("end")).isEqualTo(startTime+900);
     }
-    
+
     @Test
     public void testGetAllLogBooksReturnsEmptyList() {
         Device device = mock(Device.class);
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         Map response = target("/devices/mrid/logbooks").queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
-        
+
         assertThat(response)
             .contains(MapEntry.entry("total", 0))
             .containsKey("data");
     }
-    
+
     @Test
     public void testGetAllLogBooks() {
         Date lastLogBook = new Date();
         Date lastReading = new Date();
-        
+
         Device device = mock(Device.class);
         List<LogBook> logBooks = new ArrayList<>();
         logBooks.add(mockLogBook("C_LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", lastLogBook, lastReading));
@@ -656,15 +658,15 @@ public class DeviceResourceTest extends JerseyTest {
 
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(logBooks);
-        
+
         Map response = target("/devices/mrid/logbooks").queryParam("start", 0).queryParam("limit", 2).request().get(Map.class);
-        
+
         assertThat(response)
             .contains(MapEntry.entry("total", 3))
             .containsKey("data");
-        
+
         assertThat((List)response.get("data")).hasSize(2);
-        
+
         Map logBookInfo1 = (Map) ((List)response.get("data")).get(0);
         assertThat(logBookInfo1)
             .contains(MapEntry.entry("id", 3))
@@ -673,7 +675,7 @@ public class DeviceResourceTest extends JerseyTest {
             .contains(MapEntry.entry("overruledObisCode", "0.0.0.0.0.6"))
             .contains(MapEntry.entry("lastEventDate", lastLogBook.getTime()))
             .contains(MapEntry.entry("lastReading", lastReading.getTime()));
-        
+
         Map logBookInfo2 = (Map) ((List)response.get("data")).get(1);
         assertThat(logBookInfo2)
             .contains(MapEntry.entry("id", 2))
@@ -683,17 +685,17 @@ public class DeviceResourceTest extends JerseyTest {
             .contains(MapEntry.entry("lastEventDate", lastLogBook.getTime()))
             .contains(MapEntry.entry("lastReading", lastReading.getTime()));
     }
-    
+
     @Test
     public void testGetLogBookById() {
         Date lastLogBook = new Date();
         Date lastReading = new Date();
-        
+
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", lastLogBook, lastReading);
         EndDeviceEventRecord endDeviceEvent = mock(EndDeviceEventRecord.class);
         EndDeviceEventType endDeviceEventType = mock(EndDeviceEventType.class);
-        
+
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         when(logBook.getEndDeviceEvents(Matchers.any(Interval.class))).thenReturn(Arrays.asList(endDeviceEvent));
@@ -710,16 +712,16 @@ public class DeviceResourceTest extends JerseyTest {
                 return (String) invocation.getArguments()[1];
             }
         });
-        
+
         LogBookInfo info = target("/devices/mrid/logbooks/1").request().get(LogBookInfo.class);
-        
+
         assertThat(info.id).isEqualTo(1);
         assertThat(info.name).isEqualTo("LogBook");
         assertThat(info.obisCode).isEqualTo(ObisCode.fromString("0.0.0.0.0.1"));
         assertThat(info.overruledObisCode).isEqualTo(ObisCode.fromString("0.0.0.0.0.2"));
         assertThat(info.lastEventDate).isEqualTo(lastLogBook);
         assertThat(info.lastReading).isEqualTo(lastReading);
-        
+
         EndDeviceEventTypeInfo eventType = info.lastEventType;
         assertThat(eventType.code).isEqualTo("0.2.38.57");
         assertThat(eventType.deviceType.id).isEqualTo(0);
@@ -731,72 +733,72 @@ public class DeviceResourceTest extends JerseyTest {
         assertThat(eventType.eventOrAction.id).isEqualTo(57);
         assertThat(eventType.eventOrAction.name).isEqualTo("Decreased");
     }
-    
+
     @Test
     public void testGetLogBookByIdNotFound() {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
-        
+
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
-        
+
         Response response = target("/devices/mrid/logbooks/134").request().get();
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
-    
+
     @Test
     public void testGetLogBookDataIncorrectIntervalParameter() {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
-        
+
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
-        
+
         Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'intervalStart','value':2},{'property':'intervalEnd','value':1}]").request().get();
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
-    
+
     @Test
     public void testGetLogBookDataInvalidDomainParameter() {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
-        
+
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
-        
+
         Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'domain','value':'100500'}]").request().get();
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
-    
+
     @Test
     public void testGetLogBookDataInvalidSubDomainParameter() {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
-        
+
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
-        
+
         Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'subDomain','value':'100500'}]").request().get();
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
-    
+
     @Test
     public void testGetLogBookDataInvalidEventOrActionParameter() {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
-        
+
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
-        
+
         Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'eventOrAction','value':'100500'}]").request().get();
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
-    
+
     @Test
     public void testGetLogBookData() {
         Date start = new Date();
@@ -809,12 +811,12 @@ public class DeviceResourceTest extends JerseyTest {
         EndDeviceDomain domain = EndDeviceDomain.BATTERY;
         EndDeviceSubDomain subDomain = EndDeviceSubDomain.ACCESS;
         EndDeviceEventorAction eventorAction = EndDeviceEventorAction.ACTIVATED;
-        
+
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
         EndDeviceEventRecord endDeviceEventRecord = mock(EndDeviceEventRecord.class);
         EndDeviceEventType endDeviceType = mock(EndDeviceEventType.class);
-        
+
         when(deviceDataService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         List<EndDeviceEventRecord> records = new ArrayList<>();
@@ -831,7 +833,7 @@ public class DeviceResourceTest extends JerseyTest {
         when(endDeviceType.getDomain()).thenReturn(domain);
         when(endDeviceType.getSubDomain()).thenReturn(subDomain);
         when(endDeviceType.getEventOrAction()).thenReturn(eventorAction);
-        
+
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
         when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(new Answer<String>() {
             @Override
@@ -839,16 +841,16 @@ public class DeviceResourceTest extends JerseyTest {
                 return (String) invocation.getArguments()[1];
             }
         });
-        
+
         Map<?, ?> response = target("/devices/mrid/logbooks/1/data")
                 .queryParam("filter", "[{'property':'intervalStart','value':1},"
                                      + "{'property':'intervalEnd','value':2},"
                                      + "{'property':'domain','value':'BATTERY'},"
                                      + "{'property':'subDomain','value':'ACCESS'},"
                                      + "{'property':'eventOrAction','value':'ACTIVATED'}]").request().get(Map.class);
-        
+
         assertThat(response.get("total")).isEqualTo(1);
-                
+
         List<?> infos = (List<?>) response.get("data");
         assertThat(infos).hasSize(1);
         assertThat((Map<?, ?>) infos.get(0))
@@ -857,18 +859,18 @@ public class DeviceResourceTest extends JerseyTest {
             .contains(MapEntry.entry("eventLogId", eventLogId))
             .contains(MapEntry.entry("readingDate", start.getTime()))
             .contains(MapEntry.entry("message", message));
-        
+
         Map<?, ?> eventType = (Map<?, ?>) ((Map<?, ?>)infos.get(0)).get("eventType");
         assertThat(eventType).contains(MapEntry.entry("code", eventTypeCode));
         Map<?, ?> deviceTypeMap = (Map<?, ?>) eventType.get("deviceType");
         assertThat(deviceTypeMap).contains(MapEntry.entry("id", type.getValue())).contains(MapEntry.entry("name", type.getMnemonic()));
-        
+
         Map<?, ?> domainTypeMap = (Map<?, ?>) eventType.get("domain");
         assertThat(domainTypeMap).contains(MapEntry.entry("id", domain.getValue())).contains(MapEntry.entry("name", domain.getMnemonic()));
-                
+
         Map<?, ?> subDomainMap = (Map<?, ?>) eventType.get("subDomain");
         assertThat(subDomainMap).contains(MapEntry.entry("id", subDomain.getValue())).contains(MapEntry.entry("name", subDomain.getMnemonic()));
-                
+
         Map<?, ?> eventOrActionMap = (Map<?, ?>) eventType.get("eventOrAction");
         assertThat(eventOrActionMap).contains(MapEntry.entry("id", eventorAction.getValue())).contains(MapEntry.entry("name", eventorAction.getMnemonic()));
     }
@@ -922,11 +924,11 @@ public class DeviceResourceTest extends JerseyTest {
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         return loadProfile1;
     }
-    
+
     private LogBook mockLogBook(String name, long id, String obis, String overruledObis, Date lastLogBook, Date lastReading) {
         LogBookType logBookType = mock(LogBookType.class);
         when(logBookType.getName()).thenReturn(name);
-        
+
         LogBook logBook = mock(LogBook.class);
         when(logBook.getId()).thenReturn(id);
         when(logBook.getLogBookType()).thenReturn(logBookType);
@@ -934,7 +936,7 @@ public class DeviceResourceTest extends JerseyTest {
         when(logBook.getDeviceObisCode()).thenReturn(ObisCode.fromString(overruledObis));
         when(logBook.getLastLogBook()).thenReturn(lastLogBook);
         when(logBook.getLatestEventAdditionDate()).thenReturn(lastReading);
-        
+
         return logBook;
     }
 }
