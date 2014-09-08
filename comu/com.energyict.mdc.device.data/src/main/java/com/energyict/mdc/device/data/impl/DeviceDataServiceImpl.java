@@ -1521,7 +1521,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct join ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" on cs.connectiontask = ct.id where chs.id in (select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
+        sqlBuilder.append(" cs on cs.connectiontask = ct.id where cs.id in (select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
         sqlBuilder.append(" group by connectiontask)");
         sqlBuilder.append(" and not exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
@@ -1541,7 +1541,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         failingComTasksSqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         failingComTasksSqlBuilder.append(" ct join ");
         failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        failingComTasksSqlBuilder.append(" on cs.connectiontask = ct.id where chs.id in (select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
+        failingComTasksSqlBuilder.append(" cs on cs.connectiontask = ct.id where cs.id in (select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
         failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
         failingComTasksSqlBuilder.append(" group by connectiontask)");
         failingComTasksSqlBuilder.append(" and cs.successindicator = 0 and exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
