@@ -55,17 +55,19 @@ import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
+import org.assertj.core.data.MapEntry;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,12 +78,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.assertj.core.data.MapEntry;
-import org.junit.*;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -880,16 +880,11 @@ public class DeviceResourceTest extends JerseyTest {
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.CORRUPTED));
         when(loadProfileReading.getReadingTime()).thenReturn(new Date());
         when(loadProfileReading.getInterval()).thenReturn(interval);
-        when(loadProfileReading.getChannelValues()).thenAnswer(new Answer<Set<Map.Entry<Channel, BigDecimal>>>() {
-            @Override
-            public Set<Map.Entry<Channel, BigDecimal>> answer(InvocationOnMock invocationOnMock) throws Throwable {
-                Map<Channel, BigDecimal> map= new HashMap<>();
-                for (Channel channel : loadProfile.getChannels()) {
-                    map.put(channel, BigDecimal.TEN);
-                }
-                return map.entrySet();
-            }
-        });
+        Map<Channel, BigDecimal> map= new HashMap<>();
+        for (Channel channel : loadProfile.getChannels()) {
+            map.put(channel, BigDecimal.TEN);
+        }
+        when(loadProfileReading.getChannelValues()).thenReturn(map);
         return loadProfileReading;
     }
 

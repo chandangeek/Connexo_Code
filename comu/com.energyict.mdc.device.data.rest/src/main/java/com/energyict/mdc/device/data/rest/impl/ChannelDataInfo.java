@@ -30,7 +30,7 @@ public class ChannelDataInfo {
             for (ProfileStatus.Flag flag : loadProfileReading.getFlags()) {
                 channelIntervalInfo.intervalFlags.add(thesaurus.getString(flag.name(), flag.name()));
             }
-            for (Map.Entry<Channel, BigDecimal> entry : loadProfileReading.getChannelValues()) {
+            for (Map.Entry<Channel, BigDecimal> entry : loadProfileReading.getChannelValues().entrySet()) {
                 channelIntervalInfo.value=entry.getValue(); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
             }
             channelData.add(channelIntervalInfo);
