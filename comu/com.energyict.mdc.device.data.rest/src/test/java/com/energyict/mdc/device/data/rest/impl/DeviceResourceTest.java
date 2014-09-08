@@ -54,20 +54,19 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
-import org.assertj.core.data.MapEntry;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,11 +76,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
+
+import org.assertj.core.data.MapEntry;
+import org.junit.*;
+import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -110,6 +110,7 @@ public class DeviceResourceTest extends JerseyTest {
     private static IssueService issueService;
     private static MdcPropertyUtils mdcPropertyUtils;
     private static SchedulingService schedulingService;
+    private static ValidationService validationService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -122,6 +123,7 @@ public class DeviceResourceTest extends JerseyTest {
         thesaurus = mock(Thesaurus.class);
         mdcPropertyUtils = mock(MdcPropertyUtils.class);
         schedulingService = mock(SchedulingService.class);
+        validationService = mock(ValidationService.class);
     }
 
     @Override
@@ -166,6 +168,7 @@ public class DeviceResourceTest extends JerseyTest {
                 bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
                 bind(schedulingService).to(SchedulingService.class);
+                bind(validationService).to(ValidationService.class);
                 bind(ChannelResource.class).to(ChannelResource.class);
             }
         });

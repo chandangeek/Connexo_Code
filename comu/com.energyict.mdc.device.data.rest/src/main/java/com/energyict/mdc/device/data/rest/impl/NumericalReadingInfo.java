@@ -37,7 +37,7 @@ public class NumericalReadingInfo extends ReadingInfo<NumericalReading, Numerica
     public NumericalReadingInfo() {}
 
     public NumericalReadingInfo(NumericalReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive, DataValidationStatus dataValidationStatus, ValidationEvaluator validationEvaluator) {
-        super(reading, registerSpec, validationEvaluator);
+        super(reading);
         this.value = reading.getQuantity().getValue();
         this.rawValue = reading.getQuantity().getValue();
         this.unitOfMeasure = registerSpec.getUnit();
