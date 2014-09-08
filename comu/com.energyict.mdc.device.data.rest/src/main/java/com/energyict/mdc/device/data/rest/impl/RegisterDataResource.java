@@ -59,7 +59,7 @@ public class RegisterDataResource {
             dataValidationStatuses = validationService.getValidationStatus(channelRef.get(), readingRecords);
         }
         List<ReadingInfo> readingInfos = ReadingInfoFactory.asInfoList(readings, register.getRegisterSpec(),
-                validationStatusForRegister, dataValidationStatuses);
+                validationStatusForRegister, dataValidationStatuses, validationService.getEvaluator());
         return PagedInfoList.asJson("data", readingInfos, queryParameters);
     }
 

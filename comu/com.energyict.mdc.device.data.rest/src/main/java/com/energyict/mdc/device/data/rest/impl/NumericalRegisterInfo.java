@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.validation.ValidationEvaluator;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.NumericalRegister;
@@ -19,8 +20,8 @@ public class NumericalRegisterInfo extends RegisterInfo<NumericalRegister, Numer
 
     public NumericalRegisterInfo() {}
 
-    public NumericalRegisterInfo(NumericalRegister register) {
-        super(register);
+    public NumericalRegisterInfo(NumericalRegister register, ValidationEvaluator evaluator) {
+        super(register, evaluator);
         NumericalRegisterSpec registerSpec = (NumericalRegisterSpec)register.getRegisterSpec();
         this.numberOfDigits = registerSpec.getNumberOfDigits();
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();

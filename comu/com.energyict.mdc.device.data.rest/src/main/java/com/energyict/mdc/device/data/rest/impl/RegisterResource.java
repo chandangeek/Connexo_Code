@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -25,12 +27,14 @@ public class RegisterResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final Provider<RegisterDataResource> registerDataResourceProvider;
+    private final ValidationEvaluator evaluator;
 
     @Inject
-    public RegisterResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Provider<RegisterDataResource> registerDataResourceProvider) {
+    public RegisterResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Provider<RegisterDataResource> registerDataResourceProvider, ValidationService validationService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.registerDataResourceProvider = registerDataResourceProvider;
+        this.evaluator = validationService.getEvaluator();
     }
 
     @GET
@@ -44,7 +48,7 @@ public class RegisterResource {
                 return o1.getRegisterSpec().getRegisterType().getName().compareToIgnoreCase(o2.getRegisterSpec().getRegisterType().getName());
             }
         }).from(queryParameters).find();
-        List<RegisterInfo> registerInfos = RegisterInfoFactory.asInfoList(registers);
+        List<RegisterInfo> registerInfos = RegisterInfoFactory.asInfoList(registers, evaluator);
         return PagedInfoList.asJson("data", registerInfos, queryParameters);
     }
 
@@ -55,7 +59,7 @@ public class RegisterResource {
     public RegisterInfo getRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        return RegisterInfoFactory.asInfo(register);
+        return RegisterInfoFactory.asInfo(register, evaluator);
     }
 
     @Path("/{registerId}/data")

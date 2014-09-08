@@ -8,6 +8,6 @@ public class TextRegisterInfo extends RegisterInfo<TextRegister, TextReading> {
     public TextRegisterInfo() {}
 
     public TextRegisterInfo(TextRegister register) {
-        super(register);
+        super(register, null);
     }
 }

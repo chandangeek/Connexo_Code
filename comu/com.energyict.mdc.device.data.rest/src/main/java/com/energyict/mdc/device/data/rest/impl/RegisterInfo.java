@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.validation.ValidationEvaluator;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
@@ -17,7 +18,6 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Date;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -60,7 +60,7 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
 
     public RegisterInfo() {}
 
-    public RegisterInfo(R register) {
+    public RegisterInfo(R register, ValidationEvaluator evaluator) {
         RegisterSpec registerSpec = register.getRegisterSpec();
         this.id = registerSpec.getId();
         this.name = registerSpec.getRegisterType().getName();
@@ -74,7 +74,7 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
 
         Optional<RE> lastReading = register.getLastReading();
         if(lastReading.isPresent()) {
-            this.lastReading = ReadingInfoFactory.asInfo(lastReading.get(), registerSpec);
+            this.lastReading = ReadingInfoFactory.asInfo(lastReading.get(), registerSpec, evaluator);
         }
         this.validationStatus = Boolean.TRUE;
         // TODO Uncomment when it was done in device.data bundle
