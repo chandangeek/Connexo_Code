@@ -44,6 +44,7 @@ public class ConnectionResource {
     private static final Comparator<ComTaskExecution> COM_TASK_EXECUTION_COMPARATOR = new ComTaskExecutionComparator();
 
     private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
+    private static final SuccessIndicatorAdapter SUCCESS_INDICATOR_ADAPTER = new SuccessIndicatorAdapter();
 
     private final DeviceDataService deviceDataService;
     private final EngineModelService engineModelService;
@@ -107,7 +108,7 @@ public class ConnectionResource {
 
         filter.comPortPools = new HashSet<>();
         if (filterProperties.containsKey(HeatMapBreakdownOption.comPortPools.name())) {
-            String[] comPortPoolIds = filterProperties.get(HeatMapBreakdownOption.comPortPools.name()).split(",");
+            String[] comPortPoolIds = filterProperties.get(FilterOption.comPortPools.name()).split(",");
             // already optimized
             for (ComPortPool comPortPool : engineModelService.findAllComPortPools()) {
                 String comPortPoolIdString = ""+comPortPool.getId();
@@ -121,15 +122,23 @@ public class ConnectionResource {
 
         filter.connectionTypes = new HashSet<>();
         if (filterProperties.containsKey(HeatMapBreakdownOption.connectionTypes.name())) {
-            List<String> connectionTypeIds = Arrays.asList(filterProperties.get(HeatMapBreakdownOption.connectionTypes.name()).split(","));
+            List<String> connectionTypeIds = Arrays.asList(filterProperties.get(FilterOption.connectionTypes.name()).split(","));
             for (String connectionTypeId : connectionTypeIds) {
                 filter.connectionTypes.add(protocolPluggableService.findConnectionTypePluggableClass(Integer.parseInt(connectionTypeId)));
             }
         }
 
+        filter.latestResults = new HashSet<>();
+        if (filterProperties.containsKey(FilterOption.latestResults.name())) {
+            List<String> latestResults = Arrays.asList(filterProperties.get(FilterOption.latestResults.name()).split(","));
+            for (String latestResult : latestResults) {
+                filter.latestResults.add(SUCCESS_INDICATOR_ADAPTER.unmarshal(latestResult));
+            }
+        }
+
         filter.deviceTypes = new HashSet<>();
         if (filterProperties.containsKey(HeatMapBreakdownOption.deviceTypes.name())) {
-            List<String> deviceTypeIds = Arrays.asList(filterProperties.get(HeatMapBreakdownOption.deviceTypes.name()).split(","));
+            List<String> deviceTypeIds = Arrays.asList(filterProperties.get(FilterOption.deviceTypes.name()).split(","));
             for (String deviceTypeId : deviceTypeIds) {
                 filter.deviceTypes.add(deviceConfigurationService.findDeviceType(Integer.parseInt(deviceTypeId)));
             }

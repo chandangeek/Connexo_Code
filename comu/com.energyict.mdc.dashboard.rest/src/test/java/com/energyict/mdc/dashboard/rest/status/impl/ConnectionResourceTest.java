@@ -183,7 +183,7 @@ public class ConnectionResourceTest extends JerseyTest {
     @Test
     public void testCurrentStateAddedToFilter() throws Exception {
 
-        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("currentStates", "Busy,OnHold")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("currentStates", "Busy,OnHold")).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
@@ -219,6 +219,15 @@ public class ConnectionResourceTest extends JerseyTest {
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().connectionTypes).contains(connectionType1).contains(connectionType2).hasSize(2);
+    }
+
+    @Test
+    public void testLatestResultsAddedToFilter() throws Exception {
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("latestResults", "Success,SetupError,Broken")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+
+        ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
+        verify(deviceDataService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
+        assertThat(captor.getValue().latestResults).contains(ComSession.SuccessIndicator.Success).contains(ComSession.SuccessIndicator.Broken).contains(ComSession.SuccessIndicator.Broken).hasSize(3);
     }
 
     @Test
