@@ -46,7 +46,7 @@ public class ConnectionTaskInfoFactory {
             ComSession comSession = lastComSessionOptional.get();
             info.latestResult = new SuccessIndicatorInfo(comSession.getSuccessIndicator(), thesaurus);
             for (ComTaskExecution comTaskExecution : connectionTask.getDevice().getComTaskExecutions()) {
-                if (comTaskExecution.getConnectionTask().getId()==connectionTask.getId()) {
+                if (comTaskExecution.getConnectionTask()!=null && comTaskExecution.getConnectionTask().getId()==connectionTask.getId()) {
                     info.latestResult.retries=comTaskExecution.getCurrentTryCount();
                 }
             }
