@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -1077,11 +1078,51 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
             if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
-                for (Map.Entry<Channel, BigDecimal> channelBigDecimalEntry : reading.getChannelValues()) {
+                for (Map.Entry<Channel, BigDecimal> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
                     assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
                     assertThat(channelBigDecimalEntry.getValue()).isEqualTo(readingValue);
                 }
+            }
+        }
+    }
 
+    @Test
+    @Transactional
+    public void testGetLoadProfileDataHasValidationState() {
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
+        Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(TimeAttribute.MINUTE15)
+                .code();
+        IntervalBlockImpl intervalBlock = new IntervalBlockImpl(code);
+        Date readingTimeStamp = new Date(1406884500000L);// 1/8/2014 9:15
+        intervalBlock.addIntervalReading(new IntervalReadingImpl(readingTimeStamp, readingValue));
+        IntervalBlockImpl intervalBlock2 = new IntervalBlockImpl(code);
+        Date previousReadingTimeStamp = new Date(1406883600000L);// 1/8/2014 9:00
+        intervalBlock2.addIntervalReading(new IntervalReadingImpl(previousReadingTimeStamp, BigDecimal.ZERO));
+        MeterReadingImpl meterReading = new MeterReadingImpl();
+        meterReading.addIntervalBlock(intervalBlock);
+        meterReading.addIntervalBlock(intervalBlock2);
+        device.store(meterReading);
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
+        assertThat(readings).hasSize(24 * 4);
+        assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(dayEnd);
+        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(dayStart);
+        for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
+            if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
+                assertThat(reading.getChannelValidationStates()).hasSize(1);
+                for (Map.Entry<Channel, DataValidationStatus> channelBigDecimalEntry : reading.getChannelValidationStates().entrySet()) {
+                    assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
+                    DataValidationStatus status = channelBigDecimalEntry.getValue();
+                    assertThat(status.completelyValidated()).isFalse();
+                    assertThat(status.getReadingQualities()).isEmpty();
+                }
             }
         }
     }
@@ -1119,7 +1160,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
-        assertThat(readings).hasSize(4*6);  // 4 per hour, during 6 hours
+        assertThat(readings).hasSize(4 * 6);  // 4 per hour, during 6 hours
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {

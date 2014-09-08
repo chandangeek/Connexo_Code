@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -1110,8 +1111,11 @@ public class DeviceImpl implements Device {
             }
             Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
-                // Todo: process the reading qualities, adding them somehow to the LoadProfileReading
-                this.validationService.getValidationStatus(koreChannel.get(), meterReadings);
+                List<DataValidationStatus> validationStatus = this.validationService.getValidationStatus(koreChannel.get(), meterReadings);
+                for (DataValidationStatus status : validationStatus) {
+                    LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(status.getReadingTimestamp());
+                    loadProfileReading.setDataValidationStatus(mdcChannel, status);
+                }
             }
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
