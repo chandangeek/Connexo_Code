@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public class SuccessIndicatorTaskCounterInfoComparator implements java.util.Comparator<TaskCounterInfo> {
 
-    private static final SuccessIndicatorAdapter successIndicatorAdaptor = new SuccessIndicatorAdapter();
+    private static final ComSessionSuccessIndicatorAdapter successIndicatorAdaptor = new ComSessionSuccessIndicatorAdapter();
 
     private Map<String, Integer> successIndicatorSortingMap = new HashMap<>(4);
 

@@ -48,6 +48,8 @@ public enum MessageSeeds implements MessageSeed {
     PER_COMMUNICATION_TASK(38, "PerCommunicationTask", "Per communication task"),
     PER_COMMUNICATION_SCHEDULE(39, "PerCommunicationSchedule", "Per communication schedule"),
     INDIVIDUAL(40, "Individual", "Individual"),
+    FAILURE(41, "Failure", "Failure"),
+    NOT_APPLICABLE(42, "NotApplicableFailure", "Not applicable"),
     ;
 
 

@@ -330,6 +330,7 @@ public class CommunicationResourceTest extends JerseyTest {
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
+        when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
         when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         when(comSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Success);
         when(comSession.getStartDate()).thenReturn(new Date());
@@ -414,6 +415,8 @@ public class CommunicationResourceTest extends JerseyTest {
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
         when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
+        when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.Busy);
+        when(connectionTask.getSuccessIndicator()).thenReturn(ConnectionTask.SuccessIndicator.SUCCESS);
         when(comSession.getNumberOfFailedTasks()).thenReturn(401);
         when(comSession.getNumberOfSuccessFulTasks()).thenReturn(12);
         when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(3);

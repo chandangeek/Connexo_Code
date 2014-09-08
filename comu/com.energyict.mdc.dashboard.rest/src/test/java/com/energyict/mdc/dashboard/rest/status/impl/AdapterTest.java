@@ -16,7 +16,7 @@ public class AdapterTest {
 
     @Test
     public void testSuccessIndicatorAdapterHasValueForEveryServerValue() throws Exception {
-        testAdapter(new SuccessIndicatorAdapter(), ComSession.SuccessIndicator.values());
+        testAdapter(new ComSessionSuccessIndicatorAdapter(), ComSession.SuccessIndicator.values());
     }
 
     private <C> void testAdapter(XmlAdapter<String, C> adapter, C[] values) throws Exception {

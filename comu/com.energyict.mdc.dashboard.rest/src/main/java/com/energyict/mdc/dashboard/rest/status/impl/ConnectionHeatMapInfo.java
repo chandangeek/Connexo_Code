@@ -20,7 +20,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 public class ConnectionHeatMapInfo {
 
     @JsonIgnore
-    private static final SuccessIndicatorAdapter successIndicatorAdapter = new SuccessIndicatorAdapter();
+    private static final ComSessionSuccessIndicatorAdapter COM_SESSION_SUCCESS_INDICATOR_ADAPTER = new ComSessionSuccessIndicatorAdapter();
 
     @XmlJavaTypeAdapter(BreakdownOptionAdapter.class)
     public HeatMapBreakdownOption breakdown;
@@ -46,8 +46,8 @@ public class ConnectionHeatMapInfo {
                 for (ComSessionSuccessIndicatorOverview counters : row) {
                     for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : counters) {
                         TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-                        taskCounterInfo.id = successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget());
-                        taskCounterInfo.displayName = thesaurus.getString(successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget()), successIndicatorAdapter.marshal(successIndicatorCounter.getCountTarget()));
+                        taskCounterInfo.id = COM_SESSION_SUCCESS_INDICATOR_ADAPTER.marshal(successIndicatorCounter.getCountTarget());
+                        taskCounterInfo.displayName = thesaurus.getString(COM_SESSION_SUCCESS_INDICATOR_ADAPTER.marshal(successIndicatorCounter.getCountTarget()), COM_SESSION_SUCCESS_INDICATOR_ADAPTER.marshal(successIndicatorCounter.getCountTarget()));
                         taskCounterInfo.count = successIndicatorCounter.getCount();
                         heatMapRowInfo.data.add(taskCounterInfo);
                     }

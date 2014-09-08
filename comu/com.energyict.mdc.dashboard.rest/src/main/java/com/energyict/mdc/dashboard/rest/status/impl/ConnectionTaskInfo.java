@@ -5,10 +5,8 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-
 import java.util.Date;
 import java.util.List;
-
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -38,9 +36,11 @@ public class ConnectionTaskInfo {
 }
 
 class LatestStatusInfo {
-    @XmlJavaTypeAdapter(ConnectionTaskLifecycleStatusAdaptor.class)
-    public ConnectionTask.ConnectionTaskLifecycleStatus id;
+    @XmlJavaTypeAdapter(ConnectionTaskSuccessIndicatorAdapter.class)
+    public ConnectionTask.SuccessIndicator id;
     public String displayValue;
+
+
 }
 
 class ConnectionStrategyInfo {

@@ -38,7 +38,7 @@ public class ConnectionOverviewInfo {
     @JsonIgnore
     private static final TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
     @JsonIgnore
-    private static final SuccessIndicatorAdapter successIndicatorAdapter = new SuccessIndicatorAdapter();
+    private static final ComSessionSuccessIndicatorAdapter COM_SESSION_SUCCESS_INDICATOR_ADAPTER = new ComSessionSuccessIndicatorAdapter();
 
     public ConnectionSummaryInfo connectionSummary;
 
@@ -63,7 +63,7 @@ public class ConnectionOverviewInfo {
 
         overviews=new ArrayList<>(2);
         overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.currentStates, taskStatusAdapter)); // JP-4278
-        overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResults, successIndicatorAdapter)); // JP-4280
+        overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResults, COM_SESSION_SUCCESS_INDICATOR_ADAPTER)); // JP-4280
         overviewFactory.sortAllOverviews(overviews);
 
         breakdowns=new ArrayList<>(3);

@@ -44,7 +44,7 @@ public class ConnectionResource {
     private static final Comparator<ComTaskExecution> COM_TASK_EXECUTION_COMPARATOR = new ComTaskExecutionComparator();
 
     private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
-    private static final SuccessIndicatorAdapter SUCCESS_INDICATOR_ADAPTER = new SuccessIndicatorAdapter();
+    private static final ComSessionSuccessIndicatorAdapter SUCCESS_INDICATOR_ADAPTER = new ComSessionSuccessIndicatorAdapter();
 
     private final DeviceDataService deviceDataService;
     private final EngineModelService engineModelService;

@@ -21,7 +21,7 @@ import javax.inject.Provider;
  * Created by bvn on 9/1/14.
  */
 public class ConnectionTaskInfoFactory {
-    private static final ConnectionTaskLifecycleStatusAdaptor CONNECTION_TASK_LIFECYCLE_STATUS_ADAPTOR = new ConnectionTaskLifecycleStatusAdaptor();
+    private static final ConnectionTaskSuccessIndicatorAdapter SUCCESS_INDICATOR_ADAPTER = new ConnectionTaskSuccessIndicatorAdapter();
     private static final ConnectionStrategyAdapter CONNECTION_STRATEGY_ADAPTER = new ConnectionStrategyAdapter();
 
     private final Thesaurus thesaurus;
@@ -39,8 +39,8 @@ public class ConnectionTaskInfoFactory {
         info.deviceType=new IdWithNameInfo(connectionTask.getDevice().getDeviceType());
         info.deviceConfiguration=new IdWithNameInfo(connectionTask.getDevice().getDeviceConfiguration());
         info.latestStatus=new LatestStatusInfo();
-        info.latestStatus.id =connectionTask.getStatus();
-        info.latestStatus.displayValue=thesaurus.getString(CONNECTION_TASK_LIFECYCLE_STATUS_ADAPTOR.marshal(connectionTask.getStatus()), CONNECTION_TASK_LIFECYCLE_STATUS_ADAPTOR.marshal(connectionTask.getStatus()));
+        info.latestStatus.id =connectionTask.getSuccessIndicator();
+        info.latestStatus.displayValue=thesaurus.getString(SUCCESS_INDICATOR_ADAPTER.marshal(connectionTask.getSuccessIndicator()), SUCCESS_INDICATOR_ADAPTER.marshal(connectionTask.getSuccessIndicator()));
 
         if (lastComSessionOptional.isPresent()) {
             ComSession comSession = lastComSessionOptional.get();

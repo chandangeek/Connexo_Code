@@ -47,7 +47,7 @@ public class DashboardFieldResource extends FieldResource {
     @Produces("application/json")
     @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getLatestResultValues() {
-        return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new SuccessIndicatorAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new ComSessionSuccessIndicatorAdapter().getClientSideValues());
     }
 
     @GET
