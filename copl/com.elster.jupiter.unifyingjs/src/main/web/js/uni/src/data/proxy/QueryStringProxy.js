@@ -1,6 +1,6 @@
 Ext.define('Uni.data.proxy.QueryStringProxy', {
     extend: 'Ext.data.proxy.Proxy',
-    root: 'filter',
+    root: '',
     router: null,
 
     constructor: function (config) {
