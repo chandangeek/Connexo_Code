@@ -15,7 +15,7 @@ public interface PropertySpecPossibleValues<T> {
      *
      * @return The possible values
      */
-    public List<? super T> getAllValues ();
+    public List<? extends T> getAllValues ();
 
     /**
      * Returns <code>true</code> if the possible values are an

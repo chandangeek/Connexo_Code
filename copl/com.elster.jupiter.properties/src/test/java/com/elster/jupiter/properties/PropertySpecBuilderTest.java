@@ -12,6 +12,8 @@ import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecBuilderImpl;
 
+import java.util.List;
+
 @RunWith(MockitoJUnitRunner.class)
 public class PropertySpecBuilderTest {
 
@@ -101,7 +103,7 @@ public class PropertySpecBuilderTest {
         PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
-        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
+        assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.isExhaustive()).isFalse();
     }
 
@@ -125,7 +127,7 @@ public class PropertySpecBuilderTest {
         PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isNull();
-        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
+        assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.isExhaustive()).isFalse();
     }
 
@@ -150,7 +152,7 @@ public class PropertySpecBuilderTest {
         PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isNull();
-        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
+        assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.isExhaustive()).isFalse();
     }
 
@@ -177,7 +179,7 @@ public class PropertySpecBuilderTest {
         PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
-        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
+        assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.isExhaustive()).isTrue();
     }
 
@@ -204,7 +206,7 @@ public class PropertySpecBuilderTest {
         PropertySpecPossibleValues<String> possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.getDefault()).isEqualTo(defaultValue);
-        assertThat(possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
+        assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.isExhaustive()).isTrue();
     }
 

@@ -55,7 +55,7 @@ public class PropertySpecPossibleValuesImpl<T> implements PropertySpecPossibleVa
     }
 
     @Override
-    public List<? super T> getAllValues () {
+    public List<? extends T> getAllValues () {
         return new ArrayList<>(this.allValues);
     }
 
