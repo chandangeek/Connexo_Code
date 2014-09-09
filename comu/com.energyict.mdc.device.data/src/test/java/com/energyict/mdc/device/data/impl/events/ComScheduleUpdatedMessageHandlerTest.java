@@ -19,9 +19,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComScheduleUpdatedMessageHandlerTest {
@@ -50,7 +48,7 @@ public class ComScheduleUpdatedMessageHandlerTest {
         when(preparedStatement.getResultSet()).thenReturn(resultSet);
         when(resultSet.getLong(0)).thenReturn(100L);
         when(resultSet.getLong(1)).thenReturn(9000L);
-        when(jsonService.deserialize((byte[]) anyObject(), (Class<?>) anyObject())).thenReturn(map);
+        doReturn(map).when(jsonService).deserialize((byte[]) anyObject(), (Class<?>) anyObject());
         map.put("id", 7);
         map.put("event.topics", "com/energyict/mdc/scheduling/comschedules/UPDATED");
         ComScheduleUpdatedMessageHandler messageHandler = new ComScheduleUpdatedMessageHandler(jsonService, eventService, dataModel);
@@ -77,7 +75,7 @@ public class ComScheduleUpdatedMessageHandlerTest {
         when(preparedStatement.getResultSet()).thenReturn(resultSet);
         when(resultSet.getLong(0)).thenReturn(100L);
         when(resultSet.getLong(1)).thenReturn(200L);
-        when(jsonService.deserialize((byte[]) anyObject(), (Class<?>) anyObject())).thenReturn(map);
+        doReturn(map).when(jsonService).deserialize((byte[]) anyObject(), (Class<?>) anyObject());
         map.put("id", 7);
         map.put("event.topics", "com/energyict/mdc/scheduling/comschedules/UPDATED");
         ComScheduleUpdatedMessageHandler messageHandler = new ComScheduleUpdatedMessageHandler(jsonService, eventService, dataModel);
@@ -96,7 +94,7 @@ public class ComScheduleUpdatedMessageHandlerTest {
         when(preparedStatement.getResultSet()).thenReturn(resultSet);
         when(resultSet.getLong(0)).thenReturn(1L);
         when(resultSet.getLong(1)).thenReturn(1000L);
-        when(jsonService.deserialize((byte[]) anyObject(), (Class<?>) anyObject())).thenReturn(map);
+        doReturn(map).when(jsonService).deserialize((byte[]) anyObject(), (Class<?>) anyObject());
         map.put("id", 7);
         map.put("event.topics", "com/energyict/mdc/scheduling/comschedules/UPDATED");
         ComScheduleUpdatedMessageHandler messageHandler = new ComScheduleUpdatedMessageHandler(jsonService, eventService, dataModel);
