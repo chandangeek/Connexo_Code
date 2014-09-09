@@ -28,7 +28,7 @@ Ext.define('Uni.property.view.property.Base', {
 
     items: [
         {
-            xtype: 'defaultButton'
+            xtype: 'uni-default-button'
         }
     ],
 
@@ -61,7 +61,7 @@ Ext.define('Uni.property.view.property.Base', {
      * @returns {Uni.property.view.DefaultButton}
      */
     getResetButton: function () {
-        return this.down('defaultButton');
+        return this.down('uni-default-button');
     },
 
     /**

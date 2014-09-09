@@ -5,7 +5,7 @@ Ext.define('Uni.form.field.LastEventTypeDisplay', {
     extend: 'Ext.form.field.Display',
     xtype: 'last-event-type-displayfield',
     name: 'lastEventType',
-    fieldLabel: Uni.I18n.translate('lastEventType.label', 'UNI', 'Type of last event'),
+    fieldLabel: Uni.I18n.translate('lastEventType.label', 'UNI', 'Last event type'),
     emptyText: '',
 
     requires: [

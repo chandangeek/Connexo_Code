@@ -3,11 +3,13 @@ Ext.define('Uni.property.form.PropertyHydrator', {
         return record.getData(true);
     },
     falseAndZeroChecker: function(value) {
-        if (value.toString() == "false") {
-            return false;
-        }
-        if (value.toString() == "0"){
-           return 0;
+        if (null != value) {
+            if (value.toString() == "false") {
+                return false;
+            }
+            if (value.toString() == "0") {
+                return 0;
+            }
         }
         return value || null
     },

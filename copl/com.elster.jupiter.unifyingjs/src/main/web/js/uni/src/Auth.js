@@ -4,7 +4,7 @@ Ext.define('Uni.Auth', {
     requires: ['Uni.store.Privileges'],
 
     /**
-     * Loads the privilegesfor the current user.
+     * Loads the privileges for the current user.
      *
      * @param {Function} [callback] Callback after loading
      */
@@ -26,6 +26,10 @@ Ext.define('Uni.Auth', {
             }
         }
         return true;
+    },
+
+    hasPrivilege : function (privilege) {
+        return !this.hasNoPrivilege(privilege);
     }
 
 });
