@@ -32,7 +32,7 @@
         <junit.version>4.11</junit.version>
         <comserver.mockito.version>1.9.5</comserver.mockito.version>
         <guice.version>3.0</guice.version>
-        <aspectj.version>1.7.2</aspectj.version>
+        <aspectj.version>1.8.2</aspectj.version>
         <log4j.version>1.2.13</log4j.version>
         <fest-assertions.version>1.2</fest-assertions.version>
         <fest-assertions-core.version>2.0M8</fest-assertions-core.version>
