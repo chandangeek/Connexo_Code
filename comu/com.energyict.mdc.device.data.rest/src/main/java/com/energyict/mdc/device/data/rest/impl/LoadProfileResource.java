@@ -1,12 +1,14 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -36,13 +38,15 @@ public class LoadProfileResource {
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
     private final Provider<ChannelResource> channelResourceProvider;
+    private final Clock clock;
     private final ValidationEvaluator evaluator;
 
     @Inject
-    public LoadProfileResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Provider<ChannelResource> channelResourceProvider, ValidationService validationService) {
+    public LoadProfileResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Provider<ChannelResource> channelResourceProvider, ValidationService validationService, Clock clock) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.channelResourceProvider = channelResourceProvider;
+        this.clock = clock;
         this.evaluator = validationService.getEvaluator();
     }
 
@@ -64,7 +68,17 @@ public class LoadProfileResource {
     public Response getLoadProfile(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId, mrid);
-        return Response.ok(LoadProfileInfo.from(loadProfile)).build();
+        LoadProfileInfo loadProfileInfo = LoadProfileInfo.from(loadProfile);
+
+        addValidationInfo(loadProfile, loadProfileInfo);
+
+        return Response.ok(loadProfileInfo).build();
+    }
+
+    private void addValidationInfo(LoadProfile loadProfile, LoadProfileInfo loadProfileInfo) {
+        for (Channel channel : loadProfile.getChannels()) {
+
+        }
     }
 
     @GET
@@ -77,7 +91,7 @@ public class LoadProfileResource {
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
             List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();
-            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(paginatedLoadProfileData, thesaurus, evaluator);
+            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(paginatedLoadProfileData, thesaurus, clock, evaluator);
             PagedInfoList pagedInfoList = PagedInfoList.asJson("data", infos, queryParameters);
             return Response.ok(pagedInfoList).build();
         }

@@ -86,14 +86,14 @@ public class LogBookResource {
     
     private EndDeviceEventRecordFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) {
         EndDeviceEventRecordFilterSpecification filter = new EndDeviceEventRecordFilterSpecification();
-        Map<String, String> filterProperties = jsonQueryFilter.getFilterProperties();
+        Map<String, Object> filterProperties = jsonQueryFilter.getFilterProperties();
         Date intervalStart = null;
         Date intervalEnd = null;
         if (filterProperties.containsKey(INTERVAL_START)) {
-            intervalStart = new Date(Long.parseLong(filterProperties.get(INTERVAL_START)));
+            intervalStart = jsonQueryFilter.getDate(INTERVAL_START);
         }
         if (filterProperties.containsKey(INTERVAL_END)) {
-            intervalEnd = new Date(Long.parseLong(filterProperties.get(INTERVAL_END)));
+            intervalEnd = jsonQueryFilter.getDate(INTERVAL_END);
         }
         filter.interval = new Interval(intervalStart, intervalEnd);
         if (filterProperties.containsKey(DOMAIN)) {
