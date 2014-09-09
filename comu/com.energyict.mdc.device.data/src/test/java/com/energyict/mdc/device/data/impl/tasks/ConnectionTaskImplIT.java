@@ -13,13 +13,12 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataServiceImpl;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -482,9 +481,9 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ComTaskExecution createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(ConnectionTask<?,?> connectionTask, Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement){
-        AdHocComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, this.protocolDialectConfigurationProperties);
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, this.protocolDialectConfigurationProperties);
         comTaskExecutionBuilder.connectionTask(connectionTask);
-        AdHocComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
@@ -497,7 +496,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected ScheduledComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
-        ScheduledComTaskExecutionBuilder comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
+        ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
         ScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         return comTaskExecution;

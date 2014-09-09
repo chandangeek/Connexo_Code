@@ -6,8 +6,8 @@ import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksInComScheduleMustHaveSameConfigurationSettings;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComSchedulePerDevice;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -63,7 +63,7 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     }
 
     @Override
-    public boolean isScheduled() {
+    public boolean usesSharedSchedule() {
         return true;
     }
 
@@ -156,16 +156,11 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
     }
 
     public static class ScheduledComTaskExecutionBuilderImpl
-            extends AbstractComTaskExecutionBuilder<ScheduledComTaskExecutionBuilder, ScheduledComTaskExecution, ScheduledComTaskExecutionImpl>
-            implements ScheduledComTaskExecutionBuilder {
+            extends AbstractComTaskExecutionBuilder<ScheduledComTaskExecution, ScheduledComTaskExecutionImpl>
+            implements ComTaskExecutionBuilder<ScheduledComTaskExecution> {
 
         protected ScheduledComTaskExecutionBuilderImpl(ScheduledComTaskExecutionImpl comTaskExecution) {
-            super(comTaskExecution, ScheduledComTaskExecutionBuilder.class);
-        }
-
-        public ScheduledComTaskExecutionBuilder comSchedule(ComSchedule comSchedule) {
-            this.getComTaskExecution().setComSchedule(comSchedule);
-            return self();
+            super(comTaskExecution);
         }
 
     }

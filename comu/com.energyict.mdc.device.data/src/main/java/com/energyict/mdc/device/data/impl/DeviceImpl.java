@@ -30,7 +30,6 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurati
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.AdHocComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -38,18 +37,15 @@ import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -176,7 +172,6 @@ public class DeviceImpl implements Device {
     private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
     private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
-    private final Provider<AdHocComTaskExecutionImpl> adHocComTaskExecutionProvider;
     private final Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
 
@@ -193,7 +188,6 @@ public class DeviceImpl implements Device {
                 Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
                 Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
                 Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
-                Provider<AdHocComTaskExecutionImpl> adHocComTaskExecutionProvider,
                 Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
                 Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
         this.dataModel = dataModel;
@@ -207,7 +201,6 @@ public class DeviceImpl implements Device {
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
-        this.adHocComTaskExecutionProvider = adHocComTaskExecutionProvider;
         this.scheduledComTaskExecutionProvider = scheduledComTaskExecutionProvider;
         this.manuallyScheduledComTaskExecutionProvider = manuallyScheduledComTaskExecutionProvider;
     }
@@ -1379,17 +1372,17 @@ public class DeviceImpl implements Device {
     }
 
     @Override
-    public ScheduledComTaskExecutionBuilder newScheduledComTaskExecution(ComSchedule comSchedule) {
+    public ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComSchedule comSchedule) {
         return new ScheduledComTaskExecutionBuilderForDevice(scheduledComTaskExecutionProvider, this, comSchedule);
     }
 
     @Override
     public AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-        return new AdHocComTaskExecutionBuilderForDevice(adHocComTaskExecutionProvider, this, comTaskEnablement, protocolDialectConfigurationProperties);
+        return new AdHocComTaskExecutionBuilderForDevice(manuallyScheduledComTaskExecutionProvider, this, comTaskEnablement, protocolDialectConfigurationProperties);
     }
 
     @Override
-    public ManuallyScheduledComTaskExecutionBuilder newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {
+    public ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {
         return new ManuallyScheduledComTaskExecutionBuilderForDevice(
                 this.manuallyScheduledComTaskExecutionProvider,
                 this,
@@ -1405,11 +1398,6 @@ public class DeviceImpl implements Device {
 
     @Override
     public ScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ScheduledComTaskExecution comTaskExecution) {
-        return comTaskExecution.getUpdater();
-    }
-
-    @Override
-    public AdHocComTaskExecutionUpdater getComTaskExecutionUpdater(AdHocComTaskExecution comTaskExecution) {
         return comTaskExecution.getUpdater();
     }
 
@@ -1626,16 +1614,17 @@ public class DeviceImpl implements Device {
     }
 
     public class AdHocComTaskExecutionBuilderForDevice
-            extends AdHocComTaskExecutionImpl.AdHocComTaskExecutionBuilderImpl {
+            extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
 
-        private AdHocComTaskExecutionBuilderForDevice(Provider<AdHocComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        private AdHocComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
             super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initialize(device, comTaskEnablement, protocolDialectConfigurationProperties);
+            this.getComTaskExecution().initializeAdhoc(device, comTaskEnablement, protocolDialectConfigurationProperties);
         }
 
+
         @Override
-        public AdHocComTaskExecution add() {
-            AdHocComTaskExecution comTaskExecution = super.add();
+        public ManuallyScheduledComTaskExecution add() {
+            ManuallyScheduledComTaskExecution comTaskExecution = super.add();
             DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
         }

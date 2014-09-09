@@ -1,13 +1,18 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
@@ -18,9 +23,17 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.Before;
 
-import java.util.*;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.time.UtcInstant;
+
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Fail.fail;
 
@@ -74,17 +87,6 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         builder.useDefaultConnectionTask(useDefault);
         builder.setPriority(this.comTaskEnablementPriority);
         return builder.add();
-    }
-
-    protected AdHocComTaskExecution reloadAdHocComTaskExecution(Device device, AdHocComTaskExecution comTaskExecution) {
-        Device reloadedDevice = getReloadedDevice(device);
-        for (ComTaskExecution taskExecution : reloadedDevice.getComTaskExecutions()) {
-            if (comTaskExecution.getId() == taskExecution.getId()) {
-                return (AdHocComTaskExecution) taskExecution;
-            }
-        }
-        fail("AdHocComTaskExecution with id " + comTaskExecution.getId() + " not found after reloading device " + device.getName());
-        return null;
     }
 
     protected ScheduledComTaskExecution reloadScheduledComTaskExecution(Device device, ScheduledComTaskExecution comTaskExecution) {

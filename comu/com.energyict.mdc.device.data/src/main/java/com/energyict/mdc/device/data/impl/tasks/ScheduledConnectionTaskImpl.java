@@ -232,7 +232,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private void rescheduleComTaskExecutions() {
         for (ComTaskExecution comTaskExecution : this.getScheduledComTasks()) {
             if (!comTaskExecution.isOnHold()) {
-                if (comTaskExecution.isScheduled()) {
+                if (comTaskExecution.usesSharedSchedule()) {
                     comTaskExecution.updateNextExecutionTimestamp();
                 }
                 else {

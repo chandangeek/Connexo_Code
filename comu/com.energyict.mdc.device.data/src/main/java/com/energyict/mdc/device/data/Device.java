@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.util.HasName;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
@@ -16,18 +12,14 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecution;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.AdHocComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -41,6 +33,12 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.time.Interval;
+
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -326,8 +324,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     public ScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ScheduledComTaskExecution comTaskExecution);
 
-    public AdHocComTaskExecutionUpdater getComTaskExecutionUpdater(AdHocComTaskExecution comTaskExecution);
-
     void removeComTaskExecution(ComTaskExecution comTaskExecution);
 
     /**
@@ -342,7 +338,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval);
 
     /**
-     * Returns a {@link ScheduledComTaskExecutionBuilder} that will build a
+     * Returns a {@link ComTaskExecutionBuilder} that will build a
      * {@link ScheduledComTaskExecution} for the {@link ComSchedule} on this Device.
      * This will enable all the current and future {@link com.energyict.mdc.tasks.ComTask}s
      * that are contained in the ComSchedule, for execution on this Device.
@@ -353,11 +349,11 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param comSchedule The ComSchedule
      * @see ManuallyScheduledComTaskExecution
      */
-    public ScheduledComTaskExecutionBuilder newScheduledComTaskExecution(ComSchedule comSchedule);
+    public ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComSchedule comSchedule);
 
-    public AdHocComTaskExecutionBuilder newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
+    public ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression);
 
-    public ManuallyScheduledComTaskExecutionBuilder newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression);
+    public ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
 
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
 
