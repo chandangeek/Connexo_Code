@@ -230,8 +230,10 @@ Ext.define('Uni.controller.history.Router', {
         // handle child items
         if (config.items) {
             _.each(config.items, function (item, itemKey) {
-                var path = key + '/' + itemKey;
-                me.initRoute(path, item, route);
+                if (typeof item.authorized === 'undefined' || item.authorized) {
+                    var path = key + '/' + itemKey;
+                    me.initRoute(path, item, route);
+                }
             });
         }
     },
