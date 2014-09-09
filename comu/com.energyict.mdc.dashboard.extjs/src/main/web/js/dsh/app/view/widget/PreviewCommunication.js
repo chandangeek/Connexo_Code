@@ -61,7 +61,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('communication.widget.details.schedule', 'DSH', 'Frequency'),
+                    fieldLabel: Uni.I18n.translate('communication.widget.details.frequency', 'DSH', 'Frequency'),
                     name: 'comScheduleName'
                 },
                 {
@@ -103,12 +103,15 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.currentState', 'DSH', 'Current state'),
                     name: 'currentState',
                     renderer: function (val) {
-                        return val.displayValue
+                        return val.displayValue ? val.displayValue : '';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.latestResult', 'DSH', 'Latest result'),
-                    name: 'latestResult'
+                    name: 'latestResult',
+                    renderer: function (val) {
+                        return val.displayValue ? val.displayValue : '';
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.startedOn', 'DSH', 'Started on'),

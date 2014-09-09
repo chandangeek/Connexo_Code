@@ -11,6 +11,7 @@ Ext.define('Dsh.model.CommunicationTask', {
         "urgency",
         "currentState",
         "alwaysExecuteOnInbound",
+        "latestResult",
         { name: 'startTime', type: 'date', dateFormat: 'time'},
         { name: 'successfulFinishTime', type: 'date', dateFormat: 'time'},
         { name: 'nextCommunication', type: 'date', dateFormat: 'time'},

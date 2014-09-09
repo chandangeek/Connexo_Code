@@ -28,11 +28,6 @@ Ext.define('Dsh.view.widget.common.SideFilterCombo', {
                     type: 'json',
                     root: 'data'
                 }
-            },
-            listeners: {
-                load: function () {
-                    console.log('LOAD', new Date().getTime())
-                }
             }
         });
     }

@@ -28,14 +28,14 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.device', 'DSH', 'Device'),
                     name: 'device',
                     renderer: function (val) {
-                        return '<a href="#/devices/' + val.id + '">' + val.name + '</a>'
+                        return val ? '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : ''
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.deviceType', 'DSH', 'Device type'),
                     name: 'deviceType',
                     renderer: function (val) {
-                        return '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>'
+                        return val ? '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>' : ''
                     }
                 },
                 {
@@ -64,7 +64,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.connMethod', 'DSH', 'Connection method'),
                     name: 'connectionMethod',
                     renderer: function (val) {
-                        return val.name
+                        return val ? val.name : ''
                     }
                 },
                 {
@@ -75,14 +75,14 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.strategy', 'DSH', 'Strategy'),
                     name: 'connectionStrategy',
                     renderer: function (val) {
-                        return val.displayValue
+                        return val ? val.displayValue : ''
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.nextConnection', 'DSH', 'Next connection'),
                     name: 'nextExecution',
                     renderer: function (val) {
-                        return Ext.Date.format(val, 'm/d/Y h:i:s');
+                        return val ? Ext.Date.format(val, 'm/d/Y h:i:s') : '';
                     }
                 }
             ]
@@ -96,64 +96,67 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
             items: [
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.currentState', 'DSH', 'Current state'),
-                    name: 'currentState'
+                    name: 'currentState',
+                    renderer: function (val) {
+                        return val ? val.displayValue : ''
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.latestStatus', 'DSH', 'Latest status'),
                     name: 'latestStatus',
                     renderer: function (val) {
-                        return val.displayValue;
+                        return val ? val.displayValue : ''
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.latestResult', 'DSH', 'Latest result'),
                     name: 'latestResult',
                     renderer: function (val) {
-                        return val.displayValue;
+                        return val ? val.displayValue : ''
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.commTasks', 'DSH', 'Communication tasks'),
                     name: 'taskCount',
                     renderer: function (val) {
-                        return '<tpl><span class="fa fa-check fa-lg" style="color: green; width: 24px; vertical-align: 0% !important;"></span>' + val.numberOfSuccessfulTasks + '</span><br></tpl>' +
-                            '<tpl><span class="fa fa-times fa-lg" style="color: red; width: 24px; vertical-align: 0% !important;"></span>' + val.numberOfFailedTasks + '<br></tpl>' +
-                            '<tpl><span class="fa fa-ban fa-lg" style="color: #333333; width: 24px; vertical-align: 0% !important"></span>' + val.numberOfIncompleteTasks + '</tpl>'
+                        return '<tpl><span class="fa fa-check fa-lg" style="color: green; width: 24px; vertical-align: 0% !important;"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '') + '</span><br></tpl>' +
+                            '<tpl><span class="fa fa-times fa-lg" style="color: red; width: 24px; vertical-align: 0% !important;"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '') + '<br></tpl>' +
+                            '<tpl><span class="fa fa-ban fa-lg" style="color: #333333; width: 24px; vertical-align: 0% !important"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '') + '</tpl>'
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.startedOn', 'DSH', 'Started on'),
                     name: 'startDateTime',
                     renderer: function (val) {
-                        return Ext.Date.format(val, 'm/d/Y h:i:s');
+                        return val ? Ext.Date.format(val, 'm/d/Y h:i:s') : '';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.finishedOn', 'DSH', 'Finished on'),
                     name: 'endDateTime',
                     renderer: function (val) {
-                        return Ext.Date.format(val, 'm/d/Y h:i:s');
+                        return val ? Ext.Date.format(val, 'm/d/Y h:i:s') : '';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.duration', 'DSH', 'Duration'),
                     name: 'duration',
                     renderer: function (val) {
-                        return val.count + ' ' + val.timeUnit;
+                        return val ? val.count + ' ' + val.timeUnit : '';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.commServer', 'DSH', 'Communication server'),
                     name: 'comServer',
                     renderer: function (val) {
-                        return '<a href="#/administration/comservers/' + val.id + '">' + val.name + '</a>'
+                        return val ? '<a href="#/administration/comservers/' + val.id + '">' + val.name + '</a>' : ''
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.commPort', 'DSH', 'Communication port'),
                     name: 'comPortPool',
                     renderer: function (val) {
-                        return val.name
+                        return val ? val.name : ''
                     }
                 }
             ]

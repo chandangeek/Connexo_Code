@@ -73,6 +73,7 @@ Ext.define('Dsh.controller.Connections', {
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
+
     loadFilterValues: function () {
         var me = this;
 
@@ -80,7 +81,9 @@ Ext.define('Dsh.controller.Connections', {
         Ext.defer(function () {
                 Dsh.model.Filter.load(0, {
                     callback: function (record) {
-                        me.getSideFilterForm().loadRecord(record)
+                    !record && (record = new Dsh.model.Filter);
+                        me.getSideFilterForm().loadRecord(record);
+                        me.getFilterPanel().loadRecord(record)
                     }
                 });
             }, 3500)
@@ -103,7 +106,7 @@ Ext.define('Dsh.controller.Connections', {
         var me = this,
             record = selected[0],
             preview = me.getConnectionPreview(),
-            commTasksData = record.get('communicationTasks').communicationTasks,
+            commTasksData = record.get('communicationTasks').communicationsTasks,
             commTasks = Ext.create('Ext.data.Store', {model: 'Dsh.model.CommunicationTask', data: commTasksData});
         preview.loadRecord(record);
         preview.setTitle(record.get('title'));
@@ -133,8 +136,9 @@ Ext.define('Dsh.controller.Connections', {
     },
 
     applyFilter: function () {
-        this.getSideFilterForm().updateRecord();
-        var model = this.getSideFilterForm().getRecord();
+        var me = this;
+        me.getSideFilterForm().updateRecord();
+        var model = me.getSideFilterForm().getRecord();
         model.save()
     }
 });

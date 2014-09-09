@@ -32,7 +32,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                 },
                 {
                     itemId: 'current-state',
-                    name: 'currentState',
+                    name: 'state',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.currentState', 'DSH', 'Current state'),
                     url: '/apps/dashboard/app/fakeData/CurrentStateFilterFake.json'
                 },
@@ -46,7 +46,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     itemId: 'latest-result',
                     name: 'latestResult',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
+                    url: '/apps/dashboard/app/fakeData/LatestResultFake.json'
                 },
                 {
                     itemId: 'comport-pool',
