@@ -23,9 +23,9 @@ public class ValidationInfo {
     public List<ValidationRuleInfo> validationRules;
 
     public ValidationInfo(DataValidationStatus value, ValidationEvaluator evaluator) {
-        dataValidated = value.completelyValidated();
-        validationRules = ValidationRuleInfo.from(value);
-        validationResult = ValidationStatus.forResult(evaluator.getValidationResult(value.getReadingQualities()));
+            dataValidated = value.completelyValidated();
+            validationRules = ValidationRuleInfo.from(value);
+            validationResult = ValidationStatus.forResult(evaluator.getValidationResult(value.getReadingQualities()));
     }
 
 }
