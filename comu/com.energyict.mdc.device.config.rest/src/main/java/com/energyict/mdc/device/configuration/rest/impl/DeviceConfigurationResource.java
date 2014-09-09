@@ -89,7 +89,7 @@ public class DeviceConfigurationResource {
     public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("deviceTypeId") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<DeviceConfiguration> deviceConfigurations;
-        if(Boolean.parseBoolean(queryFilter.getFilterProperties().get("active"))){
+        if(queryFilter.getFilterProperties().get("active")!=null && queryFilter.getBoolean("active")){
             deviceConfigurations = deviceConfigurationService.
                     findActiveDeviceConfigurationsForDeviceType(deviceType).
                     from(queryParameters).

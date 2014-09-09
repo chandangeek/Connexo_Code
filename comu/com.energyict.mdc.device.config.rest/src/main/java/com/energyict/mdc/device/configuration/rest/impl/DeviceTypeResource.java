@@ -239,12 +239,12 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.VIEW_DEVICE_TYPE)
     public PagedInfoList getRegisterTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        String available = availableFilter.getFilterProperties().get("available");
+        String available = availableFilter.getProperty("available");
         final List<RegisterType> registerTypes = new ArrayList<>();
         if (available == null || !Boolean.parseBoolean(available)) {
             registerTypes.addAll(ListPager.of(deviceType.getRegisterTypes(), new RegisterTypeComparator()).from(queryParameters).find());
         } else {
-            String deviceConfiguationIdString = availableFilter.getFilterProperties().get("deviceconfigurationid");
+            String deviceConfiguationIdString = availableFilter.getProperty("deviceconfigurationid");
             if(deviceConfiguationIdString!=null){
                 findAllAvailableRegisterTypesForDeviceConfiguration(deviceType, registerTypes, deviceConfiguationIdString);
             } else {
