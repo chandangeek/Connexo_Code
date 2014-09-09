@@ -90,8 +90,8 @@ public class JsonQueryFilterTest {
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(jsonArray);
         Map<String, ?> filterProperties = jsonQueryFilter.getFilterProperties();
         assertThat(filterProperties).hasSize(2).containsKey("name").containsKey("other");
-        assertThat(jsonQueryFilter.getProperty("name")).isEqualTo("test");
-        assertThat(jsonQueryFilter.getProperty("other")).isEqualTo(BigDecimal.TEN);
+        assertThat(jsonQueryFilter.<String>getProperty("name")).isEqualTo("test");
+        assertThat(jsonQueryFilter.<BigDecimal>getProperty("other")).isEqualTo(BigDecimal.TEN);
     }
 
     @Test
