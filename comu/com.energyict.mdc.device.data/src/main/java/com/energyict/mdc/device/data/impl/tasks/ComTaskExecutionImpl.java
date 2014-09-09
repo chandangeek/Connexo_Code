@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
@@ -118,6 +119,23 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.executionPriority = comTaskEnablement.getPriority();
         this.plannedPriority = comTaskEnablement.getPriority();
         if (comTaskEnablement.usesDefaultConnectionTask() || !comTaskEnablement.hasPartialConnectionTask()) {
+            this.setUseDefaultConnectionTask(true);
+        }
+        else if (comTaskEnablement.hasPartialConnectionTask()) {
+            this.setMatchingConnectionTaskOrUseDefaultIfNotFound(device, comTaskEnablement);
+        }
+    }
+
+    private void setMatchingConnectionTaskOrUseDefaultIfNotFound(Device device, ComTaskEnablement comTaskEnablement) {
+        boolean notFound = true;
+        PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
+        for (ConnectionTask<?, ?> connectionTask : device.getConnectionTasks()) {
+            if (connectionTask.getPartialConnectionTask().getId() == partialConnectionTask.getId()) {
+                this.setConnectionTask(connectionTask);
+                notFound = false;
+            }
+        }
+        if (notFound) {
             this.setUseDefaultConnectionTask(true);
         }
     }
