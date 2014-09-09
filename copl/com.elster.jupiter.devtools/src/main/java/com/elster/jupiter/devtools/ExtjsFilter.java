@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * This helper class allows constructing a filter as it would be built by ExtJS
@@ -16,7 +15,6 @@ public class ExtjsFilter {
     private static final String PROPERTY_STRING_VALUE_FORMAT = "{\"property\":\"%s\",\"value\":\"%s\"}";
     private static final String PROPERTY_NUMBER_VALUE_FORMAT = "{\"property\":\"%s\",\"value\":%d}";
     private static final String PROPERTY_LIST_VALUE_FORMAT = "{\"property\":\"%s\",\"value\":%s}";
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     static public String filter(String property, String value) throws UnsupportedEncodingException {
         return URLEncoder.encode(String.format("[" + PROPERTY_STRING_VALUE_FORMAT + "]", property, value), "UTF-8");
