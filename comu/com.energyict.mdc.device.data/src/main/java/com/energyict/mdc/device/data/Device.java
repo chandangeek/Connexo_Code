@@ -380,6 +380,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
 
+    DeviceValidation forValidation();
+
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask
      */

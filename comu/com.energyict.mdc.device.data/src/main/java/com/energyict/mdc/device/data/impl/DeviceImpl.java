@@ -18,17 +18,7 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.CommunicationTopologyEntry;
-import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
@@ -1001,7 +991,7 @@ public class DeviceImpl implements Device {
         }
     }
 
-    private Optional<Meter> findKoreMeter(AmrSystem amrSystem) {
+    Optional<Meter> findKoreMeter(AmrSystem amrSystem) {
         return amrSystem.findMeter(String.valueOf(getId()));
     }
 
@@ -1200,6 +1190,17 @@ public class DeviceImpl implements Device {
         List<? extends MeterActivation> meterActivations = new ArrayList<>(meter.getMeterActivations());    // getMeterActivations returns ImmutableList
         Collections.reverse(meterActivations);
         return meterActivations;
+    }
+
+    Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Date when) {
+        Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
+        if (found.isPresent()) {
+            Optional<MeterActivation> meterActivation = found.get().getMeterActivation(when);
+            if (meterActivation.isPresent()) {
+                getChannel(meterActivation.get(), channel.getReadingType());
+            }
+        }
+        return Optional.absent();
     }
 
     private Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
@@ -1472,6 +1473,11 @@ public class DeviceImpl implements Device {
     @Override
     public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
         return this.hasSecurityProperties(this.clock.now(), securityPropertySet);
+    }
+
+    @Override
+    public DeviceValidation forValidation() {
+        return new DeviceValidationImpl(getMdcAmrSystem().get(), validationService, this);
     }
 
     private boolean hasSecurityProperties(Date when, SecurityPropertySet securityPropertySet) {
