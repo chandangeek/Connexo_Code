@@ -22,26 +22,34 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
 
     read: function (operation, callback, scope) {
         var me = this,
-            router = me.router
-        ;
+            router = me.router,
+            Model = me.model,
+            id = operation.id
+            ;
 
         operation.setStarted();
 
         if (!_.isUndefined(router.queryParams[me.root])) {
-            var data = Ext.JSON.decode(router.queryParams[me.root]);
-            var modelData = _.object(_.pluck(data, 'property'), _.pluck(data, 'value'));
+            var data = Ext.JSON.decode(router.queryParams[me.root]),
+                modelData = _.object(_.pluck(data, 'property'), _.pluck(data, 'value')),
+                record = this.hydrator
+                    ? this.hydrator.hydrate(data, new Model())
+                    : new Model(modelData)
+                ;
+
+            operation.resultSet = Ext.create('Ext.data.ResultSet', {
+                records: [record],
+                total: 1,
+                loaded: true,
+                success: true
+            });
+
+            operation.setSuccessful();
         }
 
-        var resultSet = operation.resultSet = this.reader.read(modelData || []);
         operation.setCompleted();
 
-        if (Ext.isDefined(operation.id) && !resultSet.count) {
-            resultSet.success = false;
-        }
-
-        if (resultSet.success) {
-            operation.setSuccessful();
-        } else {
+        if (!operation.wasSuccessful()) {
             me.fireEvent('exception', me, null, operation);
         }
 
