@@ -5,10 +5,10 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
 
     constructor: function (config) {
         config = config || {};
+        this.callParent(arguments);
         if (config.hydrator) {
             this.hydrator = Ext.create(config.hydrator);
         }
-        this.callParent(arguments);
         this.router = config.router || master.app.getController('Uni.controller.history.Router');
     },
 
