@@ -81,7 +81,7 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("OBISCODE").varChar(StringColumnLengthConstraints.DEFAULT_OBISCODE_LENGTH).notNull().map(MeasurementTypeImpl.Fields.OBIS_CODE.fieldName()).add();
-            Column phenomenon = table.column("PHENOMENONID").number().conversion(ColumnConversion.NUMBER2INT).notNull().add();
+            Column phenomenon = table.column("PHENOMENONID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column readingType = table.column("READINGTYPE").varChar(Table.NAME_LENGTH).add();
             table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CUMULATIVE").number().conversion(NUMBER2BOOLEAN).notNull().map("cumulative").add();
@@ -89,7 +89,7 @@ public enum TableSpecs {
             table.column("TIMEOFUSE").number().map("timeOfUse").conversion(ColumnConversion.NUMBER2INT).add();
             table.column("INTERVAL").number().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
             table.column("INTERVALCODE").number().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
-            table.column("TEMPLATEREGISTER").number().conversion(ColumnConversion.NUMBER2INT).map("templateRegisterId").add();
+            table.column("TEMPLATEREGISTER").number().conversion(ColumnConversion.NUMBER2LONG).map("templateRegisterId").add();
             table.foreignKey("FK_MDS_MEASTP_PHENOMENON").on(phenomenon).references(MDS_PHENOMENON.name()).map("phenomenon").add();
             table.foreignKey("FK_MDS_MEASTP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
             table.unique("UK_MDS_MEASTYPENAME").on(name).add();
