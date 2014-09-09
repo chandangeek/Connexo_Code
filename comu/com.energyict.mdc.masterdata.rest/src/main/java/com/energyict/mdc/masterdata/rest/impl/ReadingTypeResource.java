@@ -45,7 +45,7 @@ public class ReadingTypeResource {
     public PagedInfoList getReadingType(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         List<ReadingTypeInfo> readingTypeInfos = new ArrayList<>();
         if (!queryFilter.getFilterProperties().isEmpty()) {
-            String unitString = queryFilter.getFilterProperties().get("unit");
+            String unitString = queryFilter.getProperty("unit");
             ObisCode obisCode = queryFilter.getProperty("obisCode", new ObisCodeAdapter());
             Unit unit = queryFilter.getProperty("unit", new UnitAdapter());
             String mrid = readingTypeUtilService.getReadingTypeMridFrom(obisCode, unit);
