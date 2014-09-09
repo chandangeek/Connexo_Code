@@ -2,7 +2,9 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.rest.DateAdapter;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
+import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -36,6 +38,8 @@ public class CommunicationResource {
 
     private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
     private static final CompletionCodeAdapter COMPLETION_CODE_ADAPTER = new CompletionCodeAdapter();
+    public static final LongAdapter LONG_ADAPTER = new LongAdapter();
+    public static final DateAdapter DATE_ADAPTER = new DateAdapter();
 
     private final DeviceDataService deviceDataService;
     private final SchedulingService schedulingService;
@@ -76,39 +80,35 @@ public class CommunicationResource {
 
     private ComTaskExecutionFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
         ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
-        Map<String, String> filterProperties = jsonQueryFilter.getFilterProperties();
+        Map<String, Object> filterProperties = jsonQueryFilter.getFilterProperties();
 
         filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
         if (filterProperties.containsKey(FilterOption.currentStates.name())) {
-            String[] taskStatuses = filterProperties.get(FilterOption.currentStates.name()).split(",");
-            for (String taskStatus : taskStatuses) {
-                filter.taskStatuses.add(TASK_STATUS_ADAPTER.unmarshal(taskStatus));
-            }
+            List<TaskStatus> taskStatuses = jsonQueryFilter.getPropertyList(FilterOption.currentStates.name(), TASK_STATUS_ADAPTER);
+            filter.taskStatuses.addAll(taskStatuses);
         }
 
         filter.latestResults = EnumSet.noneOf(CompletionCode.class);
         if (filterProperties.containsKey(FilterOption.latestResults.name())) {
-            String[] latestResults = filterProperties.get(FilterOption.latestResults.name()).split(",");
-            for (String completionCode : latestResults) {
-                filter.latestResults.add(COMPLETION_CODE_ADAPTER.unmarshal(completionCode));
-            }
+            List<CompletionCode> latestResults = jsonQueryFilter.getPropertyList(FilterOption.latestResults.name(), COMPLETION_CODE_ADAPTER);
+            filter.latestResults.addAll(latestResults);
         }
 
         filter.comSchedules = new HashSet<>();
         if (filterProperties.containsKey(FilterOption.comSchedules.name())) {
-            String[] comScheduleIds = filterProperties.get(FilterOption.comSchedules.name()).split(",");
+            List<Long> comScheduleIds = jsonQueryFilter.getPropertyList(FilterOption.comSchedules.name(), LONG_ADAPTER);
             filter.comSchedules.addAll(getObjectsByIdFromList(comScheduleIds, schedulingService.findAllSchedules()));
         }
 
         filter.comTasks = new HashSet<>();
         if (filterProperties.containsKey(FilterOption.comTasks.name())) {
-            String[] comTaskIds = filterProperties.get(FilterOption.comTasks.name()).split(",");
+            List<Long> comTaskIds = jsonQueryFilter.getPropertyList(FilterOption.comTasks.name(), LONG_ADAPTER);
             filter.comTasks.addAll(getObjectsByIdFromList(comTaskIds, taskService.findAllComTasks()));
         }
 
         filter.deviceTypes = new HashSet<>();
         if (filterProperties.containsKey(HeatMapBreakdownOption.deviceTypes.name())) {
-            String[] deviceTypeIds = filterProperties.get(HeatMapBreakdownOption.deviceTypes.name()).split(",");
+            List<Long> deviceTypeIds = jsonQueryFilter.getPropertyList(HeatMapBreakdownOption.deviceTypes.name(), LONG_ADAPTER);
             filter.deviceTypes.addAll(getObjectsByIdFromList(deviceTypeIds, deviceConfigurationService.findAllDeviceTypes().find()));
         }
 
@@ -117,10 +117,10 @@ public class CommunicationResource {
             Date start=null;
             Date end=null;
             if (filterProperties.containsKey(FilterOption.startIntervalFrom.name())) {
-                start=new Date(Long.parseLong(filterProperties.get(FilterOption.startIntervalFrom.name())));
+                start=jsonQueryFilter.getProperty(FilterOption.startIntervalFrom.name(), DATE_ADAPTER);
             }
             if (filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
-                end=new Date(Long.parseLong(filterProperties.get(FilterOption.startIntervalTo.name())));
+                end=jsonQueryFilter.getProperty(FilterOption.startIntervalTo.name(), DATE_ADAPTER);
             }
             filter.lastSessionStart=new Interval(start, end);
         }
@@ -129,10 +129,10 @@ public class CommunicationResource {
             Date start=null;
             Date end=null;
             if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name())) {
-                start=new Date(Long.parseLong(filterProperties.get(FilterOption.finishIntervalFrom.name())));
+                start=jsonQueryFilter.getProperty(FilterOption.finishIntervalFrom.name(), DATE_ADAPTER);
             }
             if (filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
-                end=new Date(Long.parseLong(filterProperties.get(FilterOption.finishIntervalTo.name())));
+                end=jsonQueryFilter.getProperty(FilterOption.finishIntervalTo.name(), DATE_ADAPTER);
             }
             filter.lastSessionEnd=new Interval(start, end);
         }
@@ -140,12 +140,11 @@ public class CommunicationResource {
         return filter;
     }
 
-    private <H extends HasId> Collection<H> getObjectsByIdFromList(String[] ids, List<H> objects) {
-        List<H> selectedObjects = new ArrayList<>(ids.length);
+    private <H extends HasId> Collection<H> getObjectsByIdFromList(List<Long> ids, List<H> objects) {
+        List<H> selectedObjects = new ArrayList<>(ids.size());
         for (H object : objects) {
-            String objectIdString = ""+object.getId();
-            for (String id : ids) {
-                if (objectIdString.equals(id.trim())) {
+            for (Long id : ids) {
+                if (object.getId()==id) {
                     selectedObjects.add(object);
                 }
             }

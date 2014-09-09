@@ -164,7 +164,7 @@ public class CommunicationResourceTest extends JerseyTest {
 
         Finder<DeviceType> deviceTypeFinder = mockFinder(Arrays.asList(deviceType1, deviceType2, deviceType3));
         when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("deviceTypes", "201,301,101")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("deviceTypes", Arrays.asList(201,301,101))).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -174,7 +174,7 @@ public class CommunicationResourceTest extends JerseyTest {
     @Test
     public void testCurrentStateAddedToFilter() throws Exception {
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("currentStates", "Busy,OnHold,Retrying")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("currentStates", Arrays.asList("Busy","OnHold","Retrying"))).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -184,7 +184,7 @@ public class CommunicationResourceTest extends JerseyTest {
 
     @Test
     public void testLatestResultsAddedToFilter() throws Exception {
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("latestResults", "TimeError,ProtocolError")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("latestResults", Arrays.asList("TimeError","ProtocolError"))).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -201,7 +201,7 @@ public class CommunicationResourceTest extends JerseyTest {
         when(comSchedule3.getId()).thenReturn(103L);
         when(schedulingService.findAllSchedules()).thenReturn(Arrays.asList(comSchedule1, comSchedule2, comSchedule3));
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comSchedules", "103,102")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comSchedules", Arrays.asList(103,102))).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -218,7 +218,7 @@ public class CommunicationResourceTest extends JerseyTest {
         when(comTask3.getId()).thenReturn(13L);
         when(taskService.findAllComTasks()).thenReturn(Arrays.asList(comTask1, comTask2, comTask3));
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comTasks", "13,12")).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comTasks", Arrays.asList(13,12))).queryParam("start",0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -234,7 +234,7 @@ public class CommunicationResourceTest extends JerseyTest {
 
     @Test
     public void testStartIntervalFromAddedToFilter() throws Exception {
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("startIntervalFrom", "1407916436000")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("startIntervalFrom", 1407916436000L)).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -246,7 +246,7 @@ public class CommunicationResourceTest extends JerseyTest {
     @Test
     public void testStartIntervalToAddedToFilter() throws Exception {
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("startIntervalTo", "1407916436000")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("startIntervalTo", 1407916436000L)).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -260,8 +260,8 @@ public class CommunicationResourceTest extends JerseyTest {
 
         Map<String, Object> map = target("/communications").queryParam("filter",
                 ExtjsFilter.filter()
-                        .property("startIntervalFrom", "1407916436000").property("startIntervalTo", "1407916784000")
-                        .property("finishIntervalFrom", "1407916436000").property("finishIntervalTo", "1407916784000")
+                        .property("startIntervalFrom", 1407916436000L).property("startIntervalTo", 1407916784000L)
+                        .property("finishIntervalFrom", 1407916436000L).property("finishIntervalTo", 1407916784000L)
                         .create()).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
@@ -274,7 +274,7 @@ public class CommunicationResourceTest extends JerseyTest {
 
     @Test
     public void testEndIntervalFromAddedToFilter() throws Exception {
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("finishIntervalFrom", "1407916436000")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("finishIntervalFrom", 1407916436000L)).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -286,7 +286,7 @@ public class CommunicationResourceTest extends JerseyTest {
     @Test
     public void testEndIntervalToAddedToFilter() throws Exception {
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("finishIntervalTo", "1407916436000")).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("finishIntervalTo", 1407916436000L)).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
@@ -298,7 +298,7 @@ public class CommunicationResourceTest extends JerseyTest {
     @Test
     public void testEndIntervalFromAndToAddedToFilter() throws Exception {
 
-        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter().property("finishIntervalFrom", "1407916436000").property("finishIntervalTo", "1407916784000").create()).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
+        Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter().property("finishIntervalFrom", 1407916436000L).property("finishIntervalTo", 1407916784000L).create()).queryParam("start", 0).queryParam("limit",10).request().get(Map.class);
 
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(deviceDataService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());

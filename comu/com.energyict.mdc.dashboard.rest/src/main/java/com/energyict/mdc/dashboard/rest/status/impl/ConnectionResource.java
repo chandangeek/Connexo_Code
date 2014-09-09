@@ -3,6 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
+import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -20,7 +21,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -46,6 +46,7 @@ public class ConnectionResource {
     private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
     private static final ComSessionSuccessIndicatorAdapter COM_SESSION_SUCCESS_INDICATOR_ADAPTER = new ComSessionSuccessIndicatorAdapter();
     private static final ConnectionTaskSuccessIndicatorAdapter CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER = new ConnectionTaskSuccessIndicatorAdapter();
+    public static final LongAdapter LONG_ADAPTER = new LongAdapter();
 
     private final DeviceDataService deviceDataService;
     private final EngineModelService engineModelService;
@@ -99,22 +100,19 @@ public class ConnectionResource {
     private ConnectionTaskFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
         ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
         filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
-        Map<String, String> filterProperties = jsonQueryFilter.getFilterProperties();
+        Map<String, Object> filterProperties = jsonQueryFilter.getFilterProperties();
         if (filterProperties.containsKey(FilterOption.currentStates.name())) {
-            String[] taskStatuses = filterProperties.get(FilterOption.currentStates.name()).split(",");
-            for (String taskStatus : taskStatuses) {
-                filter.taskStatuses.add(TASK_STATUS_ADAPTER.unmarshal(taskStatus));
-            }
+            List<TaskStatus> taskStatuses = jsonQueryFilter.getPropertyList(FilterOption.currentStates.name(), TASK_STATUS_ADAPTER);
+            filter.taskStatuses.addAll(taskStatuses);
         }
 
         filter.comPortPools = new HashSet<>();
         if (filterProperties.containsKey(HeatMapBreakdownOption.comPortPools.name())) {
-            String[] comPortPoolIds = filterProperties.get(FilterOption.comPortPools.name()).split(",");
+            List<Long> comPortPoolIds = jsonQueryFilter.getPropertyList(FilterOption.comPortPools.name(), LONG_ADAPTER);
             // already optimized
             for (ComPortPool comPortPool : engineModelService.findAllComPortPools()) {
-                String comPortPoolIdString = ""+comPortPool.getId();
-                for (String comPortPoolId : comPortPoolIds) {
-                    if (comPortPoolIdString.equals(comPortPoolId)) {
+                for (Long comPortPoolId : comPortPoolIds) {
+                    if (comPortPool.getId()==comPortPoolId) {
                         filter.comPortPools.add(comPortPool);
                     }
                 }
@@ -123,33 +121,29 @@ public class ConnectionResource {
 
         filter.connectionTypes = new HashSet<>();
         if (filterProperties.containsKey(HeatMapBreakdownOption.connectionTypes.name())) {
-            List<String> connectionTypeIds = Arrays.asList(filterProperties.get(FilterOption.connectionTypes.name()).split(","));
-            for (String connectionTypeId : connectionTypeIds) {
-                filter.connectionTypes.add(protocolPluggableService.findConnectionTypePluggableClass(Integer.parseInt(connectionTypeId)));
+            List<Long> connectionTypeIds = jsonQueryFilter.getPropertyList(FilterOption.connectionTypes.name(), LONG_ADAPTER);
+            for (Long connectionTypeId : connectionTypeIds) {
+                filter.connectionTypes.add(protocolPluggableService.findConnectionTypePluggableClass(connectionTypeId));
             }
         }
 
         filter.latestResults = new HashSet<>();
         if (filterProperties.containsKey(FilterOption.latestResults.name())) {
-            List<String> latestResults = Arrays.asList(filterProperties.get(FilterOption.latestResults.name()).split(","));
-            for (String latestResult : latestResults) {
-                filter.latestResults.add(COM_SESSION_SUCCESS_INDICATOR_ADAPTER.unmarshal(latestResult));
-            }
+            List<ComSession.SuccessIndicator> latestResults = jsonQueryFilter.getPropertyList(FilterOption.latestResults.name(), COM_SESSION_SUCCESS_INDICATOR_ADAPTER);
+            filter.latestResults.addAll(latestResults);
         }
 
         filter.latestStatuses = new HashSet<>();
         if (filterProperties.containsKey(FilterOption.latestStates.name())) {
-            List<String> latestStates = Arrays.asList(filterProperties.get(FilterOption.latestStates.name()).split(","));
-            for (String latestStatus : latestStates) {
-                filter.latestStatuses.add(CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER.unmarshal(latestStatus));
-            }
+            List<ConnectionTask.SuccessIndicator> latestStates = jsonQueryFilter.getPropertyList(FilterOption.latestStates.name(), CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER);
+            filter.latestStatuses.addAll(latestStates);
         }
 
         filter.deviceTypes = new HashSet<>();
         if (filterProperties.containsKey(HeatMapBreakdownOption.deviceTypes.name())) {
-            List<String> deviceTypeIds = Arrays.asList(filterProperties.get(FilterOption.deviceTypes.name()).split(","));
-            for (String deviceTypeId : deviceTypeIds) {
-                filter.deviceTypes.add(deviceConfigurationService.findDeviceType(Integer.parseInt(deviceTypeId)));
+            List<Long> deviceTypeIds = jsonQueryFilter.getPropertyList(FilterOption.deviceTypes.name(), LONG_ADAPTER);
+            for (Long deviceTypeId : deviceTypeIds) {
+                filter.deviceTypes.add(deviceConfigurationService.findDeviceType(deviceTypeId));
             }
         }
 
@@ -157,10 +151,10 @@ public class ConnectionResource {
             Date start=null;
             Date end=null;
             if (filterProperties.containsKey(FilterOption.startIntervalFrom.name())) {
-                start=new Date(Long.parseLong(filterProperties.get(FilterOption.startIntervalFrom.name())));
+                start=jsonQueryFilter.getDate(FilterOption.startIntervalFrom.name());
             }
             if (filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
-                end=new Date(Long.parseLong(filterProperties.get(FilterOption.startIntervalTo.name())));
+                end=jsonQueryFilter.getDate(FilterOption.startIntervalTo.name());
             }
             filter.lastSessionStart=new Interval(start, end);
         }
@@ -169,10 +163,10 @@ public class ConnectionResource {
             Date start=null;
             Date end=null;
             if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name())) {
-                start=new Date(Long.parseLong(filterProperties.get(FilterOption.finishIntervalFrom.name())));
+                start=jsonQueryFilter.getDate(FilterOption.finishIntervalFrom.name());
             }
             if (filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
-                end=new Date(Long.parseLong(filterProperties.get(FilterOption.finishIntervalTo.name())));
+                end=jsonQueryFilter.getDate(FilterOption.finishIntervalTo.name());
             }
             filter.lastSessionEnd=new Interval(start, end);
         }
