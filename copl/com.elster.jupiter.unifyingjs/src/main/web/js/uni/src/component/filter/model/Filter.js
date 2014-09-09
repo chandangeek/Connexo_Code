@@ -1,5 +1,8 @@
 /**
  * @class Uni.component.filter.model.Filter
+ * @deprecated
+ *
+ * @use Uni.data.proxy.QueryStringProxy together with Uni.util.Hydrator instead
  *
  * Filter model extends Ext.data.Model.
  * Model allows you to retrieve model data as plain object {one level key-value pair}.
