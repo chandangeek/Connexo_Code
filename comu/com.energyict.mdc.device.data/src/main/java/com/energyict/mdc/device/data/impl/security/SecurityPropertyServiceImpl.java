@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl.security;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.relation.CompositeFilterCriterium;
@@ -13,15 +12,18 @@ import com.energyict.mdc.dynamic.relation.SimpleFilterCriterium;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
+import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.google.common.base.Optional;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import javax.inject.Inject;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * Provides an implementation for the {@link SecurityPropertyService} interface.
@@ -58,8 +60,8 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     public Optional<Relation> findActiveProperties(Device device, SecurityPropertySet securityPropertySet, Date activeDate) {
         RelationType relationType = this.findSecurityPropertyRelationType(device);
         if (relationType != null) {
-            FilterAspect deviceAspect = new RelationDynamicAspect(relationType.getAttributeType(SecurityPropertySetRelationTypeSupport.DEVICE_ATTRIBUTE_NAME));
-            FilterAspect securityPropertySetAspect = new RelationDynamicAspect(relationType.getAttributeType(SecurityPropertySetRelationTypeSupport.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME));
+            FilterAspect deviceAspect = new RelationDynamicAspect(relationType.getAttributeType(SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME));
+            FilterAspect securityPropertySetAspect = new RelationDynamicAspect(relationType.getAttributeType(SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME));
 
             RelationSearchFilter searchFilter =
                     new RelationSearchFilter(
