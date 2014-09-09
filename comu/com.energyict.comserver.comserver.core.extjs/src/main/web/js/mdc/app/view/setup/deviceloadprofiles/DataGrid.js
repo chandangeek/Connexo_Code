@@ -34,10 +34,27 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 align: 'right',
                 minWidth : 150,
                 flex: 1,
-                renderer: function (data) {
+                renderer: function (data, metaData, record) {
+                    var validationFlag = '';
+                    if (record.data.channelValidationData && record.data.channelValidationData[channel.id]) {
+                        switch (record.data.channelValidationData[channel.id].validationResult) {
+                            case 'validationStatus.notValidated':
+                                validationFlag = '<span class="icon-validation icon-validation-black"></span>';
+                                break;
+                            case 'validationStatus.ok':
+                                validationFlag = '';
+                                break;
+                            case 'validationStatus.suspect':
+                                validationFlag = '<span class="icon-validation icon-validation-red"></span>';
+                                break;
+                            default:
+                                validationFlag = '';
+                                break;
+                        }
+                    }
                     return data[channel.id]
-                        ? Uni.I18n.formatNumber(data[channel.id], 'MDC', 3) + ' ' + channel.unitOfMeasure.localizedValue
-                        : '';
+                        ? '<span class="validation-column-align">' + validationFlag + ' ' + Uni.I18n.formatNumber(data[channel.id], 'MDC', 3) + ' ' + channel.unitOfMeasure.localizedValue + '</span>'
+                        : '<span class="icon-validation icon-validation-black"></span>';
                 }
             });
         });
