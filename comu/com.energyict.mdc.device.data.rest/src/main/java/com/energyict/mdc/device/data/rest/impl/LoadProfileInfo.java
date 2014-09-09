@@ -27,6 +27,10 @@ public class LoadProfileInfo {
     public Date lastReading;
     public List<ChannelInfo> channels;
 
+    // optionally filled if requesting details
+    public ValidationInfo validationInfo;
+    public boolean validationActive;
+
     public static LoadProfileInfo from(LoadProfile loadProfile) {
         LoadProfileInfo info = createLoadProfileInfo(loadProfile);
         List<Channel> channels = loadProfile.getChannels();
