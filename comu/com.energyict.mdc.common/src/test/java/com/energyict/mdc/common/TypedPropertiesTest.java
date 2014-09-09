@@ -149,8 +149,8 @@ public class TypedPropertiesTest {
         typedProperties.setProperty(NUMERIC_PROP1_NAME, NUMERIC_PROP1_VALUE);
 
         // Asserts
-        assertThat(typedProperties.getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
-        assertThat(typedProperties.getTypedProperty(NUMERIC_PROP2_NAME)).isNull();
+        assertThat(typedProperties.<BigDecimal>getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
+        assertThat(typedProperties.<BigDecimal>getTypedProperty(NUMERIC_PROP2_NAME)).isNull();
     }
 
     @Test
@@ -159,7 +159,7 @@ public class TypedPropertiesTest {
         typedProperties.setProperty(NUMERIC_PROP1_NAME, NUMERIC_PROP1_VALUE);
 
         // Asserts
-        assertThat(typedProperties.getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
+        assertThat(typedProperties.<BigDecimal>getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
         BigDecimal defaultValue = new BigDecimal(753);
         assertThat(typedProperties.getTypedProperty(NUMERIC_PROP2_NAME, defaultValue)).isEqualTo(defaultValue);
     }
@@ -171,8 +171,8 @@ public class TypedPropertiesTest {
         TypedProperties locallyEmpty = TypedProperties.inheritingFrom(parentProperties);
 
         // Asserts
-        assertThat(locallyEmpty.getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
-        assertThat(locallyEmpty.getTypedProperty(NUMERIC_PROP2_NAME)).isNull();
+        assertThat(locallyEmpty.<BigDecimal>getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
+        assertThat(locallyEmpty.<BigDecimal>getTypedProperty(NUMERIC_PROP2_NAME)).isNull();
     }
 
     @Test
@@ -182,7 +182,7 @@ public class TypedPropertiesTest {
         TypedProperties locallyEmpty = TypedProperties.inheritingFrom(parentProperties);
 
         // Asserts
-        assertThat(locallyEmpty.getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
+        assertThat(locallyEmpty.<BigDecimal>getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
         BigDecimal defaultValue = new BigDecimal(753);
         assertThat(locallyEmpty.getTypedProperty(NUMERIC_PROP2_NAME, defaultValue)).isEqualTo(defaultValue);
     }
@@ -195,8 +195,8 @@ public class TypedPropertiesTest {
         typedProperties.setProperty(NUMERIC_PROP2_NAME, NUMERIC_PROP2_VALUE);
 
         // Asserts
-        assertThat(typedProperties.getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
-        assertThat(typedProperties.getTypedProperty(NUMERIC_PROP2_NAME)).isEqualTo(NUMERIC_PROP2_VALUE);
+        assertThat(typedProperties.<BigDecimal>getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
+        assertThat(typedProperties.<BigDecimal>getTypedProperty(NUMERIC_PROP2_NAME)).isEqualTo(NUMERIC_PROP2_VALUE);
     }
 
     @Test
@@ -207,8 +207,8 @@ public class TypedPropertiesTest {
         typedProperties.setProperty(NUMERIC_PROP2_NAME, NUMERIC_PROP2_VALUE);
 
         // Asserts
-        assertThat(typedProperties.getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
-        assertThat(typedProperties.getTypedProperty(NUMERIC_PROP2_NAME)).isEqualTo(NUMERIC_PROP2_VALUE);
+        assertThat(typedProperties.<BigDecimal>getTypedProperty(NUMERIC_PROP1_NAME)).isEqualTo(NUMERIC_PROP1_VALUE);
+        assertThat(typedProperties.<BigDecimal>getTypedProperty(NUMERIC_PROP2_NAME)).isEqualTo(NUMERIC_PROP2_VALUE);
         BigDecimal defaultValue = new BigDecimal(753);
         assertThat(typedProperties.getTypedProperty("undefined", defaultValue)).isEqualTo(defaultValue);
     }
