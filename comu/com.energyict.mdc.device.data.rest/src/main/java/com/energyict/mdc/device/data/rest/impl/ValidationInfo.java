@@ -28,4 +28,7 @@ public class ValidationInfo {
             validationResult = ValidationStatus.forResult(evaluator.getValidationResult(value.getReadingQualities()));
     }
 
+    public ValidationInfo() {
+
+    }
 }
