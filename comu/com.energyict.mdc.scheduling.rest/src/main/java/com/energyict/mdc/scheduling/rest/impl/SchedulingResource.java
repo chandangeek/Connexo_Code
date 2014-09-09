@@ -1,5 +1,8 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.BooleanAdapter;
 import com.energyict.mdc.common.rest.IdListBuilder;
@@ -8,7 +11,6 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -19,12 +21,16 @@ import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.security.Privileges;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
-
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -39,7 +45,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
 
 @Path("/schedules")
 public class SchedulingResource {
@@ -63,8 +68,8 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_SCHEDULE)
     public PagedInfoList getSchedules(@BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
-        String mrid = queryFilter.getFilterProperties().get("mrid");
-        String available = queryFilter.getFilterProperties().get("available");
+        String mrid = queryFilter.getProperty("mrid");
+        String available = queryFilter.getProperty("available");
         List<ComSchedule> comSchedules = new ArrayList<>();
         Calendar calendar = Calendar.getInstance(clock.getTimeZone());
         if(mrid!= null && "true".equalsIgnoreCase(available)){
