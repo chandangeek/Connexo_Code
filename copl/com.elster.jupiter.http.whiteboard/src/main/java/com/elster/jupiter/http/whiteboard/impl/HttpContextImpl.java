@@ -21,22 +21,19 @@ import java.util.concurrent.atomic.AtomicReference;
 public class HttpContextImpl implements HttpContext {
 
     static final String USERPRINCIPAL = "com.elster.jupiter.userprincipal";
-    static final String LOGIN_URI = "/apps/usr/login.html";
+    static final String LOGIN_URI = "/apps/login/index.html";
 
     // Resources used by the login page so access is required before authenticating
     static final String[] RESOURCES_NOT_SECURED = {
-            "/apps/usr/login.html",
-            "/apps/usr/login.js",
+            "/apps/login/",
+            // Anything below will only be used in development.
             "/apps/ext/ext-all-dev.js",
             "/apps/ext/ext-all.js",
             "/apps/uni/uni-dev.js",
-            "/apps/usr/app/controller/Login.js",
-            "/apps/usr/app/controller/Base64.js",
-            "/apps/usr/app/view/Login.js",
             "/apps/ext/packages/uni-theme-skyline/build/resources",
             "/apps/ext/packages/uni-theme-skyline/build/uni-theme-skyline.js",
             "/apps/uni/resources/css/etc/all.css",
-            "/apps/usr/resources/images/connexo.png"};
+    };
 
     // No caching for index.html files, so that authentication will be verified first;
     // Note that resources used in these files are still cached
