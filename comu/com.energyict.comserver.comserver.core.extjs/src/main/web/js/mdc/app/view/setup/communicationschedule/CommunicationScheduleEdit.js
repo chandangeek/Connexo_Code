@@ -31,6 +31,13 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                         },
                         items: [
                             {
+                                xtype: 'uni-form-error-message',
+                                name: 'warning',
+                                text: Uni.I18n.translate('communicationschedule.inUseWarning', 'MDC', 'This shared communication schedule has been added to one or more devices. Only the name, the frequency and start date are editable'),
+                                hidden: true,
+                                margin: '0 0 32 0'
+                            },
+                            {
                                 xtype: 'textfield',
                                 name: 'name',
                                 msgTarget: 'under',
@@ -48,13 +55,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 itemId: 'editConnectionMethodMRIDField',
                                 maxLength: 80,
                                 enforceMaxLength: true
-                            },
-                            {
-                                xtype: 'displayfield',
-                                name: 'mRID',
-                                fieldLabel: Uni.I18n.translate('communicationschedule.MRID', 'MDC', 'MRID'),
-                                itemId: 'editConnectionMethodMRIDDisplayField',
-                                hidden: true
                             },
                             {
                                 xtype: 'fieldcontainer',
@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                     {
                                         xtype: 'displayfield',
                                         itemId: 'noComTasksSelectedMsg',
-                                        name: 'comTaskUsages',
+                                        name: 'comTaskUsageErrors',
                                         value: '<span style="color: grey"><i>' + Uni.I18n.translate('communicationschedule.noComTaskSelected', 'MDC', 'No communication tasks selected yet') + '</i></span>',
                                         style: {
                                             marginTop: '4px',
