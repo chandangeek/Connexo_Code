@@ -130,6 +130,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     widget.down('#communicationScheduleEditForm').down('#comTasksOnForm').reconfigure(communicationSchedule.comTaskUsages());
                     if (communicationSchedule.get('isInUse')){
                         widget.down('#addCommunicationTaskButton').disable();
+                        widget.down('#comTasksOnForm').columns[1].setVisible(false);
+                        widget.down('#editConnectionMethodMRIDDisplayField').show();
+                        widget.down('#editConnectionMethodMRIDField').hide();
                     } else {
                         widget.down('#addCommunicationTaskButton').enable();
                     }
