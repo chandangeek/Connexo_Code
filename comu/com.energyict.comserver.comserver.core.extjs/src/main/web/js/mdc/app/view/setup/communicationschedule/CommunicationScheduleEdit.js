@@ -50,6 +50,13 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 enforceMaxLength: true
                             },
                             {
+                                xtype: 'displayfield',
+                                name: 'mRID',
+                                fieldLabel: Uni.I18n.translate('communicationschedule.MRID', 'MDC', 'MRID'),
+                                itemId: 'editConnectionMethodMRIDDisplayField',
+                                hidden: true
+                            },
+                            {
                                 xtype: 'fieldcontainer',
                                 fieldLabel: '&nbsp',
                                 layout: {

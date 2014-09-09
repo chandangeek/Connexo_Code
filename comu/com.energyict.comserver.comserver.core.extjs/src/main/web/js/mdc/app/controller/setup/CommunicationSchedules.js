@@ -130,6 +130,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     widget.down('#communicationScheduleEditForm').down('#comTasksOnForm').reconfigure(communicationSchedule.comTaskUsages());
                     if (communicationSchedule.get('isInUse')){
                         widget.down('#addCommunicationTaskButton').disable();
+                        widget.down('#comTasksOnForm').columns[1].setVisible(false);
+                        widget.down('#editConnectionMethodMRIDDisplayField').show();
+                        widget.down('#editConnectionMethodMRIDField').hide();
                     } else {
                         widget.down('#addCommunicationTaskButton').enable();
                     }
@@ -264,12 +267,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     showWarning: function (communicationSchedule) {
         var me = this;
-        var msg = '';
-        if (communicationSchedule.get('isInUse')) {
-            msg = Uni.I18n.translate('communicationschedule.deleteInUseCommunicationSchedule', 'MDC', 'This schedule will no longer be available here and on the devices it has been added to. If this schedule is still running, it will be deleted after data collection is complete.');
-        } else {
-            msg = Uni.I18n.translate('communicationschedule.deleteCommunicationSchedule', 'MDC', 'This schedule will no longer be available.');
-        }
+        var msg = Uni.I18n.translate('communicationschedule.deleteCommunicationSchedule', 'MDC', 'This schedule will no longer be available.');
         Ext.create('Uni.view.window.Confirmation').show({
             msg: msg,
             title: Uni.I18n.translate('communicationschedule.delete', 'MDC', 'Remove') + ' ' + communicationSchedule.get('name') + '?',

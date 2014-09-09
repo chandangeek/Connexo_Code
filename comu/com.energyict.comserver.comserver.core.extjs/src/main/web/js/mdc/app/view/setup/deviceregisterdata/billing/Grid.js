@@ -3,6 +3,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
     alias: 'widget.deviceregisterreportgrid-billing',
     itemId: 'deviceregisterreportgrid',
     store: 'BillingRegisterData',
+    requires: [
+        'Uni.grid.column.ValidationFlag'
+    ],
 
     columns: {
         items: [
@@ -30,26 +33,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                 flex: 2
             },
             {
-                header: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
                 dataIndex: 'value',
-                renderer: function (value, metaData, record) {
-                    switch (record.get('validationResult')) {
-                        case 'validationStatus.notValidated':
-                            return '<span style="vertical-align: middle"><img style="height: 13px" src="../mdc/resources/images/Not-validated.png"/>&nbsp;&nbsp;&nbsp;'
-                                + value + ' ' + record.get('unitOfMeasure') + '</span>';
-                            break;
-                        case 'validationStatus.ok':
-                            return value + ' ' + record.get('unitOfMeasure');
-                            break;
-                        case 'validationStatus.suspect':
-                            return '<span style="vertical-align: middle"><img style="height: 13px" src="../mdc/resources/images/Suspect.png"/>&nbsp;&nbsp;&nbsp;'
-                                + value + ' ' + record.get('unitOfMeasure') + '</span>';
-                            break;
-                        default:
-                            return value + ' ' + record.get('unitOfMeasure');
-                            break;
-                    }
-                },
+                xtype: 'validation-flag-column',
                 flex: 2
             },
             {

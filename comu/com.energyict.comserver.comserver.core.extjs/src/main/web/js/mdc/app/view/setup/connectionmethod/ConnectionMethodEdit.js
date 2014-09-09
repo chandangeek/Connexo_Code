@@ -126,7 +126,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 itemId: 'scheduleField',
                                 hidden: true,
                                 required: true,
-                                fieldLabel: 'Schedule',
+                                fieldLabel: Uni.I18n.translate('connectionmethod.connectionSchedule', 'MDC', 'Connection schedule'),
                                 hourCfg: {
                                     width: 60
                                 },
