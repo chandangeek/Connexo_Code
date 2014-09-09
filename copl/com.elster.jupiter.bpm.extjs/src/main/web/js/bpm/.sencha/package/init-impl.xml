@@ -44,8 +44,25 @@
     <target name="init-local"
             depends="-before-init-local,-init-local,-after-init-local"/>
 
+    <!--
+    Apply Version
+    -->
+    <target name="-before-apply-version"/>
+    <target name="-after-apply-version"/>
+    <target name="apply-version" if="build.version">
+        <echo>Switch package version to ${build.version}</echo>
+        <antcall target="-before-apply-version"/>
+
+        <x-set-json-version file="${basedir}/package.json"
+                            version="${build.version}"/>
+
+        <antcall target="-after-apply-version"/>
+    </target>
+
     <target name="-before-init"/>
     <target name="-init" unless="internal.x-sencha-initialized">
+        <antcall target="apply-version"/>
+
         <!--
         Now, apply various project updates, such as ant class loader path
         updates, as well as loading Sencha Cmd config system properties
@@ -58,42 +75,110 @@
         -->
         <property name="build.environment" value="production"/>
         <property name="CR" value="&#10;"/>
-        
+        <property name="build.version" value="${package.version}"/>
+
         <x-load-properties>
-            <!-- Load user-defined properties for environment then general: -->
-            <file path="${app.config.dir}/${build.environment}.properties" required="false"/>
-            <file path="${app.config.dir}/build.properties" required="false"/>
-            <!-- Pick up the defaults by framework/environment followed by general: -->
-            <file path="${app.config.dir}/${framework.name}.properties" required="true"/>
-            <file path="${app.config.dir}/${build.environment}.defaults.properties" required="true"/>
-            <file path="${app.config.dir}/defaults.properties" required="true"/>
+            <file path="${package.config.dir}/${build.environment}.properties" required="false"/>
+            <file path="${package.config.dir}/build.properties" required="false"/>
+            <file path="${package.config.dir}/defaults.properties" required="true"/>
         </x-load-properties>
         
         <!--
-        calculate the appropriate build.compression value
+        See if there is a ./resources subfolder
         -->
-        <condition property="build.compression" value="-yui">
-            <x-is-true value="${build.compression.yui}"/>
-        </condition>
-        
-        <condition property="build.compression" value="-closure">
-            <x-is-true value="${build.compression.closure}"/>
-        </condition>
-        
-        <condition property="build.compression" value="-uglify">
-            <x-is-true value="${build.compression.uglify}"/>
-        </condition>
-        
-        <property name="build.compression" value=""/>
+        <if>
+            <not>
+                <available file="${package.resources.dir}" type="dir"/>
+            </not>
+            <then>
+                <property name="skip.resources" value="1"/>
+                <property name="skip.slice" value="1"/>
+            </then>
+        </if>
 
-        <x-verify-app-cmd-ver/>
+        
+        <!--
+        See if there is a ./sass subfolder
+        -->
+        <if>
+            <not>
+                <available file="${package.sass.dir}" type="dir"/>
+            </not>
+            <then>
+                <property name="skip.sass" value="1"/>
+            </then>
+        </if>
 
+        <!--
+        See if there is an ./examples subfolder full of example applications.
+        -->
+        <if>
+            <not>
+                <available file="${package.examples.dir}" type="dir"/>
+            </not>
+            <then>
+                <property name="skip.examples" value="1"/>
+            </then>
+        </if>
+
+        <!--
+        See if there is a ./packages subfolder full of packages. This is only allowed
+        for framework packages.
+        -->
+        <if>
+            <not>
+                <and>
+                    <equals arg1="${package.type}" arg2="framework"/>
+                    <available file="${package.subpkgs.dir}" type="dir"/>
+                </and>
+            </not>
+            <then>
+                <property name="skip.subpkgs" value="1"/>
+            </then>
+        </if>
+
+        <if>
+            <not>
+                <isset property="package.framework"/>
+            </not>
+            <then>
+                <property name="skip.style" value="1"/>
+            </then>
+        </if>
+        
+        <if>
+            <isset property="skip.style"/>
+            <then>
+                <property name="skip.sass" value="1"/>
+                <property name="skip.capture" value="1"/>
+                <property name="skip.slice" value="1"/>
+            </then>
+        </if>
+
+        <if>
+            <not>
+                <isset property="package.base.names"/>
+            </not>
+            <then>
+                <property name="skip.inherit" value="1"/>
+            </then>
+        </if>
+        
         <!--
         this id string is used to share a common compiler instance
         for all x-compile calls in this project
         -->
-        <property name="compiler.ref.id" value="app-compiler"/>
-        
+        <property name="compiler.ref.id" value="package-compiler"/>
+
+        <fileset id="pkg.files" 
+                 dir="${package.dir}" 
+                 includes="${pkg.includes}"
+                 excludes="${pkg.excludes}">
+            <exclude name="**/.sass-cache/**/*"/>
+            <exclude name="**/.sass-cache"/>
+            <exclude name="**/theme-capture.*"/>
+        </fileset>
+                
         <!--
         this property is set indicating we've reached the end of the
         core init phase.  it's presence will indicate that we've already
@@ -134,17 +219,9 @@
              </property>
         -->
         <property name="build.concat.options" value=""/>
+        <property name="build.concat.debug.options" value=""/>
         
-        <!--
-             This property can be modified to change page compilation options
-             
-             -scripts: inject the given script path into the generated markup ahead of the all classes file
-             
-             <property name="build.page.options"/>
-                    -scripts=framework.js
-             </property>
-        -->
-        <property name="build.page.options" value=""/>
+        <property name="build.pkg.manifest" value="pkg.files"/>
     </target>
     <target name="-after-init-defaults"/>
     
@@ -154,60 +231,19 @@
     various classpath entries for the framework, workspace, packages, and app
     -->
     <target name="-init-compiler" depends="-init">
-        <condition property="internal.app.css.rel" value="${app.out.css.rel}">
-            <x-is-true value="${enable.ext42.themes}"/>
-        </condition>
-        <property name="internal.app.css.rel" value=""/>
-
         <x-compile refid="${compiler.ref.id}" 
-                   dir="${app.dir}" 
+                   dir="${package.dir}" 
                    initOnly="true" 
                    inheritAll="true">
             <![CDATA[
                 # base build command
                 -tempDir=${build.compile.temp.dir}
                 -keepTempDir=${build.compile.temp.dir.keep}
-                -options=${build.options}
-                load-app
-                    -frameworkFile=${build.framework.name}
-                    -jsBundleFile=${build.classes.name}
-                    -cssBundleFile=${internal.app.css.rel}
-                    -tempDir=${build.app.temp.dir}
-                    -tag=${build.tag.name}
-                and
-                restore
-                    ${build.tag.name}     
-                and
-                meta
-                    +packages
-                    -out=${build.out.package.versions}
-                and
-                classpath
-                    -path=${build.out.package.versions}
-                    -name=framework
-                and
-                require
-                    -source=@${build.tag.name}
-                    -requires=@overrides
-                    -allow-unmet=true
-                and
-                require
-                    -scopeName=framework
-                    -source=Ext.util.Observable
-                    -requires=${build.out.package.versions}
-                    -allow-unmet=false
-                and
-                union
-                    -recursive
-                    -tag=${build.tag.name}
+                include
+                    -all
                 and
                 save
-                    ${build.tag.name}-overrides
-                and
-                ${build.operations}
-                and
-                save
-                    page
+                    package-${package.name}-all
             ]]>
         </x-compile>
     </target>
