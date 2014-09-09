@@ -38,16 +38,16 @@ public class ComPortResource {
     public PagedInfoList getComPorts(@BeanParam JsonQueryFilter comPortFilter, @BeanParam QueryParameters queryParameters) {
         List<ComPortInfo> comPortInfos = new ArrayList<>();
         if (!comPortFilter.getFilterProperties().isEmpty()) {
-            Optional<String> comserverIdProperty = Optional.fromNullable(comPortFilter.getFilterProperties().get("comserver_id"));
-            Optional<String> directionProperty = Optional.fromNullable(comPortFilter.getFilterProperties().get("direction"));
-            if(comserverIdProperty.isPresent()){
-                Optional<ComServer> comServer = engineModelService.findComServer(Integer.parseInt(comserverIdProperty.get()));
+            Long comserverIdProperty = comPortFilter.getFilterProperties().get("comserver_id")!=null?comPortFilter.getLong("comserver_id"):null;
+            String directionProperty = comPortFilter.getFilterProperties().get("direction")!=null?comPortFilter.<String>getProperty("direction"):null;
+            if(comserverIdProperty!=null){
+                Optional<ComServer> comServer = engineModelService.findComServer(comserverIdProperty);
                 List<ComPort> comPorts = comServer.get().getComPorts();
                 for (ComPort comPort : comPorts) {
                     comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineModelService));
                 }
-            } else if (directionProperty.isPresent()){
-                List<? extends ComPort> comPorts = ("inbound".equals(directionProperty.get()))?
+            } else if (directionProperty!=null){
+                List<? extends ComPort> comPorts = ("inbound".equals(directionProperty))?
                         engineModelService.findAllInboundComPorts():
                         engineModelService.findAllOutboundComPorts();
                 for (ComPort comPort : comPorts) {
