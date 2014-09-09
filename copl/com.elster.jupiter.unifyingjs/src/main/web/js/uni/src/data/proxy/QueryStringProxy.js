@@ -27,15 +27,22 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         if (!_.isUndefined(router.queryParams[me.root])) {
             var data = Ext.JSON.decode(router.queryParams[me.root]);
             var modelData = _.object(_.pluck(data, 'property'), _.pluck(data, 'value'));
-            operation.resultSet = this.reader.read(modelData);
         }
 
+        var resultSet = operation.resultSet = this.reader.read(modelData || []);
         operation.setCompleted();
-        operation.setSuccessful();
 
-        if (typeof callback == 'function') {
-            callback.call(scope || me, operation);
+        if (Ext.isDefined(operation.id) && !resultSet.count) {
+            resultSet.success = false;
         }
+
+        if (resultSet.success) {
+            operation.setSuccessful();
+        } else {
+            me.fireEvent('exception', me, null, operation);
+        }
+
+        Ext.callback(callback, scope || me, [operation]);
     },
 
     /**
