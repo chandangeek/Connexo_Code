@@ -127,7 +127,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
             zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
             channelName = channelRecord.get('name'),
-            unitOfMeasure = channelRecord.get('unitOfMeasure').localizedValue,
+            unitOfMeasure = channelRecord.get('unitOfMeasure').unit,
             seriesObject = {marker: {
                 enabled: false
             },
