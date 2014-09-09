@@ -88,7 +88,7 @@ public class DeviceCommunicationProtocolsResource {
         List<ConnectionType> supportedConnectionTypes = deviceProtocolPluggableClass.getDeviceProtocol().getSupportedConnectionTypes();
         List<ConnectionTypePluggableClass> allConnectionTypePluggableClassesToCheck = this.protocolPluggableService.findAllConnectionTypePluggableClasses();
         List<ConnectionTypeInfo> infos = new ArrayList<>();
-        ConnectionType.Direction direction = ConnectionType.Direction.fromString(queryFilter.getFilterProperties().get("direction"));
+        ConnectionType.Direction direction = ConnectionType.Direction.fromString(queryFilter.<String>getProperty("direction"));
         for(ConnectionType supportedConnectionType: supportedConnectionTypes){
             if(ConnectionType.Direction.NULL.equals(direction) || supportedConnectionType.getDirection().equals(direction)){
                 for(ConnectionTypePluggableClass registeredConnectionTypePluggableClass:allConnectionTypePluggableClassesToCheck){
