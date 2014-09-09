@@ -12,6 +12,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 @Path("/connectionheatmap")
@@ -39,14 +40,22 @@ public class ConnectionHeatMapResource {
     @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ConnectionHeatMapInfo getConnectionHeatMap(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
         if (!jsonQueryFilter.getFilterProperties().containsKey("breakdown")) {
-            Response.status(Response.Status.BAD_REQUEST).build();
+            throw new WebApplicationException("Missing breakdown", Response.Status.NOT_FOUND);
         }
         HeatMapBreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
 
-        return new ConnectionHeatMapInfo(
-                breakdown== HeatMapBreakdownOption.comPortPools?dashboardService.getConnectionsComPortPoolHeatMap():(breakdown== HeatMapBreakdownOption.connectionTypes?dashboardService.getConnectionTypeHeatMap():dashboardService.getConnectionsDeviceTypeHeatMap()),
-                breakdown,
-                thesaurus);
+        switch (breakdown) {
+            case connectionTypes:
+                return new ConnectionHeatMapInfo(dashboardService.getConnectionTypeHeatMap(),breakdown,thesaurus);
+            case deviceTypes:
+                return new ConnectionHeatMapInfo(dashboardService.getConnectionsDeviceTypeHeatMap(),breakdown,thesaurus);
+            case comPortPools:
+                return new ConnectionHeatMapInfo(dashboardService.getConnectionsComPortPoolHeatMap(),breakdown,thesaurus);
+            default:
+                throw new WebApplicationException("Invalid breakdown: "+breakdown, Response.Status.NOT_FOUND);
+
+        }
+
     }
 
 }
