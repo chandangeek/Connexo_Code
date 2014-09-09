@@ -3,14 +3,13 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
@@ -25,8 +24,10 @@ import org.mockito.stubbing.Answer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,6 +59,8 @@ public class MeterActivationValidationImplTest {
     private MeteringService meteringService;
     @Mock
     private DataMapper<ChannelValidation> channelValidationFactory;
+    @Mock
+    private ReadingType readingType1, readingType2;
 
     @Before
     public void setUp() {
@@ -73,7 +76,9 @@ public class MeterActivationValidationImplTest {
         when(meteringService.findChannel(SECOND_CHANNEL_ID)).thenReturn(Optional.of(channel2));
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(FIRST_CHANNEL_ID);
+        doReturn(Arrays.asList(readingType1)).when(channel1).getReadingTypes();
         when(channel2.getId()).thenReturn(SECOND_CHANNEL_ID);
+        doReturn(Arrays.asList(readingType2)).when(channel2).getReadingTypes();
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
         when(validationRuleSet.getRules()).thenReturn(Arrays.asList(rule1, rule2));
@@ -102,33 +107,27 @@ public class MeterActivationValidationImplTest {
     public void testValidateNoRulesApply() throws Exception {
         meterActivationValidation.validate(INTERVAL);
 
-        assertThat(meterActivationValidation.getChannelValidations()).hasSize(2);
-        assertThat(Iterables.all(meterActivationValidation.getChannelValidations(), new Predicate<ChannelValidation>() {
-            @Override
-            public boolean apply(ChannelValidation input) {
-                return input.getLastChecked() == null;
-            }
-        })).isTrue();
+        assertThat(meterActivationValidation.getChannelValidations()).isEmpty();
     }
 
     @Test
     public void testValidateOneRuleAppliesToOneChannel() throws Exception {
+        doReturn(Collections.singleton(readingType1)).when(rule1).getReadingTypes();
         when(rule1.validateChannel(channel1, INTERVAL)).thenReturn(DATE4);
 
         meterActivationValidation.validate(INTERVAL);
 
-        assertThat(meterActivationValidation.getChannelValidations()).hasSize(2);
+        assertThat(meterActivationValidation.getChannelValidations()).hasSize(1);
         ChannelValidation channelValidation = meterActivationValidation.getChannelValidations().iterator().next();
-        if (channel1.equals(channelValidation.getChannel())) {
-            assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);
-        } else {
-            //channel 2
-            assertThat(channelValidation.getLastChecked()).isNull();
-        }
+        assertThat(channelValidation.getChannel()).isEqualTo(channel1);
+        assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);
+
     }
 
     @Test
     public void testValidateBothRulesApplyToBothChannels() throws Exception {
+        doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule1).getReadingTypes();
+        doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule2).getReadingTypes();
         when(rule1.validateChannel(channel1, INTERVAL)).thenReturn(DATE4);
         when(rule1.validateChannel(channel2, INTERVAL)).thenReturn(DATE2);
         when(rule2.validateChannel(channel1, INTERVAL)).thenReturn(DATE2);

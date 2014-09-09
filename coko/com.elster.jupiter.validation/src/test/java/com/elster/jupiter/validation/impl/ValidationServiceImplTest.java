@@ -28,6 +28,7 @@ import com.elster.jupiter.util.time.ProgrammableClock;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.MeterActivationValidation;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
@@ -149,6 +150,7 @@ public class ValidationServiceImplTest {
                 return new ValidationRuleSetImpl(dataModel, eventService);
             }
         });
+
         when(dataModel.getInstance(MeterActivationValidationImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -186,6 +188,7 @@ public class ValidationServiceImplTest {
         if (!validationRules.isEmpty()) {
             when(allValidationRuleQuery.select(any(Condition.class))).thenReturn(validationRules);
             doReturn(validationRules).when(validationRuleSet).getRules();
+            when(channelValidation.hasActiveRules()).thenReturn(true);
         }
     }
 
@@ -221,14 +224,18 @@ public class ValidationServiceImplTest {
         when(meter.getId()).thenReturn(ID);
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(1001L);
+        ReadingType readingType = mock(ReadingType.class);
+        doReturn(Arrays.asList(readingType)).when(channel1).getReadingTypes();
         when(channel2.getId()).thenReturn(1002L);
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
 
-        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME);
-        validationRuleSet.save();
+        ValidationRuleSet validationRuleSet = mock(IValidationRuleSet.class);
+        ValidationRule validationRule = mock(IValidationRule.class);
+        doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
+        doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
         validationService.validate(meterActivation, Interval.sinceEpoch());
 
@@ -249,7 +256,7 @@ public class ValidationServiceImplTest {
             public Channel apply(ChannelValidation input) {
                 return input.getChannel();
             }
-        }).toSet()).contains(channel1, channel2);
+        }).toSet()).contains(channel1);
 
     }
 
@@ -314,16 +321,28 @@ public class ValidationServiceImplTest {
         BaseReading reading = mock(BaseReading.class);
         when(reading.getTimeStamp()).thenReturn(readingDate);
 
-        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Collections.<ChannelValidation>emptyList());
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(Date.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                ReadingQualityRecord record = mock(ReadingQualityRecord.class);
+                ReadingQualityType readingQualityType = (ReadingQualityType) invocationOnMock.getArguments()[0];
+                when(record.getType()).thenReturn(readingQualityType);
+                when(record.getTypeCode()).thenReturn(readingQualityType.getCode());
+                return record;
+            }
+        });
+
+        when(channelValidationFactory.find(eq("channel"), eq(channel1), eq("activeRules"), eq(true))).thenReturn(Collections.<ChannelValidation>emptyList());
 
         List<DataValidationStatus> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading));
         assertThat(validationStatus).hasSize(1);
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate);
-        assertThat(validationStatus.get(0).completelyValidated()).isFalse();
-        assertThat(validationStatus.get(0).getReadingQualities()).isEmpty();
+        assertThat(validationStatus.get(0).completelyValidated()).isTrue();
+        assertThat(validationStatus.get(0).getReadingQualities()).hasSize(1);
+        assertThat(validationStatus.get(0).getReadingQualities().iterator().next().getTypeCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
 
         ChannelValidation channelValidation = mock(ChannelValidation.class);
-        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation));
+        when(channelValidationFactory.find(eq("channel"), eq(channel1), eq("activeRules"), eq(true))).thenReturn(Arrays.asList(channelValidation));
         when(channelValidation.getLastChecked()).thenReturn(new Date(0));
         setupValidationRuleSet(channelValidation, channel1);
 
@@ -346,7 +365,7 @@ public class ValidationServiceImplTest {
 
 
         ChannelValidation channelValidation = mock(ChannelValidation.class);
-        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation));
+        when(channelValidationFactory.find(eq("channel"), eq(channel1), eq("activeRules"), eq(true))).thenReturn(Arrays.asList(channelValidation));
         when(channelValidation.getLastChecked()).thenReturn(readingDate1);
         when(channel1.findReadingQuality(eq(new Interval(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
@@ -385,7 +404,7 @@ public class ValidationServiceImplTest {
         when(channelValidation1.getLastChecked()).thenReturn(readingDate1);
         ChannelValidation channelValidation2 = mock(ChannelValidation.class);
         when(channelValidation2.getLastChecked()).thenReturn(readingDate2);
-        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1, channelValidation2));
+        when(channelValidationFactory.find(eq("channel"), eq(channel1), eq("activeRules"), eq(true))).thenReturn(Arrays.asList(channelValidation1, channelValidation2));
         when(channel1.findReadingQuality(eq(new Interval(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
         when(channel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(readingQualityRecord);
@@ -423,7 +442,7 @@ public class ValidationServiceImplTest {
         when(channelValidation1.getLastChecked()).thenReturn(readingDate1);
         ChannelValidation channelValidation2 = mock(ChannelValidation.class);
         when(channelValidation2.getLastChecked()).thenReturn(null);
-        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1, channelValidation2));
+        when(channelValidationFactory.find(eq("channel"), eq(channel1), eq("activeRules"), eq(true))).thenReturn(Arrays.asList(channelValidation1, channelValidation2));
         ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
         when(readingQuality.getReadingTimestamp()).thenReturn(readingDate1);
         ReadingQualityType readingQualityType = new ReadingQualityType("3.6.32131");
@@ -460,7 +479,7 @@ public class ValidationServiceImplTest {
 
         ChannelValidation channelValidation1 = mock(ChannelValidation.class);
         when(channelValidation1.getLastChecked()).thenReturn(readingDate2);
-        when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1));
+        when(channelValidationFactory.find(eq("channel"), eq(channel1), eq("activeRules"), eq(true))).thenReturn(Arrays.asList(channelValidation1));
         ReadingQualityRecord readingQuality1 = mock(ReadingQualityRecord.class);
         when(readingQuality1.getReadingTimestamp()).thenReturn(readingDate1);
         ReadingQualityType readingQualityType1 = new ReadingQualityType("3.6.5164");
