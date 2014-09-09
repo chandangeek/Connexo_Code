@@ -195,7 +195,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             // Common columns
-            table.column("DEVICE").number().conversion(NUMBER2LONG).map(ConnectionTaskFields.DEVICE.fieldName()).add();
+            Column device = table.column("DEVICE").number().notNull().add();
             Column connectionTypePluggableClass = table.column("CONNECTIONTYPEPLUGGABLECLASS").number().conversion(NUMBER2LONG).map("pluggableClassId").notNull().add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2DATE).map(ConnectionTaskFields.MODIFICATION_DATE.fieldName()).add();
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).add();
@@ -222,6 +222,11 @@ public enum TableSpecs {
             // InboundConnectionTaskImpl columns: none at this moment
             // ConnectionInitiationTaskImpl columns: none at this moment
             table.primaryKey("PK_DDC_CONNECTIONTASK").on(id).add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_DEVICE").
+                    on(device).
+                    references(DDC_DEVICE.name()).
+                    map(ConnectionTaskFields.DEVICE.fieldName()).
+                    add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_CLASS").
                     on(connectionTypePluggableClass).
                     references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").

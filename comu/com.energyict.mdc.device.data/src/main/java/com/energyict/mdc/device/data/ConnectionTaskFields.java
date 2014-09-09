@@ -10,7 +10,7 @@ import com.energyict.mdc.common.ImplField;
 public enum ConnectionTaskFields implements ImplField {
 
     ID("id"),
-    DEVICE("deviceId"),
+    DEVICE("device"),
     MODIFICATION_DATE("modificationDate"),
     OBSOLETE_DATE("obsoleteDate"),
     IS_DEFAULT("isDefault"),
