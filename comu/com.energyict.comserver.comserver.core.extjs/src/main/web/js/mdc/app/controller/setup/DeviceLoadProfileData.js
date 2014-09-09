@@ -164,7 +164,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 gridLineDashStyle: 'Dot',
                 showEmpty: false
             },
-                yAxisTitle = channel.name + ', ' + channel.unitOfMeasure
+                yAxisTitle = channel.name + ', ' + channel.unitOfMeasure;
 
 
             if (index == 0) {
@@ -216,6 +216,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         page.down('#deviceLoadProfilesTableViewBtn').setDisabled(showTable);
         page.down('#deviceLoadProfilesTableView').setVisible(showTable);
         page.down('#readingsCount').setVisible(showTable && this.getStore('Mdc.store.LoadProfilesOfDeviceData').count());
+        showTable && page.down('#deviceLoadProfilesTableView').down('#deviceLoadProfilesDataGrid').getView().refresh();
     },
 
     showPreview: function (selectionModel, record) {

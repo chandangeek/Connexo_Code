@@ -191,6 +191,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         page.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(showTable);
         page.down('#deviceLoadProfileChannelTableView').setVisible(showTable);
         page.down('#readingsCount').setVisible(showTable && this.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData').count());
+        showTable && page.down('#deviceLoadProfileChannelTableView').down('#deviceLoadProfileChannelDataGrid').getView().refresh();
     },
 
     showPreview: function (selectionModel, record) {
