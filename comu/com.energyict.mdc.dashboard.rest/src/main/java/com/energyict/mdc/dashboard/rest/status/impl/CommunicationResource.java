@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -62,7 +63,12 @@ public class CommunicationResource {
         List<ComTaskExecutionInfo> comTaskExecutionInfos = new ArrayList<>(communicationTasksByFilter.size());
         for (ComTaskExecution comTaskExecution : communicationTasksByFilter) {
             Optional<ComTaskExecutionSession> lastSession = deviceDataService.findLastSessionFor(comTaskExecution);
-            comTaskExecutionInfos.add(comTaskExecutionInfoFactory.from(comTaskExecution, lastSession, comTaskExecution.getConnectionTask()));
+            ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask();
+            if (connectionTask!=null) {
+                comTaskExecutionInfos.add(comTaskExecutionInfoFactory.from(comTaskExecution, lastSession, connectionTask));
+            } else {
+                comTaskExecutionInfos.add(comTaskExecutionInfoFactory.from(comTaskExecution, lastSession));
+            }
         }
 
         return Response.ok(PagedInfoList.asJson("communicationTasks", comTaskExecutionInfos, queryParameters)).build();
