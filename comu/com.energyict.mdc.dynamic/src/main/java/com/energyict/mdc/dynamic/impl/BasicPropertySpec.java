@@ -56,7 +56,7 @@ public class BasicPropertySpec<T> extends com.elster.jupiter.properties.BasicPro
             }
             if (possibleValues!=null && possibleValues.isExhaustive()) {
                 boolean found = false;
-                for (Object o : possibleValues.getAllValues()) {
+                for (T o : possibleValues.getAllValues()) {
                     if (o.equals(value)) {
                         found=true;
                     }
