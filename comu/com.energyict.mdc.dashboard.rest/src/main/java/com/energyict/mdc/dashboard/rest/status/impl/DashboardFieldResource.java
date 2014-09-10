@@ -2,22 +2,19 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
-import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.security.Privileges;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +25,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * Why the wrapped return value? JavaScript people didn't want to see a naked JSON list, had to be
  * wrapped with meaningful field name.
@@ -36,7 +35,7 @@ import javax.ws.rs.core.Response;
 @Path("/field")
 public class DashboardFieldResource extends FieldResource {
 
-
+    private static final Comparator<HasName> byNameComparator = (HasName d1, HasName d2) -> d1.getName().compareToIgnoreCase(d2.getName());
     private static final BreakdownOptionAdapter BREAKDOWN_OPTION_ADAPTER = new BreakdownOptionAdapter();
     private final DeviceConfigurationService deviceConfigurationService;
     private final EngineModelService engineModelService;
@@ -105,52 +104,28 @@ public class DashboardFieldResource extends FieldResource {
     @Path("/devicetypes")
     @Produces("application/json")
     public Object getDeviceTypes() {
-        Map<String, List<IdWithNameInfo>> map = new HashMap<>();
-        List<IdWithNameInfo> infos = new ArrayList<>();
-        map.put("deviceTypes", infos);
-        for (DeviceType deviceType : deviceConfigurationService.findAllDeviceTypes().find()) {
-            infos.add(new IdWithNameInfo(deviceType));
-        }
-        return map;
+        return Response.ok(asInfoMap("deviceTypes", deviceConfigurationService.findAllDeviceTypes().find())).build();
     }
 
     @GET
     @Path("/comportpools")
     @Produces("application/json")
     public Object getComPortPools() {
-        Map<String, List<IdWithNameInfo>> map = new HashMap<>();
-        List<IdWithNameInfo> infos = new ArrayList<>();
-        map.put("comPortPools", infos);
-        for (ComPortPool comPortPool : engineModelService.findAllComPortPools()) {
-            infos.add(new IdWithNameInfo(comPortPool));
-        }
-        return map;
+        return Response.ok(asInfoMap("comPortPools", engineModelService.findAllComPortPools())).build();
     }
 
     @GET
     @Path("/comtasks")
     @Produces("application/json")
     public Object getComTasks() {
-        Map<String, List<IdWithNameInfo>> map = new HashMap<>();
-        List<IdWithNameInfo> infos = new ArrayList<>();
-        map.put("comTasks", infos);
-        for (ComTask comTask : taskService.findAllComTasks()) {
-            infos.add(new IdWithNameInfo(comTask));
-        }
-        return map;
+        return Response.ok(asInfoMap("comTasks", taskService.findAllComTasks())).build();
     }
 
     @GET
     @Path("/comschedules")
     @Produces("application/json")
     public Object getComSchedules() {
-        Map<String, List<IdWithNameInfo>> map = new HashMap<>();
-        List<IdWithNameInfo> infos = new ArrayList<>();
-        map.put("comSchedules", infos);
-        for (ComSchedule comSchedule : schedulingService.findAllSchedules()) {
-            infos.add(new IdWithNameInfo(comSchedule));
-        }
-        return map;
+        return Response.ok(asInfoMap("comSchedules", schedulingService.findAllSchedules())).build();
     }
 
     @GET
@@ -158,13 +133,12 @@ public class DashboardFieldResource extends FieldResource {
     @Produces("application/json")
     @RolesAllowed(Privileges.VIEW_COMSERVER)
     public Object getConnectionTypeValues() {
-        List<IdWithNameInfo> names = new ArrayList<>();
-        for (ConnectionTypePluggableClass connectionTypePluggableClass : protocolPluggableService.findAllConnectionTypePluggableClasses()) {
-            names.add(new IdWithNameInfo(connectionTypePluggableClass.getId(), connectionTypePluggableClass.getName()));
-        }
-        Map<String, List<IdWithNameInfo>> map = new HashMap<>();
-        map.put("connectiontypepluggableclasses", names);
-        return Response.ok(map).build();
+        return Response.ok(asInfoMap("connectiontypepluggableclasses", protocolPluggableService.findAllConnectionTypePluggableClasses())).build();
     }
 
+    private <H extends HasId & HasName> Map<String, List<IdWithNameInfo>> asInfoMap(String name, List<H> list) {
+        Map<String, List<IdWithNameInfo>> map = new HashMap<>();
+        map.put(name, list.stream().sorted(byNameComparator).map(IdWithNameInfo::new).collect(toList()));
+        return map;
+    }
 }
