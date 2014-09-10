@@ -39,8 +39,6 @@ class LatestStatusInfo {
     @XmlJavaTypeAdapter(ConnectionTaskSuccessIndicatorAdapter.class)
     public ConnectionTask.SuccessIndicator id;
     public String displayValue;
-
-
 }
 
 class ConnectionStrategyInfo {
