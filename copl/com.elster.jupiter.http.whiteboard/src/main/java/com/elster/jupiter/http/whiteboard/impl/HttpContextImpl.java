@@ -88,8 +88,10 @@ public class HttpContextImpl implements HttpContext {
         String authentication = request.getHeader("Authorization");
         if (authentication == null) {
             // Not logged in or session expired, so authentication is required
-            if (request.getSession(true).getAttribute("user") == null) {
-                login(request, response);
+        	if (request.getSession(true).getAttribute("user") == null) {
+                if (login(request, response)) {
+                	return false;
+                }
             }
             if (isCachedResource(request.getRequestURL().toString())) {
                 response.setHeader("Cache-Control", "max-age=86400");
@@ -107,14 +109,16 @@ public class HttpContextImpl implements HttpContext {
         return user.isPresent() ? allow(request, response, user.get()) : deny(response);
     }
 
-    private void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private boolean login(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
 
         if (unsecureAllowed(request.getRequestURI())) {
             response.setStatus(HttpServletResponse.SC_ACCEPTED);
+            return false;
         } else {
             response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURI());
+            return true;
         }
     }
 

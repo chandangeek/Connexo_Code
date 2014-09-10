@@ -3,8 +3,6 @@
  */
 package com.elster.jupiter.http.whiteboard;
 
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
