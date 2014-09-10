@@ -1,5 +1,6 @@
 /**
  * @class Uni.util.Hydrator
+ * todo: rename on
  *
  * This is the hydrator which allows you to work with the associations of the Ext.data.model
  */
@@ -56,6 +57,31 @@ Ext.define('Uni.util.Hydrator', {
         return result;
     },
 
+    // todo: replace on normal promises
+    Promise: function(){
+        return {
+            callback: null,
+            callbacks: [],
+            when: function(callbacks) {
+                this.callbacks = callbacks;
+                return this;
+            },
+            then: function (callback) {
+                this.callbacks.length ? this.callback = callback : callback();
+                return this;
+            },
+            resolve: function(fn) {
+                var i = _.indexOf(this.callbacks, fn);
+                this.callbacks.splice(i, 1);
+
+                if (!this.callbacks.length) {
+                    this.callback.call();
+                }
+                return this;
+            }
+        }
+    },
+
     /**
      * Hydrates data to the provided object
      *
@@ -67,38 +93,35 @@ Ext.define('Uni.util.Hydrator', {
             fieldData = _.pick(data, object.fields.keys),
             associationData = _.pick(data, object.associations.keys);
 
+        // set object fields
         _.each(fieldData, function (item, key) {
             object.set(key, item);
         });
 
+        var promise = new this.Promise();
+        var callbacks = [];
+
+        // set object associations
         _.each(associationData, function (item, key) {
             var association = object.associations.get(key);
+            var callback = function() {
+                promise.resolve(callback);
+            };
+            callbacks.push(callback);
             switch (association.type) {
                 case 'hasOne':
-                    if (!object[association.instanceName]) {
-                        object[association.instanceName] = Ext.create(association.model);
-                    }
-                    me.hydrateHasOne(item, object[association.instanceName]);
+                    object.set(association.foreignKey, item);
+                    var getter = association.createGetter();
+                    getter.call(object, callback);
                     break;
                 case 'hasMany':
-                    me.hydrateHasMany(item, object[key]());
+                    me.hydrateHasMany(item, object[key]()).then(callback);
                     break;
             }
         });
 
-        return object;
-    },
-
-    /**
-     * Hydrates array data to the associated model field
-     *
-     * @param data
-     * @param object association object
-     */
-    hydrateHasOne: function (data, object) {
-        object.self.load(data);
-
-        return this;
+        // promise replace here
+        return promise.when(callbacks);
     },
 
     /**
@@ -108,7 +131,6 @@ Ext.define('Uni.util.Hydrator', {
      * @param store selected association
      */
     hydrateHasMany: function (data, store) {
-        var me = this;
         store.removeAll(); //todo: replace on allowClear property
 
         if (!data) {
@@ -119,16 +141,24 @@ Ext.define('Uni.util.Hydrator', {
             data = [data];
         }
 
+        var promise = new this.Promise();
+        var callbacks = [];
+
         _.map(data, function (id) {
-            if (!_.isObject(id)) {
-                var item = {};
-                item[store.model.prototype.idProperty] = id;
-                id = item;
-            }
-            var record = store.model.create(id);
-            store.add(record);
+            var callback = function(record) {
+                if (status) {
+                    store.add(record);
+                }
+                promise.resolve(callback);
+            };
+
+            callbacks.push(callback);
+            store.model.load(id, {
+                callback: callback
+            });
         });
 
-        return this;
+        // promise replace here
+        return promise.when(callbacks);
     }
 });
