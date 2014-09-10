@@ -13,6 +13,10 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,13 +41,17 @@ public class DashboardFieldResource extends FieldResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final EngineModelService engineModelService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final TaskService taskService;
+    private final SchedulingService schedulingService;
 
     @Inject
-    public DashboardFieldResource(NlsService nlsService, DeviceConfigurationService deviceConfigurationService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
+    public DashboardFieldResource(NlsService nlsService, DeviceConfigurationService deviceConfigurationService, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService, TaskService taskService, SchedulingService schedulingService) {
         super(nlsService.getThesaurus(DashboardApplication.COMPONENT_NAME, Layer.REST));
         this.deviceConfigurationService = deviceConfigurationService;
         this.engineModelService = engineModelService;
         this.protocolPluggableService = protocolPluggableService;
+        this.taskService = taskService;
+        this.schedulingService = schedulingService;
     }
 
     @GET
@@ -115,6 +123,32 @@ public class DashboardFieldResource extends FieldResource {
         map.put("comPortPools", infos);
         for (ComPortPool comPortPool : engineModelService.findAllComPortPools()) {
             infos.add(new IdWithNameInfo(comPortPool));
+        }
+        return map;
+    }
+
+    @GET
+    @Path("/comtasks")
+    @Produces("application/json")
+    public Object getComTasks() {
+        Map<String, List<IdWithNameInfo>> map = new HashMap<>();
+        List<IdWithNameInfo> infos = new ArrayList<>();
+        map.put("comTasks", infos);
+        for (ComTask comTask : taskService.findAllComTasks()) {
+            infos.add(new IdWithNameInfo(comTask));
+        }
+        return map;
+    }
+
+    @GET
+    @Path("/comschedules")
+    @Produces("application/json")
+    public Object getComSchedules() {
+        Map<String, List<IdWithNameInfo>> map = new HashMap<>();
+        List<IdWithNameInfo> infos = new ArrayList<>();
+        map.put("comSchedules", infos);
+        for (ComSchedule comSchedule : schedulingService.findAllSchedules()) {
+            infos.add(new IdWithNameInfo(comSchedule));
         }
         return map;
     }
