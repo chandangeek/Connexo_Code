@@ -86,7 +86,7 @@ public class MessageHandlerLauncherServiceTest {
 
     @SuppressWarnings("unchecked")
 	private void initFakeTransactionService() {
-        when(transactionService.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
+        when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return ((Transaction<?>) invocationOnMock.getArguments()[0]).perform();

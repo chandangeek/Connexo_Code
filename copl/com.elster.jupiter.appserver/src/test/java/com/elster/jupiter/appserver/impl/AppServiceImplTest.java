@@ -121,7 +121,7 @@ public class AppServiceImplTest {
 	@Before
     public void setUp() throws SQLException {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
+        when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.mapper(AppServer.class)).thenReturn(appServerFactory);
         when(dataModel.mapper(ImportScheduleOnAppServer.class)).thenReturn(importScheduleOnAppServerFactory);
         when(dataModel.isInstalled()).thenReturn(true);
@@ -156,7 +156,7 @@ public class AppServiceImplTest {
 
     @SuppressWarnings("unchecked")
 	private void setupFakeTransactionService() {
-        when(transactionService.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
+        when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return ((Transaction<?>) invocationOnMock.getArguments()[0]).perform();
