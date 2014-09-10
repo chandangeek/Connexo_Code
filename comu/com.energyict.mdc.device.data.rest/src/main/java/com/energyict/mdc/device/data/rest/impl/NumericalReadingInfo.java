@@ -40,6 +40,11 @@ public class NumericalReadingInfo extends ReadingInfo<NumericalReading, Numerica
         super(reading);
         this.value = reading.getQuantity().getValue();
         this.rawValue = reading.getQuantity().getValue();
+        if (this.value != null){
+            int numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
+            this.value = this.value.setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
+            this.rawValue = this.value;
+        }
         this.unitOfMeasure = registerSpec.getUnit();
         this.multiplier = registerSpec.getMultiplier();
 

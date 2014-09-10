@@ -35,12 +35,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -101,6 +96,7 @@ import static org.mockito.Mockito.when;
 public class DeviceResourceTest extends JerseyTest {
 
     private static final String DUMMY_THESAURUS_STRING = "";
+    public static final Date NOW = new Date(1409738114);
     private static DeviceDataService deviceDataService;
     private static DeviceImportService deviceImportService;
     private static DeviceConfigurationService deviceConfigurationService;
@@ -134,7 +130,7 @@ public class DeviceResourceTest extends JerseyTest {
         super.setUp();
         reset(deviceImportService, engineModelService);
         when(thesaurus.getString(anyString(), anyString())).thenReturn(DUMMY_THESAURUS_STRING);
-        when(clock.now()).thenReturn(new Date());
+        when(clock.now()).thenReturn(NOW);
         NlsMessageFormat mft = mock(NlsMessageFormat.class);
         when(mft.format(any(Object[].class))).thenReturn("format");
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(mft);
@@ -529,7 +525,7 @@ public class DeviceResourceTest extends JerseyTest {
 
         Map<String, Object> response = target("/devices/mrid1/loadprofiles/1").request().get(Map.class);
         assertThat(response)
-                .hasSize(6)
+                .hasSize(8)
                 .contains(MapEntry.entry("id", 1))
                 .contains(MapEntry.entry("name", "lp1"))
                 .contains(MapEntry.entry("lastReading", 1406617200000L))
@@ -569,6 +565,12 @@ public class DeviceResourceTest extends JerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES), channel1, channel2);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
         when(deviceDataService.findByUniqueMrid("mrid2")).thenReturn(device1);
+        when(channel1.getDevice()).thenReturn(device1);
+        when(channel2.getDevice()).thenReturn(device1);
+        DeviceValidation deviceValidation = mock(DeviceValidation.class);
+        when(device1.forValidation()).thenReturn(deviceValidation);
+        when(deviceValidation.isValidationActive(channel1, NOW)).thenReturn(true);
+        when(deviceValidation.isValidationActive(channel2, NOW)).thenReturn(true);
         List<LoadProfileReading> loadProfileReadings = new ArrayList<>();
         final long startTime = 1388534400000L;
         long start = startTime;
