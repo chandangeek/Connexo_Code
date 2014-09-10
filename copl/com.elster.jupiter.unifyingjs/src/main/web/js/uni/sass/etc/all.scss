@@ -345,17 +345,40 @@
     background-image: url($resourcesDir + 'images/fader.png');
     border: 1px solid grey;
 }
+
 .uni-info-icon {
     float: right;
 }
 
 .icon-info-small {
     float: right;
-    background-image: url('/apps/ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png');
+    background-image: url($resourcesDir + 'images/icon-info-small.png');
 }
 
 .x-grid-row-selected, .x-grid-row-over {
-  .icon-info-small {
-    background-image: url('/apps/ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small-white.png');
-  }
+    .icon-info-small {
+        background-image: url($resourcesDir + 'images/icon-info-small-white.png');
+    }
+}
+
+// Other
+
+.validation-column-align {
+    vertical-align: middle;
+}
+
+.icon-validation {
+    background-size: 100% 100%;
+    display: inline-block;
+    height: 13px;
+    width: 13px;
+    vertical-align: middle;
+}
+
+.icon-validation-black {
+    background-image: url($resourcesDir + 'images/Not-validated.png');
+}
+
+.icon-validation-red {
+    background-image: url($resourcesDir + 'images/Suspect.png');
 }
