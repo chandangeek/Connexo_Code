@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.google.common.collect.ImmutableMap;
+import org.joda.time.DateMidnight;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -84,6 +85,7 @@ public class LoadProfileResource {
 
     private void addValidationInfo(LoadProfile loadProfile, LoadProfileInfo loadProfileInfo) {
         loadProfileInfo.validationActive = true;
+        loadProfileInfo.lastChecked = new DateMidnight().getMillis();
         loadProfileInfo.validationInfo = new DetailedValidationInfo();
         ValidationRuleInfo validationRuleInfo = new ValidationRuleInfo();
         validationRuleInfo.displayName = "rule1";
