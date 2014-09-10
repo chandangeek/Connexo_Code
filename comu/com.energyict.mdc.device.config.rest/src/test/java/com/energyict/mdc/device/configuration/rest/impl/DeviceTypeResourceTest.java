@@ -60,6 +60,7 @@ import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.base.Optional;
+
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -68,10 +69,12 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
+
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientResponse;
@@ -85,6 +88,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -1295,7 +1299,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     private ConnectionTask<?,?> mockConnectionTask(long partialConnectionTaskId) {
         ConnectionTask<?,?> mock = mock(ConnectionTask.class);
         PartialInboundConnectionTask partialInboundConnectionTask = mockPartialConnectionTask(partialConnectionTaskId);
-        when(mock.getPartialConnectionTask()).thenReturn(partialInboundConnectionTask);
+        Mockito.<PartialConnectionTask>when(mock.getPartialConnectionTask()).thenReturn(partialInboundConnectionTask);
         return mock;
     }
 
