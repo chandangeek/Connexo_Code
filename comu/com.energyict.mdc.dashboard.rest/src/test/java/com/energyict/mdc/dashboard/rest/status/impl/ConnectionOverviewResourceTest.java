@@ -7,6 +7,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
@@ -69,6 +70,7 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
     private DashboardService dashboardService;
     @Mock
     private DeviceDataService deviceDataService;
+    private TransactionService transactionService;
 
     @Before
     public void setupMocks () {
@@ -124,6 +126,7 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
 
     @Override
     protected Application configure() {
+        transactionService = new FakeTransactionService();
         MockitoAnnotations.initMocks(this);
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
@@ -137,6 +140,7 @@ public class ConnectionOverviewResourceTest extends JerseyTest {
             @Override
             protected void configure() {
                 bind(statusService).to(StatusService.class);
+                bind(transactionService).to(TransactionService.class);
                 bind(nlsService).to(NlsService.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(dashboardService).to(DashboardService.class);
