@@ -105,7 +105,7 @@ public class SubQueryTest {
         	organization.assumeRole(role,new Date());
         	context.commit();
         }
-        Subquery subquery = dataModel.query(PartyInRole.class, Party.class).asSubquery(Where.where("party.aliasName").isEqualTo("Melrose Place"),"role");
+        Subquery subquery = dataModel.query(Party.class,PartyInRole.class).asSubquery(Where.where("aliasName").isEqualTo("Melrose Place"),"partyInRoles.role");
         QueryExecutor<PartyRole> query = dataModel.query(PartyRole.class);
         assertThat(query.select(ListOperator.IN.contains(subquery, "mRID"))).hasSize(1);
     }

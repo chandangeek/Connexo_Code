@@ -122,7 +122,8 @@ public class DataModelTest {
         	PartyRole role = partyService.getPartyRoles().get(0);
         	organization.assumeRole(role,new Date());
         	Condition condition = Where.where("party.description").isEqualTo(organization.getDescription());
-        	assertThat(dataModel.query(PartyInRole.class, Party.class).select(condition)).hasSize(1);
+        	assertThat(dataModel.query(PartyInRole.class, Party.class).select(condition,Order.ascending("party"))).hasSize(1);
+        	assertThat(dataModel.mapper(Party.class).find("description", organization.getDescription(),Order.descending("description"))).hasSize(1);
         	User user = injector.getInstance(UserService.class).findUser("admin").get();
         	Date start = new Date();
         	PartyRepresentation representation = organization.appointDelegate(user, start);
