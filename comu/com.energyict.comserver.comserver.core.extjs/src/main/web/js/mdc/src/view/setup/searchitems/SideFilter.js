@@ -41,9 +41,6 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                     xtype: 'combobox',
                     name: 'type',
                     itemId: 'type',
-                    store: new Mdc.store.DeviceTypes({
-                        storeId: 'DeviceTypesCbSearch'
-                    }),
                     fieldLabel: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
                     displayField: 'name',
                     valueField: 'id',
@@ -128,6 +125,19 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
             ]
         }
     ],
+
+    initComponent: function () {
+        this.callParent(arguments);
+
+        var combo = this.down('filter-form #type'),
+            store = Ext.create('Mdc.store.DeviceTypes', {storeId: 'DeviceTypesCbSearch'});
+
+        if (combo.rendered) {
+            combo.setStore(store);
+        } else {
+            combo.store = store;
+        }
+    },
 
     clearComboConfiguration: function (cmbConfig) {
         cmbConfig.setValue('');
