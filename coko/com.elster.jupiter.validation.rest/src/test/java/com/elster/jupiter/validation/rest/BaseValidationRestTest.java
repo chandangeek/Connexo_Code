@@ -62,7 +62,7 @@ public class BaseValidationRestTest extends JerseyTest {
         
         serviceLocator.activate();
         
-        when(transactionService.execute(Matchers.any(Transaction.class))).thenAnswer(new Answer() {
+        when(transactionService.execute(Matchers.any())).thenAnswer(new Answer() {
             
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
