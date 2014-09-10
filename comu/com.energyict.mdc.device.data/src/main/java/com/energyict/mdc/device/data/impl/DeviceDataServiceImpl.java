@@ -470,7 +470,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     private Map<TaskStatus, Long> fetchTaskStatusCounters(ClauseAwareSqlBuilder builder) {
         Map<TaskStatus, Long> counters = new HashMap<>();
-        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(false))) {
+        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             this.fetchTaskStatusCounters(stmnt, counters);
         }
         catch (SQLException ex) {
@@ -1483,7 +1483,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         sqlBuilder.append(" group by connectiontask) and cs.successindicator = 0 and exists (select * from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
         sqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0)");
-        try (PreparedStatement stmnt = sqlBuilder.prepare(this.dataModel.getConnection(false))) {
+        try (PreparedStatement stmnt = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
             try (ResultSet resultSet = stmnt.executeQuery()) {
                 while (resultSet.next()) {
                     return resultSet.getLong(1);
@@ -1512,7 +1512,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     private Map<ComSession.SuccessIndicator, Long> fetchSuccessIndicatorCounters(SqlBuilder builder) {
         Map<ComSession.SuccessIndicator, Long> counters = new HashMap<>();
-        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(false))) {
+        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             this.fetchSuccessIndicatorCounters(stmnt, counters);
         }
         catch (SQLException ex) {
@@ -1637,7 +1637,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(SqlBuilder builder) {
-        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(false))) {
+        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             return this.fetchComTaskHeatMapCounters(stmnt);
         }
         catch (SQLException ex) {
@@ -1817,7 +1817,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchConnectionTypeHeatMapCounters(SqlBuilder builder) {
-        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(false))) {
+        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             return this.fetchConnectionTypeHeatMapCounters(stmnt);
         }
         catch (SQLException ex) {
@@ -1861,7 +1861,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     private Map<CompletionCode, Long> fetchCompletionCodeCounters(SqlBuilder builder) {
         Map<CompletionCode, Long> counters = new HashMap<>();
-        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(false))) {
+        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
             this.fetchCompletionCodeCounters(stmnt, counters);
         }
         catch (SQLException ex) {
