@@ -6,31 +6,11 @@ Ext.define('MdcApp.controller.Main', {
 
     applicationTitle: 'Connexo Multi Sense',
 
-    packages: [
-        {
-            name: 'Cfg',
-            controller: 'Cfg.controller.Main',
-            path: '../../apps/cfg/src'
-        },
-        {
-            name: 'Mdc',
-            controller: 'Mdc.controller.Main',
-            path: '../../apps/mdc/src'
-        },
-        {
-            name: 'Isu',
-            controller: 'Isu.controller.Main',
-            path: '../../apps/issue/src'
-        },
-        {
-            name: 'Dvi',
-            controller: 'Dvi.controller.Main',
-            path: '../../apps/dvi/src'
-        },
-        {
-            name: 'Dsh',
-            controller: 'Dsh.controller.Main',
-            path: '../../apps/dashboard/src'
-        }
+    controllers: [
+        'Cfg.controller.Main',
+        'Mdc.controller.Main',
+        'Isu.controller.Main',
+        'Dvi.controller.Main',
+        'Dsh.controller.Main'
     ]
 });
