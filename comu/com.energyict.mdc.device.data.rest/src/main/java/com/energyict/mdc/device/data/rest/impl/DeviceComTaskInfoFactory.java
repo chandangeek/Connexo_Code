@@ -38,7 +38,7 @@ public class DeviceComTaskInfoFactory {
                 compatibleComTaskExecutions.add(comTaskExecution);
             }
         }
-        if(compatibleComTaskExecutions.size()>0){
+        if (!compatibleComTaskExecutions.isEmpty()) {
             return this.fromCompatibleComTaskExecutions(comTaskEnablement, compatibleComTaskExecutions);
         } else {
             return this.from(comTaskEnablement);
@@ -99,7 +99,6 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.status = thesaurus.getString(taskStatusAdapter.marshal(comTaskExecution.getStatus()),taskStatusAdapter.marshal(comTaskExecution.getStatus()));
         if (comTaskExecution.useDefaultConnectionTask()) {
             deviceComTasksInfo.connectionMethod = thesaurus.getString("default", "Default");
-            ScheduledConnectionTask connectionTask = ((ScheduledComTaskExecution) comTaskExecution).getConnectionTask();
             setConnectionStrategy(deviceComTasksInfo,comTaskExecution);
         }
         else {
