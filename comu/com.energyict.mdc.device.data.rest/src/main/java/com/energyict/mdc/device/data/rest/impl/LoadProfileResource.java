@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -82,18 +83,15 @@ public class LoadProfileResource {
     }
 
     private void addValidationInfo(LoadProfile loadProfile, LoadProfileInfo loadProfileInfo) {
-//        for (Channel channel : loadProfile.getChannels()) {
-//
-//        }
         loadProfileInfo.validationActive = true;
-        loadProfileInfo.validationInfo = new ValidationInfo();
+        loadProfileInfo.validationInfo = new DetailedValidationInfo();
         ValidationRuleInfo validationRuleInfo = new ValidationRuleInfo();
         validationRuleInfo.displayName = "rule1";
         PropertyValueInfo<String> stringPropertyValueInfo = new PropertyValueInfo<>("Value", "default");
         PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
         PropertyInfo propKey = new PropertyInfo("propKey", stringPropertyValueInfo, propertyTypeInfo, true);
         validationRuleInfo.properties = Arrays.asList(propKey);
-        loadProfileInfo.validationInfo.validationRules = Arrays.asList(validationRuleInfo);
+        loadProfileInfo.validationInfo.validationRules = ImmutableMap.of(validationRuleInfo, 5);
         loadProfileInfo.validationInfo.dataValidated = true;
         loadProfileInfo.validationInfo.validationResult = ValidationStatus.SUSPECT;
     }
