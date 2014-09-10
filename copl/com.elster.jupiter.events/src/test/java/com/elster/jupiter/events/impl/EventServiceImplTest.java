@@ -67,7 +67,7 @@ public class EventServiceImplTest {
     public void setUp() {
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.addTable(anyString(),any(Class.class))).thenReturn(table);
+        when(dataModel.addTable(anyString(),any())).thenReturn(table);
         when(eventTypeFactory.getOptional(TOPIC)).thenReturn(Optional.<EventType>of(eventType));
         when(eventType.create("")).thenReturn(localEvent);
         when(eventType.shouldPublish()).thenReturn(false);
