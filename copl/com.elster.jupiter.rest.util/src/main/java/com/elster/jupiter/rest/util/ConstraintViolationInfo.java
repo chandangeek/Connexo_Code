@@ -5,14 +5,13 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.JsonMappingException;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
