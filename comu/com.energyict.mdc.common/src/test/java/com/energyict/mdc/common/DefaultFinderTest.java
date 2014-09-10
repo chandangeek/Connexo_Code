@@ -77,7 +77,7 @@ public class DefaultFinderTest extends JerseyTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        when(dataModel.query(Matchers.any(Class.class))).thenReturn(query);
+        when(dataModel.query(Matchers.any())).thenReturn(query);
         when(query.select(Matchers.any(Condition.class), Matchers.any(Order[].class), anyBoolean(), Matchers.any(String[].class), anyInt(), anyInt())).thenReturn(Collections.emptyList());
     }
 
