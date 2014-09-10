@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.configuration.rest.impl.DeviceConfigurationApplication;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
@@ -67,7 +66,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return DeviceConfigurationApplication.COMPONENT_NAME;
+        return DeviceApplication.COMPONENT_NAME;
     }
 
     @Override

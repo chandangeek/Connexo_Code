@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -170,6 +171,7 @@ public class DeviceResourceTest extends JerseyTest {
                 bind(schedulingService).to(SchedulingService.class);
                 bind(validationService).to(ValidationService.class);
                 bind(ChannelResource.class).to(ChannelResource.class);
+                bind(Clock.class).to(Clock.class);
             }
         });
         return resourceConfig;
