@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
         ptype: 'bufferedrenderer'
     },
 
+
     channelRecord: null,
 
     initComponent: function () {
@@ -37,15 +38,31 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
         // 1 means cumulative
         if (accumulationBehavior && accumulationBehavior == 1) {
             me.columns.push({
-                header: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
+                header: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
                 dataIndex: 'value',
-                align: 'right',
+
                 renderer: function (value, metaData, record) {
-                    return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
+                    var toDisplay = value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
+                    switch (record.get('validationResult')) {
+                        case 'validationStatus.notValidated':
+                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>' + ' '
+                                + toDisplay + '</span>';
+                            break;
+                        case 'validationStatus.ok':
+                            return toDisplay;
+                            break;
+                        case 'validationStatus.suspect':
+                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>' + '  '
+                                + toDisplay + '</span>';
+                            break;
+                        default:
+                            return toDisplay;
+                            break;
+                    }
                 },
                 flex: 1
             }, {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.delta', 'MDC', 'Delta'),
+                header: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
                 dataIndex: 'delta',
                 align: 'right',
                 renderer: function (value, metaData, record) {
@@ -58,8 +75,25 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                 header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
                 dataIndex: 'value',
                 align: 'right',
+                //todo: refactor component ValidationFlag so we can use it here for rendering the flag
                 renderer: function (value, metaData, record) {
-                    return value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
+                    var toDisplay = value ? Uni.I18n.formatNumber(value, 'MDC', 3) + ' ' + measurementType : '';
+                    switch (record.get('validationResult')) {
+                        case 'validationStatus.notValidated':
+                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-black"></span>' + ' '
+                                + toDisplay + '</span>';
+                            break;
+                        case 'validationStatus.ok':
+                            return toDisplay;
+                            break;
+                        case 'validationStatus.suspect':
+                            return '<span class="validation-column-align"><span class="icon-validation icon-validation-red"></span>' + '  '
+                                + toDisplay + '</span>';
+                            break;
+                        default:
+                            return toDisplay;
+                            break;
+                    }
                 },
                 flex: 1
             });
