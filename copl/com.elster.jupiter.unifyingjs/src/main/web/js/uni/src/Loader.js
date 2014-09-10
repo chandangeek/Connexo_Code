@@ -54,17 +54,47 @@ Ext.define('Uni.Loader', {
         Uni.I18n.init(components);
     },
 
+    // <debug>
+    /**
+     * Used during development to load in paths for packages.
+     *
+     * @example
+     *     [
+     *         {
+     *             name: 'Cfg',
+     *             controller: 'Cfg.controller.Main',
+     *             path: '../../apps/cfg/app'
+     *         },
+     *         {
+     *             name: 'Mdc',
+     *             controller: 'Mdc.controller.Main',
+     *             path: '../../apps/mdc/app'
+     *         }
+     *     ]
+     *
+     * @param {Object[]} packages Packages to initialize
+     */
+    initPackages: function (packages) {
+        for (var i = 0; i < packages.length; i++) {
+            var pkg = packages[i];
+            Ext.Loader.setPath(pkg.name, pkg.path);
+        }
+    },
+    // </debug>
+
     onReady: function (callback) {
         var me = this;
 
-        this.loadFont();
-        this.loadTooltips();
-        this.loadStateManager();
-        this.loadStores();
-        this.loadVtypes();
+        me.loadFont();
+        me.loadTooltips();
+        me.loadStateManager();
+        me.loadStores();
+        me.loadVtypes();
 
-        this.loadScripts(function () {
-            me.afterLoadingScripts(callback);
+        Uni.Auth.load(function () {
+            Uni.I18n.load(function () {
+                callback();
+            });
         });
     },
 
@@ -112,34 +142,6 @@ Ext.define('Uni.Loader', {
         }
 
         document.getElementsByTagName('head')[0].appendChild(script);
-    },
-
-    /**
-     * Loads the required scripts asynchronously and calls the callback when all scripts have finished loading.
-     *
-     * @param {Function} callback Callback to call after all scripts have finished loading
-     */
-    loadScripts: function (callback) {
-        // TODO Fix temporary workaround for not being able to load scripts dynamically.
-        var production = true;
-
-        // <debug>
-        production = false;
-        this.loadScript('../uni/resources/js/underscore/underscore-min.js', callback);
-        this.loadScript('../uni/resources/js/moment/min/moment.min.js', callback);
-        // </debug>
-
-        if (production) {
-            callback();
-        }
-    },
-
-    afterLoadingScripts: function (callback) {
-        Uni.Auth.load(function () {
-            Uni.I18n.load(function () {
-                callback();
-            });
-        });
     },
 
     loadStyleSheet: function (href) {

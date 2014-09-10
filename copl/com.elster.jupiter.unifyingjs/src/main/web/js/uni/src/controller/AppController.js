@@ -29,24 +29,16 @@ Ext.define('Uni.controller.AppController', {
      */
     applicationTitle: 'Connexo',
 
+    // <debug>
     /**
      * @cfg {Object[]} packages
      *
      * The packages that need to be loaded in by the application.
      *
-     * @example
-     *     {
-     *         name: 'Cfg',
-     *         controller: 'Cfg.controller.Main',
-     *         path: '../../apps/cfg/app'
-     *     },
-     *     {
-     *         name: 'Mdc',
-     *         controller: 'Mdc.controller.Main',
-     *         path: '../../apps/mdc/app'
-     *     }
+
      */
     packages: [],
+    // </debug>
 
     init: function () {
         var me = this;
@@ -56,7 +48,7 @@ Ext.define('Uni.controller.AppController', {
         me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
         me.getApplication().on('changecontentevent', me.showContent, me);
 
-        me.loadDependencies();
+        me.loadControllers();
         me.callParent(arguments);
     },
 
@@ -87,21 +79,14 @@ Ext.define('Uni.controller.AppController', {
         this.getContentPanel().doComponentLayout();
     },
 
-    loadDependencies: function () {
-        for (var i = 0; i < this.packages.length; i++) {
-            var pkg = this.packages[i],
-                controller = pkg.controller;
+    loadControllers: function () {
+        for (var i = 0; i < this.controllers.length; i++) {
+            var controller = this.controllers[i];
 
-            // <debug>
-            Ext.Loader.setPath(pkg.name, pkg.path);
-            // </debug>
-
-            if (typeof controller !== 'undefined' && !Ext.isEmpty(controller)) {
-                try {
-                    this.getController(controller);
-                } catch (ex) {
-                    console.log('Could not load the \'' + pkg.name + '\' bundle.');
-                }
+            try {
+                this.getController(controller);
+            } catch (ex) {
+                console.log('Could not load the \'' + controller + '\' controller.');
             }
         }
     }
