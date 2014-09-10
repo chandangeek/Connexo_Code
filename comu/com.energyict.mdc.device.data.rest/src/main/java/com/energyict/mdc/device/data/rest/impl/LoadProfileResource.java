@@ -84,7 +84,10 @@ public class LoadProfileResource {
     }
 
     private void addValidationInfo(LoadProfile loadProfile, LoadProfileInfo loadProfileInfo) {
-        loadProfileInfo.validationActive = true;
+
+        loadProfileInfo.validationActive = loadProfile.getChannels().stream()
+                .anyMatch(c -> c.getDevice().forValidation().isValidationActive(c, clock.now()));
+
         loadProfileInfo.lastChecked = new DateMidnight().getMillis();
         loadProfileInfo.validationInfo = new DetailedValidationInfo();
         ValidationRuleInfo validationRuleInfo = new ValidationRuleInfo();
