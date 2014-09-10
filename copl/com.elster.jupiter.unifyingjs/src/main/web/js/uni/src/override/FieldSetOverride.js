@@ -12,7 +12,7 @@ Ext.define('Uni.override.FieldSetOverride', {
 
     getValues: function () {
         var values = this.form.getValues();
-        _.each(this.items.items, function (item) {
+        this.items.each(function (item) {
             if (_.isFunction(item.getValues)) {
                 _.isEmpty(item.name) ? Ext.merge(values, item.getValues()) : values[item.name] = item.getValues();
             }
@@ -22,7 +22,7 @@ Ext.define('Uni.override.FieldSetOverride', {
 
     setValues: function (data) {
         this.form.setValues(data);
-        _.each(this.items.items, function (item) {
+        this.items.each(function (item) {
             if (_.isFunction(item.setValues)) {
                 _.isEmpty(item.name) ? item.setValues(data) : item.setValues(data[item.name]);
             }

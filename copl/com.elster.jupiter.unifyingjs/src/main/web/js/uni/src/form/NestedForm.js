@@ -12,7 +12,7 @@ Ext.define('Uni.form.NestedForm', {
 
     getValues: function () {
         var values = this.callParent();
-        _.each(this.items.items, function (item) {
+        this.items.each(function (item) {
             if (_.isFunction(item.getValues)) values[item.name] = item.getValues();
         });
         return values;
@@ -20,7 +20,7 @@ Ext.define('Uni.form.NestedForm', {
 
     loadRecord: function (record) {
         this.callParent(arguments);
-        _.each(this.items.items, function (item) {
+        this.items.each(function (item) {
             if (!_.isEmpty(item.name) && _.has(record.getData(), item.name)) {
                 if (_.isFunction(item.setValues) && _.isObject(record.getData()[item.name])) {
                     item.setValues(record.getData()[item.name]);
