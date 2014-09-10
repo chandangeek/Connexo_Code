@@ -154,7 +154,7 @@ public class ConnectionTaskHeatMapResourceTest extends JerseyTest {
             DeviceType deviceType = mock(DeviceType.class);
             when(deviceType.getName()).thenReturn(name);
             when(deviceType.getId()).thenReturn(id++);
-            rows.add(new ConnectionTaskHeatMapRowImpl<>(deviceType, counters));
+            rows.add(new ConnectionTaskHeatMapRowImpl(deviceType, counters));
         }
         when(heatMap.iterator()).thenReturn(rows.iterator());
         return heatMap;

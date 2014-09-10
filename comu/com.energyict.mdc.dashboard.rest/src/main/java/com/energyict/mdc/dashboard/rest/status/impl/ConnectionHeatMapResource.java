@@ -40,7 +40,7 @@ public class ConnectionHeatMapResource {
     @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ConnectionHeatMapInfo getConnectionHeatMap(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
         if (!jsonQueryFilter.getFilterProperties().containsKey("breakdown")) {
-            throw new WebApplicationException("Missing breakdown", Response.Status.NOT_FOUND);
+            throw new WebApplicationException("Missing breakdown", Response.Status.BAD_REQUEST);
         }
         HeatMapBreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
 
@@ -52,7 +52,7 @@ public class ConnectionHeatMapResource {
             case comPortPools:
                 return new ConnectionHeatMapInfo(dashboardService.getConnectionsComPortPoolHeatMap(),breakdown,thesaurus);
             default:
-                throw new WebApplicationException("Invalid breakdown: "+breakdown, Response.Status.NOT_FOUND);
+                throw new WebApplicationException("Invalid breakdown: "+breakdown, Response.Status.BAD_REQUEST);
 
         }
 
