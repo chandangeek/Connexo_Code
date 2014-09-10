@@ -82,9 +82,9 @@ public class TaskServiceImplTest {
     public void setUp() throws SQLException {
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
-        when(dataModel.mapper(any(Class.class))).thenReturn(recurrentTaskFactory);
-        when(transactionService.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
+        when(dataModel.addTable(anyString(), any())).thenReturn(table);
+        when(dataModel.<RecurrentTask>mapper(any())).thenReturn(recurrentTaskFactory);
+        when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return ((Transaction<?>) invocationOnMock.getArguments()[0]).perform();
