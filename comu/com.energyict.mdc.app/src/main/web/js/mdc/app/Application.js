@@ -2,7 +2,7 @@ Ext.define('MdcApp.Application', {
     extend: 'Ext.app.Application',
 
     controllers: [
-        'Main'
+        'MdcApp.controller.Main'
     ],
 
     launch: function () {

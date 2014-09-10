@@ -1,8 +1,13 @@
 {
-    "name": "MdcApp",
+    "name": "com.energyict.mdc.app",
 
     "requires": [
-        "UnifyingJS"
+        "com.elster.jupiter.unifyingjs",
+        "com.elster.jupiter.config.extjs",
+        "com.elster.jupiter.issue.extjs",
+        "com.energyict.comserver.comserver.core.extjs",
+        "com.energyict.mdc.dashboard.extjs",
+        "com.energyict.mdc.device.data.imp.extjs"
     ],
 
     "id": "28c552c9-436e-4d93-8f74-038373138820"
