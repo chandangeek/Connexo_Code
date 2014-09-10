@@ -155,11 +155,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         xtype: 'timeInfoField',
                                         name: 'rescheduleRetryDelay',
                                         itemId: 'rescheduleRetryDelay',
-                                        required: true,
-                                        value: {
-                                            count: 5,
-                                            timeUnit: 'minutes'
-                                        }
+                                        required: true
                                     }
                                 ]
                             },
