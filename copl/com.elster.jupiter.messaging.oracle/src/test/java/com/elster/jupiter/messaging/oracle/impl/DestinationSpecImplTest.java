@@ -88,7 +88,7 @@ public class DestinationSpecImplTest {
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(queueTableSpec.getName()).thenReturn(QUEUE_TABLE_NAME);
         when(queueTableSpec.isMultiConsumer()).thenReturn(true);
-        when(connection.unwrap(any(Class.class))).thenReturn(connection);
+        when(connection.unwrap(any())).thenReturn(connection);
         when(connection.isWrapperFor(any(Class.class))).thenReturn(true);
         when(subscriber.getName()).thenReturn(SUBSCRIBER);
         when(dataModel.getConnection(false)).thenReturn(connection);

@@ -132,7 +132,7 @@ public class SubscriberSpecImplConcurrencyTest {
     private void mockConnectionBlockingOnEmptyQueue(OracleConnection connection) throws SQLException {
         final CountDownLatch canceled = new CountDownLatch(1);
 
-        when(connection.unwrap(any(Class.class))).thenReturn(connection);
+        when(connection.unwrap(any())).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(connection.dequeue(eq(DESTINATION), any(AQDequeueOptions.class), eq(PAYLOAD_TYPE))).thenAnswer(new Answer<Object>() {
             @Override

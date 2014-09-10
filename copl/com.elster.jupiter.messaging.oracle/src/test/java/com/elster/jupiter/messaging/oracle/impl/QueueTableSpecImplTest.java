@@ -68,7 +68,7 @@ public class QueueTableSpecImplTest {
         queueTableSpec = QueueTableSpecImpl.from(dataModel, NAME, PAYLOAD_TYPE, MULTI_CONSUMER);
         when(aqFacade.createQueueConnection(connection)).thenReturn(queueConnection);
         when(queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE)).thenReturn(aqJmsSession);
-        when(connection.unwrap(any(Class.class))).thenReturn(connection);
+        when(connection.unwrap(any())).thenReturn(connection);
         when(connection.isWrapperFor(OracleConnection.class)).thenReturn(true);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);

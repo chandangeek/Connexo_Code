@@ -72,7 +72,7 @@ public class MessageServiceImplTest {
         when(dataModel.mapper(QueueTableSpec.class)).thenReturn(queueTableSpecFactory);
         when(dataModel.mapper(DestinationSpec.class)).thenReturn(destinationSpecFactory);
         when(dataModel.mapper(SubscriberSpec.class)).thenReturn(subscriberSpecFactory);
-        when(dataModel.addTable(anyString(),any(Class.class))).thenReturn(table);
+        when(dataModel.addTable(anyString(),any())).thenReturn(table);
         when(dataModel.getConnection(anyBoolean())).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, null, thesaurus));

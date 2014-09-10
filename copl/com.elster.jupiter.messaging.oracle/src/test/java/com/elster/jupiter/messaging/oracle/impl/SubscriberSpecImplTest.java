@@ -55,7 +55,7 @@ public class SubscriberSpecImplTest {
         when(destination.getName()).thenReturn(DESTINATION);
         when(destination.getPayloadType()).thenReturn(PAYLOAD_TYPE);
         when(message.getPayload()).thenReturn(PAYLOAD_BYTES);
-        when(connection.unwrap(any(Class.class))).thenReturn(connection);
+        when(connection.unwrap(any())).thenReturn(connection);
         when(destination.isTopic()).thenReturn(true);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(dataModel.getInstance(SubscriberSpecImpl.class)).thenReturn(new SubscriberSpecImpl(dataModel));

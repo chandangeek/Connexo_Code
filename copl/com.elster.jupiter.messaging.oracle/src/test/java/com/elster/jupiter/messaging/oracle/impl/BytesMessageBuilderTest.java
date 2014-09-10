@@ -47,7 +47,7 @@ public class BytesMessageBuilderTest {
     @Before
     public void setUp() throws SQLException {
         when(aqFacade.create(any(AQMessageProperties.class))).thenReturn(aqMessage);
-        when(connection.unwrap(any(Class.class))).thenReturn(connection);
+        when(connection.unwrap(any())).thenReturn(connection);
         when(destination.getName()).thenReturn(DESTINATION_NAME);
         when(aqFacade.createAQMessageProperties()).thenReturn(aqMessageProperties);
         when(dataModel.getConnection(false)).thenReturn(connection);
