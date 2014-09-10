@@ -113,10 +113,14 @@ Ext.define('Isu.model.ExtraParams', {
             me.set('filter', filterModel);
             callback && callback(me, me.clearEmptyData(data));
         } else {
-            hydrator.hydrate(filterValues, filterModel);
-            me.set('filter', filterModel);
-            Ext.merge(data, filterModel.getPlainData());
-            callback && callback(me, me.clearEmptyData(data));
+            var promise = hydrator.hydrate(filterValues, filterModel);
+
+            promise.then(function() {
+                debugger;
+                me.set('filter', filterModel);
+                Ext.merge(data, filterModel.getPlainData());
+                callback && callback(me, me.clearEmptyData(data));
+            });
         }
     },
 
