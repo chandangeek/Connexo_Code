@@ -24,6 +24,9 @@ KV|10102006|fix to support 64 bit values in load profile
 package com.energyict.protocolimpl.dlms;
 
 
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSObis;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DataContainer;
@@ -57,6 +60,7 @@ import com.energyict.protocolimpl.dlms.siemenszmd.EventNumber;
 import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -65,6 +69,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 @Deprecated /** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD) instead. **/
 public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol {
@@ -216,7 +221,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
             // status & EV_START_OF_INTERVAL is true
             // SVA Update: profile entries where status & EV_LOAD_PROFILE_CLEARED is true can also be left out.
 
-            if (((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0) && ((intervalList[i].getField(IL_EVENT) & EV_LOAD_PROFILE_CLEARED) == 0)) {
+            if (((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0) || ((intervalList[i].getField(IL_EVENT) & EV_LOAD_PROFILE_CLEARED) == 0)) {
 
                 // In case the EV_NORMAL_END_OF_INTERVAL bit is not set, calendar is possibly
                 // not aligned to interval boundary caused by an event
@@ -293,6 +298,8 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
 
         } // for (i=0;i<intervalList.length;i++) {
 
+        // In case of double intervals (which can occur if a time shift has been done) then merge them together
+        profileData.setIntervalDatas(ProtocolTools.mergeDuplicateIntervalsIncludingIntervalStatus(profileData.getIntervalDatas()));
     } // ProfileData buildProfileData(...)
 
     // KV 15122003
@@ -419,7 +426,16 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         try {
 			ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory(), getMeterConfig(), this);
 			return ocm.getRegisterValue(obisCode);
+        } catch (NestedIOException e) {
+            if (ProtocolTools.getRootCause(e) instanceof ConnectionException || ProtocolTools.getRootCause(e) instanceof DLMSConnectionException) {
+                throw e;    // In case of a connection exception (of which we cannot recover), do throw the error.
+            }
+            String msg = "Problems while reading register " + obisCode.toString() + ": " + e.getMessage();
+            getLogger().log(Level.WARNING, msg);
+            throw new NoSuchRegisterException(msg);
 		} catch (Exception e) {
+            String msg = "Problems while reading register " + obisCode.toString() + ": " + e.getMessage();
+            getLogger().log(Level.WARNING, msg);
 			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
 		}
     }
