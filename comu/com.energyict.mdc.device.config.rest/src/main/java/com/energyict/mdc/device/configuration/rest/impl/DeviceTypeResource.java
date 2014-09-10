@@ -239,14 +239,14 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.VIEW_DEVICE_TYPE)
     public PagedInfoList getRegisterTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        String available = availableFilter.getProperty("available");
+        Boolean available = availableFilter.getBoolean("available");
         final List<RegisterType> registerTypes = new ArrayList<>();
-        if (available == null || !Boolean.parseBoolean(available)) {
+        if (available == null || !available) {
             registerTypes.addAll(ListPager.of(deviceType.getRegisterTypes(), new RegisterTypeComparator()).from(queryParameters).find());
         } else {
-            String deviceConfiguationIdString = availableFilter.getProperty("deviceconfigurationid");
-            if(deviceConfiguationIdString!=null){
-                findAllAvailableRegisterTypesForDeviceConfiguration(deviceType, registerTypes, deviceConfiguationIdString);
+            Long deviceConfiguationId = availableFilter.getLong("deviceconfigurationid");
+            if(deviceConfiguationId!=null){
+                findAllAvailableRegisterTypesForDeviceConfiguration(deviceType, registerTypes, deviceConfiguationId);
             } else {
                 findAllAvailableRegisterTypesForDeviceType(queryParameters, deviceType, registerTypes);
             }
@@ -265,8 +265,7 @@ public class DeviceTypeResource {
         }
     }
 
-    private void findAllAvailableRegisterTypesForDeviceConfiguration(DeviceType deviceType, List<RegisterType> registerTypes, String deviceConfiguationIdString) {
-        long deviceConfigurationId = Long.parseLong(deviceConfiguationIdString);
+    private void findAllAvailableRegisterTypesForDeviceConfiguration(DeviceType deviceType, List<RegisterType> registerTypes, Long deviceConfigurationId) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         registerTypes.addAll(deviceType.getRegisterTypes());
         Set<Long> unavailableRegisterTypeIds = new HashSet<>();
