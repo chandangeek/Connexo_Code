@@ -1,9 +1,9 @@
 package com.elster.jupiter.util.json;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.google.common.collect.ImmutableList;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -36,7 +36,7 @@ public final class ActionBasedJsonParser {
     }
 
     public void parse(Reader reader) throws IOException {
-        try (JsonParser parser = jsonFactory.createJsonParser(reader)) {
+        try (JsonParser parser = jsonFactory.createParser(reader)) {
             doParse(parser);
         }
     }

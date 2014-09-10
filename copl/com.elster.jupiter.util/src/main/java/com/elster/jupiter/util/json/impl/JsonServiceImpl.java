@@ -3,10 +3,12 @@ package com.elster.jupiter.util.json.impl;
 import com.elster.jupiter.util.json.JsonDeserializeException;
 import com.elster.jupiter.util.json.JsonSerializeException;
 import com.elster.jupiter.util.json.JsonService;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.osgi.service.component.annotations.Component;
 
 import javax.inject.Inject;
+
 import java.io.IOException;
 
 @Component(name = "com.elster.jupiter.util.json", service = {JsonService.class})
