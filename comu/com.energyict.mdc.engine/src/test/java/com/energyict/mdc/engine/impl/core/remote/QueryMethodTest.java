@@ -240,7 +240,7 @@ public class QueryMethodTest {
         QueryMethod.ExecutionStarted.execute(parameters, comServerDAO);
 
         // Asserts
-        verify(transactionService).execute(any(Transaction.class));
+        verify(transactionService).execute(any());
     }
 
     @Test
@@ -281,7 +281,7 @@ public class QueryMethodTest {
         QueryMethod.AttemptLock.execute(parameters, comServerDAO);
 
         // Asserts
-        verify(transactionService).execute(any(Transaction.class));
+        verify(transactionService).execute(any());
     }
 
     @Test
@@ -314,7 +314,7 @@ public class QueryMethodTest {
         QueryMethod.Unlock.execute(parameters, comServerDAO);
 
         // Asserts
-        verify(transactionService).execute(any(Transaction.class));
+        verify(transactionService).execute(any());
     }
 
     @Test
@@ -355,7 +355,7 @@ public class QueryMethodTest {
         QueryMethod.ExecutionStarted.execute(parameters, comServerDAO);
 
         // Asserts
-        verify(transactionService).execute(any(Transaction.class));
+        verify(transactionService).execute(any());
     }
 
     @Test
@@ -396,7 +396,7 @@ public class QueryMethodTest {
         QueryMethod.AttemptLock.execute(parameters, comServerDAO);
 
         // Asserts
-        verify(transactionService).execute(any(Transaction.class));
+        verify(transactionService).execute(any());
     }
 
     @Test
@@ -432,7 +432,7 @@ public class QueryMethodTest {
         QueryMethod.Unlock.execute(parameters, comServerDAO);
 
         // Asserts
-        verify(transactionService).execute(any(Transaction.class));
+        verify(transactionService).execute(any());
     }
 
     @Test
@@ -465,7 +465,7 @@ public class QueryMethodTest {
         QueryMethod.ExecutionCompleted.execute(parameters, comServerDAO);
 
         // Asserts
-        verify(transactionService).execute(any(Transaction.class));
+        verify(transactionService).execute(any());
     }
 
     @Test
@@ -498,7 +498,7 @@ public class QueryMethodTest {
         QueryMethod.ExecutionFailed.execute(parameters, comServerDAO);
 
         // Asserts
-        verify(transactionService).execute(any(Transaction.class));
+        verify(transactionService).execute(any());
     }
 
     @Test
@@ -531,7 +531,7 @@ public class QueryMethodTest {
         QueryMethod.ExecutionCompleted.execute(parameters, comServerDAO);
 
         // Asserts
-        verify(transactionService).execute(any(Transaction.class));
+        verify(transactionService).execute(any());
     }
 
     @Test
@@ -564,7 +564,7 @@ public class QueryMethodTest {
         QueryMethod.ExecutionFailed.execute(parameters, comServerDAO);
 
         // Asserts
-        verify(transactionService).execute(any(Transaction.class));
+        verify(transactionService).execute(any());
     }
 
     @Test

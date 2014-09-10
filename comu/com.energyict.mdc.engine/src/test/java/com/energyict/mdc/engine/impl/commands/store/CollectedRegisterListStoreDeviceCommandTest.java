@@ -123,7 +123,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     private ComServerDAOImpl mockComServerDAOButCallRealMethodForMeterReadingStoring() {
         final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
-        when(comServerDAO.executeTransaction(any(Transaction.class))).thenAnswer(new Answer<Object>() {
+        when(comServerDAO.executeTransaction(any())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 return getTransactionService().execute((Transaction<?>) invocation.getArguments()[0]);
