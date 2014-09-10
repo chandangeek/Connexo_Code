@@ -114,7 +114,7 @@ public class LicenseServiceTest {
 
         List<String> licensedApplicationKeys = getLicenseService().getLicensedApplicationKeys();
         assertThat(licensedApplicationKeys).hasSize(2);
-        assertThat(licensedApplicationKeys).containsExactly("MTR", "ISU");
+        assertThat(licensedApplicationKeys).contains("MTR", "ISU");
 
         Optional<License> mtrLicense = getLicenseService().getLicenseForApplication("MTR");
         assertThat(mtrLicense.isPresent()).isTrue();
