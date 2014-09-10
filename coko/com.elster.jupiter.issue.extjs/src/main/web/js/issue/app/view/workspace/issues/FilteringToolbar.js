@@ -4,7 +4,6 @@ Ext.define('Isu.view.workspace.issues.FilteringToolbar', {
         'Skyline.button.TagButton'
     ],
     alias: 'widget.filtering-toolbar',
-    itemId: 'filtering-toolbar',
     title: 'Filters',
     name: 'filter',
     emptyText: 'None',

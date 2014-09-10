@@ -1,7 +1,6 @@
 Ext.define('Isu.view.workspace.issues.SideFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.issues-side-filter',
-    itemId: 'issues-side-filter',
     cls: 'filter-form',
     width: 200,
     title: Uni.I18n.translate('general.title.filter', 'ISE', 'Filter'),
@@ -17,10 +16,10 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
     items: [
         {
             xtype: 'filter-form',
-
+            itemId: 'filter-form',
             items: [
                 {
-                    itemId: 'StatusFilter',
+                    itemId: 'filter-by-status',
                     xtype: 'filter-checkboxgroup',
                     store: 'Isu.store.IssueStatus',
                     name: 'status',
@@ -30,7 +29,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     vertical: true
                 },
                 {
-                    itemId: 'AssigneeFilter',
+                    itemId: 'filter-by-assignee',
                     xtype: 'issues-assignee-combo',
                     name: 'assignee',
                     fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
@@ -41,7 +40,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     tooltipText: 'Start typing for assignee'
                 },
                 {
-                    itemId: 'ReasonFilter',
+                    itemId: 'filter-by-reason',
                     xtype: 'combobox',
                     name: 'reason',
                     fieldLabel: Uni.I18n.translate('general.title.reason', 'ISE', 'Reason'),
@@ -69,7 +68,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     tooltipText: 'Start typing for reason'
                 },
                 {
-                    itemId: 'MeterFilter',
+                    itemId: 'filter-by-meter',
                     xtype: 'combobox',
                     name: 'meter',
                     fieldLabel: Uni.I18n.translate('general.title.meter', 'ISE', 'Meter'),

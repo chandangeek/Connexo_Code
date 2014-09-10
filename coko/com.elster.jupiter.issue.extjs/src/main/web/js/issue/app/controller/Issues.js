@@ -2,7 +2,14 @@ Ext.define('Isu.controller.Issues', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Isu.model.ExtraParams'
+        'Isu.model.ExtraParams',
+        'Uni.controller.Navigation',
+        'Uni.util.QueryString'
+    ],
+
+    models: [
+        'Isu.model.Issues',
+        'Isu.model.IssueFilter'
     ],
 
     stores: [
@@ -17,12 +24,7 @@ Ext.define('Isu.controller.Issues', {
     ],
 
     views: [
-        'workspace.issues.Overview',
-        'workspace.issues.Filter',
-        'workspace.issues.List',
-        'workspace.issues.Item',
-        'workspace.issues.IssueNoGroup',
-        'ext.button.GridAction',
+        'workspace.issues.Setup',
         'Skyline.button.SortItemButton',
         'Skyline.button.TagButton'
     ],
@@ -34,40 +36,32 @@ Ext.define('Isu.controller.Issues', {
 
     refs: [
         {
-            ref: 'issuesOverview',
-            selector: 'issues-overview'
+            ref: 'preview',
+            selector: 'issues-setup #issues-preview'
         },
         {
-            ref: 'itemPanel',
-            selector: 'issues-item'
+            ref: 'actionMenu',
+            selector: '#issue-action-menu'
         },
         {
-            ref: 'issuesList',
-            selector: 'issues-list'
-        },
-        {
-            ref: 'noIssues',
-            selector: 'issues-overview [name=noIssues]'
+            ref: 'filterForm',
+            selector: 'issues-setup #issues-side-filter #filter-form'
         },
         {
             ref: 'filteringToolbar',
-            selector: 'issues-overview filtering-toolbar'
+            selector: 'issues-setup #filtering-toolbar'
         },
         {
             ref: 'sortingToolbar',
-            selector: 'issues-overview sorting-toolbar'
+            selector: 'issues-setup #sorting-toolbar'
         },
         {
             ref: 'groupingToolbar',
-            selector: 'issues-overview grouping-toolbar'
+            selector: 'issues-setup #grouping-toolbar'
         },
         {
             ref: 'groupPanel',
-            selector: 'issues-overview issue-group'
-        },
-        {
-            ref: 'issueFilter',
-            selector: 'issues-side-filter'
+            selector: 'issues-setup #issue-group'
         }
     ],
 
@@ -75,46 +69,41 @@ Ext.define('Isu.controller.Issues', {
 
     init: function () {
         this.control({
-            'issues-overview': {
+            'issues-setup': {
                 afterrender: this.checkAssignee
             },
-            'issues-overview issues-list': {
-                select: this.loadGridItemDetail
+            'issues-setup #issues-grid': {
+                select: this.showPreview
             },
-            'issues-overview issues-list gridview': {
+            'issues-setup #issues-preview #filter-display-button': {
+                click: this.applyFilterBy
+            },
+            '#issue-action-menu': {
+                click: this.chooseAction
+            },
+            'issues-setup #issues-grid gridview': {
                 refresh: this.setAssigneeTypeIconTooltip
             },
-            'issues-list uni-actioncolumn': {
-                menuclick: this.chooseIssuesAction
-            },
-            'issue-action-menu': {
-                click: this.chooseIssuesAction
-            },
-            'issues-overview issues-item': {
-                afterChange: this.setFilterIconsActions
-            },
-
-            'issues-overview sorting-toolbar container sort-item-btn': {
+            'issues-setup #sorting-toolbar container sort-item-btn': {
                 click: this.changeSortDirection,
                 closeclick: this.removeSortItem
             },
-            'issues-overview sorting-toolbar issue-sort-menu': {
+            'issues-setup #sorting-toolbar issue-sort-menu': {
                 click: this.addSortParam
             },
-            'issues-overview sorting-toolbar button[action=clear]': {
+            'issues-setup #sorting-toolbar button[action=clear]': {
                 click: this.clearSortParams
             },
-            'issues-overview grouping-toolbar [name=groupingcombo]': {
+            'issues-setup #grouping-toolbar [name=groupingcombo]': {
                 change: this.changeGrouping
             },
-            'issues-overview filtering-toolbar tag-button': {
+            'issues-setup #filtering-toolbar tag-button': {
                 closeclick: this.removeFilterItem
             },
-
-            'issues-side-filter button[action="reset"]': {
+            'issues-setup #filtering-toolbar button[action="clear"]': {
                 click: this.resetFilter
             },
-            'issues-overview filtering-toolbar button[action="clear"]': {
+            'issues-side-filter button[action="reset"]': {
                 click: this.resetFilter
             },
             'issues-side-filter button[action="filter"]': {
@@ -132,8 +121,14 @@ Ext.define('Isu.controller.Issues', {
         this.on('showIssuesAssignedOnMe', function () {
             this.assignToMe = true;
         }, this);
+    },
 
-        this.gridItemModel = this.getModel('Isu.model.Issues');
+    showDataCollection: function () {
+        this.showOverview('datacollection');
+    },
+
+    showDataValidation: function () {
+        this.showOverview('datavalidation');
     },
 
     checkAssignee: function () {
@@ -142,54 +137,110 @@ Ext.define('Isu.controller.Issues', {
         }
     },
 
-    showOverview: function () {
-        var self = this,
-            issuesStore = this.getStore('Isu.store.Issues'),
-            groupStore = this.getStore('Isu.store.IssuesGroups'),
+    showOverview: function (issueType) {
+        var me = this,
+            issuesStore = me.getStore('Isu.store.Issues'),
+            issuesStoreProxy = issuesStore.getProxy(),
+            groupStore = me.getStore('Isu.store.IssuesGroups'),
             filter,
             sort;
 
-        self.extraParamsModel = new Isu.model.ExtraParams();
+        me.extraParamsModel = new Isu.model.ExtraParams();
 
-        self.extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
-            issuesStore.proxy.extraParams = data || {};
-            self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
+        me.extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
+            issuesStoreProxy.extraParams = data || {};
+            issuesStoreProxy.setExtraParam('issueType', issueType);
+            me.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
 
-            self.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview'));
-            self.getFilteringToolbar().addFilterButtons(extraParamsModel.get('filter'));
-            self.getSortingToolbar().addSortButtons(extraParamsModel.get('sort'));
-            self.setFilterForm();
+            me.getApplication().fireEvent('changecontentevent', Ext.widget('issues-setup', {
+                router: me.getController('Uni.controller.history.Router'),
+                issueType: issueType
+            }));
+            me.getFilteringToolbar().addFilterButtons(extraParamsModel.get('filter'));
+            me.getSortingToolbar().addSortButtons(extraParamsModel.get('sort'));
+            me.setFilterForm();
 
             groupStore.on('load', function () {
-                self.setGrouping();
-            }, self, {single: true});
+                me.setGrouping();
+            });
         });
     },
 
+    showPreview: function (selectionModel, record) {
+        var me = this,
+            id = record.getId(),
+            preview = this.getPreview(),
+            form = preview.down('#issues-preview-form'),
+            router = this.getController('Uni.controller.history.Router'),
+            detailsLink = router.getRoute(router.currentRoute + '/view').buildUrl({id: id});
+
+        preview.setLoading(true);
+
+        this.getModel('Isu.model.Issues').load(id, {
+            success: function (record) {
+                if (!form.isDestroyed) {
+                    form.loadRecord(record);
+                    preview.down('#issue-action-menu').record = record;
+                    preview.down('#view-details-link').setHref(detailsLink);
+                    preview.setTitle(record.get('title'));
+                }
+            },
+            callback: function () {
+                preview.setLoading(false);
+            }
+        });
+    },
+
+    applyFilterBy: function (button) {
+        switch (button.filterBy) {
+            case 'status':
+                this.setCheckboxFilter(button.filterBy, button.filterValue.id);
+                break;
+            case 'assignee':
+                if (button.filterValue) {
+                    this.setComboFilter(button.filterBy, button.filterValue.id + ':' + button.filterValue.type, button.filterValue.name);
+                }
+                break;
+            case 'reason':
+                this.setComboFilter(button.filterBy, parseInt(button.filterValue.id), button.filterValue.name);
+                break;
+            case 'device':
+                this.setComboFilter('meter', parseInt(button.filterValue.id), button.filterValue.serialNumber);
+                break;
+        }
+    },
+
+    chooseAction: function (menu, item) {
+        var router = this.getController('Uni.controller.history.Router');
+
+        router.getRoute(router.currentRoute + '/' + item.action).forward({id: menu.record.getId()});
+    },
+
     setFilterForm: function () {
-        var self = this,
+        var me = this,
             filterModel = this.extraParamsModel.get('filter'),
-            form = self.getIssueFilter().down('filter-form'),
+            form = me.getFilterForm(),
             filterCheckboxGroup = form.down('filter-checkboxgroup');
 
         if (filterModel.get('assignee')) {
-            form.down('combobox[name=assignee]').getStore().add(filterModel.get('assignee'));
+            form.down('combobox[name=assignee]').getStore().add(filterModel.getAssignee());
         }
 
         if (filterModel.get('reason')) {
-            form.down('combobox[name=reason]').getStore().add(filterModel.get('reason'));
+            form.down('combobox[name=reason]').getStore().add(filterModel.getReason());
         }
 
         if (filterModel.get('meter')) {
-            form.down('combobox[name=meter]').getStore().add(filterModel.get('meter'));
+            form.down('combobox[name=meter]').getStore().add(filterModel.getMeter());
         }
 
-        if (!filterCheckboxGroup.store.getCount()) {
-            filterCheckboxGroup.store.load(function () {
-                form.loadRecord(filterModel);
-            });
-        } else {
+        if (filterCheckboxGroup.getStore().getCount()) {
             form.loadRecord(filterModel);
+
+        } else {
+            filterCheckboxGroup.on('itemsadded', function () {
+                form.loadRecord(filterModel);
+            }, me, {single: true});
         }
     },
 
@@ -199,7 +250,7 @@ Ext.define('Isu.controller.Issues', {
     },
 
     applyFilter: function () {
-        var form = this.getIssueFilter().down('filter-form'),
+        var form = this.getFilterForm(),
             filter = form.getRecord();
 
         form.updateRecord(filter);
@@ -345,29 +396,6 @@ Ext.define('Isu.controller.Issues', {
         }
     },
 
-    chooseIssuesAction: function (menu, item) {
-        var action = item.action,
-            issueId = menu.record.getId();
-
-        switch (action) {
-            case 'assign':
-                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/assign';
-                break;
-            case 'close':
-                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/close';
-                break;
-            case 'addcomment':
-                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/addcomment';
-                break;
-            case 'notify':
-                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/notify';
-                break;
-            case 'send':
-                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/send';
-                break;
-        }
-    },
-
     setGroupFields: function (view) {
         var model = Ext.ModelManager.getModel('Isu.model.Issues'),
             reason = model.getFields()[1];
@@ -381,44 +409,9 @@ Ext.define('Isu.controller.Issues', {
         });
     },
 
-    setFilterIconsActions: function (itemPanel) {
-        var self = this,
-            icons = Ext.get(itemPanel.getEl()).select('.isu-apply-filter');
-
-        icons.on('click', self.addFilterIconAction, self);
-        itemPanel.on('destroy', function () {
-            icons.un('click', self.addFilterIconAction, self);
-        });
-    },
-
-    addFilterIconAction: function (event, icon) {
-        var filterType = icon.getAttribute('data-filterType'),
-            filterValue = icon.getAttribute('data-filterValue'),
-            visualValue = icon.getAttribute('data-filterSearch');
-
-        if (!filterType || !filterValue) {
-            return;
-        }
-
-        switch (filterType) {
-            case 'status':
-                this.setChecboxFilter(filterType, filterValue);
-                break;
-            case 'assignee':
-                this.setComboFilter(filterType, filterValue, visualValue);
-                break;
-            case 'reason':
-                this.setComboFilter(filterType, parseInt(filterValue), visualValue);
-                break;
-            case 'meter':
-                this.setComboFilter(filterType, parseInt(filterValue), visualValue);
-                break;
-        }
-    },
-
-    setChecboxFilter: function (filterType, filterValue) {
-        var self = this,
-            filterForm = this.getIssueFilter().down('filter-form'),
+    setCheckboxFilter: function (filterType, filterValue) {
+        var me = this,
+            filterForm = this.getFilterForm(),
             allCheckboxes = filterForm.query('checkboxfield'),
             checkbox = filterForm.down('[name=' + filterType + '] checkboxfield[inputValue=' + filterValue + ']');
 
@@ -427,12 +420,12 @@ Ext.define('Isu.controller.Issues', {
         });
 
         checkbox.setValue(true);
-        self.applyFilter();
+        me.applyFilter();
     },
 
     setComboFilter: function (filterType, filterValue, visualValue) {
-        var self = this,
-            filterForm = this.getIssueFilter().down('filter-form'),
+        var me = this,
+            filterForm = this.getFilterForm(),
             combo = filterForm.down('[name=' + filterType + ']'),
             comboStore = combo.getStore(),
             storeProxy = comboStore.getProxy();
@@ -441,21 +434,21 @@ Ext.define('Isu.controller.Issues', {
 
         comboStore.load(function () {
             combo.setValue(filterValue);
-            self.applyFilter();
+            me.applyFilter();
         });
     },
 
     assignedToMe: function () {
-        var self = this,
-            assignCombo = self.getIssueFilter().down('combobox[name=assignee]'),
+        var me = this,
+            assignCombo = me.getFilterForm().down('combobox[name=assignee]'),
             assignStore = assignCombo.getStore(),
             currentUser;
 
         assignStore.load({ params: {me: true}, callback: function () {
             currentUser = assignStore.getAt(0);
             assignCombo.setValue(currentUser.get('idx'));
-            self.applyFilter();
-            self.assignToMe = false;
+            me.applyFilter();
+            me.assignToMe = false;
         }});
     }
 });

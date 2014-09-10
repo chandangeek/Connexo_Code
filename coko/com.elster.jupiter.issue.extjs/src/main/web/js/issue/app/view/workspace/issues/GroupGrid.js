@@ -27,20 +27,27 @@ Ext.define('Isu.view.workspace.issues.GroupGrid', {
             }
         ]
     },
-    dockedItems: [
-        {
-            xtype: 'pagingtoolbartop',
-            dock: 'top',
-            store: 'Isu.store.IssuesGroups',
-            displayMsg: '{0} - {1} of {2} reasons',
-            displayMoreMsg: '{0} - {1} of more than {2} reasons',
-            emptyMsg: '0 reasons'
-        },
-        {
-            xtype: 'pagingtoolbarbottom',
-            dock: 'bottom',
-            store: 'Isu.store.IssuesGroups',
-            itemsPerPageMsg: 'Items per page'
-        }
-    ]
+
+    initComponent: function () {
+        var me = this;
+
+        me.dockedItems = [
+            {
+                xtype: 'pagingtoolbartop',
+                dock: 'top',
+                store: me.store,
+                displayMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMsg', 'ISE', '{0} - {1} of {2} items'),
+                displayMoreMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMoreMsg', 'ISE', '{0} - {1} of more than {2} items'),
+                emptyMsg: '0 reasons'
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                dock: 'bottom',
+                store: me.store,
+                itemsPerPageMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.itemsPerPageMsg', 'ISE', 'Items per page')
+            }
+        ];
+
+        me.callParent(arguments);
+    }
 });

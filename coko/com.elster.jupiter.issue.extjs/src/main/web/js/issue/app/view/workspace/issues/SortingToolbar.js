@@ -5,7 +5,6 @@ Ext.define('Isu.view.workspace.issues.SortingToolbar', {
         'Isu.view.workspace.issues.SortMenu'
     ],
     alias: 'widget.sorting-toolbar',
-    itemId: 'sorting-toolbar',
     title: 'Sort',
     name: 'sortitemspanel',
     emptyText: 'None',

@@ -20,6 +20,7 @@ Ext.define('Isu.controller.history.Workspace', {
                             title : 'Issues',
                             route: 'issues',
                             controller: 'Isu.controller.Issues',
+                            action: 'showDataCollection',
                             items: {
                                 view: {
                                     title: 'issue details',
@@ -52,6 +53,32 @@ Ext.define('Isu.controller.history.Workspace', {
                                     route: '{id}/send',
                                     controller: 'Isu.controller.NotifySend',
                                     action: 'showNotifySend'
+                                }
+                            }
+                        },
+                        bulk: {
+                            title : 'Bulk Changes',
+                            route: 'bulkaction',
+                            controller: 'Isu.controller.BulkChangeIssues'
+                        }
+                    }
+                },
+                datavalidation: {
+                    title: Uni.I18n.translate('router.datavalidation', 'ISE', 'Data validation'),
+                    route: 'datavalidation',
+                    controller: 'Isu.controller.DataValidation',
+                    action: 'showOverview',
+                    items: {
+                        issues: {
+                            title : 'Issues',
+                            route: 'issues',
+                            controller: 'Isu.controller.Issues',
+                            action: 'showDataValidation',
+                            items: {
+                                view: {
+                                    title: 'issue details',
+                                    route: '{id}',
+                                    controller: 'Isu.controller.IssueDetail'
                                 }
                             }
                         },

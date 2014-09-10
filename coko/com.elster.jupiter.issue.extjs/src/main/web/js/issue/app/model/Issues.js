@@ -35,6 +35,22 @@ Ext.define('Isu.model.Issues', {
             type: 'auto'
         },
         {
+            name: 'device',
+            type: 'auto'
+        },
+        {
+            name: 'reason',
+            type: 'auto'
+        },
+        {
+            name: 'status',
+            type: 'auto'
+        },
+        {
+            name: 'assignee',
+            type: 'auto'
+        },
+        {
             name: 'title', mapping: function (data) {
             // todo: internationalisation
             return data.reason.name + (data.device ? ' to ' + data.device.name + ' ' + data.device.serialNumber : '');

@@ -2,8 +2,10 @@ Ext.define('Isu.model.IssueFilter', {
     extend: 'Uni.component.filter.model.Filter',
 
     requires: [
-        'Isu.model.IssueStatus',
-        'Isu.model.Assignee'
+        'Isu.model.Assignee',
+        'Isu.model.IssueMeter',
+        'Isu.model.IssueReason',
+        'Isu.model.IssueStatus'
     ],
 
     hasMany: {
@@ -16,17 +18,23 @@ Ext.define('Isu.model.IssueFilter', {
         {
             model: 'Isu.model.Assignee',
             associationKey: 'assignee',
-            name: 'assignee'
+            name: 'assignee',
+            setterName: 'setAssignee',
+            getterName: 'getAssignee'
         },
         {
             model: 'Isu.model.IssueReason',
             associationKey: 'reason',
-            name: 'reason'
+            name: 'reason',
+            setterName: 'setReason',
+            getterName: 'getReason'
         },
         {
             model: 'Isu.model.IssueMeter',
             associationKey: 'meter',
-            name: 'meter'
+            name: 'meter',
+            setterName: 'setMeter',
+            getterName: 'getMeter'
         }
     ],
 

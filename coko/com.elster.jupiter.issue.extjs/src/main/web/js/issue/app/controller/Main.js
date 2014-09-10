@@ -24,7 +24,8 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.IssueDetail',
         'Isu.controller.history.Administration',
         'Isu.controller.AdministrationDataCollection',
-        'Isu.controller.NotifySend'
+        'Isu.controller.NotifySend',
+        'Isu.controller.DataValidation'
     ],
 
     stores: [
@@ -129,21 +130,21 @@ Ext.define('Isu.controller.Main', {
 //            ]
 //        });
 //
-//        var datavalidation = Ext.create('Uni.model.PortalItem', {
-//            title: 'Data validation',
-//            portal: 'workspace',
-//            route: 'datavalidation',
-//            items: [
-//                {
-//                    text: 'Overview',
-//                    href: '#/workspace/datavalidation'
-//                },
-//                {
-//                    text: 'Issues',
-//                    href: '#/workspace/datavalidation/issues'
-//                }
-//            ]
-//        });
+        var datavalidation = Ext.create('Uni.model.PortalItem', {
+            title: 'Data validation',
+            portal: 'workspace',
+            route: 'datavalidation',
+            items: [
+                {
+                    text: 'Overview',
+                    href: '#/workspace/datavalidation'
+                },
+                {
+                    text: 'Issues',
+                    href: '#/workspace/datavalidation/issues'
+                }
+            ]
+        });
 
         var issuemanagement = Ext.create('Uni.model.PortalItem', {
             title: 'Issue management',
@@ -165,7 +166,7 @@ Ext.define('Isu.controller.Main', {
             datacollection,
 //            dataexchange,
 //            dataoperation,
-//            datavalidation,
+            datavalidation,
             issuemanagement
         );
     },

@@ -29,7 +29,7 @@ Ext.define('Isu.util.FilterCheckboxgroup', {
         var me = this;
 
         me.removeAll();
-        Ext.Array.forEach(this.store.getRange(), function (item) {
+        Ext.Array.forEach(me.store.getRange(), function (item) {
             me.add({
                 xtype: 'checkboxfield',
                 boxLabel: item.data[me.checkbox.boxLabel],
@@ -37,6 +37,7 @@ Ext.define('Isu.util.FilterCheckboxgroup', {
                 name: me.name
             });
         });
+        me.fireEvent('itemsadded', me, me.store);
     },
 
     setValue: function(data) {

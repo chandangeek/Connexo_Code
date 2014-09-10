@@ -4,7 +4,6 @@ Ext.define('Isu.view.workspace.issues.GroupingToolbar', {
         'Isu.store.IssueGrouping'
     ],
     alias: 'widget.grouping-toolbar',
-    itemId: 'grouping-toolbar',
     title: 'Group',
     name: 'group',
     showClearButton: false,

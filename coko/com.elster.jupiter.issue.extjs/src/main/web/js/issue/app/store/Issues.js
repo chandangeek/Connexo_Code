@@ -15,11 +15,5 @@ Ext.define('Isu.store.Issues', {
 
     model: 'Isu.model.Issues',
     pageSize: 10,
-    autoLoad: false,
-
-    listeners: {
-        beforeload: function () {
-            this.getProxy().setExtraParam('issueType', 'datacollection');
-        }
-    }
+    autoLoad: false
 });
