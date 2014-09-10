@@ -125,7 +125,7 @@ public class ValidationServiceImplTest {
     @Before
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
+        when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(validationRuleSetFactory);
         when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);
         when(dataModel.mapper(IMeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
