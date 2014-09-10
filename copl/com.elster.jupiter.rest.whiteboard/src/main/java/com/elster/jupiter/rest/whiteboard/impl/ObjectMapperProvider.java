@@ -2,10 +2,12 @@ package com.elster.jupiter.rest.whiteboard.impl;
 
 import javax.ws.rs.ext.ContextResolver;
 
-import org.codehaus.jackson.map.*;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
-import org.codehaus.jackson.map.introspect.JacksonAnnotationIntrospector;
-import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 	
@@ -14,9 +16,9 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 	public ObjectMapperProvider() {
 		mapper = new ObjectMapper();
 		AnnotationIntrospector primary = new JacksonAnnotationIntrospector();
-	    AnnotationIntrospector secondary = new JaxbAnnotationIntrospector();
-	    AnnotationIntrospector pair = new AnnotationIntrospector.Pair(primary, secondary);
-		mapper.setSerializationInclusion(Inclusion.NON_NULL);
+	    AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(mapper.getTypeFactory());
+	    AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
+		mapper.setSerializationInclusion(Include.NON_NULL);
 		mapper.setAnnotationIntrospector(pair);
 	}
 
