@@ -7,6 +7,7 @@ import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Ignore
 public class NewDateCheckTest {
 
 	@Test
