@@ -8,9 +8,12 @@ import com.google.common.base.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +29,10 @@ public class ThesaurusResource {
     }
 
     @GET
+	@Produces(MediaType.APPLICATION_JSON) 
     public ThesaurusInfo getThesaurus(@Context UriInfo uriInfo) {
         MultivaluedMap<String,String> parameters = uriInfo.getQueryParameters();
-        List<String> components = Optional.<List<String>>of(parameters.get("cmp")).or(Collections.<String>emptyList());
+        List<String> components = Optional.fromNullable(parameters.get("cmp")).or(Collections.<String>emptyList());
         ThesaurusInfo thesaurusInfo = new ThesaurusInfo();
         for (String component : components) {
             addComponent(thesaurusInfo, component);
