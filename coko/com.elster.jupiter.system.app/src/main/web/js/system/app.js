@@ -8,6 +8,22 @@ Ext.onReady(function () {
 
     loader.initI18n(translationsQueue);
 
+    // <debug>
+    // Used only during development to point to hosted files.
+    var packages = [
+        {
+            name: 'Usr',
+            path: '../../apps/usr/src'
+        },
+        {
+            name: 'Sam',
+            path: '../../apps/sam/src'
+        }
+    ];
+
+    loader.initPackages(packages);
+    // </debug>
+
     loader.onReady(function () {
         // <debug>
         Ext.Loader.setConfig({
