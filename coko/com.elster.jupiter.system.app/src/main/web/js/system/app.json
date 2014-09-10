@@ -1,8 +1,10 @@
 {
-    "name": "SystemApp",
+    "name": "com.elster.jupiter.system.app",
 
     "requires": [
-        "com.elster.jupiter.unifyingjs"
+        "com.elster.jupiter.unifyingjs",
+        "com.elster.jupiter.users.extjs",
+        "com.elster.jupiter.systemadmin.extjs"
     ],
 
     "id": "7cde7b38-a4d1-4e19-aed4-8b4b3e92293e"

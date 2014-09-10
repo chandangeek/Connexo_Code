@@ -10,17 +10,12 @@ Ext.define('SystemApp.controller.Main', {
         {
             name: 'Usr',
             controller: 'Usr.controller.Main',
-            path: '../../apps/usr/app'
-        },
-        {
-            name: 'Usm',
-            controller: 'Usr.controller.Main',
-            path: '../../apps/usm/app'
+            path: '../../apps/usr/src'
         },
         {
             name: 'Sam',
             controller: 'Sam.controller.Main',
-            path: '../../apps/sam/app'
+            path: '../../apps/sam/src'
         }
     ]
 });
