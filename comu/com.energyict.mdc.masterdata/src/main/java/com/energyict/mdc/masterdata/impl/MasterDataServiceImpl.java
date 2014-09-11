@@ -92,10 +92,6 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         return this.getDataModel().mapper(Phenomenon.class).find();
     }
 
-    @Override
-    public List<LogBookType> findAllLogBookTypes() {
-        return this.getDataModel().mapper(LogBookType.class).find();
-    }
 
     @Override
     public LogBookType newLogBookType(String name, ObisCode obisCode) {
@@ -158,6 +154,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Override
     public Finder<ChannelType> findAllChannelTypes() {
         return DefaultFinder.of(ChannelType.class, this.getDataModel()).defaultSortColumn("lower(name)");
+    }
+
+    @Override
+    public Finder<LogBookType> findAllLogBookTypes() {
+        return DefaultFinder.of(LogBookType.class, this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
