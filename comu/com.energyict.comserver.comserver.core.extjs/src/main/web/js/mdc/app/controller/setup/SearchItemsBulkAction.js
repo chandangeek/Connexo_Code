@@ -516,16 +516,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     createCommunicationSchedule: function () {
-        var title = Uni.I18n.translate('general.warning', 'MDC', 'Warning'),
-            message = Uni.I18n.translate('searchItems.newComScheduleAddWarningMsg', 'MDC', 'When you have finished creating a new communication schedule on the other tab, you should refresh this page.'),
-            config = {
-                icon: Ext.MessageBox.WARNING
-            },
-            newTab = window.open('#/administration/communicationschedules/create', '_blank');
+        var newTab = window.open('#/administration/communicationschedules/create', '_blank');
 
         newTab && newTab.blur();
         window.focus();
-        this.getApplication().getController('Uni.controller.Error').showError(title, message, config);
     },
 
     showViewDevices: function (button) {
