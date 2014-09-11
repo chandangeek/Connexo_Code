@@ -1,0 +1,16 @@
+{
+    "data": [
+        {
+            "name": "Success",
+            "localizedValue": "Success"
+        },
+        {
+            "name": "SetupError",
+            "localizedValue": "Setup error"
+        },
+        {
+            "name": "Broken",
+            "localizedValue": "Broken"
+        }
+    ]
+}

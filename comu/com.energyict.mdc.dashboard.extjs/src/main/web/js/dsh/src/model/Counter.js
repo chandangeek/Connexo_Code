@@ -3,7 +3,8 @@ Ext.define('Dsh.model.Counter', {
     fields: [
         { name: 'count', type: 'int' },
         { name: 'alias', type: 'string' },
-        { name: 'displayName', type: 'string' }
+        { name: 'displayName', type: 'string' },
+        { name: 'total', type: 'int' }
     ],
 
     hasMany: {

@@ -22,7 +22,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 itemId: 'Device',
                 text: Uni.I18n.translate('connection.widget.details.device', 'DSH', 'Device'),
                 dataIndex: 'device',
-                flex: 2,
+                flex: 1,
                 renderer: function (val) {
                     return '<a href="#/devices/' + val.id + '">' + val.name + '</a>'
                 }
@@ -31,24 +31,29 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 itemId: 'currentState',
                 text: Uni.I18n.translate('connection.widget.details.currentState', 'DSH', 'Current state'),
                 dataIndex: 'currentState',
-                flex: 1
+                flex: 1,
+                renderer: function (val) {
+                    return val ? val.displayValue : ''
+                }
             },
             {
                 itemId: 'latestStatus',
                 text: Uni.I18n.translate('connection.widget.details.latestStatus', 'DSH', 'Latest status'),
                 dataIndex: 'latestStatus',
-                flex: 1,
+                flex:1,
                 renderer: function (val) {
-                    return val.displayValue
+                    return val ? val.displayValue : ''
                 }
             },
             {
                 itemId: 'latestResult',
                 text: Uni.I18n.translate('connection.widget.details.latestResult', 'DSH', 'Latest result'),
                 dataIndex: 'latestResult',
+                name: 'latestResult',
                 flex: 1,
                 renderer: function (val) {
-                    return val.displayValue
+                    return val ? val.displayValue : ''
+
                 }
             },
             {
@@ -70,7 +75,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 dataIndex: 'startDateTime',
                 xtype: 'datecolumn',
                 format: 'm/d/Y h:i:s',
-                flex: 2
+                flex: 1
             },
             {
                 itemId: 'endDateTime',
@@ -78,13 +83,11 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 dataIndex: 'endDateTime',
                 xtype: 'datecolumn',
                 format: 'm/d/Y h:i:s',
-                flex: 2
+                flex: 1
             },
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn'
-//                ,
-//                items: 'Dsh.view.widget.ActionMenu'
             }
         ]
     },
@@ -97,20 +100,6 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             displayMsg: Uni.I18n.translate('connection.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} connections'),
             displayMoreMsg: Uni.I18n.translate('connection.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} connections'),
             emptyMsg: Uni.I18n.translate('connection.widget.details.emptyMsg', 'DSH', 'There are no connections to display')
-//            ,
-//            items: [
-//                '->',
-//                {
-//                    xtype: 'button',
-//                    text: Uni.I18n.translate('general.title.bulkActions', 'DSH', 'Choose columns'),
-//                    action: 'choosecolumnsaction'
-//                },
-//                {
-//                    xtype: 'button',
-//                    text: Uni.I18n.translate('general.title.bulkActions', 'DSH', 'Bulk action'),
-//                    action: 'bulkchangesissues'
-//                }
-//            ]
         },
         {
             itemId: 'pagingtoolbarbottom',
@@ -141,6 +130,28 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                         (tip.triggerElement.className.search('fa-check') !== -1) && (res = success);
                         (tip.triggerElement.className.search('fa-time') !== -1) && (res = failed);
                         tip.update(res);
+                    }
+                }
+            }),
+            ResultTip = Ext.create('Ext.tip.ToolTip', {
+                target: view.el,
+                delegate: 'td.x-grid-cell-headerId-latestResult',
+                trackMouse: true,
+                renderTo: Ext.getBody(),
+                listeners: {
+                    beforeshow: function () {
+                        var rowEl = Ext.get(ResultTip.triggerElement).up('tr'),
+                            latestResult = view.getRecord(rowEl).get('latestResult');
+                        if (latestResult.retries) {
+                            ResultTip.update(latestResult.retries + ' ' + Uni.I18n.translate('connection.widget.details.retries', 'DSH', 'retries'))
+                        }
+                    },
+                    show: function () {
+                        var rowEl = Ext.get(ResultTip.triggerElement).up('tr'),
+                            latestResult = view.getRecord(rowEl).get('latestResult');
+                        if (!latestResult.retries) {
+                            ResultTip.hide()
+                        }
                     }
                 }
             });

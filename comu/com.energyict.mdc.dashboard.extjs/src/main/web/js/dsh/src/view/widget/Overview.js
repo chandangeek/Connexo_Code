@@ -27,6 +27,7 @@ Ext.define('Dsh.view.widget.Overview', {
         var me = this;
         me.removeAll(true);
         store.each(function (item, idx) {
+            item.counters().sort({ property: 'count', direction: 'DESC' });
             var panel = Ext.create('Ext.panel.Panel', {
                 tbar: {
                     xtype: 'container',
@@ -62,7 +63,7 @@ Ext.define('Dsh.view.widget.Overview', {
 
                                 var bar = Ext.widget('bar', {
                                     limit: record.get('count'),
-                                    total: item.get('total') || view.total,
+                                    total: view.total,
                                     count: record.get('count'),
                                     label: record.get('count')
                                 }).render(view.getEl().down('#bar-' + pos));

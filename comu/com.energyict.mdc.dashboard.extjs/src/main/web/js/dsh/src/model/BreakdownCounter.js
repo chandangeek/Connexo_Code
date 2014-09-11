@@ -5,6 +5,14 @@ Ext.define('Dsh.model.BreakdownCounter', {
         { name: 'displayName', type: 'string' },
         { name: 'successCount', type: 'int' },
         { name: 'failedCount', type: 'int' },
-        { name: 'pendingCount', type: 'int' }
+        { name: 'pendingCount', type: 'int' },
+        {
+            name: 'total',
+            type: 'int',
+            persist: false,
+            convert: function (v, record) {
+                return record.get('successCount') + record.get('failedCount') + record.get('pendingCount');
+            }
+        }
     ]
 });

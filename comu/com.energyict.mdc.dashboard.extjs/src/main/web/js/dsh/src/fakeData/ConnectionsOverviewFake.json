@@ -34,7 +34,7 @@
     "overviews": [
         {
             "displayName": "Per current state",
-            "alias": "state",
+            "alias": "State",
             "counters": [
                 {
                     "alias": "Busy",

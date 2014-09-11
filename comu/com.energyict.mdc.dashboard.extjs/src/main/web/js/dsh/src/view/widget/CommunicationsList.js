@@ -10,7 +10,6 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
         'Uni.view.toolbar.PagingBottom',
         'Dsh.view.widget.ActionMenu'
     ],
-//    store: 'Dsh.store.CommunicationTasks',
     columns: {
         defaults: {
             sortable: false,
@@ -21,7 +20,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 itemId: 'name',
                 text: Uni.I18n.translate('communication.widget.details.commTask', 'DSH', 'Communications'),
                 dataIndex: 'name',
-                flex: 1
+                flex: 2
             },
             {
                 itemId: 'device',
@@ -29,7 +28,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 dataIndex: 'device',
                 flex: 1,
                 renderer: function (val) {
-                    return val.name
+                    return val.name ? val.name : '';
                 }
             },
             {
@@ -38,14 +37,17 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 dataIndex: 'currentState',
                 flex: 1,
                 renderer: function (val) {
-                    return val.displayValue
+                    return val.displayValue ? val.displayValue : '';
                 }
             },
             {
                 itemId: 'latestResult',
-                text: Uni.I18n.translate('communication.widget.details.currentState', 'DSH', 'Latest result'),
+                text: Uni.I18n.translate('connection.widget.details.latestResult', 'DSH', 'Latest result'),
                 dataIndex: 'latestResult',
-                flex: 1
+                flex: 1,
+                renderer: function (val) {
+                    return val.displayValue ? val.displayValue : '';
+                }
             },
             {
                 itemId: 'nextCommunication',
@@ -74,40 +76,8 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn'
-//                ,items: 'Dsh.view.widget.ActionMenu'
             }
         ]
     }
-//  ,  dockedItems: [
-//        {
-//            itemId: 'pagingtoolbartop',
-//            xtype: 'pagingtoolbartop',
-//            dock: 'top',
-//    //        store: 'Dsh.store.CommunicationTasks',
-//            displayMsg: Uni.I18n.translate('communication.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} communications'),
-//            displayMoreMsg: Uni.I18n.translate('communication.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} communications'),
-//            emptyMsg: Uni.I18n.translate('communication.widget.details.emptyMsg', 'DSH', 'There are no communications to display'),
-//            items: [
-//                '->',
-//                {
-//                    xtype: 'button',
-//                    text: Uni.I18n.translate('general.title.bulkActions', 'DSH', 'Choose columns'),
-//                    action: 'bulkchangesissues'
-//                },
-//                {
-//                    xtype: 'button',
-//                    text: Uni.I18n.translate('general.title.bulkActions', 'DSH', 'Bulk action'),
-//                    action: 'bulkchangesissues'
-//                }
-//            ]
-//        },
-//        {
-//            itemId: 'pagingtoolbarbottom',
-//            xtype: 'pagingtoolbarbottom',
-//  //          store: 'Dsh.store.CommunicationTasks',
-//            dock: 'bottom',
-//            itemsPerPageMsg: Uni.I18n.translate('communication.widget.details.itemsPerPage', 'DSH', 'Connections per page')
-//        }
-//    ],
 });
 
