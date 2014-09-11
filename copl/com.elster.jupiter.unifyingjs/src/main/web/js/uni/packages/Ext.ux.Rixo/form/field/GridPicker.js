@@ -298,9 +298,13 @@ Ext.define('Ext.ux.Rixo.form.field.GridPicker', {
 }, function() {
 
 	// Specific to Ext 4.2.0
-	if (Ext.getVersion().isLessThan('4.2.1')) {
-		Ext.require('Ext.ux.Rixo.form.field.GridPicker-4-2-0');
-	}
+    /**
+     * Jupiter specific: We use a higher version, but the last registered package version is used to determine
+     * what Ext.getVersion() returns. So we get our package versions instead. Commenting the below out cause of that.
+     */
+//	if (Ext.getVersion().isLessThan('4.2.1')) {
+//		Ext.require('Ext.ux.Rixo.form.field.GridPicker-4-2-0');
+//	}
 
 	// Polyfill for forEach
 	// source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
