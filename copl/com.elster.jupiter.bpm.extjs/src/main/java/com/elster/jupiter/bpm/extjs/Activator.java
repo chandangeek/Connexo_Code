@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.imp.extjs;
+package com.elster.jupiter.bpm.extjs;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
