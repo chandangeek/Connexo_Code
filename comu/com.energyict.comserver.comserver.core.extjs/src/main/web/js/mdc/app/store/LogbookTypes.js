@@ -1,9 +1,17 @@
 Ext.define('Mdc.store.LogbookTypes', {
     extend: 'Ext.data.Store',
+    model: 'Mdc.model.LogbookType',
     requires: [
-        'Ext.data.proxy.Rest',
-        'Mdc.model.LogbookTypes'
+        'Mdc.model.LogbookType'
     ],
-    model: 'Mdc.model.LogbookTypes',
-    storeId: 'LogbookTypes'
+    model: 'Mdc.model.LogbookType',
+    storeId: 'LogbookTypes',
+    proxy: {
+        type: 'rest',
+        url: '../../api/mds/logbooktypes',
+        reader: {
+            type: 'json',
+            root: 'logbookTypes'
+        }
+    }
 });

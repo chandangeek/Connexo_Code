@@ -1,343 +1,199 @@
 Ext.define('Mdc.controller.setup.LogbookTypes', {
     extend: 'Ext.app.Controller',
-    stores: [ 'Mdc.store.Logbook' ],
+    stores: [
+        'LogbookTypes'
+    ],
     views: [
         'setup.logbooktype.LogbookTypeSetup',
         'setup.logbooktype.LogbookTypeGrid',
         'setup.logbooktype.LogbookTypePreview',
         'setup.logbooktype.LogbookTypeActionMenu',
-        'setup.logbooktype.LogbookTypeCreateUpdateForm'
+        'setup.logbooktype.LogbookTypeEdit'
     ],
     refs: [
-        { ref: 'logbookTypeSetupPanel', selector: 'logbookTypeSetup' },
-        { ref: 'formPanel', selector: 'logbookTypeCreateUpdateForm' }
+        {ref: 'logbookTypeSetup', selector: '#logbookTypeSetup'},
+        {ref: 'logbookTypeGrid', selector: '#logbookTypeGrid'},
+        {ref: 'logbookTypePreviewForm', selector: '#logbookTypePreviewForm'},
+        {ref: 'logbookTypePreview', selector: '#logbookTypeSetup #logbookTypePreview'},
+        {ref: 'logbookTypeEditView', selector: '#logbookTypeEdit'},
+        {ref: 'logbookTypeEditForm', selector: '#logbookTypeEditForm'},
+        {ref: 'logbookTypeEditForm', selector: '#logbookTypeEditForm'}
     ],
+
+
     init: function () {
+        this.getLogbookTypesStore().on('load', this.onLogbookTypesStoreLoad, this);
+
         this.control({
-            'logbookTypeSetup logbookTypeGrid': {
-                afterrender: this.loadStore,
-                select: this.loadGridItemDetail
+            '#logbookTypeSetup #logbookTypeGrid': {
+                selectionchange: this.previewLogbookType
             },
-            'logbookTypeSetup logbookTypeGrid uni-actioncolumn': {
-                menuclick: this.chooseAction
+            '#logbookTypeGrid actioncolumn': {
+                editLogbookType: this.editLogbookTypeHistory,
+                removeLogbookType: this.deleteLogbookType
             },
-            'logbookTypeSetup logbookTypePreview logbookTypeActionMenu': {
-                click: this.chooseAction
+            '#logbookTypeSetup button[action = createLogbookType]': {
+                click: this.createLogbookTypeHistory
             },
-            'logbookTypeCreateUpdateForm button[action=create]': {
-                click: this.onSubmit
+            '#logbookTypePreview menuitem[action=editLogbookType]': {
+                click: this.editLogbookTypeHistoryFromPreview
             },
-
-            'logbookTypeCreateUpdateForm button[action=edit]': {
-                click: this.onSubmit
+            '#logbookTypePreview menuitem[action=removeLogbookType]': {
+                click: this.deleteLogbookTypeFromPreview
+            },
+            '#createEditButton[action=createLogbookType]': {
+                click: this.createLogbookType
+            },
+            '#createEditButton[action=editLogbookType]': {
+                click: this.editLogbookType
             }
+
         });
-        this.listen({
-            store: {
-                '#Mdc.store.Logbook': {
-                    load: this.checkLogBookTypesCount
-                }
+    },
+
+    onLogbookTypesStoreLoad: function () {
+        if (this.getLogbookTypesStore().data.items.length > 0) {
+            var setupWidget = this.getLogbookTypeSetup(),
+                gridWidget = this.getLogbookTypeGrid();
+            if (!Ext.isEmpty(setupWidget) && !Ext.isEmpty(gridWidget)) {
+                setupWidget.show();
+                gridWidget.getSelectionModel().doSelect(0);
             }
-        });
-        this.store = this.getStore('Mdc.store.Logbook');
-    },
 
-    loadStore: function () {
-        this.store.load();
-    },
-    loadGridItemDetail: function (grid, record) {
-        var itemPanel = Ext.ComponentQuery.query('logbookTypePreview')[0],
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
-                target: itemPanel
-            });
-        if (this.displayedItemId != record.getData().id) {
-            grid.view.clearHighlight();
-            preloader.show();
-        }
-        this.displayedItemId = record.getData().id;
-        itemPanel.fireEvent('change', itemPanel, record);
-        var itemForm = itemPanel.down('form');
-        itemForm.loadRecord(record);
-        itemPanel.down().setTitle(record.get('name'));
-        itemPanel.down('logbookTypeActionMenu').record = record;
-        preloader.destroy();
-    },
-    checkLogBookTypesCount: function () {
-        var numberOfLogbooksContainer = Ext.ComponentQuery.query('container[name=logbookTypeRangeCounter]')[0],
-            grid = Ext.ComponentQuery.query('logbookTypeGrid')[0];
-        if (grid) {
-            var gridView = grid.getView(),
-                selectionModel = gridView.getSelectionModel(),
-                widget = Ext.widget('container', {
-                    html: this.store.getCount() + ' ' + Uni.I18n.translatePlural('logbooktype.logbookTypes', this.store.getCount(), 'MDC', 'logbook type(s)')
-                });
-
-            numberOfLogbooksContainer.removeAll(true);
-            numberOfLogbooksContainer.add(widget);
-
-            if (this.store.getCount() < 1) {
-                grid.hide();
-                grid.next().show();
-            } else {
-                selectionModel.select(0);
-                grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
-            }
         }
     },
-//    showOverview: function () {
-//        var widget = Ext.widget('logbookTypeSetup');
-//        this.getApplication().fireEvent('changecontentevent', widget);
-//    },
-    chooseAction: function (menu, item) {
-        var action = item.action;
-        switch (action) {
-            case 'editLogbookType':
-                window.location.href = '#/administration/logbooktypes/edit/' + menu.record.getId();
-                break;
-            case 'removeLogbookType':
-                this.removeLogbook(menu.record.getId());
-                break;
+
+    previewLogbookType: function (grid, record) {
+        var logbookTypes = this.getLogbookTypeGrid().getSelectionModel().getSelection();
+        if (logbookTypes.length == 1) {
+            this.getLogbookTypePreviewForm().loadRecord(logbookTypes[0]);
+            this.getLogbookTypePreview().setTitle(logbookTypes[0].get('name'));
         }
     },
-    removeLogbook: function (logBookTypeId) {
-        var self = this,
-            overview = Ext.ComponentQuery.query('logbookTypeSetup')[0],
-            record = overview.down('form').getRecord();
+
+    createLogbookTypeHistory: function () {
+        location.href = '#/administration/logbooktypes/add';
+    },
+
+    editLogbookTypeHistory: function (item) {
+        location.href = '#/administration/logbooktypes/' + item.get('id') + '/edit';
+    },
+
+    editLogbookTypeHistoryFromPreview: function () {
+        location.href = '#/administration/logbooktypes/' + this.getLogbookTypeGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+    },
+
+    deleteLogbookType: function (logbookTypeToDelete) {
+        var me = this;
 
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Ext.String.format(Uni.I18n.translate('logbooktype.remove.confirmation.title', 'MDC', 'Remove {0}?'), record.data.name),
-            msg: Uni.I18n.translate('logbooktype.remove.confirmation.msg', 'MDC', 'This logbook type will no longer be available'),
+            msg: Uni.I18n.translate('logbookType.deleteLogbookType', 'MDC', 'The logbook type will no longer be available.'),
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + logbookTypeToDelete.get('name') + '?',
             config: {
-                self: self,
-                record: record,
-                logBookTypeId: logBookTypeId
+                logbookTypeToDelete: logbookTypeToDelete
             },
-            fn: self.processRemovingLogbookType
+            fn: me.deleteLogbookTypeInDatabase
         });
     },
-    processRemovingLogbookType: function (state, text, cfg) {
-        var me = this;
-        if (state === 'confirm') {
-            var self = cfg.config.self,
-                logBookStore = self.store,
-                preloader = Ext.create('Ext.LoadMask', {
-                    msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
-                    target: self.getLogbookTypeSetupPanel()
-                });
-            preloader.show();
-            Ext.Ajax.request({
-                url: '/api/mds/logbooktypes/' + cfg.config.logBookTypeId,
-                method: 'DELETE',
+
+    deleteLogbookTypeFromPreview: function (logbookTypeToDelete) {
+        this.deleteLogbookType(this.getLogbookTypeGrid().getSelectionModel().getSelection()[0]);
+    },
+
+    deleteLogbookTypeInDatabase: function (btn, text, opt) {
+        if (btn === 'confirm') {
+            var logbookTypeToDelete = opt.config.logbookTypeToDelete;
+            logbookTypeToDelete.destroy({
                 success: function () {
-                    me.getApplication().fireEvent('acknowledge', 'Successfully removed');
-                    logBookStore.load();
-                },
-                failure: function (response) {
-                    if (response.status == 400) {
-                        var record = cfg.config.record,
-                            result = Ext.decode(response.responseText, true),
-                            title = Ext.String.format(Uni.I18n.translate('logbooktype.remove.failed', 'MDC', 'Failed to remove {0}'), record.data.name),
-                            message = Uni.I18n.translate('general.server.error', 'MDC', 'Server error');
-                        if(!Ext.isEmpty(response.statusText)) {
-                            message = response.statusText;
-                        }
-                        if (result && result.message) {
-                            message = result.message;
-                        } else if (result && result.error) {
-                            message = result.error;
-                        }
-                        self.getApplication().getController('Uni.controller.Error').showError(title, message);
-                    }
-                },
-                callback: function () {
-                    preloader.destroy();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('logbookType.acknowlegment.removed', 'MDC', 'Logbook type removed') );
+                    location.href = '#/administration/logbooktypes/';
                 }
             });
         }
     },
-    showOverview: function (id) {
-        var self = this,
-            widget = Ext.widget('logbookTypeCreateUpdateForm'),
-            form = widget.down('form'),
-            btn = form.down('#submit'),
-            title;
 
+    showLogbookTypeEditView: function (logbookType) {
+        var me = this;
+
+        var widget = Ext.widget('logbookTypeEdit', {
+            edit: true,
+            returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
+        });
         this.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
+        Ext.ModelManager.getModel('Mdc.model.LogbookType').load(logbookType, {
+            success: function (logbookType) {
+                me.getApplication().fireEvent('loadLogbookType', logbookType);
 
-        if (id) {
-            this.crumbId = this.logId = id;
-            self.getModel('Mdc.model.Logbook').load(id, {
+                widget.down('form').loadRecord(logbookType);
+                widget.down('#logbookTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + logbookType.get('name') + '</h1>');
+
+                if (logbookType.get('isInUse') === true) {
+                    widget.down('obis-field').disable();
+                    widget.down('#logbookTypeEditCreateInformation').update(Uni.I18n.translate('logbooktype.warningLinkedTodeviceType', 'MDC', 'The logbook type has been added to a device type.  Only the name is editable.'));
+                    widget.down('#logbookTypeEditCreateInformation').show();
+                }
+                widget.setLoading(false);
+            }
+        })
+    },
+
+    showLogbookTypes: function () {
+        var widget = Ext.widget('logbookTypeSetup');
+        this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    showLogbookTypeCreateView: function () {
+        var widget = Ext.widget('logbookTypeEdit', {
+            edit: false,
+            returnLink: '#/administration/logbooktypes/'
+        });
+        var me = this;
+        this.getApplication().fireEvent('changecontentevent', widget);
+        widget.down('#logbookTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('logbookType.createLogbookType', 'MDC', 'Add logbook type') + '</h1>');
+    },
+
+    createLogbookType: function () {
+        var record = Ext.create(Mdc.model.LogbookType),
+            values = this.getLogbookTypeEditForm().getValues();
+        var me = this;
+
+        if (record) {
+            record.set(values);
+            record.save({
                 success: function (record) {
-                    form.loadRecord(record);
-                    self.logbookAssigned(record);
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('logbooktype.acknowlegment.added', 'MDC', 'Logbook type added') );
+                    location.href = '#/administration/logbooktypes/';
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        me.getLogbookTypeEditForm().getForm().markInvalid(json.errors);
+                    }
                 }
             });
-            title = 'Edit logbook type';
-            btn.setText('Save');
-            btn.action = 'edit';
-        } else {
-            title = 'Create logbook type';
-            btn.setText('Add');
-            btn.action = 'create';
-            self.getFormPanel().down('obis-field').setDisabled(false);
         }
 
-        form.setTitle(title);
     },
 
-    logbookAssigned: function (record) {
-        if (!record.raw.isInUse) {
-            this.getFormPanel().down('obis-field').setDisabled(false);
+    editLogbookType: function () {
+        var record = this.getLogbookTypeEditForm().getRecord(),
+            values = this.getLogbookTypeEditForm().getValues(),
+            me = this;
+        if (record) {
+            record.set(values);
+            record.save({
+                success: function (record) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('logbookType.acknowlegment.saved', 'MDC', 'Logbook type saved') );
+                    location.href = '#/administration/logbooktypes/';
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        me.getLogbookTypeEditForm().getForm().markInvalid(json.errors);
+                    }
+                }
+            });
         }
-    },
-
-    createRequest: function (form, formErrorsPanel, preloader) {
-        var self = this,
-            jsonValues = Ext.JSON.encode(form.getValues());
-
-        Ext.Ajax.request({
-            url: '/api/mds/logbooktypes',
-            method: 'POST',
-            jsonData: jsonValues,
-            success: function () {
-                window.location.href = '#/administration/logbooktypes';
-                self.getApplication().fireEvent('acknowledge', 'Logbook type saved');
-            },
-            failure: function (response) {
-                var result = Ext.decode(response.responseText, true);
-                if (result !== null) {
-                    Ext.widget('messagebox').show({
-                        ui: 'notification-error',
-                        title: result.error,
-                        msg: result.message,
-                        icon: Ext.MessageBox.ERROR,
-                        buttons: Ext.MessageBox.CANCEL
-                    });
-                } else {
-                    Ext.widget('messagebox').show({
-                        ui: 'notification-error',
-                        title: 'Error during creation.',
-                        msg: 'The logbook type could not be saved. There was a problem accessing the database',
-                        icon: Ext.MessageBox.ERROR,
-                        buttons: Ext.MessageBox.CANCEL
-                    });
-                }
-            },
-            callback: function () {
-                preloader.destroy();
-            }
-        });
-    },
-
-    editRequest: function (formPanel, form, formErrorsPanel, preloader) {
-        var self = this,
-            record = form.getRecord(),
-            jsonValues = Ext.JSON.encode(form.getValues());
-        Ext.Ajax.request({
-            url: '/api/mds/logbooktypes/' + self.logId,
-            method: 'PUT',
-            jsonData: jsonValues,
-            waitMsg: 'Loading...',
-            success: function () {
-                window.location.href = '#/administration/logbooktypes';
-                self.getApplication().fireEvent('acknowledge', 'Successfully edited');
-            },
-            failure: function (response) {
-                confirmMessage.close();
-                var result;
-                if (response != null) {
-                    result = Ext.decode(response.responseText, true);
-                }
-                if (result !== null) {
-                    Ext.widget('messagebox', {
-                        buttons: [
-                            {
-                                text: 'Close',
-                                action: 'cancel',
-                                handler: function(btn){
-                                    btn.up('messagebox').hide()
-                                }
-                            }
-                        ]
-                    }).show({
-                            ui: 'notification-error',
-                            title: result.error,
-                            msg: result.message,
-                            icon: Ext.MessageBox.ERROR
-                        })
-
-                } else {
-                    Ext.widget('messagebox', {
-                        buttons: [
-                            {
-                                text: 'Close',
-                                action: 'cancel',
-                                handler: function(btn){
-                                    btn.up('messagebox').hide()
-                                }
-                            }
-                        ]
-                    }).show({
-                            ui: 'notification-error',
-                            title: 'Failed to delete ' + record.data.name,
-                            msg: 'Logbook type could not be removed. There was a problem accessing the database',
-                            icon: Ext.MessageBox.ERROR
-                        })
-                }
-            },
-            callback: function () {
-                preloader.destroy();
-            }
-        });
-    },
-
-    showErrorsPanel: function (formErrorsPanel) {
-        formErrorsPanel.hide();
-        formErrorsPanel.removeAll();
-        formErrorsPanel.add({
-            html: 'There are errors on this page that require your attention.'
-        });
-        formErrorsPanel.show();
-    },
-
-    onSubmit: function (btn) {
-        var self = this,
-            formPanel = self.getFormPanel(),
-            form = formPanel.down('form').getForm(),
-            formErrorsPanel = Ext.ComponentQuery.query('logbookTypeCreateUpdateForm #errors')[0],
-            preloader;
-        if (form.isValid()) {
-            formErrorsPanel.hide();
-            self.trimFields();
-            switch (btn.action) {
-                case 'create':
-                    preloader = Ext.create('Ext.LoadMask', {
-                        msg: "Creating logbook type",
-                        name: 'log-form-create',
-                        target: formPanel
-                    });
-                    preloader.show();
-                    self.createRequest(form, formErrorsPanel, preloader);
-                    break;
-                case 'edit':
-                    preloader = Ext.create('Ext.LoadMask', {
-                        msg: "Editing logbook type",
-                        name: 'log-form-edit',
-                        target: formPanel
-                    });
-                    preloader.show();
-                    self.editRequest(formPanel, form, formErrorsPanel, preloader);
-                    break;
-            }
-        } else {
-            self.showErrorsPanel(formErrorsPanel);
-        }
-    },
-
-    trimFields: function () {
-        var nameField = Ext.ComponentQuery.query('logbookTypeCreateUpdateForm #logbookTypeName')[0],
-            nameValue = Ext.util.Format.trim(nameField.value);
-        nameField.setValue(nameValue);
     }
 });

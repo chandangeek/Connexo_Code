@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.devicetype.ActionMenu', {
     items: [
         {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            action: 'remove'
+            action: 'deleteLogBookType'
         }
     ]
 });

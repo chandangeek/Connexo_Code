@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                         },
                         {
                             xtype: 'button',
-                            text: 'Manage logbooks',
+                            text: Uni.I18n.translate('logbooktype.managelogbooktypes', 'MDC', 'Manage logbooks'),
                             action: 'manage',
                             ui: 'link',
                             listeners: {
@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                 },
                 {
                     xtype: 'grid',
-                    store: 'LogbookTypes',
+                    store: 'AvailableLogbookTypes',
                     height: 395,
                     selType: 'checkboxmodel',
                     selModel: {
@@ -54,13 +54,14 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                         },
                         items: [
                             {
-                                header: 'Name',
+                                header: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name'),
                                 dataIndex: 'name',
-                                flex: 5
+                                flex: 3
                             },
                             {
                                 xtype: 'obis-column',
-                                dataIndex: 'obisCode'
+                                dataIndex: 'obisCode',
+                                flex:2
                             }
                         ]
                     },
@@ -94,9 +95,9 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                     items: [
                         {
                             xtype: 'panel',
-                            html: "<h3>No logbook type found</h3><br>\
-          There are no logbooks. This could be because:<br>\
-          &nbsp;&nbsp; - No logbook type have been defined yet.<br>"
+                            html: "<h3>No logbook types found</h3><br>\
+          There are no logbook types. This could be because:<br>\
+          &nbsp;&nbsp; - No logbook types have been defined yet.<br>"
                         }
                     ]
                 }

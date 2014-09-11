@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Logbooks', {
     fieldLabel: 'Logbook type',
     labelWidth: 200,
     labelSeparator: '*',
-    store: 'Mdc.store.Logbook',
+    store: 'Mdc.store.LogbookTypes',
     displayField: 'name',
     valueField: 'id',
     allowBlank: true,

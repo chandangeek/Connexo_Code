@@ -2,7 +2,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
     extend: 'Ext.app.Controller',
 
     stores: [
-        'Mdc.store.LogbookTypes'
+        'Mdc.store.AvailableLogbookTypes'
     ],
     requires: [
         'Ext.window.MessageBox'
@@ -29,7 +29,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
             chosenLogBookCount = grid.view.getSelectionModel().getSelection().length;
         textLabel.setText(
             chosenLogBookCount >= 1 ? (chosenLogBookCount +
-                (chosenLogBookCount > 1 ? ' logbooks' : ' logbook') + ' selected') : 'No logbooks selected');
+                (chosenLogBookCount > 1 ? ' logbooks' : ' logbook') + ' selected') : 'No logbook types selected');
         if (chosenLogBookCount < 1) {
             addBtn.disable();
         } else {
@@ -60,7 +60,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
             jsonData: jsonIds,
             success: function () {
                 router.getRoute('administration/devicetypes/view/logbooktypes').forward();
-                self.getApplication().fireEvent('acknowledge', 'Successfully added');
+                self.getApplication().fireEvent('acknowledge', 'Logbook type(s) added');
             },
             failure: function (response) {
                 if(response.status == 400) {
