@@ -126,15 +126,17 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
 
             plotOptions: {
                 column: {
-                    borderColor: 'black',
-                    borderWidth: 0.5,
+//                    borderColor: 'black',
+//                    borderWidth: 0.5,
                     pointPadding: 0,
                     groupPadding: 0,
                     dataGrouping:
                     {
                         enabled: false
                     },
-                    color: '#70BB51'
+                    color: '#70BB51',
+                    shadow: false,
+                    pointPlacement: 'between'
                 },
                 line: {
                     color: '#70BB51'
