@@ -3,7 +3,8 @@ Ext.onReady(function () {
         translationsQueue = [
             'USR',
             'USM',
-            'SAM'
+            'SAM',
+            'BPM'
         ];
 
     loader.initI18n(translationsQueue);
@@ -18,6 +19,10 @@ Ext.onReady(function () {
         {
             name: 'Sam',
             path: '../../apps/sam/src'
+        },
+        {
+            name: 'Bpm',
+            path: '../../apps/bpm/src'
         }
     ];
 

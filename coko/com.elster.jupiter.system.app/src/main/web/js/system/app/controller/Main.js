@@ -8,6 +8,7 @@ Ext.define('SystemApp.controller.Main', {
 
     controllers: [
         'Usr.controller.Main',
-        'Sam.controller.Main'
+        'Sam.controller.Main',
+        'Bpm.controller.Main'
     ]
 });
