@@ -1478,11 +1478,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         else {
             sqlBuilder.append(" and ct.nextexecutiontimestamp is not null");
         }
-        sqlBuilder.append(" and cs.id in (select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
+        sqlBuilder.append(" and not exists (select * from ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" group by connectiontask) and cs.successindicator = 0 and exists (select * from ");
+        sqlBuilder.append(" cs2 where cs2.startdate > cs.startdate and cs2.connectiontask = cs.connectiontask) and cs.successindicator = 0 and exists (select * from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0)");
+        sqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator > 0)");
         try (PreparedStatement stmnt = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
             try (ResultSet resultSet = stmnt.executeQuery()) {
                 while (resultSet.next()) {
