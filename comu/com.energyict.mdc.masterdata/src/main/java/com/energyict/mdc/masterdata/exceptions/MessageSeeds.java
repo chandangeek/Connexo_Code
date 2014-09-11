@@ -18,11 +18,11 @@ public enum MessageSeeds implements MessageSeed {
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "The name must be unique", SEVERE),
 
-    LOG_BOOK_TYPE_NAME_IS_REQUIRED(1102, "logBookType.name.required", "The name of a log book type is required", SEVERE),
-    LOG_BOOK_TYPE_ALREADY_EXISTS(1103, "logBookType.duplicateNameX", "A log book type with name \"{0}\" already exists", SEVERE),
-    LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED(1104, Keys.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED, "The obis code of a log book type is required", SEVERE),
-    LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(1105, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be removed because it is still in use by the following log book spec(s): {1}", SEVERE),
-    LOG_BOOK_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(1106, "logBookType.XstillInUseByDeviceTypesY", "The log book type {0} cannot be removed because it is still in use by the following device type(s): {1}", SEVERE),
+    LOG_BOOK_TYPE_NAME_IS_REQUIRED(1102, "logBookType.name.required", "The name of a logbook type is required", SEVERE),
+    LOG_BOOK_TYPE_ALREADY_EXISTS(1103, "logBookType.duplicateNameX", "A logbook type with name \"{0}\" already exists", SEVERE),
+    LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED(1104, Keys.LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED, "The obis code of a logbook type is required", SEVERE),
+    LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(1105, "logBookType.XstillInUseByLogBookSpecsY", "The logbook type {0} cannot be removed because it is still in use by the following logbook spec(s): {1}", SEVERE),
+    LOG_BOOK_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(1106, "logBookType.XstillInUseByDeviceTypesY", "The logbook type {0} cannot be removed because it is still in use by the following device type(s): {1}", SEVERE),
 
     REGISTER_GROUP_STILL_IN_USE(1200, "registerGroup.XstillInUseByY", "The register group with name \"{0}\" cannot be removed because it is still in use by the following register mappings: {1}", SEVERE),
 

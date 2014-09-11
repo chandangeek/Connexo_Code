@@ -36,13 +36,6 @@ public interface MasterDataService {
     public List<Phenomenon> findAllPhenomena();
 
     /**
-     * Find all {@link LogBookType LogBookTypes} in the system.
-     *
-     * @return all the LogBookTypes in the system
-     */
-    public List<LogBookType> findAllLogBookTypes();
-
-    /**
      * Find a {@link LogBookType} with the given ID.
      *
      * @param id the ID of the LogBookType
@@ -93,6 +86,7 @@ public interface MasterDataService {
     public Finder<MeasurementType> findAllMeasurementTypes();
     public Finder<RegisterType> findAllRegisterTypes();
     public Finder<ChannelType> findAllChannelTypes();
+    public Finder<LogBookType> findAllLogBookTypes();
 
     /**
      * Finds the {@link MeasurementType} that is uniquely identified by the specified number.
