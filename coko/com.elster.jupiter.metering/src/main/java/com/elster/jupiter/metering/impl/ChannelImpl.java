@@ -31,7 +31,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -309,13 +308,13 @@ public final class ChannelImpl implements Channel {
 
     @Override
     public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Interval interval) {
-        Condition ofTypeAndInInterval = inInterval(interval).and(Operator.EQUAL.compare("typeCode", type.getCode()));
+        Condition ofTypeAndInInterval = ofThisChannel().and(inInterval(interval)).and(Operator.EQUAL.compare("typeCode", type.getCode()));
         return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval,Order.ascending("readingTimestamp"));
     }
 
     @Override
     public List<ReadingQualityRecord> findReadingQuality(Date timestamp) {
-        Condition atTimestamp = withTimestamp(timestamp);
+        Condition atTimestamp = ofThisChannel().and(withTimestamp(timestamp));
         return dataModel.mapper(ReadingQualityRecord.class).select(atTimestamp, Order.ascending("readingTimestamp"));
     }
 
