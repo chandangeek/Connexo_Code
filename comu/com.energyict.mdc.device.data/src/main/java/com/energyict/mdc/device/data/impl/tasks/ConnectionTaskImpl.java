@@ -100,9 +100,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                     INBOUND_DISCRIMINATOR, InboundConnectionTaskImpl.class,
                     SCHEDULED_DISCRIMINATOR, ScheduledConnectionTaskImpl.class);
 
-    private long deviceId;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_DEVICE_REQUIRED_KEY + "}")
-    private Device device;
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_DEVICE_REQUIRED_KEY + "}")
+    private Reference<Device> device = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
     private Reference<PCTT> partialConnectionTask = ValueReference.absent();
     private boolean isDefault = false;
@@ -136,9 +135,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     public void initialize(Device device, PCTT partialConnectionTask, CPPT comPortPool) {
-        this.device = device;
+        this.setDevice(device);
         this.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
-        this.deviceId = device.getId();
         this.validatePartialConnectionTaskType(partialConnectionTask);
         this.validateConstraint(partialConnectionTask, device);
         this.validateSameConfiguration(partialConnectionTask, device);
@@ -246,13 +244,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void save() {
-        if (device == null) {
-            loadDevice();
-        }
-        this.deviceId = device.getId();
         this.validateNotObsolete();
         this.modificationDate = this.now();
-
         super.save();
         this.saveAllProperties();
     }
@@ -411,14 +404,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Device getDevice() {
-        if (this.device == null) {
-            this.loadDevice();
-        }
-        return this.device;
+        return this.device.get();
     }
 
-    private void loadDevice() {
-        this.device = this.findDevice(this.deviceId);
+    private void setDevice(Device device) {
+        this.device.set(device);
     }
 
     public ConnectionTypePluggableClass getPluggableClass() {
@@ -837,9 +827,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     protected void post() {
-        if (device == null) {
-            loadDevice();
-        }
         if (this.pluggableClass == null) {
             this.loadPluggableClass();
         }
@@ -887,7 +874,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
 
     /**
-     * This will use the validation framework to detect if there are any Validation errors
+     * This will use the validation framework to detect if there are any Validation errors.
+     *
      * @return true if everything is valid, false otherwise
      */
     boolean isValidConnectionTask(){

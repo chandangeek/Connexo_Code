@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksInComScheduleMustHaveSameConfigurationSettings;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComSchedulePerDevice;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
@@ -138,6 +139,11 @@ public class ScheduledComTaskExecutionImpl extends ComTaskExecutionImpl implemen
             }
         }
         return minimalNrOfRetries;
+    }
+
+    @Override
+    public ScheduledConnectionTask getConnectionTask() {
+        return (ScheduledConnectionTask) super.getConnectionTask();
     }
 
     @Override
