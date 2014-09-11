@@ -26,20 +26,16 @@ public class DeviceSchedulesInfo {
         Set<Long> usedComtaskIds = new HashSet<>();
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             for (ComTask comTask : comTaskExecution.getComTasks()) {
-                if (!comTaskExecution.isAdHoc()) {
                     usedComtaskIds.add(comTask.getId());
-                }
             }
         }
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            if(comTaskExecution.isScheduledManually()){
+            if(comTaskExecution.isScheduledManually() && !comTaskExecution.isAdHoc()){
                 deviceSchedulesInfos.add(DeviceSchedulesInfo.fromManual(comTaskExecution));
             }  else if(comTaskExecution.usesSharedSchedule()){
                 deviceSchedulesInfos.add(DeviceSchedulesInfo.fromScheduled(comTaskExecution));
             } else if(comTaskExecution.isAdHoc()){
-                if(!usedComtaskIds.contains(comTaskExecution.getComTasks().get(0).getId())){
                     deviceSchedulesInfos.add(DeviceSchedulesInfo.fromAdHoc(comTaskExecution));
-                }
             }
         }
         deviceSchedulesInfos.addAll(DeviceSchedulesInfo.fromEnablements(comTaskEnablements, usedComtaskIds));

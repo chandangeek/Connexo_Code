@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -53,7 +54,8 @@ public class DeviceResource {
     private final Provider<DeviceValidationResource> deviceValidationResourceProvider;
     private final Provider<RegisterResource> registerResourceProvider;
     private final Provider<BulkScheduleResource> bulkScheduleResourceProvider;
-    private final Provider<ComtaskExecutionResource> comTaskExecutionResourceProvider;
+    private final Provider<DeviceScheduleResource> deviceScheduleResourceProvider;
+    private final Provider<DeviceComTaskResource> deviceComTaskResourceProvider;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
@@ -73,7 +75,9 @@ public class DeviceResource {
             ExceptionFactory exceptionFactory,
             Provider<DeviceValidationResource> deviceValidationResourceProvider,
             Provider<BulkScheduleResource> bulkScheduleResourceProvider,
-            Provider<ComtaskExecutionResource> comTaskExecutionResourceProvider) {
+            Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
+            Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
+            Thesaurus thesaurus) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
@@ -90,7 +94,8 @@ public class DeviceResource {
         this.deviceValidationResourceProvider = deviceValidationResourceProvider;
         this.exceptionFactory = exceptionFactory;
         this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
-        this.comTaskExecutionResourceProvider = comTaskExecutionResourceProvider;
+        this.deviceScheduleResourceProvider = deviceScheduleResourceProvider;
+        this.deviceComTaskResourceProvider = deviceComTaskResourceProvider;
     }
 
 
@@ -274,7 +279,10 @@ public class DeviceResource {
     }
 
     @Path("/{mRID}/schedules")
-    public ComtaskExecutionResource getComTaskExecutionResource() {
-        return comTaskExecutionResourceProvider.get();
+    public DeviceScheduleResource getComTaskExecutionResource() {
+        return deviceScheduleResourceProvider.get();
     }
+
+    @Path("/{mRID}/comtasks")
+    public DeviceComTaskResource getComTaskResource(){return deviceComTaskResourceProvider.get();}
 }

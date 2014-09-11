@@ -15,6 +15,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
@@ -52,7 +53,9 @@ import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.base.Optional;
@@ -101,16 +104,19 @@ import static org.mockito.Mockito.when;
 public class DeviceResourceTest extends JerseyTest {
 
     private static final String DUMMY_THESAURUS_STRING = "";
+    public static final Date NOW = new Date(1409738114);
     private static DeviceDataService deviceDataService;
     private static DeviceImportService deviceImportService;
     private static DeviceConfigurationService deviceConfigurationService;
     private static NlsService nlsService;
+    private static TransactionService transactionService;
     private static Thesaurus thesaurus;
     private static EngineModelService engineModelService;
     private static IssueService issueService;
     private static MdcPropertyUtils mdcPropertyUtils;
     private static SchedulingService schedulingService;
     private static ValidationService validationService;
+    private static Clock clock;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -119,11 +125,13 @@ public class DeviceResourceTest extends JerseyTest {
         deviceImportService = mock(DeviceImportService.class);
         deviceConfigurationService = mock(DeviceConfigurationService.class);
         engineModelService = mock(EngineModelService.class);
+        transactionService = new FakeTransactionService();
         nlsService = mock(NlsService.class);
         thesaurus = mock(Thesaurus.class);
         mdcPropertyUtils = mock(MdcPropertyUtils.class);
         schedulingService = mock(SchedulingService.class);
         validationService = mock(ValidationService.class);
+        clock = mock(Clock.class);
     }
 
     @Override
@@ -132,6 +140,7 @@ public class DeviceResourceTest extends JerseyTest {
         super.setUp();
         reset(deviceImportService, engineModelService);
         when(thesaurus.getString(anyString(), anyString())).thenReturn(DUMMY_THESAURUS_STRING);
+        when(clock.now()).thenReturn(NOW);
         NlsMessageFormat mft = mock(NlsMessageFormat.class);
         when(mft.format(any(Object[].class))).thenReturn("format");
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(mft);
@@ -160,6 +169,7 @@ public class DeviceResourceTest extends JerseyTest {
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(engineModelService).to(EngineModelService.class);
                 bind(nlsService).to(NlsService.class);
+                bind(transactionService).to(TransactionService.class);
                 bind(ResourceHelper.class).to(ResourceHelper.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(thesaurus).to(Thesaurus.class);
@@ -170,6 +180,7 @@ public class DeviceResourceTest extends JerseyTest {
                 bind(schedulingService).to(SchedulingService.class);
                 bind(validationService).to(ValidationService.class);
                 bind(ChannelResource.class).to(ChannelResource.class);
+                bind(clock).to(Clock.class);
             }
         });
         return resourceConfig;
@@ -525,12 +536,15 @@ public class DeviceResourceTest extends JerseyTest {
 
         Map<String, Object> response = target("/devices/mrid1/loadprofiles/1").request().get(Map.class);
         assertThat(response)
-                .hasSize(6)
+                .hasSize(9)
                 .contains(MapEntry.entry("id", 1))
                 .contains(MapEntry.entry("name", "lp1"))
                 .contains(MapEntry.entry("lastReading", 1406617200000L))
                 .contains(MapEntry.entry("obisCode", "1.2.3.4.5.1"))
                 .containsKey("channels")
+                .containsKey("validationInfo")
+                .containsKey("validationActive")
+                .containsKey("lastChecked")
                 .containsKey("interval");
         Map<String, Object> interval = (Map<String, Object>) response.get("interval");
         assertThat(interval)
@@ -565,6 +579,12 @@ public class DeviceResourceTest extends JerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.MINUTES), channel1, channel2);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
         when(deviceDataService.findByUniqueMrid("mrid2")).thenReturn(device1);
+        when(channel1.getDevice()).thenReturn(device1);
+        when(channel2.getDevice()).thenReturn(device1);
+        DeviceValidation deviceValidation = mock(DeviceValidation.class);
+        when(device1.forValidation()).thenReturn(deviceValidation);
+        when(deviceValidation.isValidationActive(channel1, NOW)).thenReturn(true);
+        when(deviceValidation.isValidationActive(channel2, NOW)).thenReturn(true);
         List<LoadProfileReading> loadProfileReadings = new ArrayList<>();
         final long startTime = 1388534400000L;
         long start = startTime;
