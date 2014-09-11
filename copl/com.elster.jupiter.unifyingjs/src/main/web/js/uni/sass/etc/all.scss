@@ -345,17 +345,47 @@
     background-image: url($resourcesDir + 'images/fader.png');
     border: 1px solid grey;
 }
+
 .uni-info-icon {
     float: right;
 }
 
 .icon-info-small {
     float: right;
-    background-image: url('/apps/ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png');
+    background-image: url($resourcesDir + 'images/icon-info-small.png');
 }
 
 .x-grid-row-selected, .x-grid-row-over {
-  .icon-info-small {
-    background-image: url('/apps/ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small-white.png');
-  }
+    .icon-info-small {
+        background-image: url($resourcesDir + 'images/icon-info-small-white.png');
+    }
+}
+
+// Other
+
+.validation-column-align {
+    vertical-align: middle;
+}
+
+.icon-validation {
+    background-size: 100% 100%;
+    display: inline-block;
+    height: 13px;
+    width: 13px;
+    vertical-align: middle;
+}
+
+.icon-validation-black {
+    background-image: url($resourcesDir + 'images/Not-validated.png');
+}
+
+.icon-validation-red {
+    background-image: url($resourcesDir + 'images/Suspect.png');
+}
+
+.icon-filter {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAQAAADY4iz3AAAAgUlEQVR4XqXL0QmDMBgE4KML+FQQtEHBQEDAERwloziCI2UER3CEfwHlmh6UUGqfeh/wXziC0UZeMoQYKFtIsgVKBOBXT89hgTIsntkKSJ96ZnNus1rCO13ldkdnj+gs372rUNJOjTUUayd8po41JeI7d76U963UUy6nQ37/+nt6AuFSTUUWSLwtAAAAAElFTkSuQmCC);
+    display: inline-block;
+    height: 13px;
+    width: 13px;
 }
