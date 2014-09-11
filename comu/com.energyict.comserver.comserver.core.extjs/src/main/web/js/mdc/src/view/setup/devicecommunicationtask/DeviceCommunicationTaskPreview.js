@@ -3,10 +3,12 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
     frame: true,
     alias: 'widget.deviceCommunicationTaskPreview',
     itemId: 'deviceCommunicationTaskPreview',
+
     requires: [
         'Mdc.view.setup.property.PropertyView',
         'Mdc.util.ScheduleToStringConverter'
     ],
+
     layout: {
         type: 'card',
         align: 'stretch'
@@ -38,7 +40,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
             itemId: 'deviceCommunicationTaskPreviewForm',
             layout: {
                 type: 'vbox'
-//                align: 'stretch'
             },
             items: [
                 {
@@ -109,26 +110,22 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'status',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.currentStatus', 'MDC', 'Current status'),
-
+                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.currentStatus', 'MDC', 'Current status')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'urgency',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.urgency', 'MDC', 'Urgency'),
-
+                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.urgency', 'MDC', 'Urgency')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'securitySettings',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.securitySettings', 'MDC', 'Security settings'),
-
+                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.securitySettings', 'MDC', 'Security settings')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'protocolDialect',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.protocolDialect', 'MDC', 'Protocol dialect'),
-
+                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.protocolDialect', 'MDC', 'Protocol dialect')
                                 }
                             ]
                         },
@@ -147,7 +144,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                     xtype: 'displayfield',
                                     name: 'temporalExpression',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationTask.frequency', 'MDC', 'Frequency'),
-                                    renderer: function(value){
+                                    renderer: function (value) {
                                         return Mdc.util.ScheduleToStringConverter.convert(value);
                                     }
                                 },
@@ -181,11 +178,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
         }
     ],
 
-
     initComponent: function () {
         this.callParent(arguments);
     }
-})
-;
-
-
+});
