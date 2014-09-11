@@ -1,5 +1,6 @@
 Ext.define('Dsh.model.Filter', {
     extend: 'Ext.data.Model',
+    proxy: Ext.create('Uni.data.proxy.QueryStringProxy', { root: 'filter' }),
     fields: [
         { name: 'deviceGroup', type: 'auto' },
         { name: 'state', type: 'auto' },
@@ -7,13 +8,8 @@ Ext.define('Dsh.model.Filter', {
         { name: 'latestResult', type: 'auto' },
         { name: 'comPortPool', type: 'auto' },
         { name: 'connectionType', type: 'auto' },
-        { name: 'deviceType', type: 'auto' }
-//        'startedBetween', 'finishedBetween',
-//        {name: 'from', mapping: 'startedBetween.from'}
-    ],
-//    associations: [
-//        { name: 'startedBetween', type: 'hasOne', model: 'Dsh.model.DateTimeRange', associationKey: 'startedBetween' },
-//        { name: 'finishedBetween', type: 'hasOne', model: 'Dsh.model.DateTimeRange', associationKey: 'finishedBetween' }
-//    ],
-    proxy: Ext.create('Uni.data.proxy.QueryStringProxy', {root: 'filter'})
+        { name: 'deviceType', type: 'auto' },
+        { name: 'startedBetween', type: 'auto' },
+        { name: 'finishedBetween', type: 'auto' }
+    ]
 });

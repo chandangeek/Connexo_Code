@@ -8,8 +8,18 @@ Ext.define('Dsh.view.widget.common.SideFilterDateTime', {
         type: 'vbox',
         align: 'stretch'
     },
+    style: {
+        border: 'none',
+        padding: 0,
+        margin: 0
+    },
     defaults: {
-        xtype: 'datetime-field'
+        xtype: 'datetime-field',
+        style: {
+            border: 'none',
+            padding: 0,
+            margin: 0
+        }
     },
     items: [
         { xtype: 'panel', name: 'header', baseCls: 'x-form-item-label', style: 'margin: 15px 0' },

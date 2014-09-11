@@ -17,9 +17,8 @@ Ext.define('Dsh.view.widget.common.DateTimeField', {
             editable: false
         },
         {
-            xtype: 'fieldset',
-            name: 'hoursMinutes',
-//            fieldLabel: '&nbsp;',
+            xtype: 'fieldcontainer',
+            fieldLabel: '&nbsp;',
             style: 'padding-left: 30px',
             layout: 'hbox',
             defaultType: 'numberfield',
