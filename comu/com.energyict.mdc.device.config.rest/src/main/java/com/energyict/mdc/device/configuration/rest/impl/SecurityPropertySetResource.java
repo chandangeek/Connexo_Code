@@ -66,6 +66,14 @@ public class SecurityPropertySetResource {
     public Response createSecurityPropertySet(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, SecurityPropertySetInfo securityPropertySetInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+
+        if (securityPropertySetInfo.authenticationLevelId == null) {
+            securityPropertySetInfo.authenticationLevelId = -1;
+        }
+        if (securityPropertySetInfo.encryptionLevelId == null) {
+            securityPropertySetInfo.encryptionLevelId = -1;
+        }
+
         SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet(securityPropertySetInfo.name)
                                                   .authenticationLevel(securityPropertySetInfo.authenticationLevelId)
                                                   .encryptionLevel(securityPropertySetInfo.encryptionLevelId)

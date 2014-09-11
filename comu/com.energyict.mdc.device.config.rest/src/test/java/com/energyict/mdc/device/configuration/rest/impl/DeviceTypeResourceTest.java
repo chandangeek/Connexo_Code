@@ -312,7 +312,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         Map<String, Object> map = target("/devicetypes/84/logbooktypes").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(2);
-        List<Map> logBookTypeInfos = (List) map.get("data");
+        List<Map> logBookTypeInfos = (List) map.get("logbookTypes");
         assertThat(logBookTypeInfos.size()).isEqualTo(2);
         assertThat(logBookTypeInfos.get(0).get("id")).isEqualTo(1);
         assertThat(logBookTypeInfos.get(1).get("obisCode")).isEqualTo("0.0.0.0.2");
