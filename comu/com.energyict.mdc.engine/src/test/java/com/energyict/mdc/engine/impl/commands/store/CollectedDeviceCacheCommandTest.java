@@ -130,6 +130,10 @@ public class CollectedDeviceCacheCommandTest {
             return changed;
         }
 
+        @Override
+        public void setChanged(boolean flag) {
+        }
+
         protected void updateChangedState(final boolean changedState) {
             this.changed = changedState;
         }
