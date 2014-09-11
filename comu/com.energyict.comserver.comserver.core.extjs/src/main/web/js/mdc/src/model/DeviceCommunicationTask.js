@@ -12,8 +12,8 @@ Ext.define('Mdc.model.DeviceCommunicationTask', {
         'temporalExpression',
         {name: 'scheduleType', type: 'string'},
         {name: 'scheduleName', type: 'string'},
-        {name: 'plannedDate',dateFormat: 'time', type: 'date'},
-        {name: 'status', type: 'string'},
+        {name: 'plannedDate', dateFormat: 'time', type: 'date'},
+        {name: 'status', type: 'string'}
     ],
     proxy: {
         type: 'rest',
