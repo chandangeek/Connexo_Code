@@ -80,7 +80,7 @@ public enum TableSpecs {
             Table<MessagesTaskTypeUsage> table = dataModel.addTable(name(), MessagesTaskTypeUsage.class);
             table.map(MessagesTaskTypeUsageImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column messageTaskId = table.column("MESSAGETASK").number().conversion(NUMBER2INT).add(); // DO NOT MAP
+            Column messageTaskId = table.column("MESSAGETASK").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
             table.column("MESSAGECATEGORY").varChar(SHORT_DESCRIPTION_LENGTH).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
             table.column("MESSAGESPEC").varChar(SHORT_DESCRIPTION_LENGTH).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_SPEC.fieldName()).add();
             table.foreignKey("FK_CTS_DEVMSGTUSAGE_COMTASK").
@@ -99,7 +99,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<RegisterGroupUsage> table = dataModel.addTable(name(), RegisterGroupUsage.class);
             table.map(RegisterGroupUsageImpl.class);
-            Column registerTask = table.column("REGISTERSTASK").number().conversion(NUMBER2INT).notNull().add(); // DO NOT MAP
+            Column registerTask = table.column("REGISTERSTASK").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
             Column registerGroup = table.column("REGISTERGROUP").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
 
             table.foreignKey("FK_CTS_REGGRPUSAGE_PROTOCOLTSK").
