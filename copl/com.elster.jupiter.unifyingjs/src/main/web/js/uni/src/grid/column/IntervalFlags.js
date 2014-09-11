@@ -10,8 +10,16 @@ Ext.define('Uni.grid.column.IntervalFlags', {
     ],
 
     deferredRenderer: function (value, record, view) {
-        var me = this;
-        var cmp = view.getCell(record, me).down('.x-grid-cell-inner');
+        var me = this,
+            cell;
+
+        try {
+            cell = view.getCell(record, me);
+        } catch (err) {
+            return false;
+        }
+
+        var cmp = cell.down('.x-grid-cell-inner');
         var field = new Uni.form.field.IntervalFlagsDisplay({
             fieldLabel: false
         });

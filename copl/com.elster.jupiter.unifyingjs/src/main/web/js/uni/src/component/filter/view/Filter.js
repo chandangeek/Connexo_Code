@@ -156,7 +156,6 @@ Ext.define('Uni.component.filter.view.Filter', {
             var store = cmp.getStore();
             var rec = store.getById(values[name]);
             record.set(name, rec);
-            record[association.setterName].call(record, rec);
         }
 
         return this;

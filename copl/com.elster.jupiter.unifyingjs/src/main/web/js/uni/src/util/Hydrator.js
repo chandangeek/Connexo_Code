@@ -1,17 +1,17 @@
 /**
  * @class Uni.util.Hydrator
+ * todo: rename on
  *
  * This is the hydrator which allows you to work with the associations of the Ext.data.model
  */
 Ext.define('Uni.util.Hydrator', {
-    lazyLoading: true,
 
     /**
      * Extracts data from the provided object
      * @param object Ext.data.Model
      * @returns {Object}
      */
-    extract: function(object) {
+    extract: function (object) {
         var me = this,
             data = object.getData();
 
@@ -50,74 +50,78 @@ Ext.define('Uni.util.Hydrator', {
     extractHasMany: function (store) {
         var result = [];
 
-        store.each(function(record){
+        store.each(function (record) {
             result.push(record.getId());
         });
 
         return result;
     },
 
+    // todo: replace on normal promises
+    Promise: function(){
+        return {
+            callback: null,
+            callbacks: [],
+            when: function(callbacks) {
+                this.callbacks = callbacks;
+                return this;
+            },
+            then: function (callback) {
+                this.callbacks.length ? this.callback = callback : callback();
+                return this;
+            },
+            resolve: function(fn) {
+                var i = _.indexOf(this.callbacks, fn);
+                this.callbacks.splice(i, 1);
+
+                if (!this.callbacks.length) {
+                    this.callback.call();
+                }
+                return this;
+            }
+        }
+    },
+
     /**
      * Hydrates data to the provided object
      *
-     * todo: replace on promises
-     *
      * @param data
      * @param object
-     * @param callback
      */
-    hydrate: function(data, object, callback) {
+    hydrate: function (data, object) {
         var me = this,
             fieldData = _.pick(data, object.fields.keys),
             associationData = _.pick(data, object.associations.keys);
 
-        _.each(fieldData, function(item, key) {
+        // set object fields
+        _.each(fieldData, function (item, key) {
             object.set(key, item);
         });
 
-        var count = _.keys(associationData).length;
-        var complete = function() {
-            if (--count == 0) {
-                callback(object);
-            }
-        };
+        var promise = new this.Promise();
+        var callbacks = [];
 
-        _.each(associationData, function(item, key) {
+        // set object associations
+        _.each(associationData, function (item, key) {
             var association = object.associations.get(key);
+            var callback = function() {
+                promise.resolve(callback);
+            };
+            callbacks.push(callback);
             switch (association.type) {
                 case 'hasOne':
-                    me.hydrateHasOne(item, object.get(key) || Ext.create(association.model), function(record, operation, success) {
-                        object.set(key, record);
-                        complete();
-                    });
+                    object.set(association.foreignKey, item);
+                    var getter = association.createGetter();
+                    getter.call(object, callback);
                     break;
                 case 'hasMany':
-                    me.hydrateHasMany(item, object[key](), function(){
-                        complete();
-                    });
+                    me.hydrateHasMany(item, object[key]()).then(callback);
                     break;
             }
         });
-    },
 
-    /**
-     * Hydrates array data to the associated model field
-     *
-     * @param data
-     * @param object association object
-     * @param callback
-     */
-    hydrateHasOne: function (data, object, callback) {
-        if (!data) {
-            callback(null, null, false);
-            return this;
-        }
-
-        object.self.load(data, {
-            callback: callback
-        });
-
-        return this;
+        // promise replace here
+        return promise.when(callbacks);
     },
 
     /**
@@ -125,10 +129,8 @@ Ext.define('Uni.util.Hydrator', {
      *
      * @param data
      * @param store selected association
-     * @param callback
      */
-    hydrateHasMany: function (data, store, callback) {
-        var me = this;
+    hydrateHasMany: function (data, store) {
         store.removeAll(); //todo: replace on allowClear property
 
         if (!data) {
@@ -139,30 +141,22 @@ Ext.define('Uni.util.Hydrator', {
             data = [data];
         }
 
-        var count = data.length;
-        var records = _.map(data, function (id) {
-            if (me.lazyLoading) {
-                store.model.load(id, {
-                    callback: function(record, operation, status) {
-                        if (status) {
-                            store.add(record);
-                        }
-                        if (--count == 0) {
-                            callback();
-                        }
-                    }
-                });
-            } else {
-                if (!_.isObject(id)) {
-                    var item = {};
-                    item[store.model.prototype.idProperty] = id;
-                    id = item;
-                }
-                var record = store.model.create(id);
+        var promise = new this.Promise();
+        var callbacks = [];
+
+        _.map(data, function (id) {
+            var callback = function(record) {
                 store.add(record);
-            }
+                promise.resolve(callback);
+            };
+
+            callbacks.push(callback);
+            store.model.load(id, {
+                callback: callback
+            });
         });
 
-        return this;
+        // promise replace here
+        return promise.when(callbacks);
     }
 });

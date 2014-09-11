@@ -17,6 +17,18 @@ Ext.define('Uni.override.FieldContainerOverride', {
     /**
      * Changes the default label alignment.
      */
-    labelAlign: 'right'
+    labelAlign: 'right',
 
+    initComponent: function () {
+        this.callParent();
+        this.form = new Ext.form.Basic(this);
+    },
+
+    getValues: function () {
+        return this.form.getValues();
+    },
+
+    setValues: function (data) {
+        this.form.setValues(data);
+    }
 });

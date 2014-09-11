@@ -32,10 +32,15 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         if (!_.isUndefined(router.queryParams[me.root])) {
             var data = Ext.JSON.decode(router.queryParams[me.root]),
                 modelData = _.object(_.pluck(data, 'property'), _.pluck(data, 'value')),
-                record = this.hydrator
-                    ? this.hydrator.hydrate(data, new Model())
-                    : new Model(modelData)
-                ;
+                record
+            ;
+
+            if (this.hydrator) {
+                record = new Model();
+                this.hydrator.hydrate(modelData, record);
+            } else {
+                record = new Model(modelData);
+            }
 
             operation.resultSet = Ext.create('Ext.data.ResultSet', {
                 records: [record],
