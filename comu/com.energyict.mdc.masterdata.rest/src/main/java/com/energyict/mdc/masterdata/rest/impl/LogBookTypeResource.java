@@ -24,14 +24,14 @@ import java.util.Comparator;
 import java.util.List;
 
 @Path("/logbooktypes")
-public class LogBookResource {
+public class LogBookTypeResource {
 
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public LogBookResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
+    public LogBookTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
@@ -43,14 +43,14 @@ public class LogBookResource {
     public PagedInfoList getLogbookTypes(@BeanParam QueryParameters queryParameters) {
         List<LogBookTypeInfo> logbookTypeInfos = new ArrayList<>();
         // TODO it will be better to change the result type of masterDataService.findAllLogBookTypes() to Finder, as for masterDataService.findAllMeasurementTypes
-        List<LogBookType> logbookTypes = masterDataService.findAllLogBookTypes();
-        Collections.sort(logbookTypes, new Comparator<LogBookType>() {
+        List<LogBookType> logbookTypes = this.masterDataService.findAllLogBookTypes().from(queryParameters).find();
+      /*  Collections.sort(logbookTypes, new Comparator<LogBookType>() {
             @Override
             public int compare(LogBookType o1, LogBookType o2) {
                 return o1.getName().compareToIgnoreCase(o2.getName());
             }
-        });
-        return PagedInfoList.asJson("data", LogBookTypeInfo.from(logbookTypes), queryParameters);
+        });*/
+        return PagedInfoList.asJson("logbookTypes", LogBookTypeInfo.from(logbookTypes), queryParameters);
     }
 
     @GET
@@ -64,15 +64,15 @@ public class LogBookResource {
         }
         LogBookType logBookType = logBookRef.get();
         List<DeviceConfiguration> deviceConfigurations = this.deviceConfigurationService.findDeviceConfigurationsUsingLogBookType(logBookType);
-        return PagedInfoList.asJson("data", Collections.singletonList(LogBookTypeInfo.from(logBookType, !deviceConfigurations.isEmpty())), queryParameters);
+        return PagedInfoList.asJson("logbookType", Collections.singletonList(LogBookTypeInfo.from(logBookType, !deviceConfigurations.isEmpty())), queryParameters);
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.CREATE_LOGBOOK)
-    public Response addLogBook(LogBookTypeInfo logbook) {
-        LogBookType newLogbook = masterDataService.newLogBookType(logbook.name, logbook.obis);
+    public Response addLogBookType(LogBookTypeInfo logbook) {
+        LogBookType newLogbook = masterDataService.newLogBookType(logbook.name, logbook.obisCode);
         newLogbook.save();
         return Response.status(Response.Status.CREATED).build();
     }
@@ -82,14 +82,14 @@ public class LogBookResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.UPDATE_LOGBOOK)
-    public Response updateLogBook(@PathParam("id") long id, LogBookTypeInfo logbook) {
+    public Response updateLogBookType(@PathParam("id") long id, LogBookTypeInfo logbook) {
         Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
         if (!logBookRef.isPresent()) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         LogBookType editLogbook = logBookRef.get();
         editLogbook.setName(logbook.name);
-        editLogbook.setObisCode(logbook.obis);
+        editLogbook.setObisCode(logbook.obisCode);
         editLogbook.save();
         return Response.status(Response.Status.OK).build();
     }
@@ -98,7 +98,7 @@ public class LogBookResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.DELETE_LOGBOOK)
-    public Response deleteLogBook(@PathParam("id") long id) {
+    public Response deleteLogBookType(@PathParam("id") long id) {
         Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
         if (!logBookRef.isPresent()) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
