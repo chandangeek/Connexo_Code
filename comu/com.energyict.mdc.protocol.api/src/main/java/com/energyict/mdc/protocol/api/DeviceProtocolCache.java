@@ -15,4 +15,6 @@ public interface DeviceProtocolCache extends Serializable {
      */
     public boolean contentChanged();
 
+    public void setChanged(boolean flag);
+
 }
