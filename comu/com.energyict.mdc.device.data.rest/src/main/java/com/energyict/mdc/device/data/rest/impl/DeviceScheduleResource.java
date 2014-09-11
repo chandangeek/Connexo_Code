@@ -8,6 +8,8 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -24,14 +26,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-public class ComtaskExecutionResource {
+public class DeviceScheduleResource {
 
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
 
     @Inject
-    public ComtaskExecutionResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
+    public DeviceScheduleResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.thesaurus = thesaurus;
@@ -57,7 +59,15 @@ public class ComtaskExecutionResource {
         for(ComTaskEnablement comTaskEnablement:deviceConfiguration.getComTaskEnablements()){
             if(comTaskEnablement.getComTask().getId()==schedulingInfo.id){
                 if(schedulingInfo.schedule!=null){
-                    device.newManuallyScheduledComTaskExecution(comTaskEnablement,comTaskEnablement.getProtocolDialectConfigurationProperties().orNull(),schedulingInfo.schedule.asTemporalExpression()).add();
+                    ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, comTaskEnablement.getProtocolDialectConfigurationProperties().orNull(), schedulingInfo.schedule.asTemporalExpression());
+                    if(comTaskEnablement.hasPartialConnectionTask()){
+                        for (ConnectionTask<?, ?> connectionTask : device.getConnectionTasks()) {
+                            if(connectionTask.getPartialConnectionTask().getId()==comTaskEnablement.getPartialConnectionTask().get().getId()){
+                                builder.connectionTask(connectionTask);
+                            }
+                        }
+                    }
+                    builder.add();
                     device.save();
                 } else {
                     boolean comTaskExecutionExists = false;
