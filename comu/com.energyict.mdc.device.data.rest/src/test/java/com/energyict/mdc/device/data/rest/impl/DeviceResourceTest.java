@@ -533,6 +533,10 @@ public class DeviceResourceTest extends JerseyTest {
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceDataService.findByUniqueMrid("mrid1")).thenReturn(device1);
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        when(channel1.getDevice()).thenReturn(device1);
+        when(channel2.getDevice()).thenReturn(device1);
+        DeviceValidation deviceValidation = mock(DeviceValidation.class);
+        when(device1.forValidation()).thenReturn(deviceValidation);
 
         Map<String, Object> response = target("/devices/mrid1/loadprofiles/1").request().get(Map.class);
         assertThat(response)
