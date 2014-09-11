@@ -134,6 +134,10 @@ public class DeviceCachingTest {
         public boolean contentChanged() {
             return false;
         }
+
+        @Override
+        public void setChanged(boolean flag) {
+        }
     }
 
 }

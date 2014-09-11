@@ -22,7 +22,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.dlms.DLMSCache;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -101,8 +100,8 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
 
     @Override
     public void setCache(Object cacheObject) {
-        if(cacheObject != null && cacheObject instanceof DLMSCache){
-            ((DLMSCache) cacheObject).setChanged(false);
+        if (cacheObject != null && cacheObject instanceof DeviceProtocolCache) {
+            ((DeviceProtocolCache) cacheObject).setChanged(false);
         }
         getCachingProtocol().setCache(cacheObject);
     }
