@@ -75,5 +75,9 @@
             <version>1.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
+         <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+         </dependency>
     </dependencies>
 </project>
