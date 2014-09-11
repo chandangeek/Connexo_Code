@@ -146,9 +146,7 @@ Ext.define('Uni.util.Hydrator', {
 
         _.map(data, function (id) {
             var callback = function(record) {
-                if (status) {
-                    store.add(record);
-                }
+                store.add(record);
                 promise.resolve(callback);
             };
 
