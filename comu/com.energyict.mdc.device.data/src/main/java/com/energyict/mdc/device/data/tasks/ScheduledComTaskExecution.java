@@ -23,6 +23,4 @@ public interface ScheduledComTaskExecution extends ComTaskExecution {
     @Override
     public ScheduledComTaskExecutionUpdater getUpdater();
 
-    @Override
-    public ScheduledConnectionTask getConnectionTask();
 }

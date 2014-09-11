@@ -349,13 +349,13 @@ public enum TableSpecs {
             Column comport = table.column("COMPORT").number().notNull().add();
             Column comportPool = table.column("COMPORTPOOL").number().notNull().add();
             Column statistics = table.column("COMSTATISTICS").number().notNull().add();
-            table.column("STARTDATE").number().conversion(NUMBER2UTCINSTANT).notNull().map(ComSessionImpl.Fields.START_DATE.fieldName()).add();
+            Column startDate = table.column("STARTDATE").number().conversion(NUMBER2UTCINSTANT).notNull().map(ComSessionImpl.Fields.START_DATE.fieldName()).add();
             table.column("STOPDATE").number().conversion(NUMBER2UTCINSTANT).notNull().map(ComSessionImpl.Fields.STOP_DATE.fieldName()).add();
             table.column("TOTALMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TOTAL_TIME.fieldName()).add();
             table.column("CONNECTMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.CONNECT_MILLIS.fieldName()).add();
             table.column("TALKMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TALK_MILLIS.fieldName()).add();
             table.column("STOREMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.STORE_MILLIS.fieldName()).add();
-            table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
+            Column successIndicator = table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
             table.column("MOD_DATE").type("DATE").map(ComSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             table.column("TASKSUCCESSCOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_SUCCESS_COUNT.fieldName()).add();
             table.column("TASKFAILURECOUNT").number().conversion(NUMBER2INT).notNull().map(ComSessionImpl.Fields.TASK_FAILURE_COUNT.fieldName()).add();
@@ -385,6 +385,8 @@ public enum TableSpecs {
                     map(ComSessionImpl.Fields.CONNECTION_TASK.fieldName()).
                     add();
             table.primaryKey("PK_DDC_COMSESSION").on(id).add();
+//            table.index("IX_DDC_CS_LATESTRESULT").on(connectionTask, startDate, successIndicator, id).compress(1).add();
+            table.index("IX_DDC_CS_LATESTRESULT").on(connectionTask, startDate, successIndicator, id).add();
         }
     },
     DDC_COMTASKEXECSESSION {
@@ -398,7 +400,7 @@ public enum TableSpecs {
             Column statistics = table.column("COMSTATISTICS").number().notNull().add();
             table.column("STARTDATE").number().conversion(NUMBER2UTCINSTANT).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
             table.column("STOPDATE").number().notNull().conversion(NUMBER2UTCINSTANT).map(ComTaskExecutionSessionImpl.Fields.STOP_DATE.fieldName()).add();
-            table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComTaskExecutionSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
+            Column successIndicator = table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComTaskExecutionSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
             table.column("MOD_DATE").type("DATE").map(ComTaskExecutionSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
             table.column("HIGHESTPRIOCOMPLETIONCODE").number().conversion(NUMBER2ENUM).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_COMPLETION_CODE.fieldName()).add();
@@ -428,6 +430,8 @@ public enum TableSpecs {
                     map(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).
                     add();
             table.primaryKey("PK_DDC_COMTASKEXECSESSION").on(id).add();
+//            table.index("DDC_CTES_CS_SUCCESS").on(session, successIndicator).compress(1).add();
+            table.index("DDC_CTES_CS_SUCCESS").on(session, successIndicator).add();
         }
     },
     DDC_COMTASKEXECJOURNALENTRY {
