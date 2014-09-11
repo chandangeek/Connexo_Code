@@ -56,7 +56,7 @@ public class MasterDataApplication extends Application implements InstallService
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                LogBookResource.class,
+                LogBookTypeResource.class,
                 LoadProfileResource.class,
                 PhenomenonResource.class,
                 TransactionWrapper.class,

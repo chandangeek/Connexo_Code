@@ -16,7 +16,7 @@ public class LogBookTypeInfo {
     public Long id;
     public String name;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
-    public ObisCode obis;
+    public ObisCode obisCode;
     public Boolean isInUse;
 
     public LogBookTypeInfo() {
@@ -25,7 +25,7 @@ public class LogBookTypeInfo {
     public LogBookTypeInfo(LogBookType logbook) {
         this.id = logbook.getId();
         this.name = logbook.getName();
-        this.obis = logbook.getObisCode();
+        this.obisCode = logbook.getObisCode();
     }
 
     public static LogBookTypeInfo from(LogBookType logBookType) {
@@ -36,7 +36,7 @@ public class LogBookTypeInfo {
         LogBookTypeInfo info = new LogBookTypeInfo();
         info.id = logBookType.getId();
         info.name = logBookType.getName();
-        info.obis = logBookType.getObisCode();
+        info.obisCode = logBookType.getObisCode();
         info.isInUse = isInUse;
         return info;
     }
