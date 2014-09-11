@@ -136,7 +136,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     if (communicationSchedule.get('isInUse')) {
                         widget.down('#addCommunicationTaskButton').disable();
                         widget.down('#comTasksOnForm').columns[1].setVisible(false);
-                        widget.down('uni-form-error-message[name=warning]').show();
+                        widget.down('uni-form-info-message[name=warning]').show();
                         widget.down('#editConnectionMethodMRIDField').disable();
                     }
                     me.initComTaskStore(widget);

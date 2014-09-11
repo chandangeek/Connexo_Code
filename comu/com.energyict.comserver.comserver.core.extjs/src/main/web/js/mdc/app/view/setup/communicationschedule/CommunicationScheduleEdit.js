@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
     requires: [
         'Mdc.widget.ScheduleField',
         'Mdc.widget.DateTimeField',
-        'Uni.grid.column.Action'
+        'Uni.grid.column.Action',
+        'Uni.util.FormInfoMessage'
     ],
     isEdit: function () {
         return this.edit;
@@ -31,9 +32,10 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                         },
                         items: [
                             {
-                                xtype: 'uni-form-error-message',
+                                xtype: 'uni-form-info-message',
                                 name: 'warning',
-                                text: Uni.I18n.translate('communicationschedule.inUseWarning', 'MDC', 'This shared communication schedule has been added to one or more devices. Only the name, the frequency and start date are editable'),
+                                title: Uni.I18n.translate('communicationschedule.inUseWarningTitle', 'MDC', 'This shared communication schedule has been added to one or more devices.'),
+                                text: Uni.I18n.translate('communicationschedule.inUseWarningText', 'MDC', 'Only the name, the frequency and start date are editable.'),
                                 hidden: true,
                                 margin: '0 0 32 0'
                             },
