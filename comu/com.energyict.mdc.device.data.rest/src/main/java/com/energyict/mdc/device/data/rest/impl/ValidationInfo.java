@@ -10,7 +10,7 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Created by tgr on 5/09/2014.
@@ -20,7 +20,7 @@ public class ValidationInfo {
     @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
     public ValidationStatus validationResult;
     public boolean dataValidated;
-    public Set<ValidationRuleInfo> validationRules;
+    public List<ValidationRuleInfo> validationRules;
 
     public ValidationInfo(DataValidationStatus value, ValidationEvaluator evaluator) {
             dataValidated = value.completelyValidated();
