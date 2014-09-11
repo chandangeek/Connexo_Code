@@ -1,8 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
@@ -32,12 +30,10 @@ public class ConnectionOverviewResource {
     private final OverviewFactory overviewFactory;
     private final BreakdownFactory breakdownFactory;
     private final DeviceDataService deviceDataService;
-    private final TransactionService transactionService;
 
     @Inject
-    public ConnectionOverviewResource(Thesaurus thesaurus, TransactionService transactionService, DashboardService dashboardService, OverviewFactory overviewFactory, BreakdownFactory breakdownFactory, DeviceDataService deviceDataService) {
+    public ConnectionOverviewResource(Thesaurus thesaurus, DashboardService dashboardService, OverviewFactory overviewFactory, BreakdownFactory breakdownFactory, DeviceDataService deviceDataService) {
         this.thesaurus = thesaurus;
-        this.transactionService = transactionService;
         this.dashboardService = dashboardService;
         this.overviewFactory = overviewFactory;
         this.breakdownFactory = breakdownFactory;
@@ -49,15 +45,6 @@ public class ConnectionOverviewResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMSERVER)
     public ConnectionOverviewInfo getConnectionOverview() throws Exception {
-        try {
-            return this.transactionService.execute(this::doGetConnectionOverview);
-        }
-        catch (ConnectionOverviewException e) {
-            throw e.getCause();
-        }
-    }
-
-    private ConnectionOverviewInfo doGetConnectionOverview() {
         TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview();
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
         ComPortPoolBreakdown comPortPoolBreakdown = dashboardService.getComPortPoolBreakdown();
@@ -65,25 +52,9 @@ public class ConnectionOverviewResource {
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown();
         ConnectionSummaryData connectionSummaryData = new ConnectionSummaryData(taskStatusOverview, deviceDataService.countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
 
-        try {
             return new ConnectionOverviewInfo(connectionSummaryData, taskStatusOverview, comSessionSuccessIndicatorOverview,
                     comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, breakdownFactory, overviewFactory,
                     thesaurus);
-        }
-        catch (Exception e) {
-            throw new ConnectionOverviewException(e);
-        }
-    }
-
-    private class ConnectionOverviewException extends RuntimeException {
-        private ConnectionOverviewException(Exception cause) {
-            super(cause);
-        }
-
-        @Override
-        public synchronized Exception getCause() {
-            return (Exception) super.getCause();
-        }
     }
 
 }
