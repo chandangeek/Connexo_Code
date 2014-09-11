@@ -79,20 +79,19 @@ Ext.define('Dsh.controller.Connections', {
         me.getApplication().fireEvent('changecontentevent', widget);
     },
 
-
     loadFilterValues: function () {
         var me = this;
 
         // todo: get rid of this delay
         Ext.defer(function () {
-                Dsh.model.Filter.load(0, {
-                    callback: function (record) {
+            Dsh.model.Filter.load(0, {
+                callback: function (record) {
                     !record && (record = new Dsh.model.Filter);
-                        me.getSideFilterForm().loadRecord(record);
-                        me.getFilterPanel().loadRecord(record)
-                    }
-                });
-            }, 3500)
+                    me.getSideFilterForm().loadRecord(record);
+                    me.getFilterPanel().loadRecord(record);
+                }
+            });
+        }, 3500);
     },
 
     onCommunicationSelectionChange: function (grid, selected) {
@@ -145,6 +144,6 @@ Ext.define('Dsh.controller.Connections', {
         var me = this;
         me.getSideFilterForm().updateRecord();
         var model = me.getSideFilterForm().getRecord();
-        model.save()
+        model.save();
     }
 });
