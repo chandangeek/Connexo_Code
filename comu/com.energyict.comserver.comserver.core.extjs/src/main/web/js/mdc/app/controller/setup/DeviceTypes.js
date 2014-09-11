@@ -19,7 +19,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     stores: [
         'DeviceTypes',
         'DeviceCommunicationProtocols',
-        'LogbookTypes'
+        'LogbookTypesOfDeviceType',
+        'AvailableLogbookTypes'
     ],
 
     refs: [
@@ -311,7 +312,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showDeviceTypeLogbookTypesView: function (deviceTypeId) {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
-            store = Ext.data.StoreManager.lookup('LogbookTypes');
+            store = Ext.data.StoreManager.lookup('LogbookTypesOfDeviceType');
         store.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.getProxy().setExtraParam('available', false);
         store.load(
@@ -343,7 +344,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showAddLogbookTypesView: function (deviceTypeId) {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
-            store = Ext.data.StoreManager.lookup('LogbookTypes');
+            store = Ext.data.StoreManager.lookup('AvailableLogbookTypes');
         store.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.getProxy().setExtraParam('available', true);
         store.load(
@@ -362,7 +363,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     });
                     var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-types toolbar label[name=LogBookCount]')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-types grid')[0];
-                    numberOfLogbooksLabel.setText('No logbooks selected');
+                    numberOfLogbooksLabel.setText('No logbook types selected');
                     if (self.getCount() < 1) {
                         grid.hide();
                         grid.next().show();

@@ -6,42 +6,71 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypePreview', {
     tools: [
         {
             xtype: 'button',
-            itemId: 'logbookTypePreviewActionsButton',
-            text: Uni.I18n.translate('logbooktype.actions', 'MDC', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
             iconCls: 'x-uni-action-iconD',
-            menu: { xtype: 'logbookTypeActionMenu' }
+            menu: {
+                xtype: 'logbook-type-action-menu' }
         }
     ],
     requires: [
+        'Mdc.model.LogbookType',
+        'Mdc.view.setup.logbooktype.LogbookTypeActionMenu',
         'Uni.form.field.ObisDisplay'
     ],
     items: [
         {
             xtype: 'form',
-            itemId: 'logbookTypeDetails',
-            name: 'logbookTypeDetails',
-            layout: 'column',
-            defaults: {
-                xtype: 'container',
-                layout: 'form',
-                columnWidth: 0.5
+            border: false,
+            itemId: 'logbookTypePreviewForm',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
             },
             items: [
                 {
+                    xtype: 'container',
+                    columnWidth: 0.5,
+                    layout: {
+                        type: 'column'
+                    },
                     items: [
                         {
-                            xtype: 'displayfield',
-                            itemId: 'logbookTypeDetailsName',
-                            name: 'name',
-                            fieldLabel: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name')
-                        }
-                    ]
-                },
-                {
-                    items: [
+                            xtype: 'container',
+                            columnWidth: 0.5,
+                            layout: {
+                                type: 'vbox',
+                                align: 'stretch'
+                            },
+                            defaults: {
+                                xtype: 'displayfield',
+                                labelWidth: 150
+                            },
+                            items: [
+                                {
+                                    xtype: 'displayfield',
+                                    itemId: 'logbookTypeDetailsName',
+                                    name: 'name',
+                                    fieldLabel: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name')
+                                }
+                            ]
+                        },
                         {
-                            xtype: 'obis-displayfield',
-                            name: 'obis'
+                            xtype: 'container',
+                            columnWidth: 0.5,
+                            layout: {
+                                type: 'vbox',
+                                align: 'stretch'
+                            },
+                            defaults: {
+                                xtype: 'displayfield',
+                                labelWidth: 150
+                            },
+                            items: [
+                                {
+                                    xtype: 'obis-displayfield',
+                                    name: 'obisCode'
+                                }
+                            ]
                         }
                     ]
                 }

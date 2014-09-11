@@ -19,13 +19,23 @@ Ext.define('Mdc.controller.history.Setup', {
                     items: {
                         create: {
                             title: 'Add logbook type',
-                            route: 'create',
-                            controller: 'Mdc.controller.setup.LogbookTypes'
+                            route: 'add',
+                            controller: 'Mdc.controller.setup.LogbookTypes',
+                            action: 'showLogbookTypeCreateView'
                         },
                         edit: {
                             title: 'Edit logbook type',
-                            route: 'edit/{id}',
-                            controller: 'Mdc.controller.setup.LogbookTypes'
+                            route: '{id}/edit',
+                            controller: 'Mdc.controller.setup.LogbookTypes',
+                            action: 'showLogbookTypeEditView',
+                            callback: function (route) {
+                                this.getApplication().on('loadLogbookType', function (record) {
+                                    route.setTitle('Edit ' + record.get('name') + '');
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
                     }
                 },

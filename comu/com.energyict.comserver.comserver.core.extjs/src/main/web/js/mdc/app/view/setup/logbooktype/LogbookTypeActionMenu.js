@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.logbooktype.LogbookTypeActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.logbookTypeActionMenu',
-    itemId: 'logbookTypeActionMenu',
+    alias: 'widget.logbook-type-action-menu',
+    itemId: 'logbook-type-action-menu',
     plain: true,
     border: false,
     shadow: false,

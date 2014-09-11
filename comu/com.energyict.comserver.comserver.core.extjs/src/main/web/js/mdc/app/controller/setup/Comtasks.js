@@ -5,7 +5,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         'Mdc.store.CommunicationTasksCategories',
         'Mdc.store.CommunicationTasksActions',
         'Mdc.store.TimeUnits',
-        'Mdc.store.Logbook',
+        'Mdc.store.LogbookTypes',
         'Mdc.store.LoadProfileTypes',
         'Mdc.store.RegisterGroups'
     ],
@@ -588,15 +588,21 @@ Ext.define('Mdc.controller.setup.Comtasks', {
     chooseCommandParameters: function (category, action) {
         var xtype,
             self = this,
-            logbooksStore = self.getStore('Mdc.store.Logbook'),
+            logbooksStore = self.getStore('Mdc.store.LogbookTypes'),
             profilesStore = self.getStore('Mdc.store.LoadProfileTypes'),
             registersStore = self.getStore('Mdc.store.RegisterGroups');
         switch (category) {
             case 'logbooks':
+                logbooksStore.getProxy().pageParam = false;
+                logbooksStore.getProxy().startParam = false;
+                logbooksStore.getProxy().limitParam = false;
                 logbooksStore.load();
                 xtype = 'communication-tasks-logbookscombo';
                 break;
             case 'registers':
+                registersStore.getProxy().pageParam = false;
+                registersStore.getProxy().startParam = false;
+                registersStore.getProxy().limitParam = false;
                 registersStore.load();
                 xtype = 'communication-tasks-registerscombo';
                 break;
