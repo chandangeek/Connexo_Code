@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -10,10 +7,8 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.google.common.base.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,7 +19,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 
 public class RegisterResource {
 
@@ -32,15 +28,13 @@ public class RegisterResource {
     private final ExceptionFactory exceptionFactory;
     private final Provider<RegisterDataResource> registerDataResourceProvider;
     private final ValidationEvaluator evaluator;
-    private final ValidationInfoHelper validationInfoHelper;
 
     @Inject
-    public RegisterResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, ValidationService validationService) {
+    public RegisterResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Provider<RegisterDataResource> registerDataResourceProvider, ValidationService validationService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.registerDataResourceProvider = registerDataResourceProvider;
         this.evaluator = validationService.getEvaluator();
-        this.validationInfoHelper = validationInfoHelper;
     }
 
     @GET
@@ -54,8 +48,7 @@ public class RegisterResource {
                 return o1.getRegisterSpec().getRegisterType().getName().compareToIgnoreCase(o2.getRegisterSpec().getRegisterType().getName());
             }
         }).from(queryParameters).find();
-
-        List<RegisterInfo> registerInfos = RegisterInfoFactory.asInfoList(registers, validationInfoHelper, evaluator);
+        List<RegisterInfo> registerInfos = RegisterInfoFactory.asInfoList(registers, evaluator);
         return PagedInfoList.asJson("data", registerInfos, queryParameters);
     }
 
@@ -66,7 +59,7 @@ public class RegisterResource {
     public RegisterInfo getRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        return RegisterInfoFactory.asInfo(register, validationInfoHelper.getRegisterValidationInfo(register), evaluator);
+        return RegisterInfoFactory.asInfo(register, evaluator);
     }
 
     @Path("/{registerId}/data")

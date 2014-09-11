@@ -12,7 +12,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
-import java.util.Set;
+import java.util.List;
 
 public class NumericalReadingInfo extends ReadingInfo<NumericalReading, NumericalRegisterSpec> {
     @JsonProperty("value")
@@ -32,7 +32,7 @@ public class NumericalReadingInfo extends ReadingInfo<NumericalReading, Numerica
     @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
     public ValidationStatus validationResult;
     @JsonProperty("suspectReason")
-    public Set<ValidationRuleInfo> suspectReason;
+    public List<ValidationRuleInfo> suspectReason;
 
     public NumericalReadingInfo() {}
 

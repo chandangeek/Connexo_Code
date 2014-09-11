@@ -1,19 +1,17 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.energyict.mdc.device.data.*;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class RegisterInfoFactory {
-    public static RegisterInfo asInfo(Register register, RegisterValidationInfo registerValidationInfo, ValidationEvaluator evaluator) {
+    public static RegisterInfo asInfo(Register register, ValidationEvaluator evaluator) {
         if (register instanceof BillingRegister) {
-            return new BillingRegisterInfo((BillingRegister)register, registerValidationInfo, evaluator);
+            return new BillingRegisterInfo((BillingRegister)register, evaluator);
         } else if (register instanceof NumericalRegister) {
-            return new NumericalRegisterInfo((NumericalRegister)register, registerValidationInfo, evaluator);
+            return new NumericalRegisterInfo((NumericalRegister)register, evaluator);
         } else if (register instanceof TextRegister) {
             return new TextRegisterInfo((TextRegister)register);
         } else if (register instanceof FlagsRegister) {
@@ -23,10 +21,10 @@ public class RegisterInfoFactory {
         throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
     }
 
-    public static List<RegisterInfo> asInfoList(List<Register> registers, ValidationInfoHelper validationInfoHelper, ValidationEvaluator evaluator) {
+    public static List<RegisterInfo> asInfoList(List<Register> registers, ValidationEvaluator evaluator) {
         List<RegisterInfo> registerInfos = new ArrayList<>(registers.size());
         for(Register register : registers) {
-            registerInfos.add(RegisterInfoFactory.asInfo(register, validationInfoHelper.getRegisterValidationInfo(register), evaluator));
+            registerInfos.add(RegisterInfoFactory.asInfo(register, evaluator));
         }
 
         return registerInfos;
