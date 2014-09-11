@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
@@ -118,6 +119,7 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 
 import static com.elster.jupiter.util.Checks.is;
+import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
@@ -1031,40 +1033,37 @@ public class DeviceImpl implements Device {
 
     List<LoadProfileReading> getChannelData(LoadProfile loadProfile, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        List<LoadProfileReading> loadProfileReadings=Collections.emptyList();
         boolean meterHasData=false;
-        Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval);
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
+                Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(loadProfile, interval, meter.get());
                 for (Channel channel : loadProfile.getChannels()) {
                     meterHasData |= this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
                 }
+                if (meterHasData) {
+                    loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
+                }
             }
         }
-        List<LoadProfileReading> loadProfileReadings;
-        if (meterHasData) {
-            loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
-        } else {
-            loadProfileReadings=Collections.emptyList();
-        }
+
         return Lists.reverse(loadProfileReadings);
     }
 
     List<LoadProfileReading> getChannelData(Channel channel, Interval interval) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        boolean meterHasData=false;
-        Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval);
+        List<LoadProfileReading> loadProfileReadings=Collections.emptyList();
+        boolean meterHasData;
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
+                Map<Date, LoadProfileReadingImpl> sortedLoadProfileReadingMap = getPreFilledLoadProfileReadingMap(channel.getLoadProfile(), interval, meter.get());
                 meterHasData = this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
+                if (meterHasData) {
+                    loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
+                }
             }
-        }
-        List<LoadProfileReading> loadProfileReadings;
-        if (meterHasData) {
-            loadProfileReadings = new ArrayList<LoadProfileReading>(sortedLoadProfileReadingMap.values());
-        } else {
-            loadProfileReadings=Collections.emptyList();
         }
         return Lists.reverse(loadProfileReadings);
     }
@@ -1127,16 +1126,28 @@ public class DeviceImpl implements Device {
         return flags;
     }
 
-    private Map<Date, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval interval) {
+    /**
+     * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value), just a list of placeholders for each reading interval within the requestInterval
+     * for all datetimes that occur with the bounds of a meter activation
+     * @param loadProfile
+     * @param requestInterval interval over which user wants to see readings
+     * @param meter
+     * @return
+     */
+    private Map<Date, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Interval requestInterval, Meter meter) {
+        IntermittentInterval meterActivationIntervals = new IntermittentInterval(meter.getMeterActivations().stream().map(m -> new Interval(m.getStart(), m.getEnd())).collect(toList()));
+
         Map<Date, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         Period period = Period.seconds(loadProfile.getInterval().getSeconds());
-        DateTime timeIndex = new DateTime(interval.getStart().getTime() - (interval.getStart().getTime() % period.toStandardDuration().getMillis()));
-        final DateTime endTime = new DateTime(interval.getEnd().getTime());
+        DateTime timeIndex = new DateTime(requestInterval.getStart().getTime() - (requestInterval.getStart().getTime() % period.toStandardDuration().getMillis()));
+        final DateTime endTime = new DateTime(requestInterval.getEnd().getTime());
         while (timeIndex.compareTo(endTime) < 0) {
             DateTime intervalEnd = timeIndex.plus(period);
-            LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-            value.setInterval(new Interval(timeIndex.toDate(), intervalEnd.toDate()));
-            loadProfileReadingMap.put(intervalEnd.toDate(), value);
+            if (meterActivationIntervals.contains(timeIndex.toDate())) {
+                LoadProfileReadingImpl value = new LoadProfileReadingImpl();
+                value.setInterval(new Interval(timeIndex.toDate(), intervalEnd.toDate()));
+                loadProfileReadingMap.put(intervalEnd.toDate(), value);
+            }
             timeIndex = intervalEnd;
         }
         return loadProfileReadingMap;
