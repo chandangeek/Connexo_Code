@@ -106,7 +106,7 @@ public class DeviceTypeResource {
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.deviceProtocolPluggableClassName);
         if (Checks.is(deviceTypeInfo.deviceProtocolPluggableClassName).emptyOrOnlyWhiteSpace()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME,deviceTypeInfo.deviceProtocolPluggableClassName);
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.deviceProtocolPluggableClassName);
         }
         if (!deviceProtocolPluggableClass.isPresent()) {
             throw new LocalizedFieldValidationException(MessageSeeds.PROTOCOL_INVALID_NAME, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.deviceProtocolPluggableClassName);
@@ -151,6 +151,32 @@ public class DeviceTypeResource {
     @Path("/{id}/logbooktypes")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE_TYPE)
+    public PagedInfoList getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        final List<LogBookType> logbookTypes = new ArrayList<>();
+        if (available == null || !Boolean.parseBoolean(available)) {
+            logbookTypes.addAll(ListPager.of(deviceType.getLogBookTypes(), new LogBookTypeComparator()).from(queryParameters).find());
+        } else {
+            findAllAvailableLogBookTypesForDeviceType(queryParameters, deviceType, logbookTypes);
+        }
+        List<LogBookTypeInfo> logBookTypeInfos = LogBookTypeInfo.from(ListPager.of(logbookTypes, new LogBookTypeComparator()).find());
+        return PagedInfoList.asJson("logbookTypes", logBookTypeInfos, queryParameters);
+    }
+
+    private void findAllAvailableLogBookTypesForDeviceType(QueryParameters queryParameters, DeviceType deviceType, List<LogBookType> logBookTypes) {
+        Set<Long> deviceTypeLogBookTypeIds = asIds(deviceType.getLogBookTypes());
+        for (LogBookType logBookType : this.masterDataService.findAllLogBookTypes().from(queryParameters).find()) {
+            if (!deviceTypeLogBookTypeIds.contains(logBookType.getId())) {
+                logBookTypes.add(logBookType);
+            }
+        }
+    }
+
+
+/*    @GET
+    @Path("/{id}/logbooktypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE_TYPE)
     public Response getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<LogBookType> resultLogBookTypes = deviceType.getLogBookTypes();
@@ -158,11 +184,11 @@ public class DeviceTypeResource {
             resultLogBookTypes = findAllAvailableLogBookTypesForDeviceType(resultLogBookTypes);
         }
         return Response.ok(PagedInfoList.asJson("data",
-                        LogBookTypeInfo.from(ListPager.of(resultLogBookTypes, new LogBookTypeComparator()).find()), queryParameters)).build();
-    }
+                LogBookTypeInfo.from(ListPager.of(resultLogBookTypes, new LogBookTypeComparator()).find()), queryParameters)).build();
+    }*/
 
-    private List<LogBookType> findAllAvailableLogBookTypesForDeviceType(List<LogBookType> registeredLogBookTypes) {
-        List<LogBookType> allLogBookTypes = masterDataService.findAllLogBookTypes();
+   /* private List<LogBookType> findAllAvailableLogBookTypesForDeviceType(List<LogBookType> registeredLogBookTypes) {
+        List<LogBookType> allLogBookTypes = masterDataService.findAllLogBookTypes().find();
         Set<Long> registeredLogBookTypeIds = new HashSet<>(registeredLogBookTypes.size());
         for (LogBookType logBookType : registeredLogBookTypes) {
             registeredLogBookTypeIds.add(logBookType.getId());
@@ -170,12 +196,12 @@ public class DeviceTypeResource {
         Iterator<LogBookType> logBookTypeIterator = allLogBookTypes.iterator();
         while (logBookTypeIterator.hasNext()) {
             LogBookType logBookType = logBookTypeIterator.next();
-            if (registeredLogBookTypeIds.contains(logBookType.getId())){
+            if (registeredLogBookTypeIds.contains(logBookType.getId())) {
                 logBookTypeIterator.remove();
             }
         }
         return allLogBookTypes;
-    }
+    }*/
 
     @POST
     @Path("/{id}/logbooktypes")
@@ -189,7 +215,7 @@ public class DeviceTypeResource {
         List<LogBookType> logBookTypes = new ArrayList<>(ids.size());
         for (Long logBookTypeId : ids) {
             Optional<LogBookType> logBookTypeRef = masterDataService.findLogBookType(logBookTypeId);
-            if (logBookTypeRef.isPresent()){
+            if (logBookTypeRef.isPresent()) {
                 logBookTypes.add(logBookTypeRef.get());
             }
         }
@@ -206,7 +232,7 @@ public class DeviceTypeResource {
     public Response deleteLogbookTypeFromDeviceType(@PathParam("id") long id, @PathParam("lbid") long lbid) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Optional<LogBookType> logBookTypeRef = masterDataService.findLogBookType(lbid);
-        if(!logBookTypeRef.isPresent()){
+        if (!logBookTypeRef.isPresent()) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOGBOOK_TYPE_FOUND, lbid);
         }
         LogBookType logBookType = logBookTypeRef.get();
@@ -220,7 +246,7 @@ public class DeviceTypeResource {
         for (DeviceConfiguration deviceConfiguration : deviceConfigurations) {
             List<LogBookSpec> logBookSpecs = new ArrayList<>(deviceConfiguration.getLogBookSpecs());
             for (LogBookSpec logBookSpec : logBookSpecs) {
-                if (logBookSpec.getLogBookType().getId() == logBookType.getId()){
+                if (logBookSpec.getLogBookType().getId() == logBookType.getId()) {
                     deviceConfiguration.deleteLogBookSpec(logBookSpec);
                     break;
                 }
@@ -269,12 +295,12 @@ public class DeviceTypeResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         registerTypes.addAll(deviceType.getRegisterTypes());
         Set<Long> unavailableRegisterTypeIds = new HashSet<>();
-        for(RegisterSpec registerSpec: deviceConfiguration.getRegisterSpecs()){
+        for (RegisterSpec registerSpec : deviceConfiguration.getRegisterSpecs()) {
             unavailableRegisterTypeIds.add(registerSpec.getRegisterType().getId());
         }
         for (Iterator<RegisterType> iterator = registerTypes.iterator(); iterator.hasNext(); ) {
-            MeasurementType next =  iterator.next();
-            if(unavailableRegisterTypeIds.contains(next.getId())){
+            MeasurementType next = iterator.next();
+            if (unavailableRegisterTypeIds.contains(next.getId())) {
                 iterator.remove();
             }
         }
@@ -301,7 +327,7 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.UPDATE_DEVICE_TYPE)
     public Response unlinkRegisterTypesFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        if (getRegisterTypeById(deviceType.getRegisterTypes(), registerTypeId)==null) {
+        if (getRegisterTypeById(deviceType.getRegisterTypes(), registerTypeId) == null) {
             String message = "No register type with id " + registerTypeId + " configured on device " + id;
             throw new WebApplicationException(message,
                     Response.status(Response.Status.BAD_REQUEST).entity(message).build());
