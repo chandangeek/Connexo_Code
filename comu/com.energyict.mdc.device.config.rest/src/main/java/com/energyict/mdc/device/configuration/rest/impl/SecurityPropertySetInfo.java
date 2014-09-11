@@ -45,6 +45,12 @@ public class SecurityPropertySetInfo {
 
     public void writeTo(SecurityPropertySet securityPropertySet) {
         securityPropertySet.setName(this.name);
+        if (this.authenticationLevelId == null) {
+            this.authenticationLevelId = -1;
+        }
+        if (this.encryptionLevelId == null) {
+            this.encryptionLevelId = -1;
+        }
         securityPropertySet.setAuthenticationLevel(this.authenticationLevelId);
         securityPropertySet.setEncryptionLevelId(this.encryptionLevelId);
     }
