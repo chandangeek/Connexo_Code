@@ -68,7 +68,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -330,7 +329,6 @@ public class CommunicationResourceTest extends JerseyTest {
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
-        when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
         when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         when(comSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Success);
         when(comSession.getStartDate()).thenReturn(new Date());
@@ -356,8 +354,8 @@ public class CommunicationResourceTest extends JerseyTest {
         ComTask comTask2 = mock(ComTask.class);
         when(comTask2.getName()).thenReturn("Basic check");
         when(comTaskExecution1.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
-        ConnectionTask<?, ?> connectionTask = mockConnectionTask();
-        doReturn(connectionTask).when(comTaskExecution1).getConnectionTask();
+        ScheduledConnectionTask connectionTask = mockConnectionTask();
+        when(comTaskExecution1.getConnectionTask()).thenReturn(connectionTask);
         Map<String, Object> map = target("/communications").queryParam("start",0).queryParam("limit", 10).request().get(Map.class);
 
         assertThat(map).containsKey("total");
@@ -384,7 +382,7 @@ public class CommunicationResourceTest extends JerseyTest {
 
     }
 
-    private ConnectionTask<?, ?> mockConnectionTask() {
+    private ScheduledConnectionTask mockConnectionTask() {
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(deviceDataService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));
         ComSession comSession = mock(ComSession.class);
@@ -409,7 +407,7 @@ public class CommunicationResourceTest extends JerseyTest {
         when(deviceConfiguration.getName()).thenReturn("123123");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
-        when(comTaskExecution1.getConnectionTask()).thenReturn((ConnectionTask)connectionTask);
+        when(comTaskExecution1.getConnectionTask()).thenReturn(connectionTask);
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
