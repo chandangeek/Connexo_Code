@@ -340,7 +340,7 @@ public class ConnectionResourceTest extends JerseyTest {
         when(deviceConfiguration.getName()).thenReturn("123123");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
-        when(comTaskExecution1.getConnectionTask()).thenReturn(connectionTask);
+        when(comTaskExecution1.getConnectionTask()).thenReturn((ConnectionTask) connectionTask);
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
