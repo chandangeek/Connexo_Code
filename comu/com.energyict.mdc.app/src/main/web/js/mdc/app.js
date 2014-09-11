@@ -40,11 +40,17 @@ Ext.onReady(function () {
     // </debug>
 
     loader.onReady(function () {
-        // <debug>
         Ext.Loader.setConfig({
-            enabled: true
+            // <debug>
+            enabled: true,
+            // </debug>
+
+            paths: {
+                'Ext.ux.form': '../uni/packages/Ext.ux.form',
+                'Ext.ux.Rixo': '../uni/packages/Ext.ux.Rixo',
+                'Ext.ux.window': '../uni/packages/Ext.ux.window.Notification'
+            }
         });
-        // </debug>
 
         Ext.application({
             name: 'MdcApp',
