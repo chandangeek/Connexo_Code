@@ -4,7 +4,8 @@
     "requires": [
         "com.elster.jupiter.unifyingjs",
         "com.elster.jupiter.users.extjs",
-        "com.elster.jupiter.systemadmin.extjs"
+        "com.elster.jupiter.systemadmin.extjs",
+        "com.elster.jupiter.bpm.extjs"
     ],
 
     "id": "7cde7b38-a4d1-4e19-aed4-8b4b3e92293e"
