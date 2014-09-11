@@ -30,9 +30,10 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeSetup', {
                         ],
                         stepItems: [
                             {
-                                itemId: 'logbookTypeCreateActionButton',
+                                //itemId: 'logbookTypeCreateActionButton',
                                 text: Uni.I18n.translate('logbooktype.add', 'MDC', 'Add logbook type'),
-                                href: '#/administration/logbooktypes/create'
+                                action: 'createLogbookType'
+                                //href: '#/administration/logbooktypes/create'
                             }
                         ]
                     },

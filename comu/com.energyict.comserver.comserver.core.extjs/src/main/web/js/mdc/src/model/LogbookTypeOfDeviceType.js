@@ -1,4 +1,4 @@
-Ext.define('Mdc.model.LogbookTypes', {
+Ext.define('Mdc.model.LogbookTypeOfDeviceType', {
     extend: 'Ext.data.Model',
 
     fields: [
@@ -21,7 +21,7 @@ Ext.define('Mdc.model.LogbookTypes', {
         url: '../../api/dtc/devicetypes/{deviceType}/logbooktypes',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'logbookType'
         }
     }
 });

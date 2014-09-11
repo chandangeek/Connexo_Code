@@ -9,7 +9,7 @@ Ext.define('Mdc.store.TimeUnits',{
 
     proxy: {
         type: 'rest',
-        url: '../../api/mdc/field/timeUnit',
+        url: '/api/mdc/field/timeUnit',
         reader: {
             type: 'json',
             root: 'timeUnits'

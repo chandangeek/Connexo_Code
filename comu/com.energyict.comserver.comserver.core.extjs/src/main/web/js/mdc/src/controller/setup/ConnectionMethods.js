@@ -16,7 +16,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     stores: [
         'ConnectionMethodsOfDeviceConfiguration',
         'ConnectionTypes',
-        'ConnectionStrategies'
+        'ConnectionStrategies',
+        'TimeUnits'
     ],
 
     refs: [
@@ -34,7 +35,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         {ref: 'comWindowStart', selector: '#connectionMethodEdit #comWindowStart'},
         {ref: 'comWindowEnd', selector: '#connectionMethodEdit #comWindowEnd'},
         {ref: 'activateComWindowCheckBox', selector: '#connectionMethodEdit #activateComWindowCheckBox'},
-        {ref: 'communicationPortPoolComboBox', selector: '#communicationPortPoolComboBox'}
+        {ref: 'communicationPortPoolComboBox', selector: '#communicationPortPoolComboBox'},
+        {ref: 'rescheduleRetryDelayField', selector: '#rescheduleRetryDelay'}
+
     ],
 
     init: function () {
@@ -86,7 +89,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             '#connectionStrategyComboBox': {
                 select: this.showScheduleField
             },
-            '#connectionMethodEdit #activateComWindowCheckBox':{
+            '#connectionMethodEdit #activateComWindowCheckBox': {
                 change: this.activateComWindow
             }
         });
@@ -158,7 +161,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showAddConnectionMethodView: function (deviceTypeId, deviceConfigId, direction, a, b) {
-        var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
+        var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes'),
+            timeUnitsStore = Ext.StoreManager.get('TimeUnits');
         this.comPortPoolStore = Ext.StoreManager.get('ComPortPools');
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
         var me = this;
@@ -183,29 +187,41 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                                connectionStrategiesStore.load({
-                                    callback: function () {
-                                        connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('deviceProtocolPluggableClassId'));
-                                          connectionTypesStore.getProxy().setExtraParam('filter', Ext.encode([
-                                            {
-                                                property: 'direction',
-                                                value: direction
-                                            }
-                                        ]));
-
-                                        connectionTypesStore.load({
-                                            callback: function () {
-                                                var deviceTypeName = deviceType.get('name');
-                                                var deviceConfigName = deviceConfig.get('name');
-                                                var title = direction === 'Outbound' ? Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method') : Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
-                                                widget.down('#connectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
-                                                widget.setLoading(false);
-                                            }
-                                        });
+                        connectionStrategiesStore.load({
+                            callback: function () {
+                                connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('deviceProtocolPluggableClassId'));
+                                connectionTypesStore.getProxy().setExtraParam('filter', Ext.encode([
+                                    {
+                                        property: 'direction',
+                                        value: direction
                                     }
+                                ]));
+
+                                connectionTypesStore.load({
+                                    callback: function () {
+                                        var deviceTypeName = deviceType.get('name');
+                                        var deviceConfigName = deviceConfig.get('name');
+                                        var title = direction === 'Outbound' ? Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method') : Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
+                                        widget.down('#connectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
+                                        widget.setLoading(false);
+                                    }
+                                });
+
+
+                            }
                         });
                     }
                 });
+
+                timeUnitsStore.load({
+                    callback: function () {
+                        var rescheduleRetryDelayField = me.getRescheduleRetryDelayField();
+                        rescheduleRetryDelayField.setValue({
+                            count: 5,
+                            timeUnit: 'minutes'
+                        })
+                    }
+                })
             }
         });
     },
@@ -275,7 +291,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             if (values.connectionStrategy === 'asSoonAsPossible') {
                 record.set('temporalExpression', null);
             }
-            if(!values.hasOwnProperty('comWindowStart')){
+            if (!values.hasOwnProperty('comWindowStart')) {
                 record.set('comWindowStart', 0);
                 record.set('comWindowEnd', 0);
             }
@@ -398,7 +414,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                         connectionStrategiesStore.load({
                                             callback: function () {
                                                 me.comPortPoolStore.clearFilter(true);
-                                                me.comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionType: connectionTypesStore.findRecord('name',connectionMethod.get('connectionTypePluggableClass')).get('id')});
+                                                me.comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionType: connectionTypesStore.findRecord('name', connectionMethod.get('connectionTypePluggableClass')).get('id')});
                                                 me.comPortPoolStore.load({
 
                                                     callback: function () {
@@ -414,7 +430,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         me.getConnectionTypeComboBox().disable();
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));
-                                                        if(connectionMethod.get('comWindowStart')===0 && connectionMethod.get('comWindowEnd')===0){
+                                                        if (connectionMethod.get('comWindowStart') === 0 && connectionMethod.get('comWindowEnd') === 0) {
                                                             widget.down('form').down('#activateComWindowCheckBox').setValue(false);
                                                         } else {
                                                             widget.down('form').down('#activateComWindowCheckBox').setValue(true);
@@ -455,7 +471,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         connectionMethod.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
         connectionMethod.save({
             success: function () {
-                if(connectionMethod.get('isDefault') === true) {
+                if (connectionMethod.get('isDefault') === true) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.setAsDefault', 'MDC', 'Connection method set as default'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.removeDefault', 'MDC', 'Connection method removed as default'));
@@ -468,8 +484,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         });
     },
 
-    activateComWindow: function(checkbox,newValue){
-        if(newValue){
+    activateComWindow: function (checkbox, newValue) {
+        if (newValue) {
             this.getComWindowStart().setDisabled(false);
             this.getComWindowEnd().setDisabled(false);
         } else {

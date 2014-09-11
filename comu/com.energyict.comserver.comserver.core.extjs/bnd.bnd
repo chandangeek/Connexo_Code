@@ -2,3 +2,4 @@
 -dsannotations: *
 Private-Package: com.energyict.comserver.core.extjs
 -include: -../development.bnd
+-invalidfilenames: 

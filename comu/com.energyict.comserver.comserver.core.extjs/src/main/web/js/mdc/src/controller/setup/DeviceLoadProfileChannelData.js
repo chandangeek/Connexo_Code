@@ -113,6 +113,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                     me.showReadingsCount(dataStore);
                     me.showGraphView(record);
                     widget.setLoading(false);
+                    widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfileChannelTableView').isVisible() && dataStore.count());
                 }, me);
 
                 me.setDefaults();
@@ -126,8 +127,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
             zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
             channelName = channelRecord.get('name'),
-            interval = channelRecord.get('interval').count + channelRecord.get('interval').timeUnit,
-            unitOfMeasure = channelRecord.get('unitOfMeasure').localizedValue,
+            unitOfMeasure = channelRecord.get('unitOfMeasure').unit,
             seriesObject = {marker: {
                 enabled: false
             },
@@ -149,8 +149,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
 
         seriesObject['data'] = [];
 
-        intervalRecord = zoomLevelsStore.findRecord('interval', interval);
-        intervalLengthInMs = intervalRecord.get('intervalInMs');
+        intervalRecord = zoomLevelsStore.getIntervalRecord(channelRecord.get('interval'));
+        intervalLengthInMs = zoomLevelsStore.getIntervalInMs(channelRecord.get('interval'));
         zoomLevels = intervalRecord.get('zoomLevels');
 
         switch (channelRecord.get('flowUnit')) {
@@ -171,9 +171,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 }
             });
             series.push(seriesObject);
+            container.down('#graphContainer').show();
+            container.down('#emptyGraphMessage').hide();
             container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
         } else {
-            container.drawEmptyList();
+            container.down('#graphContainer').hide();
+            container.down('#emptyGraphMessage').show();
         }
         me.getPage().doLayout();
     },
@@ -188,6 +191,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         page.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(showTable);
         page.down('#deviceLoadProfileChannelTableView').setVisible(showTable);
         page.down('#readingsCount').setVisible(showTable && this.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData').count());
+        showTable && page.down('#deviceLoadProfileChannelTableView').down('#deviceLoadProfileChannelDataGrid').getView().refresh();
     },
 
     showPreview: function (selectionModel, record) {
@@ -219,7 +223,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             value && dataStoreProxy.setExtraParam(key, value);
         });
 
-        page.setLoading(true);
+        page.down('#deviceLoadProfileChannelGraphView').isVisible() && page.setLoading(true);
         page.down('#deviceLoadProfileChannelDataTopFilter').addButtons(filterModel);
         dataStore.load();
     },
@@ -234,7 +238,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         var me = this,
             filterModel = Ext.create('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'),
             interval = me.channelModel.get('interval'),
-            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getById(interval.count + interval.timeUnit),
+            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(interval),
             all = dataIntervalAndZoomLevels.get('all'),
             intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.channelModel.get('lastReading') || new Date().getTime())),
             durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');

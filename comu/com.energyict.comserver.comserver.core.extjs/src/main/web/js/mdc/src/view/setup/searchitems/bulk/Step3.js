@@ -32,8 +32,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                 {
                     itemId: 'step3-errors',
                     xtype: 'uni-form-error-message',
-                    hidden: true,
-                    text: Uni.I18n.translate('searchItems.bulk.comSchedulesError', 'MDC', 'It is required to select one or more devices to go to the next step')
+                    hidden: true
                 }
             ]
         },
@@ -67,6 +66,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                     'Mdc.model.DeviceType'
                 ],
                 items: [
+
                     {
                         xtype: 'form',
                         itemId: 'communicationschedulepreviewporm',
@@ -100,6 +100,12 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                 ],
                 emptyText: '<h3>' + Uni.I18n.translate('communicationschedule.noCommunicationScheduleSelected', 'MDC', 'No communication schedule selected') + '</h3><p>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a communication schedule to see its details') + '</p>'
             }
+        },
+        {
+            xtype: 'container',
+            itemId: 'step3selectionError',
+            hidden: true,
+            html: '<span style="color: #eb5642">Select at least 1 item</span>'
         }
     ]
 });

@@ -8,7 +8,6 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
     views: [
         'setup.devicetype.DeviceTypeLogbooks',
         'setup.devicetype.ActionMenu'
-//        'Isu.view.ext.button.GridAction'
     ],
 
     refs: [
@@ -26,9 +25,12 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
             },
             'device-type-logbooks grid uni-actioncolumn': {
                 menuclick : me.deleteLogbookType
+            },
+            'device-type-logbook-action-menu menuitem[action=deleteLogBookType]': {
+                click: me.deleteLogbookType
             }
         });
-        me.store = me.getStore('Mdc.store.LogbookTypes');
+        me.store = me.getStore('Mdc.store.LogbookTypesOfDeviceType');
     },
 
     loadGridItemDetail: function (grid, record) {
@@ -66,20 +68,22 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
                         url: url,
                         method: 'DELETE',
                         success: function () {
-                            self.getApplication().fireEvent('acknowledge', 'Successfully removed');
+                            self.getApplication().fireEvent('acknowledge', 'Logbook type removed');
                             grid.getStore().load({
                                     callback: function () {
                                         var gridView = grid.getView(),
                                             selectionModel = gridView.getSelectionModel();
-                                        logbooksView.down('pagingtoolbartop').totalCount = 0;
-                                        if (grid.getStore().getCount() > 0) {
+                                        logbooksView.down('pagingtoolbarbottom').resetPaging();
+                                        logbooksView.down('pagingtoolbartop').resetPaging();
+
+                                  //     if (grid.getStore().getCount() > 0) {
                                             grid.getStore().load({
                                                 callback: function () {
                                                     selectionModel.select(0);
                                                     grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
                                                 }
                                             });
-                                        }
+                                    //    }
                                     }
                                 }
                             );

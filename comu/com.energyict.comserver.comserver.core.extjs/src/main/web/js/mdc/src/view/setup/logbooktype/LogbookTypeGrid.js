@@ -1,58 +1,64 @@
 Ext.define('Mdc.view.setup.logbooktype.LogbookTypeGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.logbookTypeGrid',
+    overflowY: 'auto',
     itemId: 'logbookTypeGrid',
-    store: 'Mdc.store.Logbook',
+    store: 'Mdc.store.LogbookTypes',
     requires: [
-        'Ext.form.field.ComboBox',
-        'Ext.grid.column.Template',
-        'Uni.grid.column.Action',
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom',
+        'Mdc.store.LogbookTypes',
         'Mdc.view.setup.logbooktype.LogbookTypeActionMenu',
         'Uni.grid.column.Obis'
     ],
-    dockedItems: [
-        {
-            xtype: 'toolbar',
-            items: [
-                {
-                    xtype: 'container',
-                    name: 'logbookTypeRangeCounter',
-                    itemId: 'logbookTypeRangeCounter',
-                    flex: 1
-                },
-                {
-                    xtype: 'button',
-                    itemId: 'logbookTypeCreateActionButton',
-                    margin: '10 0 0 0',
-                    text: Uni.I18n.translate('logbooktype.add', 'MDC', 'Add logbook type'),
-                    hrefTarget: '',
-                    href: '#/administration/logbooktypes/create'
-                }
-            ]
-        }
-    ],
-    columns: {
-        defaults: {
-            sortable: false,
-            menuDisabled: true
-        },
-        items: [
+    store: 'LogbookTypes',
+
+    initComponent: function () {
+        var me = this;
+        this.columns = [
             {
-                itemId: 'nameColumn',
                 header: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name'),
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="name">{name}</tpl>',
-                flex: 5
+                dataIndex: 'name',
+                flex: 3
+
             },
             {
                 xtype: 'obis-column',
-                dataIndex: 'obis'
+                dataIndex: 'obisCode',
+                flex: 2
             },
             {
-                itemId: 'action',
                 xtype: 'uni-actioncolumn',
                 items: 'Mdc.view.setup.logbooktype.LogbookTypeActionMenu'
             }
-        ]
+        ];
+
+        this.dockedItems = [
+            {
+                xtype: 'pagingtoolbartop',
+                store: this.store,
+                dock: 'top',
+                displayMsg: Uni.I18n.translate('logbooktype.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} logbook types'),
+                displayMoreMsg: Uni.I18n.translate('logbooktype.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} logbook types'),
+                emptyMsg: Uni.I18n.translate('logbooktype.pagingtoolbartop.emptyMsg', 'MDC', 'There are no logbook types to display'),
+                items: [
+                    '->',
+                    {
+                        text: Uni.I18n.translate('logbooktype.add', 'MDC', 'Add logbook type'),
+                        itemId: 'createLogbookType',
+                        xtype: 'button',
+                        action: 'createLogbookType'
+                    }
+                ]
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: this.store,
+                dock: 'bottom',
+                itemsPerPageMsg: Uni.I18n.translate('logbooktype.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Logbook types per page')
+            }
+        ];
+
+        this.callParent();
     }
 });

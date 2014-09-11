@@ -38,7 +38,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
             name: 'unitOfMeasure_formatted',
             persist: false,
             mapping: function (data) {
-                return (data.unitOfMeasure && data.unitOfMeasure.localizedValue) ? data.unitOfMeasure.localizedValue : '';
+                return (data.unitOfMeasure && data.unitOfMeasure.unit) ? data.unitOfMeasure.unit : '';
             }
         },
         {

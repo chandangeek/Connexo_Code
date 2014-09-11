@@ -31,6 +31,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             selector: '#searchitems-bulk-step1 devices-selection-grid'
         },
         {
+            ref: 'step3selectionError',
+            selector: '#step3selectionError'
+        },
+        {
             ref: 'schedulesGrid',
             selector: '#schedulesgrid'
         },
@@ -337,6 +341,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             layout = me.getSearchItemsWizard().getLayout(),
             validation = true,
             errorPanel = null,
+            step3container,
             progressBar;
 
         switch (currentCmp.name) {
@@ -360,7 +365,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 } else {
                     me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
                 }
-
+                step3container = me.getStep3selectionError();
                 errorPanel = currentCmp.down('#step3-errors');
                 validation = me.schedules.length;
                 break;
@@ -395,6 +400,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             return true;
         } else {
             errorPanel.show();
+            step3container && step3container.show();
             return false;
         }
     },
@@ -510,16 +516,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     createCommunicationSchedule: function () {
-        var title = Uni.I18n.translate('general.warning', 'MDC', 'Warning'),
-            message = Uni.I18n.translate('searchItems.newComScheduleAddWarningMsg', 'MDC', 'When you have finished creating a new communication schedule on the other tab, you should refresh this page.'),
-            config = {
-                icon: Ext.MessageBox.WARNING
-            },
-            newTab = window.open('#/administration/communicationschedules/create', '_blank');
+        var newTab = window.open('#/administration/communicationschedules/create', '_blank');
 
         newTab && newTab.blur();
         window.focus();
-        this.getApplication().getController('Uni.controller.Error').showError(title, message, config);
     },
 
     showViewDevices: function (button) {

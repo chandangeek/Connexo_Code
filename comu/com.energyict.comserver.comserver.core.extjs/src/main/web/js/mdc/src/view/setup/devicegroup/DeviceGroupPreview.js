@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
     requires: [
         'Mdc.view.setup.devicegroup.DeviceGroupActionMenu'
     ],
-    tools: [
+    /*tools: [
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
                 xtype: 'device-group-action-menu'
             }
         }
-    ],
+    ],  */
     layout: {
         type: 'vbox'
     },

@@ -147,7 +147,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             formValue = form.getValues(),
             timeDurationId = formValue.timeDuration,
             measurementTypesErrorPanel = formPanel.down('fieldcontainer').down('panel[name=measurementTypesErrors]'),
-            preloader,
             jsonValues;
         formValue['measurementTypes'] = [];
         if (form.isValid() && me.selectedMeasurementTypesStore.getCount() > 0) {
@@ -159,11 +158,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             formErrorsPanel.hide();
             switch (btn.action) {
                 case 'add':
-                    preloader = Ext.create('Ext.LoadMask', {
-                        msg: "Creating load profile type",
-                        target: formPanel
-                    });
-                    preloader.show();
+                    formPanel.setLoading(Uni.I18n.translate('general.adding', 'MDC', 'Adding...'));
                     Ext.Ajax.request({
                         url: '/api/mds/loadprofiles',
                         method: 'POST',
@@ -172,13 +167,13 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                             me.handleSuccessRequest('Load profile type saved');
                         },
                         failure: function(response){
-                            var json = Ext.decode(response.responseText);
+                            var json = Ext.decode(response.responseText, true);
                             if (json && json.errors) {
                                 form.markInvalid(json.errors);
                             }
                         },
                         callback: function () {
-                            preloader.destroy();
+                            formPanel.setLoading(false);
                         }
                     });
                     break;

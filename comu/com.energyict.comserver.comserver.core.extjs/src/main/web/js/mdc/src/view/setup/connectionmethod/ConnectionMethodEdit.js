@@ -126,7 +126,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 itemId: 'scheduleField',
                                 hidden: true,
                                 required: true,
-                                fieldLabel: 'Schedule',
+                                fieldLabel: Uni.I18n.translate('connectionmethod.connectionSchedule', 'MDC', 'Connection schedule'),
                                 hourCfg: {
                                     width: 60
                                 },
@@ -155,11 +155,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         xtype: 'timeInfoField',
                                         name: 'rescheduleRetryDelay',
                                         itemId: 'rescheduleRetryDelay',
-                                        required: true,
-                                        value: {
-                                            count: 5,
-                                            timeUnit: 'minutes'
-                                        }
+                                        required: true
                                     }
                                 ]
                             },

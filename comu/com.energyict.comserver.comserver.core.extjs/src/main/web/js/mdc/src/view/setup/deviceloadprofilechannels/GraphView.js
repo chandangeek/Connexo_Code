@@ -3,6 +3,23 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
     alias: 'widget.deviceLoadProfileChannelGraphView',
     itemId: 'deviceLoadProfileChannelGraphView',
 
+    items: [
+        {
+            xtype: 'container',
+            itemId: 'graphContainer'
+
+        },
+        {
+            xtype: 'no-items-found-panel',
+            hidden: true,
+            itemId: 'emptyGraphMessage',
+            title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
+            reasons: [
+                Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.') ]
+        }
+    ],
+
+
     drawGraph: function (yAxis, series, intervalLength, channelName, unitOfMeasure, zoomLevels) {
         var me = this;
 
@@ -20,7 +37,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
 
             chart: {
                 height: 600,
-                renderTo: me.el.dom
+                renderTo: me.down('#graphContainer').el.dom
             },
 
             credits: {
@@ -74,6 +91,14 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
 
             tooltip: {
                 useHTML: true,
+                positioner: function (labelWidth, labelHeight, point){
+                    var xValue,
+                        yValue;
+
+                    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - (labelWidth*2)/3;
+                    yValue = point.plotY > labelHeight ? point.plotY: labelHeight;
+                    return {x: xValue, y: yValue}
+                },
                 formatter: function () {
                     var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</b>';
                     if (intervalLength < 86400000) {
@@ -101,15 +126,17 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
 
             plotOptions: {
                 column: {
-                    borderColor: 'black',
-                    borderWidth: 0.5,
+//                    borderColor: 'black',
+//                    borderWidth: 0.5,
                     pointPadding: 0,
                     groupPadding: 0,
                     dataGrouping:
                     {
                         enabled: false
                     },
-                    color: '#70BB51'
+                    color: '#70BB51',
+                    shadow: false,
+                    pointPlacement: 'between'
                 },
                 line: {
                     color: '#70BB51'
@@ -118,18 +145,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
 
             series: series
         });
-
-    },
-
-    drawEmptyList: function () {
-        this.removeAll(true);
-        this.add(
-            {
-                xtype: 'no-items-found-panel',
-                title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
-                reasons: [
-                    Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.') ]
-            });
 
     },
 

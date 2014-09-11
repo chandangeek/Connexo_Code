@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'grid',
-                        store: 'LogbookTypes',
+                        store: 'LogbookTypesOfDeviceType',
                         columns: {
                             defaults: {
                                 sortable: false,
@@ -31,13 +31,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                             },
                             items: [
                                 {
-                                    header: 'Name',
+                                    header: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name'),
                                     dataIndex: 'name',
-                                    flex: 5
+                                    flex: 3
                                 },
                                 {
                                     xtype: 'obis-column',
-                                    dataIndex: 'obisCode'
+                                    dataIndex: 'obisCode',
+                                    flex:2
                                 },
                                 {
                                     xtype: 'uni-actioncolumn',
@@ -48,7 +49,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                         dockedItems: [
                             {
                                 xtype: 'pagingtoolbartop',
-                                store: 'LogbookTypes',
+                                store: 'LogbookTypesOfDeviceType',
                                 dock: 'top',
                                 displayMsg: Uni.I18n.translate('logbooktype.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} logbook types'),
                                 displayMoreMsg: Uni.I18n.translate('logbooktype.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} logbook types'),
@@ -69,6 +70,12 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                         }
                                     }
                                 ]
+                            },
+                            {
+                                xtype: 'pagingtoolbarbottom',
+                                store: 'LogbookTypesOfDeviceType',
+                                dock: 'bottom',
+                                itemsPerPageMsg: Uni.I18n.translate('logbooktype.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Logbook types per page')
                             }
                         ]
                     },
@@ -125,7 +132,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                         items: [
                                             {
                                                 xtype: 'displayfield',
-                                                fieldLabel: 'Name',
+                                                fieldLabel: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name'),
                                                 name: 'name'
                                             }
                                         ]
@@ -163,6 +170,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
             }
         ];
         this.callParent(arguments);
-        Ext.data.StoreManager.lookup('LogbookTypes').load();
+        Ext.data.StoreManager.lookup('LogbookTypesOfDeviceType').load();
     }
 });

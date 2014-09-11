@@ -12,6 +12,21 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
     ],
     radioHidden: true,
     bottomToolbarHidden: true,
+
+    allLabel: Uni.I18n.translate('communicationschedule.communicationTasks.allLabel', 'MDC', 'All communication tasks'),
+    allDescription: Uni.I18n.translate(
+        'communicationschedule.communicationTasks.allDescription',
+        'MDC',
+        'Select all communication tasks'
+    ),
+
+    selectedLabel: Uni.I18n.translate('communicationschedule.communicationTasks.selectedLabel', 'MDC', 'Selected communication tasks'),
+    selectedDescription: Uni.I18n.translate(
+        'communicationschedule.communicationTasks.selectedDescription',
+        'MDC',
+        'Select communication tasks in table'
+    ),
+
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
             'communicationtask.communicationTask',
