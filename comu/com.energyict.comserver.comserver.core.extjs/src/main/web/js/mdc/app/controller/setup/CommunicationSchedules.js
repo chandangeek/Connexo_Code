@@ -16,7 +16,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     stores: [
         'CommunicationSchedules',
-        'CommunicationTasks'
+        'CommunicationTasksForCommunicationSchedule'
     ],
 
     refs: [
@@ -149,7 +149,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     initComTaskStore: function (widget) {
-        this.comTaskStore = Ext.data.StoreManager.lookup('CommunicationTasks');
+        this.comTaskStore = Ext.data.StoreManager.lookup('CommunicationTasksForCommunicationSchedule');
         if (this.record.get('id') === null) {
             this.comTaskStore.setProxy({
                 type: 'rest',
@@ -157,7 +157,10 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 reader: {
                     type: 'json',
                     root: 'data'
-                }
+                },
+                pageParam: false,
+                startParam: false,
+                limitParam: false
             });
         } else {
             this.comTaskStore.setProxy({
@@ -166,7 +169,10 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 reader: {
                     type: 'json',
                     root: 'data'
-                }
+                },
+                pageParam: false,
+                startParam: false,
+                limitParam: false
             });
             this.comTaskStore.getProxy().setExtraParam('id', this.record.get('id'));
             this.comTaskStore.getProxy().setExtraParam('filter', Ext.encode([
