@@ -7,5 +7,26 @@
     *[class*='#{$prefix}message-box-'] {
 //        background-image: url('images/shared/icon-confirm.png');
     }
+
+  *[class*='#{$prefix}window-'] {
+    .#{$prefix}window-body {
+      .#{$prefix}header {
+        .#{$prefix}header-text {
+          font-weight: bold;
+          font-size: 16px;
+          color: #70bb51;
+        }
+      }
+    }
+
+    .#{$prefix}form-display-field {
+      margin-top: 16px;
+      color: #686868;
+    }
+
+    *[class*='#{$prefix}message-box-'] {
+      background-position: 12px 4px;
+    }
+  }
 }
 
