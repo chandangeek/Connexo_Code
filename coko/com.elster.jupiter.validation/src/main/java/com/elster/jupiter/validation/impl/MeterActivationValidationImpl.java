@@ -13,6 +13,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
@@ -100,6 +101,15 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         doGetChannelValidations().add(channelValidation);
 
         return channelValidation;
+    }
+
+    @Override
+    public Optional<ChannelValidation> getChannelValidation(Channel channel) {
+        ChannelValidation channelValidation = getChannelValidations().stream()
+                .filter(v -> v.getChannel().getId() == channel.getId())
+                .findFirst()
+                .orElse(null);
+        return Optional.fromNullable(channelValidation);
     }
 
     private List<ChannelValidation> doGetChannelValidations() {

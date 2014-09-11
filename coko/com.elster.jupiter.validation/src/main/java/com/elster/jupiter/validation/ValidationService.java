@@ -24,6 +24,8 @@ public interface ValidationService {
 
     List<ValidationRuleSet> getValidationRuleSets();
 
+    Optional<Date> getLastChecked(Channel channel);
+
     Optional<ValidationRuleSet> getValidationRuleSet(long id);
 
     Optional<ValidationRuleSet> getValidationRuleSet(String name);
@@ -31,6 +33,8 @@ public interface ValidationService {
     boolean isValidationRuleSetInUse(ValidationRuleSet validationRuleSet);
 
     Query<ValidationRuleSet> getRuleSetQuery();
+
+    List<DataValidationStatus> getValidationStatus(Channel channel, Interval interval);
 
     List<Validator> getAvailableValidators();
 

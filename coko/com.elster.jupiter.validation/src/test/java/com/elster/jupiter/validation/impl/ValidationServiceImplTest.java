@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -51,12 +52,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -382,7 +378,7 @@ public class ValidationServiceImplTest {
         // reading1 is ok
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);
         assertThat(validationStatus.get(1).completelyValidated()).isTrue();
-        assertThat(validationStatus.get(1).getReadingQualities()).containsOnly(readingQualityRecord);
+        assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQualityRecord);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQualityRecord)).isEmpty();
         ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
         verify(channel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate1));
@@ -420,7 +416,7 @@ public class ValidationServiceImplTest {
         // reading1 is ok
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);
         assertThat(validationStatus.get(1).completelyValidated()).isTrue();
-        assertThat(validationStatus.get(1).getReadingQualities()).containsOnly(readingQualityRecord);
+        assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQualityRecord);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQualityRecord)).isEmpty();
         ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
         verify(channel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate1));
@@ -461,7 +457,7 @@ public class ValidationServiceImplTest {
         // reading1 is not completely validated, but has already suspects
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);
         assertThat(validationStatus.get(1).completelyValidated()).isFalse();
-        assertThat(validationStatus.get(1).getReadingQualities()).containsOnly(readingQuality);
+        assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQuality);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQuality)).isNotEmpty();
 
     }
@@ -499,14 +495,14 @@ public class ValidationServiceImplTest {
         // reading2 is OK
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate2);
         assertThat(validationStatus.get(0).completelyValidated()).isTrue();
-        assertThat(validationStatus.get(0).getReadingQualities()).containsExactly(readingDate2ReadingQuality);
+        assertThat((Collection<ReadingQuality>) validationStatus.get(0).getReadingQualities()).containsExactly(readingDate2ReadingQuality);
         ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
         verify(channel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate2));
         assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         // reading1 has suspects
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);
         assertThat(validationStatus.get(1).completelyValidated()).isTrue();
-        assertThat(validationStatus.get(1).getReadingQualities()).containsOnly(readingQuality1, readingQuality2);
+        assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQuality1, readingQuality2);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQuality1)).isNotEmpty();
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQuality2)).isNotEmpty();
 

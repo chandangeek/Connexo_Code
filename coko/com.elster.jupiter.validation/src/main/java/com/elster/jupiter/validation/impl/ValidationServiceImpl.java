@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -37,7 +38,6 @@ import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
@@ -61,6 +61,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -82,6 +85,18 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         }
     };
     private static final Date ETERNITY = new Date(Long.MAX_VALUE);
+    public static final ReadingQuality OK_QUALITY = new ReadingQuality() {
+        @Override
+        public String getComment() {
+            return "";
+        }
+
+        @Override
+        public String getTypeCode() {
+            return ReadingQualityType.MDM_VALIDATED_OK_CODE;
+        }
+    };
+
 
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
@@ -251,6 +266,25 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
+    public Optional<Date> getLastChecked(Channel channel) {
+        List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(channel.getMeterActivation());
+
+        Date lastChecked = validations.stream()
+                .map(m -> m.getChannelValidation(channel))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(ChannelValidation::getLastChecked)
+                .reduce(min(NullSafeOrdering.NULL_IS_SMALLEST.get()))
+                .orElse(null);
+
+        return Optional.fromNullable(lastChecked);
+    }
+
+    private <T> BinaryOperator<T> min(final Comparator<? super T> comparator) {
+        return (t1, t2) -> comparator.compare(t1, t2) <= 0 ? t1 : t2;
+    }
+
+    @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
         return dataModel.mapper(IValidationRuleSet.class).getOptional(id).transform(UPCAST);
     }
@@ -297,12 +331,7 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     Iterable<IMeterActivationValidation> activeOnly(Iterable<IMeterActivationValidation> validations) {
-        return Iterables.filter(validations, new Predicate<IMeterActivationValidation>() {
-            @Override
-            public boolean apply(IMeterActivationValidation input) {
-                return input.isActive();
-            }
-        });
+        return Iterables.filter(validations, MeterActivationValidation::isActive);
     }
 
     List<IMeterActivationValidation> manageMeterActivationValidations(MeterActivation meterActivation) {
@@ -394,20 +423,20 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
                     .filter(ChannelValidation::hasActiveRules)
                     .map(ChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
 
-            ListMultimap<ReadingQualityType, IValidationRule> validationRuleMap = getValidationRulesPerReadingQuality(channelValidations);
+            ListMultimap<String, IValidationRule> validationRuleMap = getValidationRulesPerReadingQuality(channelValidations);
 
             ListMultimap<Date, ReadingQualityRecord> readingQualities = getReadingQualities(channel, getInterval(readings));
             ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
             for (BaseReading reading : readings) {
                 List<ReadingQualityRecord> qualities = (readingQualities.containsKey(reading.getTimeStamp()) ? readingQualities.get(reading.getTimeStamp()) : new ArrayList<ReadingQualityRecord>());
                 if (qualities.isEmpty() && configured) {
-                    if (lastChecked != null && reading.getTimeStamp().compareTo(lastChecked) <= 0) {
+                    if (wasValidated(lastChecked, reading.getTimeStamp())) {
                         qualities.add(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp()));
                     }
                 }
                 boolean fullyValidated = false;
                 if (configured && active) {
-                    fullyValidated = (lastChecked != null && reading.getTimeStamp().compareTo(lastChecked) <= 0);
+                    fullyValidated = (wasValidated(lastChecked, reading.getTimeStamp()));
                 }
                 result.add(createDataValidationStatusListFor(reading.getTimeStamp(), fullyValidated, qualities, validationRuleMap));
 
@@ -417,31 +446,57 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         return result;
     }
 
+    @Override
+    public List<DataValidationStatus> getValidationStatus(Channel channel, Interval interval) {
+        List<DataValidationStatus> result = new ArrayList<>();
+        List<ChannelValidation> channelValidations = getChannelValidations(channel);
+        boolean configured = !channelValidations.isEmpty();
+        boolean active = channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
+        Date lastChecked = configured ? getMinLastChecked(channelValidations.stream()
+                .filter(ChannelValidation::hasActiveRules)
+                .map(ChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
 
-    private ListMultimap<ReadingQualityType, IValidationRule> getValidationRulesPerReadingQuality(List<ChannelValidation> channelValidations) {
-        Set<IValidationRule> rules = new HashSet<>();
-        Query<IValidationRule> ruleQuery = getAllValidationRuleQuery();
-        for (ChannelValidation channelValidation : channelValidations) {
-            ValidationRuleSet ruleSet = channelValidation.getMeterActivationValidation().getRuleSet();
-            List<IValidationRule> validationRules = ruleQuery.select(Operator.EQUAL.compare("ruleSetId", ruleSet.getId()));
-            rules.addAll(validationRules);
-        }
-        return Multimaps.index(rules, new Function<IValidationRule, ReadingQualityType>() {
-            @Override
-            public ReadingQualityType apply(IValidationRule input) {
-                return input.getReadingQualityType();
+        ListMultimap<String, IValidationRule> validationRuleMap = getValidationRulesPerReadingQuality(channelValidations);
+
+        ListMultimap<Date, ReadingQualityRecord> readingQualities = getReadingQualities(channel, interval);
+
+        for (Date readingTimestamp : readingQualities.keySet()) {
+            List<ReadingQuality> qualities = new ArrayList<>(readingQualities.containsKey(readingTimestamp) ? readingQualities.get(readingTimestamp) : new ArrayList<ReadingQuality>());
+            boolean wasValidated = wasValidated(lastChecked, readingTimestamp);
+            if (qualities.isEmpty() && configured && wasValidated) {
+                qualities.add(OK_QUALITY);
             }
-        });
+            boolean fullyValidated = configured && active && wasValidated;
+            result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, validationRuleMap));
+
+        }
+        return result;
+    }
+
+    private boolean wasValidated(Date lastChecked, Date readingTimestamp) {
+        return lastChecked != null && readingTimestamp.compareTo(lastChecked) <= 0;
+    }
+
+    private ListMultimap<String, IValidationRule> getValidationRulesPerReadingQuality(List<ChannelValidation> channelValidations) {
+        Query<IValidationRule> ruleQuery = getAllValidationRuleQuery();
+        Set<IValidationRule> rules = channelValidations.stream()
+                .map(ChannelValidation::getMeterActivationValidation)
+                .map(MeterActivationValidation::getRuleSet)
+                .map(ValidationRuleSet::getId)
+                .map(id -> ruleQuery.select(Operator.EQUAL.compare("ruleSetId", id)))
+                .flatMap(l -> l.stream())
+                .collect(Collectors.toSet());
+        return Multimaps.index(rules, i -> i.getReadingQualityType().getCode());
     }
 
     private Query<IValidationRule> getAllValidationRuleQuery() {
         return queryService.wrap(dataModel.query(IValidationRule.class));
     }
 
-    private DataValidationStatus createDataValidationStatusListFor(Date timeStamp, boolean completelyValidated, List<ReadingQualityRecord> qualities, ListMultimap<ReadingQualityType, IValidationRule> validationRuleMap) {
+    private DataValidationStatus createDataValidationStatusListFor(Date timeStamp, boolean completelyValidated, List<? extends ReadingQuality> qualities, ListMultimap<String, IValidationRule> validationRuleMap) {
         DataValidationStatusImpl validationStatus = new DataValidationStatusImpl(timeStamp, completelyValidated);
-        for (ReadingQualityRecord quality : qualities) {
-            validationStatus.addReadingQuality(quality, filterDuplicates(validationRuleMap.get(quality.getType())));
+        for (ReadingQuality quality : qualities) {
+            validationStatus.addReadingQuality(quality, filterDuplicates(validationRuleMap.get(quality.getTypeCode())));
         }
         return validationStatus;
     }
@@ -496,14 +551,10 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     @Override
     public List<Validator> getAvailableValidators() {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
-        List<Validator> result = new ArrayList<>();
-        for (ValidatorFactory factory : validatorFactories) {
-            for (String implementation : factory.available()) {
-                Validator validator = validatorCreator.getTemplateValidator(implementation);
-                result.add(validator);
-            }
-        }
-        return result;
+        return validatorFactories.stream()
+                .flatMap(f -> f.available().stream())
+                .map(validatorCreator::getTemplateValidator)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -535,23 +586,24 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
 
         @Override
         public Validator getValidator(String implementation, Map<String, Object> props) {
-            for (ValidatorFactory factory : validatorFactories) {
-                if (factory.available().contains(implementation)) {
-                    return factory.create(implementation, props);
-                }
-            }
-            throw new ValidatorNotFoundException(thesaurus, implementation);
+            return validatorFactories.stream()
+                    .filter(hasImplementation(implementation))
+                    .findFirst()
+                    .orElseThrow(() -> new ValidatorNotFoundException(thesaurus, implementation))
+                    .create(implementation, props);
         }
 
         public Validator getTemplateValidator(String implementation) {
-            for (ValidatorFactory factory : validatorFactories) {
-                if (factory.available().contains(implementation)) {
-                    return factory.createTemplate(implementation);
-                }
-            }
-            throw new ValidatorNotFoundException(thesaurus, implementation);
+            return validatorFactories.stream()
+                    .filter(hasImplementation(implementation))
+                    .findFirst()
+                    .orElseThrow(() -> new ValidatorNotFoundException(thesaurus, implementation))
+                    .createTemplate(implementation);
         }
 
+        private Predicate<ValidatorFactory> hasImplementation(String implementation) {
+            return f -> f.available().contains(implementation);
+        }
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 
 import java.util.Collection;
 import java.util.Date;
@@ -15,9 +16,9 @@ public interface DataValidationStatus {
 
     boolean completelyValidated();
 
-    Collection<ReadingQualityRecord> getReadingQualities();
+    Collection<? extends ReadingQuality> getReadingQualities();
 
-    Collection<ValidationRule> getOffendedValidationRule(ReadingQualityRecord readingQuality);
+    Collection<ValidationRule> getOffendedValidationRule(ReadingQuality readingQuality);
 
     Collection<ValidationRule> getOffendedRules();
 }

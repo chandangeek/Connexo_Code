@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.collect.ImmutableList;
@@ -14,7 +15,7 @@ import java.util.*;
  */
 public class DataValidationStatusImpl implements DataValidationStatus {
     private final Date timeStamp;
-    private final Map<ReadingQualityRecord, List<? extends ValidationRule>> qualityRecordList = new HashMap<>();
+    private final Map<ReadingQuality, List<? extends ValidationRule>> qualityRecordList = new HashMap<>();
     private boolean completelyValidated;
 
     public DataValidationStatusImpl(Date timeStamp, boolean completelyValidated) {
@@ -28,12 +29,12 @@ public class DataValidationStatusImpl implements DataValidationStatus {
     }
 
     @Override
-    public Collection<ReadingQualityRecord> getReadingQualities() {
+    public Collection<? extends ReadingQuality> getReadingQualities() {
         return Collections.unmodifiableCollection(qualityRecordList.keySet());
     }
 
     @Override
-    public Collection<ValidationRule> getOffendedValidationRule(ReadingQualityRecord readingQuality) {
+    public Collection<ValidationRule> getOffendedValidationRule(ReadingQuality readingQuality) {
         if (qualityRecordList.containsKey(readingQuality)) {
             return Collections.unmodifiableCollection(qualityRecordList.get(readingQuality));
         } else {
@@ -55,7 +56,7 @@ public class DataValidationStatusImpl implements DataValidationStatus {
         return completelyValidated;
     }
 
-    public void addReadingQuality(ReadingQualityRecord quality, List<IValidationRule> iValidationRules) {
+    public void addReadingQuality(ReadingQuality quality, List<IValidationRule> iValidationRules) {
         qualityRecordList.put(quality, iValidationRules);
     }
 }
