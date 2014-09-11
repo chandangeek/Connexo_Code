@@ -1,2 +1,15 @@
 -classpath: target/classes
 -dsannotations: *
+Private-Package:  \
+	com.energyict.mdc.protocol.pluggable.impl,\
+	com.energyict.mdc.protocol.pluggable.impl.adapters.common,\
+	com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers,\
+	com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks,\
+	com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol,\
+	com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock,\
+	com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol,\
+	com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks,\
+	com.energyict.mdc.protocol.pluggable.impl.relations
+Export-Package:  \
+	com.energyict.mdc.protocol.pluggable,\
+	com.energyict.mdc.protocol.pluggable.security
