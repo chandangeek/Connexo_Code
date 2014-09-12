@@ -1,0 +1,18 @@
+.#{$prefix}tip {
+  border-color: $tip-border-color;
+  background-color: $tip-background-color;
+  border-radius: $tip-border-radius
+
+}
+
+.#{$prefix}tip-body {
+  border-color: $tip-border-color;
+  background-color: $tip-background-color;
+  border-radius: $tip-border-radius
+}
+
+.#{$prefix}tip-anchor {
+  border-color: $tip-border-color;
+  background-color: $tip-background-color;
+  border-radius: $tip-border-radius
+}

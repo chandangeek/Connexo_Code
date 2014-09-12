@@ -1,0 +1,54 @@
+$menu-width-expanded: 256px;
+$menu-width-collapsed: 48px;
+
+.#{$prefix}container-navigationmenu {
+    background: -webkit-linear-gradient(top, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(bottom, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(bottom, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to bottom, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* Standard syntax */
+
+    $item-height: 50px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: $menu-width-collapsed !important;
+    z-index: 20001; // 1 higher than the header and breadcrumbs.
+
+    // Animation
+    $transition-length: 400ms;
+    transition: width $transition-length;
+    -moz-transition: width $transition-length; /* Firefox 4 */
+    -webkit-transition: width $transition-length; /* Safari and Chrome */
+    -o-transition: width $transition-length; /* Opera */
+
+    &:hover {
+        width: $menu-width-expanded - 1px !important;
+        padding-right: 1px;
+    }
+
+    .menu-item, .#{$prefix}box-inner, .#{$prefix}box-target {
+        width: 100% !important;
+    }
+
+    .#{$prefix}panel-body-default {
+        background-color: transparent;
+    }
+
+    .#{$prefix}pressed {
+        background-color: $color-white;
+
+        .#{$prefix}btn-button {
+            .#{$prefix}btn-inner, .#{$prefix}btn-glyph {
+                color: #2f77ac;
+            }
+
+            &:hover {
+                background-color: $color-white;
+            }
+        }
+    }
+}
+
+.#{$prefix}container-navigationwrapper {
+    padding-right: $menu-width-collapsed;
+}

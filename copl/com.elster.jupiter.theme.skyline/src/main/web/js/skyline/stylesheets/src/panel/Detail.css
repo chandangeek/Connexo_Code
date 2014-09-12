@@ -1,0 +1,12 @@
+/* line 1, ../../../sass/src/panel/Detail.scss */
+.license-details-toolbar {
+  font-weight: bold;
+}
+
+/* line 8, ../../../sass/src/panel/Detail.scss */
+.license-list-empty,
+.license-details-toolbar,
+.isu-item-data-table,
+.license-title {
+  color: #686868;
+}

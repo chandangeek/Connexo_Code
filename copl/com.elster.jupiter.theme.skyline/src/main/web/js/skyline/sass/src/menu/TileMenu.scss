@@ -1,0 +1,43 @@
+.#{$prefix}panel-tilemenu.#{$prefix}menu {
+    border: none;
+
+    .#{$prefix}menu-item {
+        background-image: url('images/menu/bullet.png');
+        background-repeat: no-repeat;
+        background-position: left center;
+
+        &:first-child {
+            padding-top: 0;
+        }
+
+        .#{$prefix}menu-item-text {
+            font-size: 14px;
+            color: #686868;
+        }
+
+        .#{$prefix}menu-item-link {
+            border-top: none !important;
+            padding: 0 {
+                top: 2px;
+                bottom: 2px;
+            }
+        }
+
+        .#{$prefix}menu-item-indent-no-separator {
+            margin-left: 16px;
+        }
+    }
+
+    .#{$prefix}menu-item.#{$prefix}menu-item-active {
+        background-color: transparent;
+
+        span {
+            text-decoration: underline;
+        }
+    }
+}
+
+.#{$prefix}panel-body-tilemenu {
+    background: transparent;
+    padding-left: 8px;
+}

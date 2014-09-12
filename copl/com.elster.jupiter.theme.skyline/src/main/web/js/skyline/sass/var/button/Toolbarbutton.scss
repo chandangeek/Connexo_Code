@@ -1,0 +1,13 @@
+// Toolbar button colors
+$button-toolbar-background-color: #a0a0a0 !default;
+$button-toolbar-color: #ffffff !default;
+$button-toolbar-background-color-pressed: #909090 !default;
+$button-toolbar-background-color-over: #a9a9a9 !default;
+$button-toolbar-background-color-focus: $button-toolbar-background-color !default;
+
+// Toolbar button gradient
+$button-toolbar-background-gradient: 'none' !default;
+$button-toolbar-background-gradient-disabled: $button-default-background-gradient !default;
+$button-toolbar-background-gradient-over: $button-default-background-gradient !default;
+$button-toolbar-background-gradient-pressed: $button-default-background-gradient !default;
+

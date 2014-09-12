@@ -1,0 +1,56 @@
+/*
+Syntax error: Undefined variable: "$prefix".
+        on line 1 of D:/ssentyur/Jupiter/repository/com.elster.jupiter.extjs/src/main/web/js/ext/packages/uni-theme-skyline/sass/src/breadcrumb/BreadcrumbLinkSeparator.scss
+
+1: D:/ssentyur/Jupiter/repository/com.elster.jupiter.extjs/src/main/web/js/ext/packages/uni-theme-skyline/sass/src/breadcrumb/BreadcrumbLinkSeparator.scss
+
+Backtrace:
+D:/ssentyur/Jupiter/repository/com.elster.jupiter.extjs/src/main/web/js/ext/packages/uni-theme-skyline/sass/src/breadcrumb/BreadcrumbLinkSeparator.scss:1
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/script/variable.rb:50:in `_perform'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/script/node.rb:40:in `perform'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/perform.rb:282:in `block in run_interp'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/perform.rb:280:in `map'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/perform.rb:280:in `run_interp'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/perform.rb:228:in `visit_rule'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/base.rb:37:in `visit'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/perform.rb:18:in `visit'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/base.rb:53:in `block in visit_children'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/base.rb:53:in `map'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/base.rb:53:in `visit_children'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/perform.rb:27:in `block in visit_children'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/perform.rb:39:in `with_environment'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/perform.rb:26:in `visit_children'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/base.rb:37:in `block in visit'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/perform.rb:47:in `visit_root'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/base.rb:37:in `visit'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/perform.rb:18:in `visit'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/visitors/perform.rb:7:in `visit'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/tree/root_node.rb:20:in `render'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/engine.rb:293:in `_render'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/sass-3.1.7/lib/sass/engine.rb:240:in `render'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/compiler.rb:140:in `block (2 levels) in compile'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/compiler.rb:126:in `timed'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/compiler.rb:139:in `block in compile'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/logger.rb:45:in `red'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/compiler.rb:138:in `compile'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/compiler.rb:118:in `compile_if_required'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/compiler.rb:103:in `block (2 levels) in run'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/compiler.rb:101:in `each'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/compiler.rb:101:in `block in run'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/compiler.rb:126:in `timed'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/compiler.rb:100:in `run'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/commands/update_project.rb:45:in `perform'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/commands/base.rb:18:in `execute'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/commands/project_base.rb:19:in `execute'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/exec/sub_command_ui.rb:43:in `perform!'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/lib/compass/exec/sub_command_ui.rb:15:in `run!'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/bin/compass:30:in `block in <top (required)>'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/bin/compass:44:in `call'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/gems/compass-0.12.2/bin/compass:44:in `<top (required)>'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/bin/compass:23:in `load'
+C:/Users/ssentyur/bin/Sencha/Cmd/4.0.1.45/extensions/sencha-compass/gems/bin/compass:23:in `<main>'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Syntax error: Undefined variable: \"$prefix\".\A         on line 1 of D:/ssentyur/Jupiter/repository/com.elster.jupiter.extjs/src/main/web/js/ext/packages/uni-theme-skyline/sass/src/breadcrumb/BreadcrumbLinkSeparator.scss\A \A 1: D:/ssentyur/Jupiter/repository/com.elster.jupiter.extjs/src/main/web/js/ext/packages/uni-theme-skyline/sass/src/breadcrumb/BreadcrumbLinkSeparator.scss"; }

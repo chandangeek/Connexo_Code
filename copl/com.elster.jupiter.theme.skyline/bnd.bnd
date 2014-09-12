@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.elster.jupiter.theme.skyline
+Include-Resource: src/main/web;src/main/resources
+-include: -../development.bnd
