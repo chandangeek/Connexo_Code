@@ -19,11 +19,9 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -40,12 +38,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class DeviceConfigurationResource {
 
@@ -58,6 +52,7 @@ public class DeviceConfigurationResource {
     private final Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider;
     private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
     private final Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider;
+    private final Provider<ValidationRuleSetResource> validationRuleSetResourceProvider;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -70,7 +65,7 @@ public class DeviceConfigurationResource {
                                        Provider<LoadProfileConfigurationResource> loadProfileConfigurationResourceProvider,
                                        Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
                                        Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider,
-                                       Thesaurus thesaurus) {
+                                       Provider<ValidationRuleSetResource> validationRuleSetResourceProvider, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.validationService = validationService;
@@ -80,6 +75,7 @@ public class DeviceConfigurationResource {
         this.loadProfileConfigurationResourceProvider = loadProfileConfigurationResourceProvider;
         this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
         this.comTaskEnablementResourceProvider = comTaskEnablementResourceProvider;
+        this.validationRuleSetResourceProvider = validationRuleSetResourceProvider;
         this.thesaurus = thesaurus;
     }
 
@@ -356,23 +352,9 @@ public class DeviceConfigurationResource {
 
 
 
-    @GET
     @Path("/{deviceConfigurationId}/validationrulesets")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
-    public Response getValidationsRuleSets(
-            @PathParam("deviceTypeId") long deviceTypeId,
-            @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @BeanParam QueryParameters queryParameters) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        List<ValidationRuleSet> ruleSets = deviceConfiguration.getValidationRuleSets();
-        List<ValidationRuleSetInfo> result = new ArrayList<>();
-        for (ValidationRuleSet ruleSet : ruleSets) {
-            result.add(new ValidationRuleSetInfo(ruleSet));
-        }
-        result = ListPager.of(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR).from(queryParameters).find();
-        return Response.ok(PagedInfoList.asJson("validationRuleSets", result, queryParameters)).build();
+    public ValidationRuleSetResource getValidationsRuleSetResource() {
+        return validationRuleSetResourceProvider.get();
     }
 
     @GET
@@ -397,75 +379,6 @@ public class DeviceConfigurationResource {
         List<ValidationRuleSetInfo> infolist = validationRuleSetInfos.ruleSets;
         infolist = ListPager.of(infolist).from(queryParameters).find();
         return Response.ok(PagedInfoList.asJson("validationRuleSets", infolist, queryParameters)).build();
-    }
-
-    @DELETE
-    @Path("/{deviceConfigurationId}/validationrulesets/{validationRuleSetId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
-    public Response deleteValidationRuleSetFromDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
-            @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("validationRuleSetId") long validationRuleSetId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        Optional<ValidationRuleSet> optional = validationService.getValidationRuleSet(validationRuleSetId);
-        if (optional.isPresent()) {
-            ValidationRuleSet ruleSet = optional.get();
-            deviceConfiguration.removeValidationRuleSet(ruleSet);
-        }
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/{deviceConfigurationId}/validationrulesets")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.UPDATE_DEVICE_CONFIGURATION)
-    public Response addRuleSetsToDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
-            @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            List<Long> ids,
-            @Context UriInfo uriInfo) {
-        boolean all = getBoolean(uriInfo, "all");
-
-        if (!all && (ids == null || ids.size() == 0)) {
-            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_VALIDATIONRULESET_ID_FOR_ADDING);
-        }
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        List<ValidationRuleSetInfo> addedValidationRuleSets = new ArrayList<>();
-        for (ValidationRuleSet validationRuleSet : all ? allRuleSets(deviceConfiguration) : ruleSetsFor(ids)) {
-            if (!deviceConfiguration.getValidationRuleSets().contains(validationRuleSet)) {
-                deviceConfiguration.addValidationRuleSet(validationRuleSet);
-                addedValidationRuleSets.add(new ValidationRuleSetInfo(validationRuleSet));
-            }
-        }
-        return Response.ok(addedValidationRuleSets).build();
-    }
-
-    private boolean getBoolean(UriInfo uriInfo, String key) {
-        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
-    }
-
-    private Iterable<? extends ValidationRuleSet> ruleSetsFor(List<Long> ids) {
-        return Iterables.transform(ids, new Function<Long, ValidationRuleSet>() {
-            @Override
-            public ValidationRuleSet apply(Long input) {
-                return validationService.getValidationRuleSet(input).get();
-            }
-        });
-    }
-
-    private Iterable<ValidationRuleSet> allRuleSets(DeviceConfiguration deviceConfiguration) {
-        final List<ReadingType> relatedToConfiguration = deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration);
-        List<ValidationRuleSet> validationRuleSets = validationService.getValidationRuleSets();
-        return Iterables.filter(validationRuleSets, new Predicate<ValidationRuleSet>() {
-            @Override
-            public boolean apply(ValidationRuleSet validationRuleSet) {
-                return !validationRuleSet.getRules(relatedToConfiguration).isEmpty();
-            }
-        });
     }
 
 

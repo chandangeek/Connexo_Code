@@ -8,7 +8,6 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_IS_REQUIRED(1, "RequiredField", "Field is required"),
     PROTOCOL_INVALID_NAME(2,"deviceType.no.such.protocol", "A protocol with name ''{0}'' does not exist"),
     NO_LOGBOOK_TYPE_ID_FOR_ADDING(3,"NoLogBookTypeIdForAdding", "User should specify ids of LogBook Type for adding"),
-    NO_VALIDATIONRULESET_ID_FOR_ADDING(3,"NoValidationRuleSetIdForAdding", "User should specify ids of Validation Ruleset for adding"),
     NO_LOGBOOK_TYPE_FOUND(4, "NoLogBookTypeFound", "No LogBook type with id {0}"),
     NO_LOGBOOK_SPEC_FOUND(5, "NoLogBookSpecFound", "No LogBook configuration with id {0}"),
     NO_LOAD_PROFILE_TYPE_ID_FOR_ADDING(6, "NoLoadProfileTypeIdForAdding", "User should specify ids of Load Profile Type for adding"),
@@ -25,6 +24,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_DEVICECONFIG_ID_FOR_ADDING(17, "NoDeviceConfigurationIdForAdding", "User should specify ids of Device Configuration for adding"),
     CONNECTION_TYPE_UNKNOWN(18, "NoSuchConnectionType", "No connection type pluggable class could be found for ''{0}''"),
     NO_SUCH_PHENOMENON(19, "NoSuchPhenomenon", "No such phenomenon"),
+    NO_VALIDATIONRULESET_ID_FOR_ADDING(20,"NoValidationRuleSetIdForAdding", "User should specify ids of Validation Ruleset for adding"),
     ;
 
     private final int number;
