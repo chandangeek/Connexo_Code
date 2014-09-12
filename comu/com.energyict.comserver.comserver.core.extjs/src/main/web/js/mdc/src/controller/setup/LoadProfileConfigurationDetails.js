@@ -441,6 +441,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 widget.down('form').setTitle(title);
                                 measurementTypeCombobox.store = me.availableMeasurementTypesStore;
                                 unitOfMeasureCombobox.store = me.phenomenasStore;
+                                me.phenomenasStore.getProxy().pageParam = false;
+                                me.phenomenasStore.getProxy().limitParam = false;
+                                me.phenomenasStore.getProxy().startParam = false;
                                 me.phenomenasStore.load();
                                 me.availableMeasurementTypesStore.load({callback: function () {
                                     preloader.destroy();

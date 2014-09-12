@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid',
     extend: 'Uni.view.grid.BulkSelection',
     xtype: 'loadProfileTypesAddToDeviceTypeGrid',
     itemId: 'loadProfileTypesAddToDeviceTypeGrid',
-    store: 'LoadProfileTypesOnDeviceType',
+    store: 'Mdc.store.LoadProfileTypesOnDeviceTypeAvailable',
 
     intervalStore: null,
     deviceTypeId: undefined,
