@@ -1,0 +1,102 @@
+{"rows": [
+    {
+        "time": 1327611470000,
+        "yesterday": 25,
+        "today": null
+    },
+    {
+        "time": 1327615070000,
+        "yesterday": 29,
+        "today": 23
+    },
+    {
+        "time": 1327618670000,
+        "yesterday": 26,
+        "today": 20
+    },
+    {
+        "time": 1327622270000,
+        "yesterday": 21,
+        "today": 19
+    },
+    {
+        "time": 1327625870000,
+        "yesterday": 30,
+        "today": 16
+    },
+    {
+        "time": 1327629470000,
+        "yesterday": 26,
+        "today": 21
+    },
+    {
+        "time": 1327633070000,
+        "yesterday": 27,
+        "today": null
+    },
+    {
+        "time": 1327636670000,
+        "yesterday": 23,
+        "today": 23
+    },
+    {
+        "time": 1327640270000,
+        "yesterday": 20,
+        "today": 17
+    },
+    {
+        "time": 1327643870000,
+        "yesterday": 20,
+        "today": 15
+    },
+    {
+        "time": 1327647470000,
+        "yesterday": 28,
+        "today": 15
+    },
+    {
+        "time": 1327651070000,
+        "yesterday": 30,
+        "today": 20
+    },
+    {
+        "time": 1327654670000,
+        "yesterday": 26,
+        "today": 15
+    },
+    {
+        "time": 1327658270000,
+        "yesterday": 20,
+        "today": 21
+    },
+    {
+        "time": 1327661870000,
+        "yesterday": null,
+        "today": 23
+    },
+    {
+        "time": 1327665470000,
+        "yesterday": 29,
+        "today": 18
+    },
+    {
+        "time": 1327669070000,
+        "yesterday": 23,
+        "today": 23
+    },
+    {
+        "time": 1327672670000,
+        "yesterday": 28,
+        "today": 16
+    },
+    {
+        "time": 1327676270000,
+        "yesterday": 23,
+        "today": 24
+    },
+    {
+        "time": 1327679870000,
+        "yesterday": 26,
+        "today": 15
+    }
+]}
