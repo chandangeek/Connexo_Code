@@ -2,28 +2,48 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by tgr on 5/09/2014.
  */
 public class DetailedValidationInfo {
 
-    @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
-    public ValidationStatus validationResult;
-    public boolean dataValidated;
-    public Map<ValidationRuleInfo, Integer> validationRules;
+    public Boolean validationActive;
+    public Boolean dataValidated;
+    public Set<Map.Entry<ValidationRuleInfo, Long>> suspectReason;
+    public Long lastChecked;
 
-    public DetailedValidationInfo(DataValidationStatus value, ValidationEvaluator evaluator) {
-        dataValidated = value.completelyValidated();
-        validationResult = ValidationStatus.forResult(evaluator.getValidationResult(value.getReadingQualities()));
+    public DetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Date lastChecked) {
+        validationActive = active;
+        if (validationActive) {
+            this.dataValidated = isDataCompletelyValidated(dataValidationStatuses);
+            this.suspectReason = getSuspectReasonMap(dataValidationStatuses).entrySet();
+            this.lastChecked = lastChecked.getTime();
+        }
     }
 
     public DetailedValidationInfo() {
 
+    }
+    private boolean isDataCompletelyValidated(List<DataValidationStatus> dataValidationStatuses) {
+        return dataValidationStatuses.stream().allMatch(DataValidationStatus::completelyValidated);
+    }
+
+    private Map<ValidationRuleInfo, Long> getSuspectReasonMap(List<DataValidationStatus> dataValidationStatuses) {
+        Map<ValidationRule, Long> suspectReasonMap = new HashMap<>();
+        dataValidationStatuses.stream().forEach(s -> fillSuspectReasonMap(s.getOffendedRules(), suspectReasonMap));
+        return ValidationRuleInfo.from(suspectReasonMap);
+    }
+
+    private void fillSuspectReasonMap(Collection<ValidationRule> validationRules, Map<ValidationRule, Long> suspectReasonMap) {
+        validationRules.forEach(r -> {
+            suspectReasonMap.putIfAbsent(r, 0L);
+            suspectReasonMap.compute(r, (k, v) -> v++);
+        });
     }
 }

@@ -54,7 +54,7 @@ public class ChannelDataInfo {
             for (Map.Entry<Channel, DataValidationStatus> entry : states) {
                     ValidationInfo validationInfo = new ValidationInfo(entry.getValue(), evaluator);
                     channelIntervalInfo.validationResult = validationInfo.validationResult;
-                    channelIntervalInfo.suspectReason = validationInfo.validationRules;
+                    // TODO channelIntervalInfo.suspectReason = validationInfo.validationRules;
                     channelIntervalInfo.dataValidated = validationInfo.dataValidated;
             }
             channelData.add(channelIntervalInfo);

@@ -537,18 +537,17 @@ public class DeviceResourceTest extends JerseyTest {
         when(channel2.getDevice()).thenReturn(device1);
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(device1.forValidation()).thenReturn(deviceValidation);
+        when(deviceValidation.getValidationStatus(any(), any())).thenReturn(Collections.emptyList());
 
         Map<String, Object> response = target("/devices/mrid1/loadprofiles/1").request().get(Map.class);
         assertThat(response)
-                .hasSize(9)
+                .hasSize(7)
                 .contains(MapEntry.entry("id", 1))
                 .contains(MapEntry.entry("name", "lp1"))
                 .contains(MapEntry.entry("lastReading", 1406617200000L))
                 .contains(MapEntry.entry("obisCode", "1.2.3.4.5.1"))
                 .containsKey("channels")
                 .containsKey("validationInfo")
-                .containsKey("validationActive")
-                .containsKey("lastChecked")
                 .containsKey("interval");
         Map<String, Object> interval = (Map<String, Object>) response.get("interval");
         assertThat(interval)
