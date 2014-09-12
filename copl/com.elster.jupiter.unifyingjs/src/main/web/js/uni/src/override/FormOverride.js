@@ -87,10 +87,14 @@ Ext.define('Uni.override.FormOverride', {
     },
 
     updateRecord: function(record) {
+        record = record || this._record;
+
         if (this.hydrator) {
-            this.hydrator.lazyLoading = false; //todo: this is not supposed to be here
-            var values = this.getFieldValues();
-            this.hydrator.hydrate(values, this._record, function() {});
+            var data = this.getFieldValues();
+
+            record.beginEdit();
+            this.hydrator.hydrate(data, record);
+            record.endEdit();
             return this;
         } else {
             return this.callParent(arguments);

@@ -9,14 +9,11 @@ Ext.define('Uni.util.History', {
 
         Ext.util.History.suspendEvents();
 
-        Ext.TaskManager.start({
-            run: function () {
+        new Ext.util.DelayedTask(function () {
                 if (location.href !== currentHref) {
                     Ext.util.History.resumeEvents();
                     this.stopped = true;
                 }
-            },
-            interval: 100
-        });
+            }).delay(100);
     }
 });

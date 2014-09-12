@@ -1,16 +1,15 @@
 /**
- * Adds the Unifying JS config to the Ext JS loader.
- * When changing, also change the uni-dev.js
+ * Adds the UnifyingJS config to the ExtJS loader.
  */
 (function () {
     Ext.Loader.setConfig({
         enabled: true,
-        disableCaching: false,
+        disableCaching: true,
         paths: {
-            'Ext.ux.window': '../uni/packages/Ext.ux.window.Notification',
-            'Ext.ux': '../uni/packages/ux',
             'Uni': '../uni/src',
-            'Uni.property': '../uni/packages/property/src'
+            'Ext.ux.form': '../uni/packages/Ext.ux.form',
+            'Ext.ux.Rixo': '../uni/packages/Ext.ux.Rixo',
+            'Ext.ux.window': '../uni/packages/Ext.ux.window.Notification'
         }
     });
 }());
