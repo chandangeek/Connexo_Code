@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
@@ -19,6 +20,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
@@ -64,15 +66,6 @@ import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -116,6 +109,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -1099,7 +1093,7 @@ public class DeviceImpl implements Device {
             if (!meterReadings.isEmpty()) {
                 meterHasData=true;
             }
-            Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
+            java.util.Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
                 List<DataValidationStatus> validationStatus = this.validationService.getValidationStatus(koreChannel.get(), meterReadings);
                 for (DataValidationStatus status : validationStatus) {
@@ -1161,7 +1155,7 @@ public class DeviceImpl implements Device {
     private Optional<ReadingRecord> getLastReadingsFor(Register register, Meter meter) {
         ReadingType readingType = register.getRegisterSpec().getRegisterType().getReadingType();
         for (MeterActivation meterActivation : this.getSortedMeterActivations(meter)) {
-            Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation, readingType);
+            java.util.Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation, readingType);
             if (channel.isPresent()) {
                 Date lastReadingDate = channel.get().getTimeSeries().getLastDateTime();
                 if (lastReadingDate != null) {
@@ -1196,13 +1190,25 @@ public class DeviceImpl implements Device {
         return Optional.absent();
     }
 
-    private Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
+    List<com.elster.jupiter.metering.Channel> findKoreChannels(Channel channel) {
+        Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
+        if (found.isPresent()) {
+            return found.get().getMeterActivations().stream()
+                    .map(m -> getChannel(m, channel.getReadingType()))
+                    .filter(java.util.Optional::isPresent)
+                    .map(java.util.Optional::get)
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    private java.util.Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
         for (com.elster.jupiter.metering.Channel channel : meterActivation.getChannels()) {
             if (channel.getReadingTypes().contains(readingType)) {
-                return Optional.of(channel);
+                return java.util.Optional.of(channel);
             }
         }
-        return Optional.absent();
+        return java.util.Optional.empty();
     }
 
     /**
