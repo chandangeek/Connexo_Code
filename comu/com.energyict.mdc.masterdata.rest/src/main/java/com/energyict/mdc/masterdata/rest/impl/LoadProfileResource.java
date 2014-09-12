@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -59,13 +60,8 @@ public class LoadProfileResource {
     @RolesAllowed(Privileges.VIEW_LOAD_PROFILE)
     public Response getAllProfileTypes(@BeanParam QueryParameters queryParameters) {
         List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
-        // Sorting
-        Collections.sort(allProfileTypes, new Comparator<LoadProfileType>() {
-            @Override
-            public int compare(LoadProfileType o1, LoadProfileType o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+
+        allProfileTypes = ListPager.of(allProfileTypes, (lp1, lp2) -> lp1.getName().compareToIgnoreCase(lp2.getName())).from(queryParameters).find();
         return Response.ok(PagedInfoList.asJson("data", LoadProfileTypeInfo.from(allProfileTypes), queryParameters)).build();
     }
 
