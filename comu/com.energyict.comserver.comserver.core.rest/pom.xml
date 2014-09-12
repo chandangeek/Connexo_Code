@@ -14,7 +14,7 @@
     <artifactId>comserver.core.rest</artifactId>
     <packaging>bundle</packaging>
     <version>${comserver.version}</version>
-    <name>[MDC] ComServer core rest</name>
+    <name>[MDC] ComServer core rest [init CCR]</name>
     <description>
         Contains Rest implementations to interface between the FrontEnd and BackEnd
     </description>
