@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.google.common.collect.ImmutableList;
 
 public class ForwardConstraintMapping extends ConstraintMapping {
 	

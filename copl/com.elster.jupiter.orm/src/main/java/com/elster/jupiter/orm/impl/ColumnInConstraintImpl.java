@@ -1,7 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import java.util.Objects;
-
 import javax.inject.Inject;
 
 import com.elster.jupiter.orm.associations.Reference;
@@ -36,7 +34,7 @@ public class ColumnInConstraintImpl {
 		
 	ColumnImpl getColumn() {
 		if (column == null) {
-			column = Objects.requireNonNull(getConstraint().getTable().getColumn(columnName));
+			column = getConstraint().getTable().getColumn(columnName).get();
 		}
 		return column;
 	}

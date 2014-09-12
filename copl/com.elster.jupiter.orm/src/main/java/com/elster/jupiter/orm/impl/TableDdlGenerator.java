@@ -5,9 +5,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import com.elster.jupiter.orm.SqlDialect;
+
 import static com.elster.jupiter.orm.SqlDialect.ORACLE;
 
 class TableDdlGenerator {
@@ -41,7 +43,16 @@ class TableDdlGenerator {
                 ddl.add(getSequenceDdl(column));
             }
         }
-
+        for (TableImpl<?> created : table.getDataModel().getTables()) {
+        	if (created.equals(table)) {
+        		break;
+        	}
+        	for (ForeignKeyConstraintImpl constraint : created.getForeignKeyConstraints()) {
+        		if (constraint.getReferencedTable().equals(table)) {
+        			ddl.add("alter table " + constraint.getTable().getName() + " add " + getConstraintFragment(constraint));
+        		}
+        	}
+        }
         return ddl;
     }
 
@@ -51,8 +62,10 @@ class TableDdlGenerator {
         sb.append("(");
         doAppendColumns(sb, table.getColumns(), true, true);
         for (TableConstraintImpl constraint : table.getConstraints()) {
-            sb.append(", ");
-            sb.append(getConstraintFragment(constraint));
+        	if (!constraint.delayDdl()) {
+        		sb.append(", ");
+        		sb.append(getConstraintFragment(constraint));
+        	}
         }
         sb.append(")");
         if (table.isIndexOrganized() && dialect == ORACLE) {
@@ -178,13 +191,13 @@ class TableDdlGenerator {
         List<ColumnImpl> notMatched = new ArrayList<>();
         notMatched.addAll(table.getColumns());
         for (ColumnImpl toColumn : toTable.getColumns()) {
-            ColumnImpl fromColumn = table.getColumn(toColumn.getName());
-            if (fromColumn != null) {
-                notMatched.remove(fromColumn);
-                List<String> upgradeDdl = getUpgradeDdl(fromColumn, toColumn);
+            Optional<ColumnImpl> fromColumn = table.getColumn(toColumn.getName());
+            if (fromColumn.isPresent()) {
+                notMatched.remove(fromColumn.get());
+                List<String> upgradeDdl = getUpgradeDdl(fromColumn.get(), toColumn);
                 result.addAll(upgradeDdl);
                 if (toColumn.isAutoIncrement()) {
-                    if (!fromColumn.isAutoIncrement()) {
+                    if (!fromColumn.get().isAutoIncrement()) {
                         result.add(getSequenceDdl(toColumn));
                     }
                 }

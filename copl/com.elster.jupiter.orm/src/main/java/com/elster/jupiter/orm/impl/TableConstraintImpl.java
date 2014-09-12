@@ -168,5 +168,9 @@ public abstract class TableConstraintImpl implements TableConstraint {
         }
         return true;
     }
+    
+    public boolean delayDdl() {
+    	return false;
+    }
 
 }

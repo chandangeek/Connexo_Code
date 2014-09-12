@@ -299,6 +299,11 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     public boolean isAutoIndex() {
         return "position".equals(reverseOrderFieldName);
     }
+    
+    public boolean delayDdl() {
+    	int referencedIndex = getTable().getDataModel().getTables().indexOf(getReferencedTable());
+    	return referencedIndex > getTable().getDataModel().getTables().indexOf(getTable());
+    }
 
     static class BuilderImpl implements ForeignKeyConstraint.Builder {
         private final ForeignKeyConstraintImpl constraint;
@@ -381,6 +386,8 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
             constraint.getTable().add(constraint);
             return constraint;
         }
+        
+       
     }
 
 

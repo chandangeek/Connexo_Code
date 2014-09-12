@@ -151,7 +151,7 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 	}
 	
 	SqlBuilder swapSignSql() {
-		ColumnImpl column = getConstraint().getTable().getColumn("position");
+		ColumnImpl column = getConstraint().getTable().getColumn("position").get();
 		SqlBuilder builder = new SqlBuilder("update ");
 		builder.append(getConstraint().getTable().getQualifiedName());
 		builder.append (" set ");

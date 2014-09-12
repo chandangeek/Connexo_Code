@@ -157,13 +157,9 @@ public class TableImpl<T> implements Table<T> {
         return column;
     }
 
-    public ColumnImpl getColumn(String name) {
-        for (ColumnImpl column : columns) {
-            if (column.getName().equalsIgnoreCase(name)) {
-                return column;
-            }
-        }
-        return null;
+    @Override
+    public java.util.Optional<ColumnImpl> getColumn(String name) {
+    	return columns.stream().filter((column) -> column.getName().equalsIgnoreCase(name)).findFirst(); 
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.elster.jupiter.orm;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Describes a relational table, and its mapping to objects.
@@ -66,6 +67,7 @@ public interface Table<T> {
 
     boolean isIndexOrganized();
     List<? extends Column> getColumns();
+    Optional<? extends Column> getColumn(String name);
     List<? extends TableConstraint> getConstraints();
 
     boolean isAutoInstall();
