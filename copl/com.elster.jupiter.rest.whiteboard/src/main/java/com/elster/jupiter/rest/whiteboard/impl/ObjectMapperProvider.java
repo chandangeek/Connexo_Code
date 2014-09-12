@@ -5,6 +5,7 @@ import javax.ws.rs.ext.ContextResolver;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -19,6 +20,7 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 	    AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(mapper.getTypeFactory());
 	    AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
 		mapper.setSerializationInclusion(Include.NON_NULL);
+		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS,false);
 		mapper.setAnnotationIntrospector(pair);
 	}
 
