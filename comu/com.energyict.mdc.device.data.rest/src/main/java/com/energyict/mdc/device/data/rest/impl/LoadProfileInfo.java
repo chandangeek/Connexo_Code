@@ -29,8 +29,6 @@ public class LoadProfileInfo {
 
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
-    public boolean validationActive;
-    public long lastChecked;
 
     public static LoadProfileInfo from(LoadProfile loadProfile) {
         LoadProfileInfo info = createLoadProfileInfo(loadProfile);

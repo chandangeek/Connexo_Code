@@ -4,8 +4,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.util.comparators.NullSafeOrdering;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
@@ -17,14 +19,22 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateMidnight;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -48,6 +58,7 @@ public class LoadProfileResource {
     private final Provider<ChannelResource> channelResourceProvider;
     private final Clock clock;
     private final ValidationEvaluator evaluator;
+    private final ValidationService validationService;
 
     @Inject
     public LoadProfileResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Provider<ChannelResource> channelResourceProvider, ValidationService validationService, Clock clock) {
@@ -55,6 +66,7 @@ public class LoadProfileResource {
         this.thesaurus = thesaurus;
         this.channelResourceProvider = channelResourceProvider;
         this.clock = clock;
+        this.validationService = validationService;
         this.evaluator = validationService.getEvaluator();
     }
 
@@ -84,21 +96,39 @@ public class LoadProfileResource {
     }
 
     private void addValidationInfo(LoadProfile loadProfile, LoadProfileInfo loadProfileInfo) {
+        List<DataValidationStatus> states = loadProfile.getChannels().stream()
+                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, lastMonth()).stream())
+                .collect(Collectors.toList());
 
-        loadProfileInfo.validationActive = loadProfile.getChannels().stream()
-                .anyMatch(c -> c.getDevice().forValidation().isValidationActive(c, clock.now()));
+        loadProfileInfo.validationInfo = new DetailedValidationInfo(isValidationActive(loadProfile), states, lastChecked(loadProfile));
+    }
 
-        loadProfileInfo.lastChecked = new DateMidnight().getMillis();
-        loadProfileInfo.validationInfo = new DetailedValidationInfo();
-        ValidationRuleInfo validationRuleInfo = new ValidationRuleInfo();
-        validationRuleInfo.displayName = "rule1";
-        PropertyValueInfo<String> stringPropertyValueInfo = new PropertyValueInfo<>("Value", "default");
-        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
-        PropertyInfo propKey = new PropertyInfo("propKey", stringPropertyValueInfo, propertyTypeInfo, true);
-        validationRuleInfo.properties = Arrays.asList(propKey);
-        loadProfileInfo.validationInfo.validationRules = ImmutableMap.of(validationRuleInfo, 5);
-        loadProfileInfo.validationInfo.dataValidated = true;
-        loadProfileInfo.validationInfo.validationResult = ValidationStatus.SUSPECT;
+    private boolean isValidationActive(LoadProfile loadProfile) {
+        return loadProfile.getChannels().stream()
+                    .anyMatch(isValidationActive());
+    }
+
+    private Date lastChecked(LoadProfile loadProfile) {
+        return (Date) loadProfile.getChannels().stream()
+                    .filter(isValidationActive())
+                    .map(c -> c.getDevice().forValidation().getLastChecked(c))
+                    .map(Optional::orNull)
+                    .reduce(this::min)
+                    .orElse(null);
+    }
+
+    private Interval lastMonth() {
+        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.of("UTC")).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+        ZonedDateTime start = end.minusMonths(1);
+        return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
+    }
+
+    private Date min(Date d1, Date d2) {
+        return NullSafeOrdering.NULL_IS_SMALLEST.<Date>get().compare(d1 , d2) <= 0 ? d1 : d2;
+    }
+
+    private Predicate<Channel> isValidationActive() {
+        return c -> c.getDevice().forValidation().isValidationActive(c, clock.now());
     }
 
     @GET
