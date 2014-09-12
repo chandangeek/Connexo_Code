@@ -5,7 +5,6 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -13,26 +12,32 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
+import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.List;
 
 public class SecurityPropertySetResource {
 
     private final ResourceHelper resourceHelper;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public SecurityPropertySetResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
+    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
     }
 
