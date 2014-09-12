@@ -13,7 +13,7 @@
   <artifactId>mdc.dashboard.rest</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
-  <name>[MDC] mdc.dashboard.rest</name>
+  <name>[MDC] mdc.dashboard.rest [init DSR]</name>
 
   <build>
     <plugins>
