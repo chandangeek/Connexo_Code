@@ -27,12 +27,9 @@ public class HttpContextImpl implements HttpContext {
     static final String[] RESOURCES_NOT_SECURED = {
             "/apps/login/",
             // Anything below will only be used in development.
-            "/apps/ext/ext-all-dev.js",
-            "/apps/ext/ext-all.js",
-            "/apps/uni/uni-all.js",
-            "/apps/ext/packages/uni-theme-skyline/build/resources",
-            "/apps/ext/packages/uni-theme-skyline/build/uni-theme-skyline.js",
-            "/apps/uni/resources/css/etc/all.css",
+            "/apps/skyline/",
+            "/apps/uni/",
+            "/apps/ext/"
     };
 
     // No caching for index.html files, so that authentication will be verified first;
@@ -85,9 +82,9 @@ public class HttpContextImpl implements HttpContext {
         String authentication = request.getHeader("Authorization");
         if (authentication == null) {
             // Not logged in or session expired, so authentication is required
-        	if (request.getSession(true).getAttribute("user") == null) {
+            if (request.getSession(true).getAttribute("user") == null) {
                 if (login(request, response)) {
-                	return false;
+                    return false;
                 }
             }
             if (isCachedResource(request.getRequestURL().toString())) {
