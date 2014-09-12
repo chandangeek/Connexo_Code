@@ -13,7 +13,7 @@
   <artifactId>mdc.pluggable.rest</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
-  <name>[MDC] mdc.pluggable.rest</name>
+  <name>[MDC] mdc.pluggable.rest [init PLR]</name>
   <description>
     Provides REST support for pluggable service.
   </description>
