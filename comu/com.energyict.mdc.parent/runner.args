@@ -135,3 +135,4 @@ mvn:com.energyict/mdc.scheduling.rest/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.dashboard/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.dashboard.rest/1.0.0-SNAPSHOT
 mvn:com.energyict/mdc.dashboard.extjs/1.0.0-SNAPSHOT
+mvn:com.energyict/mdc.app/1.0.0-SNAPSHOT
