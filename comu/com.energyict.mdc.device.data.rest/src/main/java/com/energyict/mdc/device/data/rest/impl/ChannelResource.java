@@ -35,11 +35,13 @@ public class ChannelResource {
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
     private final ValidationEvaluator evaluator;
+    private final ValidationService validationService;
 
     @Inject
     public ChannelResource(ResourceHelper resourceHelper, Thesaurus thesaurus, ValidationService validationService) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
+        this.validationService = validationService;
         this.evaluator = validationService.getEvaluator();
     }
 
@@ -72,10 +74,11 @@ public class ChannelResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId, mrid);
         Channel channel = resourceHelper.findChannelOrThrowException(loadProfile, channelId);
+        boolean isValidationActive = channel.isValidationActive();
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> loadProfileData = channel.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
             List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();
-            List<ChannelDataInfo> infos = ChannelDataInfo.from(paginatedLoadProfileData, thesaurus, evaluator);
+            List<ChannelDataInfo> infos = ChannelDataInfo.from(paginatedLoadProfileData, isValidationActive, thesaurus, evaluator);
             PagedInfoList pagedInfoList = PagedInfoList.asJson("data", infos, queryParameters);
             return Response.ok(pagedInfoList).build();
         }
