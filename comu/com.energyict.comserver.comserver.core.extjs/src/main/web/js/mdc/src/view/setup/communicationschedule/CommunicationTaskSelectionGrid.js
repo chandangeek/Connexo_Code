@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
     alias: 'widget.communicationTaskSelectionGrid',
     overflowY: 'auto',
     itemId: 'communicationTaskGridFromSchedule',
-    store: 'CommunicationTasks',
+    store: 'CommunicationTasksForCommunicationSchedule',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',

@@ -51,16 +51,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             selector: 'searchitems-wizard #nextButton'
         },
         {
-            ref: 'nextButton',
+            ref: 'confirmButton',
             selector: 'searchitems-wizard #confirmButton'
         },
         {
-            ref: 'nextButton',
+            ref: 'finishButton',
             selector: 'searchitems-wizard #finishButton'
         },
         {
-            ref: 'nextButton',
-            selector: 'searchitems-wizard #cancelButton'
+            ref: 'wizardCancelButton',
+            selector: 'searchitems-wizard #wizardCancelButton'
         },
         {
             ref: 'communicationSchedulePreview',
@@ -100,7 +100,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             'searchitems-wizard #finishButton': {
                 click: this.finishClick
             },
-            'searchitems-wizard #cancelButton': {
+            'searchitems-wizard #wizardCancelButton': {
                 click: this.cancelClick
             },
             'searchitems-wizard #createCommunicationSchedule': {
@@ -464,7 +464,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             nextBtn = wizard.down('#nextButton'),
             confirmBtn = wizard.down('#confirmButton'),
             finishBtn = wizard.down('#finishButton'),
-            cancelBtn = wizard.down('#cancelButton');
+            cancelBtn = wizard.down('#wizardCancelButton');
         activePage.name == 'selectDevices' ? backBtn.disable() : backBtn.enable();
         switch (activePage.name) {
             case 'selectDevices' :
@@ -510,7 +510,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 nextBtn.hide();
                 confirmBtn.hide();
                 finishBtn.hide();
-                cancelBtn.show();
+                cancelBtn.hide();
                 break;
         }
     },

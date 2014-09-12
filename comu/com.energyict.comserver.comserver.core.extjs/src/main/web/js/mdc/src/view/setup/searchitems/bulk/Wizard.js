@@ -82,7 +82,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Wizard', {
                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                 ui: 'link',
                 action: 'cancel',
-                itemId: 'cancelButton',
+                itemId: 'wizardCancelButton',
                 href: ''
             }
         ]
