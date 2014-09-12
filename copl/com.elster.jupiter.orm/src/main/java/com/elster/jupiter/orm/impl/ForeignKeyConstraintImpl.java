@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.IllegalTableMappingException;
+import com.elster.jupiter.orm.Index;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
@@ -99,20 +100,26 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     boolean needsIndex() {
         for (TableConstraint constraint : getTable().getConstraints()) {
             if (constraint.isPrimaryKey() || constraint.isUnique()) {
-                if (this.isSubset(constraint)) {
+                if (this.isInLeadingColumns(constraint.getColumns())) {
                     return false;
                 }
             }
         }
+        for (Index index : getTable().getIndexes()) {
+        	if (this.isInLeadingColumns(index.getColumns())) {
+        		 return false;
+        	}
+        }
         return true;
     }
 
-    private boolean isSubset(TableConstraint other) {
-        if (other.getColumns().size() < this.getColumns().size()) {
+    private boolean isInLeadingColumns(List<? extends Column> otherColumns) {
+        if (otherColumns.size() < getColumns().size()) {
             return false;
         }
-        for (int i = 0; i < getColumns().size(); i++) {
-            if (!this.getColumns().get(i).equals(other.getColumns().get(i))) {
+        otherColumns = otherColumns.subList(0, getColumns().size());
+        for (Column column : getColumns()) {
+            if (!otherColumns.contains(column)) {
                 return false;
             }
         }

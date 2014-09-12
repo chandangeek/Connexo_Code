@@ -7,13 +7,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.elster.jupiter.orm.SqlDialect;
+import static com.elster.jupiter.orm.SqlDialect.ORACLE;
+
 class TableDdlGenerator {
 
     private final TableImpl<?> table;
+    private final SqlDialect dialect;
     private List<String> ddl;
+   
 
-    TableDdlGenerator(TableImpl<?> table) {
+    TableDdlGenerator(TableImpl<?> table, SqlDialect dialect) {
         this.table = table;
+        this.dialect = dialect;
     }
 
     List<String> getDdl() {
@@ -49,7 +55,7 @@ class TableDdlGenerator {
             sb.append(getConstraintFragment(constraint));
         }
         sb.append(")");
-        if (table.isIndexOrganized()) {
+        if (table.isIndexOrganized() && dialect == ORACLE) {
             sb.append(" index organized ");
         }
         return sb.toString();
@@ -107,7 +113,7 @@ class TableDdlGenerator {
         builder.append(" ON ");
         builder.append(table.getQualifiedName());
         appendColumns(builder, index.getColumns(), false, false);
-        if (index.getCompress() > 0) {
+        if (index.getCompress() > 0 && dialect == ORACLE) {
             builder.append(" COMPRESS ");
             builder.append(index.getCompress());
         }

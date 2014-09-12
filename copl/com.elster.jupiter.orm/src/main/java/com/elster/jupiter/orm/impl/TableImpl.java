@@ -259,15 +259,15 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public List<String> getDdl() {
-        return new TableDdlGenerator(this).getDdl();
+        return new TableDdlGenerator(this,getDataModel().getSqlDialect()).getDdl();
     }
 
     public List<String> upgradeDdl(TableImpl<?> toTable) {
-        return new TableDdlGenerator(this).upgradeDdl(toTable);
+        return new TableDdlGenerator(this,getDataModel().getSqlDialect()).upgradeDdl(toTable);
     }
 
     public List<String> upgradeSequenceDdl(ColumnImpl column, long startValue) {
-        return new TableDdlGenerator(this).upgradeSequenceDdl(column, startValue);
+        return new TableDdlGenerator(this,getDataModel().getSqlDialect()).upgradeSequenceDdl(column, startValue);
     }
 
 
