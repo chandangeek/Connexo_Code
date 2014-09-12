@@ -442,6 +442,7 @@ public class ValidationServiceImplTest {
         when(readingQuality.getReadingTimestamp()).thenReturn(readingDate1);
         ReadingQualityType readingQualityType = new ReadingQualityType("3.6.32131");
         when(readingQuality.getType()).thenReturn(readingQualityType);
+        when(readingQuality.getTypeCode()).thenReturn("3.6.32131");
         when(channel1.findReadingQuality(eq(new Interval(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality));
         when(channel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(mock(ReadingQualityRecord.class));
         setupValidationRuleSet(channelValidation1, channel1, true, readingQualityType);
@@ -479,10 +480,12 @@ public class ValidationServiceImplTest {
         when(readingQuality1.getReadingTimestamp()).thenReturn(readingDate1);
         ReadingQualityType readingQualityType1 = new ReadingQualityType("3.6.5164");
         when(readingQuality1.getType()).thenReturn(readingQualityType1);
+        when(readingQuality1.getTypeCode()).thenReturn("3.6.5164");
         ReadingQualityRecord readingQuality2 = mock(ReadingQualityRecord.class);
         when(readingQuality2.getReadingTimestamp()).thenReturn(readingDate1);
         ReadingQualityType readingQualityType2 = new ReadingQualityType("3.6.9856");
         when(readingQuality2.getType()).thenReturn(readingQualityType2);
+        when(readingQuality2.getTypeCode()).thenReturn("3.6.9856");
         when(channel1.findReadingQuality(eq(new Interval(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality1, readingQuality2));
         ReadingQualityRecord readingDate2ReadingQuality = mock(ReadingQualityRecord.class);
         when(channel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate2))).thenReturn(readingDate2ReadingQuality);
