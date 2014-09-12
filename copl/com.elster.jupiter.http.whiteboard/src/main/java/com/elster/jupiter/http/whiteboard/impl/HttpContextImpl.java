@@ -29,7 +29,7 @@ public class HttpContextImpl implements HttpContext {
             // Anything below will only be used in development.
             "/apps/ext/ext-all-dev.js",
             "/apps/ext/ext-all.js",
-            "/apps/uni/uni-dev.js",
+            "/apps/uni/uni-all.js",
             "/apps/ext/packages/uni-theme-skyline/build/resources",
             "/apps/ext/packages/uni-theme-skyline/build/uni-theme-skyline.js",
             "/apps/uni/resources/css/etc/all.css",
