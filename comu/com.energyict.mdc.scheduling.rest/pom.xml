@@ -13,7 +13,7 @@
   <artifactId>mdc.scheduling.rest</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
-  <name>[MDC] mdc.scheduling.rest</name>
+  <name>[MDC] mdc.scheduling.rest [init SCR]</name>
   <description>
     Bundle providing REST services on top of SchedulingService to handle all scheduling related functionality
   </description>
