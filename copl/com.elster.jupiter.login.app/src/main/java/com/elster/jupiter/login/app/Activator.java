@@ -15,8 +15,8 @@ public class Activator implements BundleActivator {
     private volatile ServiceRegistration<HttpResource> registration;
 
     public void start(BundleContext bundleContext) throws Exception {
-//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/js/login", new BundleResolver(bundleContext), new DefaultStartPage("Login App"));
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.login.app/src/main/web/js/login", new FileResolver(), new DefaultStartPage("Login App"));
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/js/login", new BundleResolver(bundleContext), new DefaultStartPage("Login App"));
+//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.login.app/src/main/web/js/login", new FileResolver(), new DefaultStartPage("Login App"));
         registration = bundleContext.registerService(HttpResource.class, resource, null);
     }
 
