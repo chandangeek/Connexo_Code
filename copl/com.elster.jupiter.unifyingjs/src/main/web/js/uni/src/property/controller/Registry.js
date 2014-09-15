@@ -21,6 +21,23 @@
 Ext.define('Uni.property.controller.Registry', {
     extend: 'Ext.app.Controller',
     singleton: true,
+    requires: [
+        'Uni.property.view.property.Text',
+        'Uni.property.view.property.Combobox',
+        'Uni.property.view.property.Textarea',
+        'Uni.property.view.property.Password',
+        'Uni.property.view.property.Hexstring',
+        'Uni.property.view.property.Boolean',
+        'Uni.property.view.property.Number',
+        'Uni.property.view.property.NullableBoolean',
+        'Uni.property.view.property.Date',
+        'Uni.property.view.property.DateTime',
+        'Uni.property.view.property.Period',
+        'Uni.property.view.property.Time',
+        'Uni.property.view.property.CodeTable',
+        'Uni.property.view.property.Reference',
+        'Uni.property.view.property.Multiselect'
+    ],
 
     /**
      * Default properties registered
