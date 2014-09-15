@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.security.Privileges;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
@@ -25,6 +26,18 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TYPE_UNKNOWN(18, "NoSuchConnectionType", "No connection type pluggable class could be found for ''{0}''"),
     NO_SUCH_PHENOMENON(19, "NoSuchPhenomenon", "No such phenomenon"),
     NO_VALIDATIONRULESET_ID_FOR_ADDING(20,"NoValidationRuleSetIdForAdding", "User should specify ids of Validation Ruleset for adding"),
+    EXECUTE_COM_TASK_LEVEL1(21, Privileges.EXECUTE_COM_TASK_1, "Execute com task (level 1)"),
+    EXECUTE_COM_TASK_LEVEL2(22, Privileges.EXECUTE_COM_TASK_2, "Execute com task (level 2)"),
+    EXECUTE_COM_TASK_LEVEL3(23, Privileges.EXECUTE_COM_TASK_3, "Execute com task (level 3)"),
+    EXECUTE_COM_TASK_LEVEL4(24, Privileges.EXECUTE_COM_TASK_4, "Execute com task (level 4)"),
+    EDIT_DEVICE_SECURITY_PROPERTIES_1(25, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_1, "Edit device security properties (level 1"),
+    EDIT_DEVICE_SECURITY_PROPERTIES_2(26, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_2, "Edit device security properties (level 2)"),
+    EDIT_DEVICE_SECURITY_PROPERTIES_3(27, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_3, "Edit device security properties (level 3)"),
+    EDIT_DEVICE_SECURITY_PROPERTIES_4(28, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_4, "Edit device security properties (level 4)"),
+    VIEW_DEVICE_SECURITY_PROPERTIES_1(29, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_1, "View device security properties (level 1)"),
+    VIEW_DEVICE_SECURITY_PROPERTIES_2(30, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_2, "View device security properties (level 2)"),
+    VIEW_DEVICE_SECURITY_PROPERTIES_3(31, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_3, "View device security properties (level 3)"),
+    VIEW_DEVICE_SECURITY_PROPERTIES_4(32, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_4, "View device security properties (level 4)"),
     ;
 
     private final int number;

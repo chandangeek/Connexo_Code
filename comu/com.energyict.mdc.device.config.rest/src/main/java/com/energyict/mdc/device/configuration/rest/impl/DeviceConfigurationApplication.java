@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
@@ -53,6 +54,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile TaskService taskService;
     private volatile NlsService nlsService;
+    private volatile UserService userService;
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile ValidationService validationService;
@@ -154,6 +156,11 @@ public class DeviceConfigurationApplication extends Application implements Insta
         this.deviceDataService = deviceDataService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @Override
     public void install() {
         Installer installer = new Installer();
@@ -212,12 +219,14 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
+            bind(SecurityPropertySetInfoFactory.class).to(SecurityPropertySetInfoFactory.class);
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(engineModelService).to(EngineModelService.class);
             bind(validationService).to(ValidationService.class);
             bind(deviceDataService).to(DeviceDataService.class);
+            bind(userService).to(UserService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
         }

@@ -1,13 +1,11 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 public class SecurityLevelInfo {
 
@@ -17,7 +15,7 @@ public class SecurityLevelInfo {
     public SecurityLevelInfo() {
     }
 
-    public static <T extends DeviceAccessLevel> SecurityLevelInfo from(T deviceAccessLevel, Thesaurus thesaurus) {
+    public static SecurityLevelInfo from(DeviceAccessLevel deviceAccessLevel, Thesaurus thesaurus) {
         SecurityLevelInfo securityLevelInfo = new SecurityLevelInfo();
         securityLevelInfo.id = deviceAccessLevel.getId();
         securityLevelInfo.name = thesaurus.getString(deviceAccessLevel.getTranslationKey(), deviceAccessLevel.getTranslationKey());
@@ -25,11 +23,9 @@ public class SecurityLevelInfo {
         return securityLevelInfo;
     }
 
-    public static <T extends DeviceAccessLevel> List<SecurityLevelInfo> from(List<T> deviceAccessLevels, Thesaurus thesaurus) {
+    public static List<SecurityLevelInfo> from(List<? extends DeviceAccessLevel> deviceAccessLevels, Thesaurus thesaurus) {
         List<SecurityLevelInfo> securityLevelInfos = new ArrayList<>(deviceAccessLevels.size());
-        for (T deviceAccessLevel : deviceAccessLevels) {
-            securityLevelInfos.add(SecurityLevelInfo.from(deviceAccessLevel, thesaurus));
-        }
+        securityLevelInfos.addAll(deviceAccessLevels.stream().map(deviceAccessLevel -> SecurityLevelInfo.from(deviceAccessLevel, thesaurus)).collect(toList()));
         return securityLevelInfos;
     }
 }

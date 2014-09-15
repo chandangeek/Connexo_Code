@@ -30,15 +30,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import static java.util.stream.Collectors.toList;
+
 public class SecurityPropertySetResource {
 
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
+    private final SecurityPropertySetInfoFactory securityPropertySetInfoFactory;
 
     @Inject
-    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus) {
+    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus, SecurityPropertySetInfoFactory securityPropertySetInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
+        this.securityPropertySetInfoFactory = securityPropertySetInfoFactory;
     }
 
     @GET
@@ -47,7 +51,15 @@ public class SecurityPropertySetResource {
     public PagedInfoList getSecurityPropertySets(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        List<SecurityPropertySetInfo> securityPropertySetInfos = SecurityPropertySetInfo.from(ListPager.of(deviceConfiguration.getSecurityPropertySets(), new SecurityPropertySetComparator()).find(), thesaurus);
+        List<SecurityPropertySetInfo> securityPropertySetInfos =
+                ListPager.of(deviceConfiguration.getSecurityPropertySets(), new SecurityPropertySetComparator())
+                         .from(queryParameters)
+                         .find()
+                         .stream()
+                         .map(securityPropertySetInfoFactory::from)
+                         .collect(toList());
+
+
 
         return PagedInfoList.asJson("data", securityPropertySetInfos, queryParameters);
     }
@@ -61,7 +73,7 @@ public class SecurityPropertySetResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         SecurityPropertySet securityPropertySet = findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
 
-        return Response.status(Response.Status.OK).entity(SecurityPropertySetInfo.from(securityPropertySet, thesaurus)).build();
+        return Response.status(Response.Status.OK).entity(securityPropertySetInfoFactory.from(securityPropertySet)).build();
     }
 
     @POST
@@ -84,7 +96,7 @@ public class SecurityPropertySetResource {
                                                   .encryptionLevel(securityPropertySetInfo.encryptionLevelId)
                                                   .build();
 
-        return Response.status(Response.Status.CREATED).entity(SecurityPropertySetInfo.from(securityPropertySet, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(securityPropertySetInfoFactory.from(securityPropertySet)).build();
     }
 
     @PUT
@@ -99,7 +111,7 @@ public class SecurityPropertySetResource {
         securityPropertySetInfo.writeTo(securityPropertySet);
         securityPropertySet.update();
 
-        return Response.status(Response.Status.OK).entity(SecurityPropertySetInfo.from(securityPropertySet, thesaurus)).build();
+        return Response.status(Response.Status.OK).entity(securityPropertySetInfoFactory.from(securityPropertySet)).build();
     }
 
     @DELETE
