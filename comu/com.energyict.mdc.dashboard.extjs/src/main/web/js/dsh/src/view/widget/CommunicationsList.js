@@ -1,6 +1,7 @@
 Ext.define('Dsh.view.widget.CommunicationsList', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.communications-list',
+    store: 'Dsh.store.CommunicationTasks',
     requires: [
         'Ext.grid.column.Date',
         'Ext.form.field.ComboBox',
@@ -51,7 +52,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
             },
             {
                 itemId: 'nextCommunication',
-                text: Uni.I18n.translate('communication.widget.details.startedOn', 'DSH', 'Next communication'),
+                text: Uni.I18n.translate('communication.widget.details.nextCommunication', 'DSH', 'Next communication'),
                 dataIndex: 'nextCommunication',
                 xtype: 'datecolumn',
                 format: 'm/d/Y h:i:s',
@@ -67,7 +68,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
             },
             {
                 itemId: 'successfulFinishTime',
-                text: Uni.I18n.translate('communication.widget.details.startedOn', 'DSH', 'Finished succesfuly on'),
+                text: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished succesfuly on'),
                 dataIndex: 'successfulFinishTime',
                 xtype: 'datecolumn',
                 format: 'm/d/Y h:i:s',

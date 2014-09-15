@@ -35,6 +35,9 @@ Ext.define('Dsh.view.Communications', {
                                 itemId: 'communicationdetails'
                             },
                             {
+                                style: {
+                                    'margin-top' : '32px'
+                                },
                                 xtype: 'preview_connection',
                                 itemId: 'connectiondetails'
                             }
@@ -42,6 +45,13 @@ Ext.define('Dsh.view.Communications', {
                     }
                 }
             ]
+        }
+    ],
+
+    side: [
+        {
+            xtype: 'dsh-side-filter',
+            itemId: 'dshcommunicationssidefilter'
         }
     ],
     initComponent: function () {
