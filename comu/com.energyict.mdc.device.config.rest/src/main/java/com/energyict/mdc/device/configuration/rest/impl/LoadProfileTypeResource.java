@@ -56,8 +56,8 @@ public class LoadProfileTypeResource {
         if (available != null && Boolean.parseBoolean(available)) {
             loadProfileTypes = findAllAvailableLoadProfileTypesForDeviceType(loadProfileTypes);
         }
-        return Response.ok(PagedInfoList.asJson("data",
-                LoadProfileTypeInfo.from(ListPager.of(loadProfileTypes, new LoadProfileTypeComparator()).find()), queryParameters)).build();
+        loadProfileTypes = ListPager.of(loadProfileTypes, new LoadProfileTypeComparator()).from(queryParameters).find();
+        return Response.ok(PagedInfoList.asJson("data", LoadProfileTypeInfo.from(loadProfileTypes), queryParameters)).build();
     }
 
     private List<LoadProfileType> findAllAvailableLoadProfileTypesForDeviceType(List<LoadProfileType> loadProfileTypes) {
