@@ -93,6 +93,15 @@ public class Historical2LogReader extends AbstractLogReader {
 					offset = recNum * recordSize;
 					continue;
 				}
+                                Calendar cal2 = Calendar.getInstance();
+				cal2.add(Calendar.DATE, 1);
+				if (recDate.after(cal2.getTime())) {
+					recNum++;
+					offset = recNum * recordSize;
+					continue;
+				}
+
+
 				
 				offset+= length;
 				IntervalData intervalData = new IntervalData(recDate,0,0);

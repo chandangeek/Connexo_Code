@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.eig.nexus1272;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class SystemLogReader extends AbstractLogReader {
 	
 	@Override
 	public void parseLog(byte[] byteArray, ProfileData profileData, Date from, int intervalSeconds) throws IOException {
-		parseSystemLog(byteArray);
+		parseSystemLog(byteArray, from);
 	}
 	
 	public static final byte POWER = 0x000;
@@ -46,7 +47,7 @@ public class SystemLogReader extends AbstractLogReader {
 	public static final byte TEST_MODE = 0x005;
 	public static final byte LOG_DOWNLOAD = 0x006;
 	public static final byte FEATURE_RESET = 0x007;
-	private void parseSystemLog(byte[] ba) throws IOException {
+	private void parseSystemLog(byte[] ba, Date from) throws IOException {
 
 //		NexusDataParser ndp = new NexusDataParser(ba);
 		int offset = 0;
@@ -56,6 +57,22 @@ public class SystemLogReader extends AbstractLogReader {
 
 		while (offset < ba.length) {
 			Date recDate = parseF3(ba, offset);
+
+                        Calendar cal2 = Calendar.getInstance();
+			cal2.add(Calendar.DATE, 1);
+			if (recDate.after(cal2.getTime())) {
+				recNum++;
+				offset = recNum * recSize;
+				continue;
+			}
+
+			if (recDate.before(from)) {
+				recNum++;
+				offset = recNum * recSize;
+				continue;
+			}
+
+
 			String event = recDate + "";
 			offset+= length;
 			byte code = ba[offset++];
