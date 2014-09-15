@@ -12,10 +12,10 @@ Ext.define('Mdc.model.LogbookType', {
 
     proxy: {
         type: 'rest',
-        url: '/api/mds/logbooktypes',
+        url: '../../api/mds/logbooktypes',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'logbookType'
         }
     }
 });

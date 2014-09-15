@@ -3,7 +3,8 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeEdit', {
     alias: 'widget.logbookTypeEdit',
     itemId: 'logbookTypeEdit',
     requires: [
-        'Uni.form.field.Obis'
+        'Uni.form.field.Obis',
+        'Uni.util.FormErrorMessage'
     ],
     edit: false,
 
@@ -26,7 +27,6 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeEdit', {
                         html: '',
                         itemId: 'logbookTypeEditCreateTitle'
                     },
-
                     {
                         xtype: 'component',
                         html: '',
@@ -50,7 +50,12 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeEdit', {
                                     width: 650
                                 },
                                 items: [
-
+                                    {
+                                        xtype: 'uni-form-error-message',
+                                        name: 'errors',
+                                        hidden: true,
+                                        margin: '0 0 32 0'
+                                    },
                                     {
                                         xtype: 'textfield',
                                         name: 'name',

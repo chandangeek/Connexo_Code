@@ -157,7 +157,9 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         var record = Ext.create(Mdc.model.LogbookType),
             values = this.getLogbookTypeEditForm().getValues();
         var me = this;
+        var formErrorsPanel = me.getLogbookTypeEditForm().down('uni-form-error-message[name=errors]');
 
+        formErrorsPanel.hide();
         if (record) {
             record.set(values);
             record.save({
@@ -169,6 +171,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getLogbookTypeEditForm().getForm().markInvalid(json.errors);
+                        formErrorsPanel.show();
                     }
                 }
             });
@@ -180,6 +183,8 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         var record = this.getLogbookTypeEditForm().getRecord(),
             values = this.getLogbookTypeEditForm().getValues(),
             me = this;
+        var formErrorsPanel = me.getLogbookTypeEditForm().down('uni-form-error-message[name=errors]');
+        formErrorsPanel.hide();
         if (record) {
             record.set(values);
             record.save({
@@ -191,6 +196,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getLogbookTypeEditForm().getForm().markInvalid(json.errors);
+                        formErrorsPanel.show();
                     }
                 }
             });
