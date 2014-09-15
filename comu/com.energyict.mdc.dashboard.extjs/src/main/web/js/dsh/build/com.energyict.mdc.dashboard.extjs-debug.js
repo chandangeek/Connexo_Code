@@ -2006,22 +2006,6 @@ Ext.define('Dsh.controller.ConnectionOverview', {
     }
 });
 
-Ext.define('Dsh.model.Filter', {
-    extend: 'Ext.data.Model',
-    proxy: Ext.create('Uni.data.proxy.QueryStringProxy', { root: 'filter' }),
-    fields: [
-        { name: 'deviceGroup', type: 'auto' },
-        { name: 'state', type: 'auto' },
-        { name: 'latestStatus', type: 'auto' },
-        { name: 'latestResult', type: 'auto' },
-        { name: 'comPortPool', type: 'auto' },
-        { name: 'connectionType', type: 'auto' },
-        { name: 'deviceType', type: 'auto' },
-        { name: 'startedBetween', type: 'auto' },
-        { name: 'finishedBetween', type: 'auto' }
-    ]
-});
-
 Ext.define('Dsh.view.widget.ConnectionsList', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.connections-list',
@@ -2586,16 +2570,51 @@ Ext.define('Dsh.model.CommTasks', {
     ]
 });
 
+Ext.define('Dsh.model.Filter', {
+    extend: 'Ext.data.Model',
+    proxy: Ext.create('Uni.data.proxy.QueryStringProxy', { root: 'filter' }),
+    fields: [
+        { name: 'deviceGroup', type: 'auto' },
+        { name: 'state', type: 'auto' },
+        { name: 'latestStatus', type: 'auto' },
+        { name: 'latestResult', type: 'auto' },
+        { name: 'comPortPool', type: 'auto' },
+        { name: 'connectionType', type: 'auto' },
+        { name: 'deviceType', type: 'auto' },
+        { name: 'startedBetween', type: 'auto' },
+        { name: 'finishedBetween', type: 'auto' }
+    ]
+
+//
+//                if (config.store) {
+//                    var store = Ext.getStore(config.store);
+//                    if (me.queryParams.filter) {
+//                        me.filter = Ext.create(config.filter,  Ext.JSON.decode(me.queryParams.filter));
+//                        var data = me.filter.getData();
+//
+////                        me.filterStore = new Ext.data.Store({fields: ['property','value'], data: Ext.JSON.decode(me.queryParams.filter)});
+//                        // fs replace on filter store
+//
+//                        if (me.filterStore.count()){
+//                            store.remoteFilter = true;
+//                            me.filterStore.each(function(record){
+//                                store.addFilter(new Ext.util.Filter(record.getData()));
+//
+//                            });
+//                        }
+//                    }
+//                }
+});
+
 Ext.define('Dsh.store.ConnectionTasks', {
     extend: 'Ext.data.Store',
     requires: [
         'Dsh.model.ConnectionTask'
     ],
     model: 'Dsh.model.ConnectionTask',
+    autoLoad: false,
     proxy: {
-//        type: 'ajax',
         type: 'rest',
-//        url: '../../apps/dashboard/app/fakeData/ConnectionTasksFake.json',
         url: '/api/dsr/connections',
         reader: {
             type: 'json',
@@ -2673,33 +2692,17 @@ Ext.define('Dsh.controller.Connections', {
             },
             '#dshconnectionssidefilter button[action=applyfilter]': {
                 click: this.applyFilter
-            },
-            '#dshconnectionssidefilter': {
-                afterrender: this.loadFilterValues
             }
         });
         this.callParent(arguments);
-    },
 
+    },
     showOverview: function () {
-        var me = this,
-            widget = Ext.widget('connections-details');
-        me.getApplication().fireEvent('changecontentevent', widget);
-    },
-
-    loadFilterValues: function () {
-        var me = this;
-
-        // todo: get rid of this delay
-        Ext.defer(function () {
-            Dsh.model.Filter.load(0, {
-                callback: function (record) {
-                    !record && (record = new Dsh.model.Filter);
-                    me.getSideFilterForm().loadRecord(record);
-                    me.getFilterPanel().loadRecord(record);
-                }
-            });
-        }, 3500);
+        var widget = Ext.widget('connections-details');
+        var router = this.getController('Uni.controller.history.Router');
+        this.getSideFilterForm().loadRecord(router.filter);
+        this.getFilterPanel().loadRecord(router.filter);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     onCommunicationSelectionChange: function (grid, selected) {
@@ -2794,7 +2797,8 @@ Ext.define('Dsh.controller.history.Workspace', {
                             title: 'Connections',
                             route: 'connections',
                             controller: 'Dsh.controller.Connections',
-                            action: 'showOverview'
+                            action: 'showOverview',
+                            filter: 'Dsh.model.Filter'
                         }
                     }
                 }
