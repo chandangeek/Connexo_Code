@@ -66,7 +66,7 @@ public class ValidationInfoHelper {
         Meter meter = getMeterFor(device);
         Optional<Channel> channelRef = getRegisterChannel(register, meter);
         List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
-        boolean validationStatusForRegister = getValidationStatus(channelRef.get(), meter);
+        boolean validationStatusForRegister = channelRef.isPresent() ? getValidationStatus(channelRef.get(), meter) : false;
         Optional<Date> lastChecked = Optional.absent();
         if (validationStatusForRegister) {
             List<Reading> readings = getReadingsForOneYear(register);
