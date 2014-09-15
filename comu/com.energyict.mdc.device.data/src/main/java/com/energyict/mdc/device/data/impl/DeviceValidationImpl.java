@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.impl.ChannelImpl;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Channel;
@@ -49,7 +50,9 @@ public class DeviceValidationImpl implements DeviceValidation {
             return false;
         }
         Optional<com.elster.jupiter.metering.Channel> found = device.findKoreChannel(channel, when);
-        return found.isPresent() && !validationService.getMeterActivationValidations(found.get().getMeterActivation()).isEmpty();
+        return found.isPresent() && validationService.getMeterActivationValidations(found.get().getMeterActivation()).stream()
+                .flatMap(m -> m.getChannelValidations().stream())
+                .anyMatch(ChannelValidation::hasActiveRules);
     }
 
     @Override
