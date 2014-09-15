@@ -20,10 +20,11 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceDataFilter', {
     ],
 
     getFilterQueryParams: function () {
-        var duration = this.get('duration'),
+        var duration = this.getDuration(),
+            intervalStart = this.get('intervalStart'),
             queryParams;
 
-        this.set('intervalEnd', moment(this.get('intervalStart')).add(duration.get('timeUnit'), duration.get('count')).valueOf());
+        this.set('intervalEnd', moment(intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf());
 
         queryParams = this.getData(false);
 
