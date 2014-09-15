@@ -1,20 +1,15 @@
 package com.energyict.mdc.dynamic.impl;
 
-import java.math.BigDecimal;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import com.energyict.mdc.dynamic.ObisCodeValueFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 
 import com.elster.jupiter.properties.FindById;
 import com.elster.jupiter.properties.ListValue;
@@ -22,16 +17,15 @@ import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+import javax.inject.Inject;
+import java.math.BigDecimal;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides an implementation for the {@link PropertySpecService} interface
@@ -42,8 +36,6 @@ import com.energyict.mdc.dynamic.TimeDurationValueFactory;
  */
 @Component(name = "com.energyict.mdc.dynamic.propertyspecservice", service = PropertySpecService.class)
 public class PropertySpecServiceImpl implements PropertySpecService {
-
-    private static final Logger LOGGER = Logger.getLogger(PropertySpecServiceImpl.class.getName());
 
     private volatile Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
     private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
