@@ -59,9 +59,8 @@ Ext.define('Mdc.controller.setup.Devices', {
     },
 
     showDeviceDetailsView: function (mRID) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            mRID = mRID || router.arguments.mRID;
+        var me = this;
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 var widget = Ext.widget('deviceSetup', {mRID: device.get('mRID')});
