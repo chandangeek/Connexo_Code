@@ -152,32 +152,9 @@ public enum UserAction {
     SHOWREPORTS("showReports"),
     CREATEREPORTSCHEDULE("createReportSchedule"),
 
-    // DeviceMessage
-    EXECUTEDEVICEMESSAGES1("executeDeviceMessagesLevel1"),
-    EXECUTEDEVICEMESSAGES2("executeDeviceMessagesLevel2"),
-    EXECUTEDEVICEMESSAGES3("executeDeviceMessagesLevel3"),
-    EXECUTEDEVICEMESSAGES4("executeDeviceMessagesLevel4"),
-
-    // Security Property related
-    VIEWDEVICESECURITYPROPERTIES1("viewDeviceSecurityPropertiesLevel1"),
-    VIEWDEVICESECURITYPROPERTIES2("viewDeviceSecurityPropertiesLevel2"),
-    VIEWDEVICESECURITYPROPERTIES3("viewDeviceSecurityPropertiesLevel3"),
-    VIEWDEVICESECURITYPROPERTIES4("viewDeviceSecurityPropertiesLevel4"),
-    EDITDEVICESECURITYPROPERTIES1("editDeviceSecurityPropertiesLevel1"),
-    EDITDEVICESECURITYPROPERTIES2("editDeviceSecurityPropertiesLevel2"),
-    EDITDEVICESECURITYPROPERTIES3("editDeviceSecurityPropertiesLevel3"),
-    EDITDEVICESECURITYPROPERTIES4("editDeviceSecurityPropertiesLevel4"),
-
-
     // UsarAction for handling migration in which there are some actions in the database that do no exists in this enum
     // Should NOT be used by any factory !!!!
-    UNKOWN_ACTION_IN_DATABASE_MIGRATION_NEEDS_TO_BE_RUN("unkownActionInDatabaseMigrationNeedsToBeRun"),
-
-    // ComTask executable related
-    EXECUTECOMTASK1("executeComTaskLevel1"),
-    EXECUTECOMTASK2("executeComTaskLevel2"),
-    EXECUTECOMTASK3("executeComTaskLevel3"),
-    EXECUTECOMTASK4("executeComTaskLevel4");
+    UNKOWN_ACTION_IN_DATABASE_MIGRATION_NEEDS_TO_BE_RUN("unkownActionInDatabaseMigrationNeedsToBeRun");
 
     private String key;
 
