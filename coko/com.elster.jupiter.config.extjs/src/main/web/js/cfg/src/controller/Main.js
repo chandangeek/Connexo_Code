@@ -2,7 +2,12 @@ Ext.define('Cfg.controller.Main', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.controller.Navigation'
+        'Uni.controller.Navigation',
+        'Cfg.controller.history.Validation',
+        'Cfg.controller.history.EventType',
+        'Cfg.controller.Administration',
+        'Cfg.controller.Validation',
+        'Cfg.controller.EventType'
     ],
 
     controllers: [
