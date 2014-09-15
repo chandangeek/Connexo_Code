@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             },
             {
                 xtype: 'reading-type-column',
-                header: Uni.I18n.translate('registerMappings.CIMreadingType', 'MDC', 'CIM Reading type'),
+                header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                 dataIndex: 'readingType'
             },
             {

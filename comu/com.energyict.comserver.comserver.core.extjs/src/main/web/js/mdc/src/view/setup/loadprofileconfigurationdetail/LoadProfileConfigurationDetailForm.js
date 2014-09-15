@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 },
                 {
                     xtype: 'reading-type-displayfield',
-                    fieldLabel: 'CIM reading type',
+                    fieldLabel: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                     emptyText: 'Select a measurement type first',
                     name: 'readingType'
                 },
