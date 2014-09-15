@@ -1,15 +1,22 @@
 Ext.define('Cfg.controller.Main', {
     extend: 'Ext.app.Controller',
+
     requires: [
         'Uni.controller.Navigation'
     ],
+
     controllers: [
         'Cfg.controller.history.Validation',
-        'Cfg.controller.history.EventType'
+        'Cfg.controller.history.EventType',
+        'Cfg.controller.Administration',
+        'Cfg.controller.Validation',
+        'Cfg.controller.EventType'
     ],
+
     config: {
         navigationController: null
     },
+
     refs: [
         {
             ref: 'viewport',
@@ -20,6 +27,7 @@ Ext.define('Cfg.controller.Main', {
             selector: 'viewport > #contentPanel'
         }
     ],
+
     init: function () {
         var me = this;
         var menuItem = Ext.create('Uni.model.MenuItem', {
@@ -49,7 +57,7 @@ Ext.define('Cfg.controller.Main', {
 
         this.initNavigation();
         this.initDefaultHistoryToken();
-        this.getApplication().on('cfginitialized', function() {
+        this.getApplication().on('cfginitialized', function () {
             this.getController('Cfg.controller.Validation').mdcIsActive = true;
         });
     },
@@ -79,5 +87,4 @@ Ext.define('Cfg.controller.Main', {
             this.getContentPanel().remove(widget, true);
         }
     }
-
 });
