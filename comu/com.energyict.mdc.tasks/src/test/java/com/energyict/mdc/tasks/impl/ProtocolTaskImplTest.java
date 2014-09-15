@@ -9,8 +9,10 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategoryPrimaryKeyImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecPrimaryKeyImpl;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -552,7 +554,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
         when(deviceMessageSpec.getName()).thenReturn(name);
         when(deviceMessageSpec.getCategory()).thenReturn(deviceMessageCategory);
-        DeviceMessageSpecPrimaryKey name1PK = new DeviceMessageSpecPrimaryKey(deviceMessageSpec, name);
+        DeviceMessageSpecPrimaryKey name1PK = new DeviceMessageSpecPrimaryKeyImpl(deviceMessageSpec, name);
         when(deviceMessageSpec.getPrimaryKey()).thenReturn(name1PK);
         when(getDeviceMessageService().findDeviceMessageSpec(name1PK.getValue())).thenReturn(deviceMessageSpec);
         return deviceMessageSpec;
@@ -562,7 +564,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
         when(deviceMessageCategory.getId()).thenReturn(id);
         when(deviceMessageCategory.getName()).thenReturn(name);
-        DeviceMessageCategoryPrimaryKey name1PK = new DeviceMessageCategoryPrimaryKey(deviceMessageCategory, name);
+        DeviceMessageCategoryPrimaryKey name1PK = new DeviceMessageCategoryPrimaryKeyImpl(deviceMessageCategory, name);
         when(deviceMessageCategory.getPrimaryKey()).thenReturn(name1PK);
         when(getDeviceMessageService().findDeviceMessageCategory(name1PK.getValue())).thenReturn(deviceMessageCategory);
         return deviceMessageCategory;
