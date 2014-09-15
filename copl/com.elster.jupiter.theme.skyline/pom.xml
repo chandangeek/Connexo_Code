@@ -44,4 +44,13 @@
             </properties>
         </profile>
     </profiles>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/web/js/skyline/build</directory>
+                <targetPath>js/skyline/build</targetPath>
+            </resource>
+        </resources>
+    </build>
 </project>
