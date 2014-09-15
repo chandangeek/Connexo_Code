@@ -1,33 +1,18 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
 /**
- * Serves as a PrimaryKey for a {@link DeviceMessageSpec}
- * <p/>
- * Copyrights EnergyICT
- * Date: 7/02/13
- * Time: 11:45
+ * Insert your comments here.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2014-09-11 (15:12)
  */
-public class DeviceMessageSpecPrimaryKey extends AbstractDeviceMessagePrimaryKey {
-
-    private final DeviceMessageSpec deviceMessage;
-    private final String name;
-
-    public DeviceMessageSpecPrimaryKey(DeviceMessageSpec deviceMessage, String name) {
-        this.deviceMessage = deviceMessage;
-        this.name = name;
-    }
-
+public interface DeviceMessageSpecPrimaryKey {
     /**
      * Provides the primary key for this DeviceMessageSpec.
      *
      * @return the primary key
      */
-    public String getValue() {
-        return cleanUpClassName(this.deviceMessage.getClass().getName() + CARDINAL_REGEX + this.name);
-    }
+    String getValue();
 
-    public String getName() {
-        return name;
-    }
-
+    String getName();
 }

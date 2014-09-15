@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.api.device.messages;
+package com.energyict.mdc.protocol.api.impl.device.messages;
 
 public abstract class AbstractDeviceMessagePrimaryKey {
 
@@ -16,25 +16,28 @@ public abstract class AbstractDeviceMessagePrimaryKey {
      * @param dirtyClassName the className containing inner-class enum rubbish
      * @return the <i>cleanClassName</i> where we can perform working <code>Class.forName(cleanClassName)</code> on
      */
-    public String cleanUpClassName (String dirtyClassName) {
+    public String cleanUpClassName(String dirtyClassName) {
         String[] parts = dirtyClassName.split(DOLLAR_REGEX);
-        if (isGivenStringNumeric(parts[parts.length - 1])) {
+        if (isNumeric(parts[parts.length - 1])) {
             return dirtyClassName.substring(0, dirtyClassName.lastIndexOf(DOLLAR_SIGN));
-        } else {
+        }
+        else {
             return dirtyClassName;
         }
     }
 
-    public boolean isGivenStringNumeric (String possibleInt) {
+    boolean isNumeric(String possibleInt) {
         if (possibleInt != null) {
             try {
                 Double.parseDouble(possibleInt);
                 return true;
-            } catch (NumberFormatException e) {
+            }
+            catch (NumberFormatException e) {
                 // we eat it because this determines that the given string is not a number ...
                 return false;
             }
-        } else {
+        }
+        else {
             return false;
         }
     }

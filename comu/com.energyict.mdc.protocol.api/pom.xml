@@ -13,7 +13,7 @@
   <artifactId>mdc.protocols.api</artifactId>
   <packaging>bundle</packaging>
   <version>${comserver.version}</version>
-  <name>[MDC] mdc.protocols.api</name>
+  <name>[MDC] mdc.protocols.api [init DMC]</name>
   <description>
     Defines the behavior of device protocols as required by the data collection engine.
   </description>

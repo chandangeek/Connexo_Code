@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.device.offline;
 import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecPrimaryKeyImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import java.util.Date;
@@ -32,7 +33,7 @@ public interface OfflineDeviceMessage extends Offline {
     public int getDeviceMessageId();
 
     /**
-     * The {@link DeviceMessageSpecPrimaryKey} to uniquely identify
+     * The {@link DeviceMessageSpecPrimaryKeyImpl} to uniquely identify
      * the DeviceMessageSpec of this message.
      *
      * @return the DeviceMessageSpecPrimaryKey

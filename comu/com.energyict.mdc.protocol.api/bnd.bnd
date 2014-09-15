@@ -1,5 +1,6 @@
 -classpath: target/classes
 -dsannotations: *
+Private-Package: com.energyict.mdc.protocol.api.impl
 Export-Package: com.energyict.mdc.protocol.api,\
         com.energyict.mdc.protocol.api.cim,\
         com.energyict.mdc.protocol.api.codetables,\
