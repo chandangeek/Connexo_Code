@@ -19,40 +19,34 @@ Ext.define('Isu.view.workspace.issues.FilteringToolbar', {
     addFilterButtons: function (filter) {
         var me = this,
             btnClass = 'Uni.view.button.TagButton',
-            container = me.getContainer();
+            container = me.getContainer(),
+            assignee = filter.getAssignee().get('name'),
+            reason = filter.getReason().get('name'),
+            meter = filter.getMeter().get('name');
 
 
         container.removeAll();
 
-        if (filter.get('assignee')) {
+        if (assignee) {
             container.add(Ext.create(btnClass, {
                 itemId: 'filter-by-assignee',
-                text: 'Assignee: ' + filter.get('assignee').get('name'),
+                text: 'Assignee: ' + assignee,
                 target: 'assignee'
             }));
-
         }
 
-        if (filter.get('reason')) {
+        if (reason) {
             container.add(Ext.create(btnClass, {
                 itemId: 'filter-by-reason',
-                text: 'Reason: ' + filter.get('reason').get('name'),
+                text: 'Reason: ' + reason,
                 target: 'reason'
             }));
         }
 
-        if (filter.get('department')) {
-            container.add(Ext.create(btnClass, {
-                itemId: 'filter-by-department',
-                text: 'Department: ' + filter.get('department').get('name'),
-                target: 'department'
-            }));
-        }
-
-        if (filter.get('meter')) {
+        if (meter) {
             container.add(Ext.create(btnClass, {
                 itemId: 'filter-by-meter',
-                text: 'Meter: ' + filter.get('meter').get('name'),
+                text: 'Meter: ' + meter,
                 target: 'meter'
             }));
         }

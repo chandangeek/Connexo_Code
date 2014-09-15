@@ -42,7 +42,7 @@ Ext.define('Isu.model.IssueFilter', {
      * @override
      * @returns {String[]}
      */
-    getFields: function() {
+    getFields: function () {
         var fields = this.callParent();
         fields.push('assigneeId');
         fields.push('assigneeType');
@@ -53,13 +53,14 @@ Ext.define('Isu.model.IssueFilter', {
      * @override
      * @returns {*|Object}
      */
-    getPlainData: function() {
-        var data = this.callParent();
-        var assignee = this.get('assignee');
+    getPlainData: function () {
+        var data = this.callParent(),
+            assignee;
 
-        if (assignee) {
-            data.assigneeId = assignee.get('id');
-            data.assigneeType = assignee.get('type');
+        if (data.assignee) {
+            assignee = data.assignee.split(':');
+            data.assigneeId = assignee[0];
+            data.assigneeType = assignee[1];
         }
 
         return data;
