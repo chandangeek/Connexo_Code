@@ -55,6 +55,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SubMenuPanel', {
             formatHref = me.router.getRoute(me.commonRoute + item.href).buildUrl({mRID: mRID, loadProfileId: model.getId()});
 
             item.href = formatHref;
+            item.el && item.el.down('a').set({href: formatHref});
             (window.location.hash == formatHref) && item.addCls('current');
         });
     }
