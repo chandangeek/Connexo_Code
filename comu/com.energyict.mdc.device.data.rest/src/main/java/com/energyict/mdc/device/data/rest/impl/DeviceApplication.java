@@ -246,6 +246,7 @@ public class DeviceApplication extends Application implements InstallService{
             bind(clock).to(Clock.class);
             bind(DeviceComTaskInfoFactory.class).to(DeviceComTaskInfoFactory.class);
             bind(ChannelResource.class).to(ChannelResource.class);
+            bind(ValidationInfoHelper.class).to(ValidationInfoHelper.class);
         }
     }
 
