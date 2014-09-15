@@ -3,25 +3,26 @@
  */
 Ext.define('Uni.view.user.Menu', {
     extend: 'Ext.button.Button',
-    alias: 'widget.userMenu',
+    xtype: 'userMenu',
     scale: 'small',
     cls: 'user-menu',
     iconCls: 'icon-user',
 
     menu: [
         /*{
-            text: 'Profile'
-        },
-        {
-            text: 'Settings',
-            glyph: 'xe010@icomoon'
-        },
-        {
-            xtype: 'menuseparator'
-        },*/
+         text: 'Profile'
+         },
+         {
+         text: 'Settings',
+         glyph: 'xe010@icomoon'
+         },
+         {
+         xtype: 'menuseparator'
+         },*/
         {
             text: 'Logout',
-            action: 'logout'
+            action: 'logout',
+            href: '/apps/login/index.html?logout=true'
         }
     ],
 

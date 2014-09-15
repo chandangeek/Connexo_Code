@@ -8,6 +8,7 @@ Ext.define('Uni.controller.Navigation', {
         'Uni.controller.history.EventBus',
         'Uni.store.MenuItems',
         'Uni.store.AppItems',
+        'Uni.store.Apps',
         'Uni.view.container.ContentContainer',
         'Uni.controller.history.Router'
     ],
@@ -30,7 +31,7 @@ Ext.define('Uni.controller.Navigation', {
         }
     ],
 
-    applicationTitle: 'Connexo Collect',
+    applicationTitle: 'Connexo Multi Sense',
     applicationTitleSeparator: '-',
 
     init: function () {
