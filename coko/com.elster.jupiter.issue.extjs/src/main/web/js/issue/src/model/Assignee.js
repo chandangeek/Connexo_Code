@@ -11,7 +11,15 @@ Ext.define('Isu.model.Assignee', {
             displayValue: 'IDX',
             type: 'string',
             convert: function (value, record) {
-                return [record.get('id'), record.get('type')].join(':');
+                var idx = null,
+                    id = record.get('id'),
+                    type = record.get('type');
+
+                if (id && type) {
+                    idx = id + ':' + type;
+                }
+
+                return idx;
             }
         },
         {
