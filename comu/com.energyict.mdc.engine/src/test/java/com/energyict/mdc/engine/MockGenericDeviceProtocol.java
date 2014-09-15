@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -21,19 +20,23 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Dummy DeviceProtocol for PluggableClassTestUsages
@@ -117,8 +120,8 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public Set<DeviceMessageId> getSupportedMessages() {
+        return EnumSet.noneOf(DeviceMessageId.class);
     }
 
     @Override
