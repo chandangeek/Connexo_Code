@@ -65,6 +65,9 @@ Ext.define('Dsh.controller.Connections', {
             },
             '#dshconnectionssidefilter button[action=applyfilter]': {
                 click: this.applyFilter
+            },
+            '#dshconnectionsfilterpanel button[action=clear]': {
+                click: this.clearFilter
             }
         });
         this.callParent(arguments);
@@ -125,9 +128,11 @@ Ext.define('Dsh.controller.Connections', {
     },
 
     applyFilter: function () {
-        var me = this;
-        me.getSideFilterForm().updateRecord();
-        var model = me.getSideFilterForm().getRecord();
-        model.save();
+        this.getSideFilterForm().updateRecord();
+        this.getSideFilterForm().getRecord().save();
+    },
+
+    clearFilter: function () {
+        this.getSideFilterForm().getRecord().destroy();
     }
 });

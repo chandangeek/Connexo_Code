@@ -23,56 +23,68 @@ Ext.define('Dsh.view.widget.SideFilter', {
                 labelAlign: 'top'
             },
             items: [
-                {
-                    itemId: 'device-group',
-                    name: 'deviceGroup',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
-                },
+//                {
+//                    itemId: 'device-group',
+//                    name: 'deviceGroup',
+//                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
+//                    displayField: 'name',
+//                    valueField: 'id'
+//                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json',
+//                    root: 'data'
+//                },
                 {
                     itemId: 'current-state',
                     name: 'state',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.currentState', 'DSH', 'Current state'),
+                    displayField: 'localizedValue',
+                    valueField: 'taskStatus',
                     url: '/api/dsr/field/taskstatus',
-                    root: 'taskStatuses',
-                    valueField: "taskStatus"
-          //          displayField: "localizedValue"
+                    root: 'taskStatuses'
                 },
                 {
                     itemId: 'latest-status',
                     name: 'latestStatus',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestStatus', 'DSH', 'Latest status'),
+                    displayField: 'localizedValue',
+                    valueField: 'successIndicator',
                     url: '/api/dsr/field/connectiontasksuccessindicators',
-                    root: "successIndicators",
-                    valueField: "successIndicator"
-          //          displayField: "localizedValue"
+                    root: 'successIndicators'
                 },
                 {
                     itemId: 'latest-result',
                     name: 'latestResult',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result'),
+                    displayField: 'localizedValue',
+                    valueField: 'successIndicator',
                     url: '/api/dsr/field/comsessionsuccessindicators',
-                    root: "successIndicators",
-                    valueField: "successIndicator"
-          //          displayField: "localizedValue"
+                    root: 'successIndicators'
                 },
                 {
                     itemId: 'comport-pool',
                     name: 'comPortPool',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.comPortPool', 'DSH', 'Communication port pool'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
+                    displayField: 'name',
+                    valueField: 'id',
+                    url: '/api/dsr/field/comportpools',
+                    root: 'comPortPools'
                 },
                 {
                     itemId: 'connection-type',
                     name: 'connectionType',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Connection type'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
+                    displayField: 'name',
+                    valueField: 'id',
+                    url: '/api/dsr/field/connectiontypepluggableclasses',
+                    root: 'connectiontypepluggableclasses'
                 },
                 {
                     itemId: 'device-type',
                     name: 'deviceType',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceType', 'DSH', 'Device type'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
+                    displayField: 'name',
+                    valueField: 'id',
+                    url: '/api/dsr/field/devicetypes',
+                    root: 'deviceTypes'
                 },
                 {
                     xtype: 'side-filter-date-time',
