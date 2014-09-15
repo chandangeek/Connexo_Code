@@ -17,7 +17,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -26,6 +26,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.google.common.base.Optional;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
@@ -113,18 +115,17 @@ public class DeviceMessageServiceImplTest {
     }
 
     @Test
-    public void testAllMessageSpecsHaveAPrimaryKey () {
-        // Business method
-        List<DeviceMessageSpecPrimaryKey> primaryKeys =
-                this.newService().allCategories().
-                    stream().
-                    flatMap(category -> category.getMessageSpecifications().stream()).
-                    map(DeviceMessageSpec::getPrimaryKey).
-                    collect(Collectors.toList());
+    public void testAllMessageSpecsHaveAUniqueId () {
+        List<DeviceMessageSpec> deviceMessageSpecs = this.newService().allCategories().stream().
+                flatMap(category -> category.getMessageSpecifications().stream()).
+                collect(Collectors.toList());
 
-        // Asserts
-        assertThat(primaryKeys).isNotEmpty();
-        assertThat(primaryKeys).doesNotContainNull();
+        Set<DeviceMessageId> uniqueIds = EnumSet.noneOf(DeviceMessageId.class);
+        for (DeviceMessageSpec messageSpec : deviceMessageSpecs) {
+            if (!uniqueIds.add(messageSpec.getId())) {
+                fail("Message spec " + messageSpec.getName() + " does not have a unique DeviceMessageId:" + messageSpec.getId());
+            }
+        }
     }
 
     @Test

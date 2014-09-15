@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
@@ -32,77 +32,77 @@ import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageC
  */
 public enum LogBookDeviceMessage implements DeviceMessageSpecEnum {
 
-    SetInputChannel("Set input channel") {
+    SetInputChannel(DeviceMessageId.LOG_BOOK_SET_INPUT_CHANNEL, "Set input channel") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetInputChannelAttributeName, true, new StringFactory()));
         }
     },
-    SetCondition("Set condition") {
+    SetCondition(DeviceMessageId.LOG_BOOK_SET_CONDITION, "Set condition") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetConditionAttributeName, true, new StringFactory()));
         }
     },
-    SetConditionValue("Set condition value") {
+    SetConditionValue(DeviceMessageId.LOG_BOOK_SET_CONDITION_VALUE, "Set condition value") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetConditionValueAttributeName, true, new StringFactory()));
         }
     },
-    SetTimeTrue("Set time true") {
+    SetTimeTrue(DeviceMessageId.LOG_BOOK_SET_TIME_TRUE, "Set time true") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetTimeTrueAttributeName, true, new StringFactory()));
         }
     },
-    SetTimeFalse("Set time false") {
+    SetTimeFalse(DeviceMessageId.LOG_BOOK_SET_TIME_FALSE, "Set time false") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetTimeFalseAttributeName, true, new StringFactory()));
         }
     },
-    SetOutputChannel("Set output channel") {
+    SetOutputChannel(DeviceMessageId.LOG_BOOK_SET_OUTPUT_CHANNEL, "Set output channel") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetOutputChannelAttributeName, true, new StringFactory()));
         }
     },
-    SetAlarm("Set alarm") {
+    SetAlarm(DeviceMessageId.LOG_BOOK_SET_ALARM, "Set alarm") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetAlarmAttributeName, true, new StringFactory()));
         }
     },
-    SetTag("Set tag") {
+    SetTag(DeviceMessageId.LOG_BOOK_SET_TAG, "Set tag") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetTagAttributeName, true, new StringFactory()));
         }
     },
-    SetInverse("Set inverse") {
+    SetInverse(DeviceMessageId.LOG_BOOK_SET_INVERSE, "Set inverse") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetInverseAttributeName, true, new StringFactory()));
         }
     },
-    SetImmediate("Set immediate") {
+    SetImmediate(DeviceMessageId.LOG_BOOK_SET_IMMEDIATE, "Set immediate") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetImmediateAttributeName, true, new StringFactory()));
         }
     },
-    ReadDebugLogBook("Read debug logbook") {
+    ReadDebugLogBook(DeviceMessageId.LOG_BOOK_READ_DEBUG, "Read debug logbook") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
@@ -110,7 +110,7 @@ public enum LogBookDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.basicPropertySpec(toDateAttributeName, true, new DateAndTimeFactory()));
         }
     },
-    ReadManufacturerSpecificLogBook("Read manufacturer specific logbook") {
+    ReadManufacturerSpecificLogBook(DeviceMessageId.LOG_BOOK_READ_MANUFACTURER_SPECIFIC, "Read manufacturer specific logbook") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
@@ -118,16 +118,18 @@ public enum LogBookDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.basicPropertySpec(toDateAttributeName, true, new DateAndTimeFactory()));
         }
     },
-    ResetMainLogbook("Reset main logbook"),
-    ResetCoverLogbook("Reset cover logbook"),
-    ResetBreakerLogbook("Reset breaker logbook"),
-    ResetCommunicationLogbook("Reset communication logbook"),
-    ResetLQILogbook("Reset LQI logbook"),
-    ResetVoltageCutLogbook("Reset ");
+    ResetMainLogbook(DeviceMessageId.LOG_BOOK_RESET_MAIN_LOGBOOK, "Reset main logbook"),
+    ResetCoverLogbook(DeviceMessageId.LOG_BOOK_RESET_COVER_LOGBOOK, "Reset cover logbook"),
+    ResetBreakerLogbook(DeviceMessageId.LOG_BOOK_RESET_BREAKER_LOGBOOK, "Reset breaker logbook"),
+    ResetCommunicationLogbook(DeviceMessageId.LOG_BOOK_RESET_COMMUNICATION_LOGBOOK, "Reset communication logbook"),
+    ResetLQILogbook(DeviceMessageId.LOG_BOOK_RESET_LQI_LOGBOOK, "Reset LQI logbook"),
+    ResetVoltageCutLogbook(DeviceMessageId.LOG_BOOK_RESET_VOLTAGE_CUT_LOGBOOK, "Reset ");
 
+    private DeviceMessageId id;
     private String defaultTranslation;
 
-    LogBookDeviceMessage(String defaultTranslation) {
+    LogBookDeviceMessage(DeviceMessageId id, String defaultTranslation) {
+        this.id = id;
         this.defaultTranslation = defaultTranslation;
     }
 
@@ -139,6 +141,11 @@ public enum LogBookDeviceMessage implements DeviceMessageSpecEnum {
     @Override
     public String defaultTranslation() {
         return this.defaultTranslation;
+    }
+
+    @Override
+    public DeviceMessageId getId() {
+        return this.id;
     }
 
     public final List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
@@ -158,11 +165,6 @@ public enum LogBookDeviceMessage implements DeviceMessageSpecEnum {
             }
         }
         return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKeyImpl(this, name());
     }
 
 }

@@ -28,7 +28,7 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             return DeviceMessageConstants.ReferenceVoltageAttributeName;
         }
     },
-    SetVoltageSagTimeThreshold(DeviceMessageId.POWER_CONFIGURATION_SET_VOLTAGE_SAG_THRESHOLD, "Set voltage sag time treshold") {
+    SetVoltageSagTimeThreshold(DeviceMessageId.POWER_CONFIGURATION_SET_VOLTAGE_SAG_TIME_THRESHOLD, "Set voltage sag time treshold") {
         @Override
         protected String propertyName() {
             return DeviceMessageConstants.VoltageSagTimeThresholdAttributeName;

@@ -24,9 +24,9 @@ public class DeviceMessageIdTest {
         }
         if (!nonUnique.isEmpty()) {
             for (DeviceMessageId deviceMessageId : nonUnique) {
-                System.out.println("MessageId#" + deviceMessageId.name() + " does not have a unique db value");
-                fail("Some MessageId enumeration values do not have a unique db value, see list above");
+                System.out.println("DeviceMessageId#" + deviceMessageId.name() + " does not have a unique db value");
             }
+            fail("Some MessageId enumeration values do not have a unique db value, see list above");
         }
     }
 
