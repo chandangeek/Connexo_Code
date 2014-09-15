@@ -12,6 +12,7 @@ Ext.define('Dsh.model.CommunicationTask', {
         "currentState",
         "alwaysExecuteOnInbound",
         "latestResult",
+        "connectionTask",
         { name: 'startTime', type: 'date', dateFormat: 'time'},
         { name: 'successfulFinishTime', type: 'date', dateFormat: 'time'},
         { name: 'nextCommunication', type: 'date', dateFormat: 'time'},
@@ -31,6 +32,12 @@ Ext.define('Dsh.model.CommunicationTask', {
                 devConfig.devType = data.deviceType;
                 return devConfig
             }
+        }
+    ],
+    hasOne: [
+        {
+            model: 'Dsh.model.ConnectionTask',
+            name: 'connectionTask'
         }
     ]
 });

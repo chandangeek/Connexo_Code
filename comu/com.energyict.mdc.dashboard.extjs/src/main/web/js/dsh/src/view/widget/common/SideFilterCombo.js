@@ -13,8 +13,10 @@ Ext.define('Dsh.view.widget.common.SideFilterCombo', {
         }
     },
     initComponent: function () {
-        var me = this;
+        var me = this,
+            root;
         this.callParent(arguments);
+        me.root ? root = me.root : root = 'data'
         this.store = Ext.create('Ext.data.Store', {
             autoLoad: true,
             fields: [
@@ -26,7 +28,7 @@ Ext.define('Dsh.view.widget.common.SideFilterCombo', {
                 url: me.url,
                 reader: {
                     type: 'json',
-                    root: 'data'
+                    root: root
                 }
             }
         });

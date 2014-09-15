@@ -14,6 +14,10 @@ Ext.define('Dsh.controller.Communications', {
         {
             ref: 'communicationPreview',
             selector: '#communicationdetails'
+        },
+        {
+            ref: 'connectionPreview',
+            selector: '#connectiondetails'
         }
     ],
 
@@ -33,8 +37,20 @@ Ext.define('Dsh.controller.Communications', {
     onSelectionChange: function (grid, selected) {
         var me = this,
             record = selected[0],
-            preview = me.getCommunicationPreview();
+            connTaskData = record.get('connectionTask'),
+            connTaskRecord = Ext.create('Dsh.model.ConnectionTask', connTaskData),
+            preview = me.getCommunicationPreview(),
+            connPreview = me.getConnectionPreview();
+
         preview.loadRecord(record);
-        preview.setTitle(record.get('name'));
+        preview.setTitle(record.get('name') + ' on ' + record.get('device').name);
+
+        if (connTaskData) {
+            connPreview.setTitle(connTaskData.connectionMethod.name + ' on ' + connTaskData.device.name);
+            connPreview.show();
+            connPreview.loadRecord(connTaskRecord);
+        } else {
+            connPreview.hide()
+        }
     }
 });

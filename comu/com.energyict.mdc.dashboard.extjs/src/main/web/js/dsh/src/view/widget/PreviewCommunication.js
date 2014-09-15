@@ -36,14 +36,14 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.device', 'DSH', 'Device'),
                     name: 'device',
                     renderer: function (val) {
-                        return '<a href="#/devices/' + val.id + '">' + val.name + '</a>'
+                        return val ? '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : ''
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.deviceType', 'DSH', 'Device type'),
                     name: 'deviceType',
                     renderer: function (val) {
-                        return '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>'
+                        return val ? '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>' : ''
                     }
                 },
                 {
@@ -87,7 +87,11 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.executeOnInbound', 'DSH', 'Always execute on inbound'),
                     name: 'alwaysExecuteOnInbound',
                     renderer: function (val) {
-                        return val ? 'Yes' : 'No'
+                        if (!_.isUndefined(val)) {
+                            return val ? 'Yes' : 'No'
+                        } else {
+                            return ''
+                        }
                     }
                 }
             ]

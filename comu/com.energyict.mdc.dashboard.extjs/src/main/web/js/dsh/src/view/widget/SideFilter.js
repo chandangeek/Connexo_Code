@@ -33,19 +33,28 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     itemId: 'current-state',
                     name: 'state',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.currentState', 'DSH', 'Current state'),
-                    url: '/apps/dashboard/app/fakeData/CurrentStateFilterFake.json'
+                    url: '/api/dsr/field/taskstatus',
+                    root: 'taskStatuses',
+                    valueField: "taskStatus"
+          //          displayField: "localizedValue"
                 },
                 {
                     itemId: 'latest-status',
                     name: 'latestStatus',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestStatus', 'DSH', 'Latest status'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
+                    url: '/api/dsr/field/connectiontasksuccessindicators',
+                    root: "successIndicators",
+                    valueField: "successIndicator"
+          //          displayField: "localizedValue"
                 },
                 {
                     itemId: 'latest-result',
                     name: 'latestResult',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result'),
-                    url: '/apps/dashboard/app/fakeData/LatestResultFake.json'
+                    url: '/api/dsr/field/comsessionsuccessindicators',
+                    root: "successIndicators",
+                    valueField: "successIndicator"
+          //          displayField: "localizedValue"
                 },
                 {
                     itemId: 'comport-pool',

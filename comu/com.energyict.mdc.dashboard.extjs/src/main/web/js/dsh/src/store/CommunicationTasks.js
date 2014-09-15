@@ -6,10 +6,10 @@ Ext.define('Dsh.store.CommunicationTasks', {
     model: 'Dsh.model.CommunicationTask',
     proxy: {
         type: 'ajax',
-        url: '../../apps/dashboard/app/fakeData/CommunicationTasksFake.json',
+        url: '/api/dsr/communications',
         reader: {
             type: 'json',
-            root: 'communicationsTasks',
+            root: 'communicationTasks',
             totalProperty: 'count'
         }
     }
