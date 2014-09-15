@@ -14,8 +14,7 @@ import com.energyict.mdc.protocol.api.messaging.Messaging;
 public interface MessageEntryCreator {
 
     /**
-     * Based on the given MessagingProtocol and the OfflineDeviceMessage,
-     * create a <i>legacy</i> MessageEntry
+     * Creates a <i>legacy</i> MessageEntry from the MessagingProtocol and the OfflineDeviceMessage.
      *
      * @param messagingProtocol    the protocol which contains the <i>old</i> message-formatting
      * @param offlineDeviceMessage the new DeviceMessage

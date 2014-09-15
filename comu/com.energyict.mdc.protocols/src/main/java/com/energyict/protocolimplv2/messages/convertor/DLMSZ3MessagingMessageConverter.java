@@ -5,20 +5,20 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.PrepaidConfigurationDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.LoadBalanceDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.PrepaidConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activateNowAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.invertDigitalOutput1AttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.invertDigitalOutput2AttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readFrequencyInMinutesAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activateNowAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.invertDigitalOutput1AttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.invertDigitalOutput2AttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.readFrequencyInMinutesAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy DLMSZ3Messaging protocol.

@@ -5,14 +5,14 @@ import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.PowerConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.LoadBalanceDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.PLCConfigurationDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.PowerConfigurationDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.AdvancedTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
@@ -23,11 +23,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress2AttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activationDatedAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.MulticastAddress2AttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activationDatedAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
 
 /**
  * Represents a MessageConverter for the Prime meter protocols
@@ -48,7 +48,7 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
         registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry("DisconnectMain"));
         registry.put(ContactorDeviceMessage.CLOSE_RELAY, new AdvancedTagMessageEntry("ConnectRelay"));
         registry.put(ContactorDeviceMessage.OPEN_RELAY, new AdvancedTagMessageEntry("DisconnectRelay"));
-        registry.put(ClockDeviceMessage.SET_TIMEZONE, new MultipleAttributeMessageEntry("DisconnectRelay", "GMT offset (in hours)"));
+        registry.put(ClockDeviceMessage.SET_TIMEZONE_OFFSET, new MultipleAttributeMessageEntry("DisconnectRelay", "GMT offset (in hours)"));
 
         registry.put(ActivityCalendarDeviceMessage.WRITE_CONTRACTS_FROM_XML_USERFILE, new SimpleValueMessageEntry("WriteContracts"));
 

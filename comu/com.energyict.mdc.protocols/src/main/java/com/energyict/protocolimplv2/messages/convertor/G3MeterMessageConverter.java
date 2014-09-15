@@ -7,50 +7,51 @@ import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.AdvancedTestMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.LoadProfileMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.LogBookDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.PLCConfigurationDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDaysMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
-import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
-import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
-import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
+import com.energyict.mdc.protocol.api.impl.device.messages.DlmsAuthenticationLevelMessageValues;
+import com.energyict.mdc.protocol.api.impl.device.messages.DlmsEncryptionLevelMessageValues;
+import com.energyict.mdc.protocol.api.impl.device.messages.LoadProfileMode;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MaxOrphanTimerAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activeScanDurationAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarTypeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.authenticationLevelAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.capturePeriodAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.consumerProducerModeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.discoveryAttemptsSpeedAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encryptionLevelAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.maxAgeTimeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newHexPasswordAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.panConflictWaitTimeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.plcG3TimeoutAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.pskAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.MaxOrphanTimerAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activeScanDurationAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activityCalendarTypeAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.authenticationLevelAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.capturePeriodAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.consumerProducerModeAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.discoveryAttemptsSpeedAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.encryptionLevelAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.maxAgeTimeAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.meterTimeAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.newHexPasswordAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.panConflictWaitTimeAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.plcG3TimeoutAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.pskAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
+import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
 
 /**
  * Represents a MessageConverter that maps the new G3 meter (AS330D / Sagemcom) messages to legacy XML
@@ -64,38 +65,38 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
      * Represents a mapping between {@link DeviceMessageSpec}s
      * and the corresponding {@link MessageEntryCreator}
      */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
+    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
 
     static {
-        registry.put(ContactorDeviceMessage.CONTACTOR_ARM, new SimpleTagMessageEntry("ArmMainContactor"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry("CloseMainContactor"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry("OpenMainContactor"));
+        registry.put(DeviceMessageId.CONTACTOR_ARM, new SimpleTagMessageEntry("ArmMainContactor"));
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE, new SimpleTagMessageEntry("CloseMainContactor"));
+        registry.put(DeviceMessageId.CONTACTOR_OPEN, new SimpleTagMessageEntry("OpenMainContactor"));
 
-        registry.put(PLCConfigurationDeviceMessage.SetActiveScanDurationAttributeName, new MultipleAttributeMessageEntry("SetActiveScanDuration", "ActiveScanDuration"));
-        registry.put(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName, new MultipleAttributeMessageEntry("SetBroadcastLogTableEntryTTL", "BroadcastLogTableEntryTTL"));
-        registry.put(PLCConfigurationDeviceMessage.SetDiscoveryAttemptsSpeedAttributeName, new MultipleAttributeMessageEntry("SetDiscoveryAttemptsSpeed", "DiscoveryAttemptsSpeed"));
-        registry.put(PLCConfigurationDeviceMessage.SetMaxAgeTimeAttributeName, new MultipleAttributeMessageEntry("SetMaxAgeTime", "MaxAgeTime"));
-        registry.put(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName, new MultipleAttributeMessageEntry("SetMaxHops", "MaxHops"));
-        registry.put(PLCConfigurationDeviceMessage.SetMaxPANConflictsCountAttributeName, new MultipleAttributeMessageEntry("SetMaxPanConflictCount", "MaxPanConflictCount"));
-        registry.put(PLCConfigurationDeviceMessage.SetPanConflictWaitTimeAttributeName, new MultipleAttributeMessageEntry("SetPanConflictWaitTime", "PanConflictWaitTime"));
-        registry.put(PLCConfigurationDeviceMessage.SetToneMaskAttributeName, new MultipleAttributeMessageEntry("SetToneMask", "ToneMask"));
-        registry.put(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName, new MultipleAttributeMessageEntry("SetWeakLQIValue", "WeakLQIValue"));
-        registry.put(PLCConfigurationDeviceMessage.WritePlcG3Timeout, new MultipleAttributeMessageEntry("WritePlcG3Timeout", "Timeout_in_minutes"));
-        registry.put(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters, new SimpleTagMessageEntry("ResetPlcOfdmMacCounters"));
-        registry.put(PLCConfigurationDeviceMessage.SetPanId, new MultipleAttributeMessageEntry("SetPanId", "panId"));
-        registry.put(PLCConfigurationDeviceMessage.SetMaxOrphanTimer, new MultipleAttributeMessageEntry("SetMaxOrphanTimer", "maxOrphanTimer"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_ACTIVE_SCAN_DURATION, new MultipleAttributeMessageEntry("SetActiveScanDuration", "ActiveScanDuration"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_BROAD_CAST_LOG_TABLE_ENTRY_TTL, new MultipleAttributeMessageEntry("SetBroadcastLogTableEntryTTL", "BroadcastLogTableEntryTTL"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_DISCOVERY_ATTEMPTS_SPEED, new MultipleAttributeMessageEntry("SetDiscoveryAttemptsSpeed", "DiscoveryAttemptsSpeed"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_AGE_TIME, new MultipleAttributeMessageEntry("SetMaxAgeTime", "MaxAgeTime"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_NUMBER_OF_HOPS, new MultipleAttributeMessageEntry("SetMaxHops", "MaxHops"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_PAN_CONFLICTS_COUNT, new MultipleAttributeMessageEntry("SetMaxPanConflictCount", "MaxPanConflictCount"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_PAN_CONFLICT_WAIT_TIME, new MultipleAttributeMessageEntry("SetPanConflictWaitTime", "PanConflictWaitTime"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_TONE_MASK, new MultipleAttributeMessageEntry("SetToneMask", "ToneMask"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_WEAK_LQI_VALUE, new MultipleAttributeMessageEntry("SetWeakLQIValue", "WeakLQIValue"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_WRITE_PLC_G3_TIMEOUT, new MultipleAttributeMessageEntry("WritePlcG3Timeout", "Timeout_in_minutes"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_RESET_PLC_OFDM_MAC_COUNTERS, new SimpleTagMessageEntry("ResetPlcOfdmMacCounters"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_PAN_ID, new MultipleAttributeMessageEntry("SetPanId", "panId"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_ORPHAN_TIMER, new MultipleAttributeMessageEntry("SetMaxOrphanTimer", "maxOrphanTimer"));
 
-        registry.put(LogBookDeviceMessage.ResetMainLogbook, new SimpleTagMessageEntry("ResetMainLogbook"));
-        registry.put(LogBookDeviceMessage.ResetCoverLogbook, new SimpleTagMessageEntry("ResetCoverLogbook"));
-        registry.put(LogBookDeviceMessage.ResetBreakerLogbook, new SimpleTagMessageEntry("ResetBreakerLogbook"));
-        registry.put(LogBookDeviceMessage.ResetCommunicationLogbook, new SimpleTagMessageEntry("ResetCommunicationLogbook"));
-        registry.put(LogBookDeviceMessage.ResetVoltageCutLogbook, new SimpleTagMessageEntry("ResetVoltageCutLogbook"));
-        registry.put(LogBookDeviceMessage.ResetLQILogbook, new SimpleTagMessageEntry("ResetLQILogbook"));
+        registry.put(DeviceMessageId.LOG_BOOK_RESET_MAIN_LOGBOOK, new SimpleTagMessageEntry("ResetMainLogbook"));
+        registry.put(DeviceMessageId.LOG_BOOK_RESET_COVER_LOGBOOK, new SimpleTagMessageEntry("ResetCoverLogbook"));
+        registry.put(DeviceMessageId.LOG_BOOK_RESET_BREAKER_LOGBOOK, new SimpleTagMessageEntry("ResetBreakerLogbook"));
+        registry.put(DeviceMessageId.LOG_BOOK_RESET_COMMUNICATION_LOGBOOK, new SimpleTagMessageEntry("ResetCommunicationLogbook"));
+        registry.put(DeviceMessageId.LOG_BOOK_RESET_VOLTAGE_CUT_LOGBOOK, new SimpleTagMessageEntry("ResetVoltageCutLogbook"));
+        registry.put(DeviceMessageId.LOG_BOOK_RESET_LQI_LOGBOOK, new SimpleTagMessageEntry("ResetLQILogbook"));
 
-        registry.put(LoadProfileMessage.ResetActiveImportLP, new SimpleTagMessageEntry("ResetActiveImportLP"));
-        registry.put(LoadProfileMessage.ResetActiveExportLP, new SimpleTagMessageEntry("ResetActiveExportLP"));
-        registry.put(LoadProfileMessage.ResetDailyProfile, new SimpleTagMessageEntry("ResetDailyProfile"));
-        registry.put(LoadProfileMessage.ResetMonthlyProfile, new SimpleTagMessageEntry("ResetMonthlyProfile"));
+        registry.put(DeviceMessageId.LOAD_PROFILE_RESET_ACTIVE_IMPORT, new SimpleTagMessageEntry("ResetActiveImportLP"));
+        registry.put(DeviceMessageId.LOAD_PROFILE_RESET_ACTIVE_EXPORT, new SimpleTagMessageEntry("ResetActiveExportLP"));
+        registry.put(DeviceMessageId.LOAD_PROFILE_RESET_DAILY, new SimpleTagMessageEntry("ResetDailyProfile"));
+        registry.put(DeviceMessageId.LOAD_PROFILE_RESET_MONTHLY, new SimpleTagMessageEntry("ResetMonthlyProfile"));
 
         registry.put(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1, new MultipleAttributeMessageEntry("WriteProfileInterval", "IntervalInSeconds"));
         registry.put(LoadProfileMessage.WriteConsumerProducerMode, new MultipleAttributeMessageEntry("WriteConsumerProducerMode", "Mode"));
@@ -163,7 +164,8 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         return messageAttribute.toString();
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
+
 }

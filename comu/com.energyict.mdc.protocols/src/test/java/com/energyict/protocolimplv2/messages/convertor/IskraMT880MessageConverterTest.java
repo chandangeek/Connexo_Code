@@ -5,7 +5,7 @@ import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.IskraMT880;
 import org.junit.Test;
 import org.junit.runner.RunWith;

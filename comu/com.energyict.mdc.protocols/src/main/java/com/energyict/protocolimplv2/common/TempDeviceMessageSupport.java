@@ -1,15 +1,17 @@
 package com.energyict.protocolimplv2.common;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 
-import java.util.Collections;
+import com.elster.jupiter.properties.PropertySpec;
+
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Simple implementation of a DeviceMessageSupport.
@@ -24,8 +26,8 @@ import java.util.List;
 public class TempDeviceMessageSupport implements DeviceMessageSupport {
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        return Collections.emptyList();
+    public Set<DeviceMessageId> getSupportedMessages() {
+        return EnumSet.noneOf(DeviceMessageId.class);
     }
 
     @Override

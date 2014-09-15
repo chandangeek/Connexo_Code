@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.messages.ModbusConfigurationDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ModbusConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.WriteModbusRegisterMessage;
 
 import java.util.HashMap;

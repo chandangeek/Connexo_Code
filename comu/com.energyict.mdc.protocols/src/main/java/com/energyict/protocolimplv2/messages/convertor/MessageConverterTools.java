@@ -16,7 +16,7 @@ import java.util.List;
 public class MessageConverterTools {
 
     /**
-     * An offlineDeviceMessageAttribute representing an empty attribute.
+     * An offlineDeviceMessageAttribute represents an empty attribute.
      * The name and value of this attribute are both returned as empty Strings (<code>""</code>).
      */
     public static final OfflineDeviceMessageAttribute emptyOfflineDeviceMessageAttribute = new OfflineDeviceMessageAttribute() {
