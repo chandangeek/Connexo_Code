@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -19,8 +18,6 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1
 import java.util.HashMap;
 import java.util.Map;
 
-//import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.displayMessageAttributeName;
-
 /**
  * Represents a MessageConverter for the legacy WebRTUKP protocol.
  * <p/>
@@ -30,13 +27,13 @@ import java.util.Map;
  */
 public class AS220MessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+    @Override
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
+        return EMPTY_FORMAT;
+    }
 
-    static {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
         // contactor related
         registry.put(DeviceMessageId.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
         registry.put(DeviceMessageId.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
@@ -54,24 +51,6 @@ public class AS220MessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.DEVICE_ACTIONS_REGISTERS_RESET, new RegistersResetMessageEntry());
         registry.put(DeviceMessageId.DEVICE_ACTIONS_LOAD_LOG_RESET, new LoadLogResetMessageEntry());
         registry.put(DeviceMessageId.DEVICE_ACTIONS_EVENT_LOG_RESET, new EventLogResetMessageEntry());
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public AS220MessageConverter() {
-        super();
-    }
-
-    @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-//        if (propertySpec.getName().equals(displayMessageAttributeName)) {
-//            return messageAttribute.toString();
-//        }
-        return EMPTY_FORMAT;
-    }
-
-    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
 

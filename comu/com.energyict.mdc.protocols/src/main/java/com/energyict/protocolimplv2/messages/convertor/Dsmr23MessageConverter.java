@@ -5,7 +5,6 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.impl.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.impl.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.lookups.Lookup;
@@ -93,12 +92,58 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
     private static final String DEFAULT_RESET_WINDOW = "Default_Reset_Window";
 
     /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link MessageEntryCreator}
+     * Default constructor for at-runtime instantiation
      */
-    protected static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+    public Dsmr23MessageConverter() {
+        super();
+    }
 
-    static {
+    @Override
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
+        if (propertySpec.getName().equals(contactorModeAttributeName)
+                || propertySpec.getName().equals(activityCalendarNameAttributeName)
+                || propertySpec.getName().equals(usernameAttributeName)
+                || propertySpec.getName().equals(apnAttributeName)
+                || propertySpec.getName().equals(whiteListPhoneNumbersAttributeName)
+                || propertySpec.getName().equals(p1InformationAttributeName)
+                || propertySpec.getName().equals(normalThresholdAttributeName)
+                || propertySpec.getName().equals(xmlConfigAttributeName)
+                || propertySpec.getName().equals(emergencyThresholdAttributeName)
+                || propertySpec.getName().equals(emergencyProfileIdAttributeName)) {
+            return messageAttribute.toString();
+        } else if (propertySpec.getName().equals(contactorActivationDateAttributeName)
+                || propertySpec.getName().equals(firmwareUpdateActivationDateAttributeName)
+                || propertySpec.getName().equals(activityCalendarActivationDateAttributeName)
+                || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
+            return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
+        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+            return String.valueOf(((UserFile) messageAttribute).getId());
+        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName) || propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
+            return String.valueOf(((Code) messageAttribute).getId());
+        } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
+            return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
+            return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(passwordAttributeName)) {
+            return ((Password) messageAttribute).getValue();
+        } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
+            return String.valueOf(((Lookup) messageAttribute).getId());
+        } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
+                || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
+            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+        } else if (propertySpec.getName().equals(loadProfileAttributeName)) {
+            return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
+        } else if (propertySpec.getName().equals(fromDateAttributeName)
+                || propertySpec.getName().equals(toDateAttributeName)) {
+            return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
+        } else if (propertySpec.getName().equals(meterTimeAttributeName)) {
+            return dateTimeFormat.format((Date) messageAttribute);
+        }
+        return messageAttribute.toString();
+    }
+
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
         // contactor related
         registry.put(DeviceMessageId.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
         registry.put(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, new DisconnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
@@ -155,60 +200,6 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
         // reset
         registry.put(DeviceMessageId.CONFIGURATION_CHANGE_CHANGE_DEFAULT_RESET_WINDOW, new MultipleAttributeMessageEntry(DEFAULT_RESET_WINDOW, DEFAULT_RESET_WINDOW));
         registry.put(DeviceMessageId.DEVICE_ACTIONS_ALARM_REGISTER_RESET, new OneTagMessageEntry(RESET_ALARM_REGISTER));
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public Dsmr23MessageConverter() {
-        super();
-    }
-
-    @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(contactorModeAttributeName)
-                || propertySpec.getName().equals(activityCalendarNameAttributeName)
-                || propertySpec.getName().equals(usernameAttributeName)
-                || propertySpec.getName().equals(apnAttributeName)
-                || propertySpec.getName().equals(whiteListPhoneNumbersAttributeName)
-                || propertySpec.getName().equals(p1InformationAttributeName)
-                || propertySpec.getName().equals(normalThresholdAttributeName)
-                || propertySpec.getName().equals(xmlConfigAttributeName)
-                || propertySpec.getName().equals(emergencyThresholdAttributeName)
-                || propertySpec.getName().equals(emergencyProfileIdAttributeName)) {
-            return messageAttribute.toString();
-        } else if (propertySpec.getName().equals(contactorActivationDateAttributeName)
-                || propertySpec.getName().equals(firmwareUpdateActivationDateAttributeName)
-                || propertySpec.getName().equals(activityCalendarActivationDateAttributeName)
-                || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
-            return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return String.valueOf(((UserFile) messageAttribute).getId());
-        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName) || propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return String.valueOf(((Code) messageAttribute).getId());
-        } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
-            return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
-            return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(passwordAttributeName)) {
-            return ((Password) messageAttribute).getValue();
-        } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
-            return String.valueOf(((Lookup) messageAttribute).getId());
-        } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
-                || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
-        } else if (propertySpec.getName().equals(loadProfileAttributeName)) {
-            return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
-        } else if (propertySpec.getName().equals(fromDateAttributeName)
-                || propertySpec.getName().equals(toDateAttributeName)) {
-            return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
-        } else if (propertySpec.getName().equals(meterTimeAttributeName)) {
-            return dateTimeFormat.format((Date) messageAttribute);
-        }
-        return messageAttribute.toString();
-    }
-
-    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
 

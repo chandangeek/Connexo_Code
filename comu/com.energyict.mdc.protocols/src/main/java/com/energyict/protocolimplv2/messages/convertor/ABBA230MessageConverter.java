@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -32,24 +31,6 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
     private static final String UPGRADE_METER_SCHEME = "UpgradeMeterScheme";
 
     /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(DeviceMessageId.CONTACTOR_OPEN, new SimpleTagMessageEntry(CONNECT_LOAD, false));
-        registry.put(DeviceMessageId.CONTACTOR_CLOSE, new SimpleTagMessageEntry(DISCONNECT_LOAD, false));
-        registry.put(DeviceMessageId.CONTACTOR_ARM, new SimpleTagMessageEntry(ARM_METER, false));
-
-        registry.put(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, new SimpleTagMessageEntry(BILLING_RESET, false));
-
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new ABBA230UserFileMessageEntry(UPGRADE_METER_FIRMWARE));
-
-        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_METER_SCHEME, new ABBA230UserFileMessageEntry(UPGRADE_METER_SCHEME));
-    }
-
-    /**
      * Default constructor for at-runtime instantiation
      */
     public ABBA230MessageConverter() {
@@ -66,6 +47,16 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
     }
 
     protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        registry.put(DeviceMessageId.CONTACTOR_OPEN, new SimpleTagMessageEntry(CONNECT_LOAD, false));
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE, new SimpleTagMessageEntry(DISCONNECT_LOAD, false));
+        registry.put(DeviceMessageId.CONTACTOR_ARM, new SimpleTagMessageEntry(ARM_METER, false));
+
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, new SimpleTagMessageEntry(BILLING_RESET, false));
+
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new ABBA230UserFileMessageEntry(UPGRADE_METER_FIRMWARE));
+
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_METER_SCHEME, new ABBA230UserFileMessageEntry(UPGRADE_METER_SCHEME));
         return registry;
     }
 

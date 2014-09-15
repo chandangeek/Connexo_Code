@@ -4,7 +4,6 @@ import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.impl.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.impl.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.impl.device.messages.LoadProfileMode;
@@ -16,6 +15,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.Spec
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
+import org.joda.time.DateTimeConstants;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -53,12 +53,52 @@ import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageC
 public class G3MeterMessageConverter extends AbstractMessageConverter {
 
     /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link MessageEntryCreator}
+     * Default constructor for at-runtime instantiation
      */
-    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+    public G3MeterMessageConverter() {
+        super();
+    }
 
-    static {
+    @Override
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
+        if (propertySpec.getName().equals(meterTimeAttributeName)) {
+            return europeanDateTimeFormat.format((Date) messageAttribute);
+        } else if (propertySpec.getName().equals(activeScanDurationAttributeName)
+                || propertySpec.getName().equals(discoveryAttemptsSpeedAttributeName)
+                || propertySpec.getName().equals(maxAgeTimeAttributeName)
+                || propertySpec.getName().equals(MaxOrphanTimerAttributeName)
+                || propertySpec.getName().equals(capturePeriodAttributeName)
+                || propertySpec.getName().equals(panConflictWaitTimeAttributeName)
+                || propertySpec.getName().equals(broadCastLogTableEntryTTLAttributeName)) {
+            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+        } else if (propertySpec.getName().equals(plcG3TimeoutAttributeName)) {
+            return String.valueOf(((TimeDuration) messageAttribute).getSeconds() / DateTimeConstants.SECONDS_PER_MINUTE);
+        } else if (propertySpec.getName().equals(consumerProducerModeAttributeName)) {
+            return String.valueOf(LoadProfileMode.fromDescription(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
+            return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
+            return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(pskAttributeName) || propertySpec.getName().equals(newHexPasswordAttributeName)) {
+            return ((HexString) messageAttribute).getContent();
+        } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
+            return String.valueOf(((Date) messageAttribute).getTime());
+        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
+            return convertCodeTableToXML((Code) messageAttribute);
+        } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
+            return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
+        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+            UserFile userFile = (UserFile) messageAttribute;
+            return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
+        } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
+                || propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
+            return messageAttribute.toString();
+        }
+        return messageAttribute.toString();
+    }
+
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
         registry.put(DeviceMessageId.CONTACTOR_ARM, new SimpleTagMessageEntry("ArmMainContactor"));
         registry.put(DeviceMessageId.CONTACTOR_CLOSE, new SimpleTagMessageEntry("CloseMainContactor"));
         registry.put(DeviceMessageId.CONTACTOR_OPEN, new SimpleTagMessageEntry("OpenMainContactor"));
@@ -108,54 +148,6 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE, new SpecialDaysMessageEntry(activityCalendarTypeAttributeName, specialDaysCodeTableAttributeName));
 
         registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName, resumeFirmwareUpdateAttributeName, plcTypeFirmwareUpdateAttributeName));
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public G3MeterMessageConverter() {
-        super();
-    }
-
-    @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(meterTimeAttributeName)) {
-            return europeanDateTimeFormat.format((Date) messageAttribute);
-        } else if (propertySpec.getName().equals(activeScanDurationAttributeName)
-                || propertySpec.getName().equals(discoveryAttemptsSpeedAttributeName)
-                || propertySpec.getName().equals(maxAgeTimeAttributeName)
-                || propertySpec.getName().equals(MaxOrphanTimerAttributeName)
-                || propertySpec.getName().equals(capturePeriodAttributeName)
-                || propertySpec.getName().equals(panConflictWaitTimeAttributeName)
-                || propertySpec.getName().equals(broadCastLogTableEntryTTLAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
-        } else if (propertySpec.getName().equals(plcG3TimeoutAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds() / 60);  //Minutes
-        } else if (propertySpec.getName().equals(consumerProducerModeAttributeName)) {
-            return String.valueOf(LoadProfileMode.fromDescription(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
-            return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
-            return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(pskAttributeName) || propertySpec.getName().equals(newHexPasswordAttributeName)) {
-            return ((HexString) messageAttribute).getContent();
-        } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
-            return String.valueOf(((Date) messageAttribute).getTime());
-        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return convertCodeTableToXML((Code) messageAttribute);
-        } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            UserFile userFile = (UserFile) messageAttribute;
-            return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
-        } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
-                || propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
-            return messageAttribute.toString();
-        }
-        return messageAttribute.toString();
-    }
-
-    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
 

@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -26,13 +25,13 @@ import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageC
  */
 public class DLMSZ3MessagingMessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+    public DLMSZ3MessagingMessageConverter() {
+        super();
+    }
 
-    static {
+    @Override
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
         registry.put(DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, new MultipleAttributeMessageEntry(RtuMessageConstant.CONNECT_LOAD, RtuMessageConstant.DIGITAL_OUTPUT));
         registry.put(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, new MultipleAttributeMessageEntry(RtuMessageConstant.DISCONNECT_LOAD, RtuMessageConstant.DIGITAL_OUTPUT));
 
@@ -44,14 +43,6 @@ public class DLMSZ3MessagingMessageConverter extends AbstractMessageConverter {
         //TODO add message to configure prepaid, this uses optional attributes!
         registry.put(DeviceMessageId.PREPAID_CONFIGURATION_ENABLE, new MultipleAttributeMessageEntry("Disable_Prepaid_functionality"));
         registry.put(DeviceMessageId.PREPAID_CONFIGURATION_DISABLE, new OneTagMessageEntry("Disable_Prepaid_functionality"));
-    }
-
-    public DLMSZ3MessagingMessageConverter() {
-        super();
-    }
-
-    @Override
-    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
 

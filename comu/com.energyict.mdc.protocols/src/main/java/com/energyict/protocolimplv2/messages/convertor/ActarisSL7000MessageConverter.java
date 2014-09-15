@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -38,17 +37,17 @@ import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageC
  */
 public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+    public ActarisSL7000MessageConverter() {
+        super();
+    }
 
-    static {
+    @Override
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
         // Battery
         registry.put(DeviceMessageId.CONFIGURATION_CHANGE_PROGRAM_BATTERY_EXPIRY_DATE, new MultipleAttributeMessageEntry("BatteryExpiry", "Date (dd/MM/yyyy)"));
 
-         // Daylight saving
+        // Daylight saving
         registry.put(DeviceMessageId.CLOCK_ENABLE_OR_DISABLE_DST, new EnableOrDisableDSTMessageEntry(enableDSTAttributeName));
         registry.put(DeviceMessageId.CLOCK_SET_END_OF_DST, new SetEndOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
         registry.put(DeviceMessageId.CLOCK_SET_START_OF_DST, new SetStartOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
@@ -58,14 +57,6 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
 
         // Time of use
         registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-    }
-
-    public ActarisSL7000MessageConverter() {
-        super();
-    }
-
-    @Override
-    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
 

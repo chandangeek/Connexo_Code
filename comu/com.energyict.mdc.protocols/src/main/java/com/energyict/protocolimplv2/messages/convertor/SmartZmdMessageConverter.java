@@ -1,12 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DemandResetMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.EnableOrDisableDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEndOfDSTMessageEntry;
@@ -37,26 +34,6 @@ import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageC
 public class SmartZmdMessageConverter extends AbstractMessageConverter {
 
     /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-
-        // dst related
-        registry.put(ClockDeviceMessage.EnableOrDisableDST, new EnableOrDisableDSTMessageEntry(enableDSTAttributeName));
-        registry.put(ClockDeviceMessage.SetEndOfDST, new SetEndOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
-        registry.put(ClockDeviceMessage.SetStartOfDST, new SetStartOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
-
-        //Code table related
-        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-
-        // reset messages
-        registry.put(DeviceActionMessage.DEMAND_RESET, new DemandResetMessageEntry());
-    }
-
-    /**
      * Default constructor for at-runtime instantiation
      */
     public SmartZmdMessageConverter() {
@@ -83,7 +60,18 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
         return EMPTY_FORMAT;
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        // dst related
+        registry.put(DeviceMessageId.CLOCK_ENABLE_OR_DISABLE_DST, new EnableOrDisableDSTMessageEntry(enableDSTAttributeName));
+        registry.put(DeviceMessageId.CLOCK_SET_END_OF_DST, new SetEndOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
+        registry.put(DeviceMessageId.CLOCK_SET_START_OF_DST, new SetStartOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
+
+        //Code table related
+        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
+
+        // reset messages
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, new DemandResetMessageEntry());
         return registry;
     }
 }

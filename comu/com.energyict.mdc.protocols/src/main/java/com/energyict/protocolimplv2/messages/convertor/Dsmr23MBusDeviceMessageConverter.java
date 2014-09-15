@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -38,13 +37,13 @@ import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageC
  */
 public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    protected static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+    public Dsmr23MBusDeviceMessageConverter() {
+        super();
+    }
 
-    static {
+    @Override
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
         // Disconnect control
         registry.put(DeviceMessageId.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
         registry.put(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE, new ConnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
@@ -61,14 +60,6 @@ public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
         // LoadProfiles
         registry.put(DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST, new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName));
         registry.put(DeviceMessageId.LOAD_PROFILE_REGISTER_REQUEST, new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName));
-    }
-
-    public Dsmr23MBusDeviceMessageConverter() {
-        super();
-    }
-
-    @Override
-    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
 

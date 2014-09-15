@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -28,13 +27,19 @@ import java.util.Map;
 public class EIWebMessageConverter extends AbstractMessageConverter {
 
     /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
+     * Default constructor for at-runtime instantiation
      */
-    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+    public EIWebMessageConverter() {
+        super();
+    }
 
-    static {
+    @Override
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
+        return messageAttribute.toString();
+    }
 
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
         // General Parameters
         registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_DESCRIPTION, new SimpleEIWebMessageEntry());
         registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_INTERVAL_IN_SECONDS, new SimpleEIWebMessageEntry());
@@ -209,21 +214,6 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_TOGGLE, new SimpleEIWebMessageEntry());
         registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_PULSE, new SimpleEIWebMessageEntry());
         registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_ANALOG_OUT, new AnalogOutMessageEntry());
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public EIWebMessageConverter() {
-        super();
-    }
-
-    @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return messageAttribute.toString();
-    }
-
-    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
 
