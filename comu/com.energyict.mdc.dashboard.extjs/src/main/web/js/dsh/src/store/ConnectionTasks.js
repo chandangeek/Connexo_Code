@@ -4,10 +4,9 @@ Ext.define('Dsh.store.ConnectionTasks', {
         'Dsh.model.ConnectionTask'
     ],
     model: 'Dsh.model.ConnectionTask',
+    autoLoad: false,
     proxy: {
-//        type: 'ajax',
         type: 'rest',
-//        url: '../../apps/dashboard/app/fakeData/ConnectionTasksFake.json',
         url: '/api/dsr/connections',
         reader: {
             type: 'json',
