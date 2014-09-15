@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.mdc.protocol.pluggable.mocks.DeviceMessageTestSpec;
 
@@ -14,6 +15,7 @@ import com.energyict.protocols.messaging.LegacyMessageConverter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Simple test class to correctly perform tests on the adapters
@@ -33,7 +35,7 @@ public class SimpleLegacyMessageConverter implements LegacyMessageConverter {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return Arrays.<DeviceMessageSpec>asList(
                 DeviceMessageTestSpec.extendedSpecs(propertySpecService),
                 DeviceMessageTestSpec.allSimpleSpecs());

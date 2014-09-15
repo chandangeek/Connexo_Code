@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategoryPrimaryKeyImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import java.util.List;
@@ -91,7 +92,7 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
 
     @Override
     public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
-        return new DeviceMessageCategoryPrimaryKey(this, name());
+        return new DeviceMessageCategoryPrimaryKeyImpl(this, name());
     }
 
     protected PropertySpecService getCodeFactory() {

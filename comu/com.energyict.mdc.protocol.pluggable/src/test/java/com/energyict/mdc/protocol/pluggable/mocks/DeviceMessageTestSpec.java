@@ -1,13 +1,15 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecEnum;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecPrimaryKeyImpl;
+
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +22,7 @@ import java.util.List;
  * Date: 8/02/13
  * Time: 15:16
  */
-public final class DeviceMessageTestSpec implements DeviceMessageSpec {
+public final class DeviceMessageTestSpec implements DeviceMessageSpec, DeviceMessageSpecEnum {
 
     public static final String ACTIVATIONDATE_PROPERTY_SPEC_NAME = "testMessageSpec.activationdate";
     public static final String SIMPLE_STRING_PROPERTY_SPEC_NAME = "testMessageSpec.simpleString";
@@ -72,8 +74,28 @@ public final class DeviceMessageTestSpec implements DeviceMessageSpec {
     }
 
     @Override
+    public String getNameResourceKey() {
+        return this.name;
+    }
+
+    @Override
+    public String defaultTranslation() {
+        return this.name;
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+        return this.getPropertySpecs();
+    }
+
+    @Override
     public List<PropertySpec> getPropertySpecs() {
         return this.deviceMessagePropertySpecs;
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
+        return this.getPropertySpec(name);
     }
 
     @Override
@@ -88,7 +110,7 @@ public final class DeviceMessageTestSpec implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, this.getName());
+        return new DeviceMessageSpecPrimaryKeyImpl(this, this.getName());
     }
 
     @Override
