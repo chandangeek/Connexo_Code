@@ -90,7 +90,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.FTIONModemReset, true, new StringFactory()));
         }
     },
-    SetChangeAdminPassword(DeviceMessageId.DEVICE_ACTIONS_SET_CHANGE_ADMIN_PASSWORD, "Change admin password") {
+    SetChangeAdminPassword(DeviceMessageId.DEVICE_ACTIONS_CHANGE_ADMIN_PASSWORD, "Change admin password") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
