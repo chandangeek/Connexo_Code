@@ -349,20 +349,25 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         this.getCommunicationScheduleEdit().down('#card').getLayout().setActiveItem(0);
     },
 
-    previewComTask: function (a, selection) {
-        var me = this;
-        if (selection[selection.length - 1] != undefined) {
+    previewComTask: function (selectionModel) {
+        var me = this,
+            preview = me.getAddCommunicationTaskPreview();
+
+        if (me.getCommunicationTaskSelectionGrid().isVisible() && selectionModel.getCount() === 1) {
+            preview.setLoading(true);
             Ext.Ajax.request({
-                url: '/api/cts/comtasks/' + selection[selection.length - 1].data.id,
+                url: '/api/cts/comtasks/' + selectionModel.getSelection()[0].getId(),
                 success: function (response) {
                     var rec = Ext.decode(response.responseText),
                         str = '';
-                    me.getAddCommunicationTaskPreview().setTitle(rec.name);
+                    preview.setTitle(rec.name);
                     Ext.Array.each(rec.commands, function (command) {
                         str += command.action.charAt(0).toUpperCase() + command.action.slice(1) + ' ' + command.category.charAt(0).toUpperCase() + command.category.slice(1) + '<br/>';
                     });
                     me.getComTaskCommands().setValue(str);
-                    me.getAddCommunicationTaskPreview().setVisible(true);
+                },
+                callback: function () {
+                    preview.setLoading(false);
                 }
             });
         }
