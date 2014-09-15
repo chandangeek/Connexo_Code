@@ -211,7 +211,7 @@ Ext.define('Uni.controller.history.Router', {
                     arguments
                 );
 
-                var arguments = _.values(_.extend(me.arguments, params));
+                var routeArguments = _.values(_.extend(me.arguments, params));
 
                 if (Ext.isDefined(config.redirect)) {
                     // perform redirect on route match
@@ -226,9 +226,10 @@ Ext.define('Uni.controller.history.Router', {
                 } else {
                     // fire the controller action with this route params as arguments
                     var controller = me.getController(config.controller);
+
                     var dispatch = function() {
                         me.fireEvent('routematch', me);
-                        controller[action].apply(controller, arguments);
+                        controller[action].apply(controller, routeArguments);
                     };
 
                     // load filter
