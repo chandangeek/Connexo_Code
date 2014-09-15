@@ -144,6 +144,11 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
 
     protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        this.initializeRegistry(registry);
+        return registry;
+    }
+
+    protected void initializeRegistry(Map<DeviceMessageId, MessageEntryCreator> registry) {
         // contactor related
         registry.put(DeviceMessageId.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
         registry.put(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, new DisconnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
@@ -200,7 +205,6 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
         // reset
         registry.put(DeviceMessageId.CONFIGURATION_CHANGE_CHANGE_DEFAULT_RESET_WINDOW, new MultipleAttributeMessageEntry(DEFAULT_RESET_WINDOW, DEFAULT_RESET_WINDOW));
         registry.put(DeviceMessageId.DEVICE_ACTIONS_ALARM_REGISTER_RESET, new OneTagMessageEntry(RESET_ALARM_REGISTER));
-        return registry;
     }
 
 }

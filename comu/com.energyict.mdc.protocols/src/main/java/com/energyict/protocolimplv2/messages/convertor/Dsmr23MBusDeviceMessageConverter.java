@@ -44,6 +44,11 @@ public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
     @Override
     protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        this.initializeRegistry(registry);
+        return registry;
+    }
+
+    protected void initializeRegistry(Map<DeviceMessageId, MessageEntryCreator> registry) {
         // Disconnect control
         registry.put(DeviceMessageId.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
         registry.put(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE, new ConnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
@@ -60,7 +65,6 @@ public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
         // LoadProfiles
         registry.put(DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST, new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName));
         registry.put(DeviceMessageId.LOAD_PROFILE_REGISTER_REQUEST, new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName));
-        return registry;
     }
 
     @Override

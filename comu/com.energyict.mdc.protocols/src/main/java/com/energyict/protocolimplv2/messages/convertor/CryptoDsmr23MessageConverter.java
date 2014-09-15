@@ -1,15 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
+
+import java.util.Map;
 
 /**
  * Represents a MessageConverter for the legacy Crypto DSM2.3 protocols.
@@ -20,18 +19,16 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
  */
 public class CryptoDsmr23MessageConverter extends Dsmr23MessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    static {
-        registry.put(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY, new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_HLSSECRET, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
-        registry.put(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY, new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_AK, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
-        registry.put(DeviceMessageId.SECURITY_CHANGE_EXECUTION_KEY_USING_SERVICE_KEY, new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_EK, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
-    }
-
     public CryptoDsmr23MessageConverter() {
         super();
+    }
+
+    @Override
+    protected void initializeRegistry(Map<DeviceMessageId, MessageEntryCreator> registry) {
+        super.initializeRegistry(registry);
+        registry.put(DeviceMessageId.SECURITY_CHANGE_HLS_SECRET_USING_SERVICE_KEY, new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_HLSSECRET, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
+        registry.put(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY, new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_AK, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
+        registry.put(DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY, new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_EK, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
     }
 
     @Override
@@ -44,4 +41,5 @@ public class CryptoDsmr23MessageConverter extends Dsmr23MessageConverter {
                 return super.format(propertySpec, messageAttribute);
         }
     }
+
 }
