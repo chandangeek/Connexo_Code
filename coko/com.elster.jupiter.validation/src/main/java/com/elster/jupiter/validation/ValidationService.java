@@ -69,4 +69,6 @@ public interface ValidationService {
     boolean isAllDataValidated(MeterActivation meterActivation);
 
     ValidationEvaluator getEvaluator();
+
+    public boolean isValidationActive(Channel channel);
 }

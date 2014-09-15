@@ -572,6 +572,32 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
         return new ValidationEvaluatorImpl();
     }
 
+    @Override
+    public boolean isValidationActive(Channel channel) {
+        List<ChannelValidation> channelValidations = getChannelValidationsWithActiveRules(channel);
+        if (channelValidations.isEmpty()) {
+            return false;
+        } else {
+            Optional<Meter> meterOptional = channel.getMeterActivation().getMeter();
+            if (meterOptional.isPresent()) {
+                Meter meter = (Meter) meterOptional.get();
+                Optional<MeterValidationImpl> meterValidationOptional = getMeterValidation(meter);
+                if (meterValidationOptional.isPresent()) {
+                    return meterValidationOptional.get().getActivationStatus();
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private List<ChannelValidation> getChannelValidationsWithActiveRules(Channel channel) {
+        return dataModel.mapper(ChannelValidation.class).find("channel", channel, "activeRules", true);
+    }
+
+
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(ValidatorFactory validatorfactory) {
