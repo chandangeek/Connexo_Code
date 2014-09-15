@@ -2,7 +2,7 @@ Ext.define('SystemApp.Application', {
     extend: 'Ext.app.Application',
 
     controllers: [
-        'Main'
+        'SystemApp.controller.Main'
     ],
 
     launch: function () {
