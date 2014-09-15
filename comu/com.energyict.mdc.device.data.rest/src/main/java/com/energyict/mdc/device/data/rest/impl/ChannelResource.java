@@ -48,7 +48,7 @@ public class ChannelResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannels(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId, mrid);
+        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         List<Channel> channelsPage = ListPager.of(loadProfile.getChannels(), CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
         return Response.ok(PagedInfoList.asJson("channels", ChannelInfo.from(channelsPage), queryParameters)).build();
     }
@@ -59,7 +59,7 @@ public class ChannelResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannel(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId, mrid);
+        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         Channel channel = resourceHelper.findChannelOrThrowException(loadProfile, channelId);
         return Response.ok(ChannelInfo.from(channel)).build();
     }
@@ -70,7 +70,7 @@ public class ChannelResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId, mrid);
+        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         Channel channel = resourceHelper.findChannelOrThrowException(loadProfile, channelId);
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> loadProfileData = channel.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
