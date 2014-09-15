@@ -36,7 +36,7 @@
         <profile>
             <id>sencha-build</id>
             <properties>
-                <js.dir>js/usr</js.dir>
+                <js.dir>js/dsh</js.dir>
             </properties>
             <!--build>
                 <plugins>

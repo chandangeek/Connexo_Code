@@ -93,9 +93,6 @@ Ext.theme = {
         }
 
         for (var i = 0, n = add.length; i < n; ++i) {
-            if(add[i].xtype) {
-                Ext.theme.doRequire(add[i].xtype);
-            }
             all.push(add[i]);
         }
     },
