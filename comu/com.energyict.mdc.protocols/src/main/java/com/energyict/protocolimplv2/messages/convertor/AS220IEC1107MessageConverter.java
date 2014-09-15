@@ -1,11 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DisplayDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ArmLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ClearDisplayMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ConnectLoadMessageEntry;
@@ -37,26 +35,26 @@ public class AS220IEC1107MessageConverter extends AbstractMessageConverter {
      * Represents a mapping between {@link DeviceMessageSpec}s
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
+    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
 
     static {
         // contactor related
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_ARM, new ArmLoadMessageEntry());
+        registry.put(DeviceMessageId.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
+        registry.put(DeviceMessageId.CONTACTOR_ARM, new ArmLoadMessageEntry());
 
         // display related
-        registry.put(DisplayDeviceMessage.SET_DISPLAY_MESSAGE, new SetDisplayMessageEntry(DisplayMessageAttributeName));
-        registry.put(DisplayDeviceMessage.CLEAR_DISPLAY_MESSAGE, new ClearDisplayMessageEntry());
+        registry.put(DeviceMessageId.DISPLAY_SET_MESSAGE, new SetDisplayMessageEntry(DisplayMessageAttributeName));
+        registry.put(DeviceMessageId.DISPLAY_CLEAR_MESSAGE, new ClearDisplayMessageEntry());
 
         // reset messages
-        registry.put(DeviceActionMessage.DEMAND_RESET, new DemandResetMessageEntry());
-        registry.put(DeviceActionMessage.POWER_OUTAGE_RESET, new PowerOutageResetMessageEntry());
-        registry.put(DeviceActionMessage.POWER_QUALITY_RESET, new PowerQualityResetMessageEntry());
-        registry.put(DeviceActionMessage.ERROR_STATUS_RESET, new ErrorStatusResetMessageEntry());
-        registry.put(DeviceActionMessage.REGISTERS_RESET, new RegistersResetMessageEntry());
-        registry.put(DeviceActionMessage.LOAD_LOG_RESET, new LoadLogResetMessageEntry());
-        registry.put(DeviceActionMessage.EVENT_LOG_RESET, new EventLogResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, new DemandResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_POWER_OUTAGE_RESET, new PowerOutageResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_POWER_QUALITY_RESET, new PowerQualityResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_ERROR_STATUS_RESET, new ErrorStatusResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_REGISTERS_RESET, new RegistersResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_LOAD_LOG_RESET, new LoadLogResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_EVENT_LOG_RESET, new EventLogResetMessageEntry());
     }
 
     /**
@@ -74,7 +72,8 @@ public class AS220IEC1107MessageConverter extends AbstractMessageConverter {
         return EMPTY_FORMAT;
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
+
 }

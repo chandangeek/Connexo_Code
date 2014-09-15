@@ -47,11 +47,11 @@ public class AS220DLMSMessageConverterTest extends AbstractMessageConverterTest 
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetPlcChannelFreqSnrCredits CHANNEL1_FS=\"1\" CHANNEL1_FM=\"1\" CHANNEL1_SNR=\"1\" CHANNEL1_CREDITWEIGHT=\"1\" CHANNEL2_FS=\"1\" CHANNEL2_FM=\"1\" CHANNEL2_SNR=\"1\" CHANNEL2_CREDITWEIGHT=\"1\" CHANNEL3_FS=\"1\" CHANNEL3_FM=\"1\" CHANNEL3_SNR=\"1\" CHANNEL3_CREDITWEIGHT=\"1\" CHANNEL4_FS=\"1\" CHANNEL4_FM=\"1\" CHANNEL4_SNR=\"1\" CHANNEL4_CREDITWEIGHT=\"1\" CHANNEL5_FS=\"1\" CHANNEL5_FM=\"1\" CHANNEL5_SNR=\"1\" CHANNEL5_CREDITWEIGHT=\"1\" CHANNEL6_FS=\"1\" CHANNEL6_FM=\"1\" CHANNEL6_SNR=\"1\" CHANNEL6_CREDITWEIGHT=\"1\"> </SetPlcChannelFreqSnrCredits>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.DecommissionAll);
+        offlineDeviceMessage = createMessage(DeviceMessageId.MBUS_SETUP_DECOMMISSIONAll);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<DecommissionAll> </DecommissionAll>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<FirmwareUpdate><IncludedFile>userFileBytes</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
     }

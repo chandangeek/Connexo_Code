@@ -2,19 +2,12 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.AdvancedTestMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.impl.device.messages.DisplayDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PricingInformationMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
@@ -46,49 +39,6 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
     private static final String ActivationDate = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
 
     /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        // Change of Supplier
-        registry.put(ConfigurationChangeDeviceMessage.ChangeOfSupplier, new MultipleAttributeMessageEntry("Change_Of_Supplier", "Change_Of_Supplier_Name", "Change_Of_Supplier_ID", "Change_Of_Supplier_ActivationDate"));
-
-        // Change of Tenancy
-        registry.put(ConfigurationChangeDeviceMessage.ChangeOfTenancy, new MultipleAttributeMessageEntry("Change_Of_Tenant", "Change_Of_Tenant_ActivationDate"));
-
-        // Connect/disconnect
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry("RemoteConnect"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry("RemoteDisconnect"));
-
-        // CV & CF information
-        registry.put(ConfigurationChangeDeviceMessage.SetCalorificValue, new MultipleAttributeMessageEntry("SetCalorificValue", "Calorific value", ActivationDate));
-        registry.put(ConfigurationChangeDeviceMessage.SetConversionFactor, new MultipleAttributeMessageEntry("SetConversionFactor", "Conversion factor", ActivationDate));
-
-        // Display
-        registry.put(DisplayDeviceMessage.SET_DISPLAY_MESSAGE_WITH_OPTIONS, new MultipleAttributeMessageEntry("TextToDisplay", "Message", "Duration of message", ActivationDate));
-
-        // Firmware
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE,
-                new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName));
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE,
-                new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
-
-        // Pricing Information
-        registry.put(PricingInformationMessage.ReadPricingInformation, new SimpleTagMessageEntry("ReadPricePerUnit"));
-        registry.put(PricingInformationMessage.SetPricingInformation, new ConfigWithUserFileAndActivationDateMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, DeviceMessageConstants.PricingInformationActivationDateAttributeName ,"SetPricePerUnit"));
-        registry.put(PricingInformationMessage.SetStandingCharge, new MultipleAttributeMessageEntry("SetStandingCharge", "Standing charge", ActivationDate));
-        registry.put(PricingInformationMessage.UpdatePricingInformation, new ConfigWithUserFileMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, "Update_Pricing_Information"));
-
-        // TestMessage
-        registry.put(AdvancedTestMessage.USERFILE_CONFIG, new MultipleAttributeMessageEntry("Test_Message", "Test_File"));
-
-        // Time of Use
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-    }
-
-    /**
      * Default constructor for at-runtime instantiation
      */
     public ZigbeeGasMessageConverter() {
@@ -118,7 +68,42 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
         }
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        // Change of Supplier
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_CHANGE_OF_SUPPLIER, new MultipleAttributeMessageEntry("Change_Of_Supplier", "Change_Of_Supplier_Name", "Change_Of_Supplier_ID", "Change_Of_Supplier_ActivationDate"));
+
+        // Change of Tenancy
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_CHANGE_OF_TENANCY, new MultipleAttributeMessageEntry("Change_Of_Tenant", "Change_Of_Tenant_ActivationDate"));
+
+        // Connect/disconnect
+        registry.put(DeviceMessageId.CONTACTOR_OPEN, new SimpleTagMessageEntry("RemoteConnect"));
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE, new SimpleTagMessageEntry("RemoteDisconnect"));
+
+        // CV & CF information
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_CALORIFIC_VALUE, new MultipleAttributeMessageEntry("SetCalorificValue", "Calorific value", ActivationDate));
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_CONVERSION_FACTOR, new MultipleAttributeMessageEntry("SetConversionFactor", "Conversion factor", ActivationDate));
+
+        // Display
+        registry.put(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS, new MultipleAttributeMessageEntry("TextToDisplay", "Message", "Duration of message", ActivationDate));
+
+        // Firmware
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE,
+                new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE,
+                new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
+
+        // Pricing Information
+        registry.put(DeviceMessageId.PRICING_GET_INFORMATION, new SimpleTagMessageEntry("ReadPricePerUnit"));
+        registry.put(DeviceMessageId.PRICING_SET_INFORMATION, new ConfigWithUserFileAndActivationDateMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, DeviceMessageConstants.PricingInformationActivationDateAttributeName ,"SetPricePerUnit"));
+        registry.put(DeviceMessageId.PRICING_SET_STANDING_CHARGE, new MultipleAttributeMessageEntry("SetStandingCharge", "Standing charge", ActivationDate));
+        registry.put(DeviceMessageId.PRICING_UPDATE_INFORMATION, new ConfigWithUserFileMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, "Update_Pricing_Information"));
+
+        // TestMessage
+        registry.put(DeviceMessageId.ADVANCED_TEST_USERFILE_CONFIG, new MultipleAttributeMessageEntry("Test_Message", "Test_File"));
+
+        // Time of Use
+        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
         return registry;
     }
 

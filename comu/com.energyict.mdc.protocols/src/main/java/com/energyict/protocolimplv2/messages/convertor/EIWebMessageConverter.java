@@ -1,25 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.ChannelConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DLMSConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.EIWebConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.LogBookDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.MBusConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.MailConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ModbusConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ModemConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.NetworkConnectivityMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.OpusConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PPPConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PeakShaverConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.SMSConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.TotalizersConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.AnalogOutMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChangeAdminPasswordMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChannelMessageEntry;
@@ -47,184 +31,184 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
      * Represents a mapping between {@link DeviceMessageSpec}s
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
+    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
 
     static {
 
         // General Parameters
-        registry.put(ConfigurationChangeDeviceMessage.SetDescription, new SimpleEIWebMessageEntry());
-        registry.put(ConfigurationChangeDeviceMessage.SetIntervalInSeconds, new SimpleEIWebMessageEntry());
-        registry.put(ConfigurationChangeDeviceMessage.SetUpgradeUrl, new SimpleEIWebMessageEntry());
-        registry.put(ConfigurationChangeDeviceMessage.SetUpgradeOptions, new SimpleEIWebMessageEntry());
-        registry.put(ConfigurationChangeDeviceMessage.SetDebounceTreshold, new SimpleEIWebMessageEntry());
-        registry.put(ConfigurationChangeDeviceMessage.SetTariffMoment, new SimpleEIWebMessageEntry());
-        registry.put(ConfigurationChangeDeviceMessage.SetCommOffset, new SimpleEIWebMessageEntry());
-        registry.put(ConfigurationChangeDeviceMessage.SetAggIntv, new SimpleEIWebMessageEntry());
-        registry.put(ConfigurationChangeDeviceMessage.SetPulseTimeTrue, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_DESCRIPTION, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_INTERVAL_IN_SECONDS, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_UPGRADE_URL, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_UPGRADE_OPTIONS, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_DEBOUNCE_TRESHOLD, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_TARIFF_MOMENT, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_COMMUNICATION_OFFSET, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_AGGREGATION_INTERVAL, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_PULSE_TIME_TRUE, new SimpleEIWebMessageEntry());
 
         // Network Parameters
-        registry.put(NetworkConnectivityMessage.SetProxyServer, new SimpleEIWebMessageEntry());
-        registry.put(NetworkConnectivityMessage.SetProxyUsername, new SimpleEIWebMessageEntry());
-        registry.put(NetworkConnectivityMessage.SetProxyPassword, new SimpleEIWebMessageEntry());
-        registry.put(NetworkConnectivityMessage.SetDHCP, new SimpleEIWebMessageEntry());
-        registry.put(NetworkConnectivityMessage.SetDHCPTimeout, new SimpleEIWebMessageEntry());
-        registry.put(NetworkConnectivityMessage.SetIPAddress, new SimpleEIWebMessageEntry());
-        registry.put(NetworkConnectivityMessage.SetSubnetMask, new SimpleEIWebMessageEntry());
-        registry.put(NetworkConnectivityMessage.SetGateway, new SimpleEIWebMessageEntry());
-        registry.put(NetworkConnectivityMessage.SetNameServer, new SimpleEIWebMessageEntry());
-        registry.put(NetworkConnectivityMessage.SetHttpPort, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_SET_PROXY_SERVER, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_SET_PROXY_USERNAME, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_SET_PROXY_PASSWORD, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_SET_DHCP, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_SET_DHCP_TIMEOUT, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_SET_IP_ADDRESS, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_SET_SUBNET_MASK, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_SET_GATEWAY, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_SET_NAME_SERVER, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_SET_HTTP_PORT, new SimpleEIWebMessageEntry());
 
         // Time Parameters
-        registry.put(ClockDeviceMessage.SetDST, new SimpleEIWebMessageEntry());
-        registry.put(ClockDeviceMessage.SetTimezone, new SimpleEIWebMessageEntry());
-        registry.put(ClockDeviceMessage.SetTimeAdjustment, new SimpleEIWebMessageEntry());
-        registry.put(ClockDeviceMessage.SetNTPServer, new SimpleEIWebMessageEntry());
-        registry.put(ClockDeviceMessage.SetRefreshClockEvery, new SimpleEIWebMessageEntry());
-        registry.put(ClockDeviceMessage.SetNTPOptions, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CLOCK_SET_DST, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CLOCK_SET_TIMEZONE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CLOCK_SET_TIME_ADJUSTMENT, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CLOCK_SET_NTP_SERVER, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CLOCK_SET_REFRESH_CLOCK_EVERY, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CLOCK_SET_NTP_OPTIONS, new SimpleEIWebMessageEntry());
 
         // EIWeb Parameters
-        registry.put(EIWebConfigurationDeviceMessage.SetEIWebPassword, new EIWebConfigurationMessageEntry());
-        registry.put(EIWebConfigurationDeviceMessage.SetEIWebPage, new EIWebConfigurationMessageEntry());
-        registry.put(EIWebConfigurationDeviceMessage.SetEIWebFallbackPage, new EIWebConfigurationMessageEntry());
-        registry.put(EIWebConfigurationDeviceMessage.SetEIWebSendEvery, new EIWebConfigurationMessageEntry());
-        registry.put(EIWebConfigurationDeviceMessage.SetEIWebCurrentInterval, new EIWebConfigurationMessageEntry());
-        registry.put(EIWebConfigurationDeviceMessage.SetEIWebDatabaseID, new EIWebConfigurationMessageEntry());
-        registry.put(EIWebConfigurationDeviceMessage.SetEIWebOptions, new EIWebConfigurationMessageEntry());
+        registry.put(DeviceMessageId.EIWEB_SET_PASSWORD, new EIWebConfigurationMessageEntry());
+        registry.put(DeviceMessageId.EIWEB_SET_PAGE, new EIWebConfigurationMessageEntry());
+        registry.put(DeviceMessageId.EIWEB_SET_FALLBACK_PAGE, new EIWebConfigurationMessageEntry());
+        registry.put(DeviceMessageId.EIWEB_SET_SEND_EVERY, new EIWebConfigurationMessageEntry());
+        registry.put(DeviceMessageId.EIWEB_SET_CURRENT_INTERVAL, new EIWebConfigurationMessageEntry());
+        registry.put(DeviceMessageId.EIWEB_SET_DATABASE_ID, new EIWebConfigurationMessageEntry());
+        registry.put(DeviceMessageId.EIWEB_SET_OPTIONS, new EIWebConfigurationMessageEntry());
 
         // Read Mail (POP3) Parameters
-        registry.put(MailConfigurationDeviceMessage.SetPOPUsername, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetPOPPassword, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetPOPHost, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetPOPReadMailEvery, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetPOP3Options, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetSMTPFrom, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetSMTPTo, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetSMTPConfigurationTo, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetSMTPServer, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetSMTPDomain, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetSMTPSendMailEvery, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetSMTPCurrentInterval, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetSMTPDatabaseID, new SimpleEIWebMessageEntry());
-        registry.put(MailConfigurationDeviceMessage.SetSMTPOptions, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_POP_USERNAME, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_POP_PASSWORD, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_POP_HOST, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_POP_READ_MAIL_EVERY, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_POP3_OPTIONS, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_SMTP_FROM, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_SMTP_TO, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_SMTP_CONFIGURATION_TO, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_SMTP_SERVER, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_SMTP_DOMAIN, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_SMTP_SEND_MAIL_EVERY, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_SMTP_CURRENT_INTERVAL, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_SMTP_DATABASE_ID, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MAIL_CONFIGURATION_SET_SMTP_OPTIONS, new SimpleEIWebMessageEntry());
 
         // SMS
-        registry.put(SMSConfigurationDeviceMessage.SetSmsDataNbr, new SimpleEIWebMessageEntry());
-        registry.put(SMSConfigurationDeviceMessage.SetSmsAlarmNbr, new SimpleEIWebMessageEntry());
-        registry.put(SMSConfigurationDeviceMessage.SetSmsEvery, new SimpleEIWebMessageEntry());
-        registry.put(SMSConfigurationDeviceMessage.SetSmsNbr, new SimpleEIWebMessageEntry());
-        registry.put(SMSConfigurationDeviceMessage.SetSmsCorrection, new SimpleEIWebMessageEntry());
-        registry.put(SMSConfigurationDeviceMessage.SetSmsConfig, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.SMS_CONFIGURATION_SET_DATA_NUMBER, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.SMS_CONFIGURATION_SET_ALARM_NUMBER, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.SMS_CONFIGURATION_SET_EVERY, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.SMS_CONFIGURATION_SET_NUMBER, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.SMS_CONFIGURATION_SET_CORRECTION, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.SMS_CONFIGURATION_SET_CONFIG, new SimpleEIWebMessageEntry());
 
         //DLMS
-        registry.put(DLMSConfigurationDeviceMessage.SetDLMSDeviceID, new SimpleEIWebMessageEntry());
-        registry.put(DLMSConfigurationDeviceMessage.SetDLMSMeterID, new SimpleEIWebMessageEntry());
-        registry.put(DLMSConfigurationDeviceMessage.SetDLMSPassword, new SimpleEIWebMessageEntry());
-        registry.put(DLMSConfigurationDeviceMessage.SetDLMSIdleTime, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DLMS_CONFIGURATION_SET_DEVICE_ID, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DLMS_CONFIGURATION_SET_METER_ID, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DLMS_CONFIGURATION_SET_PASSWORD, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DLMS_CONFIGURATION_SET_IDLE_TIME, new SimpleEIWebMessageEntry());
 
         // Duke Power Protocol
-        registry.put(ConfigurationChangeDeviceMessage.SetDukePowerID, new SimpleEIWebMessageEntry());
-        registry.put(ConfigurationChangeDeviceMessage.SetDukePowerPassword, new SimpleEIWebMessageEntry());
-        registry.put(ConfigurationChangeDeviceMessage.SetDukePowerIdleTime, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_DUKE_POWER_ID, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_DUKE_POWER_PASSWORD, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_DUKE_POWER_IDLE_TIME, new SimpleEIWebMessageEntry());
 
-        registry.put(ModemConfigurationDeviceMessage.SetDialCommand, new SimpleEIWebMessageEntry());
-        registry.put(ModemConfigurationDeviceMessage.SetModemInit1, new SimpleEIWebMessageEntry());
-        registry.put(ModemConfigurationDeviceMessage.SetModemInit2, new SimpleEIWebMessageEntry());
-        registry.put(ModemConfigurationDeviceMessage.SetModemInit3, new SimpleEIWebMessageEntry());
-        registry.put(ModemConfigurationDeviceMessage.SetPPPBaudRate, new SimpleEIWebMessageEntry());
-        registry.put(ModemConfigurationDeviceMessage.SetModemtype, new SimpleEIWebMessageEntry());
-        registry.put(ModemConfigurationDeviceMessage.SetResetCycle, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODEM_CONFIGURATION_SET_DIAL_COMMAND, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODEM_CONFIGURATION_SET_MODEM_INIT_1, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODEM_CONFIGURATION_SET_MODEM_INIT_2, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODEM_CONFIGURATION_SET_MODEM_INIT_3, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODEM_CONFIGURATION_SET_PPP_BAUD_RATE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODEM_CONFIGURATION_SET_MODEMTYPE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODEM_CONFIGURATION_SET_RESET_CYCLE, new SimpleEIWebMessageEntry());
 
         // PPP
-        registry.put(PPPConfigurationDeviceMessage.SetISP1Phone, new SimpleEIWebMessageEntry());
-        registry.put(PPPConfigurationDeviceMessage.SetISP1Username, new SimpleEIWebMessageEntry());
-        registry.put(PPPConfigurationDeviceMessage.SetISP1Password, new SimpleEIWebMessageEntry());
-        registry.put(PPPConfigurationDeviceMessage.SetISP1Tries, new SimpleEIWebMessageEntry());
-        registry.put(PPPConfigurationDeviceMessage.SetISP2Phone, new SimpleEIWebMessageEntry());
-        registry.put(PPPConfigurationDeviceMessage.SetISP2Username, new SimpleEIWebMessageEntry());
-        registry.put(PPPConfigurationDeviceMessage.SetISP2Password, new SimpleEIWebMessageEntry());
-        registry.put(PPPConfigurationDeviceMessage.SetISP2Tries, new SimpleEIWebMessageEntry());
-        registry.put(PPPConfigurationDeviceMessage.SetPPPIdleTimeout, new SimpleEIWebMessageEntry());
-        registry.put(PPPConfigurationDeviceMessage.SetPPPRetryInterval, new SimpleEIWebMessageEntry());
-        registry.put(PPPConfigurationDeviceMessage.SetPPPOptions, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.PPP_CONFIGURATION_SET_ISP1_PHONE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.PPP_CONFIGURATION_SET_ISP1_USERNAME, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.PPP_CONFIGURATION_SET_ISP1_PASSWORD, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.PPP_CONFIGURATION_SET_ISP1_TRIES, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.PPP_CONFIGURATION_SET_ISP2_PHONE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.PPP_CONFIGURATION_SET_ISP2_USERNAME, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.PPP_CONFIGURATION_SET_ISP2_PASSWORD, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.PPP_CONFIGURATION_SET_ISP2_TRIES, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.PPP_CONFIGURATION_SET_IDLE_TIMEOUT, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.PPP_CONFIGURATION_SET_RETRY_INTERVAL, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.PPP_CONFIGURATION_SET_OPTIONS, new SimpleEIWebMessageEntry());
 
         // Channels
-        registry.put(ChannelConfigurationDeviceMessage.SetFunction, new ChannelMessageEntry());
-        registry.put(ChannelConfigurationDeviceMessage.SetParameters, new ChannelMessageEntry());
-        registry.put(ChannelConfigurationDeviceMessage.SetName, new ChannelMessageEntry());
-        registry.put(ChannelConfigurationDeviceMessage.SetUnit, new ChannelMessageEntry());
+        registry.put(DeviceMessageId.CHANNEL_CONFIGURATION_SET_FUNCTION, new ChannelMessageEntry());
+        registry.put(DeviceMessageId.CHANNEL_CONFIGURATION_SET_PARAMETERS, new ChannelMessageEntry());
+        registry.put(DeviceMessageId.CHANNEL_CONFIGURATION_SET_NAME, new ChannelMessageEntry());
+        registry.put(DeviceMessageId.CHANNEL_CONFIGURATION_SET_UNIT, new ChannelMessageEntry());
 
         // Totalizers
-        registry.put(TotalizersConfigurationDeviceMessage.SetSumMask, new TotalizerEIWebMessageEntry());
-        registry.put(TotalizersConfigurationDeviceMessage.SetSubstractMask, new TotalizerEIWebMessageEntry());
+        registry.put(DeviceMessageId.TOTALIZER_CONFIGURATION_SET_SUM_MASK, new TotalizerEIWebMessageEntry());
+        registry.put(DeviceMessageId.TOTALIZER_CONFIGURATION_SET_SUBSTRACT_MASK, new TotalizerEIWebMessageEntry());
 
         // Peak Shavers
-        registry.put(PeakShaverConfigurationDeviceMessage.SetActiveChannel, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetReactiveChannel, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetTimeBase, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetPOut, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetPIn, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetDeadTime, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetAutomatic, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetCyclic, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetInvert, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetAdaptSetpoint, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetInstantAnalogOut, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetPredictedAnalogOut, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetpointAnalogOut, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetDifferenceAnalogOut, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetTariff, new SimplePeakShaverMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetResetLoads, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_ACTIVE_CHANNEL, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_REACTIVE_CHANNEL, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_TIME_BASE, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_P_OUT, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_P_IN, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_DEAD_TIME, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_AUTOMATIC, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_CYCLIC, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_INVERT, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_ADAPT_SETPOINT, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_INSTANT_ANALOG_OUT, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_PREDICTED_ANALOG_OUT, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SETPOINT_ANALOG_OUT, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_DIFFERENCE_ANALOG_OUT, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_TARIFF, new SimplePeakShaverMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_RESET_LOADS, new SimplePeakShaverMessageEntry());
 
-        registry.put(PeakShaverConfigurationDeviceMessage.SetSetpoint, new SetSetpointMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetSwitchTime, new SetSwitchTimeMessageEntry());
-        registry.put(PeakShaverConfigurationDeviceMessage.SetLoad, new SetLoadMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_SETPOINT, new SetSetpointMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_SWITCH_TIME, new SetSwitchTimeMessageEntry());
+        registry.put(DeviceMessageId.PEAK_SHAVING_SET_LOAD, new SetLoadMessageEntry());
 
         // Events
-        registry.put(LogBookDeviceMessage.SetInputChannel, new SimpleEIWebMessageEntry());
-        registry.put(LogBookDeviceMessage.SetCondition, new SimpleEIWebMessageEntry());
-        registry.put(LogBookDeviceMessage.SetConditionValue, new SimpleEIWebMessageEntry());
-        registry.put(LogBookDeviceMessage.SetTimeTrue, new SimpleEIWebMessageEntry());
-        registry.put(LogBookDeviceMessage.SetTimeFalse, new SimpleEIWebMessageEntry());
-        registry.put(LogBookDeviceMessage.SetOutputChannel, new SimpleEIWebMessageEntry());
-        registry.put(LogBookDeviceMessage.SetAlarm, new SimpleEIWebMessageEntry());
-        registry.put(LogBookDeviceMessage.SetTag, new SimpleEIWebMessageEntry());
-        registry.put(LogBookDeviceMessage.SetInverse, new SimpleEIWebMessageEntry());
-        registry.put(LogBookDeviceMessage.SetImmediate, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.LOG_BOOK_SET_INPUT_CHANNEL, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.LOG_BOOK_SET_CONDITION, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.LOG_BOOK_SET_CONDITION_VALUE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.LOG_BOOK_SET_TIME_TRUE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.LOG_BOOK_SET_TIME_FALSE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.LOG_BOOK_SET_OUTPUT_CHANNEL, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.LOG_BOOK_SET_ALARM, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.LOG_BOOK_SET_TAG, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.LOG_BOOK_SET_INVERSE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.LOG_BOOK_SET_IMMEDIATE, new SimpleEIWebMessageEntry());
 
         // Opus
-        registry.put(OpusConfigurationDeviceMessage.SetOpusOSNbr, new SimpleEIWebMessageEntry());
-        registry.put(OpusConfigurationDeviceMessage.SetOpusPassword, new SimpleEIWebMessageEntry());
-        registry.put(OpusConfigurationDeviceMessage.SetOpusTimeout, new SimpleEIWebMessageEntry());
-        registry.put(OpusConfigurationDeviceMessage.SetOpusConfig, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.OPUS_CONFIGURATION_SET_OS_NUMBER, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.OPUS_CONFIGURATION_SET_PASSWORD, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.OPUS_CONFIGURATION_SET_TIMEOUT, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.OPUS_CONFIGURATION_SET_CONFIG, new SimpleEIWebMessageEntry());
 
         // Modbus Master
-        registry.put(ModbusConfigurationDeviceMessage.SetMmEvery, new SimpleEIWebMessageEntry());
-        registry.put(ModbusConfigurationDeviceMessage.SetMmTimeout, new SimpleEIWebMessageEntry());
-        registry.put(ModbusConfigurationDeviceMessage.SetMmInstant, new SimpleEIWebMessageEntry());
-        registry.put(ModbusConfigurationDeviceMessage.SetMmOverflow, new SimpleEIWebMessageEntry());
-        registry.put(ModbusConfigurationDeviceMessage.SetMmConfig, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODBUS_CONFIGURATION_SET_MM_EVERY, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODBUS_CONFIGURATION_SET_MM_TIMEOUT, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODBUS_CONFIGURATION_SET_MM_INSTANT, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODBUS_CONFIGURATION_SET_MM_OVERFLOW, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MODBUS_CONFIGURATION_SET_MM_CONFIG, new SimpleEIWebMessageEntry());
 
         // MBus Master
-        registry.put(MBusConfigurationDeviceMessage.SetMBusEvery, new SimpleEIWebMessageEntry());
-        registry.put(MBusConfigurationDeviceMessage.SetMBusInterFrameTime, new SimpleEIWebMessageEntry());
-        registry.put(MBusConfigurationDeviceMessage.SetMBusConfig, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MBUS_CONFIGURATION_SET_EVERY, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MBUS_CONFIGURATION_SET_INTER_FRAME_TIME, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.MBUS_CONFIGURATION_SET_CONFIG, new SimpleEIWebMessageEntry());
 
         // General Commands
-        registry.put(DeviceActionMessage.SetFTIONReboot, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetFTIONInitialize, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetFTIONMailLog, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetFTIONMailConfig, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetFTIONSaveConfig, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetFTIONUpgrade, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetFTIONClearMem, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetFTIONModemReset, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetChangeAdminPassword, new ChangeAdminPasswordMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_REBOOT, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_INITIALIZE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_MAIL_LOG, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_MAIL_CONFIG, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_SAVE_CONFIG, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_UPGRADE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_CLEAR_MEM, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_MODEM_RESET, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_CHANGE_ADMIN_PASSWORD, new ChangeAdminPasswordMessageEntry());
 
-        registry.put(DeviceActionMessage.SetOutputOn, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetOutputOff, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetOutputToggle, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetOutputPulse, new SimpleEIWebMessageEntry());
-        registry.put(DeviceActionMessage.SetAnalogOut, new AnalogOutMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_ON, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_OFF, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_TOGGLE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_PULSE, new SimpleEIWebMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_ANALOG_OUT, new AnalogOutMessageEntry());
     }
 
     /**
@@ -239,7 +223,8 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         return messageAttribute.toString();
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
+
 }

@@ -35,7 +35,7 @@ public class IskraME37XMessageConverterTest extends AbstractMessageConverterTest
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<DemandReset></DemandReset>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_OPEN);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<DISCONNECT> </DISCONNECT>", messageEntry.getContent());
     }

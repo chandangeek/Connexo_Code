@@ -37,19 +37,19 @@ public class SecurityMessageXmlConverterTest {
     public void testXmlSerialization() throws Exception {
         MessagesTaskShadow messagesTaskShadow = new MessagesTaskShadow();
         messagesTaskShadow.setAllCategories(true);
-        messagesTaskShadow.setDeviceMessageSpecs(ArrayDiffList.fromOriginal(Arrays.<DeviceMessageSpec>asList(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)));
+        messagesTaskShadow.setDeviceMessageSpecs(ArrayDiffList.fromOriginal(Arrays.<DeviceMessageSpec>asList(DeviceMessageId.SECURITY_ACTIVATE_DLMS_ENCRYPTION)));
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         MdwXmlSerializer serializer = new MdwXmlSerializer(outputStream);
         serializer.writeObject(messagesTaskShadow);
         serializer.close();
-        assertThat(outputStream.toString()).contains(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION.toString());
+        assertThat(outputStream.toString()).contains(DeviceMessageId.SECURITY_ACTIVATE_DLMS_ENCRYPTION.toString());
     }
 
     @Test
     public void testXmlDeserialization() throws Exception {
         MessagesTaskShadow messagesTaskShadow = new MessagesTaskShadow();
         messagesTaskShadow.setAllCategories(true);
-        messagesTaskShadow.setDeviceMessageSpecs(ArrayDiffList.fromOriginal(Arrays.<DeviceMessageSpec>asList(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)));
+        messagesTaskShadow.setDeviceMessageSpecs(ArrayDiffList.fromOriginal(Arrays.<DeviceMessageSpec>asList(DeviceMessageId.SECURITY_ACTIVATE_DLMS_ENCRYPTION)));
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         MdwXmlSerializer serializer = new MdwXmlSerializer(outputStream);
         serializer.writeObject(messagesTaskShadow);
@@ -58,6 +58,6 @@ public class SecurityMessageXmlConverterTest {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xml.getBytes());
         XMLDecoder xmlDecoder = new XMLDecoder(inputStream);
         MessagesTaskShadow reconstructedMessageTaskShadow = (MessagesTaskShadow) xmlDecoder.readObject();
-        assertThat(reconstructedMessageTaskShadow.getDeviceMessageSpecs()).containsExactly(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION);
+        assertThat(reconstructedMessageTaskShadow.getDeviceMessageSpecs()).containsExactly(DeviceMessageId.SECURITY_ACTIVATE_DLMS_ENCRYPTION);
     }
 }

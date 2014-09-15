@@ -4,6 +4,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
@@ -32,39 +33,39 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractMessageConvert
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_CLOSE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<connectLoad> </connectLoad>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<connectLoad Activation_date=\"1383123600\"> </connectLoad>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_OPEN);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<disconnectLoad> </disconnectLoad>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<disconnectLoad Activation_date=\"1383123600\"> </disconnectLoad>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_CHANGE_CONNECT_CONTROL_MODE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Connect_control_mode Mode=\"1\"> </Connect_control_mode>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.Decommission);
+        offlineDeviceMessage = createMessage(DeviceMessageId.MBUS_SETUP_DECOMMISSION);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Decommission/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.SetEncryptionKeys);
+        offlineDeviceMessage = createMessage(DeviceMessageId.MBUS_SETUP_SET_ENCRYPTION_KEYS);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Set_Encryption_keys Open_Key_Value=\"open\" Transfer_Key_Value=\"transfer\"> </Set_Encryption_keys>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.UseCorrectedValues);
+        offlineDeviceMessage = createMessage(DeviceMessageId.MBUS_SETUP_USE_CORRECTED_VALUES);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Corrected_values/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.UseUncorrectedValues);
+        offlineDeviceMessage = createMessage(DeviceMessageId.MBUS_SETUP_USE_UNCORRECTED_VALUES);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<UnCorrected_values/>", messageEntry.getContent());
     }

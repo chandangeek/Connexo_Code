@@ -34,12 +34,12 @@ public class DLMSZ3MessagingMessageConverterTest extends AbstractMessageConverte
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_OUTPUT);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<connectLoad Digital_output=\"1\"> </connectLoad>", messageEntry.getContent());
 
 
-        offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3);
+        offlineDeviceMessage = createMessage(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Configure_load_limiting Read_frequency=\"2\" Threshold=\"2\" Duration=\"10\" Digital_Output1_Invert=\"1\" Digital_Output2_Invert=\"1\" Activate_now=\"1\"> </Configure_load_limiting>", messageEntry.getContent());
     }

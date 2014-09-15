@@ -54,7 +54,7 @@ public class Dsmr40MessageConverterTest extends AbstractMessageConverterTest {
         assertEquals("<Enable_authentication_level_P1 AuthenticationLevel=\"1\"> </Enable_authentication_level_P1>", messageEntry.getContent());
 
         // Test the DSMR2.3 CHANGE_DLMS_AUTHENTICATION_LEVEL message is removed
-        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
+        offlineDeviceMessage = createMessage(DeviceMessageId.SECURITY_CHANGE_DLMS_AUTHENTICATION_LEVEL);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertTrue(messageEntry.getContent().isEmpty());
     }

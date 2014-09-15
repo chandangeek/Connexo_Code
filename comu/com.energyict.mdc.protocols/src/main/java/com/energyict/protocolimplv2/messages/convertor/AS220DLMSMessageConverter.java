@@ -4,15 +4,9 @@ import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.GeneralDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.LoadBalanceDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.MBusSetupDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
@@ -36,29 +30,28 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
      * Represents a mapping between {@link DeviceMessageSpec}s
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
+    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
 
     static {
+        registry.put(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE, new MultipleAttributeMessageEntry("ActivatePassiveCalendar", "ActivationTime"));
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE, new SimpleTagMessageEntry("ConnectEmeter"));
+        registry.put(DeviceMessageId.CONTACTOR_OPEN, new SimpleTagMessageEntry("DisconnectEmeter"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_DURATION, new MultipleAttributeMessageEntry("SetLoadLimitDuration", "LoadLimitDuration"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD, new MultipleAttributeMessageEntry("SetLoadLimitThreshold", "LoadLimitThreshold"));
+        registry.put(DeviceMessageId.GENERAL_WRITE_RAW_IEC1107_CLASS, new MultipleAttributeMessageEntry("WriteRawIEC1107Class", "IEC1107ClassId", "Offset", "RawData"));
 
-        registry.put(ActivityCalendarDeviceMessage.ACTIVATE_PASSIVE_CALENDAR, new MultipleAttributeMessageEntry("ActivatePassiveCalendar", "ActivationTime"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry("ConnectEmeter"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry("DisconnectEmeter"));
-        registry.put(LoadBalanceDeviceMessage.SET_LOAD_LIMIT_DURATION, new MultipleAttributeMessageEntry("SetLoadLimitDuration", "LoadLimitDuration"));
-        registry.put(LoadBalanceDeviceMessage.SET_LOAD_LIMIT_THRESHOLD, new MultipleAttributeMessageEntry("SetLoadLimitThreshold", "LoadLimitThreshold"));
-        registry.put(GeneralDeviceMessage.WRITE_RAW_IEC1107_CLASS, new MultipleAttributeMessageEntry("WriteRawIEC1107Class", "IEC1107ClassId", "Offset", "RawData"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_FORCE_MANUAL_RESCAN_PLC_BUS, new SimpleTagMessageEntry("RescanPlcBus"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_ACTIVE_CHANNEL, new MultipleAttributeMessageEntry("SetActivePlcChannel", "ACTIVE_CHANNEL"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_CHANNEL_FREQUENCIES, new MultipleAttributeMessageEntry("SetPlcChannelFrequencies", getChannelFrequencyTags()));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_PLC_CHANNEL_FREQ_SNR_CREDITS, new MultipleAttributeMessageEntry("SetPlcChannelFreqSnrCredits", getChannelFreqSnrCreditsTags()));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_SFSK_GAIN, new MultipleAttributeMessageEntry("SetSFSKGain", "MAX_RECEIVING_GAIN", "MAX_TRANSMITTING_GAIN", "SEARCH_INITIATOR_GAIN"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_SFSK_INITIATOR_PHASE, new MultipleAttributeMessageEntry("SetSFSKInitiatorPhase", "INITIATOR_ELECTRICAL_PHASE"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_SFSK_MAC_TIMEOUTS, new MultipleAttributeMessageEntry("SetSFSKMacTimeouts", "SEARCH_INITIATOR_TIMEOUT", "SYNCHRONIZATION_CONFIRMATION_TIMEOUT", "TIME_OUT_NOT_ADDRESSED", "TIME_OUT_FRAME_NOT_OK"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_SFSK_MAX_FRAME_LENGTH, new MultipleAttributeMessageEntry("SetSFSKMaxFrameLength", "MAX_FRAME_LENGTH"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_SFSK_REPEATER, new MultipleAttributeMessageEntry("SetSFSKRepeater", "REPEATER"));
 
-        registry.put(PLCConfigurationDeviceMessage.ForceManualRescanPLCBus, new SimpleTagMessageEntry("RescanPlcBus"));
-        registry.put(PLCConfigurationDeviceMessage.SetActivePlcChannel, new MultipleAttributeMessageEntry("SetActivePlcChannel", "ACTIVE_CHANNEL"));
-        registry.put(PLCConfigurationDeviceMessage.SetPlcChannelFrequencies, new MultipleAttributeMessageEntry("SetPlcChannelFrequencies", getChannelFrequencyTags()));
-        registry.put(PLCConfigurationDeviceMessage.SetPlcChannelFreqSnrCredits, new MultipleAttributeMessageEntry("SetPlcChannelFreqSnrCredits", getChannelFreqSnrCreditsTags()));
-        registry.put(PLCConfigurationDeviceMessage.SetSFSKGain, new MultipleAttributeMessageEntry("SetSFSKGain", "MAX_RECEIVING_GAIN", "MAX_TRANSMITTING_GAIN", "SEARCH_INITIATOR_GAIN"));
-        registry.put(PLCConfigurationDeviceMessage.SetSFSKInitiatorPhase, new MultipleAttributeMessageEntry("SetSFSKInitiatorPhase", "INITIATOR_ELECTRICAL_PHASE"));
-        registry.put(PLCConfigurationDeviceMessage.SetSFSKMacTimeouts, new MultipleAttributeMessageEntry("SetSFSKMacTimeouts", "SEARCH_INITIATOR_TIMEOUT", "SYNCHRONIZATION_CONFIRMATION_TIMEOUT", "TIME_OUT_NOT_ADDRESSED", "TIME_OUT_FRAME_NOT_OK"));
-        registry.put(PLCConfigurationDeviceMessage.SetSFSKMaxFrameLength, new MultipleAttributeMessageEntry("SetSFSKMaxFrameLength", "MAX_FRAME_LENGTH"));
-        registry.put(PLCConfigurationDeviceMessage.SetSFSKRepeater, new MultipleAttributeMessageEntry("SetSFSKRepeater", "REPEATER"));
-
-        registry.put(MBusSetupDeviceMessage.DecommissionAll, new SimpleTagMessageEntry("DecommissionAll"));
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
+        registry.put(DeviceMessageId.MBUS_SETUP_DECOMMISSION_ALL, new SimpleTagMessageEntry("DecommissionAll"));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
     }
 
     private static String[] getChannelFrequencyTags() {
@@ -166,7 +159,8 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
         return EMPTY_FORMAT;
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
+
 }

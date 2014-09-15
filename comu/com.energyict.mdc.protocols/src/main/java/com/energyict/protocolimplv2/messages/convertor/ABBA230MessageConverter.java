@@ -2,13 +2,10 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ABBA230UserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 
@@ -38,16 +35,18 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
      * Represents a mapping between {@link DeviceMessageSpec}s
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
+    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
 
     static {
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry(CONNECT_LOAD, false));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry(DISCONNECT_LOAD, false));
-        registry.put(ContactorDeviceMessage.CONTACTOR_ARM, new SimpleTagMessageEntry(ARM_METER, false));
+        registry.put(DeviceMessageId.CONTACTOR_OPEN, new SimpleTagMessageEntry(CONNECT_LOAD, false));
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE, new SimpleTagMessageEntry(DISCONNECT_LOAD, false));
+        registry.put(DeviceMessageId.CONTACTOR_ARM, new SimpleTagMessageEntry(ARM_METER, false));
 
-        registry.put(DeviceActionMessage.DEMAND_RESET, new SimpleTagMessageEntry(BILLING_RESET, false));
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE, new ABBA230UserFileMessageEntry(UPGRADE_METER_FIRMWARE));
-        registry.put(ConfigurationChangeDeviceMessage.UploadMeterScheme, new ABBA230UserFileMessageEntry(UPGRADE_METER_SCHEME));
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, new SimpleTagMessageEntry(BILLING_RESET, false));
+
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new ABBA230UserFileMessageEntry(UPGRADE_METER_FIRMWARE));
+
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_METER_SCHEME, new ABBA230UserFileMessageEntry(UPGRADE_METER_SCHEME));
     }
 
     /**
@@ -66,7 +65,8 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
         }
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
+
 }

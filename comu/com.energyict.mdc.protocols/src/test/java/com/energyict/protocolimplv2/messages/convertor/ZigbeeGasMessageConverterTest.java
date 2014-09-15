@@ -50,59 +50,59 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Change_Of_Supplier Change_Of_Supplier_Name=\"Name\" Change_Of_Supplier_ID=\"1\" Change_Of_Supplier_ActivationDate=\"28/10/2013 10:00:00\"> </Change_Of_Supplier>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ChangeOfTenancy);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONFIGURATION_CHANGE_CHANGE_OF_TENANCY);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Change_Of_Tenant Change_Of_Tenant_ActivationDate=\"28/10/2013 10:00:00\"> </Change_Of_Tenant>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_OPEN);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<RemoteConnect> </RemoteConnect>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_CLOSE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<RemoteDisconnect> </RemoteDisconnect>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.SetCalorificValue);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONFIGURATION_CHANGE_SET_CALORIFIC_VALUE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetCalorificValue Calorific value=\"1\" Activation date (dd/mm/yyyy hh:mm:ss) (optional)=\"28/10/2013 10:00:00\"> </SetCalorificValue>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.SetConversionFactor);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONFIGURATION_CHANGE_SET_CONVERSION_FACTOR);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetConversionFactor Conversion factor=\"1\" Activation date (dd/mm/yyyy hh:mm:ss) (optional)=\"28/10/2013 10:00:00\"> </SetConversionFactor>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(DisplayDeviceMessage.SET_DISPLAY_MESSAGE_WITH_OPTIONS);
+        offlineDeviceMessage = createMessage(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<TextToDisplay Message=\"Message\" Duration of message=\"1\" Activation date (dd/mm/yyyy hh:mm:ss) (optional)=\"28/10/2013 10:00:00\"> </TextToDisplay>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<FirmwareUpgrade UserFileID=\"1\"> </FirmwareUpgrade>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<FirmwareUpgrade UserFileID=\"1\" Activation_date=\"28/10/2013 10:00:00\"> </FirmwareUpgrade>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(PricingInformationMessage.ReadPricingInformation);
+        offlineDeviceMessage = createMessage(DeviceMessageId.PRICING_GET_INFORMATION);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ReadPricePerUnit> </ReadPricePerUnit>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(PricingInformationMessage.SetPricingInformation);
+        offlineDeviceMessage = createMessage(DeviceMessageId.PRICING_SET_INFORMATION);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetPricePerUnit><IncludedFile>Content</IncludedFile><ActivationDate>28/10/2013 10:00:00</ActivationDate></SetPricePerUnit>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(PricingInformationMessage.SetStandingCharge);
+        offlineDeviceMessage = createMessage(DeviceMessageId.PRICING_SET_STANDING_CHARGE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetStandingCharge Standing charge=\"1\" Activation date (dd/mm/yyyy hh:mm:ss) (optional)=\"28/10/2013 10:00:00\"> </SetStandingCharge>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(PricingInformationMessage.UpdatePricingInformation);
+        offlineDeviceMessage = createMessage(DeviceMessageId.PRICING_UPDATE_INFORMATION);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Update_Pricing_Information><IncludedFile>Content</IncludedFile></Update_Pricing_Information>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(AdvancedTestMessage.USERFILE_CONFIG);
+        offlineDeviceMessage = createMessage(DeviceMessageId.ADVANCED_TEST_USERFILE_CONFIG);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Test_Message Test_File=\"10\"> </Test_Message>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
+        offlineDeviceMessage = createMessage(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         Assert.assertEquals(ExpectedActivityCalendarMessageContent, messageEntry.getContent());
     }

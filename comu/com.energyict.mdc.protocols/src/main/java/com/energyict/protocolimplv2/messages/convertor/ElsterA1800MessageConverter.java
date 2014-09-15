@@ -1,9 +1,8 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.ChannelConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 
 import java.util.HashMap;
@@ -21,22 +20,14 @@ public class ElsterA1800MessageConverter extends AbstractMessageConverter {
     private static final String CHANNEL = "Channel";
     private static final String DIVISOR = "Divisor";
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(ChannelConfigurationDeviceMessage.SetLPDivisor, new MultipleAttributeMessageEntry(SETLPDIVISOR, CHANNEL, DIVISOR));
-    }
-
     public ElsterA1800MessageConverter() {
         super();
     }
 
     @Override
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        registry.put(DeviceMessageId.CHANNEL_CONFIGURATION_SET_LP_DIVISOR, new MultipleAttributeMessageEntry(SETLPDIVISOR, CHANNEL, DIVISOR));
         return registry;
     }
 
@@ -44,4 +35,5 @@ public class ElsterA1800MessageConverter extends AbstractMessageConverter {
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         return messageAttribute.toString();
     }
+
 }

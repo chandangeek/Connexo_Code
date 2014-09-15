@@ -2,12 +2,10 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.LoadBalanceDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PrepaidConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 
@@ -32,20 +30,20 @@ public class DLMSZ3MessagingMessageConverter extends AbstractMessageConverter {
      * Represents a mapping between {@link DeviceMessageSpec}s
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
+    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
 
     static {
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_OUTPUT, new MultipleAttributeMessageEntry(RtuMessageConstant.CONNECT_LOAD, RtuMessageConstant.DIGITAL_OUTPUT));
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_OUTPUT, new MultipleAttributeMessageEntry(RtuMessageConstant.DISCONNECT_LOAD, RtuMessageConstant.DIGITAL_OUTPUT));
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, new MultipleAttributeMessageEntry(RtuMessageConstant.CONNECT_LOAD, RtuMessageConstant.DIGITAL_OUTPUT));
+        registry.put(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, new MultipleAttributeMessageEntry(RtuMessageConstant.DISCONNECT_LOAD, RtuMessageConstant.DIGITAL_OUTPUT));
 
-        registry.put(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3, new MultipleAttributeMessageEntry("Configure_load_limiting", "Read_frequency", "Threshold", "Duration", "Digital_Output1_Invert", "Digital_Output2_Invert", "Activate_now"));
-        registry.put(LoadBalanceDeviceMessage.ENABLE_LOAD_LIMITING, new OneTagMessageEntry("Enable_load_limiting"));
-        registry.put(LoadBalanceDeviceMessage.DISABLE_LOAD_LIMITING, new OneTagMessageEntry("Disable_load_limitng"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3, new MultipleAttributeMessageEntry("Configure_load_limiting", "Read_frequency", "Threshold", "Duration", "Digital_Output1_Invert", "Digital_Output2_Invert", "Activate_now"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_ENABLE_LOAD_LIMITING, new OneTagMessageEntry("Enable_load_limiting"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_DISABLE_LOAD_LIMITING, new OneTagMessageEntry("Disable_load_limitng"));
 
-        registry.put(PrepaidConfigurationDeviceMessage.AddPrepaidCredit, new MultipleAttributeMessageEntry("Add_Prepaid_credit", "Budget"));
+        registry.put(DeviceMessageId.PREPAID_CONFIGURATION_ADD_CREDIT, new MultipleAttributeMessageEntry("Add_Prepaid_credit", "Budget"));
         //TODO add message to configure prepaid, this uses optional attributes!
-        registry.put(PrepaidConfigurationDeviceMessage.EnablePrepaid, new MultipleAttributeMessageEntry("Disable_Prepaid_functionality"));
-        registry.put(PrepaidConfigurationDeviceMessage.DisablePrepaid, new OneTagMessageEntry("Disable_Prepaid_functionality"));
+        registry.put(DeviceMessageId.PREPAID_CONFIGURATION_ENABLE, new MultipleAttributeMessageEntry("Disable_Prepaid_functionality"));
+        registry.put(DeviceMessageId.PREPAID_CONFIGURATION_DISABLE, new OneTagMessageEntry("Disable_Prepaid_functionality"));
     }
 
     public DLMSZ3MessagingMessageConverter() {
@@ -53,7 +51,7 @@ public class DLMSZ3MessagingMessageConverter extends AbstractMessageConverter {
     }
 
     @Override
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
 
@@ -70,4 +68,5 @@ public class DLMSZ3MessagingMessageConverter extends AbstractMessageConverter {
         }
         return messageAttribute.toString();     //E.g. BigDecimal = "111", Boolean = "true" or "false", ...
     }
+
 }

@@ -5,6 +5,7 @@ import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.iec1107.abba230.ABBA230;
 import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
@@ -37,15 +38,15 @@ public class ABBA230MessageConverterTest extends AbstractMessageConverterTest {
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_OPEN);
         messageEntry =  getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ConnectLoad></ConnectLoad>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_CLOSE);
         messageEntry =  getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<DisconnectLoad></DisconnectLoad>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_ARM);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_ARM);
         messageEntry =  getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ArmMeter></ArmMeter>", messageEntry.getContent());
 
@@ -57,7 +58,7 @@ public class ABBA230MessageConverterTest extends AbstractMessageConverterTest {
         messageEntry =  getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<UpgradeMeterScheme><XML>content_MeterScheme</XML></UpgradeMeterScheme>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE);
         messageEntry =  getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<UpgradeMeterFirmware><XML>content_FirmwareUpdate</XML></UpgradeMeterFirmware>", messageEntry.getContent());
     }

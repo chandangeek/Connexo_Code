@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 
 import java.util.HashMap;
@@ -23,10 +23,10 @@ public class ABBA1700MessageConverter extends AbstractMessageConverter {
      * Represents a mapping between {@link DeviceMessageSpec}s
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
+    private static Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
 
     static {
-        registry.put(DeviceActionMessage.BILLING_RESET, new OneTagMessageEntry(DEMAND_RESET));
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET, new OneTagMessageEntry(DEMAND_RESET));
     }
 
     public ABBA1700MessageConverter() {
@@ -34,7 +34,7 @@ public class ABBA1700MessageConverter extends AbstractMessageConverter {
     }
 
     @Override
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return registry;
     }
 
@@ -42,4 +42,5 @@ public class ABBA1700MessageConverter extends AbstractMessageConverter {
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         return messageAttribute.toString();
     }
+
 }

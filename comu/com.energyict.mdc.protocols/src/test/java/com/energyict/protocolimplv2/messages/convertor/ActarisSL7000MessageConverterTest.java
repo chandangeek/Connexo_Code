@@ -61,7 +61,7 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<DemandReset/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
+        offlineDeviceMessage = createMessage(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals(ExpectedActivityCalendarMessageContent, messageEntry.getContent());
     }

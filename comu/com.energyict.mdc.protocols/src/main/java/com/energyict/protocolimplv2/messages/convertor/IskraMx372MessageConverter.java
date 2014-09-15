@@ -1,17 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.impl.device.messages.LoadBalanceDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.LoadProfileMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.MBusSetupDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.NetworkConnectivityMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DisconnectLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.IskraMx372ActivityCalendarConfigMessageEntry;
@@ -45,52 +38,44 @@ import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageC
  */
 public class IskraMx372MessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        // Authentication and encryption
-        registry.put(SecurityMessage.CHANGE_LLS_SECRET, new OneTagMessageEntry("Change_LLS_Secret"));
-
-        // Basic messages
-        registry.put(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS, new MultipleAttributeMessageEntry("GPRS_modem_credentials", "Username", "Password"));
-        registry.put(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS, new MultipleInnerTagsMessageEntry("GPRS_modem_setup", "APN", "Username", "Password"));
-        //
-        registry.put(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE, new SimpleValueMessageEntry("Mode"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND, new IskraMx372ActivityCalendarConfigMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName));
-
-        // Load limit
-        registry.put(LoadBalanceDeviceMessage.ENABLE_LOAD_LIMITING_FOR_GROUP, new MultipleInnerTagsMessageEntry("ApplyLoadLimiting", "Threshold GroupId *", "StartDate (dd/mm/yyyy HH:MM:SS)", "EndDate (dd/mm/yyyy HH:MM:SS)"));
-        registry.put(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP, new SimpleValueMessageEntry("Clear threshold - groupID"));
-        registry.put(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_FOR_GROUP, new MultipleInnerTagsMessageEntry("ConfigureLoadLimitingParameters", "Parameter GroupId *", "Threshold PowerLimit (W)", "Contractual PowerLimit (W)"));
-
-        // MBusMessages
-        registry.put(MBusSetupDeviceMessage.Commission, new OneTagMessageEntry("Mbus_Install"));
-        registry.put(MBusSetupDeviceMessage.DataReadout, new OneTagMessageEntry("Mbus_DataReadout"));
-        registry.put(MBusSetupDeviceMessage.Decommission, new OneTagMessageEntry("Mbus_Remove"));
-
-        // Wake up functionality
-        registry.put(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM, new OneTagMessageEntry("Activate_the_wakeup_mechanism"));
-        registry.put(NetworkConnectivityMessage.ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST, new IskraMx372AddManagedPhoneNumbersToWhiteListMessageEntry(managedWhiteListPhoneNumbersAttributeName));
-        registry.put(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST, new IskraMx372AddPhoneNumbersToWhiteListMessageEntry(whiteListPhoneNumbersAttributeName));
-        registry.put(NetworkConnectivityMessage.CHANGE_INACTIVITY_TIMEOUT, new SimpleValueMessageEntry("Inactivity_timeout"));
-
-         // LoadProfiles
-        registry.put(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST, new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName));
-        registry.put(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST, new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName));
-    }
-
     public IskraMx372MessageConverter() {
         super();
     }
 
     @Override
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        // Authentication and encryption
+        registry.put(DeviceMessageId.SECURITY_CHANGE_LLS_SECRET, new OneTagMessageEntry("Change_LLS_Secret"));
+
+        // Basic messages
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_GPRS_USER_CREDENTIALS, new MultipleAttributeMessageEntry("GPRS_modem_credentials", "Username", "Password"));
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_GPRS_APN_CREDENTIALS, new MultipleInnerTagsMessageEntry("GPRS_modem_setup", "APN", "Username", "Password"));
+        //
+        registry.put(DeviceMessageId.CONTACTOR_CHANGE_CONNECT_CONTROL_MODE, new SimpleValueMessageEntry("Mode"));
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
+        registry.put(DeviceMessageId.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
+        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND, new IskraMx372ActivityCalendarConfigMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName));
+
+        // Load limit
+        registry.put(DeviceMessageId.LOAD_BALANCING_ENABLE_LOAD_LIMITING_FOR_GROUP, new MultipleInnerTagsMessageEntry("ApplyLoadLimiting", "Threshold GroupId *", "StartDate (dd/mm/yyyy HH:MM:SS)", "EndDate (dd/mm/yyyy HH:MM:SS)"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP, new SimpleValueMessageEntry("Clear threshold - groupID"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_PARAMETERS_FOR_GROUP, new MultipleInnerTagsMessageEntry("ConfigureLoadLimitingParameters", "Parameter GroupId *", "Threshold PowerLimit (W)", "Contractual PowerLimit (W)"));
+
+        // MBusMessages
+        registry.put(DeviceMessageId.MBUS_SETUP_COMMISSION, new OneTagMessageEntry("Mbus_Install"));
+        registry.put(DeviceMessageId.MBUS_SETUP_DATA_READOUT, new OneTagMessageEntry("Mbus_DataReadout"));
+        registry.put(DeviceMessageId.MBUS_SETUP_DECOMMISSION, new OneTagMessageEntry("Mbus_Remove"));
+
+        // Wake up functionality
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_ACTIVATE_WAKEUP_MECHANISM, new OneTagMessageEntry("Activate_the_wakeup_mechanism"));
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST, new IskraMx372AddManagedPhoneNumbersToWhiteListMessageEntry(managedWhiteListPhoneNumbersAttributeName));
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_ADD_PHONENUMBERS_TO_WHITE_LIST, new IskraMx372AddPhoneNumbersToWhiteListMessageEntry(whiteListPhoneNumbersAttributeName));
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_INACTIVITY_TIMEOUT, new SimpleValueMessageEntry("Inactivity_timeout"));
+
+        // LoadProfiles
+        registry.put(DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST, new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName));
+        registry.put(DeviceMessageId.LOAD_PROFILE_REGISTER_REQUEST, new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName));
         return registry;
     }
 
@@ -109,4 +94,5 @@ public class IskraMx372MessageConverter extends AbstractMessageConverter {
                 return messageAttribute.toString();
         }
     }
+
 }
