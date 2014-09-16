@@ -1049,7 +1049,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testGetLoadProfileData() {
+    public void testGetLoadProfileDataIfRequestIntervalPreceedsActualMeterActivation() {
         BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
         Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
@@ -1063,7 +1063,47 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Date readingTimeStamp = new Date(1406884500000L);// 1/8/2014 9:15
         intervalBlock.addIntervalReading(new IntervalReadingImpl(readingTimeStamp, readingValue));
         IntervalBlockImpl intervalBlock2 = new IntervalBlockImpl(code);
-        Date previousReadingTimeStamp = new Date(1406883600000L);// 1/8/2014 9:00
+        Date previousReadingTimeStamp = new Date(1406883600000L);// 1/8/2014 9:00 -> this reading will end up in an interval starting at 8:45
+        Date startIntervalForPreviousReadingTimeStamp = new Date(1406882700000L);// 1/8/2014 8:45
+        intervalBlock2.addIntervalReading(new IntervalReadingImpl(previousReadingTimeStamp, BigDecimal.ZERO));
+        MeterReadingImpl meterReading = new MeterReadingImpl();
+        meterReading.addIntervalBlock(intervalBlock);
+        meterReading.addIntervalBlock(intervalBlock2);
+        device.store(meterReading);
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
+        assertThat(readings).describedAs("There should be no data(holders) for the interval 00:00->08:45").hasSize(24 * 4 - 4 * 9 + 1);
+        assertThat(readings.get(0).getInterval().getEnd()).isEqualTo(dayEnd);
+        assertThat(readings.get(readings.size()-1).getInterval().getStart()).isEqualTo(startIntervalForPreviousReadingTimeStamp);
+        for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
+            if (reading.getInterval().getEnd().equals(readingTimeStamp)) {
+                assertThat(reading.getChannelValues()).hasSize(1);
+                for (Map.Entry<Channel, BigDecimal> channelBigDecimalEntry : reading.getChannelValues().entrySet()) {
+                    assertThat(channelBigDecimalEntry.getKey().getReadingType().getMRID()).isEqualTo(code);
+                    assertThat(channelBigDecimalEntry.getValue()).isEqualTo(readingValue);
+                }
+            }
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testGetLoadProfileData() {
+        BigDecimal readingValue = BigDecimal.valueOf(543232, 2);
+        Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
+        Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        String code = getForwardEnergyReadingTypeCodeBuilder()
+                .period(TimeAttribute.MINUTE15)
+                .code();
+        IntervalBlockImpl intervalBlock = new IntervalBlockImpl(code);
+        Date readingTimeStamp = new Date(1406852100000L);// 1/8/2014 0:15
+        intervalBlock.addIntervalReading(new IntervalReadingImpl(readingTimeStamp, readingValue));
+        IntervalBlockImpl intervalBlock2 = new IntervalBlockImpl(code);
+        Date previousReadingTimeStamp = new Date(1406851200000L);// 1/8/2014 0:00
         intervalBlock2.addIntervalReading(new IntervalReadingImpl(previousReadingTimeStamp, BigDecimal.ZERO));
         MeterReadingImpl meterReading = new MeterReadingImpl();
         meterReading.addIntervalBlock(intervalBlock);
@@ -1099,10 +1139,10 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock = new IntervalBlockImpl(code);
-        Date readingTimeStamp = new Date(1406884500000L);// 1/8/2014 9:15
+        Date readingTimeStamp = new Date(1406852100000L);// 1/8/2014 0:15
         intervalBlock.addIntervalReading(new IntervalReadingImpl(readingTimeStamp, readingValue));
         IntervalBlockImpl intervalBlock2 = new IntervalBlockImpl(code);
-        Date previousReadingTimeStamp = new Date(1406883600000L);// 1/8/2014 9:00
+        Date previousReadingTimeStamp = new Date(1406851200000L);// 1/8/2014 0:00
         intervalBlock2.addIntervalReading(new IntervalReadingImpl(previousReadingTimeStamp, BigDecimal.ZERO));
         MeterReadingImpl meterReading = new MeterReadingImpl();
         meterReading.addIntervalBlock(intervalBlock);
@@ -1145,7 +1185,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testGetLoadProfileDataDST() {
         BigDecimal readingValue = new BigDecimal(5432.32);
-        Date readingTimeStamp = new Date(1396144800000L); // 3/30/2014, 02:00:00 AM
+        Date readingTimeStamp = new Date(1396138500000L); // 3/30/2014, 01:15:00 AM
         Date dayStart = new Date(1396137600000L); // 3/30/2014, 1:00:00 AM
         Date dayEnd = new Date(1396159200000L); // 3/30/2014, 8:00:00 AM !! 6 hours later!!
         String code = getForwardEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).code();

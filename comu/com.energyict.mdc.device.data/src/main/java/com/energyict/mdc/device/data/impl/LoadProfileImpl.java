@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.MeterValidationImpl;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -20,6 +24,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.google.common.base.Optional;
+
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -36,6 +42,7 @@ import java.util.List;
 public class LoadProfileImpl implements LoadProfile {
 
     private final DeviceConfigurationService deviceConfigurationService;
+    private final ValidationService validationService;
     private final DataModel dataModel;
 
     private long id;
@@ -44,8 +51,9 @@ public class LoadProfileImpl implements LoadProfile {
     private UtcInstant lastReading;
 
     @Inject
-    public LoadProfileImpl(DataModel dataModel, DeviceConfigurationService deviceConfigurationService) {
+    public LoadProfileImpl(DataModel dataModel, DeviceConfigurationService deviceConfigurationService, ValidationService validationService) {
         this.deviceConfigurationService = deviceConfigurationService;
+        this.validationService = validationService;
         this.dataModel = dataModel;
     }
 
@@ -274,5 +282,17 @@ public class LoadProfileImpl implements LoadProfile {
         public List<LoadProfileReading> getChannelData(Interval interval) {
             return LoadProfileImpl.this.device.get().getChannelData(this, interval);
         }
+
+        @Override
+        public boolean isValidationActive() {
+            Optional<com.elster.jupiter.metering.Channel> optionalChannel = ((DeviceImpl) this.getDevice()).findKoreChannel(this, new Date());
+            if (optionalChannel.isPresent()) {
+                return validationService.isValidationActive(optionalChannel.get());
+            }
+            else {
+                    return false;
+            }
+        }
+
     }
 }
