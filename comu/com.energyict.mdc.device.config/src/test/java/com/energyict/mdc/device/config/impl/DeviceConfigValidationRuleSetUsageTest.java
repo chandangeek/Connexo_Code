@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -33,6 +34,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.issues.IssueService;
@@ -44,6 +46,7 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.pluggable.impl.PluggableServiceImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.*;
@@ -156,6 +159,8 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new MdcReadingTypeUtilServiceModule(),
                 new PluggableModule(),
                 new DeviceConfigurationModule(),
+                new BasicPropertiesModule(),
+                new ProtocolApiModule(),
                 new TasksModule());
         this.transactionService = injector.getInstance(TransactionService.class);
 
