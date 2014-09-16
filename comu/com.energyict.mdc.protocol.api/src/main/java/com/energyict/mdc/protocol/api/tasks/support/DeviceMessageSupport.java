@@ -5,8 +5,10 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Provides functionality to handle the {@link DeviceMessageSpec}s.
@@ -16,7 +18,7 @@ public interface DeviceMessageSupport {
     /**
      * @return a <code>List</code> of protocol supported {@link DeviceMessageSpec deviceMessages}
      */
-    public List<DeviceMessageSpec> getSupportedMessages();
+    public Set<DeviceMessageId> getSupportedMessages();
 
     /**
      * Handle all given <code>OfflineDeviceMessage</code>.

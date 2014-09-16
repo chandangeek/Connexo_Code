@@ -1,8 +1,10 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
-import java.util.List;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
+
+import java.util.List;
 
 /**
  * Models the specification of a device message,
@@ -36,6 +38,13 @@ public interface DeviceMessageSpec {
     public String getName();
 
     /**
+     * Gets the PrimaryKey for this {@link DeviceMessageSpec}
+     *
+     * @return the primary key
+     */
+    public DeviceMessageId getId();
+
+    /**
      * Gets the List of {@link PropertySpec propertySpecs} that
      * specify in detail which attributes are required and which are optional.
      *
@@ -52,10 +61,4 @@ public interface DeviceMessageSpec {
      */
     public PropertySpec getPropertySpec(String name);
 
-    /**
-     * Gets the PrimaryKey for this {@link DeviceMessageSpec}
-     *
-     * @return the primary key
-     */
-    public DeviceMessageSpecPrimaryKey getPrimaryKey();
 }

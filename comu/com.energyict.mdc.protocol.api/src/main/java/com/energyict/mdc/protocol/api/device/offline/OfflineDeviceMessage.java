@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.api.device.offline;
 
 import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import java.util.Date;
@@ -30,14 +29,6 @@ public interface OfflineDeviceMessage extends Offline {
      * @return the ID of the DeviceMessage
      */
     public int getDeviceMessageId();
-
-    /**
-     * The {@link DeviceMessageSpecPrimaryKey} to uniquely identify
-     * the DeviceMessageSpec of this message.
-     *
-     * @return the DeviceMessageSpecPrimaryKey
-     */
-    public DeviceMessageSpecPrimaryKey getDeviceMessageSpecPrimaryKey();
 
     /**
      * The ID of the Device owning this DeviceMessage
@@ -82,11 +73,11 @@ public interface OfflineDeviceMessage extends Offline {
     public Date getCreationDate();
 
     /**
-     * The list of {@link OfflineDeviceMessageAttribute DeviceMessageAttributes} which are owned
-     * by this DeviceMessage. The information contained in these attributes should be sufficient
-     * to perform the DeviceMessage.
+     * The list of {@link OfflineDeviceMessageAttribute}s which are owned by this DeviceMessage.
+     * The information contained in these attributes should be sufficient to execute the DeviceMessage.
      *
      * @return the list of OfflineDeviceMessageAttribute
      */
     public List<OfflineDeviceMessageAttribute> getDeviceMessageAttributes();
+
 }
