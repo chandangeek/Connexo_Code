@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     loadProfileConfigurationId: null,
 
     store: 'LoadProfileConfigurationDetailChannels',
-    displayMsg: '{0} - {1} of {2} channel configurations',
+    displayMsg: '{2} channel configurations',
     displayMoreMsg: '{0} - {1} of more than {2} channel configurations',
     emptyMsg: '0 channel configurations',
     usesExactCount: true,
