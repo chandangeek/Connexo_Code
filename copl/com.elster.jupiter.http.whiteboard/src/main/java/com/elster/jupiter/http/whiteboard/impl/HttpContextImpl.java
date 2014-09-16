@@ -27,7 +27,7 @@ public class HttpContextImpl implements HttpContext {
     static final String[] RESOURCES_NOT_SECURED = {
             "/apps/login/",
             // Anything below will only be used in development.
-            "/apps/skyline/",
+            "/apps/sky/",
             "/apps/uni/",
             "/apps/ext/"
     };
