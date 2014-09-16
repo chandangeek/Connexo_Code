@@ -497,8 +497,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
     },
 
     addCommandParameters: function (combo, newValue) {
-        var self = this,
-            commandContainer = combo.up('comtaskCommand'),
+        var commandContainer = combo.up('comtaskCommand'),
             category = commandContainer.down('comtaskCommandCategoryCombo').getValue(),
             valuesArr = [],
             parametersContainer = this.chooseCommandParameters(category, newValue),
@@ -512,10 +511,12 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 case 'communication-tasks-logbookscombo':
                     parametersComponent.getStore().load({
                         callback: function (records) {
-                            Ext.Array.each(records, function (rec) {
-                                valuesArr.push(rec.data.id);
-                            });
-                            parametersComponent.setValue(valuesArr);
+                            if (window.btnAction === 'add') {
+                                Ext.Array.each(records, function (rec) {
+                                    valuesArr.push(rec.data.id);
+                                });
+                                parametersComponent.setValue(valuesArr);
+                            }
                             window.setLoading(false);
                         }
                     });
@@ -523,10 +524,12 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 case 'communication-tasks-registerscombo':
                     parametersComponent.getStore().load({
                         callback: function (records) {
-                            Ext.Array.each(records, function (rec) {
-                                valuesArr.push(rec.data.id);
-                            });
-                            parametersComponent.setValue(valuesArr);
+                            if (window.btnAction === 'add') {
+                                Ext.Array.each(records, function (rec) {
+                                    valuesArr.push(rec.data.id);
+                                });
+                                parametersComponent.setValue(valuesArr);
+                            }
                             window.setLoading(false);
                         }
                     });
@@ -534,10 +537,12 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 case 'communication-tasks-profilescombo':
                     parametersComponent.down('#checkProfileTypes').getStore().load({
                         callback: function (records) {
-                            Ext.Array.each(records, function (rec) {
-                                valuesArr.push(rec.data.id);
-                            });
-                            parametersComponent.down('#checkProfileTypes').setValue(valuesArr);
+                            if (window.btnAction === 'add') {
+                                Ext.Array.each(records, function (rec) {
+                                    valuesArr.push(rec.data.id);
+                                });
+                                parametersComponent.down('#checkProfileTypes').setValue(valuesArr);
+                            }
                             window.setLoading(false);
                         }
                     });
