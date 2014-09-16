@@ -1,9 +1,8 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.messages.ModbusConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.WriteModbusRegisterMessage;
 
 import java.util.HashMap;
@@ -18,17 +17,6 @@ import java.util.Map;
 public class ModbusMessageConverter extends AbstractMessageConverter {
 
     /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(ModbusConfigurationDeviceMessage.WriteSingleRegisters, new WriteModbusRegisterMessage());
-        registry.put(ModbusConfigurationDeviceMessage.WriteMultipleRegisters, new WriteModbusRegisterMessage());
-    }
-
-    /**
      * Default constructor for at-runtime instantiation
      */
     public ModbusMessageConverter() {
@@ -40,7 +28,11 @@ public class ModbusMessageConverter extends AbstractMessageConverter {
         return messageAttribute.toString();
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        registry.put(DeviceMessageId.MODBUS_CONFIGURATION_WRITE_SINGLE_REGISTERS, new WriteModbusRegisterMessage());
+        registry.put(DeviceMessageId.MODBUS_CONFIGURATION_WRITE_MULTIPLE_REGISTERS, new WriteModbusRegisterMessage());
         return registry;
     }
+
 }

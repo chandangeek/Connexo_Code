@@ -5,8 +5,12 @@ import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.*;
+
 import com.energyict.smartmeterprotocolimpl.actaris.sl7000.ActarisSl7000;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +60,7 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<DemandReset/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
+        offlineDeviceMessage = createMessage(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals(ExpectedActivityCalendarMessageContent, messageEntry.getContent());
     }

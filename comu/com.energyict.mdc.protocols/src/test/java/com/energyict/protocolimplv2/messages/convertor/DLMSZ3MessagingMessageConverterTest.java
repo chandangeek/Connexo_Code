@@ -6,8 +6,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
 import com.energyict.protocols.messaging.LegacyMessageConverter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -34,12 +32,12 @@ public class DLMSZ3MessagingMessageConverterTest extends AbstractMessageConverte
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_OUTPUT);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<connectLoad Digital_output=\"1\"> </connectLoad>", messageEntry.getContent());
 
 
-        offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3);
+        offlineDeviceMessage = createMessage(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Configure_load_limiting Read_frequency=\"2\" Threshold=\"2\" Duration=\"10\" Digital_Output1_Invert=\"1\" Digital_Output2_Invert=\"1\" Activate_now=\"1\"> </Configure_load_limiting>", messageEntry.getContent());
     }

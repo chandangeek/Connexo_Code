@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -13,9 +14,8 @@ import com.energyict.protocols.messaging.LegacyMessageConverter;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Copyrights EnergyICT
@@ -33,21 +33,21 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
     private Messaging messagingProtocol;
 
     /**
-     * Get the registry which contains the mapping between the DeviceMessageSpecs
-     * and the MessageEntryCreators.
+     * Get the registry which contains the mapping between the {@link DeviceMessageId}s
+     * of the {@link DeviceMessageSpec}s and the {@link MessageEntryCreator}s.
      *
      * @return the registry mapping
      */
-    protected abstract Map<DeviceMessageSpec, MessageEntryCreator> getRegistry();
+    protected abstract Map<DeviceMessageId, MessageEntryCreator> getRegistry();
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        return new ArrayList<>(getRegistry().keySet());
+    public Set<DeviceMessageId> getSupportedMessages() {
+        return getRegistry().keySet();
     }
 
     @Override
     public MessageEntry toMessageEntry(OfflineDeviceMessage offlineDeviceMessage) {
-        final DeviceMessageSpec deviceMessageSpec = MessageConverterTools.getDeviceMessageSpecForOfflineDeviceMessage(offlineDeviceMessage);
+        final DeviceMessageSpec deviceMessageSpec = offlineDeviceMessage.getSpecification();
 
         final MessageEntryCreator messageEntryCreator = getRegistry().get(deviceMessageSpec);
         if (messageEntryCreator != null) {

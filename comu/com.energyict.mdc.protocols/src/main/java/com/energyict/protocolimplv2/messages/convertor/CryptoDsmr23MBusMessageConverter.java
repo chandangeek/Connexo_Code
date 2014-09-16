@@ -1,13 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
+
+import java.util.Map;
 
 /**
  * Represents a MessageConverter for the legacy Crypto DSM2.3 MBusDevice protocols.
@@ -18,16 +19,14 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
  */
 public class CryptoDsmr23MBusMessageConverter extends Dsmr23MBusDeviceMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    static {
-        registry.put(MBusSetupDeviceMessage.SetEncryptionKeysUsingCryptoserver, new MultipleAttributeMessageEntry(RtuMessageConstant.CRYPTOSERVER_MBUS_ENCRYPTION_KEYS, RtuMessageConstant.MBUS_DEFAULT_KEY));
-    }
-
     public CryptoDsmr23MBusMessageConverter() {
         super();
+    }
+
+    @Override
+    protected void initializeRegistry(Map<DeviceMessageId, MessageEntryCreator> registry) {
+        super.initializeRegistry(registry);
+        registry.put(DeviceMessageId.MBUS_SETUP_SET_ENCRYPTION_KEYS, new MultipleAttributeMessageEntry(RtuMessageConstant.CRYPTOSERVER_MBUS_ENCRYPTION_KEYS, RtuMessageConstant.MBUS_DEFAULT_KEY));
     }
 
     @Override
@@ -39,4 +38,5 @@ public class CryptoDsmr23MBusMessageConverter extends Dsmr23MBusDeviceMessageCon
                 return super.format(propertySpec, messageAttribute);
         }
     }
+
 }

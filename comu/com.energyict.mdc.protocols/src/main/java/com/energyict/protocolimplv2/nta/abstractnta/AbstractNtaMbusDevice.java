@@ -18,16 +18,17 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.nta.elster.AM100;
 import com.energyict.protocolimplv2.security.NoSecuritySupport;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
@@ -35,6 +36,7 @@ import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -254,7 +256,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return getMessageProtocol().getSupportedMessages();
     }
 
@@ -267,4 +269,5 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         return getMessageProtocol().updateSentMessages(sentMessages);
     }
+
 }

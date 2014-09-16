@@ -1,13 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DisconnectLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
@@ -19,9 +16,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.loadProfileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.toDateAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy IskraMx372 Mbus protocol.
@@ -33,28 +30,20 @@ public class IskraMx372MBusDeviceMessageConverter extends AbstractMessageConvert
 
     private static final String MBUS_SET_VIF = "Mbus_Set_VIF";
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
-        registry.put(MBusConfigurationDeviceMessage.SetMBusVIF, new SimpleValueMessageEntry(MBUS_SET_VIF));
-
-         // LoadProfiles
-        registry.put(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST, new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName));
-        registry.put(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST, new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName));
-    }
-
     public IskraMx372MBusDeviceMessageConverter() {
         super();
     }
 
     @Override
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        registry.put(DeviceMessageId.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
+        registry.put(DeviceMessageId.MBUS_CONFIGURATION_SET_VIF, new SimpleValueMessageEntry(MBUS_SET_VIF));
+
+        // LoadProfiles
+        registry.put(DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST, new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName));
+        registry.put(DeviceMessageId.LOAD_PROFILE_REGISTER_REQUEST, new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName));
         return registry;
     }
 

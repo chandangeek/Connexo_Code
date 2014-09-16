@@ -6,9 +6,14 @@ import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.LoadBalanceDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.PLCConfigurationDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.prime.PrimeMeter;
-import com.energyict.protocolimplv2.messages.*;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -17,7 +22,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,7 +46,7 @@ public class PrimeMeterMessageConverterTest extends AbstractMessageConverterTest
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ConnectRelay2> \n\n</ConnectRelay2>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<FirmwareUpdate><IncludedFile>Firmware bytes</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
 

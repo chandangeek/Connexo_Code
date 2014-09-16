@@ -1,10 +1,6 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.dlms.common.AbstractDlmsProtocol;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
@@ -15,15 +11,20 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.dlms.common.AbstractDlmsProtocol;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
@@ -34,6 +35,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedM
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author sva
@@ -228,7 +230,7 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return getMessageProtocol().getSupportedMessages();
     }
 

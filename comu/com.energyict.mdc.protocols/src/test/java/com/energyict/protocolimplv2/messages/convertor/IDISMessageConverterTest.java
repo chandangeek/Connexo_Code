@@ -6,10 +6,11 @@ import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.impl.device.messages.GeneralDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.messages.*;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -18,7 +19,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -43,11 +44,11 @@ public class IDISMessageConverterTest extends AbstractMessageConverterTest {
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
+        offlineDeviceMessage = createMessage(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Activity_Calendar><RawContent>" + ProtocolTools.compress(xmlEncodedCodeTable) + "</RawContent></Activity_Calendar>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
+        offlineDeviceMessage = createMessage(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Special_Days><RawContent>" + ProtocolTools.compress(xmlSpecialDays) + "</RawContent></Special_Days>", messageEntry.getContent());
 
@@ -55,11 +56,11 @@ public class IDISMessageConverterTest extends AbstractMessageConverterTest {
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Configuration download><IncludedFile>userFileBytes</IncludedFile></Configuration download>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<TimedDisconnect Date (dd/mm/yyyy hh:mm)=\"17/05/1970 01:05\" TimeZone=\"" + TimeZone.getDefault().getID() + "\"> </TimedDisconnect>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION);
+        offlineDeviceMessage = createMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<FirmwareUpdate><IncludedFile>userFileBytes</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
         assertTrue(messageEntry.getTrackingId().toLowerCase().contains("noresume"));

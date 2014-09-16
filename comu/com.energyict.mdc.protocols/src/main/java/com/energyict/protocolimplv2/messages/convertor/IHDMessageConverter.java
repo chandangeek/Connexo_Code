@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
 
@@ -20,20 +19,6 @@ import java.util.Map;
  * @since 25/10/13 - 9:35
  */
 public class IHDMessageConverter extends AbstractMessageConverter {
-
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        // Firmware
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE,
-                new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName));
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE,
-                new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
-    }
 
     /**
      * Default constructor for at-runtime instantiation
@@ -54,7 +39,11 @@ public class IHDMessageConverter extends AbstractMessageConverter {
         }
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE, new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
         return registry;
     }
+
 }

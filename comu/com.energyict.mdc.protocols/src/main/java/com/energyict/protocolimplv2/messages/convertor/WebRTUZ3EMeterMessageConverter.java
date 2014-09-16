@@ -1,9 +1,8 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectControlModeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadWithActivationDateMessageEntry;
@@ -14,8 +13,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorModeAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy WebRTUZ3 EMeter slave protocol.
@@ -25,21 +24,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
  * Time: 16:26
  */
 public class WebRTUZ3EMeterMessageConverter extends AbstractMessageConverter {
-
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        // contactor related
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE, new ConnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, new DisconnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
-        registry.put(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE, new ConnectControlModeMessageEntry(contactorModeAttributeName));
-    }
 
     /**
      * Default constructor for at-runtime instantiation
@@ -58,7 +42,14 @@ public class WebRTUZ3EMeterMessageConverter extends AbstractMessageConverter {
         return EMPTY_FORMAT;
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        registry.put(DeviceMessageId.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE, new ConnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
+        registry.put(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, new DisconnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
+        registry.put(DeviceMessageId.CONTACTOR_CHANGE_CONNECT_CONTROL_MODE, new ConnectControlModeMessageEntry(contactorModeAttributeName));
         return registry;
     }
+
 }

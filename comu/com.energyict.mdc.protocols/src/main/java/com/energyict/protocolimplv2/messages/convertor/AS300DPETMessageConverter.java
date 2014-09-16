@@ -4,14 +4,13 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
@@ -32,13 +31,6 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
 
     private static final String KEY = "Key";
     private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
-
-    static {
-        // Alliander PET
-        registry.put(SecurityMessage.GENERATE_NEW_PUBLIC_KEY, new SimpleTagMessageEntry("GenerateNewPublicKey"));
-        registry.put(SecurityMessage.GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM, new MultipleAttributeMessageEntry("GenerateNewPublicKey", "Random 32 bytes (optional)"));
-        registry.put(SecurityMessage.SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP, new SimpleValueMessageEntry("SetPublicKeysOfAggregationGroup"));
-    }
 
     /**
      * Default constructor for at-runtime instantiation
@@ -81,8 +73,12 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
         return devices;
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return super.getRegistry();
+    @Override
+    protected void initializeRegistry(Map<DeviceMessageId, MessageEntryCreator> registry) {
+        super.initializeRegistry(registry);
+        registry.put(DeviceMessageId.SECURITY_GENERATE_NEW_PUBLIC_KEY, new SimpleTagMessageEntry("GenerateNewPublicKey"));
+        registry.put(DeviceMessageId.SECURITY_GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM, new MultipleAttributeMessageEntry("GenerateNewPublicKey", "Random 32 bytes (optional)"));
+        registry.put(DeviceMessageId.SECURITY_SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP, new SimpleValueMessageEntry("SetPublicKeysOfAggregationGroup"));
     }
 
     /**

@@ -6,9 +6,10 @@ import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.eictz3.EictZ3;
-import com.energyict.protocolimplv2.messages.*;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -16,7 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -36,23 +37,23 @@ public class EictZ3MessageConverterTest extends AbstractMessageConverterTest {
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.SetEncryptionKeys);
+        offlineDeviceMessage = createMessage(DeviceMessageId.MBUS_SETUP_SET_ENCRYPTION_KEYS);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Set_Encryption_keys Open_Key_Value=\"0101001010101010\" Transfer_Key_Value=\"0101001010101010\"> </Set_Encryption_keys>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<disconnectLoad Activation_date=\"1970/01/01 01:00:00\"> </disconnectLoad>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.Decommission);
+        offlineDeviceMessage = createMessage(DeviceMessageId.MBUS_SETUP_DECOMMISSION);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Decommission/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.CONTACTOR_CHANGE_CONNECT_CONTROL_MODE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Connect_control_mode Mode=\"1\"> </Connect_control_mode>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<FirmwareUpdate><IncludedFile>Firmware bytes</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
 

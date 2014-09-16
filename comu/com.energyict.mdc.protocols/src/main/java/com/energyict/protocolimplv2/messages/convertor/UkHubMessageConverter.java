@@ -1,16 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.ZigBeeConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.XmlConfigMessageEntry;
@@ -28,54 +22,6 @@ import java.util.Map;
  * @since 25/10/13 - 9:35
  */
 public class UkHubMessageConverter extends AbstractMessageConverter {
-
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        // Webserver
-        registry.put(DeviceActionMessage.DISABLE_WEBSERVER, new OneTagMessageEntry("Disable_Webserver"));
-        registry.put(DeviceActionMessage.ENABLE_WEBSERVER, new OneTagMessageEntry("Enable_Webserver"));
-
-        // GPRS Modem Ping setup
-        registry.put(NetworkConnectivityMessage.ConfigureKeepAliveSettings, new MultipleAttributeMessageEntry("GPRS_Modem_Ping_Setup", "Ping_IP", "Ping_Interval"));
-
-        // Logbooks
-        registry.put(LogBookDeviceMessage.ReadDebugLogBook, new MultipleAttributeMessageEntry("Debug_Logbook", "From_date", "To_date"));
-        registry.put(LogBookDeviceMessage.ReadManufacturerSpecificLogBook, new MultipleAttributeMessageEntry("Elster_Specific_Logbook", "From_date", "To_date"));
-
-        //ZigBee setup
-        registry.put(ZigBeeConfigurationDeviceMessage.CreateHANNetwork, new OneTagMessageEntry("Create_Han_Network"));
-        registry.put(ZigBeeConfigurationDeviceMessage.RemoveHANNetwork, new OneTagMessageEntry("Remove_Han_Network"));
-        registry.put(ZigBeeConfigurationDeviceMessage.JoinZigBeeSlaveDevice, new MultipleAttributeMessageEntry("Join_ZigBee_Slave", "ZigBee_IEEE_Address", "ZigBee_Link_Key"));
-        registry.put(ZigBeeConfigurationDeviceMessage.RemoveMirror, new MultipleAttributeMessageEntry("Remove_Mirror", "Mirror_IEEE_Address", "Force_Removal"));
-        registry.put(ZigBeeConfigurationDeviceMessage.RemoveZigBeeSlaveDevice, new MultipleAttributeMessageEntry("Remove_ZigBee_Slave", "ZigBee_IEEE_Address"));
-        registry.put(ZigBeeConfigurationDeviceMessage.RemoveAllZigBeeSlaveDevices, new OneTagMessageEntry("Remove_All_ZigBee_Slaves"));
-        registry.put(ZigBeeConfigurationDeviceMessage.BackUpZigBeeHANParameters, new OneTagMessageEntry("Backup_ZigBee_Han_Parameters"));
-        registry.put(ZigBeeConfigurationDeviceMessage.RestoreZigBeeHANParameters, new MultipleAttributeMessageEntry("Restore_ZigBee_Han_Parameters", "Restore_UserFile_ID"));
-        registry.put(ZigBeeConfigurationDeviceMessage.ReadZigBeeStatus, new OneTagMessageEntry("Read_ZigBee_Status"));
-        registry.put(ZigBeeConfigurationDeviceMessage.ChangeZigBeeHANStartupAttributeSetup, new MultipleAttributeMessageEntry("Change_HAN_SAS", "HAN_SAS_EXTENDED_PAN_ID", "HAN_SAS_PAN_ID", "HAN_SAS_PAN_Channel_Mask", "HAN_SAS_Insecure_Join"));
-        registry.put(ZigBeeConfigurationDeviceMessage.ZigBeeNCPFirmwareUpdateWithUserFile, new MultipleAttributeMessageEntry("ZIGBEE_NCP_FIRMWARE_UPDATE", "UserFile_ID"));
-        registry.put(ZigBeeConfigurationDeviceMessage.ZigBeeNCPFirmwareUpdateWithUserFileAndActivate, new MultipleAttributeMessageEntry("ZIGBEE_NCP_FIRMWARE_UPDATE", "UserFile_ID", "Activation_date"));
-
-        //Reboot
-        registry.put(DeviceActionMessage.REBOOT_DEVICE, new OneTagMessageEntry("Reboot"));
-
-        // Firmware
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE,
-                new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName));
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE,
-                new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
-
-        //XMLConfig
-        registry.put(AdvancedTestMessage.XML_CONFIG, new XmlConfigMessageEntry(DeviceMessageConstants.xmlConfigAttributeName));
-
-        //TestMessage
-        registry.put(AdvancedTestMessage.USERFILE_CONFIG, new MultipleAttributeMessageEntry("Test_Message", "Test_File"));
-    }
 
     /**
      * Default constructor for at-runtime instantiation
@@ -102,7 +48,46 @@ public class UkHubMessageConverter extends AbstractMessageConverter {
         }
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        // Webserver
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_DISABLE_WEBSERVER, new OneTagMessageEntry("Disable_Webserver"));
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_ENABLE_WEBSERVER, new OneTagMessageEntry("Enable_Webserver"));
+
+        // GPRS Modem Ping setup
+        registry.put(DeviceMessageId.NETWORK_CONNECTIVITY_CONFIGURE_KEEP_ALIVE_SETTINGS, new MultipleAttributeMessageEntry("GPRS_Modem_Ping_Setup", "Ping_IP", "Ping_Interval"));
+
+        // Logbooks
+        registry.put(DeviceMessageId.LOG_BOOK_READ_DEBUG, new MultipleAttributeMessageEntry("Debug_Logbook", "From_date", "To_date"));
+        registry.put(DeviceMessageId.LOG_BOOK_READ_MANUFACTURER_SPECIFIC, new MultipleAttributeMessageEntry("Elster_Specific_Logbook", "From_date", "To_date"));
+
+        //ZigBee setup
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_CREATE_HAN_NETWORK, new OneTagMessageEntry("Create_Han_Network"));
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_REMOVE_HAN_NETWORK, new OneTagMessageEntry("Remove_Han_Network"));
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_JOIN_SLAVE_DEVICE, new MultipleAttributeMessageEntry("Join_ZigBee_Slave", "ZigBee_IEEE_Address", "ZigBee_Link_Key"));
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_REMOVE_MIRROR, new MultipleAttributeMessageEntry("Remove_Mirror", "Mirror_IEEE_Address", "Force_Removal"));
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_REMOVE_SLAVE_DEVICE, new MultipleAttributeMessageEntry("Remove_ZigBee_Slave", "ZigBee_IEEE_Address"));
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_REMOVE_ALL_SLAVE_DEVICES, new OneTagMessageEntry("Remove_All_ZigBee_Slaves"));
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_BACK_UP_HAN_PARAMETERS, new OneTagMessageEntry("Backup_ZigBee_Han_Parameters"));
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_RESTORE_HAN_PARAMETERS, new MultipleAttributeMessageEntry("Restore_ZigBee_Han_Parameters", "Restore_UserFile_ID"));
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_READ_STATUS, new OneTagMessageEntry("Read_ZigBee_Status"));
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_CHANGE_HAN_STARTUP_ATTRIBUTE_SETUP, new MultipleAttributeMessageEntry("Change_HAN_SAS", "HAN_SAS_EXTENDED_PAN_ID", "HAN_SAS_PAN_ID", "HAN_SAS_PAN_Channel_Mask", "HAN_SAS_Insecure_Join"));
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_NCP_FIRMWARE_UPDATE_WITH_USER_FILE, new MultipleAttributeMessageEntry("ZIGBEE_NCP_FIRMWARE_UPDATE", "UserFile_ID"));
+        registry.put(DeviceMessageId.ZIGBEE_CONFIGURATION_NCP_FIRMWARE_UPDATE_WITH_USER_FILE_AND_ACTIVATE, new MultipleAttributeMessageEntry("ZIGBEE_NCP_FIRMWARE_UPDATE", "UserFile_ID", "Activation_date"));
+
+        //Reboot
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_REBOOT_DEVICE, new OneTagMessageEntry("Reboot"));
+
+        // Firmware
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE, new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
+
+        //XMLConfig
+        registry.put(DeviceMessageId.ADVANCED_TEST_XML_CONFIG, new XmlConfigMessageEntry(DeviceMessageConstants.xmlConfigAttributeName));
+
+        //TestMessage
+        registry.put(DeviceMessageId.ADVANCED_TEST_USERFILE_CONFIG, new MultipleAttributeMessageEntry("Test_Message", "Test_File"));
         return registry;
     }
+
 }

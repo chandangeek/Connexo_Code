@@ -1,11 +1,8 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.PowerConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ArmLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ConnectLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.DemandResetMessageEntry;
@@ -22,7 +19,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.powerQualityThresholdAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.powerQualityThresholdAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy WebRTUKP protocol.
@@ -32,31 +29,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.power
  * Time: 16:26
  */
 public class A1440MessageConverter extends AbstractMessageConverter {
-
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        // contactor related
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_ARM, new ArmLoadMessageEntry());
-
-        // power quality limit related
-        registry.put(PowerConfigurationDeviceMessage.IEC1107LimitPowerQuality, new PowerQualityLimitMessageEntry(powerQualityThresholdAttributeName));
-
-        // reset messages
-        registry.put(DeviceActionMessage.DEMAND_RESET, new DemandResetMessageEntry());
-        registry.put(DeviceActionMessage.POWER_OUTAGE_RESET, new PowerOutageResetMessageEntry());
-        registry.put(DeviceActionMessage.POWER_QUALITY_RESET, new PowerQualityResetMessageEntry());
-        registry.put(DeviceActionMessage.ERROR_STATUS_RESET, new ErrorStatusResetMessageEntry());
-        registry.put(DeviceActionMessage.REGISTERS_RESET, new RegistersResetMessageEntry());
-        registry.put(DeviceActionMessage.LOAD_LOG_RESET, new LoadLogResetMessageEntry());
-        registry.put(DeviceActionMessage.EVENT_LOG_RESET, new EventLogResetMessageEntry());
-    }
 
     /**
      * Default constructor for at-runtime instantiation
@@ -73,7 +45,25 @@ public class A1440MessageConverter extends AbstractMessageConverter {
         return EMPTY_FORMAT;
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        // contactor related
+        registry.put(DeviceMessageId.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
+        registry.put(DeviceMessageId.CONTACTOR_ARM, new ArmLoadMessageEntry());
+
+        // power quality limit related
+        registry.put(DeviceMessageId.POWER_CONFIGURATION_IEC1107_LIMIT_POWER_QUALITY, new PowerQualityLimitMessageEntry(powerQualityThresholdAttributeName));
+
+        // reset messages
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, new DemandResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_POWER_OUTAGE_RESET, new PowerOutageResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_POWER_QUALITY_RESET, new PowerQualityResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_ERROR_STATUS_RESET, new ErrorStatusResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_REGISTERS_RESET, new RegistersResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_EVENT_LOG_RESET, new LoadLogResetMessageEntry());
+        registry.put(DeviceMessageId.DEVICE_ACTIONS_EVENT_LOG_RESET, new EventLogResetMessageEntry());
         return registry;
     }
+
 }

@@ -7,11 +7,12 @@ import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.impl.device.messages.PLCConfigurationDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.g3.AS330D;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.messages.*;
-import com.energyict.protocolimplv2.messages.enums.ActivityCalendarType;
+
+import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -20,7 +21,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -46,12 +47,12 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         String xml = xmlEncodedCodeTable.replace("<ActivationDate>1</ActivationDate>", "<ActivationDate>" + String.valueOf(getDateInFuture().getTime()) + "</ActivationDate>");
         assertEquals("<PublicNetworkActivity_Calendar><RawContent>" + ProtocolTools.compress(xml) + "</RawContent></PublicNetworkActivity_Calendar>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<PublicNetworkSpecial_Days><RawContent>" + ProtocolTools.compress(xmlSpecialDays) + "</RawContent></PublicNetworkSpecial_Days>", messageEntry.getContent());
 
@@ -59,7 +60,7 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<WritePlcG3Timeout Timeout_in_minutes=\"2\"> \n\n</WritePlcG3Timeout>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE);
+        offlineDeviceMessage = createMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<FirmwareUpdate><IncludedFile>userFileBytes</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
         assertTrue(messageEntry.getTrackingId().toLowerCase().contains("noresume"));

@@ -5,11 +5,11 @@ import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.REMIDatalogger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,11 +32,11 @@ public class REMIDataloggerMessageConverterTest extends AbstractMessageConverter
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS);
+        offlineDeviceMessage = createMessage(DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_GPRS_USER_CREDENTIALS);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<GPRS_modem_credentials Username=\"user\" Password=\"pass\"> </GPRS_modem_credentials>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
+        offlineDeviceMessage = createMessage(DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_GPRS_APN_CREDENTIALS);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<GPRS_modem_setup APN=\"apn\" Username=\"user\" Password=\"pass\"> </GPRS_modem_setup>", messageEntry.getContent());
 

@@ -2,13 +2,10 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectControlModeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadWithActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DisconnectLoadWithActivationDateMessageEntry;
@@ -20,11 +17,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.openKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.transferKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorModeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.openKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.transferKeyAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy EictZ3 protocol
@@ -35,25 +32,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trans
  */
 public class EictZ3MessageConverter extends AbstractMessageConverter {
 
-
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        // contactor related
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, new DisconnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE, new ConnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
-        registry.put(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE, new ConnectControlModeMessageEntry(contactorModeAttributeName));
-
-        // mbus related
-        registry.put(MBusSetupDeviceMessage.Decommission, new OneTagMessageEntry(RtuMessageConstant.MBUS_DECOMMISSION));
-        registry.put(MBusSetupDeviceMessage.SetEncryptionKeys, new SetMBusEncryptionKeysMessageEntry(openKeyAttributeName, transferKeyAttributeName));
-
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
-    }
 
     /**
      * Default constructor for at-runtime instantiation
@@ -77,7 +55,19 @@ public class EictZ3MessageConverter extends AbstractMessageConverter {
         return EMPTY_FORMAT;
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        // contactor related
+        registry.put(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, new DisconnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
+        registry.put(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE, new ConnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
+        registry.put(DeviceMessageId.CONTACTOR_CHANGE_CONNECT_CONTROL_MODE, new ConnectControlModeMessageEntry(contactorModeAttributeName));
+
+        // mbus related
+        registry.put(DeviceMessageId.MBUS_SETUP_DECOMMISSION, new OneTagMessageEntry(RtuMessageConstant.MBUS_DECOMMISSION));
+        registry.put(DeviceMessageId.MBUS_SETUP_SET_ENCRYPTION_KEYS, new SetMBusEncryptionKeysMessageEntry(openKeyAttributeName, transferKeyAttributeName));
+
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
         return registry;
     }
+
 }

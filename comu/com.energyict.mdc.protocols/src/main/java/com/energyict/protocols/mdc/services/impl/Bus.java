@@ -1,11 +1,11 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
-
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.Clock;
 
 import java.util.concurrent.atomic.AtomicReference;
 

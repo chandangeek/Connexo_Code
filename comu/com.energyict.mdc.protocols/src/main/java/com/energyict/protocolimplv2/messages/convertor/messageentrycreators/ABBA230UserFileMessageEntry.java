@@ -1,14 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
@@ -23,16 +23,19 @@ public class ABBA230UserFileMessageEntry implements MessageEntryCreator {
 
     private final String tag;
 
-
     public ABBA230UserFileMessageEntry(String tag) {
         this.tag = tag;
     }
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        String userFileAttributeName = getMessageName(offlineDeviceMessage).equals(ConfigurationChangeDeviceMessage.UploadMeterScheme.name())
-                ? DeviceMessageConstants.MeterScheme
-                : DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+        String userFileAttributeName;
+        if (offlineDeviceMessage.getSpecification().getId().equals(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_METER_SCHEME)) {
+            userFileAttributeName = DeviceMessageConstants.MeterScheme;
+        }
+        else {
+            userFileAttributeName = DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+        }
 
         OfflineDeviceMessageAttribute userFileAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileAttributeName);
         String fileContent = userFileAttribute.getDeviceMessageAttributeValue();
@@ -42,11 +45,4 @@ public class ABBA230UserFileMessageEntry implements MessageEntryCreator {
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 
-    /**
-     * Creates the message parent tag based on the name of the given deviceMessage spec enum.
-     */
-    protected String getMessageName(OfflineDeviceMessage offlineDeviceMessage) {
-        String messageName = ((Enum) offlineDeviceMessage.getSpecification()).name();
-        return messageName;
-    }
 }

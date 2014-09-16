@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ABBA1350UserFileMessageEntry;
 
 import java.nio.charset.Charset;
@@ -26,17 +25,6 @@ public class ABBA1350MessageConverter extends AbstractMessageConverter {
     private static final String UploadSwitchPointClockUpdate = "SPCU_DATA";
 
     /**
-     * Represents a mapping between {@link DeviceMessageSpec}s
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(ConfigurationChangeDeviceMessage.UploadSwitchPointClockSettings, new ABBA1350UserFileMessageEntry(UploadSwitchPointClock));
-        registry.put(ConfigurationChangeDeviceMessage.UploadSwitchPointClockUpdateSettings, new ABBA1350UserFileMessageEntry(UploadSwitchPointClockUpdate));
-    }
-
-    /**
      * Default constructor for at-runtime instantiation
      */
     public ABBA1350MessageConverter() {
@@ -52,7 +40,11 @@ public class ABBA1350MessageConverter extends AbstractMessageConverter {
         }
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_SETTINGS, new ABBA1350UserFileMessageEntry(UploadSwitchPointClock));
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_UPDATE_SETTINGS, new ABBA1350UserFileMessageEntry(UploadSwitchPointClockUpdate));
         return registry;
     }
+
 }

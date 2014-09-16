@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.iec1107.abba1700.ABBA1700;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;

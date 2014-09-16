@@ -4,8 +4,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -25,18 +23,18 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.energyict.protocols.mdc.services.impl.Bus;
@@ -47,7 +45,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -256,17 +256,17 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        return Arrays.<DeviceMessageSpec>asList(
-                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND,
-                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME,
-                ContactorDeviceMessage.CONTACTOR_ARM,
-                ContactorDeviceMessage.CONTACTOR_CLOSE,
-                ContactorDeviceMessage.CONTACTOR_OPEN,
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE,
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE,
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_ACTIVATE,
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_URL_AND_ACTIVATE);
+    public Set<DeviceMessageId> getSupportedMessages() {
+        return EnumSet.of(
+                DeviceMessageId.ACTIVITY_CALENDER_SEND,
+                DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME,
+                DeviceMessageId.CONTACTOR_ARM,
+                DeviceMessageId.CONTACTOR_CLOSE,
+                DeviceMessageId.CONTACTOR_OPEN,
+                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE,
+                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE,
+                DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE,
+                DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE);
     }
 
     @Override

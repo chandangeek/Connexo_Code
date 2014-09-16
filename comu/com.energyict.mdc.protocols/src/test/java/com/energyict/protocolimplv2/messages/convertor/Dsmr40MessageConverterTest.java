@@ -4,11 +4,12 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import org.junit.Test;
 
@@ -37,24 +38,24 @@ public class Dsmr40MessageConverterTest extends AbstractMessageConverterTest {
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Change_Administrative_Status Status=\"1\"> </Change_Administrative_Status>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P0);
+        offlineDeviceMessage = createMessage(DeviceMessageId.SECURITY_DISABLE_DLMS_AUTHENTICATION_LEVEL_P0);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Disable_authentication_level_P0 AuthenticationLevel=\"1\"> </Disable_authentication_level_P0>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P1);
+        offlineDeviceMessage = createMessage(DeviceMessageId.SECURITY_DISABLE_DLMS_AUTHENTICATION_LEVEL_P1);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Disable_authentication_level_P1 AuthenticationLevel=\"1\"> </Disable_authentication_level_P1>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P0);
+        offlineDeviceMessage = createMessage(DeviceMessageId.SECURITY_ENABLE_DLMS_AUTHENTICATION_LEVEL_P0);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Enable_authentication_level_P0 AuthenticationLevel=\"1\"> </Enable_authentication_level_P0>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P1);
+        offlineDeviceMessage = createMessage(DeviceMessageId.SECURITY_ENABLE_DLMS_AUTHENTICATION_LEVEL_P1);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Enable_authentication_level_P1 AuthenticationLevel=\"1\"> </Enable_authentication_level_P1>", messageEntry.getContent());
 
         // Test the DSMR2.3 CHANGE_DLMS_AUTHENTICATION_LEVEL message is removed
-        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
+        offlineDeviceMessage = createMessage(DeviceMessageId.SECURITY_CHANGE_DLMS_AUTHENTICATION_LEVEL);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertTrue(messageEntry.getContent().isEmpty());
     }

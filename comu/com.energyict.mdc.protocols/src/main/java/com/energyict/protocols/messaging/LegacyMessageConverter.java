@@ -1,13 +1,15 @@
 package com.energyict.protocols.messaging;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 
-import java.util.List;
+import com.elster.jupiter.properties.PropertySpec;
+
+import java.util.Set;
 
 /**
  * Provides functionality to do conversion between the <i>new</i>
@@ -20,9 +22,9 @@ import java.util.List;
 public interface LegacyMessageConverter {
 
     /**
-     * @return a <code>List</code> of protocol supported {@link DeviceMessageSpec}s
+     * @return a <code>List</code> of protocol supported {@link DeviceMessageId}s
      */
-    public List<DeviceMessageSpec> getSupportedMessages();
+    public Set<DeviceMessageId> getSupportedMessages();
 
     /**
      * Requests to format the given messageAttribute to a proper format which is <b>known</b>

@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
 
@@ -18,7 +18,7 @@ import java.util.Map;
 public class PlaceHolderMessageConverter extends AbstractMessageConverter {
 
     @Override
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+    protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         return Collections.emptyMap();
     }
 
@@ -26,4 +26,5 @@ public class PlaceHolderMessageConverter extends AbstractMessageConverter {
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         return messageAttribute.toString();
     }
+
 }
