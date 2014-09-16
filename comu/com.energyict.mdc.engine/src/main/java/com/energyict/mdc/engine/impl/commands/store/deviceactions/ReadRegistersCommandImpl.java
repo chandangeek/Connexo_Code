@@ -44,7 +44,11 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     @Override
     public void addRegisters(final List<OfflineRegister> registersToCollect) {
         if (registersToCollect != null) {
-            this.registers.addAll(registersToCollect.stream().filter(this::canWeAddIt).collect(Collectors.toList()));
+            for (OfflineRegister offlineRegister : registersToCollect) {
+                if (canWeAddIt(offlineRegister)) {
+                    this.registers.add(offlineRegister);
+                }
+            }
         }
     }
 
