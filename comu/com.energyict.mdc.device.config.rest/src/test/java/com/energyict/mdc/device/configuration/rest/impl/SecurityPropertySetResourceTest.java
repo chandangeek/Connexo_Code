@@ -24,6 +24,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.jayway.jsonpath.JsonModel;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -31,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.Application;
-import org.assertj.core.data.MapEntry;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -161,21 +161,34 @@ public class SecurityPropertySetResourceTest extends JerseyTest {
         SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 2, "Auth2", 1002, "Encrypt2", EnumSet.of(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1));
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         Map response = target("/devicetypes/123/deviceconfigurations/456/securityproperties").request().get(Map.class);
-        assertThat(response.containsKey("total"));
-        assertThat(response.containsKey("data"));
-        List<Map<String, Object>> data = (List<Map<String, Object>>) response.get("data");
-        Map<String, Object> map = data.get(0);
-        assertThat(map).contains(MapEntry.entry("id", 101),
-                MapEntry.entry("name", "Primary"),
-                MapEntry.entry("authenticationLevelId", 1),
-                MapEntry.entry("encryptionLevelId", 1001));
-        List<Map<String, Object>> executionLevels = (List<Map<String, Object>>) map.get("executionLevels");
-        assertThat(executionLevels.get(0)).contains(MapEntry.entry("id", "execute.com.task.level1"), MapEntry.entry("name","Execute com task (level 1)"));
-        assertThat(executionLevels.get(1)).contains(MapEntry.entry("id", "execute.com.task.level2"), MapEntry.entry("name", "Execute com task (level 2)"));
-        List<Map<String, Object>> userRoles = (List<Map<String, Object>>) executionLevels.get(0).get("userRoles");
-        assertThat(userRoles.get(0)).contains(MapEntry.entry("id", 67), MapEntry.entry("name", "A - user group 2"));
-        assertThat(userRoles.get(1)).contains(MapEntry.entry("id", 68), MapEntry.entry("name", "O - user group 1"));
-        assertThat(userRoles.get(2)).contains(MapEntry.entry("id", 66), MapEntry.entry("name", "Z - user group 1"));
+
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<List>get("$.data")).hasSize(2);
+        assertThat(jsonModel.<Integer>get("$.data[0].id")).isEqualTo(101);
+        assertThat(jsonModel.<String>get("$.data[0].name")).isEqualTo("Primary");
+        assertThat(jsonModel.<Integer>get("$.data[0].authenticationLevelId")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.data[0].authenticationLevel.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.data[0].authenticationLevel.name")).isEqualTo("Auth1");
+        assertThat(jsonModel.<Integer>get("$.data[0].encryptionLevelId")).isEqualTo(1001);
+        assertThat(jsonModel.<Integer>get("$.data[0].encryptionLevel.id")).isEqualTo(1001);
+        assertThat(jsonModel.<String>get("$.data[0].encryptionLevel.name")).isEqualTo("Encrypt1");
+        assertThat(jsonModel.<List>get("$.data[0].executionLevels")).hasSize(2);
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].id")).isEqualTo("ALLOWCOMTASKEXECUTION1");
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].name")).isEqualTo("Execute com task (level 1)");
+        assertThat(jsonModel.<List>get("$.data[0].executionLevels[0].userRoles")).hasSize(3);
+        assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[0].id")).isEqualTo(67);
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[0].name")).isEqualTo("A - user group 2");
+        assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[1].id")).isEqualTo(68);
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[1].name")).isEqualTo("O - user group 1");
+        assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[2].id")).isEqualTo(66);
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[2].name")).isEqualTo("Z - user group 1");
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[1].id")).isEqualTo("ALLOWCOMTASKEXECUTION2");
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[1].name")).isEqualTo("Execute com task (level 2)");
+
+        assertThat(jsonModel.<String>get("$.data[1].executionLevels[0].id")).isEqualTo("EDITDEVICESECURITYPROPERTIES1");
+        assertThat(jsonModel.<String>get("$.data[1].executionLevels[0].name")).isEqualTo("Edit device security properties (level 1)");
+        assertThat(jsonModel.<String>get("$.data[1].executionLevels[1].id")).isEqualTo("VIEWDEVICESECURITYPROPERTIES1");
+        assertThat(jsonModel.<String>get("$.data[1].executionLevels[1].name")).isEqualTo("View device security properties (level 1)");
     }
 
     @Test
@@ -192,22 +205,22 @@ public class SecurityPropertySetResourceTest extends JerseyTest {
         SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1, "Auth1", 1001, "Encrypt1", EnumSet.of(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION2));
         SecurityPropertySet sps2 = mockSecurityPropertySet(102L, "Secondary", 2, "Auth2", 1002, "Encrypt2", EnumSet.of(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1));
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
-        Map response = target("/devicetypes/123/deviceconfigurations/456/securityproperties").request().get(Map.class);
-        List<Map<String, Object>> data = (List<Map<String, Object>>) response.get("data");
-        Map<String, Object> sps1map = data.get(0);
-        List<Map<String, Object>> executionLevels = (List<Map<String, Object>>) sps1map.get("executionLevels");
-        List<Map<String, Object>> userRoles1 = (List<Map<String, Object>>) executionLevels.get(0).get("userRoles");
-        assertThat(userRoles1.get(0)).containsExactly(MapEntry.entry("id", 66), MapEntry.entry("name", "Z - user group 1"));
-        List<Map<String, Object>> userRoles2 = (List<Map<String, Object>>) executionLevels.get(1).get("userRoles");
-        assertThat(userRoles2).isEmpty();
+        String response = target("/devicetypes/123/deviceconfigurations/456/securityproperties").request().get(String.class);
 
-        Map<String, Object> sps2map = data.get(1);
-        List<Map<String, Object>> executionLevels2 = (List<Map<String, Object>>) sps2map.get("executionLevels");
-        List<Map<String, Object>> userRoles1bis = (List<Map<String, Object>>) executionLevels2.get(0).get("userRoles");
-        assertThat(userRoles1bis.get(0)).containsExactly(MapEntry.entry("id", 67), MapEntry.entry("name", "A - user group 2"));
-        List<Map<String, Object>> userRoles2bis = (List<Map<String, Object>>) executionLevels2.get(1).get("userRoles");
-        assertThat(userRoles2bis).isEmpty();
+        JsonModel jsonModel = JsonModel.create(response);
 
+        assertThat(jsonModel.<List>get("$.data")).hasSize(2);
+        assertThat(jsonModel.<List>get("$.data[0].executionLevels")).hasSize(2);
+        assertThat(jsonModel.<List>get("$.data[0].executionLevels[0].userRoles")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.data[0].executionLevels[0].userRoles[0].id")).isEqualTo(66);
+        assertThat(jsonModel.<String>get("$.data[0].executionLevels[0].userRoles[0].name")).isEqualTo("Z - user group 1");
+        assertThat(jsonModel.<List>get("$.data[0].executionLevels[1].userRoles")).isEmpty();
+
+        assertThat(jsonModel.<List>get("$.data[1].executionLevels")).hasSize(2);
+        assertThat(jsonModel.<List>get("$.data[1].executionLevels[0].userRoles")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.data[1].executionLevels[0].userRoles[0].id")).isEqualTo(67);
+        assertThat(jsonModel.<String>get("$.data[1].executionLevels[0].userRoles[0].name")).isEqualTo("A - user group 2");
+        assertThat(jsonModel.<List>get("$.data[1].executionLevels[1].userRoles")).isEmpty();
     }
 
     private Group mockUserGroup(long id, String name) {

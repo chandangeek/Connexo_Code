@@ -32,11 +32,11 @@ public class SecurityPropertySetInfoFactory {
         securityPropertySetInfo.authenticationLevelId = authenticationDeviceAccessLevel.getId();
         securityPropertySetInfo.encryptionLevelId = encryptionDeviceAccessLevel.getId();
         securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(authenticationDeviceAccessLevel, thesaurus);
-        securityPropertySetInfo.encryptionLevels = SecurityLevelInfo.from(encryptionDeviceAccessLevel, thesaurus);
+        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(encryptionDeviceAccessLevel, thesaurus);
 
         securityPropertySetInfo.executionLevels = securityPropertySet.getUserActions().stream().
                 map(userAction -> new ExecutionLevelInfo(
-                        userAction.getPrivilege(),
+                        userAction.name(),
                         thesaurus.getString(userAction.getPrivilege(), userAction.getPrivilege()),
                         userService.getGroups().stream()
                                 .filter(group -> group.hasPrivilege(userAction.getPrivilege()))

@@ -14,8 +14,9 @@ public class SecurityPropertySetInfo {
     public Integer encryptionLevelId;
     @JsonProperty("authenticationLevel")
     public SecurityLevelInfo authenticationLevel;
+    @JsonProperty("encryptionLevel")
+    public SecurityLevelInfo encryptionLevel;
 
-    public SecurityLevelInfo encryptionLevels;
     public List<ExecutionLevelInfo> executionLevels;
 
     public SecurityPropertySetInfo() {

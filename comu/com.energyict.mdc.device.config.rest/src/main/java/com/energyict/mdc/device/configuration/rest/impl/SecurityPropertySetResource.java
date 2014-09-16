@@ -15,6 +15,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -24,7 +25,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -37,12 +37,14 @@ public class SecurityPropertySetResource {
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
     private final SecurityPropertySetInfoFactory securityPropertySetInfoFactory;
+    private final Provider<ExecutionLevelResource> executionLevelResourceProvider;
 
     @Inject
-    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus, SecurityPropertySetInfoFactory securityPropertySetInfoFactory) {
+    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus, SecurityPropertySetInfoFactory securityPropertySetInfoFactory, Provider<ExecutionLevelResource> executionLevelResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.securityPropertySetInfoFactory = securityPropertySetInfoFactory;
+        this.executionLevelResourceProvider = executionLevelResourceProvider;
     }
 
     @GET
@@ -71,7 +73,7 @@ public class SecurityPropertySetResource {
     public Response getSecurityPropertySet(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("securityPropertySetId") long securityPropertySetId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        SecurityPropertySet securityPropertySet = findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
+        SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
 
         return Response.status(Response.Status.OK).entity(securityPropertySetInfoFactory.from(securityPropertySet)).build();
     }
@@ -107,7 +109,7 @@ public class SecurityPropertySetResource {
     public Response updateSecurityPropertySet(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("securityPropertySetId") long securityPropertySetId, SecurityPropertySetInfo securityPropertySetInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        SecurityPropertySet securityPropertySet = findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
+        SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
         securityPropertySetInfo.writeTo(securityPropertySet);
         securityPropertySet.update();
 
@@ -121,7 +123,7 @@ public class SecurityPropertySetResource {
     public Response deleteSecurityPropertySet(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("securityPropertySetId") long securityPropertySetId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        SecurityPropertySet securityPropertySet = findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
+        SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
         deviceConfiguration.removeSecurityPropertySet(securityPropertySet);
 
         return Response.status(Response.Status.OK).build();
@@ -157,13 +159,8 @@ public class SecurityPropertySetResource {
         return PagedInfoList.asJson("data", securityLevelInfos, queryParameters);
     }
 
-    private SecurityPropertySet findSecurityPropertySetByIdOrThrowException(DeviceConfiguration deviceConfiguration, long securityPropertySetId) {
-        for(SecurityPropertySet securityPropertySet : deviceConfiguration.getSecurityPropertySets()) {
-            if(securityPropertySet.getId() == securityPropertySetId) {
-                return securityPropertySet;
-            }
-        }
-
-        throw new WebApplicationException("No such security property set for the device configuration", Response.status(Response.Status.NOT_FOUND).entity("No such security property set for the device configuration").build());
+    @Path("/{securityPropertySetId}/executionlevels/")
+    public ExecutionLevelResource getExecutionLevelResource() {
+        return executionLevelResourceProvider.get();
     }
 }

@@ -30,7 +30,7 @@ public enum MessageSeeds implements MessageSeed {
     EXECUTE_COM_TASK_LEVEL2(22, Privileges.EXECUTE_COM_TASK_2, "Execute com task (level 2)"),
     EXECUTE_COM_TASK_LEVEL3(23, Privileges.EXECUTE_COM_TASK_3, "Execute com task (level 3)"),
     EXECUTE_COM_TASK_LEVEL4(24, Privileges.EXECUTE_COM_TASK_4, "Execute com task (level 4)"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_1(25, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_1, "Edit device security properties (level 1"),
+    EDIT_DEVICE_SECURITY_PROPERTIES_1(25, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_1, "Edit device security properties (level 1)"),
     EDIT_DEVICE_SECURITY_PROPERTIES_2(26, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_2, "Edit device security properties (level 2)"),
     EDIT_DEVICE_SECURITY_PROPERTIES_3(27, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_3, "Edit device security properties (level 3)"),
     EDIT_DEVICE_SECURITY_PROPERTIES_4(28, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_4, "Edit device security properties (level 4)"),
@@ -38,6 +38,7 @@ public enum MessageSeeds implements MessageSeed {
     VIEW_DEVICE_SECURITY_PROPERTIES_2(30, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_2, "View device security properties (level 2)"),
     VIEW_DEVICE_SECURITY_PROPERTIES_3(31, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_3, "View device security properties (level 3)"),
     VIEW_DEVICE_SECURITY_PROPERTIES_4(32, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_4, "View device security properties (level 4)"),
+    UNKNOWN_PRIVILEGE_ID(33, "NoSuchExecutionLevels", "No such execution levels: {0}"),
     ;
 
     private final int number;
