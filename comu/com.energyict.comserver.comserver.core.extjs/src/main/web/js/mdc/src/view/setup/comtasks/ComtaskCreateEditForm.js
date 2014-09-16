@@ -24,46 +24,61 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                     xtype: 'textfield',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('comtask.name', 'MDC', 'Name'),
-                    labelWidth: 200,
                     required: true,
                     allowBlank: false,
-                    margin: '0 0 10 -100',
-                    labelPad: 100,
-                    width: 600
+                    labelWidth: 200,
+                    width: 900
                 },
                 {
                     layout: 'column',
                     items: [
                         {
                             xtype: 'label',
-                            html: Uni.I18n.translate('comtask.commands', 'MDC', 'Commands') + ' *',
-                            width: 200,
-                            margin: '10 0 0 5'
+                            html: Uni.I18n.translate('comtask.commands', 'MDC', 'Commands'),
+                            width: 205,
+                            required: true
                         },
                         {
-                            xtype: 'container',
-                            layout: {
-                                type: 'vbox'
-                            },
-                            name: 'commandnames'
-                        },
-                        {
-                            xtype: 'container',
-                            margin: '0 0 0 100',
-                            name: 'commandfields'
+                          xtype: 'container',
+                          itemId: 'buttonsAndNamesContainer',
+                            items: [
+                                {
+                                    xtype: 'button',
+                                    name: 'addCommands',
+                                    text: 'Add Commands',
+                                    margin: '5 0 5 0',
+                                    itemId: 'addCommandsToTask',
+                                    action: 'addCommand'
+                                },
+                                {
+                                    xtype: 'container',
+                                    layout: {
+                                        type: 'vbox'
+                                    },
+                                    name: 'commandnames'
+                                },
+                                {
+                                    xtype: 'button',
+                                    itemId: 'addAnotherCommandsButton',
+                                    text: Uni.I18n.translate('comtask.add.another', 'MDC', '+ Add another'),
+                                    margin: '5 0 5 0',
+                                    action: 'addMoreCommands',
+                                    hidden: true
+                                }
+
+                            ]
                         }
                     ]
                 },
                 {
                     xtype: 'toolbar',
-                    margin: '0 0 0 190',
+                    margin: '0 0 0 205',
                     items: [
                         {
                             xtype: 'button',
                             name: 'action',
                             ui: 'action',
-                            itemId: 'createEditTask',
-                            disabled: true
+                            itemId: 'createEditTask'
                         },
                         {
                             xtype: 'button',
