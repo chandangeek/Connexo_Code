@@ -44,4 +44,17 @@
             </properties>
         </profile>
     </profiles>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/web/js/cfg/build</directory>
+                <targetPath>js/cfg/build</targetPath>
+                <includes>
+                    <include>resources/**/*</include>
+                    <include>*.js</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>
