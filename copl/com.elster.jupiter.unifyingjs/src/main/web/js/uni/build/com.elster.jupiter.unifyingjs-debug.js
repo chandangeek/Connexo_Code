@@ -1206,11 +1206,18 @@ Ext.define('Uni.override.form.field.ComboBox', {
  */
 Ext.define('Uni.override.form.field.ComboBox', {
     override: 'Ext.form.field.ComboBox',
+
+    anyMatch: true,
+
     listeners: {
         // force re-validate on combo change
-        change: function(combo) {
+        change: function (combo) {
             combo.validate();
         }
+    },
+
+    initComponent: function () {
+        this.callParent(arguments);
     }
 });
 
@@ -1436,7 +1443,7 @@ Ext.define('Uni.override.menu.Item', {
 Ext.define('Uni.About', {
     singleton: true,
 
-    version: '1.0',
+    version: '1.0.0',
     startup: new Date(),
     baseCssPrefix: 'uni-'
 });
@@ -3942,6 +3949,15 @@ Ext.define('Uni.form.NestedForm', {
     }
 });
 
+Ext.define('Uni.override.ux.window.Notification', {
+    override: 'Ext.ux.window.Notification',
+    title: false,
+    position: 't',
+    stickOnClick: false,
+    closable: false,
+    ui: 'notification'
+});
+
 /**
  * @class Uni.Loader
  *
@@ -3970,6 +3986,7 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Search',
 
         'Uni.view.form.field.Vtypes',
+        'Uni.form.NestedForm',
 
         'Uni.override.ServerOverride',
         'Uni.override.ApplicationOverride',
@@ -3986,7 +4003,21 @@ Ext.define('Uni.Loader', {
         'Uni.override.form.field.ComboBox',
         'Uni.override.ModelOverride',
         'Uni.override.FieldSetOverride',
-        'Uni.form.NestedForm'
+
+        'Uni.override.form.field.Base',
+        'Uni.override.form.field.ComboBox',
+        'Uni.override.form.field.Date',
+        'Uni.override.form.field.FieldContainer',
+        'Uni.override.form.Label',
+        'Uni.override.form.Panel',
+        'Uni.override.grid.plugin.BufferedRenderer',
+        'Uni.override.grid.Panel',
+        'Uni.override.menu.Item',
+        'Uni.override.panel.Header',
+        'Uni.override.panel.Panel',
+        'Uni.override.ux.window.Notification',
+        'Uni.override.view.Table',
+        'Uni.override.window.MessageBox'
     ],
 
     /**
@@ -4099,15 +4130,6 @@ Ext.define('Uni.Loader', {
 
 });
 
-Ext.define('Uni.override.ux.window.Notification', {
-    override: 'Ext.ux.window.Notification',
-    title: false,
-    position: 't',
-    stickOnClick: false,
-    closable: false,
-    ui: 'notification'
-});
-
 /**
  * @class Uni.component.filter.model.Filter
  * @deprecated
@@ -4151,7 +4173,7 @@ Ext.define('Uni.component.filter.model.Filter', {
         this.associations.each(function (association) {
             switch (association.type) {
                 case 'hasOne':
-                    data[association.name] = me.extractHasOne(me.get(association.name), association);
+                    data[association.name] = me.extractHasOne(me[association.getterName](), association);
                     break;
                 case 'hasMany':
                     data[association.name] = me.extractHasMany(me[association.name](), association);
@@ -4403,11 +4425,11 @@ Ext.define('Uni.component.filter.view.Filter', {
             cmp = this.down('[name="' + name + '"]');
 
         if (!values[name]) {
-            record.set(name, null);
+            record[association.setterName](Ext.create(association.model));
         } else if (cmp && cmp.mixins.bindable) {
             var store = cmp.getStore();
             var rec = store.getById(values[name]);
-            record.set(name, rec);
+            record[association.setterName](rec);
         }
 
         return this;
@@ -4823,13 +4845,77 @@ Ext.define('Uni.controller.history.Settings', {
     }
 });
 
+/**
+ * @class Uni.util.Application
+ */
+Ext.define('Uni.util.Application', {
+    singleton: true,
+
+    appPath: 'app',
+
+    getAppNamespace: function () {
+        var paths = Ext.Loader.getConfig().paths;
+
+        for (var name in paths) {
+            if (paths.hasOwnProperty(name) && paths[name] === this.appPath) {
+                return name;
+            }
+        }
+
+        return undefined;
+    }
+});
+
+/**
+ * @class Uni.util.History
+ */
+Ext.define('Uni.util.History', {
+    singleton: true,
+
+    routerController: 'Uni.controller.history.Router',
+
+    requires: [
+        'Uni.util.Application'
+    ],
+
+    suspendEventsForNextCall: function () {
+        var currentHref = location.href;
+
+        Ext.util.History.suspendEvents();
+
+        new Ext.util.DelayedTask(function () {
+            if (location.href !== currentHref) {
+                Ext.util.History.resumeEvents();
+                this.stopped = true;
+            }
+        }).delay(100);
+    },
+
+    getRouterController: function () {
+        var me = this,
+            appPath = Ext.String.htmlEncode(Uni.util.Application.appPath),// Better safe than sorry, so encoding these.
+            namespace = Ext.String.htmlEncode(Uni.util.Application.getAppNamespace()),
+            evalCode = namespace + '.' + appPath + '.getController(\'' + me.routerController + '\')';
+
+        if (typeof namespace !== 'undefined') {
+            try {
+                return eval(evalCode + ';');
+            } catch (ex) {
+                return evalCode;
+            }
+        }
+
+        return Ext.create(me.routerController);
+    }
+});
+
 Ext.define('Uni.data.proxy.QueryStringProxy', {
     extend: 'Ext.data.proxy.Proxy',
     root: '',
     router: null,
 
     requires: [
-        'Uni.controller.history.Router'
+        'Uni.util.History'
     ],
 
     constructor: function (config) {
@@ -4838,7 +4924,7 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         if (config.hydrator) {
             this.hydrator = Ext.create(config.hydrator);
         }
-        this.router = config.router || Uni.controller.history.Router;
+        this.router = config.router || Uni.util.History.getRouterController();
     },
 
     create: function () {
@@ -4853,16 +4939,14 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         var me = this,
             router = me.router,
             Model = me.model,
-            id = operation.id
-            ;
+            id = operation.id;
 
         operation.setStarted();
 
         if (!_.isUndefined(router.queryParams[me.root])) {
             var data = Ext.JSON.decode(router.queryParams[me.root]),
                 modelData = _.object(_.pluck(data, 'property'), _.pluck(data, 'value')),
-                record
-                ;
+                record;
 
             if (this.hydrator) {
                 record = new Model();
@@ -4910,9 +4994,8 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         operation.setStarted();
 
         var data = this.hydrator
-                ? this.hydrator.extract(model)
-                : model.getData(model)
-            ;
+            ? this.hydrator.extract(model)
+            : model.getData(model);
 
         _.map(data, function (item, key) {
             if (!Ext.isEmpty(item)) {
@@ -5761,573 +5844,6 @@ Ext.define('Uni.model.Script', {
     ]
 });
 
-/**
- * @class Uni.property.model.field.TimeUnit
- */
-Ext.define('Uni.property.model.field.TimeUnit', {
-    extend: 'Ext.data.Model',
-    fields: ['timeUnit']
-});
-
-Ext.define('Uni.property.store.TimeUnits', {
-    extend: 'Ext.data.Store',
-    requires: [
-        'Uni.property.model.field.TimeUnit'
-    ],
-    model: 'Uni.property.model.field.TimeUnit',
-    autoLoad: true,
-
-    proxy: {
-        type: 'rest',
-        url: '../../api/mdc/field/timeUnit',
-        reader: {
-            type: 'json',
-            root: 'timeUnits'
-        }
-    }
-});
-
-
-/**
- * @class Uni.property.controller.Registry
- * @singleton
- *
- * Properties registry.
- * Use it to add custom properties to the property map.
- *
- * Example:
- *
- * // add properties by one
- * var registry = Uni.property.controller.Registry;
- * registry.addProperty('CUSTOM_PROPERTY', 'App.view.property.Custom');
- *
- * // or provide a config
- * registry.addProperties({
- *      'CUSTOM_1': 'App.view.property.Custom1',
- *      'CUSTOM_2': 'App.view.property.Custom2'
- * })
- *
- */
-Ext.define('Uni.property.controller.Registry', {
-    extend: 'Ext.app.Controller',
-    singleton: true,
-
-    /**
-     * Default properties registered
-     */
-    propertiesMap: {
-        TEXT: 'Uni.property.view.property.Text',
-        COMBOBOX: 'Uni.property.view.property.Combobox',
-        TEXTAREA: 'Uni.property.view.property.Textarea',
-        PASSWORD: 'Uni.property.view.property.Password',
-        HEXSTRING: 'Uni.property.view.property.Hexstring',
-        BOOLEAN: 'Uni.property.view.property.Boolean',
-        NUMBER: 'Uni.property.view.property.Number',
-        NULLABLE_BOOLEAN: 'Uni.property.view.property.NullableBoolean',
-        DATE: 'Uni.property.view.property.Date',
-        CLOCK: 'Uni.property.view.property.DateTime',
-        TIMEDURATION: 'Uni.property.view.property.Period',
-        TIMEOFDAY: 'Uni.property.view.property.Time',
-        CODETABLE: 'Uni.property.view.property.CodeTable',
-        REFERENCE: 'Uni.property.view.property.Reference',
-        EAN13: 'Uni.property.view.property.Text',
-        EAN18: 'Uni.property.view.property.Text',
-        ENCRYPTED_STRING: 'Uni.property.view.property.Text',
-        UNKNOWN: 'Uni.property.view.property.Text',
-        LISTVALUE: 'Uni.property.view.property.Multiselect'
-    },
-
-    // store must be registered on some ctrl (not in the responsibility of this class: move later?)
-    stores: [
-        'Uni.property.store.TimeUnits'
-    ],
-
-    /**
-     * Register new property
-     *
-     * @param {string} key
-     * @param {string} model
-     */
-    addProperty: function (key, model) {
-        if (!Ext.isString(key)) {
-            throw '!Ext.isString(key)'
-        }
-
-        if (!this.getProperty(key)) {
-            this.propertiesMap[key] = model;
-        }
-    },
-
-    /**
-     * Register properties config
-     *
-     * @param {Object} properties
-     */
-    addProperties: function (properties) {
-        Ext.apply(this.propertiesMap, properties)
-    },
-
-    /**
-     * Retrieve property widget
-     * @see Uni.property.view.property.Base
-     *
-     * @param {string} key
-     * @returns {string|null}
-     */
-    getProperty: function (key) {
-        return this.propertiesMap[key] || null;
-    }
-});
-
-/**
- * @class Uni.property.form.Property
- *
- * Properties form. used for display properties.
- * Usage example:
- *
- * // assume you have alredy specify property in view like {xtype: 'property-form'}
- *
- * var form = cmp.down('property-form');
- *
- * // record must have properties() association specified
- * form.loadRecord(record);
- *
- * // You can redraw form with new properties set:
- * form.initProperties(record.properties());
- *
- * // or update current form values
- * form.loadRecord(record);
- * // or
- * form.setProperties(record.properties());
- */
-Ext.define('Uni.property.form.Property', {
-    extend: 'Ext.form.Panel',
-    alias: 'widget.property-form',
-    hydrator: 'Uni.property.form.PropertyHydrator',
-    border: 0,
-    requires: [
-        'Uni.property.controller.Registry'
-    ],
-    defaults: {
-        labelWidth: 250,
-        resetButtonHidden: false
-    },
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    initialised: false,
-    isEdit: true,
-    inheritedValues: false,
-
-    /**
-     * Loads record to the form.
-     * If form is not initialised performs initProperties()
-     *
-     * @param record
-     */
-    loadRecord: function (record) {
-        this.initProperties(record.properties());
-        this.callParent(arguments);
-    },
-
-    loadRecordAsNotRequired: function(record){
-        var properties = record.properties();
-        _.each(properties.data.items,function(item){
-            item.set('required',false)
-        });
-        this.loadRecord(record);
-    },
-
-    /**
-     * Initialises form, creates form field based on properties specification in property registry:
-     * @see Uni.property.controller.Registry
-     *
-     * @param {MixedCollection} properties
-     */
-    initProperties: function(properties) {
-        var me = this;
-        var registry = Uni.property.controller.Registry;
-
-        me.removeAll();
-        properties.each(function (property) {
-            if (!(property instanceof Uni.property.model.Property)) {
-                throw '!(entry instanceof Uni.property.model.Property)';
-            }
-
-            me.inheritedValues
-                ? property.initInheritedValues()
-                : property.initValues();
-
-            properties.commitChanges();
-
-            var type = property.getType();
-            var fieldType = registry.getProperty(type);
-            if (fieldType) {
-                var field = Ext.create(fieldType, Ext.apply(me.defaults, {
-                    property: property,
-                    isEdit: me.isEdit
-                }));
-
-                me.add(field);
-            }
-        });
-
-        this.initialised = true;
-    },
-
-    useInheritedValues: function() {
-        this.items.each(function(item){
-            item.useInheritedValue();
-        });
-        this.inheritedValues = true;
-    },
-
-    getFieldValues: function(dirtyOnly) {
-        var data = this.getValues(false, dirtyOnly, false, true);
-        return this.unFlattenObj(data);
-    },
-
-    updateRecord: function() {
-        var me = this;
-        var raw = me.getFieldValues();
-        var values = {};
-        _.each(raw.properties || [], function(rawValue, key){
-            var field = me.getPropertyField(key);
-            values[key] = field.getValue(rawValue);
-        });
-
-        this.getForm().hydrator.hydrate(values, me.getRecord());
-    },
-
-    unFlattenObj: function(object) {
-        return _(object).inject(function(result, value, keys) {
-            var current = result,
-                partitions = keys.split('.'),
-                limit = partitions.length - 1;
-
-            _(partitions).each(function(key, index) {
-                current = current[key] = (index == limit ? value : (current[key] || {}));
-            });
-
-            return result;
-        }, {});
-    },
-
-    /**
-     * Updates the form with the new properties data
-     *
-     * @param {MixedCollection} properties
-     */
-    setProperties: function(properties) {
-        var me = this;
-
-        properties.each(function (property) {
-            if (!(property instanceof Uni.property.model.Property)) {
-                throw '!(entry instanceof Uni.property.model.Property)';
-            }
-
-            var field = me.getPropertyField(property.get('key'));
-            if (field) {
-                field.setProperty(property);
-            }
-        });
-    },
-
-    restoreAll: function() {
-        this.items.each(function(item){
-            item.restoreDefault();
-        })
-    },
-
-    /**
-     * Returns property field by property model
-     * @param {string} key
-     * @returns {Uni.property.view.property.Base}
-     */
-    getPropertyField: function(key) {
-        return this.getComponent(key);
-    }
-});
-
-Ext.define('Uni.property.form.PropertyHydrator', {
-    extract: function(record) {
-        return record.getData(true);
-    },
-    falseAndZeroChecker: function(value) {
-        if (null != value) {
-            if (value.toString() == "false") {
-                return false;
-            }
-            if (value.toString() == "0") {
-                return 0;
-            }
-        }
-        return value || null
-    },
-    hydrate: function(data, record) {
-        var values = data;
-        var me = this;
-        if (typeof record === 'undefined' || !record.properties()) {
-            return false;
-        }
-        record.properties().each(function (property) {
-            if (property.get('isInheritedOrDefaultValue') === true) {
-                if (property.get('required') === true && property.get('hasDefaultValue')) {
-                    var value = me.falseAndZeroChecker(values[property.get('key')]);
-                    propertyValue = Ext.create('Uni.property.model.PropertyValue');
-                    property.setPropertyValue(propertyValue);
-                    propertyValue.set('value', value);
-                } else {
-                    property.setPropertyValue(null);
-                }
-            } else {
-                var value = me.falseAndZeroChecker(values[property.get('key')]);
-                if (!property.raw['propertyValueInfo']) {
-                    propertyValue = Ext.create('Uni.property.model.PropertyValue');
-                    property.setPropertyValue(propertyValue);
-                }
-                var propertyValue = property.getPropertyValue();
-                propertyValue.set('value', value);
-            }
-
-        });
-    }
-});
-
-Ext.define('Uni.property.model.PossibleValue', {
-    extend: 'Ext.data.Model',
-    fields: ['id', 'name']
-});
-
-Ext.define('Uni.property.model.PredefinedPropertyValue', {
-    extend: 'Ext.data.Model',
-    requires: [
-        'Uni.property.model.PossibleValue'
-    ],
-
-    fields: [
-        {name: 'exhaustive', type: 'boolean'},
-        {name: 'selectionMode', type: 'string'},
-        {name: 'possibleValues', type: 'auto'}
-    ],
-    associations: [
-        {name: 'possibleValues', type: 'hasMany', model: 'Uni.property.model.PossibleValue', associationKey: 'possibleValues'}
-    ]
-});
-
-Ext.define('Uni.property.model.PropertyValue', {
-    extend: 'Ext.data.Model',
-    fields: [
-        {name: 'value'},
-        {name: 'defaultValue'},
-        {name: 'inheritedValue'}
-    ]
-});
-
-Ext.define('Uni.property.model.PropertyValidationRule', {
-    extend: 'Ext.data.Model',
-    fields: [
-        {name: 'allowDecimals'},
-        {name: 'minimumValue'},
-        {name: 'maximumValue'}
-    ]
-});
-
-Ext.define('Uni.property.model.PropertyType', {
-    extend: 'Ext.data.Model',
-    fields: [
-        {name: 'simplePropertyType'}
-    ],
-    requires: [
-        'Uni.property.model.PredefinedPropertyValue',
-        'Uni.property.model.PropertyValidationRule'
-    ],
-    associations: [
-        {
-            name: 'predefinedPropertyValuesInfo',
-            type: 'hasOne',
-            model: 'Uni.property.model.PredefinedPropertyValue',
-            associationKey: 'predefinedPropertyValuesInfo',
-            getterName: 'getPredefinedPropertyValue',
-            setterName: 'setPredefinedPropertyValue',
-            foreignKey: 'predefinedPropertyValuesInfo'
-        },
-        {
-            name: 'propertyValidationRule',
-            type: 'hasOne',
-            model: 'Uni.property.model.PropertyValidationRule',
-            associationKey: 'propertyValidationRule',
-            getterName: 'getPropertyValidationRule',
-            setterName: 'setPropertyValidationRule',
-            foreignKey: 'propertyValidationRule'
-        }
-    ]
-});
-
-/**
- * @class Uni.property.model.Property
- */
-Ext.define('Uni.property.model.Property', {
-    extend: 'Ext.data.Model',
-    fields: [
-        {name: 'key', type: 'string'},
-        {name: 'required', type: 'boolean'},
-        {name: 'value', persist: false},
-        {name: 'default', persist: false},
-        {name: 'hasDefault', persist: false},
-        {name: 'isInheritedOrDefaultValue', type: 'boolean', defaultValue: true, persist: false}
-    ],
-    requires: [
-        'Uni.property.model.PropertyValue',
-        'Uni.property.model.PropertyType'
-    ],
-    associations: [
-        {
-            name: 'propertyValueInfo',
-            type: 'hasOne',
-            model: 'Uni.property.model.PropertyValue',
-            associationKey: 'propertyValueInfo',
-            getterName: 'getPropertyValue',
-            setterName: 'setPropertyValue',
-            foreignKey: 'propertyValueInfo'
-        },
-        {
-            name: 'propertyTypeInfo',
-            type: 'hasOne',
-            model: 'Uni.property.model.PropertyType',
-            associationKey: 'propertyTypeInfo',
-            getterName: 'getPropertyType',
-            setterName: 'setPropertyType',
-            foreignKey: 'propertyTypeInfo'
-        }
-    ],
-
-    /**
-     * Sets property values and defaults based on property associated objects
-     */
-    initValues: function () {
-        var me = this;
-        var value = null;
-        var restoreValue = '';
-        var isInheritedValue = true;
-        var hasDefaultValue = false;
-
-        // was on try-catch
-        if (me.raw['propertyValueInfo']) {
-            var propertyValue = me.getPropertyValue() || null;
-
-            if (null !== propertyValue) {
-                value = propertyValue.get('value');
-                isInheritedValue = false;
-                if (value === propertyValue.get('defaultValue')) {
-                    isInheritedValue = true;
-                }
-
-                if (propertyValue.get('inheritedValue') !== '') {
-                    restoreValue = propertyValue.get('inheritedValue');
-                } else {
-                    restoreValue = propertyValue.get('defaultValue');
-                    if (typeof propertyValue.get('defaultValue') !== 'undefined' && typeof propertyValue.get('defaultValue') !== '') {
-                        hasDefaultValue = true;
-                    }
-                }
-
-                if (value === '') {
-                    value = restoreValue;
-                    isInheritedValue = true;
-                }
-            }
-        }
-
-        me.set('isInheritedOrDefaultValue', isInheritedValue);
-        me.set('value', value);
-        me.set('default', restoreValue);
-        me.set('hasDefaultValue', hasDefaultValue);
-    },
-
-    initInheritedValues: function() {
-        var me = this;
-        var value = null;
-        var hasDefaultValue = false;
-        var isDefaultValue = false;
-
-        // was on try-catch
-        if (me.raw['propertyValueInfo']) {
-            var propertyValue = me.getPropertyValue() || null;
-            if (null !== propertyValue) {
-                value = propertyValue.get('value');
-                if (value === propertyValue.get('defaultValue')){
-                      isDefaultValue = true;
-                }
-
-                if (!value) {
-                    value = propertyValue.get('defaultValue');
-                    hasDefaultValue = true;
-                }
-                propertyValue.set('inheritedValue', value);
-                propertyValue.set('value', '');
-            }
-        }
-        if (isDefaultValue || (typeof me.raw['propertyValueInfo'] === 'undefined')) {
-            me.set('isInheritedOrDefaultValue', true);
-        } else {
-            me.set('isInheritedOrDefaultValue', false);
-        }
-        me.set('value', value);
-        me.set('default', value);
-        me.set('hasDefaultValue', hasDefaultValue);
-    },
-
-    getType: function () {
-        return this.getPropertyType().get('simplePropertyType');
-    },
-
-    getValidationRule: function () {
-        var propertyType = this.getPropertyType();
-
-        if (propertyType.raw['propertyValidationRule']) {
-            return propertyType.getPropertyValidationRule();
-        } else {
-            return null;
-        }
-    },
-
-    getPredefinedPropertyValues: function () {
-        var propertyType = this.getPropertyType();
-
-        if (propertyType.raw['predefinedPropertyValuesInfo']) {
-            return propertyType.getPredefinedPropertyValue();
-        } else {
-            return null;
-        }
-    },
-
-    getPossibleValues: function () {
-        var values = this.getPredefinedPropertyValues();
-        return values
-            ? values.get('possibleValues')
-            : null
-            ;
-    },
-
-    getSelectionMode: function () {
-        var values = this.getPredefinedPropertyValues();
-        return values
-            ? values.get('selectionMode')
-            : null
-            ;
-    },
-
-    getExhaustive: function () {
-        var values = this.getPredefinedPropertyValues();
-        return values
-            ? values.get('exhaustive')
-            : null
-            ;
-    }
-});
-
 Ext.define('Uni.property.view.DefaultButton', {
     extend: 'Ext.button.Button',
     xtype: 'uni-default-button',
@@ -6727,6 +6243,91 @@ Ext.define('Uni.property.view.property.BaseCombo', {
     }
 });
 
+Ext.define('Uni.property.view.property.Text', {
+    extend: 'Uni.property.view.property.BaseCombo',
+
+    getNormalCmp: function () {
+        var me = this;
+        return {
+            xtype: 'textfield',
+            name: this.getName(),
+            itemId: me.key + 'textfield',
+            width: me.width,
+            msgTarget: 'under'
+        }
+    },
+
+    getField: function () {
+        return this.down('textfield');
+    }
+});
+
+Ext.define('Uni.property.view.property.Combobox', {
+    extend: 'Uni.property.view.property.Base',
+
+    getEditCmp: function () {
+        var me = this;
+
+        return {
+            xtype: 'combobox',
+            itemId: me.key + 'combobox',
+            name: this.getName(),
+            store: me.getProperty().getPossibleValues(),
+            queryMode: 'local',
+            displayField: 'value',
+            valueField: 'key',
+            width: me.width,
+            forceSelection: me.getProperty().getExhaustive()
+        }
+    },
+
+    getField: function () {
+        return this.down('combobox');
+    }
+});
+
+Ext.define('Uni.property.view.property.Textarea', {
+    extend: 'Uni.property.view.property.Base',
+
+    getEditCmp: function () {
+        var me = this;
+        return {
+            xtype: 'textareafield',
+            name: this.getName(),
+            itemId: me.key + 'textareafield',
+            width: me.width,
+            grow: true,
+            msgTarget: 'under'
+        }
+    },
+
+    getField: function () {
+        return this.down('textareafield');
+    }
+});
+
+Ext.define('Uni.property.view.property.Password', {
+    extend: 'Uni.property.view.property.Text',
+
+    getNormalCmp: function () {
+        var result = this.callParent(arguments);
+        result.inputType = 'password';
+
+        return result;
+    }
+});
+
+Ext.define('Uni.property.view.property.Hexstring', {
+    extend: 'Uni.property.view.property.Text',
+
+    getNormalCmp: function () {
+        var result = this.callParent(arguments);
+        result.vtype = 'hexstring';
+
+        return result;
+    }
+});
+
 Ext.define('Uni.property.view.property.Boolean', {
     extend: 'Uni.property.view.property.Base',
 
@@ -6772,55 +6373,106 @@ Ext.define('Uni.property.view.property.Boolean', {
     }
 });
 
-Ext.define('Uni.property.view.property.CodeTable', {
-    extend: 'Uni.property.view.property.Base',
+Ext.define('Uni.property.view.property.Number', {
+    extend: 'Uni.property.view.property.BaseCombo',
 
-    getEditCmp: function () {
+    getNormalCmp: function () {
         var me = this;
+        var minValue = null;
+        var maxValue = null;
+        var allowDecimals = true;
+        var rule = me.getProperty().getValidationRule();
 
-        return [
-            {
-                xtype: 'textfield',
-                name: this.getName(),
-                itemId: me.key + 'codetable',
-                width: me.width,
-                readOnly: true
-            },
-            {
-                xtype: 'button',
-                text: '...',
-                scale: 'small',
-                action: 'showCodeTable'
-            }
-        ];
+        if (rule != null) {
+            minValue = rule.get('minimumValue');
+            maxValue = rule.get('maximumValue');
+            allowDecimals = rule.get('allowDecimals');
+        }
+
+        return {
+            xtype: 'numberfield',
+            name: this.getName(),
+            itemId: me.key + 'numberfield',
+            width: me.width,
+            hideTrigger: true,
+            keyNavEnabled: false,
+            mouseWheelEnabled: false,
+            minValue: minValue,
+            maxValue: maxValue,
+            allowDecimals: allowDecimals,
+            msgTarget: 'under'
+        };
+    },
+
+    getComboCmp: function () {
+        var result = this.callParent(arguments);
+        result.fieldStyle = 'text-align:right;';
+
+        return result;
     },
 
     getField: function () {
-        return this.down('textfield');
+        return this.down('numberfield');
     }
 });
 
-Ext.define('Uni.property.view.property.Combobox', {
+Ext.define('Uni.property.view.property.NullableBoolean', {
     extend: 'Uni.property.view.property.Base',
 
     getEditCmp: function () {
         var me = this;
 
         return {
-            xtype: 'combobox',
-            itemId: me.key + 'combobox',
+            xtype: 'radiogroup',
+            itemId: me.key + 'radiogroup',
             name: this.getName(),
-            store: me.getProperty().getPossibleValues(),
-            queryMode: 'local',
-            displayField: 'value',
-            valueField: 'key',
-            width: me.width,
-            forceSelection: me.getProperty().getExhaustive()
-        }
+            allowBlank: false,
+            vertical: true,
+            columns: 1,
+            items: [
+                {
+                    boxLabel: Uni.I18n.translate('true', me.translationKey, 'True'),
+                    name: 'rb',
+                    itemId: 'rb_1_' + me.key,
+                    inputValue: true
+                },
+                {
+                    boxLabel: Uni.I18n.translate('false', me.translationKey, 'False'),
+                    name: 'rb',
+                    itemId: 'rb_2_' + me.key,
+                    inputValue: false
+                },
+                {
+                    boxLabel: Uni.I18n.translate('none', me.translationKey, 'None'),
+                    name: 'rb',
+                    itemId: 'rb_3_' + me.key,
+                    inputValue: null
+                }
+            ]
+        };
     },
 
     getField: function () {
-        return this.down('combobox');
+        return this.down('radiogroup');
+    },
+
+    setValue: function (value) {
+        var result = {rb: null};
+        if (Ext.isBoolean(value)) {
+            result.rb = value;
+        }
+
+        if (!this.isEdit) {
+            if (value === true) {
+                result = Uni.I18n.translate('yes', this.translationKey, 'Yes');
+            } else if (value === false) {
+                result = Uni.I18n.translate('no', this.translationKey, 'No');
+            } else {
+                result = Uni.I18n.translate('na', this.translationKey, 'N/A');
+            }
+        }
+
+        this.callParent([result]);
     }
 });
 
@@ -6936,18 +6588,191 @@ Ext.define('Uni.property.view.property.DateTime', {
     }
 });
 
-Ext.define('Uni.property.view.property.Text', {
+/**
+ * @class Uni.property.model.field.TimeUnit
+ */
+Ext.define('Uni.property.model.field.TimeUnit', {
+    extend: 'Ext.data.Model',
+    fields: ['timeUnit']
+});
+
+Ext.define('Uni.property.store.TimeUnits', {
+    extend: 'Ext.data.Store',
+    requires: [
+        'Uni.property.model.field.TimeUnit'
+    ],
+    model: 'Uni.property.model.field.TimeUnit',
+    autoLoad: true,
+
+    proxy: {
+        type: 'rest',
+        url: '../../api/mdc/field/timeUnit',
+        reader: {
+            type: 'json',
+            root: 'timeUnits'
+        }
+    }
+});
+
+
+Ext.define('Uni.property.view.property.Period', {
     extend: 'Uni.property.view.property.BaseCombo',
+    requires: [
+        'Uni.property.store.TimeUnits'
+    ],
 
     getNormalCmp: function () {
         var me = this;
-        return {
-            xtype: 'textfield',
-            name: this.getName(),
-            itemId: me.key + 'textfield',
-            width: me.width,
-            msgTarget: 'under'
+
+        return [
+            {
+                xtype: 'numberfield',
+                itemId: me.key + 'numberfield',
+                name: this.getName() + '.numberfield',
+                width: me.width,
+                required: me.required
+            },
+            {
+                xtype: 'combobox',
+                itemId: me.key + 'combobox',
+                name: this.getName() + '.combobox',
+                store: 'Uni.property.store.TimeUnits',
+                queryMode: 'local',
+                displayField: 'timeUnit',
+                valueField: 'timeUnit',
+                width: me.width,
+                forceSelection: false,
+                required: me.required
+            }
+        ]
+    },
+
+    getComboCmp: function () {
+        var store = Ext.create('Ext.data.Store', {
+            fields: [
+                {name: 'key', type: 'string'},
+                {name: 'value', type: 'string'}
+            ]
+        });
+
+        //clear store
+        store.loadData([], false);
+        this.getProperty().getPossibleValues().each(function (item) {
+            var timeDurationValue = item.get('count') + " " + item.get('timeUnit');
+            store.add({key: timeDurationValue, value: timeDurationValue});
+        });
+
+        var result = this.callParent(arguments);
+        result.store = store;
+
+        return result;
+    },
+
+    getField: function () {
+        return this.down('numberfield');
+    },
+
+    setValue: function (value) {
+        var unit = null;
+        var count = null;
+        var timeDuration = null;
+
+        if (value != null) {
+            unit = value.timeUnit;
+            count = value.count;
+            timeDuration = count + ' ' + unit;
         }
+
+        if (this.isEdit) {
+            if (this.isCombo()) {
+                this.getComboField().setValue(timeDuration);
+            } else {
+                this.getField().setValue(count);
+                this.getComboField().setValue(unit);
+            }
+        } else {
+            this.callParent([timeDuration]);
+        }
+    },
+
+    getValue: function (value) {
+        if (!this.isCombo()) {
+            var result = {};
+            result.count = value.numberfield;
+            result.timeUnit = value.combobox;
+
+            return result;
+        } else {
+            return value;
+        }
+    }
+});
+
+Ext.define('Uni.property.view.property.Time', {
+    extend: 'Uni.property.view.property.Base',
+
+    timeFormat: 'H:i:s',
+
+    getEditCmp: function () {
+        var me = this;
+
+        return {
+            xtype: 'timefield',
+            name: this.getName(),
+            itemId: me.key + 'timefield',
+            format: me.timeFormat,
+            width: me.width,
+            required: me.required
+        };
+    },
+
+    getField: function () {
+        return this.down('timefield');
+    },
+
+    setValue: function (value) {
+        if (value !== null && value !== '') {
+            value = new Date(value * 1000);
+
+            if (!this.isEdit) {
+                value = value.toLocaleTimeString();
+            }
+        }
+
+        this.callParent([value]);
+    },
+
+    getValue: function (value) {
+        if (value != null && value != '') {
+            var newDate = new Date(1970, 0, 1, value.getHours(), value.getMinutes(), value.getSeconds(), 0);
+            return newDate.getTime() / 1000;
+        } else {
+            return value;
+        }
+    }
+});
+
+Ext.define('Uni.property.view.property.CodeTable', {
+    extend: 'Uni.property.view.property.Base',
+
+    getEditCmp: function () {
+        var me = this;
+
+        return [
+            {
+                xtype: 'textfield',
+                name: this.getName(),
+                itemId: me.key + 'codetable',
+                width: me.width,
+                readOnly: true
+            },
+            {
+                xtype: 'button',
+                text: '...',
+                scale: 'small',
+                action: 'showCodeTable'
+            }
+        ];
     },
 
     getField: function () {
@@ -6955,15 +6780,8 @@ Ext.define('Uni.property.view.property.Text', {
     }
 });
 
-Ext.define('Uni.property.view.property.Hexstring', {
-    extend: 'Uni.property.view.property.Text',
-
-    getNormalCmp: function () {
-        var result = this.callParent(arguments);
-        result.vtype = 'hexstring';
-
-        return result;
-    }
+Ext.define('Uni.property.view.property.Reference', {
+    extend: 'Uni.property.view.property.BaseCombo'
 });
 
 /**
@@ -7548,278 +7366,561 @@ Ext.define('Uni.property.view.property.Multiselect', {
     }
 });
 
-Ext.define('Uni.property.view.property.NullableBoolean', {
-    extend: 'Uni.property.view.property.Base',
-
-    getEditCmp: function () {
-        var me = this;
-
-        return {
-            xtype: 'radiogroup',
-            itemId: me.key + 'radiogroup',
-            name: this.getName(),
-            allowBlank: false,
-            vertical: true,
-            columns: 1,
-            items: [
-                {
-                    boxLabel: Uni.I18n.translate('true', me.translationKey, 'True'),
-                    name: 'rb',
-                    itemId: 'rb_1_' + me.key,
-                    inputValue: true
-                },
-                {
-                    boxLabel: Uni.I18n.translate('false', me.translationKey, 'False'),
-                    name: 'rb',
-                    itemId: 'rb_2_' + me.key,
-                    inputValue: false
-                },
-                {
-                    boxLabel: Uni.I18n.translate('none', me.translationKey, 'None'),
-                    name: 'rb',
-                    itemId: 'rb_3_' + me.key,
-                    inputValue: null
-                }
-            ]
-        };
-    },
-
-    getField: function () {
-        return this.down('radiogroup');
-    },
-
-    setValue: function (value) {
-        var result = {rb: null};
-        if (Ext.isBoolean(value)) {
-            result.rb = value;
-        }
-
-        if (!this.isEdit) {
-            if (value === true) {
-                result = Uni.I18n.translate('yes', this.translationKey, 'Yes');
-            } else if (value === false) {
-                result = Uni.I18n.translate('no', this.translationKey, 'No');
-            } else {
-                result = Uni.I18n.translate('na', this.translationKey, 'N/A');
-            }
-        }
-
-        this.callParent([result]);
-    }
-});
-
-Ext.define('Uni.property.view.property.Number', {
-    extend: 'Uni.property.view.property.BaseCombo',
-
-    getNormalCmp: function () {
-        var me = this;
-        var minValue = null;
-        var maxValue = null;
-        var allowDecimals = true;
-        var rule = me.getProperty().getValidationRule();
-
-        if (rule != null) {
-            minValue = rule.get('minimumValue');
-            maxValue = rule.get('maximumValue');
-            allowDecimals = rule.get('allowDecimals');
-        }
-
-        return {
-            xtype: 'numberfield',
-            name: this.getName(),
-            itemId: me.key + 'numberfield',
-            width: me.width,
-            hideTrigger: true,
-            keyNavEnabled: false,
-            mouseWheelEnabled: false,
-            minValue: minValue,
-            maxValue: maxValue,
-            allowDecimals: allowDecimals,
-            msgTarget: 'under'
-        };
-    },
-
-    getComboCmp: function () {
-        var result = this.callParent(arguments);
-        result.fieldStyle = 'text-align:right;';
-
-        return result;
-    },
-
-    getField: function () {
-        return this.down('numberfield');
-    }
-});
-
-Ext.define('Uni.property.view.property.Password', {
-    extend: 'Uni.property.view.property.Text',
-
-    getNormalCmp: function () {
-        var result = this.callParent(arguments);
-        result.inputType = 'password';
-
-        return result;
-    }
-});
-
-Ext.define('Uni.property.view.property.Period', {
-    extend: 'Uni.property.view.property.BaseCombo',
+/**
+ * @class Uni.property.controller.Registry
+ * @singleton
+ *
+ * Properties registry.
+ * Use it to add custom properties to the property map.
+ *
+ * Example:
+ *
+ * // add properties by one
+ * var registry = Uni.property.controller.Registry;
+ * registry.addProperty('CUSTOM_PROPERTY', 'App.view.property.Custom');
+ *
+ * // or provide a config
+ * registry.addProperties({
+ *      'CUSTOM_1': 'App.view.property.Custom1',
+ *      'CUSTOM_2': 'App.view.property.Custom2'
+ * })
+ *
+ */
+Ext.define('Uni.property.controller.Registry', {
+    extend: 'Ext.app.Controller',
+    singleton: true,
     requires: [
+        'Uni.property.view.property.Text',
+        'Uni.property.view.property.Combobox',
+        'Uni.property.view.property.Textarea',
+        'Uni.property.view.property.Password',
+        'Uni.property.view.property.Hexstring',
+        'Uni.property.view.property.Boolean',
+        'Uni.property.view.property.Number',
+        'Uni.property.view.property.NullableBoolean',
+        'Uni.property.view.property.Date',
+        'Uni.property.view.property.DateTime',
+        'Uni.property.view.property.Period',
+        'Uni.property.view.property.Time',
+        'Uni.property.view.property.CodeTable',
+        'Uni.property.view.property.Reference',
+        'Uni.property.view.property.Multiselect'
+    ],
+
+    /**
+     * Default properties registered
+     */
+    propertiesMap: {
+        TEXT: 'Uni.property.view.property.Text',
+        COMBOBOX: 'Uni.property.view.property.Combobox',
+        TEXTAREA: 'Uni.property.view.property.Textarea',
+        PASSWORD: 'Uni.property.view.property.Password',
+        HEXSTRING: 'Uni.property.view.property.Hexstring',
+        BOOLEAN: 'Uni.property.view.property.Boolean',
+        NUMBER: 'Uni.property.view.property.Number',
+        NULLABLE_BOOLEAN: 'Uni.property.view.property.NullableBoolean',
+        DATE: 'Uni.property.view.property.Date',
+        CLOCK: 'Uni.property.view.property.DateTime',
+        TIMEDURATION: 'Uni.property.view.property.Period',
+        TIMEOFDAY: 'Uni.property.view.property.Time',
+        CODETABLE: 'Uni.property.view.property.CodeTable',
+        REFERENCE: 'Uni.property.view.property.Reference',
+        EAN13: 'Uni.property.view.property.Text',
+        EAN18: 'Uni.property.view.property.Text',
+        ENCRYPTED_STRING: 'Uni.property.view.property.Text',
+        UNKNOWN: 'Uni.property.view.property.Text',
+        LISTVALUE: 'Uni.property.view.property.Multiselect'
+    },
+
+    // store must be registered on some ctrl (not in the responsibility of this class: move later?)
+    stores: [
         'Uni.property.store.TimeUnits'
     ],
 
-    getNormalCmp: function () {
+    /**
+     * Register new property
+     *
+     * @param {string} key
+     * @param {string} model
+     */
+    addProperty: function (key, model) {
+        if (!Ext.isString(key)) {
+            throw '!Ext.isString(key)'
+        }
+
+        if (!this.getProperty(key)) {
+            this.propertiesMap[key] = model;
+        }
+    },
+
+    /**
+     * Register properties config
+     *
+     * @param {Object} properties
+     */
+    addProperties: function (properties) {
+        Ext.apply(this.propertiesMap, properties)
+    },
+
+    /**
+     * Retrieve property widget
+     * @see Uni.property.view.property.Base
+     *
+     * @param {string} key
+     * @returns {string|null}
+     */
+    getProperty: function (key) {
+        return this.propertiesMap[key] || null;
+    }
+});
+
+Ext.define('Uni.property.form.PropertyHydrator', {
+    extract: function(record) {
+        return record.getData(true);
+    },
+    falseAndZeroChecker: function(value) {
+        if (null != value) {
+            if (value.toString() == "false") {
+                return false;
+            }
+            if (value.toString() == "0") {
+                return 0;
+            }
+        }
+        return value || null
+    },
+    hydrate: function(data, record) {
+        var values = data;
         var me = this;
-
-        return [
-            {
-                xtype: 'numberfield',
-                itemId: me.key + 'numberfield',
-                name: this.getName() + '.numberfield',
-                width: me.width,
-                required: me.required
-            },
-            {
-                xtype: 'combobox',
-                itemId: me.key + 'combobox',
-                name: this.getName() + '.combobox',
-                store: 'Uni.property.store.TimeUnits',
-                queryMode: 'local',
-                displayField: 'timeUnit',
-                valueField: 'timeUnit',
-                width: me.width,
-                forceSelection: false,
-                required: me.required
-            }
-        ]
-    },
-
-    getComboCmp: function () {
-        var store = Ext.create('Ext.data.Store', {
-            fields: [
-                {name: 'key', type: 'string'},
-                {name: 'value', type: 'string'}
-            ]
-        });
-
-        //clear store
-        store.loadData([], false);
-        this.getProperty().getPossibleValues().each(function (item) {
-            var timeDurationValue = item.get('count') + " " + item.get('timeUnit');
-            store.add({key: timeDurationValue, value: timeDurationValue});
-        });
-
-        var result = this.callParent(arguments);
-        result.store = store;
-
-        return result;
-    },
-
-    getField: function () {
-        return this.down('numberfield');
-    },
-
-    setValue: function (value) {
-        var unit = null;
-        var count = null;
-        var timeDuration = null;
-
-        if (value != null) {
-            unit = value.timeUnit;
-            count = value.count;
-            timeDuration = count + ' ' + unit;
+        if (typeof record === 'undefined' || !record.properties()) {
+            return false;
         }
-
-        if (this.isEdit) {
-            if (this.isCombo()) {
-                this.getComboField().setValue(timeDuration);
+        record.properties().each(function (property) {
+            if (property.get('isInheritedOrDefaultValue') === true) {
+                if (property.get('required') === true && property.get('hasDefaultValue')) {
+                    var value = me.falseAndZeroChecker(values[property.get('key')]);
+                    propertyValue = Ext.create('Uni.property.model.PropertyValue');
+                    property.setPropertyValue(propertyValue);
+                    propertyValue.set('value', value);
+                } else {
+                    property.setPropertyValue(null);
+                }
             } else {
-                this.getField().setValue(count);
-                this.getComboField().setValue(unit);
+                var value = me.falseAndZeroChecker(values[property.get('key')]);
+                if (!property.raw['propertyValueInfo']) {
+                    propertyValue = Ext.create('Uni.property.model.PropertyValue');
+                    property.setPropertyValue(propertyValue);
+                }
+                var propertyValue = property.getPropertyValue();
+                propertyValue.set('value', value);
             }
-        } else {
-            this.callParent([timeDuration]);
-        }
+
+        });
+    }
+});
+
+/**
+ * @class Uni.property.form.Property
+ *
+ * Properties form. used for display properties.
+ * Usage example:
+ *
+ * // assume you have alredy specify property in view like {xtype: 'property-form'}
+ *
+ * var form = cmp.down('property-form');
+ *
+ * // record must have properties() association specified
+ * form.loadRecord(record);
+ *
+ * // You can redraw form with new properties set:
+ * form.initProperties(record.properties());
+ *
+ * // or update current form values
+ * form.loadRecord(record);
+ * // or
+ * form.setProperties(record.properties());
+ */
+Ext.define('Uni.property.form.Property', {
+    extend: 'Ext.form.Panel',
+    alias: 'widget.property-form',
+    hydrator: 'Uni.property.form.PropertyHydrator',
+    border: 0,
+    requires: [
+        'Uni.property.controller.Registry',
+        'Uni.property.form.PropertyHydrator'
+    ],
+    defaults: {
+        labelWidth: 250,
+        resetButtonHidden: false
+    },
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
+    initialised: false,
+    isEdit: true,
+    inheritedValues: false,
+
+    /**
+     * Loads record to the form.
+     * If form is not initialised performs initProperties()
+     *
+     * @param record
+     */
+    loadRecord: function (record) {
+        this.initProperties(record.properties());
+        this.callParent(arguments);
     },
 
-    getValue: function (value) {
-        if (!this.isCombo()) {
-            var result = {};
-            result.count = value.numberfield;
-            result.timeUnit = value.combobox;
+    loadRecordAsNotRequired: function(record){
+        var properties = record.properties();
+        _.each(properties.data.items,function(item){
+            item.set('required',false)
+        });
+        this.loadRecord(record);
+    },
+
+    /**
+     * Initialises form, creates form field based on properties specification in property registry:
+     * @see Uni.property.controller.Registry
+     *
+     * @param {MixedCollection} properties
+     */
+    initProperties: function(properties) {
+        var me = this;
+        var registry = Uni.property.controller.Registry;
+
+        me.removeAll();
+        properties.each(function (property) {
+            if (!(property instanceof Uni.property.model.Property)) {
+                throw '!(entry instanceof Uni.property.model.Property)';
+            }
+
+            me.inheritedValues
+                ? property.initInheritedValues()
+                : property.initValues();
+
+            properties.commitChanges();
+
+            var type = property.getType();
+            var fieldType = registry.getProperty(type);
+            if (fieldType) {
+                var field = Ext.create(fieldType, Ext.apply(me.defaults, {
+                    property: property,
+                    isEdit: me.isEdit
+                }));
+
+                me.add(field);
+            }
+        });
+
+        this.initialised = true;
+    },
+
+    useInheritedValues: function() {
+        this.items.each(function(item){
+            item.useInheritedValue();
+        });
+        this.inheritedValues = true;
+    },
+
+    getFieldValues: function(dirtyOnly) {
+        var data = this.getValues(false, dirtyOnly, false, true);
+        return this.unFlattenObj(data);
+    },
+
+    updateRecord: function() {
+        var me = this;
+        var raw = me.getFieldValues();
+        var values = {};
+        _.each(raw.properties || [], function(rawValue, key){
+            var field = me.getPropertyField(key);
+            values[key] = field.getValue(rawValue);
+        });
+
+        this.getForm().hydrator.hydrate(values, me.getRecord());
+    },
+
+    unFlattenObj: function(object) {
+        return _(object).inject(function(result, value, keys) {
+            var current = result,
+                partitions = keys.split('.'),
+                limit = partitions.length - 1;
+
+            _(partitions).each(function(key, index) {
+                current = current[key] = (index == limit ? value : (current[key] || {}));
+            });
 
             return result;
-        } else {
-            return value;
-        }
+        }, {});
+    },
+
+    /**
+     * Updates the form with the new properties data
+     *
+     * @param {MixedCollection} properties
+     */
+    setProperties: function(properties) {
+        var me = this;
+
+        properties.each(function (property) {
+            if (!(property instanceof Uni.property.model.Property)) {
+                throw '!(entry instanceof Uni.property.model.Property)';
+            }
+
+            var field = me.getPropertyField(property.get('key'));
+            if (field) {
+                field.setProperty(property);
+            }
+        });
+    },
+
+    restoreAll: function() {
+        this.items.each(function(item){
+            item.restoreDefault();
+        })
+    },
+
+    /**
+     * Returns property field by property model
+     * @param {string} key
+     * @returns {Uni.property.view.property.Base}
+     */
+    getPropertyField: function(key) {
+        return this.getComponent(key);
     }
 });
 
-Ext.define('Uni.property.view.property.Reference', {
-    extend: 'Uni.property.view.property.BaseCombo'
+Ext.define('Uni.property.model.PossibleValue', {
+    extend: 'Ext.data.Model',
+    fields: ['id', 'name']
 });
 
-Ext.define('Uni.property.view.property.Textarea', {
-    extend: 'Uni.property.view.property.Base',
+Ext.define('Uni.property.model.PredefinedPropertyValue', {
+    extend: 'Ext.data.Model',
+    requires: [
+        'Uni.property.model.PossibleValue'
+    ],
 
-    getEditCmp: function () {
-        var me = this;
-        return {
-            xtype: 'textareafield',
-            name: this.getName(),
-            itemId: me.key + 'textareafield',
-            width: me.width,
-            grow: true,
-            msgTarget: 'under'
+    fields: [
+        {name: 'exhaustive', type: 'boolean'},
+        {name: 'selectionMode', type: 'string'},
+        {name: 'possibleValues', type: 'auto'}
+    ],
+    associations: [
+        {name: 'possibleValues', type: 'hasMany', model: 'Uni.property.model.PossibleValue', associationKey: 'possibleValues'}
+    ]
+});
+
+Ext.define('Uni.property.model.PropertyValue', {
+    extend: 'Ext.data.Model',
+    fields: [
+        {name: 'value'},
+        {name: 'defaultValue'},
+        {name: 'inheritedValue'}
+    ]
+});
+
+Ext.define('Uni.property.model.PropertyValidationRule', {
+    extend: 'Ext.data.Model',
+    fields: [
+        {name: 'allowDecimals'},
+        {name: 'minimumValue'},
+        {name: 'maximumValue'}
+    ]
+});
+
+Ext.define('Uni.property.model.PropertyType', {
+    extend: 'Ext.data.Model',
+    fields: [
+        {name: 'simplePropertyType'}
+    ],
+    requires: [
+        'Uni.property.model.PredefinedPropertyValue',
+        'Uni.property.model.PropertyValidationRule'
+    ],
+    associations: [
+        {
+            name: 'predefinedPropertyValuesInfo',
+            type: 'hasOne',
+            model: 'Uni.property.model.PredefinedPropertyValue',
+            associationKey: 'predefinedPropertyValuesInfo',
+            getterName: 'getPredefinedPropertyValue',
+            setterName: 'setPredefinedPropertyValue',
+            foreignKey: 'predefinedPropertyValuesInfo'
+        },
+        {
+            name: 'propertyValidationRule',
+            type: 'hasOne',
+            model: 'Uni.property.model.PropertyValidationRule',
+            associationKey: 'propertyValidationRule',
+            getterName: 'getPropertyValidationRule',
+            setterName: 'setPropertyValidationRule',
+            foreignKey: 'propertyValidationRule'
         }
-    },
-
-    getField: function () {
-        return this.down('textareafield');
-    }
+    ]
 });
 
-Ext.define('Uni.property.view.property.Time', {
-    extend: 'Uni.property.view.property.Base',
+/**
+ * @class Uni.property.model.Property
+ */
+Ext.define('Uni.property.model.Property', {
+    extend: 'Ext.data.Model',
+    fields: [
+        {name: 'key', type: 'string'},
+        {name: 'required', type: 'boolean'},
+        {name: 'value', persist: false},
+        {name: 'default', persist: false},
+        {name: 'hasDefault', persist: false},
+        {name: 'isInheritedOrDefaultValue', type: 'boolean', defaultValue: true, persist: false}
+    ],
+    requires: [
+        'Uni.property.model.PropertyValue',
+        'Uni.property.model.PropertyType'
+    ],
+    associations: [
+        {
+            name: 'propertyValueInfo',
+            type: 'hasOne',
+            model: 'Uni.property.model.PropertyValue',
+            associationKey: 'propertyValueInfo',
+            getterName: 'getPropertyValue',
+            setterName: 'setPropertyValue',
+            foreignKey: 'propertyValueInfo'
+        },
+        {
+            name: 'propertyTypeInfo',
+            type: 'hasOne',
+            model: 'Uni.property.model.PropertyType',
+            associationKey: 'propertyTypeInfo',
+            getterName: 'getPropertyType',
+            setterName: 'setPropertyType',
+            foreignKey: 'propertyTypeInfo'
+        }
+    ],
 
-    timeFormat: 'H:i:s',
-
-    getEditCmp: function () {
+    /**
+     * Sets property values and defaults based on property associated objects
+     */
+    initValues: function () {
         var me = this;
+        var value = null;
+        var restoreValue = '';
+        var isInheritedValue = true;
+        var hasDefaultValue = false;
 
-        return {
-            xtype: 'timefield',
-            name: this.getName(),
-            itemId: me.key + 'timefield',
-            format: me.timeFormat,
-            width: me.width,
-            required: me.required
-        };
-    },
+        // was on try-catch
+        if (me.raw['propertyValueInfo']) {
+            var propertyValue = me.getPropertyValue() || null;
 
-    getField: function () {
-        return this.down('timefield');
-    },
+            if (null !== propertyValue) {
+                value = propertyValue.get('value');
+                isInheritedValue = false;
+                if (value === propertyValue.get('defaultValue')) {
+                    isInheritedValue = true;
+                }
 
-    setValue: function (value) {
-        if (value !== null && value !== '') {
-            value = new Date(value * 1000);
+                if (propertyValue.get('inheritedValue') !== '') {
+                    restoreValue = propertyValue.get('inheritedValue');
+                } else {
+                    restoreValue = propertyValue.get('defaultValue');
+                    if (typeof propertyValue.get('defaultValue') !== 'undefined' && typeof propertyValue.get('defaultValue') !== '') {
+                        hasDefaultValue = true;
+                    }
+                }
 
-            if (!this.isEdit) {
-                value = value.toLocaleTimeString();
+                if (value === '') {
+                    value = restoreValue;
+                    isInheritedValue = true;
+                }
             }
         }
 
-        this.callParent([value]);
+        me.set('isInheritedOrDefaultValue', isInheritedValue);
+        me.set('value', value);
+        me.set('default', restoreValue);
+        me.set('hasDefaultValue', hasDefaultValue);
     },
 
-    getValue: function (value) {
-        if (value != null && value != '') {
-            var newDate = new Date(1970, 0, 1, value.getHours(), value.getMinutes(), value.getSeconds(), 0);
-            return newDate.getTime() / 1000;
-        } else {
-            return value;
+    initInheritedValues: function() {
+        var me = this;
+        var value = null;
+        var hasDefaultValue = false;
+        var isDefaultValue = false;
+
+        // was on try-catch
+        if (me.raw['propertyValueInfo']) {
+            var propertyValue = me.getPropertyValue() || null;
+            if (null !== propertyValue) {
+                value = propertyValue.get('value');
+                if (value === propertyValue.get('defaultValue')){
+                      isDefaultValue = true;
+                }
+
+                if (!value) {
+                    value = propertyValue.get('defaultValue');
+                    hasDefaultValue = true;
+                }
+                propertyValue.set('inheritedValue', value);
+                propertyValue.set('value', '');
+            }
         }
+        if (isDefaultValue || (typeof me.raw['propertyValueInfo'] === 'undefined')) {
+            me.set('isInheritedOrDefaultValue', true);
+        } else {
+            me.set('isInheritedOrDefaultValue', false);
+        }
+        me.set('value', value);
+        me.set('default', value);
+        me.set('hasDefaultValue', hasDefaultValue);
+    },
+
+    getType: function () {
+        return this.getPropertyType().get('simplePropertyType');
+    },
+
+    getValidationRule: function () {
+        var propertyType = this.getPropertyType();
+
+        if (propertyType.raw['propertyValidationRule']) {
+            return propertyType.getPropertyValidationRule();
+        } else {
+            return null;
+        }
+    },
+
+    getPredefinedPropertyValues: function () {
+        var propertyType = this.getPropertyType();
+
+        if (propertyType.raw['predefinedPropertyValuesInfo']) {
+            return propertyType.getPredefinedPropertyValue();
+        } else {
+            return null;
+        }
+    },
+
+    getPossibleValues: function () {
+        var values = this.getPredefinedPropertyValues();
+        return values
+            ? values.get('possibleValues')
+            : null
+            ;
+    },
+
+    getSelectionMode: function () {
+        var values = this.getPredefinedPropertyValues();
+        return values
+            ? values.get('selectionMode')
+            : null
+            ;
+    },
+
+    getExhaustive: function () {
+        var values = this.getPredefinedPropertyValues();
+        return values
+            ? values.get('exhaustive')
+            : null
+            ;
     }
 });
 
@@ -7910,26 +8011,6 @@ Ext.define('Uni.util.FormInfoMessage', {
         me.renew();
     }
 
-});
-
-/**
- * @class Uni.util.History
- */
-Ext.define('Uni.util.History', {
-    singleton: true,
-
-    suspendEventsForNextCall: function () {
-        var currentHref = location.href;
-
-        Ext.util.History.suspendEvents();
-
-        new Ext.util.DelayedTask(function () {
-                if (location.href !== currentHref) {
-                    Ext.util.History.resumeEvents();
-                    this.stopped = true;
-                }
-            }).delay(100);
-    }
 });
 
 /**
