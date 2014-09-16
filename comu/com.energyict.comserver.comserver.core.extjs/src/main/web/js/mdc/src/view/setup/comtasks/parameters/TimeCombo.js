@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.TimeCombo', {
     alias: 'widget.communication-tasks-parameters-timecombo',
     store: 'Mdc.store.TimeUnits',
     queryMode: 'local',
-    width: 155,
+    width: 143,
     displayField: 'timeUnit',
     valueField: 'timeUnit',
     editable: false,

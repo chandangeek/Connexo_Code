@@ -501,9 +501,12 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             commandContainer = combo.up('comtaskCommand'),
             category = commandContainer.down('comtaskCommandCategoryCombo').getValue(),
             valuesArr = [],
-            parametersContainer = this.chooseCommandParameters(category, newValue);
+            parametersContainer = this.chooseCommandParameters(category, newValue),
+            window = combo.up('#comTaskAddCommandWindow');
+
 
         if (parametersContainer) {
+            window.setLoading(true);
             var parametersComponent = commandContainer.add(parametersContainer);
             switch (parametersContainer.xtype) {
                 case 'communication-tasks-logbookscombo':
@@ -513,6 +516,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                                 valuesArr.push(rec.data.id);
                             });
                             parametersComponent.setValue(valuesArr);
+                            window.setLoading(false);
                         }
                     });
                     break;
@@ -523,29 +527,27 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                                 valuesArr.push(rec.data.id);
                             });
                             parametersComponent.setValue(valuesArr);
+                            window.setLoading(false);
                         }
                     });
                     break;
                 case 'communication-tasks-profilescombo':
-                    var preloader = Ext.create('Ext.LoadMask', {
-                        msg: Uni.I18n.translate('comtask.loading.load.profile.types', 'MDC', 'Loading load profile types'),
-                        target: self.getTaskEdit()
-                    });
-                    preloader.show();
                     parametersComponent.down('#checkProfileTypes').getStore().load({
                         callback: function (records) {
                             Ext.Array.each(records, function (rec) {
                                 valuesArr.push(rec.data.id);
                             });
                             parametersComponent.down('#checkProfileTypes').setValue(valuesArr);
-                            preloader.destroy();
+                            window.setLoading(false);
                         }
                     });
                     break;
                 default:
+                    window.setLoading(false);
                     break;
             }
         }
+
         combo.on('change', function () {
             parametersContainer && parametersContainer.destroy();
         }, combo, {single: true});

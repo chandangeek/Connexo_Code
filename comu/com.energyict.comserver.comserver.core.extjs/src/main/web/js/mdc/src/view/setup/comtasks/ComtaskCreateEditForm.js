@@ -30,14 +30,11 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                     width: 900
                 },
                 {
-                    layout: 'column',
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('comtask.commands', 'MDC', 'Commands'),
+                    labelWidth: 200,
+                    required: true,
                     items: [
-                        {
-                            xtype: 'label',
-                            html: Uni.I18n.translate('comtask.commands', 'MDC', 'Commands'),
-                            width: 205,
-                            required: true
-                        },
                         {
                           xtype: 'container',
                           itemId: 'buttonsAndNamesContainer',
@@ -72,7 +69,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                 },
                 {
                     xtype: 'toolbar',
-                    margin: '0 0 0 205',
+                    margin: '0 0 0 215',
                     items: [
                         {
                             xtype: 'button',
