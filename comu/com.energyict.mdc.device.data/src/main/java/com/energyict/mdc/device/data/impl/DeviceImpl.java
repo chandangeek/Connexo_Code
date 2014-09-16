@@ -1211,7 +1211,7 @@ public class DeviceImpl implements Device {
         if (found.isPresent()) {
             Optional<MeterActivation> meterActivation = found.get().getMeterActivation(when);
             if (meterActivation.isPresent()) {
-                getChannel(meterActivation.get(), channel.getReadingType());
+                return Optional.fromNullable(getChannel(meterActivation.get(), channel.getReadingType()).orElse(null));
             }
         }
         return Optional.absent();
