@@ -82,7 +82,7 @@ Ext.define('Isu.controller.history.Workspace', {
                     }
                 },
                 datavalidation: {
-                    title: Uni.I18n.translate('router.datavalidation', 'ISE', 'Data validation'),
+                    title: Uni.I18n.translate('router.datavalidation', 'ISU', 'Data validation'),
                     route: 'datavalidation',
                     controller: 'Isu.controller.DataValidation',
                     action: 'showOverview',
@@ -124,28 +124,28 @@ Ext.define('Isu.controller.history.Administration', {
 
     routeConfig: {
         administration : {
-            title: Uni.I18n.translate('route.administration', 'ISE', 'Administration'),
+            title: Uni.I18n.translate('route.administration', 'ISU', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
                 assignmentrules: {
-                    title: Uni.I18n.translate('route.assignmentRules', 'ISE', 'Assignment Rules'),
+                    title: Uni.I18n.translate('route.assignmentRules', 'ISU', 'Assignment Rules'),
                     route: 'assignmentrules',
                     controller: 'Isu.controller.IssueAssignmentRules'
                 },
                 creationrules: {
-                    title: Uni.I18n.translate('route.issueCreationRules', 'ISE', 'Issue creation rules'),
+                    title: Uni.I18n.translate('route.issueCreationRules', 'ISU', 'Issue creation rules'),
                     route: 'creationrules',
                     controller: 'Isu.controller.IssueCreationRules',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('route.addIssueCreationRule', 'ISE', 'Add issue creation rule'),
+                            title: Uni.I18n.translate('route.addIssueCreationRule', 'ISU', 'Add issue creation rule'),
                             route: 'add',
                             controller: 'Isu.controller.IssueCreationRulesEdit',
                             action: 'showCreate',
                             items: {
                                 addaction: {
-                                    title: Uni.I18n.translate('route.addAction', 'ISE', 'Add action'),
+                                    title: Uni.I18n.translate('route.addAction', 'ISU', 'Add action'),
                                     route: 'addaction',
                                     controller: 'Isu.controller.IssueCreationRulesActionsEdit',
                                     action: 'showCreate'
@@ -183,7 +183,15 @@ Ext.define('Isu.model.Assignee', {
             displayValue: 'IDX',
             type: 'string',
             convert: function (value, record) {
-                return [record.get('id'), record.get('type')].join(':');
+                var idx = null,
+                    id = record.get('id'),
+                    type = record.get('type');
+
+                if (id && type) {
+                    idx = id + ':' + type;
+                }
+
+                return idx;
             }
         },
         {
@@ -347,7 +355,7 @@ Ext.define('Isu.model.IssueFilter', {
      * @override
      * @returns {String[]}
      */
-    getFields: function() {
+    getFields: function () {
         var fields = this.callParent();
         fields.push('assigneeId');
         fields.push('assigneeType');
@@ -358,13 +366,14 @@ Ext.define('Isu.model.IssueFilter', {
      * @override
      * @returns {*|Object}
      */
-    getPlainData: function() {
-        var data = this.callParent();
-        var assignee = this.get('assignee');
+    getPlainData: function () {
+        var data = this.callParent(),
+            assignee;
 
-        if (assignee) {
-            data.assigneeId = assignee.get('id');
-            data.assigneeType = assignee.get('type');
+        if (data.assignee) {
+            assignee = data.assignee.split(':');
+            data.assigneeId = assignee[0];
+            data.assigneeType = assignee[1];
         }
 
         return data;
@@ -771,967 +780,6 @@ Ext.define('Isu.util.IsuComboTooltip', {
     }
 });
 
-Ext.define('Isu.view.workspace.issues.FilteringToolbar', {
-    extend: 'Uni.view.panel.FilterToolbar',
-    requires: [
-        'Uni.view.button.TagButton'
-    ],
-    alias: 'widget.filtering-toolbar',
-    title: 'Filters',
-    name: 'filter',
-    emptyText: 'None',
-    layout: {
-        type: 'hbox',
-        align: 'stretch'
-    },
-
-    /**
-     * todo: I18n
-     * @param filter Uni.component.filter.model.Filter
-     */
-    addFilterButtons: function (filter) {
-        var me = this,
-            btnClass = 'Uni.view.button.TagButton',
-            container = me.getContainer();
-
-
-        container.removeAll();
-
-        if (filter.get('assignee')) {
-            container.add(Ext.create(btnClass, {
-                itemId: 'filter-by-assignee',
-                text: 'Assignee: ' + filter.get('assignee').get('name'),
-                target: 'assignee'
-            }));
-
-        }
-
-        if (filter.get('reason')) {
-            container.add(Ext.create(btnClass, {
-                itemId: 'filter-by-reason',
-                text: 'Reason: ' + filter.get('reason').get('name'),
-                target: 'reason'
-            }));
-        }
-
-        if (filter.get('department')) {
-            container.add(Ext.create(btnClass, {
-                itemId: 'filter-by-department',
-                text: 'Department: ' + filter.get('department').get('name'),
-                target: 'department'
-            }));
-        }
-
-        if (filter.get('meter')) {
-            container.add(Ext.create(btnClass, {
-                itemId: 'filter-by-meter',
-                text: 'Meter: ' + filter.get('meter').get('name'),
-                target: 'meter'
-            }));
-        }
-
-        if (filter.status().count()) {
-            filter.status().each(function (status) {
-                var c = container.add({
-                    xtype: 'tag-button',
-                    itemId: 'filter-by-status',
-                    text: 'Status: ' + status.get('name'),
-                    target: 'status',
-                    targetId: status.getId()
-                });
-            });
-        }
-    }
-});
-
-Ext.define('Isu.view.workspace.issues.SortMenu', {
-    extend: 'Ext.menu.Menu',
-    alias: 'widget.issue-sort-menu',
-    itemId: 'SortMenu',
-    shadow: false,
-    border: false,
-    plain: true,
-    items: [
-        {
-            itemId: 'sortEl',
-            text: 'Due date',
-            action: 'dueDate'
-        }
-    ]
-});
-
-Ext.define('Isu.view.workspace.issues.SortingToolbar', {
-    extend: 'Uni.view.panel.FilterToolbar',
-    requires: [
-        'Uni.view.button.SortItemButton',
-        'Isu.view.workspace.issues.SortMenu'
-    ],
-    alias: 'widget.sorting-toolbar',
-    title: 'Sort',
-    name: 'sortitemspanel',
-    emptyText: 'None',
-    tools: [
-        {
-            itemId: 'addSort',
-            xtype: 'button',
-            action: 'addSort',
-            text: 'Add sort',
-            menu: {
-                xtype: 'issue-sort-menu'
-            }
-        }
-    ],
-    addSortButtons: function (sortModel) {
-        var self = this,
-            container = self.getContainer(),
-            data = sortModel.getData(),
-            menuItem,
-            cls;
-
-        container.removeAll();
-        Ext.Object.each(data, function (key, value) {
-            if (key != 'id' && value) {
-                menuItem = self.down('issue-sort-menu [action=' + key + ']');
-                cls = value == Isu.model.IssueSort.ASC
-                    ? 'x-btn-sort-item-asc'
-                    : 'x-btn-sort-item-desc';
-
-                container.add({
-                    itemId: 'sortingBy',
-                    xtype: 'sort-item-btn',
-                    text: menuItem.text,
-                    sortName: key,
-                    sortDirection: value,
-                    iconCls: cls
-                });
-            }
-        });
-    }
-});
-
-Ext.define('Isu.store.IssueGrouping', {
-    extend: 'Ext.data.Store',
-    model: 'Isu.model.IssueGrouping',
-    data: [
-        {
-            value: 'none',
-            display: 'None'
-        },
-        {
-            value: 'reason',
-            display: 'Reason'
-        }
-    ]
-});
-
-Ext.define('Isu.view.workspace.issues.GroupingToolbar', {
-    extend: 'Uni.view.panel.FilterToolbar',
-    requires: [
-        'Isu.store.IssueGrouping'
-    ],
-    alias: 'widget.grouping-toolbar',
-    title: 'Group',
-    name: 'group',
-    showClearButton: false,
-    content: {
-        itemId: 'group_combobox',
-        xtype: 'combobox',
-        name: 'groupingcombo',
-        store: 'Isu.store.IssueGrouping',
-        editable: false,
-        emptyText: 'None',
-        queryMode: 'local',
-        displayField: 'display',
-        valueField: 'value',
-        labelAlign: 'left'
-    }
-});
-
-Ext.define('Isu.model.IssuesGroups', {
-    extend: 'Ext.data.Model',
-    fields: [
-        {
-            name: 'id',
-            type: 'int'
-        },
-        {
-            name: 'reason',
-            type: 'text'
-        },
-        {
-            name: 'number',
-            type: 'int'
-        }
-    ],
-
-    proxy: {
-        type: 'rest',
-        url: '/api/isu/issue/groupedlist',
-        reader: {
-            type: 'json',
-            root: 'data',
-            totalProperty: 'totalCount'
-        }
-    }
-});
-
-Ext.define('Isu.store.IssuesGroups', {
-    extend: 'Ext.data.Store',
-    model: 'Isu.model.IssuesGroups',
-    pageSize: 10,
-    autoLoad: false,
-
-    listeners: {
-        beforeload: function () {
-            this.getProxy().setExtraParam('issueType', 'datacollection');
-        }
-    }
- });
-
-Ext.define('Isu.view.workspace.issues.GroupGrid', {
-    extend: 'Ext.grid.Panel',
-    requires: [
-        'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Isu.store.IssuesGroups'
-    ],
-    alias: 'widget.issue-group-grid',
-    store: 'Isu.store.IssuesGroups',
-    columns: {
-        defaults: {
-            sortable: false,
-            menuDisabled: true
-        },
-        items: [
-            {
-                itemId: 'reason',
-                text: 'Reason',
-                dataIndex: 'reason',
-                flex: 5
-            },
-            {
-                itemId: 'issues_num',
-                text: 'Issues',
-                dataIndex: 'number',
-                flex: 1
-            }
-        ]
-    },
-
-    initComponent: function () {
-        var me = this;
-
-        me.dockedItems = [
-            {
-                xtype: 'pagingtoolbartop',
-                dock: 'top',
-                store: me.store,
-                displayMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMsg', 'ISE', '{0} - {1} of {2} items'),
-                displayMoreMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMoreMsg', 'ISE', '{0} - {1} of more than {2} items'),
-                emptyMsg: '0 reasons'
-            },
-            {
-                xtype: 'pagingtoolbarbottom',
-                dock: 'bottom',
-                store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.itemsPerPageMsg', 'ISE', 'Items per page')
-            }
-        ];
-
-        me.callParent(arguments);
-    }
-});
-
-Ext.define('Isu.view.workspace.issues.IssueGroup', {
-    extend: 'Ext.panel.Panel',
-    requires: [
-        'Isu.view.workspace.issues.GroupGrid'
-    ],
-    itemId: 'IssueGroup',
-    alias: 'widget.issue-group',
-    hidden: true,
-    items: [
-        {
-            itemId: 'issue-group-grid',
-            xtype: 'issue-group-grid'
-        },
-        {
-            name: 'issue-group-info',
-            hidden: true
-        }
-    ]
-});
-
-Ext.define('Isu.view.workspace.issues.Filter', {
-    extend: 'Ext.panel.Panel',
-    requires: [
-        'Ext.menu.Separator',
-        'Isu.view.workspace.issues.FilteringToolbar',
-        'Isu.view.workspace.issues.SortingToolbar',
-        'Isu.view.workspace.issues.GroupingToolbar',
-        'Isu.view.workspace.issues.IssueGroup'
-    ],
-    alias: "widget.issues-filter",
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    items: [
-        {
-            xtype: 'filtering-toolbar'
-        },
-        {
-            itemId: 'menuseparator',
-            xtype: 'menuseparator'
-        },
-        {
-            xtype: 'grouping-toolbar'
-        },
-        {
-            itemId: 'menuseparator',
-            xtype: 'menuseparator'
-        },
-        {
-            xtype: 'sorting-toolbar'
-        },
-        {
-            xtype: 'issue-group'
-        }
-    ]
-});
-
-Ext.define('Isu.view.workspace.issues.List', {
-    extend: 'Ext.grid.Panel',
-    requires: [
-        'Ext.grid.column.Date',
-        'Ext.form.field.ComboBox',
-        'Ext.grid.column.Template',
-        'Uni.grid.column.Action',
-        'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
-    ],
-    alias: 'widget.issues-list',
-    itemId: 'issues-list',
-    store: 'Isu.store.Issues',
-    columns: {
-        defaults: {
-            sortable: false,
-            menuDisabled: true
-        },
-        items: [
-            {
-                itemId: 'Title',
-                header: Uni.I18n.translate('general.title.title', 'ISE', 'Title'),
-                xtype: 'templatecolumn',
-                tpl: '<a href="#/workspace/datacollection/issues/{id}">{title}</a>',
-                flex: 2
-            },
-            {
-                itemId: 'dueDate',
-                header: Uni.I18n.translate('general.title.dueDate', 'ISE', 'Due date'),
-                dataIndex: 'dueDate',
-                xtype: 'datecolumn',
-                format: 'M d Y',
-                width: 140
-            },
-            {
-                itemId: 'status',
-                header: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
-                dataIndex: 'status_name',
-                width: 100
-            },
-            {
-                itemId: 'assignee',
-                header: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="assignee_type"><span class="isu-icon-{assignee_type} isu-assignee-type-icon"></span></tpl> {assignee_name}',
-                flex: 1
-            },
-            {
-                itemId: 'action',
-                xtype: 'uni-actioncolumn',
-                items: 'Isu.view.workspace.issues.ActionMenu'
-            }
-        ]
-    },
-    dockedItems: [
-        {
-            itemId: 'pagingtoolbartop',
-            xtype: 'pagingtoolbartop',
-            dock: 'top',
-            displayMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMsg', 'ISE', '{0} - {1} of {2} issues'),
-            displayMoreMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMoreMsg', 'ISE', '{0} - {1} of more than {2} issues'),
-            emptyMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.emptyMsg', 'ISE', 'There are no issues to display'),
-            items: [
-                '->',
-                {
-                    itemId: 'bulkAction',
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.title.bulkActions', 'ISE', 'Bulk action'),
-                    action: 'bulkchangesissues',
-                    hrefTarget: '',
-                    href: '#/workspace/datacollection/bulkaction'
-                }
-            ]
-        },
-        {
-            itemId: 'pagingtoolbarbottom',
-            xtype: 'pagingtoolbarbottom',
-            dock: 'bottom',
-            itemsPerPageMsg: Uni.I18n.translate('workspace.issues.pagingtoolbarbottom.itemsPerPage', 'ISE', 'Issues per page')
-        }
-    ],
-
-    initComponent: function () {
-        var store = this.store,
-            pagingToolbarTop = Ext.Array.findBy(this.dockedItems, function (item) {
-                return item.xtype == 'pagingtoolbartop';
-            }),
-            pagingToolbarBottom = Ext.Array.findBy(this.dockedItems, function (item) {
-                return item.xtype == 'pagingtoolbarbottom';
-            });
-
-        pagingToolbarTop && (pagingToolbarTop.store = store);
-        pagingToolbarBottom && (pagingToolbarBottom.store = store);
-
-        this.callParent(arguments);
-    }
-});
-
-Ext.define('Isu.view.workspace.issues.ActionMenu', {
-
-    extend: 'Ext.menu.Menu',
-    alias: 'widget.issue-action-menu',
-    plain: true,
-    items: [
-        {   itemId: 'assign',
-            text: 'Assign',
-            action: 'assign'
-        },
-        {
-            itemId: 'close',
-            text: 'Close',
-            action: 'close'
-        },
-        {
-            itemId: 'addcomment',
-            text: 'Add comment',
-            action: 'addcomment'
-        },
-        {
-            itemId: 'notify',
-            text: 'Notify user',
-            action: 'notify'
-        },
-        {
-            itemId: 'send',
-            text: 'Send to inspect',
-            action: 'send'
-        }
-    ]
-});
-
-Ext.define('Isu.view.workspace.issues.FormWithFilters', {
-    extend: 'Ext.form.Panel',
-    alias: 'widget.issue-form-with-filters',
-    layout: 'column',
-    itemId: 'issue-detailed-form',
-    defaults: {
-        xtype: 'container',
-        layout: 'form',
-        columnWidth: 0.5
-    },
-    ui: 'medium',
-
-    items: [
-        {
-            defaults: {
-                xtype: 'displayfield',
-                labelWidth: 200
-            },
-            items: [
-                {
-                    itemId: '_reason',
-                    fieldLabel: Uni.I18n.translate('general.title.reason', 'ISE', 'Reason'),
-                    name: 'reason_name_f'
-                },
-                {
-                    itemId: '_customer',
-                    fieldLabel: Uni.I18n.translate('general.title.customer', 'ISE', 'Customer'),
-                    name: 'customer'
-                },
-                {
-                    itemId: '_location',
-                    fieldLabel: Uni.I18n.translate('general.title.location', 'ISE', 'Location'),
-                    name: 'service_location'
-                },
-                {
-                    itemId: '_usagepoint',
-                    fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISE', 'Usage point'),
-                    name: 'usage_point'
-                },
-                {
-                    itemId: '_devicename',
-                    fieldLabel: Uni.I18n.translate('general.title.device', 'ISE', 'Device'),
-                    name: 'device_f'
-                }
-            ]
-        },
-        {
-            defaults: {
-                xtype: 'displayfield',
-                labelWidth: 200
-            },
-            items: [
-                {
-                    itemId: '_status',
-                    fieldLabel: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
-                    name: 'status_name_f'
-                },
-                {
-                    itemId: '_dueDate',
-                    fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISE', 'Due date'),
-                    name: 'dueDate',
-                    renderer: Ext.util.Format.dateRenderer('M d, Y')
-                },
-                {
-                    itemId: '_assignee',
-                    fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
-                    name: 'assignee_name_f'
-                },
-                {
-                    itemId: '_creationDate',
-                    fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISE', 'Creation date'),
-                    name: 'creationDate',
-                    renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
-                },
-                {
-                    itemId: '_serviceCat',
-                    fieldLabel: Uni.I18n.translate('general.title.serviceCategory', 'ISE', 'Service category'),
-                    name: 'service_category'
-                }
-            ]
-        }
-    ]
-});
-
-Ext.define('Isu.view.workspace.issues.Item', {
-    extend: 'Ext.panel.Panel',
-    alias: 'widget.issues-item',
-    itemId: 'issues-item',
-    requires: [
-        'Isu.view.workspace.issues.ActionMenu',
-        'Isu.view.workspace.issues.FormWithFilters'
-    ],
-    title: '',
-    frame: true,
-    tools: [
-        {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
-            menu: {
-                xtype: 'issue-action-menu'
-            }
-        }
-    ],
-    items: {
-        itemId: 'issue-form-with-filters',
-        xtype: 'issue-form-with-filters',
-        bbar: {
-            layout: {
-                type: 'vbox',
-                align: 'right'
-            },
-            items: {
-                text: Uni.I18n.translate('general.title.viewDetails', 'ISE', 'View details'),
-                itemId: 'viewDetails',
-                ui: 'link',
-                action: 'view',
-                listeners: {
-                    click: function () {
-                        window.location.href = "#/workspace/datacollection/issues/" + this.up('form').getRecord().get('id')
-                    }
-                }
-            }
-        }
-    }
-});
-
-Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
-    extend: 'Ext.ux.Rixo.form.field.GridPicker',
-
-    alias: 'widget.issues-assignee-combo',
-    store: 'Isu.store.Assignee',
-    displayField: 'name',
-    valueField: 'idx',
-
-    triggerAction: 'query',
-    queryMode: 'remote',
-    queryParam: 'like',
-    allQuery: '',
-    lastQuery: '',
-    queryDelay: 100,
-    minChars: 0,
-    disableKeyFilter: true,
-    queryCaching: false,
-
-    formBind: true,
-    typeAhead: true,
-
-    anchor: '100%',
-
-    forceSelection: true,
-
-    gridConfig: {
-        emptyText: 'No assignee found',
-        resizable: false,
-        stripeRows: true,
-
-        features: [
-            {
-                ftype: 'grouping',
-                groupHeaderTpl: '{name}',
-                collapsible: false
-            }
-        ],
-        columns: [
-            {
-                header: false,
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="type"><span class="isu-icon-{type} isu-assignee-type-icon"></span></tpl> {name}',
-                flex: 1
-            }
-        ]
-    },
-    listeners: {
-        focus: {
-            fn: function(combo){
-                if (!combo.getValue()) {
-                    combo.doQuery(combo.getValue());
-                }
-            }
-        },
-        change: {
-          fn: function(combo, newValue){
-              if (!newValue){
-                  combo.reset();
-              }
-          }
-        },
-        beforequery: {
-            fn: function(queryPlan) {
-                var store = queryPlan.combo.store;
-                if (queryPlan.query) {
-                    store.group('type');
-                } else {
-                    store.clearGrouping();
-                }
-            }
-        }
-    }
-});
-
-
-Ext.define('Isu.util.FilterCheckboxgroup', {
-    extend: 'Ext.form.CheckboxGroup',
-    alias: 'widget.filter-checkboxgroup',
-    mixins: {
-        bindable: 'Ext.util.Bindable'
-    },
-
-    checkbox: {
-        boxLabel: 'name',
-        inputValue: 'id'
-    },
-
-    initComponent: function () {
-        var me = this;
-
-        me.bindStore(me.store || 'ext-empty-store', true);
-
-        this.callParent(arguments);
-    },
-
-    beforeRender: function () {
-        this.callParent(arguments);
-        if (!this.store.isLoading()) {
-            this.onLoad();
-        }
-    },
-
-    onLoad: function () {
-        var me = this;
-
-        me.removeAll();
-        Ext.Array.forEach(me.store.getRange(), function (item) {
-            me.add({
-                xtype: 'checkboxfield',
-                boxLabel: item.data[me.checkbox.boxLabel],
-                inputValue: item.data[me.checkbox.inputValue],
-                name: me.name
-            });
-        });
-        me.fireEvent('itemsadded', me, me.store);
-    },
-
-    setValue: function(data) {
-        var values = {};
-        values[this.name] = data;
-        this.callParent([values]);
-    },
-
-    getStoreListeners: function () {
-        return {
-            load: this.onLoad
-        };
-    }
-});
-
-Ext.define('Isu.store.IssueStatus', {
-    extend: 'Ext.data.Store',
-    model: 'Isu.model.IssueStatus',
-    autoLoad: true
-});
-
-Ext.define('Isu.store.IssueReason', {
-    extend: 'Ext.data.Store',
-    model: 'Isu.model.IssueReason',
-    autoLoad: false,
-
-    listeners: {
-        beforeload: function () {
-            this.getProxy().setExtraParam('issueType', 'datacollection');
-        }
-    }
-});
-
-Ext.define('Isu.view.workspace.issues.SideFilter', {
-    extend: 'Ext.panel.Panel',
-    alias: 'widget.issues-side-filter',
-    cls: 'filter-form',
-    width: 200,
-    title: Uni.I18n.translate('general.title.filter', 'ISE', 'Filter'),
-    ui: 'filter',
-    requires: [
-        'Isu.view.workspace.issues.component.AssigneeCombo',
-        'Isu.util.FilterCheckboxgroup',
-        'Uni.component.filter.view.Filter',
-        'Isu.store.IssueStatus',
-        'Isu.store.IssueReason'
-    ],
-
-    items: [
-        {
-            xtype: 'filter-form',
-            itemId: 'filter-form',
-            items: [
-                {
-                    itemId: 'filter-by-status',
-                    xtype: 'filter-checkboxgroup',
-                    store: 'Isu.store.IssueStatus',
-                    name: 'status',
-                    fieldLabel: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
-                    labelAlign: 'top',
-                    columns: 1,
-                    vertical: true
-                },
-                {
-                    itemId: 'filter-by-assignee',
-                    xtype: 'issues-assignee-combo',
-                    name: 'assignee',
-                    fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
-                    labelAlign: 'top',
-                    forceSelection: true,
-                    anyMatch: true,
-                    emptyText: 'select an assignee',
-                    tooltipText: 'Start typing for assignee'
-                },
-                {
-                    itemId: 'filter-by-reason',
-                    xtype: 'combobox',
-                    name: 'reason',
-                    fieldLabel: Uni.I18n.translate('general.title.reason', 'ISE', 'Reason'),
-                    labelAlign: 'top',
-
-                    displayField: 'name',
-                    valueField: 'id',
-                    forceSelection: true,
-                    store: 'Isu.store.IssueReason',
-
-                    listConfig: {
-                        cls: 'isu-combo-color-list',
-                        emptyText: 'No reason found'
-                    },
-
-                    queryMode: 'remote',
-                    queryParam: 'like',
-                    queryDelay: 100,
-                    queryCaching: false,
-                    minChars: 1,
-
-                    triggerAction: 'query',
-                    anchor: '100%',
-                    emptyText: 'select a reason',
-                    tooltipText: 'Start typing for reason'
-                },
-                {
-                    itemId: 'filter-by-meter',
-                    xtype: 'combobox',
-                    name: 'meter',
-                    fieldLabel: Uni.I18n.translate('general.title.meter', 'ISE', 'Meter'),
-                    labelAlign: 'top',
-
-                    displayField: 'name',
-                    valueField: 'id',
-                    forceSelection: true,
-                    store: 'Isu.store.IssueMeter',
-
-                    listConfig: {
-                        cls: 'isu-combo-color-list',
-                        emptyText: 'No meter found'
-                    },
-
-                    queryMode: 'remote',
-                    queryParam: 'like',
-                    queryDelay: 100,
-                    queryCaching: false,
-                    minChars: 1,
-
-                    triggerAction: 'query',
-                    anchor: '100%',
-                    emptyText: 'select a MRID of the meter',
-                    tooltipText: 'Start typing for a MRID'
-                }
-            ]
-        }
-    ],
-
-    dockedItems: [
-        {
-            xtype: 'toolbar',
-            dock: 'bottom',
-            items: [
-                {
-                    itemId: 'fApply',
-                    ui: 'action',
-                    text: 'Apply',
-                    action: 'filter'
-                },
-                {
-                    itemId: 'fReset',
-                    text: 'Clear all',
-                    action: 'reset'
-                }
-            ]
-        }
-    ]
-});
-
-Ext.define('Isu.view.workspace.issues.Overview', {
-    extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.issues-overview',
-    itemId: 'issuesOverview',
-
-    requires: [
-        'Uni.view.navigation.SubMenu',
-        'Isu.view.workspace.issues.Filter',
-        'Isu.view.workspace.issues.List',
-        'Isu.view.workspace.issues.Item',
-        'Isu.view.workspace.issues.SideFilter',
-        'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
-    ],
-
-    side: {
-        itemId: 'navigation',
-        xtype: 'panel',
-        ui: 'medium',
-        title: 'Navigation',
-        layout: {
-            type: 'vbox',
-            align: 'stretch'
-        },
-        items: [
-            {
-                itemId: 'overview',
-                xtype: 'menu',
-                title: 'Overview',
-                ui: 'side-menu',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
-                floating: false,
-                plain: true,
-                items: [
-                    {
-                        text: 'Issues',
-                        cls: 'current'
-                    }
-                ]
-            },
-            {   itemId: 'issues-side-filter',
-                xtype: 'issues-side-filter'
-            }
-        ]
-    },
-
-    content: [
-        {
-            xtype: 'panel',
-            ui: 'large',
-            title: Uni.I18n.translate('workspace.issues.title', 'ISE', 'Issues'),
-            items: [
-                {   itemId: 'issues-filter',
-                    xtype: 'issues-filter'
-                },
-                {
-                    xtype: 'preview-container',
-                    grid: {
-                        xtype: 'issues-list'
-                    },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('workspace.issues.empty.title', 'ISE', 'No issues found'),
-                        reasons: [
-                            Uni.I18n.translate('workspace.issues.empty.list.item1', 'ISE', 'No issues have been defined yet.'),
-                            Uni.I18n.translate('workspace.issues.empty.list.item2', 'ISE', 'No issues comply to the filter.')
-                        ]
-                    },
-                    previewComponent: {
-                        xtype: 'issues-item'
-                    }
-                }
-            ]
-        }
-    ]
-});
-
-Ext.define('Isu.view.workspace.issues.IssueNoGroup', {
-    extend: 'Ext.panel.Panel',
-    alias: 'widget.issue-no-group',
-    itemId: 'IssueNoGroup',
-    hidden: true,
-
-    items: [
-        {
-            itemId : 'NoGroup_text',
-            html: '<h3>No group selected</h3><p>Select a group of issues.</p>',
-            bodyPadding: 10,
-            border: false
-        }
-    ]
-});
-
-Ext.define('Isu.view.ext.button.GridAction', {
-    extend: 'Ext.button.Button',
-    alias: 'widget.grid-action',
-    cls: 'isu-grid-action-btn',
-    menuAlign: 'tl-bl'
-
-});
-
 Ext.define('Isu.model.Device', {
     extend: 'Ext.data.Model',
     fields: [
@@ -1914,6 +962,1172 @@ Ext.define('Isu.model.Issues', {
     }
 });
 
+Ext.define('Isu.view.workspace.issues.component.AssigneeCombo', {
+    extend: 'Ext.ux.Rixo.form.field.GridPicker',
+
+    alias: 'widget.issues-assignee-combo',
+    store: 'Isu.store.Assignee',
+    displayField: 'name',
+    valueField: 'idx',
+
+    triggerAction: 'query',
+    queryMode: 'remote',
+    queryParam: 'like',
+    allQuery: '',
+    lastQuery: '',
+    queryDelay: 100,
+    minChars: 0,
+    disableKeyFilter: true,
+    queryCaching: false,
+
+    formBind: true,
+    typeAhead: true,
+
+    anchor: '100%',
+
+    forceSelection: true,
+
+    gridConfig: {
+        emptyText: 'No assignee found',
+        resizable: false,
+        stripeRows: true,
+
+        features: [
+            {
+                ftype: 'grouping',
+                groupHeaderTpl: '{name}',
+                collapsible: false
+            }
+        ],
+        columns: [
+            {
+                header: false,
+                xtype: 'templatecolumn',
+                tpl: '<tpl if="type"><span class="isu-icon-{type} isu-assignee-type-icon"></span></tpl> {name}',
+                flex: 1
+            }
+        ]
+    },
+    listeners: {
+        focus: {
+            fn: function(combo){
+                if (!combo.getValue()) {
+                    combo.doQuery(combo.getValue());
+                }
+            }
+        },
+        change: {
+          fn: function(combo, newValue){
+              if (!newValue){
+                  combo.reset();
+              }
+          }
+        },
+        beforequery: {
+            fn: function(queryPlan) {
+                var store = queryPlan.combo.store;
+                if (queryPlan.query) {
+                    store.group('type');
+                } else {
+                    store.clearGrouping();
+                }
+            }
+        }
+    }
+});
+
+
+Ext.define('Isu.util.FilterCheckboxgroup', {
+    extend: 'Ext.form.CheckboxGroup',
+    alias: 'widget.filter-checkboxgroup',
+    mixins: {
+        bindable: 'Ext.util.Bindable'
+    },
+
+    checkbox: {
+        boxLabel: 'name',
+        inputValue: 'id'
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.bindStore(me.store || 'ext-empty-store', true);
+
+        this.callParent(arguments);
+    },
+
+    beforeRender: function () {
+        this.callParent(arguments);
+        if (!this.store.isLoading()) {
+            this.onLoad();
+        }
+    },
+
+    onLoad: function () {
+        var me = this;
+
+        me.removeAll();
+        Ext.Array.forEach(me.store.getRange(), function (item) {
+            me.add({
+                xtype: 'checkboxfield',
+                boxLabel: item.data[me.checkbox.boxLabel],
+                inputValue: item.data[me.checkbox.inputValue],
+                name: me.name
+            });
+        });
+        me.fireEvent('itemsadded', me, me.store);
+    },
+
+    setValue: function(data) {
+        var values = {};
+        values[this.name] = data;
+        this.callParent([values]);
+    },
+
+    getStoreListeners: function () {
+        return {
+            load: this.onLoad
+        };
+    }
+});
+
+Ext.define('Isu.store.IssueStatus', {
+    extend: 'Ext.data.Store',
+    model: 'Isu.model.IssueStatus',
+    autoLoad: true
+});
+
+Ext.define('Isu.store.IssueReason', {
+    extend: 'Ext.data.Store',
+    model: 'Isu.model.IssueReason',
+    autoLoad: false,
+
+    listeners: {
+        beforeload: function () {
+            this.getProxy().setExtraParam('issueType', 'datacollection');
+        }
+    }
+});
+
+Ext.define('Isu.view.workspace.issues.SideFilter', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.issues-side-filter',
+    cls: 'filter-form',
+    width: 200,
+    title: Uni.I18n.translate('general.title.filter', 'ISU', 'Filter'),
+    ui: 'filter',
+    requires: [
+        'Isu.view.workspace.issues.component.AssigneeCombo',
+        'Isu.util.FilterCheckboxgroup',
+        'Uni.component.filter.view.Filter',
+        'Isu.store.IssueStatus',
+        'Isu.store.IssueReason'
+    ],
+
+    items: [
+        {
+            xtype: 'filter-form',
+            itemId: 'filter-form',
+            items: [
+                {
+                    itemId: 'filter-by-status',
+                    xtype: 'filter-checkboxgroup',
+                    store: 'Isu.store.IssueStatus',
+                    name: 'status',
+                    fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+                    labelAlign: 'top',
+                    columns: 1,
+                    vertical: true
+                },
+                {
+                    itemId: 'filter-by-assignee',
+                    xtype: 'issues-assignee-combo',
+                    name: 'assignee',
+                    fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
+                    labelAlign: 'top',
+                    forceSelection: true,
+                    anyMatch: true,
+                    emptyText: 'select an assignee',
+                    tooltipText: 'Start typing for assignee'
+                },
+                {
+                    itemId: 'filter-by-reason',
+                    xtype: 'combobox',
+                    name: 'reason',
+                    fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
+                    labelAlign: 'top',
+
+                    displayField: 'name',
+                    valueField: 'id',
+                    forceSelection: true,
+                    store: 'Isu.store.IssueReason',
+
+                    listConfig: {
+                        cls: 'isu-combo-color-list',
+                        emptyText: 'No reason found'
+                    },
+
+                    queryMode: 'remote',
+                    queryParam: 'like',
+                    queryDelay: 100,
+                    queryCaching: false,
+                    minChars: 1,
+
+                    triggerAction: 'query',
+                    anchor: '100%',
+                    emptyText: 'select a reason',
+                    tooltipText: 'Start typing for reason'
+                },
+                {
+                    itemId: 'filter-by-meter',
+                    xtype: 'combobox',
+                    name: 'meter',
+                    fieldLabel: Uni.I18n.translate('general.title.meter', 'ISU', 'Meter'),
+                    labelAlign: 'top',
+
+                    displayField: 'name',
+                    valueField: 'id',
+                    forceSelection: true,
+                    store: 'Isu.store.IssueMeter',
+
+                    listConfig: {
+                        cls: 'isu-combo-color-list',
+                        emptyText: 'No meter found'
+                    },
+
+                    queryMode: 'remote',
+                    queryParam: 'like',
+                    queryDelay: 100,
+                    queryCaching: false,
+                    minChars: 1,
+
+                    triggerAction: 'query',
+                    anchor: '100%',
+                    emptyText: 'select a MRID of the meter',
+                    tooltipText: 'Start typing for a MRID'
+                }
+            ]
+        }
+    ],
+
+    dockedItems: [
+        {
+            xtype: 'toolbar',
+            dock: 'bottom',
+            items: [
+                {
+                    itemId: 'fApply',
+                    ui: 'action',
+                    text: 'Apply',
+                    action: 'filter'
+                },
+                {
+                    itemId: 'fReset',
+                    text: 'Clear all',
+                    action: 'reset'
+                }
+            ]
+        }
+    ]
+});
+
+Ext.define('Isu.view.workspace.issues.FilteringToolbar', {
+    extend: 'Uni.view.panel.FilterToolbar',
+    requires: [
+        'Uni.view.button.TagButton'
+    ],
+    alias: 'widget.filtering-toolbar',
+    title: 'Filters',
+    name: 'filter',
+    emptyText: 'None',
+    layout: {
+        type: 'hbox',
+        align: 'stretch'
+    },
+
+    /**
+     * todo: I18n
+     * @param filter Uni.component.filter.model.Filter
+     */
+    addFilterButtons: function (filter) {
+        var me = this,
+            btnClass = 'Uni.view.button.TagButton',
+            container = me.getContainer(),
+            assignee = filter.getAssignee().get('name'),
+            reason = filter.getReason().get('name'),
+            meter = filter.getMeter().get('name');
+
+
+        container.removeAll();
+
+        if (assignee) {
+            container.add(Ext.create(btnClass, {
+                itemId: 'filter-by-assignee',
+                text: 'Assignee: ' + assignee,
+                target: 'assignee'
+            }));
+        }
+
+        if (reason) {
+            container.add(Ext.create(btnClass, {
+                itemId: 'filter-by-reason',
+                text: 'Reason: ' + reason,
+                target: 'reason'
+            }));
+        }
+
+        if (meter) {
+            container.add(Ext.create(btnClass, {
+                itemId: 'filter-by-meter',
+                text: 'Meter: ' + meter,
+                target: 'meter'
+            }));
+        }
+
+        if (filter.status().count()) {
+            filter.status().each(function (status) {
+                var c = container.add({
+                    xtype: 'tag-button',
+                    itemId: 'filter-by-status',
+                    text: 'Status: ' + status.get('name'),
+                    target: 'status',
+                    targetId: status.getId()
+                });
+            });
+        }
+    }
+});
+
+Ext.define('Isu.store.IssueGrouping', {
+    extend: 'Ext.data.Store',
+    model: 'Isu.model.IssueGrouping',
+    data: [
+        {
+            value: 'none',
+            display: 'None'
+        },
+        {
+            value: 'reason',
+            display: 'Reason'
+        }
+    ]
+});
+
+Ext.define('Isu.view.workspace.issues.GroupingToolbar', {
+    extend: 'Uni.view.panel.FilterToolbar',
+    requires: [
+        'Isu.store.IssueGrouping'
+    ],
+    alias: 'widget.grouping-toolbar',
+    title: 'Group',
+    name: 'group',
+    showClearButton: false,
+    content: {
+        itemId: 'group_combobox',
+        xtype: 'combobox',
+        name: 'groupingcombo',
+        store: 'Isu.store.IssueGrouping',
+        editable: false,
+        emptyText: 'None',
+        queryMode: 'local',
+        displayField: 'display',
+        valueField: 'value',
+        labelAlign: 'left'
+    }
+});
+
+Ext.define('Isu.view.workspace.issues.SortMenu', {
+    extend: 'Ext.menu.Menu',
+    alias: 'widget.issue-sort-menu',
+    itemId: 'SortMenu',
+    shadow: false,
+    border: false,
+    plain: true,
+    items: [
+        {
+            itemId: 'sortEl',
+            text: 'Due date',
+            action: 'dueDate'
+        }
+    ]
+});
+
+Ext.define('Isu.view.workspace.issues.SortingToolbar', {
+    extend: 'Uni.view.panel.FilterToolbar',
+    requires: [
+        'Uni.view.button.SortItemButton',
+        'Isu.view.workspace.issues.SortMenu'
+    ],
+    alias: 'widget.sorting-toolbar',
+    title: 'Sort',
+    name: 'sortitemspanel',
+    emptyText: 'None',
+    tools: [
+        {
+            itemId: 'addSort',
+            xtype: 'button',
+            action: 'addSort',
+            text: 'Add sort',
+            menu: {
+                xtype: 'issue-sort-menu'
+            }
+        }
+    ],
+    addSortButtons: function (sortModel) {
+        var self = this,
+            container = self.getContainer(),
+            data = sortModel.getData(),
+            menuItem,
+            cls;
+
+        container.removeAll();
+        Ext.Object.each(data, function (key, value) {
+            if (key != 'id' && value) {
+                menuItem = self.down('issue-sort-menu [action=' + key + ']');
+                cls = value == Isu.model.IssueSort.ASC
+                    ? 'x-btn-sort-item-asc'
+                    : 'x-btn-sort-item-desc';
+
+                container.add({
+                    itemId: 'sortingBy',
+                    xtype: 'sort-item-btn',
+                    text: menuItem.text,
+                    sortName: key,
+                    sortDirection: value,
+                    iconCls: cls
+                });
+            }
+        });
+    }
+});
+
+Ext.define('Isu.model.IssuesGroups', {
+    extend: 'Ext.data.Model',
+    fields: [
+        {
+            name: 'id',
+            type: 'int'
+        },
+        {
+            name: 'reason',
+            type: 'text'
+        },
+        {
+            name: 'number',
+            type: 'int'
+        }
+    ],
+
+    proxy: {
+        type: 'rest',
+        url: '/api/isu/issue/groupedlist',
+        reader: {
+            type: 'json',
+            root: 'data',
+            totalProperty: 'totalCount'
+        }
+    }
+});
+
+Ext.define('Isu.store.IssuesGroups', {
+    extend: 'Ext.data.Store',
+    model: 'Isu.model.IssuesGroups',
+    pageSize: 10,
+    autoLoad: false,
+
+    listeners: {
+        beforeload: function () {
+            this.getProxy().setExtraParam('issueType', 'datacollection');
+        }
+    }
+ });
+
+Ext.define('Isu.view.workspace.issues.GroupGrid', {
+    extend: 'Ext.grid.Panel',
+    requires: [
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom',
+        'Isu.store.IssuesGroups'
+    ],
+    alias: 'widget.issue-group-grid',
+    store: 'Isu.store.IssuesGroups',
+    columns: {
+        defaults: {
+            sortable: false,
+            menuDisabled: true
+        },
+        items: [
+            {
+                itemId: 'reason',
+                text: 'Reason',
+                dataIndex: 'reason',
+                flex: 5
+            },
+            {
+                itemId: 'issues_num',
+                text: 'Issues',
+                dataIndex: 'number',
+                flex: 1
+            }
+        ]
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.dockedItems = [
+            {
+                xtype: 'pagingtoolbartop',
+                dock: 'top',
+                store: me.store,
+                displayMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} items'),
+                displayMoreMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} items'),
+                emptyMsg: '0 reasons'
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                dock: 'bottom',
+                store: me.store,
+                itemsPerPageMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.itemsPerPageMsg', 'ISU', 'Items per page')
+            }
+        ];
+
+        me.callParent(arguments);
+    }
+});
+
+Ext.define('Isu.view.workspace.issues.IssueGroup', {
+    extend: 'Ext.panel.Panel',
+    requires: [
+        'Isu.view.workspace.issues.GroupGrid'
+    ],
+    itemId: 'IssueGroup',
+    alias: 'widget.issue-group',
+    hidden: true,
+    items: [
+        {
+            itemId: 'issue-group-grid',
+            xtype: 'issue-group-grid'
+        },
+        {
+            name: 'issue-group-info',
+            hidden: true
+        }
+    ]
+});
+
+Ext.define('Isu.view.workspace.issues.TopPanel', {
+    extend: 'Ext.container.Container',
+    requires: [
+        'Isu.view.workspace.issues.FilteringToolbar',
+        'Isu.view.workspace.issues.GroupingToolbar',
+        'Isu.view.workspace.issues.SortingToolbar',
+        'Isu.view.workspace.issues.IssueGroup',
+        'Ext.menu.Separator'
+    ],
+    alias: 'widget.issues-top-panel',
+    items: [
+        {
+            xtype: 'filtering-toolbar',
+            itemId: 'filtering-toolbar'
+        },
+        {
+            xtype: 'menuseparator'
+        },
+        {
+            xtype: 'grouping-toolbar',
+            itemId: 'grouping-toolbar'
+        },
+        {
+            xtype: 'menuseparator'
+        },
+        {
+            xtype: 'sorting-toolbar',
+            itemId: 'sorting-toolbar'
+        },
+        {
+            xtype: 'issue-group',
+            itemId: 'issue-group'
+        }
+    ]
+});
+
+Ext.define('Isu.view.workspace.issues.ActionMenu', {
+
+    extend: 'Ext.menu.Menu',
+    alias: 'widget.issue-action-menu',
+    plain: true,
+    items: [
+        {   itemId: 'assign',
+            text: 'Assign',
+            action: 'assign'
+        },
+        {
+            itemId: 'close',
+            text: 'Close',
+            action: 'close'
+        },
+        {
+            itemId: 'addcomment',
+            text: 'Add comment',
+            action: 'addcomment'
+        },
+        {
+            itemId: 'notify',
+            text: 'Notify user',
+            action: 'notify'
+        },
+        {
+            itemId: 'send',
+            text: 'Send to inspect',
+            action: 'send'
+        }
+    ]
+});
+
+Ext.define('Isu.view.workspace.issues.Grid', {
+    extend: 'Ext.grid.Panel',
+    requires: [
+        'Ext.grid.column.Date',
+        'Ext.grid.column.Template',
+        'Uni.grid.column.Action',
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom',
+        'Isu.view.workspace.issues.ActionMenu'
+    ],
+    alias: 'widget.issues-grid',
+    store: 'Isu.store.Issues',
+    issueType: null,
+    router: null,
+
+    initComponent: function () {
+        var me = this;
+
+        me.columns = [
+            {
+                itemId: 'issues-grid-title',
+                header: Uni.I18n.translate('general.title.title', 'ISU', 'Title'),
+                dataIndex: 'reason',
+                flex: 2,
+                renderer: function (value, metaData, record) {
+                    var device = record.get('device'),
+                        title = value.name + (device ? ' to ' + device.name + ' ' + device.serialNumber : ''),
+                        url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({id: record.getId()});
+
+                    return '<a href="' + url + '">' + title + '</a>';
+                }
+            },
+            {
+                itemId: 'issues-grid-due-date',
+                header: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
+                dataIndex: 'dueDate',
+                xtype: 'datecolumn',
+                format: 'M d Y',
+                width: 140
+            },
+            {
+                itemId: 'issues-grid-status',
+                header: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+                dataIndex: 'status_name',
+                width: 100
+            },
+            {
+                itemId: 'issues-grid-assignee',
+                header: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
+                xtype: 'templatecolumn',
+                tpl: '<tpl if="assignee_type"><span class="isu-icon-{assignee_type} isu-assignee-type-icon"></span></tpl> {assignee_name}',
+                flex: 1
+            },
+            {
+                itemId: 'action',
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'issue-action-menu',
+                    itemId: 'issue-action-menu',
+                    issueType: me.issueType
+                }
+            }
+        ];
+
+        me.dockedItems = [
+            {
+                itemId: 'pagingtoolbartop',
+                xtype: 'pagingtoolbartop',
+                dock: 'top',
+                store: me.store,
+                displayMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} issues'),
+                displayMoreMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} issues'),
+                emptyMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.emptyMsg', 'ISU', 'There are no issues to display'),
+                items: [
+                    '->',
+                    {
+                        itemId: 'bulkAction',
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
+                        action: 'bulkchangesissues',
+                        hrefTarget: '',
+                        href: me.router.getRoute('workspace/' + me.issueType.toLowerCase() + '/bulk').buildUrl()
+                    }
+                ]
+            },
+            {
+                itemId: 'pagingtoolbarbottom',
+                xtype: 'pagingtoolbarbottom',
+                dock: 'bottom',
+                store: me.store,
+                itemsPerPageMsg: Uni.I18n.translate('workspace.issues.pagingtoolbarbottom.itemsPerPage', 'ISU', 'Issues per page')
+            }
+        ];
+
+        me.callParent(arguments);
+    }
+});
+
+Ext.define('Isu.view.workspace.issues.DataCollectionPreviewForm', {
+    extend: 'Ext.form.Panel',
+    requires: [
+        'Uni.form.field.FilterDisplay'
+    ],
+    alias: 'widget.datacollection-issue-form',
+    layout: 'column',
+    defaults: {
+        xtype: 'container',
+        layout: 'form',
+        columnWidth: 0.5
+    },
+    ui: 'medium',
+    showFilters: false,
+    router: null,
+    initComponent: function () {
+        var me = this,
+            displayFieldType;
+
+        if (me.showFilters) {
+            displayFieldType = 'filter-display';
+        } else {
+            displayFieldType = 'displayfield';
+        }
+
+        me.items = [
+            {
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 200
+                },
+                items: [
+                    {
+                        xtype: displayFieldType,
+                        itemId: 'reason',
+                        fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
+                        name: 'reason',
+                        renderer: function (value) {
+                            return value.name ? value.name : '';
+                        }
+                    },
+                    {
+                        itemId: '_customer',
+                        fieldLabel: Uni.I18n.translate('general.title.customer', 'ISU', 'Customer'),
+                        name: 'customer'
+                    },
+                    {
+                        itemId: '_location',
+                        fieldLabel: Uni.I18n.translate('general.title.location', 'ISU', 'Location'),
+                        name: 'service_location'
+                    },
+                    {
+                        itemId: '_usagepoint',
+                        fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
+                        name: 'usage_point'
+                    },
+                    {
+                        xtype: displayFieldType,
+                        itemId: 'device',
+                        fieldLabel: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
+                        name: 'device',
+                        renderer: function (value) {
+                            var url = '',
+                                result = '';
+
+                            if (value) {
+                                if (value.serialNumber) {
+                                    url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
+                                    result = '<a href="' + url + '">' + value.name + ' ' + value.serialNumber + '</a>';
+                                } else {
+                                    result = value.name + ' ' + value.serialNumber;
+                                }
+                            }
+
+                            return result;
+                        }
+                    }
+                ]
+            },
+            {
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 200
+                },
+                items: [
+                    {
+                        xtype: displayFieldType,
+                        itemId: 'status',
+                        fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+                        name: 'status',
+                        renderer: function (value) {
+                            return value.name ? value.name : '';
+                        }
+                    },
+                    {
+                        itemId: '_dueDate',
+                        fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
+                        name: 'dueDate',
+                        renderer: Ext.util.Format.dateRenderer('M d, Y')
+                    },
+                    {
+                        xtype: displayFieldType,
+                        itemId: 'assignee',
+                        fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
+                        name: 'assignee',
+                        renderer: function (value) {
+                            return value.name ? value.name : Uni.I18n.translate('general.none', 'ISU', 'None');
+                        }
+                    },
+                    {
+                        itemId: '_creationDate',
+                        fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
+                        name: 'creationDate',
+                        renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
+                    },
+                    {
+                        itemId: '_serviceCat',
+                        fieldLabel: Uni.I18n.translate('general.title.serviceCategory', 'ISU', 'Service category'),
+                        name: 'service_category'
+                    }
+                ]
+            }
+        ];
+
+        me.callParent(arguments);
+    }
+});
+
+Ext.define('Isu.view.workspace.issues.DataValidationPreviewForm', {
+    extend: 'Ext.form.Panel',
+    requires: [
+        'Uni.form.field.FilterDisplay'
+    ],
+    alias: 'widget.datavalidation-issue-form',
+    ui: 'medium',
+    showFilters: false,
+    router: null,
+    initComponent: function () {
+        var me = this,
+            displayFieldType;
+
+        if (me.showFilters) {
+            displayFieldType = 'filter-display';
+        } else {
+            displayFieldType = 'displayfield';
+        }
+
+        me.items = [
+            {
+                xtype: 'container',
+                layout: 'column',
+                defaults: {
+                    xtype: 'container',
+                    layout: 'form',
+                    columnWidth: 0.5
+                },
+                items: [
+                    {
+                        defaults: {
+                            xtype: 'displayfield',
+                            labelWidth: 200
+                        },
+                        items: [
+                            {
+                                xtype: displayFieldType,
+                                itemId: 'reason',
+                                fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
+                                name: 'reason',
+                                renderer: function (value) {
+                                    return value.name ? value.name : '';
+                                }
+                            },
+                            {
+                                itemId: '_customer',
+                                fieldLabel: Uni.I18n.translate('general.title.customer', 'ISU', 'Customer'),
+                                name: 'customer'
+                            },
+                            {
+                                itemId: '_location',
+                                fieldLabel: Uni.I18n.translate('general.title.location', 'ISU', 'Location'),
+                                name: 'service_location'
+                            },
+                            {
+                                itemId: '_usagepoint',
+                                fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
+                                name: 'usage_point'
+                            },
+                            {
+                                xtype: displayFieldType,
+                                itemId: 'device',
+                                fieldLabel: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
+                                name: 'device',
+                                renderer: function (value) {
+                                    var url = '',
+                                        result = '';
+
+                                    if (value) {
+                                        if (value.serialNumber) {
+                                            url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
+                                            result = '<a href="' + url + '">' + value.name + ' ' + value.serialNumber + '</a>';
+                                        } else {
+                                            result = value.name + ' ' + value.serialNumber;
+                                        }
+                                    }
+
+                                    return result;
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        defaults: {
+                            xtype: 'displayfield',
+                            labelWidth: 200
+                        },
+                        items: [
+                            {
+                                xtype: displayFieldType,
+                                itemId: 'status',
+                                fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+                                name: 'status',
+                                renderer: function (value) {
+                                    return value.name ? value.name : '';
+                                }
+                            },
+                            {
+                                itemId: '_dueDate',
+                                fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
+                                name: 'dueDate',
+                                renderer: Ext.util.Format.dateRenderer('M d, Y')
+                            },
+                            {
+                                xtype: displayFieldType,
+                                itemId: 'assignee',
+                                fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
+                                name: 'assignee',
+                                renderer: function (value) {
+                                    return value.name ? value.name : Uni.I18n.translate('general.none', 'ISU', 'None');
+                                }
+                            },
+                            {
+                                itemId: '_creationDate',
+                                fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
+                                name: 'creationDate',
+                                renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
+                            },
+                            {
+                                itemId: '_serviceCat',
+                                fieldLabel: Uni.I18n.translate('general.title.serviceCategory', 'ISU', 'Service category'),
+                                name: 'service_category'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                xtype: 'container',
+                layout: 'form',
+                margin: '20 0 0 0',
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 200
+                },
+                items: [
+                    {
+                        fieldLabel: '&nbsp;',
+                        value: '<b>' + Uni.I18n.translate('workspace.datavalidation.overview.title', 'ISU', 'Data validation') + '</b>'
+                    },
+                    {
+                        itemId: '_validationRule',
+                        fieldLabel: Uni.I18n.translate('general.title.validationRule', 'ISU', 'Validation rule'),
+                        name: 'validationRule'
+                    }
+                ]
+            }
+        ];
+
+        me.callParent(arguments);
+    }
+});
+
+Ext.define('Isu.view.workspace.issues.Preview', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.issues-preview',
+    requires: [
+        'Isu.view.workspace.issues.ActionMenu',
+        'Isu.view.workspace.issues.DataCollectionPreviewForm',
+        'Isu.view.workspace.issues.DataValidationPreviewForm'
+    ],
+    title: '',
+    frame: true,
+    issueType: null,
+    router: null,
+
+    initComponent: function () {
+        var me =this,
+            previewForm;
+
+        switch (me.issueType) {
+            case 'datacollection':
+                previewForm = 'datacollection-issue-form';
+                break;
+            case 'datavalidation':
+                previewForm = 'datavalidation-issue-form';
+                break;
+        }
+
+        me.items = {
+            xtype: previewForm,
+            itemId: 'issues-preview-form',
+            showFilters: true,
+            router: me.router,
+            bbar: {
+                layout: {
+                    type: 'vbox',
+                    align: 'right'
+                },
+                items: {
+                    text: Uni.I18n.translate('general.title.viewDetails', 'ISU', 'View details'),
+                    itemId: 'view-details-link',
+                    ui: 'link',
+                    href: location.href
+                }
+            }
+        };
+
+        me.tools = [
+            {
+                xtype: 'button',
+                text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
+                iconCls: 'x-uni-action-iconD',
+                menu: {
+                    xtype: 'issue-action-menu',
+                    itemId: 'issue-action-menu',
+                    issueType: me.issueType
+                }
+            }
+        ];
+
+        me.callParent(arguments);
+    }
+});
+
+Ext.define('Isu.view.workspace.issues.Setup', {
+    extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.issues-setup',
+    itemId: 'issuesOverview',
+    issueType: null,
+    router: null,
+
+    requires: [
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.view.navigation.SubMenu',
+        'Isu.view.workspace.issues.SideFilter',
+        'Isu.view.workspace.issues.TopPanel',
+        'Isu.view.workspace.issues.Grid',
+        'Isu.view.workspace.issues.Preview'
+
+        /*'Isu.view.workspace.issues.Filter',
+        'Isu.view.workspace.issues.List',
+        'Isu.view.workspace.issues.Item',
+        'Isu.view.workspace.issues.SideFilter',
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'*/
+    ],
+
+    side: {
+        itemId: 'navigation',
+        xtype: 'panel',
+        ui: 'medium',
+        title: 'Navigation',
+        layout: {
+            type: 'vbox',
+            align: 'stretch'
+        },
+        items: [
+            {
+                itemId: 'overview',
+                xtype: 'menu',
+                title: 'Overview',
+                ui: 'side-menu',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                floating: false,
+                plain: true,
+                items: [
+                    {
+                        text: 'Issues',
+                        cls: 'current'
+                    }
+                ]
+            },
+            {   itemId: 'issues-side-filter',
+                xtype: 'issues-side-filter'
+            }
+        ]
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.content = [
+            {
+                xtype: 'panel',
+                ui: 'large',
+                title: Uni.I18n.translate('workspace.issues.title', 'ISU', 'Issues'),
+                items: [
+                    {   itemId: 'issues-top-panel',
+                        xtype: 'issues-top-panel'
+                    },
+                    {
+                        xtype: 'preview-container',
+                        grid: {
+                            xtype: 'issues-grid',
+                            itemId: 'issues-grid',
+                            issueType: me.issueType,
+                            router: me.router
+                        },
+                        emptyComponent: {
+                            xtype: 'no-items-found-panel',
+                            title: Uni.I18n.translate('workspace.issues.empty.title', 'ISU', 'No issues found'),
+                            reasons: [
+                                Uni.I18n.translate('workspace.issues.empty.list.item1', 'ISU', 'No issues have been defined yet.'),
+                                Uni.I18n.translate('workspace.issues.empty.list.item2', 'ISU', 'No issues comply to the filter.')
+                            ]
+                        },
+                        previewComponent: {
+                            xtype: 'issues-preview',
+                            itemId: 'issues-preview',
+                            issueType: me.issueType,
+                            router: me.router
+                        }
+                    }
+                ]
+            }
+        ];
+
+        me.callParent(arguments);
+    }
+});
+
 Ext.define('Isu.store.Issues', {
     extend: 'Ext.data.Store',
     requires: [
@@ -1996,7 +2210,14 @@ Ext.define('Isu.controller.Issues', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Isu.model.ExtraParams'
+        'Isu.model.ExtraParams',
+        'Uni.controller.Navigation',
+        'Uni.util.QueryString'
+    ],
+
+    models: [
+        'Isu.model.Issues',
+        'Isu.model.IssueFilter'
     ],
 
     stores: [
@@ -2011,14 +2232,7 @@ Ext.define('Isu.controller.Issues', {
     ],
 
     views: [
-        'workspace.issues.Overview',
-        'workspace.issues.Filter',
-        'workspace.issues.List',
-        'workspace.issues.Item',
-        'workspace.issues.IssueNoGroup',
-        'ext.button.GridAction',
-        'Uni.view.button.SortItemButton',
-        'Uni.view.button.TagButton'
+        'workspace.issues.Setup'
     ],
 
     mixins: [
@@ -2028,40 +2242,32 @@ Ext.define('Isu.controller.Issues', {
 
     refs: [
         {
-            ref: 'issuesOverview',
-            selector: 'issues-overview'
+            ref: 'preview',
+            selector: 'issues-setup #issues-preview'
         },
         {
-            ref: 'itemPanel',
-            selector: 'issues-item'
+            ref: 'actionMenu',
+            selector: '#issue-action-menu'
         },
         {
-            ref: 'issuesList',
-            selector: 'issues-list'
-        },
-        {
-            ref: 'noIssues',
-            selector: 'issues-overview [name=noIssues]'
+            ref: 'filterForm',
+            selector: 'issues-setup #issues-side-filter #filter-form'
         },
         {
             ref: 'filteringToolbar',
-            selector: 'issues-overview filtering-toolbar'
+            selector: 'issues-setup #filtering-toolbar'
         },
         {
             ref: 'sortingToolbar',
-            selector: 'issues-overview sorting-toolbar'
+            selector: 'issues-setup #sorting-toolbar'
         },
         {
             ref: 'groupingToolbar',
-            selector: 'issues-overview grouping-toolbar'
+            selector: 'issues-setup #grouping-toolbar'
         },
         {
             ref: 'groupPanel',
-            selector: 'issues-overview issue-group'
-        },
-        {
-            ref: 'issueFilter',
-            selector: 'issues-side-filter'
+            selector: 'issues-setup #issue-group'
         }
     ],
 
@@ -2069,46 +2275,41 @@ Ext.define('Isu.controller.Issues', {
 
     init: function () {
         this.control({
-            'issues-overview': {
+            'issues-setup': {
                 afterrender: this.checkAssignee
             },
-            'issues-overview issues-list': {
-                select: this.loadGridItemDetail
+            'issues-setup #issues-grid': {
+                select: this.showPreview
             },
-            'issues-overview issues-list gridview': {
+            'issues-setup #issues-preview #filter-display-button': {
+                click: this.applyFilterBy
+            },
+            '#issue-action-menu': {
+                click: this.chooseAction
+            },
+            'issues-setup #issues-grid gridview': {
                 refresh: this.setAssigneeTypeIconTooltip
             },
-            'issues-list uni-actioncolumn': {
-                menuclick: this.chooseIssuesAction
-            },
-            'issue-action-menu': {
-                click: this.chooseIssuesAction
-            },
-            'issues-overview issues-item': {
-                afterChange: this.setFilterIconsActions
-            },
-
-            'issues-overview sorting-toolbar container sort-item-btn': {
+            'issues-setup #sorting-toolbar container sort-item-btn': {
                 click: this.changeSortDirection,
                 closeclick: this.removeSortItem
             },
-            'issues-overview sorting-toolbar issue-sort-menu': {
+            'issues-setup #sorting-toolbar issue-sort-menu': {
                 click: this.addSortParam
             },
-            'issues-overview sorting-toolbar button[action=clear]': {
+            'issues-setup #sorting-toolbar button[action=clear]': {
                 click: this.clearSortParams
             },
-            'issues-overview grouping-toolbar [name=groupingcombo]': {
+            'issues-setup #grouping-toolbar [name=groupingcombo]': {
                 change: this.changeGrouping
             },
-            'issues-overview filtering-toolbar tag-button': {
+            'issues-setup #filtering-toolbar tag-button': {
                 closeclick: this.removeFilterItem
             },
-
-            'issues-side-filter button[action="reset"]': {
+            'issues-setup #filtering-toolbar button[action="clear"]': {
                 click: this.resetFilter
             },
-            'issues-overview filtering-toolbar button[action="clear"]': {
+            'issues-side-filter button[action="reset"]': {
                 click: this.resetFilter
             },
             'issues-side-filter button[action="filter"]': {
@@ -2126,8 +2327,14 @@ Ext.define('Isu.controller.Issues', {
         this.on('showIssuesAssignedOnMe', function () {
             this.assignToMe = true;
         }, this);
+    },
 
-        this.gridItemModel = this.getModel('Isu.model.Issues');
+    showDataCollection: function () {
+        this.showOverview('datacollection');
+    },
+
+    showDataValidation: function () {
+        this.showOverview('datavalidation');
     },
 
     checkAssignee: function () {
@@ -2136,76 +2343,95 @@ Ext.define('Isu.controller.Issues', {
         }
     },
 
-    showOverview: function () {
-        var self = this,
-            issuesStore = this.getStore('Isu.store.Issues'),
-            groupStore = this.getStore('Isu.store.IssuesGroups'),
+    showOverview: function (issueType) {
+        var me = this,
+            issuesStore = me.getStore('Isu.store.Issues'),
+            issuesStoreProxy = issuesStore.getProxy(),
+            groupStore = me.getStore('Isu.store.IssuesGroups'),
             filter,
             sort;
 
-        self.extraParamsModel = new Isu.model.ExtraParams();
+        me.extraParamsModel = new Isu.model.ExtraParams();
 
-        self.extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
-            issuesStore.proxy.extraParams = data || {};
-            self.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
+        me.extraParamsModel.setValuesFromQueryString(function (extraParamsModel, data) {
+            issuesStoreProxy.extraParams = data || {};
+            issuesStoreProxy.setExtraParam('issueType', issueType);
+            me.setParamsForIssueGroups(extraParamsModel.get('filter'), extraParamsModel.get('group').get('value'));
 
-            self.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview'));
-            self.getFilteringToolbar().addFilterButtons(extraParamsModel.get('filter'));
-            self.getSortingToolbar().addSortButtons(extraParamsModel.get('sort'));
-            self.setFilterForm();
+            me.getApplication().fireEvent('changecontentevent', Ext.widget('issues-setup', {
+                router: me.getController('Uni.controller.history.Router'),
+                issueType: issueType
+            }));
+            me.getFilteringToolbar().addFilterButtons(extraParamsModel.get('filter'));
+            me.getSortingToolbar().addSortButtons(extraParamsModel.get('sort'));
+            me.setFilterForm();
 
             groupStore.on('load', function () {
-                self.setGrouping();
-            }, self, {single: true});
+                me.setGrouping();
+            });
         });
     },
 
+    showPreview: function (selectionModel, record) {
+        var me = this,
+            id = record.getId(),
+            preview = this.getPreview(),
+            form = preview.down('#issues-preview-form'),
+            router = this.getController('Uni.controller.history.Router'),
+            detailsLink = router.getRoute(router.currentRoute + '/view').buildUrl({id: id});
+
+        preview.setLoading(true);
+
+        this.getModel('Isu.model.Issues').load(id, {
+            success: function (record) {
+                if (!form.isDestroyed) {
+                    form.loadRecord(record);
+                    preview.down('#issue-action-menu').record = record;
+                    preview.down('#view-details-link').setHref(detailsLink);
+                    preview.setTitle(record.get('title'));
+                }
+            },
+            callback: function () {
+                preview.setLoading(false);
+            }
+        });
+    },
+
+    chooseAction: function (menu, item) {
+        var router = this.getController('Uni.controller.history.Router');
+
+        router.getRoute(router.currentRoute + '/' + item.action).forward({id: menu.record.getId()});
+    },
+
     setFilterForm: function () {
-        var self = this,
+        var me = this,
             filterModel = this.extraParamsModel.get('filter'),
-            form = self.getIssueFilter().down('filter-form'),
+            form = me.getFilterForm(),
             filterCheckboxGroup = form.down('filter-checkboxgroup');
 
         if (filterModel.get('assignee')) {
-            form.down('combobox[name=assignee]').getStore().add(filterModel.get('assignee'));
+            form.down('combobox[name=assignee]').getStore().add(filterModel.getAssignee());
         }
 
-        if (filterModel.get('reason')) {
-            form.down('combobox[name=reason]').getStore().add(filterModel.get('reason'));
-        }
-
-        if (filterModel.get('meter')) {
-            form.down('combobox[name=meter]').getStore().add(filterModel.get('meter'));
-        }
-
-        if (!filterCheckboxGroup.store.getCount()) {
-            filterCheckboxGroup.store.load(function () {
-                form.loadRecord(filterModel);
-            });
-        } else {
+        if (filterCheckboxGroup.getStore().getCount()) {
             form.loadRecord(filterModel);
+        } else {
+            filterCheckboxGroup.on('itemsadded', function () {
+                form.loadRecord(filterModel);
+            }, me, {single: true});
         }
     },
 
     removeFilterItem: function (button) {
-        this.extraParamsModel.get('filter').removeFilterParam(button.target, button.targetId);
-        this.refresh();
-    },
+        var filterForm = this.getFilterForm();
 
-    applyFilter: function () {
-        var form = this.getIssueFilter().down('filter-form'),
-            filter = form.getRecord();
+        if (!button.targetId) {
+            filterForm.down('[name=' + button.target + ']').reset();
+        } else {
+            filterForm.down('[name=' + button.target + '] checkboxfield[inputValue=' + button.targetId + ']').setValue(false);
+        }
 
-        form.updateRecord(filter);
-        this.extraParamsModel.set('filter', filter);
-        this.refresh();
-    },
-
-    resetFilter: function () {
-        var filter = new Isu.model.IssueFilter();
-
-        this.extraParamsModel.set('filter', filter);
-        this.refresh();
+        this.applyFilter();
     },
 
     addSortParam: function (menu, item) {
@@ -2270,7 +2496,7 @@ Ext.define('Isu.controller.Issues', {
                 selectionModel.select(groupingField);
                 groupingInfo.update('<h3>Issues for reason: ' + groupingField.get('reason') + '</h3>');
                 groupingInfo.show();
-                groupingGrid.fireEvent('itemclick', groupingGrid, groupingField );
+                groupingGrid.fireEvent('itemclick', groupingGrid, groupingField);
             } else {
                 this.getIssuesList().hide();
                 this.getItemPanel().hide();
@@ -2302,9 +2528,9 @@ Ext.define('Isu.controller.Issues', {
             groupStoreProxy = groupStore.getProxy(),
             status = filterModel.statusStore,
             statusValues = [],
-            reason = filterModel.get('reason'),
-            assignee = filterModel.get('assignee'),
-            meter = filterModel.get('meter');
+            reason = filterModel.getReason(),
+            assignee = filterModel.getAssignee(),
+            meter = filterModel.getMeter();
 
         if (field != 'none') {
             groupStoreProxy.setExtraParam('field', field);
@@ -2339,29 +2565,6 @@ Ext.define('Isu.controller.Issues', {
         }
     },
 
-    chooseIssuesAction: function (menu, item) {
-        var action = item.action,
-            issueId = menu.record.getId();
-
-        switch (action) {
-            case 'assign':
-                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/assign';
-                break;
-            case 'close':
-                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/close';
-                break;
-            case 'addcomment':
-                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/addcomment';
-                break;
-            case 'notify':
-                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/notify';
-                break;
-            case 'send':
-                window.location.href = '#/workspace/datacollection/issues/' + issueId + '/send';
-                break;
-        }
-    },
-
     setGroupFields: function (view) {
         var model = Ext.ModelManager.getModel('Isu.model.Issues'),
             reason = model.getFields()[1];
@@ -2375,81 +2578,74 @@ Ext.define('Isu.controller.Issues', {
         });
     },
 
-    setFilterIconsActions: function (itemPanel) {
-        var self = this,
-            icons = Ext.get(itemPanel.getEl()).select('.isu-apply-filter');
+    applyFilter: function () {
+        var form = this.getFilterForm(),
+            filter = form.getRecord();
 
-        icons.on('click', self.addFilterIconAction, self);
-        itemPanel.on('destroy', function () {
-            icons.un('click', self.addFilterIconAction, self);
-        });
+        form.updateRecord(filter);
+        this.extraParamsModel.set('filter', filter);
+        this.refresh();
     },
 
-    addFilterIconAction: function (event, icon) {
-        var filterType = icon.getAttribute('data-filterType'),
-            filterValue = icon.getAttribute('data-filterValue'),
-            visualValue = icon.getAttribute('data-filterSearch');
+    resetFilter: function () {
+        this.extraParamsModel.set('filter', Ext.create('Isu.model.IssueFilter'));
+        this.refresh();
+    },
 
-        if (!filterType || !filterValue) {
-            return;
-        }
-
-        switch (filterType) {
+    applyFilterBy: function (button) {
+        switch (button.filterBy) {
             case 'status':
-                this.setChecboxFilter(filterType, filterValue);
+                this.setCheckboxFilter(button.filterBy, button.filterValue.id);
                 break;
             case 'assignee':
-                this.setComboFilter(filterType, filterValue, visualValue);
+                if (button.filterValue) {
+                    this.setComboFilter(button.filterBy, button.filterValue.id + ':' + button.filterValue.type, button.filterValue.name);
+                } else {
+                    this.setComboFilter(button.filterBy, '-1:UnexistingType');
+                }
                 break;
             case 'reason':
-                this.setComboFilter(filterType, parseInt(filterValue), visualValue);
+                this.setComboFilter(button.filterBy, parseInt(button.filterValue.id), button.filterValue.name);
                 break;
-            case 'meter':
-                this.setComboFilter(filterType, parseInt(filterValue), visualValue);
+            case 'device':
+                this.setComboFilter('meter', parseInt(button.filterValue.id), button.filterValue.serialNumber);
                 break;
         }
     },
 
-    setChecboxFilter: function (filterType, filterValue) {
-        var self = this,
-            filterForm = this.getIssueFilter().down('filter-form'),
-            allCheckboxes = filterForm.query('checkboxfield'),
-            checkbox = filterForm.down('[name=' + filterType + '] checkboxfield[inputValue=' + filterValue + ']');
+    setCheckboxFilter: function (filterType, filterValue) {
+        var checkboxGroup = this.getFilterForm().down('[name=' + filterType + ']');
 
-        Ext.Array.each(allCheckboxes, function (item) {
-            item.setValue(false);
-        });
-
-        checkbox.setValue(true);
-        self.applyFilter();
+        checkboxGroup.reset();
+        checkboxGroup.down('checkboxfield[inputValue=' + filterValue + ']').setValue(true);
+        this.applyFilter();
     },
 
     setComboFilter: function (filterType, filterValue, visualValue) {
-        var self = this,
-            filterForm = this.getIssueFilter().down('filter-form'),
+        var me = this,
+            filterForm = this.getFilterForm(),
             combo = filterForm.down('[name=' + filterType + ']'),
             comboStore = combo.getStore(),
             storeProxy = comboStore.getProxy();
 
         storeProxy.setExtraParam(combo.queryParam, visualValue);
-
         comboStore.load(function () {
             combo.setValue(filterValue);
-            self.applyFilter();
+            me.applyFilter();
         });
     },
 
     assignedToMe: function () {
-        var self = this,
-            assignCombo = self.getIssueFilter().down('combobox[name=assignee]'),
+        var me = this,
+            assignCombo = me.getFilterForm().down('combobox[name=assignee]'),
             assignStore = assignCombo.getStore(),
             currentUser;
 
         assignStore.load({ params: {me: true}, callback: function () {
             currentUser = assignStore.getAt(0);
             assignCombo.setValue(currentUser.get('idx'));
-            self.applyFilter();
-            self.assignToMe = false;
+            me.applyFilter();
+            me.assignToMe = false;
         }});
     }
 });
@@ -3573,6 +3769,104 @@ Ext.define('Isu.view.workspace.issues.bulk.Wizard', {
                 }
             ]
         });
+
+        this.callParent(arguments);
+    }
+});
+
+Ext.define('Isu.view.workspace.issues.List', {
+    extend: 'Ext.grid.Panel',
+    requires: [
+        'Ext.grid.column.Date',
+        'Ext.form.field.ComboBox',
+        'Ext.grid.column.Template',
+        'Uni.grid.column.Action',
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom'
+    ],
+    alias: 'widget.issues-list',
+    itemId: 'issues-list',
+    store: 'Isu.store.Issues',
+    columns: {
+        defaults: {
+            sortable: false,
+            menuDisabled: true
+        },
+        items: [
+            {
+                itemId: 'Title',
+                header: Uni.I18n.translate('general.title.title', 'ISU', 'Title'),
+                xtype: 'templatecolumn',
+                tpl: '<a href="#/workspace/datacollection/issues/{id}">{title}</a>',
+                flex: 2
+            },
+            {
+                itemId: 'dueDate',
+                header: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
+                dataIndex: 'dueDate',
+                xtype: 'datecolumn',
+                format: 'M d Y',
+                width: 140
+            },
+            {
+                itemId: 'status',
+                header: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+                dataIndex: 'status_name',
+                width: 100
+            },
+            {
+                itemId: 'assignee',
+                header: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
+                xtype: 'templatecolumn',
+                tpl: '<tpl if="assignee_type"><span class="isu-icon-{assignee_type} isu-assignee-type-icon"></span></tpl> {assignee_name}',
+                flex: 1
+            },
+            {
+                itemId: 'action',
+                xtype: 'uni-actioncolumn',
+                items: 'Isu.view.workspace.issues.ActionMenu'
+            }
+        ]
+    },
+    dockedItems: [
+        {
+            itemId: 'pagingtoolbartop',
+            xtype: 'pagingtoolbartop',
+            dock: 'top',
+            displayMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} issues'),
+            displayMoreMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} issues'),
+            emptyMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.emptyMsg', 'ISU', 'There are no issues to display'),
+            items: [
+                '->',
+                {
+                    itemId: 'bulkAction',
+                    xtype: 'button',
+                    text: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
+                    action: 'bulkchangesissues',
+                    hrefTarget: '',
+                    href: '#/workspace/datacollection/bulkaction'
+                }
+            ]
+        },
+        {
+            itemId: 'pagingtoolbarbottom',
+            xtype: 'pagingtoolbarbottom',
+            dock: 'bottom',
+            itemsPerPageMsg: Uni.I18n.translate('workspace.issues.pagingtoolbarbottom.itemsPerPage', 'ISU', 'Issues per page')
+        }
+    ],
+
+    initComponent: function () {
+        var store = this.store,
+            pagingToolbarTop = Ext.Array.findBy(this.dockedItems, function (item) {
+                return item.xtype == 'pagingtoolbartop';
+            }),
+            pagingToolbarBottom = Ext.Array.findBy(this.dockedItems, function (item) {
+                return item.xtype == 'pagingtoolbarbottom';
+            });
+
+        pagingToolbarTop && (pagingToolbarTop.store = store);
+        pagingToolbarBottom && (pagingToolbarBottom.store = store);
 
         this.callParent(arguments);
     }
@@ -4938,7 +5232,7 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.Overview
         itemId: 'title',
         xtype: 'panel',
         ui: 'large',
-        title: Uni.I18n.translate('issue.administration.assignment', 'ISE', 'Issue assignment rules'),
+        title: Uni.I18n.translate('issue.administration.assignment', 'ISU', 'Issue assignment rules'),
         items: {
             itemId: 'issues-rules-list',
             xtype: 'preview-container',
@@ -4947,14 +5241,22 @@ Ext.define('Isu.view.administration.datacollection.issueassignmentrules.Overview
             },
             emptyComponent: {
                 xtype: 'no-items-found-panel',
-                title: Uni.I18n.translate('issueAssignment.empty.title', 'ISE', 'No issue assignment rules found'),
+                title: Uni.I18n.translate('issueAssignment.empty.title', 'ISU', 'No issue assignment rules found'),
                 reasons: [
-                    Uni.I18n.translate('issueAssignment.empty.list.item', 'ISE', 'No issue assignment rules have been defined yet.')
+                    Uni.I18n.translate('issueAssignment.empty.list.item', 'ISU', 'No issue assignment rules have been defined yet.')
                 ]
             },
             previewComponent: null
         }
     }
+});
+
+Ext.define('Isu.view.ext.button.GridAction', {
+    extend: 'Ext.button.Button',
+    alias: 'widget.grid-action',
+    cls: 'isu-grid-action-btn',
+    menuAlign: 'tl-bl'
+
 });
 
 Ext.define('Isu.view.administration.datacollection.issueassignmentrules.ActionMenu', {
@@ -5066,14 +5368,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
         items: [
             {
                 itemId: 'Name',
-                header: Uni.I18n.translate('general.title.name', 'ISE', 'Name'),
+                header: Uni.I18n.translate('general.title.name', 'ISU', 'Name'),
                 dataIndex: 'name',
                 tdCls: 'isu-grid-description',
                 flex: 1
             },
             {
                 itemId: 'templateColumn',
-                header: Uni.I18n.translate('general.title.ruleTemplate', 'ISE', 'Rule template'),
+                header: Uni.I18n.translate('general.title.ruleTemplate', 'ISU', 'Rule template'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="template">{template.name}</tpl>',
                 tdCls: 'isu-grid-description',
@@ -5081,7 +5383,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
             },
             {
                 itemId : 'issueType',
-                header: Uni.I18n.translate('general.title.issueType', 'ISE', 'Issue type'),
+                header: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue type'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="issueType">{issueType.name}</tpl>',
                 tdCls: 'isu-grid-description',
@@ -5098,15 +5400,15 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
             itemId: 'pagingtoolbartop',
             xtype: 'pagingtoolbartop',
             dock: 'top',
-            displayMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMsg', 'ISE', '{0} - {1} of {2} issue creation rules'),
-            displayMoreMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMoreMsg', 'ISE', '{0} - {1} of more than {2} issue creation rules'),
-            emptyMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.emptyMsg', 'ISE', 'There are no issue creation rules to display'),
+            displayMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} issue creation rules'),
+            displayMoreMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} issue creation rules'),
+            emptyMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.emptyMsg', 'ISU', 'There are no issue creation rules to display'),
             items: [
                 '->',
                 {
                     itemId: 'createRule',
                     xtype: 'button',
-                    text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISE', 'Create rule'),
+                    text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Create rule'),
                     href: '#/administration/creationrules/add',
                     action: 'create'
                 }
@@ -5116,7 +5418,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
             itemId: 'pagingtoolbarbottom',
             xtype: 'pagingtoolbarbottom',
             dock: 'bottom',
-            itemsPerPageMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbarbottom.itemsPerPage', 'ISE', 'Issue creation rules per page')
+            itemsPerPageMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbarbottom.itemsPerPage', 'ISU', 'Issue creation rules per page')
         }
     ],
 
@@ -5168,7 +5470,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'creation-rule-action-menu'
@@ -5191,24 +5493,24 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.name', 'ISE', 'Name'),
+                        fieldLabel: Uni.I18n.translate('general.title.name', 'ISU', 'Name'),
                         name: 'name'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.ruleTemplate', 'ISE', 'Rule template'),
+                        fieldLabel: Uni.I18n.translate('general.title.ruleTemplate', 'ISU', 'Rule template'),
                         name: 'template_name'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.issueType', 'ISE', 'Issue type'),
+                        fieldLabel: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue type'),
                         name: 'issueType_name'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.issueReason', 'ISE', 'Issue reason'),
+                        fieldLabel: Uni.I18n.translate('general.title.issueReason', 'ISU', 'Issue reason'),
                         name: 'reason_name'
                     },
 
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.dueIn', 'ISE', 'Due in'),
+                        fieldLabel: Uni.I18n.translate('general.title.dueIn', 'ISU', 'Due in'),
                         name: 'due_in'
                     }
                 ]
@@ -5220,12 +5522,12 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.created', 'ISE', 'Created'),
+                        fieldLabel: Uni.I18n.translate('general.title.created', 'ISU', 'Created'),
                         name: 'creationDate',
                         renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.lastModified', 'ISE', 'Last modified'),
+                        fieldLabel: Uni.I18n.translate('general.title.lastModified', 'ISU', 'Last modified'),
                         name: 'modificationDate',
                         renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
                     }
@@ -5285,7 +5587,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('administration.issueCreationRules.title', 'ISE', 'Issue creation rules'),
+            title: Uni.I18n.translate('administration.issueCreationRules.title', 'ISU', 'Issue creation rules'),
             items: [
                 {
                     xtype: 'preview-container',
@@ -5295,15 +5597,15 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('administration.issueCreationRules.empty.title', 'ISE', 'No issue creation rules found'),
+                        title: Uni.I18n.translate('administration.issueCreationRules.empty.title', 'ISU', 'No issue creation rules found'),
                         reasons: [
-                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item1', 'ISE', 'No issue creation rules have been defined yet.'),
-                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item2', 'ISE', 'No issue creation rules comply to the filter.')
+                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item1', 'ISU', 'No issue creation rules have been defined yet.'),
+                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item2', 'ISU', 'No issue creation rules comply to the filter.')
                         ],
                         stepItems: [
                             {
                                 itemId: 'createRule',
-                                text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISE', 'Create rule'),
+                                text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Create rule'),
                                 href: '#/administration/creationrules/add',
                                 action: 'create'
                             }
@@ -5510,8 +5812,8 @@ Ext.define('Isu.controller.IssueCreationRules', {
         var self = this;
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.msg', 'ISE', 'This issue creation rule will disappear from the list.<br>Issues will not be created automatically by this rule.'),
-            title: Ext.String.format(Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.title', 'ISE', 'Delete rule "{0}"?'), rule.get('name')),
+            msg: Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.msg', 'ISU', 'This issue creation rule will disappear from the list.<br>Issues will not be created automatically by this rule.'),
+            title: Ext.String.format(Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.title', 'ISU', 'Delete rule "{0}"?'), rule.get('name')),
             config: {
                 me: self,
                 rule: rule
@@ -5544,7 +5846,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 page.setLoading(false);
                 if (operation.response.status == 204) {
                     store.loadPage(1);
-                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('administration.issueCreationRules.deleteSuccess.msg', 'ISE', 'Issue creation rule deleted'));
+                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('administration.issueCreationRules.deleteSuccess.msg', 'ISU', 'Issue creation rule deleted'));
                 }
             }
         });
@@ -6058,7 +6360,7 @@ Ext.define('Isu.view.workspace.issues.component.UserCombo', {
     emptyText: 'select user',
     listConfig: {
         getInnerTpl: function(displayField) {
-            return '<img src="../../apps/issue/resources/images/icons/USER.png"/> {' + displayField + '}';
+            return '<img src="../../apps/isu/resources/images/icons/USER.png"/> {' + displayField + '}';
         }
     }
 });
@@ -6567,7 +6869,7 @@ Ext.define('Isu.view.workspace.datavalidation.Overview', {
     content: [
         {
             ui: 'large',
-            title: Uni.I18n.translate('workspace.datavalidation.overview.title', 'ISE', 'Data validation'),
+            title: Uni.I18n.translate('workspace.datavalidation.overview.title', 'ISU', 'Data validation'),
             flex: 1
         }
     ]
@@ -6874,7 +7176,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionsLis
                 xtype: 'uni-actioncolumn',
                 items: [
                     {
-                        text: Uni.I18n.translate('general.remove', 'ISE', 'Remove'),
+                        text: Uni.I18n.translate('general.remove', 'ISU', 'Remove'),
                         action: 'delete'
                     }
                 ]
@@ -7422,8 +7724,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
         switch (action) {
             case 'edit':
-                title = Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISE', 'Edit issue creation rule');
-                btnTxt = Uni.I18n.translate('general.save', 'ISE', 'Save');
+                title = Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISU', 'Edit issue creation rule');
+                btnTxt = Uni.I18n.translate('general.save', 'ISU', 'Save');
                 if (savedData) {
                     me.ruleModel = savedData;
                     clipboard.clear('issuesCreationRuleState');
@@ -7448,8 +7750,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 }
                 break;
             case 'create':
-                title = Uni.I18n.translate('administration.issueCreationRules.title.addIssueCreationRule', 'ISE', 'Add issue creation rule');
-                btnTxt = Uni.I18n.translate('general.add', 'ISE', 'Add');
+                title = Uni.I18n.translate('administration.issueCreationRules.title.addIssueCreationRule', 'ISU', 'Add issue creation rule');
+                btnTxt = Uni.I18n.translate('general.add', 'ISU', 'Add');
                 if (savedData) {
                     me.ruleModel = savedData;
                     clipboard.clear('issuesCreationRuleState');
@@ -7618,7 +7920,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
         if (descriptionText) {
             combo.templateDescriptionIcon = Ext.widget('button', {
-                tooltip: Uni.I18n.translate('administration.issueCreationRules.templateInfo', 'ISE', 'Template info'),
+                tooltip: Uni.I18n.translate('administration.issueCreationRules.templateInfo', 'ISU', 'Template info'),
                 iconCls: 'icon-info-small',
                 ui: 'blank',
                 itemId: 'creationRuleTplHelp',
@@ -7628,10 +7930,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 width: 16,
                 handler: function () {
                     combo.templateDescriptionWindow = Ext.Msg.show({
-                        title: Uni.I18n.translate('administration.issueCreationRules.templateDescription', 'ISE', 'Template description'),
+                        title: Uni.I18n.translate('administration.issueCreationRules.templateDescription', 'ISU', 'Template description'),
                         msg: descriptionText,
                         buttons: Ext.MessageBox.CANCEL,
-                        buttonText: {cancel: Uni.I18n.translate('general.close', 'ISE', 'Close')},
+                        buttonText: {cancel: Uni.I18n.translate('general.close', 'ISU', 'Close')},
                         modal: true,
                         animateTarget: combo.templateDescriptionIcon
                     })
@@ -7686,10 +7988,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     if (success) {
                         switch (operation.action) {
                             case 'create':
-                                messageText = Uni.I18n.translate('administration.issueCreationRules.createSuccess.msg', 'ISE', 'Issue creation rule added');
+                                messageText = Uni.I18n.translate('administration.issueCreationRules.createSuccess.msg', 'ISU', 'Issue creation rule added');
                                 break;
                             case 'update':
-                                messageText = Uni.I18n.translate('administration.issueCreationRules.updateSuccess.msg', 'ISE', 'Issue creation rule updated');
+                                messageText = Uni.I18n.translate('administration.issueCreationRules.updateSuccess.msg', 'ISU', 'Issue creation rule updated');
                                 break;
                         }
                         me.getApplication().fireEvent('acknowledge', messageText);
@@ -8153,7 +8455,7 @@ Ext.define('Isu.view.workspace.datacollection.Overview', {
     content: [
         {
             ui: 'large',
-            title: Uni.I18n.translate('issue.workspace.datacollection', 'ISE', 'Data collection'),
+            title: Uni.I18n.translate('issue.workspace.datacollection', 'ISU', 'Data collection'),
             flex: 1
         }
     ]
@@ -8322,6 +8624,187 @@ Ext.define('Isu.view.ext.button.ItemAction', {
     }
 });
 
+Ext.define('Isu.view.workspace.issues.Filter', {
+    extend: 'Ext.panel.Panel',
+    requires: [
+        'Ext.menu.Separator',
+        'Isu.view.workspace.issues.FilteringToolbar',
+        'Isu.view.workspace.issues.SortingToolbar',
+        'Isu.view.workspace.issues.GroupingToolbar',
+        'Isu.view.workspace.issues.IssueGroup'
+    ],
+    alias: "widget.issues-filter",
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
+    items: [
+        {
+            xtype: 'filtering-toolbar'
+        },
+        {
+            itemId: 'menuseparator',
+            xtype: 'menuseparator'
+        },
+        {
+            xtype: 'grouping-toolbar'
+        },
+        {
+            itemId: 'menuseparator',
+            xtype: 'menuseparator'
+        },
+        {
+            xtype: 'sorting-toolbar'
+        },
+        {
+            xtype: 'issue-group'
+        }
+    ]
+});
+
+Ext.define('Isu.view.workspace.issues.IssueNoGroup', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.issue-no-group',
+    itemId: 'IssueNoGroup',
+    hidden: true,
+
+    items: [
+        {
+            itemId : 'NoGroup_text',
+            html: '<h3>No group selected</h3><p>Select a group of issues.</p>',
+            bodyPadding: 10,
+            border: false
+        }
+    ]
+});
+
+Ext.define('Isu.view.workspace.issues.FormWithFilters', {
+    extend: 'Ext.form.Panel',
+    alias: 'widget.issue-form-with-filters',
+    layout: 'column',
+    itemId: 'issue-detailed-form',
+    defaults: {
+        xtype: 'container',
+        layout: 'form',
+        columnWidth: 0.5
+    },
+    ui: 'medium',
+
+    items: [
+        {
+            defaults: {
+                xtype: 'displayfield',
+                labelWidth: 200
+            },
+            items: [
+                {
+                    itemId: '_reason',
+                    fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
+                    name: 'reason_name_f'
+                },
+                {
+                    itemId: '_customer',
+                    fieldLabel: Uni.I18n.translate('general.title.customer', 'ISU', 'Customer'),
+                    name: 'customer'
+                },
+                {
+                    itemId: '_location',
+                    fieldLabel: Uni.I18n.translate('general.title.location', 'ISU', 'Location'),
+                    name: 'service_location'
+                },
+                {
+                    itemId: '_usagepoint',
+                    fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
+                    name: 'usage_point'
+                },
+                {
+                    itemId: '_devicename',
+                    fieldLabel: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
+                    name: 'device_f'
+                }
+            ]
+        },
+        {
+            defaults: {
+                xtype: 'displayfield',
+                labelWidth: 200
+            },
+            items: [
+                {
+                    itemId: '_status',
+                    fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+                    name: 'status_name_f'
+                },
+                {
+                    itemId: '_dueDate',
+                    fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
+                    name: 'dueDate',
+                    renderer: Ext.util.Format.dateRenderer('M d, Y')
+                },
+                {
+                    itemId: '_assignee',
+                    fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
+                    name: 'assignee_name_f'
+                },
+                {
+                    itemId: '_creationDate',
+                    fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
+                    name: 'creationDate',
+                    renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
+                },
+                {
+                    itemId: '_serviceCat',
+                    fieldLabel: Uni.I18n.translate('general.title.serviceCategory', 'ISU', 'Service category'),
+                    name: 'service_category'
+                }
+            ]
+        }
+    ]
+});
+
+Ext.define('Isu.view.workspace.issues.Item', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.issues-item',
+    itemId: 'issues-item',
+    requires: [
+        'Isu.view.workspace.issues.ActionMenu',
+        'Isu.view.workspace.issues.FormWithFilters'
+    ],
+    title: '',
+    frame: true,
+    tools: [
+        {
+            xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
+            iconCls: 'x-uni-action-iconD',
+            menu: {
+                xtype: 'issue-action-menu'
+            }
+        }
+    ],
+    items: {
+        itemId: 'issue-form-with-filters',
+        xtype: 'issue-form-with-filters',
+        bbar: {
+            layout: {
+                type: 'vbox',
+                align: 'right'
+            },
+            items: {
+                text: Uni.I18n.translate('general.title.viewDetails', 'ISU', 'View details'),
+                itemId: 'viewDetails',
+                ui: 'link',
+                action: 'view',
+                listeners: {
+                    click: function () {
+                        window.location.href = "#/workspace/datacollection/issues/" + this.up('form').getRecord().get('id')
+                    }
+                }
+            }
+        }
+    }
+});
+
 Ext.define('Isu.view.workspace.issues.Browse', {
     itemId: 'Panel',
     extend: 'Ext.panel.Panel',
@@ -8349,505 +8832,19 @@ Ext.define('Isu.view.workspace.issues.Browse', {
     ]
 });
 
-Ext.define('Isu.view.workspace.issues.DataCollectionPreviewForm', {
-    extend: 'Ext.form.Panel',
-    requires: [
-        'Uni.form.field.FilterDisplay'
-    ],
-    alias: 'widget.datacollection-issue-form',
-    layout: 'column',
-    defaults: {
-        xtype: 'container',
-        layout: 'form',
-        columnWidth: 0.5
-    },
-    ui: 'medium',
-    showFilters: false,
-    router: null,
-    initComponent: function () {
-        var me = this,
-            displayFieldType;
-
-        if (me.showFilters) {
-            displayFieldType = 'filter-display';
-        } else {
-            displayFieldType = 'displayfield';
-        }
-
-        me.items = [
-            {
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 200
-                },
-                items: [
-                    {
-                        xtype: displayFieldType,
-                        itemId: 'reason',
-                        fieldLabel: Uni.I18n.translate('general.title.reason', 'ISE', 'Reason'),
-                        name: 'reason',
-                        renderer: function (value) {
-                            return value.name ? value.name : '';
-                        }
-                    },
-                    {
-                        itemId: '_customer',
-                        fieldLabel: Uni.I18n.translate('general.title.customer', 'ISE', 'Customer'),
-                        name: 'customer'
-                    },
-                    {
-                        itemId: '_location',
-                        fieldLabel: Uni.I18n.translate('general.title.location', 'ISE', 'Location'),
-                        name: 'service_location'
-                    },
-                    {
-                        itemId: '_usagepoint',
-                        fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISE', 'Usage point'),
-                        name: 'usage_point'
-                    },
-                    {
-                        xtype: displayFieldType,
-                        itemId: 'device',
-                        fieldLabel: Uni.I18n.translate('general.title.device', 'ISE', 'Device'),
-                        name: 'device',
-                        renderer: function (value) {
-                            var url = '',
-                                result = '';
-
-                            if (value) {
-                                if (value.serialNumber) {
-                                    url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
-                                    result = '<a href="' + url + '">' + value.name + ' ' + value.serialNumber + '</a>';
-                                } else {
-                                    result = value.name + ' ' + value.serialNumber;
-                                }
-                            }
-
-                            return result;
-                        }
-                    }
-                ]
-            },
-            {
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 200
-                },
-                items: [
-                    {
-                        xtype: displayFieldType,
-                        itemId: 'status',
-                        fieldLabel: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
-                        name: 'status',
-                        renderer: function (value) {
-                            return value.name ? value.name : '';
-                        }
-                    },
-                    {
-                        itemId: '_dueDate',
-                        fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISE', 'Due date'),
-                        name: 'dueDate',
-                        renderer: Ext.util.Format.dateRenderer('M d, Y')
-                    },
-                    {
-                        xtype: displayFieldType,
-                        itemId: 'assignee',
-                        fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
-                        name: 'assignee',
-                        renderer: function (value) {
-                            return value.name ? value.name : Uni.I18n.translate('general.none', 'ISE', 'None');
-                        }
-                    },
-                    {
-                        itemId: '_creationDate',
-                        fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISE', 'Creation date'),
-                        name: 'creationDate',
-                        renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
-                    },
-                    {
-                        itemId: '_serviceCat',
-                        fieldLabel: Uni.I18n.translate('general.title.serviceCategory', 'ISE', 'Service category'),
-                        name: 'service_category'
-                    }
-                ]
-            }
-        ];
-
-        me.callParent(arguments);
-    }
-});
-
-Ext.define('Isu.view.workspace.issues.DataValidationPreviewForm', {
-    extend: 'Ext.form.Panel',
-    requires: [
-        'Uni.form.field.FilterDisplay'
-    ],
-    alias: 'widget.datavalidation-issue-form',
-    ui: 'medium',
-    showFilters: false,
-    router: null,
-    initComponent: function () {
-        var me = this,
-            displayFieldType;
-
-        if (me.showFilters) {
-            displayFieldType = 'filter-display';
-        } else {
-            displayFieldType = 'displayfield';
-        }
-
-        me.items = [
-            {
-                xtype: 'container',
-                layout: 'column',
-                defaults: {
-                    xtype: 'container',
-                    layout: 'form',
-                    columnWidth: 0.5
-                },
-                items: [
-                    {
-                        defaults: {
-                            xtype: 'displayfield',
-                            labelWidth: 200
-                        },
-                        items: [
-                            {
-                                xtype: displayFieldType,
-                                itemId: 'reason',
-                                fieldLabel: Uni.I18n.translate('general.title.reason', 'ISE', 'Reason'),
-                                name: 'reason',
-                                renderer: function (value) {
-                                    return value.name ? value.name : '';
-                                }
-                            },
-                            {
-                                itemId: '_customer',
-                                fieldLabel: Uni.I18n.translate('general.title.customer', 'ISE', 'Customer'),
-                                name: 'customer'
-                            },
-                            {
-                                itemId: '_location',
-                                fieldLabel: Uni.I18n.translate('general.title.location', 'ISE', 'Location'),
-                                name: 'service_location'
-                            },
-                            {
-                                itemId: '_usagepoint',
-                                fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISE', 'Usage point'),
-                                name: 'usage_point'
-                            },
-                            {
-                                xtype: displayFieldType,
-                                itemId: 'device',
-                                fieldLabel: Uni.I18n.translate('general.title.device', 'ISE', 'Device'),
-                                name: 'device',
-                                renderer: function (value) {
-                                    var url = '',
-                                        result = '';
-
-                                    if (value) {
-                                        if (value.serialNumber) {
-                                            url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
-                                            result = '<a href="' + url + '">' + value.name + ' ' + value.serialNumber + '</a>';
-                                        } else {
-                                            result = value.name + ' ' + value.serialNumber;
-                                        }
-                                    }
-
-                                    return result;
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        defaults: {
-                            xtype: 'displayfield',
-                            labelWidth: 200
-                        },
-                        items: [
-                            {
-                                xtype: displayFieldType,
-                                itemId: 'status',
-                                fieldLabel: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
-                                name: 'status',
-                                renderer: function (value) {
-                                    return value.name ? value.name : '';
-                                }
-                            },
-                            {
-                                itemId: '_dueDate',
-                                fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISE', 'Due date'),
-                                name: 'dueDate',
-                                renderer: Ext.util.Format.dateRenderer('M d, Y')
-                            },
-                            {
-                                xtype: displayFieldType,
-                                itemId: 'assignee',
-                                fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
-                                name: 'assignee',
-                                renderer: function (value) {
-                                    return value.name ? value.name : Uni.I18n.translate('general.none', 'ISE', 'None');
-                                }
-                            },
-                            {
-                                itemId: '_creationDate',
-                                fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISE', 'Creation date'),
-                                name: 'creationDate',
-                                renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
-                            },
-                            {
-                                itemId: '_serviceCat',
-                                fieldLabel: Uni.I18n.translate('general.title.serviceCategory', 'ISE', 'Service category'),
-                                name: 'service_category'
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                xtype: 'container',
-                layout: 'form',
-                margin: '20 0 0 0',
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 200
-                },
-                items: [
-                    {
-                        fieldLabel: '&nbsp;',
-                        value: '<b>' + Uni.I18n.translate('workspace.datavalidation.overview.title', 'ISE', 'Data validation') + '</b>'
-                    },
-                    {
-                        itemId: '_validationRule',
-                        fieldLabel: Uni.I18n.translate('general.title.validationRule', 'ISE', 'Validation rule'),
-                        name: 'validationRule'
-                    }
-                ]
-            }
-        ];
-
-        me.callParent(arguments);
-    }
-});
-
-Ext.define('Isu.view.workspace.issues.Grid', {
-    extend: 'Ext.grid.Panel',
-    requires: [
-        'Ext.grid.column.Date',
-        'Ext.grid.column.Template',
-        'Uni.grid.column.Action',
-        'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Isu.view.workspace.issues.ActionMenu'
-    ],
-    alias: 'widget.issues-grid',
-    store: 'Isu.store.Issues',
-    issueType: null,
-    router: null,
-
-    initComponent: function () {
-        var me = this;
-
-        me.columns = [
-            {
-                itemId: 'issues-grid-title',
-                header: Uni.I18n.translate('general.title.title', 'ISE', 'Title'),
-                dataIndex: 'reason',
-                flex: 2,
-                renderer: function (value, metaData, record) {
-                    var device = record.get('device'),
-                        title = value.name + (device ? ' to ' + device.name + ' ' + device.serialNumber : ''),
-                        url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({id: record.getId()});
-
-                    return '<a href="' + url + '">' + title + '</a>';
-                }
-            },
-            {
-                itemId: 'issues-grid-due-date',
-                header: Uni.I18n.translate('general.title.dueDate', 'ISE', 'Due date'),
-                dataIndex: 'dueDate',
-                xtype: 'datecolumn',
-                format: 'M d Y',
-                width: 140
-            },
-            {
-                itemId: 'issues-grid-status',
-                header: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
-                dataIndex: 'status_name',
-                width: 100
-            },
-            {
-                itemId: 'issues-grid-assignee',
-                header: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="assignee_type"><span class="isu-icon-{assignee_type} isu-assignee-type-icon"></span></tpl> {assignee_name}',
-                flex: 1
-            },
-            {
-                itemId: 'action',
-                xtype: 'uni-actioncolumn',
-                menu: {
-                    xtype: 'issue-action-menu',
-                    itemId: 'issue-action-menu',
-                    issueType: me.issueType
-                }
-            }
-        ];
-
-        me.dockedItems = [
-            {
-                itemId: 'pagingtoolbartop',
-                xtype: 'pagingtoolbartop',
-                dock: 'top',
-                store: me.store,
-                displayMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMsg', 'ISE', '{0} - {1} of {2} issues'),
-                displayMoreMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMoreMsg', 'ISE', '{0} - {1} of more than {2} issues'),
-                emptyMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.emptyMsg', 'ISE', 'There are no issues to display'),
-                items: [
-                    '->',
-                    {
-                        itemId: 'bulkAction',
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.title.bulkActions', 'ISE', 'Bulk action'),
-                        action: 'bulkchangesissues',
-                        hrefTarget: '',
-                        href: me.router.getRoute('workspace/' + me.issueType.toLowerCase() + '/bulk').buildUrl()
-                    }
-                ]
-            },
-            {
-                itemId: 'pagingtoolbarbottom',
-                xtype: 'pagingtoolbarbottom',
-                dock: 'bottom',
-                store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('workspace.issues.pagingtoolbarbottom.itemsPerPage', 'ISE', 'Issues per page')
-            }
-        ];
-
-        me.callParent(arguments);
-    }
-});
-
-Ext.define('Isu.view.workspace.issues.Preview', {
-    extend: 'Ext.panel.Panel',
-    alias: 'widget.issues-preview',
-    requires: [
-        'Isu.view.workspace.issues.ActionMenu',
-        'Isu.view.workspace.issues.DataCollectionPreviewForm',
-        'Isu.view.workspace.issues.DataValidationPreviewForm'
-    ],
-    title: '',
-    frame: true,
-    issueType: null,
-    router: null,
-
-    initComponent: function () {
-        var me =this,
-            previewForm;
-
-        switch (me.issueType) {
-            case 'datacollection':
-                previewForm = 'datacollection-issue-form';
-                break;
-            case 'datavalidation':
-                previewForm = 'datavalidation-issue-form';
-                break;
-        }
-
-        me.items = {
-            xtype: previewForm,
-            itemId: 'issues-preview-form',
-            showFilters: true,
-            router: me.router,
-            bbar: {
-                layout: {
-                    type: 'vbox',
-                    align: 'right'
-                },
-                items: {
-                    text: Uni.I18n.translate('general.title.viewDetails', 'ISE', 'View details'),
-                    itemId: 'view-details-link',
-                    ui: 'link',
-                    href: location.href
-                }
-            }
-        };
-
-        me.tools = [
-            {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
-                iconCls: 'x-uni-action-iconD',
-                menu: {
-                    xtype: 'issue-action-menu',
-                    itemId: 'issue-action-menu',
-                    issueType: me.issueType
-                }
-            }
-        ];
-
-        me.callParent(arguments);
-    }
-});
-
-Ext.define('Isu.view.workspace.issues.TopPanel', {
-    extend: 'Ext.container.Container',
-    requires: [
-        'Isu.view.workspace.issues.FilteringToolbar',
-        'Isu.view.workspace.issues.GroupingToolbar',
-        'Isu.view.workspace.issues.SortingToolbar',
-        'Isu.view.workspace.issues.IssueGroup',
-        'Ext.menu.Separator'
-    ],
-    alias: 'widget.issues-top-panel',
-    items: [
-        {
-            xtype: 'filtering-toolbar',
-            itemId: 'filtering-toolbar'
-        },
-        {
-            xtype: 'menuseparator'
-        },
-        {
-            xtype: 'grouping-toolbar',
-            itemId: 'grouping-toolbar'
-        },
-        {
-            xtype: 'menuseparator'
-        },
-        {
-            xtype: 'sorting-toolbar',
-            itemId: 'sorting-toolbar'
-        },
-        {
-            xtype: 'issue-group',
-            itemId: 'issue-group'
-        }
-    ]
-});
-
-Ext.define('Isu.view.workspace.issues.Setup', {
+Ext.define('Isu.view.workspace.issues.Overview', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.issues-setup',
+    alias: 'widget.issues-overview',
     itemId: 'issuesOverview',
-    issueType: null,
-    router: null,
 
     requires: [
-        'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.navigation.SubMenu',
-        'Isu.view.workspace.issues.SideFilter',
-        'Isu.view.workspace.issues.TopPanel',
-        'Isu.view.workspace.issues.Grid',
-        'Isu.view.workspace.issues.Preview'
-
-        /*'Isu.view.workspace.issues.Filter',
+        'Isu.view.workspace.issues.Filter',
         'Isu.view.workspace.issues.List',
         'Isu.view.workspace.issues.Item',
         'Isu.view.workspace.issues.SideFilter',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'*/
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     side: {
@@ -8884,46 +8881,34 @@ Ext.define('Isu.view.workspace.issues.Setup', {
         ]
     },
 
-    initComponent: function () {
-        var me = this;
-
-        me.content = [
-            {
-                xtype: 'panel',
-                ui: 'large',
-                title: Uni.I18n.translate('workspace.issues.title', 'ISE', 'Issues'),
-                items: [
-                    {   itemId: 'issues-top-panel',
-                        xtype: 'issues-top-panel'
+    content: [
+        {
+            xtype: 'panel',
+            ui: 'large',
+            title: Uni.I18n.translate('workspace.issues.title', 'ISU', 'Issues'),
+            items: [
+                {   itemId: 'issues-filter',
+                    xtype: 'issues-filter'
+                },
+                {
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'issues-list'
                     },
-                    {
-                        xtype: 'preview-container',
-                        grid: {
-                            xtype: 'issues-grid',
-                            itemId: 'issues-grid',
-                            issueType: me.issueType,
-                            router: me.router
-                        },
-                        emptyComponent: {
-                            xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('workspace.issues.empty.title', 'ISE', 'No issues found'),
-                            reasons: [
-                                Uni.I18n.translate('workspace.issues.empty.list.item1', 'ISE', 'No issues have been defined yet.'),
-                                Uni.I18n.translate('workspace.issues.empty.list.item2', 'ISE', 'No issues comply to the filter.')
-                            ]
-                        },
-                        previewComponent: {
-                            xtype: 'issues-preview',
-                            itemId: 'issues-preview',
-                            issueType: me.issueType,
-                            router: me.router
-                        }
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        title: Uni.I18n.translate('workspace.issues.empty.title', 'ISU', 'No issues found'),
+                        reasons: [
+                            Uni.I18n.translate('workspace.issues.empty.list.item1', 'ISU', 'No issues have been defined yet.'),
+                            Uni.I18n.translate('workspace.issues.empty.list.item2', 'ISU', 'No issues comply to the filter.')
+                        ]
+                    },
+                    previewComponent: {
+                        xtype: 'issues-item'
                     }
-                ]
-            }
-        ];
-
-        me.callParent(arguments);
-    }
+                }
+            ]
+        }
+    ]
 });
 
