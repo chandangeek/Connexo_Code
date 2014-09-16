@@ -15,7 +15,8 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
             multiSelect: true,
             itemId: 'checkProfileTypes',
             labelWidth: 200,
-            labelSeparator: '*',
+            required: true,
+            width: 400,
             store: 'Mdc.store.LoadProfileTypes',
             displayField: 'name',
             valueField: 'id',
@@ -27,14 +28,14 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
         {
             xtype: 'container',
             layout: 'column',
-            margin: '10 0 0 150',
             items: [
                 {
                     xtype: 'radiogroup',
                     itemId: 'radioIntervals',
                     fieldLabel: 'Mark intervals as bad time ',
                     afterLabelTextTpl: '<img src="../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png">',
-                    labelWidth: 220,
+                    labelWidth: 350,
+                    width: 400,
                     defaults: {
                         name: 'intervals',
                         margin: '0 10 0 0'
@@ -58,6 +59,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                     xtype: 'container',
                     layout: 'vbox',
                     itemId: 'disCont',
+                    margin: '0 0 0 70',
                     disabled: true,
                     items: [
                         {
@@ -71,13 +73,13 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                                     fieldLabel: 'Minimum clock difference',
                                     hideLabel: true,
                                     maskRe: /[0-9]+/,
-                                    width: 30,
                                     margin: '0 10 0 0',
+                                    width: 30,
                                     value: 60
                                 },
                                 {
                                     xtype: 'communication-tasks-parameters-timecombo',
-                                    width: 100,
+                                    width: 110,
                                     itemId: 'disContTime',
                                     value: 'seconds'
                                 }
@@ -94,10 +96,10 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
         {
             xtype: 'radiogroup',
             itemId: 'radioEvents',
-            margin: '0 0 0 131',
             fieldLabel: 'Meter events from status flag ',
             afterLabelTextTpl: '<img src="../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png">',
-            labelWidth: 240,
+            labelWidth: 350,
+            width: 400,
             defaults: {
                 name: 'events',
                 margin: '0 10 0 0'
@@ -110,10 +112,10 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
         {
             xtype: 'radiogroup',
             itemId: 'radioFail',
-            margin: '0 0 0 61',
             fieldLabel: "Fail if profile configuration doesn't match ",
             afterLabelTextTpl: '<img src="../ext/packages/uni-theme-skyline/resources/images/shared/icon-info-small.png">',
-            labelWidth: 310,
+            labelWidth: 350,
+            width: 400,
             defaults: {
                 name: 'fail',
                 margin: '0 10 0 0'

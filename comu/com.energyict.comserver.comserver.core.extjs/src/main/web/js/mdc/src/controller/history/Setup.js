@@ -703,7 +703,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         },
                         edit: {
                             title: 'Edit communication task',
-                            route: '{id}',
+                            route: '{id}/edit',
                             controller: 'Mdc.controller.setup.Comtasks',
                             action: 'showCommunicationTasksCreateEdit',
                             callback: function (route) {

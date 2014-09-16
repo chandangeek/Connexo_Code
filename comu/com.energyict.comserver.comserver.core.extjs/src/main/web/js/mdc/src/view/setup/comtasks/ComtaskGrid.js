@@ -24,32 +24,26 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskGrid', {
     },
     dockedItems: [
         {
-            xtype: 'toolbar',
+            xtype: 'pagingtoolbartop',
+            store: 'Mdc.store.CommunicationTasks',
+            displayMsg: Uni.I18n.translate('comtask.display.msg', 'MDC', '{0} - {1} of {2} communication tasks'),
+            displayMoreMsg: Uni.I18n.translate('comtask.display.more.msg', 'MDC', '{0} - {1} of more than {2} communication tasks'),
+            emptyMsg: Uni.I18n.translate('comtask.empty.msg', 'MDC', '0 communication tasks'),
             dock: 'top',
+            border: false,
             items: [
                 {
-                    xtype: 'container',
-                    flex: 1,
-                    items: [
-                        {
-                            xtype: 'pagingtoolbartop',
-                            store: 'Mdc.store.CommunicationTasks',
-                            displayMsg: Uni.I18n.translate('comtask.display.msg', 'MDC', '{0} - {1} of {2} communication tasks'),
-                            displayMoreMsg: Uni.I18n.translate('comtask.display.more.msg', 'MDC', '{0} - {1} of more than {2} communication tasks'),
-                            emptyMsg: Uni.I18n.translate('comtask.empty.msg', 'MDC', '0 communication tasks'),
-                            dock: 'top',
-                            border: false
-                        }
-                    ]
+                    xtype: 'component',
+                    flex: 1
                 },
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('comtask.create', 'MDC', 'Add communication task'),
                     action: 'createcommunicationtasks',
-                    hrefTarget: '',
                     href: '#/administration/communicationtasks/create'
                 }
             ]
+
         },
         {
             xtype: 'pagingtoolbarbottom',

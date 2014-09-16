@@ -4,11 +4,11 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskActionMenu', {
     plain: true,
     items: [
         {
-            text: 'Edit',
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             action: 'edit'
         },
         {
-            text: 'Remove',
+            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             action: 'delete'
         }
     ]
