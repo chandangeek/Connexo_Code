@@ -22,7 +22,7 @@ import java.util.Date;
  * @author gna
  * @since 4/04/12 - 12:08
  */
-public class DefaultDeviceRegister extends DeviceRegister {
+public class DefaultDeviceRegister extends DeviceQuantityRegister {
 
     /**
      * Default constructor
@@ -45,9 +45,4 @@ public class DefaultDeviceRegister extends DeviceRegister {
         super.setEventTime(null);
     }
 
-    @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        return new NoopDeviceCommand();
-
-    }
 }

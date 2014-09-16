@@ -52,10 +52,17 @@ public final class MeterDataFactory {
     }
 
     private static ReadingImpl getRegisterReading(final CollectedRegister collectedRegister) {
-        return new ReadingImpl(
-                collectedRegister.getReadingType().getMRID(),
-                collectedRegister.getCollectedQuantity().getAmount(),
-                collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime());
+        if(!collectedRegister.isTextRegister()){
+            return new ReadingImpl(
+                    collectedRegister.getReadingType().getMRID(),
+                    collectedRegister.getCollectedQuantity().getAmount(),
+                    collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime());
+        } else {
+            return new ReadingImpl(
+                    collectedRegister.getReadingType().getMRID(),
+                    collectedRegister.getText(),
+                    collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime());
+        }
     }
 
     /**

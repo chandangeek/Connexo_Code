@@ -27,7 +27,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier
  * @author gna
  * @since 4/04/12 - 13:14
  */
-public class BillingDeviceRegisters extends DeviceRegister {
+public class BillingDeviceRegisters extends DeviceQuantityRegister {
 
     /**
      * Default constructor
@@ -36,12 +36,6 @@ public class BillingDeviceRegisters extends DeviceRegister {
      */
     public BillingDeviceRegisters(RegisterIdentifier registerIdentifier, ReadingType readingType) {
         super(registerIdentifier, readingType);
-    }
-
-    @Override
-    public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        return new NoopDeviceCommand();
-
     }
 
 }

@@ -42,13 +42,17 @@ public class PreStoreRegisters {
         List<Reading> processedReadings = new ArrayList<>();
         for (CollectedRegister collectedRegister : collectedRegisterList.getCollectedRegisters()) {
             Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister);
-            Unit configuredUnit = this.mdcReadingTypeUtilService.getReadingTypeInformationFor(collectedRegister.getReadingType()).getUnit();
-            int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnit);
-            OfflineRegister offlineRegister = comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier());
-            BigDecimal overflow = offlineRegister.getOverFlowValue();
-            Reading scaledReading = getScaledReading(scaler, reading);
-            Reading overflowCheckedReading = getOverflowCheckedReading(overflow, scaledReading);
-            processedReadings.add(overflowCheckedReading);
+            if(!collectedRegister.isTextRegister()){
+                Unit configuredUnit = this.mdcReadingTypeUtilService.getReadingTypeInformationFor(collectedRegister.getReadingType()).getUnit();
+                int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnit);
+                OfflineRegister offlineRegister = comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier());
+                BigDecimal overflow = offlineRegister.getOverFlowValue();
+                Reading scaledReading = getScaledReading(scaler, reading);
+                Reading overflowCheckedReading = getOverflowCheckedReading(overflow, scaledReading);
+                processedReadings.add(overflowCheckedReading);
+            } else {
+                processedReadings.add(reading);
+            }
         }
         return processedReadings;
     }
