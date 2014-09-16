@@ -479,7 +479,15 @@
         </profile>
         <profile>
             <id>sencha-build</id>
+            <properties>
+                <sencha.ext.dir>${project.basedir}/../com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
+            </properties>
             <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/web</directory>
+                    </resource>
+                </resources>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
