@@ -151,11 +151,11 @@ Ext.define('Uni.component.filter.view.Filter', {
             cmp = this.down('[name="' + name + '"]');
 
         if (!values[name]) {
-            record.set(name, null);
+            record[association.setterName](Ext.create(association.model));
         } else if (cmp && cmp.mixins.bindable) {
             var store = cmp.getStore();
             var rec = store.getById(values[name]);
-            record.set(name, rec);
+            record[association.setterName](rec);
         }
 
         return this;
