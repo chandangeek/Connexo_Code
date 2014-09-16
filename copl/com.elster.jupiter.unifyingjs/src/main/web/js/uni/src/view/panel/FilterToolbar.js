@@ -3,8 +3,7 @@ Ext.define('Uni.view.panel.FilterToolbar', {
     alias: 'widget.filter-toolbar',
     titlePosition: 'left',
     layout: {
-        type: 'hbox',
-        align: 'stretch'
+        type: 'hbox'
     },
     header: false,
     ui: 'filter-toolbar',
@@ -45,13 +44,16 @@ Ext.define('Uni.view.panel.FilterToolbar', {
             xtype: 'header',
             dock: 'left'
         },
-        {	
-        	itemId : 'Reset',
-            xtype: 'button',
-            text: 'Clear all',
-            action: 'clear',
-            disabled: true,
-            dock: 'right'
+        {
+        	xtype: 'container',
+            dock: 'right',
+            items: {
+                itemId : 'Reset',
+                xtype: 'button',
+                text: 'Clear all',
+                action: 'clear',
+                disabled: true
+            }
         }
     ],
 
