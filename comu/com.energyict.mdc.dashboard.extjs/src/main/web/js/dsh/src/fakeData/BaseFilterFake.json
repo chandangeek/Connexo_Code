@@ -1,24 +1,24 @@
 {
     "data": [
         {
-            "name": "FakeName1",
-            "localizedValue": "FakeValue1"
+            "id": "FakeName1",
+            "name": "FakeValue1"
         },
         {
-            "name": "FakeName2",
-            "localizedValue": "FakeValue2"
+            "id": "FakeName2",
+            "name": "FakeValue2"
         },
         {
-            "name": "FakeName3",
-            "localizedValue": "FakeValue3"
+            "id": "FakeName3",
+            "name": "FakeValue3"
         },
         {
-            "name": "FakeName4",
-            "localizedValue": "FakeValue4"
+            "id": "FakeName4",
+            "name": "FakeValue4"
         },
         {
-            "name": "FakeName5",
-            "localizedValue": "FakeValue5"
+            "id": "FakeName5",
+            "name": "FakeValue5"
         }
     ]
 }

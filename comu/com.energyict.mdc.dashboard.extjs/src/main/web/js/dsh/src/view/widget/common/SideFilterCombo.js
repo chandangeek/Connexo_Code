@@ -1,34 +1,32 @@
 Ext.define('Dsh.view.widget.common.SideFilterCombo', {
     extend: 'Ext.form.field.ComboBox',
     alias: 'widget.side-filter-combo',
-    displayField: 'localizedValue',
-    valueField: 'name',
     editable: false,
     multiSelect: true,
     queryMode: 'local',
     triggerAction: 'all',
-    listConfig: {
-        getInnerTpl: function () {
-            return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {localizedValue} </div>';
-        }
-    },
     initComponent: function () {
-        var me = this,
-            root;
+        var me = this;
         this.callParent(arguments);
-        me.root ? root = me.root : root = 'data'
+        this.listConfig = {
+            getInnerTpl: function () {
+                return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {' + me.displayField + '}</div>';
+            }
+        };
         this.store = Ext.create('Ext.data.Store', {
             autoLoad: true,
-            fields: [
-                { name: 'name', type: 'string' },
-                { name: 'localizedValue', type: 'string' }
-            ],
+            fields: [me.valueField, me.displayField],
             proxy: {
                 type: 'ajax',
                 url: me.url,
                 reader: {
                     type: 'json',
-                    root: root
+                    root: me.root
+                }
+            },
+            listeners: {
+                load: function () {
+                    me.select(me.up('form').getRecord().get(me.name));
                 }
             }
         });

@@ -65,17 +65,26 @@ Ext.define('Dsh.controller.Connections', {
             },
             '#dshconnectionssidefilter button[action=applyfilter]': {
                 click: this.applyFilter
+            },
+            '#dshconnectionsfilterpanel button[action=clear]': {
+                click: this.clearFilter
             }
         });
         this.callParent(arguments);
-
     },
+
     showOverview: function () {
         var widget = Ext.widget('connections-details');
         var router = this.getController('Uni.controller.history.Router');
         this.getSideFilterForm().loadRecord(router.filter);
         this.getFilterPanel().loadRecord(router.filter);
+
         this.getApplication().fireEvent('changecontentevent', widget);
+
+        var store = this.getStore('Dsh.store.ConnectionTasks');
+        debugger;
+        var data = router.filter.getData();
+        store.load();
     },
 
     onCommunicationSelectionChange: function (grid, selected) {
@@ -125,9 +134,11 @@ Ext.define('Dsh.controller.Connections', {
     },
 
     applyFilter: function () {
-        var me = this;
-        me.getSideFilterForm().updateRecord();
-        var model = me.getSideFilterForm().getRecord();
-        model.save();
+        this.getSideFilterForm().updateRecord();
+        this.getSideFilterForm().getRecord().save();
+    },
+
+    clearFilter: function () {
+        this.getSideFilterForm().getRecord().destroy();
     }
 });
