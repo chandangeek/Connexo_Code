@@ -76,6 +76,13 @@ public interface CollectedRegister extends CollectedData {
     public ReadingType getReadingType();
 
     /**
+     * Indicates whether this is a text register
+     *
+     * @return true if this is a text register, false otherwise
+     */
+    public boolean isTextRegister();
+
+    /**
      * Set the collected timeStamps.<br/>
      * <i>Should be used for MaximumDemand registers</i>
      *

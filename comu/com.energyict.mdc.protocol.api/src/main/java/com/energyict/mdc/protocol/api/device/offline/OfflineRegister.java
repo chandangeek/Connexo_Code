@@ -98,4 +98,11 @@ public interface OfflineRegister extends Offline {
      * @return the configured overFlowValue
      */
     public BigDecimal getOverFlowValue();
+
+    /**
+     * Indicates whether this is a text register
+     *
+     * @return true if this is a Text register, false otherwise
+     */
+    public boolean isText();
 }
