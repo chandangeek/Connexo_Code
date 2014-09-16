@@ -24,7 +24,7 @@ Ext.onReady(function () {
         },
         {
             name: 'Isu',
-            path: '../../apps/issue/src'
+            path: '../../apps/isu/src'
         },
         {
             name: 'Dvi',
@@ -32,7 +32,7 @@ Ext.onReady(function () {
         },
         {
             name: 'Dsh',
-            path: '../../apps/dashboard/src'
+            path: '../../apps/dsh/src'
         }
     ];
 
