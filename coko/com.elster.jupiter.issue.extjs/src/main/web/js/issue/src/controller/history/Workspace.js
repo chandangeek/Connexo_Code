@@ -64,7 +64,7 @@ Ext.define('Isu.controller.history.Workspace', {
                     }
                 },
                 datavalidation: {
-                    title: Uni.I18n.translate('router.datavalidation', 'ISE', 'Data validation'),
+                    title: Uni.I18n.translate('router.datavalidation', 'ISU', 'Data validation'),
                     route: 'datavalidation',
                     controller: 'Isu.controller.DataValidation',
                     action: 'showOverview',

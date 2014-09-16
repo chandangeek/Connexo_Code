@@ -48,7 +48,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('administration.issueCreationRules.title', 'ISE', 'Issue creation rules'),
+            title: Uni.I18n.translate('administration.issueCreationRules.title', 'ISU', 'Issue creation rules'),
             items: [
                 {
                     xtype: 'preview-container',
@@ -58,15 +58,15 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Overview',
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('administration.issueCreationRules.empty.title', 'ISE', 'No issue creation rules found'),
+                        title: Uni.I18n.translate('administration.issueCreationRules.empty.title', 'ISU', 'No issue creation rules found'),
                         reasons: [
-                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item1', 'ISE', 'No issue creation rules have been defined yet.'),
-                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item2', 'ISE', 'No issue creation rules comply to the filter.')
+                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item1', 'ISU', 'No issue creation rules have been defined yet.'),
+                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item2', 'ISU', 'No issue creation rules comply to the filter.')
                         ],
                         stepItems: [
                             {
                                 itemId: 'createRule',
-                                text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISE', 'Create rule'),
+                                text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Create rule'),
                                 href: '#/administration/creationrules/add',
                                 action: 'create'
                             }

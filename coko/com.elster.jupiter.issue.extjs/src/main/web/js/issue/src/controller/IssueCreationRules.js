@@ -84,8 +84,8 @@ Ext.define('Isu.controller.IssueCreationRules', {
         var self = this;
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.msg', 'ISE', 'This issue creation rule will disappear from the list.<br>Issues will not be created automatically by this rule.'),
-            title: Ext.String.format(Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.title', 'ISE', 'Delete rule "{0}"?'), rule.get('name')),
+            msg: Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.msg', 'ISU', 'This issue creation rule will disappear from the list.<br>Issues will not be created automatically by this rule.'),
+            title: Ext.String.format(Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.title', 'ISU', 'Delete rule "{0}"?'), rule.get('name')),
             config: {
                 me: self,
                 rule: rule
@@ -118,7 +118,7 @@ Ext.define('Isu.controller.IssueCreationRules', {
                 page.setLoading(false);
                 if (operation.response.status == 204) {
                     store.loadPage(1);
-                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('administration.issueCreationRules.deleteSuccess.msg', 'ISE', 'Issue creation rule deleted'));
+                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('administration.issueCreationRules.deleteSuccess.msg', 'ISU', 'Issue creation rule deleted'));
                 }
             }
         });

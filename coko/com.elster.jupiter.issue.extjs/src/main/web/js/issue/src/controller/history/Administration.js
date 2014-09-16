@@ -5,28 +5,28 @@ Ext.define('Isu.controller.history.Administration', {
 
     routeConfig: {
         administration : {
-            title: Uni.I18n.translate('route.administration', 'ISE', 'Administration'),
+            title: Uni.I18n.translate('route.administration', 'ISU', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
                 assignmentrules: {
-                    title: Uni.I18n.translate('route.assignmentRules', 'ISE', 'Assignment Rules'),
+                    title: Uni.I18n.translate('route.assignmentRules', 'ISU', 'Assignment Rules'),
                     route: 'assignmentrules',
                     controller: 'Isu.controller.IssueAssignmentRules'
                 },
                 creationrules: {
-                    title: Uni.I18n.translate('route.issueCreationRules', 'ISE', 'Issue creation rules'),
+                    title: Uni.I18n.translate('route.issueCreationRules', 'ISU', 'Issue creation rules'),
                     route: 'creationrules',
                     controller: 'Isu.controller.IssueCreationRules',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('route.addIssueCreationRule', 'ISE', 'Add issue creation rule'),
+                            title: Uni.I18n.translate('route.addIssueCreationRule', 'ISU', 'Add issue creation rule'),
                             route: 'add',
                             controller: 'Isu.controller.IssueCreationRulesEdit',
                             action: 'showCreate',
                             items: {
                                 addaction: {
-                                    title: Uni.I18n.translate('route.addAction', 'ISE', 'Add action'),
+                                    title: Uni.I18n.translate('route.addAction', 'ISU', 'Add action'),
                                     route: 'addaction',
                                     controller: 'Isu.controller.IssueCreationRulesActionsEdit',
                                     action: 'showCreate'

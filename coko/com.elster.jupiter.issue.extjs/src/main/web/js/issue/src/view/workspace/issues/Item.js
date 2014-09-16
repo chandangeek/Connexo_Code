@@ -11,7 +11,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'issue-action-menu'
@@ -27,7 +27,7 @@ Ext.define('Isu.view.workspace.issues.Item', {
                 align: 'right'
             },
             items: {
-                text: Uni.I18n.translate('general.title.viewDetails', 'ISE', 'View details'),
+                text: Uni.I18n.translate('general.title.viewDetails', 'ISU', 'View details'),
                 itemId: 'viewDetails',
                 ui: 'link',
                 action: 'view',

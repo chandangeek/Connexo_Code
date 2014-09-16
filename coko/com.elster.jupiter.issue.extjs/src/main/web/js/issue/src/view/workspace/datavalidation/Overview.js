@@ -17,7 +17,7 @@ Ext.define('Isu.view.workspace.datavalidation.Overview', {
     content: [
         {
             ui: 'large',
-            title: Uni.I18n.translate('workspace.datavalidation.overview.title', 'ISE', 'Data validation'),
+            title: Uni.I18n.translate('workspace.datavalidation.overview.title', 'ISU', 'Data validation'),
             flex: 1
         }
     ]

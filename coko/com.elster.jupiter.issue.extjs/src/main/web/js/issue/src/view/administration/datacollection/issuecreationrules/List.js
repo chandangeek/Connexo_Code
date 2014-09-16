@@ -13,14 +13,14 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
         items: [
             {
                 itemId: 'Name',
-                header: Uni.I18n.translate('general.title.name', 'ISE', 'Name'),
+                header: Uni.I18n.translate('general.title.name', 'ISU', 'Name'),
                 dataIndex: 'name',
                 tdCls: 'isu-grid-description',
                 flex: 1
             },
             {
                 itemId: 'templateColumn',
-                header: Uni.I18n.translate('general.title.ruleTemplate', 'ISE', 'Rule template'),
+                header: Uni.I18n.translate('general.title.ruleTemplate', 'ISU', 'Rule template'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="template">{template.name}</tpl>',
                 tdCls: 'isu-grid-description',
@@ -28,7 +28,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
             },
             {
                 itemId : 'issueType',
-                header: Uni.I18n.translate('general.title.issueType', 'ISE', 'Issue type'),
+                header: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue type'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="issueType">{issueType.name}</tpl>',
                 tdCls: 'isu-grid-description',
@@ -45,15 +45,15 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
             itemId: 'pagingtoolbartop',
             xtype: 'pagingtoolbartop',
             dock: 'top',
-            displayMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMsg', 'ISE', '{0} - {1} of {2} issue creation rules'),
-            displayMoreMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMoreMsg', 'ISE', '{0} - {1} of more than {2} issue creation rules'),
-            emptyMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.emptyMsg', 'ISE', 'There are no issue creation rules to display'),
+            displayMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} issue creation rules'),
+            displayMoreMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} issue creation rules'),
+            emptyMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.emptyMsg', 'ISU', 'There are no issue creation rules to display'),
             items: [
                 '->',
                 {
                     itemId: 'createRule',
                     xtype: 'button',
-                    text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISE', 'Create rule'),
+                    text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Create rule'),
                     href: '#/administration/creationrules/add',
                     action: 'create'
                 }
@@ -63,7 +63,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.List', {
             itemId: 'pagingtoolbarbottom',
             xtype: 'pagingtoolbarbottom',
             dock: 'bottom',
-            itemsPerPageMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbarbottom.itemsPerPage', 'ISE', 'Issue creation rules per page')
+            itemsPerPageMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbarbottom.itemsPerPage', 'ISU', 'Issue creation rules per page')
         }
     ],
 

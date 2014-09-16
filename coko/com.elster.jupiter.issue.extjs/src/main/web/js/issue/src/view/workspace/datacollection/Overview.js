@@ -17,7 +17,7 @@ Ext.define('Isu.view.workspace.datacollection.Overview', {
     content: [
         {
             ui: 'large',
-            title: Uni.I18n.translate('issue.workspace.datacollection', 'ISE', 'Data collection'),
+            title: Uni.I18n.translate('issue.workspace.datacollection', 'ISU', 'Data collection'),
             flex: 1
         }
     ]

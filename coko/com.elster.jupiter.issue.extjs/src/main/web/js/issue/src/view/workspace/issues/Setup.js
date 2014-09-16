@@ -63,7 +63,7 @@ Ext.define('Isu.view.workspace.issues.Setup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('workspace.issues.title', 'ISE', 'Issues'),
+                title: Uni.I18n.translate('workspace.issues.title', 'ISU', 'Issues'),
                 items: [
                     {   itemId: 'issues-top-panel',
                         xtype: 'issues-top-panel'
@@ -78,10 +78,10 @@ Ext.define('Isu.view.workspace.issues.Setup', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('workspace.issues.empty.title', 'ISE', 'No issues found'),
+                            title: Uni.I18n.translate('workspace.issues.empty.title', 'ISU', 'No issues found'),
                             reasons: [
-                                Uni.I18n.translate('workspace.issues.empty.list.item1', 'ISE', 'No issues have been defined yet.'),
-                                Uni.I18n.translate('workspace.issues.empty.list.item2', 'ISE', 'No issues comply to the filter.')
+                                Uni.I18n.translate('workspace.issues.empty.list.item1', 'ISU', 'No issues have been defined yet.'),
+                                Uni.I18n.translate('workspace.issues.empty.list.item2', 'ISU', 'No issues comply to the filter.')
                             ]
                         },
                         previewComponent: {

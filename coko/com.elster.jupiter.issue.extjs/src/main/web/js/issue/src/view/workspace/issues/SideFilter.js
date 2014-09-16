@@ -3,7 +3,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
     alias: 'widget.issues-side-filter',
     cls: 'filter-form',
     width: 200,
-    title: Uni.I18n.translate('general.title.filter', 'ISE', 'Filter'),
+    title: Uni.I18n.translate('general.title.filter', 'ISU', 'Filter'),
     ui: 'filter',
     requires: [
         'Isu.view.workspace.issues.component.AssigneeCombo',
@@ -23,7 +23,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     xtype: 'filter-checkboxgroup',
                     store: 'Isu.store.IssueStatus',
                     name: 'status',
-                    fieldLabel: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
+                    fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
                     labelAlign: 'top',
                     columns: 1,
                     vertical: true
@@ -32,7 +32,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     itemId: 'filter-by-assignee',
                     xtype: 'issues-assignee-combo',
                     name: 'assignee',
-                    fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
+                    fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
                     labelAlign: 'top',
                     forceSelection: true,
                     anyMatch: true,
@@ -43,7 +43,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     itemId: 'filter-by-reason',
                     xtype: 'combobox',
                     name: 'reason',
-                    fieldLabel: Uni.I18n.translate('general.title.reason', 'ISE', 'Reason'),
+                    fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
                     labelAlign: 'top',
 
                     displayField: 'name',
@@ -71,7 +71,7 @@ Ext.define('Isu.view.workspace.issues.SideFilter', {
                     itemId: 'filter-by-meter',
                     xtype: 'combobox',
                     name: 'meter',
-                    fieldLabel: Uni.I18n.translate('general.title.meter', 'ISE', 'Meter'),
+                    fieldLabel: Uni.I18n.translate('general.title.meter', 'ISU', 'Meter'),
                     labelAlign: 'top',
 
                     displayField: 'name',
