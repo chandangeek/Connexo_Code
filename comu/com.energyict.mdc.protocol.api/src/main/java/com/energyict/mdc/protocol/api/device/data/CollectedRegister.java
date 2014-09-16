@@ -71,7 +71,7 @@ public interface CollectedRegister extends CollectedData {
     /**
      * Gets the ReadingType of the collected Register
      *
-     * @returnthe ReadingType of the collected Register
+     * @return the ReadingType of the collected Register
      */
     public ReadingType getReadingType();
 
