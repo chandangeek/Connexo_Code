@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -21,6 +19,7 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -43,6 +42,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
@@ -51,23 +51,23 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.assertj.core.api.Assertions;
 import org.joda.time.DateTime;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
@@ -77,6 +77,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -192,32 +193,31 @@ public class DeviceGroupTest {
                 new MdcReadingTypeUtilServiceModule(),
                 new PluggableModule(),
                 new DeviceConfigurationModule(),
+                new BasicPropertiesModule(),
+                new ProtocolApiModule(),
                 new TasksModule(),
                 new MockModule(),
                 new MeteringGroupsModule()
         );
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(MeteringGroupsService.class);
-                injector.getInstance(ThreadPrincipalService.class);
-                injector.getInstance(ValidationService.class);
-                injector.getInstance(MasterDataService.class);
-                injector.getInstance(DeviceConfigurationService.class);
-                injector.getInstance(DeviceDataServiceImpl.class);
-                injector.getInstance(SecurityPropertyServiceImpl.class);
+        injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(MeteringGroupsService.class);
+            injector.getInstance(ThreadPrincipalService.class);
+            injector.getInstance(ValidationService.class);
+            injector.getInstance(MasterDataService.class);
+            injector.getInstance(DeviceConfigurationService.class);
+            injector.getInstance(DeviceDataServiceImpl.class);
+            injector.getInstance(SecurityPropertyServiceImpl.class);
 
-                MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-                MeteringService meteringService = injector.getInstance(MeteringService.class);
-                DeviceDataService deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
+            MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+            MeteringService meteringService = injector.getInstance(MeteringService.class);
+            DeviceDataService deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);
 
-                DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
-                endDeviceQueryProvider.setMeteringService(meteringService);
-                endDeviceQueryProvider.setDeviceDataService(deviceDataService);
-                meteringGroupsService.addEndDeviceQueryProvider(endDeviceQueryProvider);
+            DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
+            endDeviceQueryProvider.setMeteringService(meteringService);
+            endDeviceQueryProvider.setDeviceDataService(deviceDataService);
+            meteringGroupsService.addEndDeviceQueryProvider(endDeviceQueryProvider);
 
-                return null;
-            }
+            return null;
         });
 
     }
@@ -279,7 +279,7 @@ public class DeviceGroupTest {
 
     @Test
     public void testPersistenceStaticGroup() {
-        EndDevice endDevice = null;
+        EndDevice endDevice;
         try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
             DeviceDataService deviceDataService = injector.getInstance(DeviceDataServiceImpl.class);

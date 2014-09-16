@@ -24,6 +24,7 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
@@ -172,6 +173,9 @@ public class InMemoryIntegrationPersistence {
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
+                new BasicPropertiesModule(),
+                new MdcDynamicModule(),
+                new ProtocolApiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
                 new SchedulingModule());

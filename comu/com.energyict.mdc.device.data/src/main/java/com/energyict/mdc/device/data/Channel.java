@@ -64,6 +64,4 @@ public interface Channel extends BaseChannel {
      * @return data for this channel
      */
     List<LoadProfileReading> getChannelData(Interval interval);
-
-    boolean isValidationActive();
 }
