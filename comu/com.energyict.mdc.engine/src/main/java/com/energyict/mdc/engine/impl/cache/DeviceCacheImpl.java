@@ -11,7 +11,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
