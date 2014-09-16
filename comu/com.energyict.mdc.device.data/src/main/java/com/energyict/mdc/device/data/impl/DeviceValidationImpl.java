@@ -2,8 +2,6 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.impl.ChannelImpl;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -13,7 +11,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.google.common.base.Optional;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,6 +49,7 @@ public class DeviceValidationImpl implements DeviceValidation {
         Optional<com.elster.jupiter.metering.Channel> found = device.findKoreChannel(channel, when);
         return found.isPresent() && validationService.getMeterActivationValidations(found.get().getMeterActivation()).stream()
                 .flatMap(m -> m.getChannelValidations().stream())
+                .filter(c -> c.getChannel().getId() == found.get().getId())
                 .anyMatch(ChannelValidation::hasActiveRules);
     }
 

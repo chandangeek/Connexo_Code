@@ -1,10 +1,13 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.MeterValidationImpl;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -15,16 +18,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.UtcInstant;
-
 import com.energyict.mdc.device.data.LoadProfileReading;
-import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -281,17 +275,6 @@ public class LoadProfileImpl implements LoadProfile {
         @Override
         public List<LoadProfileReading> getChannelData(Interval interval) {
             return LoadProfileImpl.this.device.get().getChannelData(this, interval);
-        }
-
-        @Override
-        public boolean isValidationActive() {
-            Optional<com.elster.jupiter.metering.Channel> optionalChannel = ((DeviceImpl) this.getDevice()).findKoreChannel(this, new Date());
-            if (optionalChannel.isPresent()) {
-                return validationService.isValidationActive(optionalChannel.get());
-            }
-            else {
-                    return false;
-            }
         }
 
     }
