@@ -181,6 +181,15 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     public void executionStarted (ConnectionTask connectionTask, ComServer comServer);
 
     /**
+     * Notifies that setting up the {@link ConnectionTask} failed.
+     *
+     * @param connectionTask The ConnectionTask
+     * @param comPort The ComPort on which the connection was being established but failed
+     * @param comTaskExecutions The List of {@link ComTaskExecution}s that were planned to be executed while the connection was established
+     */
+    public void connectionFailed(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> comTaskExecutions);
+
+    /**
      * Notifies that execution of the specified OutboundConnectionTask completed.
      *
      * @param connectionTask The OutboundConnectionTask
@@ -385,5 +394,4 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Date lastReading);
 
     public void updateLastLogBook(LogBookIdentifier logBookIdentifier, EndDeviceEvent lastLogBook);
-
 }

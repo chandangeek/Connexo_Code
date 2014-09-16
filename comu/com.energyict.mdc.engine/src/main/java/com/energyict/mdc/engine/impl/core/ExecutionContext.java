@@ -387,10 +387,9 @@ public final class ExecutionContext implements JournalEntryFactory {
      * @param e              The ConnectionException that explains the failure
      * @param connectionTask The ConnectionTask that failed to connect
      * @see #close()
-     * <p/>
-     * Note: Arguments are used by AOP
      */
     private void connectionFailed(ConnectionException e, ConnectionTask<?, ?> connectionTask) {
+        this.getComServerDAO().connectionFailed(connectionTask, this.comPort, this.jobExecution.getComTaskExecutions());
     }
 
     private void createComSessionCommand(ComSessionBuilder comSessionBuilder, ComSession.SuccessIndicator successIndicator) {

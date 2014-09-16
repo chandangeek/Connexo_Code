@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilde
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
+import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
@@ -52,6 +53,7 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.ProgrammableClock;
@@ -78,6 +80,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -134,6 +137,8 @@ public class InboundCommunicationHandlerTest {
     @Mock
     private EngineService engineService;
     @Mock
+    private EventService eventService;
+    @Mock
     private HexService hexService;
 
     private FakeTransactionService transactionService = new FakeTransactionService();
@@ -145,6 +150,7 @@ public class InboundCommunicationHandlerTest {
     public void setup () {
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
+        serviceProvider.setEventService(eventService);
         serviceProvider.setDeviceDataService(deviceDataService);
         serviceProvider.setHexService(this.hexService);
         EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);
@@ -212,6 +218,7 @@ public class InboundCommunicationHandlerTest {
         verify(this.comServerDAO, never()).findExecutableInboundComTasks(any(OfflineDevice.class), any(InboundComPort.class));
         verify(this.deviceCommandExecutor, never()).tryAcquireTokens(anyInt());
         verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
+        verify(this.eventService, never()).postEvent(anyString(), anyObject());
     }
 
     // Todo (JP-3084)
@@ -261,6 +268,7 @@ public class InboundCommunicationHandlerTest {
         verify(comSessionBuilder, never()).addComTaskExecutionSession(any(ComTaskExecution.class), any(Device.class), any(Date.class));
         verify(comSessionBuilder.endSession(sessionStopClock, ComSession.SuccessIndicator.Success));
         verify(comSessionBuilder, times(3)).addJournalEntry(any(Date.class), anyString(), any(Throwable.class));   // Expect three journal entries (discovery start, discovery result, device not found)
+        verify(this.eventService, never()).postEvent(anyString(), anyObject());
     }
 
     // Todo (JP-3084)
@@ -291,7 +299,7 @@ public class InboundCommunicationHandlerTest {
         verify(this.comServerDAO).findExecutableInboundComTasks(any(OfflineDevice.class), any(InboundComPort.class));
         verify(this.deviceCommandExecutor, never()).tryAcquireTokens(anyInt());
         verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.DEVICE_DOES_NOT_EXPECT_INBOUND);
-
+        verify(this.eventService, never()).postEvent(anyString(), anyObject());
     }
 
     // Todo (JP-3084)
@@ -365,7 +373,7 @@ public class InboundCommunicationHandlerTest {
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(comTaskExecution.getConnectionTask()).thenReturn(connectionTask);
         when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
-        when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(new ArrayList<DeviceCommandExecutionToken>(0));
+        when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(new ArrayList<>(0));
 
         // Business method
         this.handler.handle(inboundDeviceProtocol, context);
@@ -375,6 +383,7 @@ public class InboundCommunicationHandlerTest {
         verify(this.deviceCommandExecutor).tryAcquireTokens(anyInt());
         verify(this.deviceCommandExecutor, never()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         verify(inboundDeviceProtocol).provideResponse(InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY);
+        verify(this.eventService, never()).postEvent(anyString(), anyObject());
     }
 
     @Test
@@ -394,7 +403,7 @@ public class InboundCommunicationHandlerTest {
         when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(device);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
-        when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(new ArrayList<DeviceCommandExecutionToken>(0));
+        when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(new ArrayList<>(0));
         when(this.deviceDataService.buildComSession(any(ConnectionTask.class), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
 
         // Business method
@@ -422,17 +431,19 @@ public class InboundCommunicationHandlerTest {
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);
-        OfflineDevice device = mock(OfflineDevice.class);
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(device);
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
         ComTask comTask = mock(ComTask.class);
 // Todo (JP-2013): wait for ComTaskConfiguration interface to be committed
 //        when(comTask.isConfiguredToCollectRegisterData()).thenReturn(true);
+        Device device = mock(Device.class);
         ConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
+        when(connectionTask.getDevice()).thenReturn(device);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getConnectionTask()).thenReturn(connectionTask);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
-        when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
+        when(this.comServerDAO.findExecutableInboundComTasks(offlineDevice, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
         DeviceCommandExecutionToken token = mock(DeviceCommandExecutionToken.class);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(Arrays.asList(token));
         when(this.deviceDataService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);
@@ -453,6 +464,7 @@ public class InboundCommunicationHandlerTest {
         DeviceCommand childDeviceCommand = compositeDeviceCommand.getChildren().get(0);
         assertThat(childDeviceCommand).isInstanceOf(CreateInboundComSession.class);
         verify(this.comSessionBuilder).endSession(any(Date.class), any(ComSession.SuccessIndicator.class));
+        verify(this.eventService).postEvent(eq(EventType.DEVICE_CONNECTION_COMPLETION.topic()), anyObject());
     }
 
     @Test
@@ -481,6 +493,7 @@ public class InboundCommunicationHandlerTest {
         ConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
+        when(connectionTask.getDevice()).thenReturn(device);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getConnectionTask()).thenReturn(connectionTask);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
@@ -496,6 +509,7 @@ public class InboundCommunicationHandlerTest {
         // Asserts
         verify(this.comSessionBuilder).endSession(any(Date.class), eq(ComSession.SuccessIndicator.Success));
         verify(this.comSessionBuilder, never()).addComTaskExecutionSession(any(ComTaskExecution.class), any(Device.class), any(Date.class));
+        verify(this.eventService).postEvent(eq(EventType.DEVICE_CONNECTION_COMPLETION.topic()), anyObject());
     }
 
     @Test
@@ -594,8 +608,8 @@ public class InboundCommunicationHandlerTest {
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);
-        OfflineDevice device = mock(OfflineDevice.class);
-        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(device);
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(this.comServerDAO.findDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
         ComTask comTask = mock(ComTask.class);
 // Todo (JP-2013): wait for ComTaskConfiguration interface to be committed
 //        when(comTask.isConfiguredToCollectRegisterData()).thenReturn(false);
@@ -606,12 +620,15 @@ public class InboundCommunicationHandlerTest {
 //        when(comTask.isConfiguredToRunBasicChecks()).thenReturn(false);
 //        when(comTask.isConfiguredToSendMessages()).thenReturn(false);
 //        when(comTask.isConfiguredToUpdateTopology()).thenReturn(false);
+        Device device = mock(Device.class);
         ConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
+        when(connectionTask.getDevice()).thenReturn(device);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.getDevice()).thenReturn(device);
         when(comTaskExecution.getConnectionTask()).thenReturn(connectionTask);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
-        when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
+        when(this.comServerDAO.findExecutableInboundComTasks(offlineDevice, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
         DeviceCommandExecutionToken token = mock(DeviceCommandExecutionToken.class);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(Arrays.asList(token));
         when(this.deviceDataService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Date.class))).thenReturn(this.comSessionBuilder);

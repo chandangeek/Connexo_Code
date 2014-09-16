@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.metering.readings.EndDeviceEvent;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
@@ -29,6 +26,11 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.transaction.Transaction;
+
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -162,6 +164,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
     public void executionStarted (ConnectionTask connectionTask, ComServer comServer) {
         this.connectionTaskExecutionStarted.increment();
         this.actual.executionStarted(connectionTask, comServer);
+    }
+
+    @Override
+    public void connectionFailed(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> comTaskExecutions) {
+        this.connectionTaskExecutionFailed.increment();
+        this.actual.connectionFailed(connectionTask, comPort, comTaskExecutions);
     }
 
     @Override
@@ -373,6 +381,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public void executionStarted (ConnectionTask connectionTask, ComServer comServer) {
             this.verifier.verify(connectionTaskExecutionStarted);
+        }
+
+        @Override
+        public void connectionFailed(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> comTaskExecutions) {
+            this.verifier.verify(connectionTaskExecutionFailed);
         }
 
         @Override

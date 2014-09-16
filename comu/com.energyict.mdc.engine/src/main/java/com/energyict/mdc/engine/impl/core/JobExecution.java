@@ -20,6 +20,8 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.ConnectionTaskCompletionEventInfo;
+import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -47,6 +49,7 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
@@ -86,6 +89,8 @@ public abstract class JobExecution implements ScheduledJob {
         public HexService hexService();
 
         public TransactionService transactionService();
+
+        public EventService eventService();
 
     }
 
@@ -151,12 +156,26 @@ public abstract class JobExecution implements ScheduledJob {
     public void reschedule() {
         this.doReschedule(RescheduleBehavior.RescheduleReason.COMTASKS);
         this.completeSuccessfulComSession();
+        this.publishCompletion();
     }
 
     @Override
     public void reschedule(Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason) {
         this.doReschedule(rescheduleReason);
         this.completeFailedComSession(t, this.getFailureIndicatorFor(rescheduleReason));
+        this.publishCompletion();
+    }
+
+    private void publishCompletion() {
+        this.serviceProvider.eventService().
+                postEvent(
+                        EventType.DEVICE_CONNECTION_COMPLETION.topic(),
+                        ConnectionTaskCompletionEventInfo.forCompletion(
+                                this.getConnectionTask(),
+                                this.getComPort(),
+                                this.getSuccessfulComTaskExecutions(),
+                                this.getFailedComTaskExecutions(),
+                                this.getNotExecutedComTaskExecutions()));
     }
 
     @Override
