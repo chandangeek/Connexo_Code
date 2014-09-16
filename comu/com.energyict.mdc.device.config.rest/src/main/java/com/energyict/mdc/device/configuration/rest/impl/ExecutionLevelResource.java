@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
@@ -8,13 +10,22 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 9/15/14.
@@ -22,12 +33,38 @@ import javax.ws.rs.core.Response;
 public class ExecutionLevelResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public ExecutionLevelResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory) {
+    public ExecutionLevelResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
+        this.thesaurus = thesaurus;
     }
+
+    @GET
+    public Response getPrivileges(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("securityPropertySetId") long securityPropertySetId, @QueryParam("available") Boolean filterAvailable){
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
+
+        Set<DeviceSecurityUserAction> userActions = new HashSet<>();
+        Set<DeviceSecurityUserAction> existingUserActions = securityPropertySet.getUserActions();
+        if (filterAvailable!=null && filterAvailable) {
+            Set<DeviceSecurityUserAction> allUserActions = EnumSet.of(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION2, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION3, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION4,
+                    DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4,
+                    DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
+            allUserActions.removeAll(existingUserActions);
+            userActions=allUserActions;
+        } else {
+            userActions=existingUserActions;
+        }
+        List<IdWithNameInfo> userActionInfos = userActions.stream().map(action -> new IdWithNameInfo(action.name(), thesaurus.getString(action.getPrivilege(), action.getPrivilege()))).sorted((info1, info2) -> info1.name.compareToIgnoreCase(info2.name)).collect(toList());
+        Map<String, Object> map = new HashMap<>();
+        map.put("executionLevels", userActionInfos);
+        return Response.ok(map).build();
+    }
+
 
     @POST
     public Response linkDeviceConfigToPrivilege(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("securityPropertySetId") long securityPropertySetId, List<String> privilegeIds){
