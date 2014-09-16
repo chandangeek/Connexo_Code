@@ -3,7 +3,7 @@ package com.energyict.mdc.dashboard.extjs;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
