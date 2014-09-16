@@ -27,7 +27,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     itemId: 'device-group',
                     name: 'deviceGroup',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
+                    url: '/apps/dsh/app/fakeData/BaseFilterFake.json'
                 },
                 {
                     itemId: 'current-state',
@@ -60,19 +60,19 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     itemId: 'comport-pool',
                     name: 'comPortPool',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.comPortPool', 'DSH', 'Communication port pool'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
+                    url: '/apps/dsh/app/fakeData/BaseFilterFake.json'
                 },
                 {
                     itemId: 'connection-type',
                     name: 'connectionType',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Connection type'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
+                    url: '/apps/dsh/app/fakeData/BaseFilterFake.json'
                 },
                 {
                     itemId: 'device-type',
                     name: 'deviceType',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceType', 'DSH', 'Device type'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
+                    url: '/apps/dsh/app/fakeData/BaseFilterFake.json'
                 },
                 {
                     xtype: 'side-filter-date-time',
