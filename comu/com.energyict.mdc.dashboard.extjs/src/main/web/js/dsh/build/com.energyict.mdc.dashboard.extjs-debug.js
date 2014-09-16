@@ -1138,6 +1138,7 @@ Ext.define('Dsh.view.widget.ActionMenu', {
 Ext.define('Dsh.view.widget.CommunicationsList', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.communications-list',
+    store: 'Dsh.store.CommunicationTasks',
     requires: [
         'Ext.grid.column.Date',
         'Ext.form.field.ComboBox',
@@ -1188,7 +1189,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
             },
             {
                 itemId: 'nextCommunication',
-                text: Uni.I18n.translate('communication.widget.details.startedOn', 'DSH', 'Next communication'),
+                text: Uni.I18n.translate('communication.widget.details.nextCommunication', 'DSH', 'Next communication'),
                 dataIndex: 'nextCommunication',
                 xtype: 'datecolumn',
                 format: 'm/d/Y h:i:s',
@@ -1204,7 +1205,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
             },
             {
                 itemId: 'successfulFinishTime',
-                text: Uni.I18n.translate('communication.widget.details.startedOn', 'DSH', 'Finished succesfuly on'),
+                text: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished succesfuly on'),
                 dataIndex: 'successfulFinishTime',
                 xtype: 'datecolumn',
                 format: 'm/d/Y h:i:s',
@@ -1257,14 +1258,14 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.device', 'DSH', 'Device'),
                     name: 'device',
                     renderer: function (val) {
-                        return '<a href="#/devices/' + val.id + '">' + val.name + '</a>'
+                        return val ? '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : ''
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.deviceType', 'DSH', 'Device type'),
                     name: 'deviceType',
                     renderer: function (val) {
-                        return '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>'
+                        return val ? '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>' : ''
                     }
                 },
                 {
@@ -1308,7 +1309,11 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.executeOnInbound', 'DSH', 'Always execute on inbound'),
                     name: 'alwaysExecuteOnInbound',
                     renderer: function (val) {
-                        return val ? 'Yes' : 'No'
+                        if (!_.isUndefined(val)) {
+                            return val ? 'Yes' : 'No'
+                        } else {
+                            return ''
+                        }
                     }
                 }
             ]
@@ -1536,6 +1541,269 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
     }
 });
 
+Ext.define('Dsh.view.widget.common.SideFilterCombo', {
+    extend: 'Ext.form.field.ComboBox',
+    alias: 'widget.side-filter-combo',
+    editable: false,
+    multiSelect: true,
+    queryMode: 'local',
+    triggerAction: 'all',
+    initComponent: function () {
+        var me = this;
+        this.callParent(arguments);
+        this.listConfig = {
+            getInnerTpl: function () {
+                return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {' + me.displayField + '}</div>';
+            }
+        };
+        this.store = Ext.create('Ext.data.Store', {
+            autoLoad: true,
+            fields: [me.valueField, me.displayField],
+            proxy: {
+                type: 'ajax',
+                url: me.url,
+                reader: {
+                    type: 'json',
+                    root: me.root
+                }
+            },
+            listeners: {
+                load: function () {
+                    me.select(me.up('form').getRecord().get(me.name));
+                }
+            }
+        });
+    }
+});
+
+Ext.define('Dsh.view.widget.common.DateTimeField', {
+    extend: 'Ext.form.FieldSet',
+    alias: 'widget.datetime-field',
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
+    defaults: {
+        labelWidth: 30,
+        labelAlign: 'left',
+        labelStyle: 'font-weight: normal'
+    },
+    items: [
+        {
+            xtype: 'datefield',
+            name: 'date',
+            editable: false
+        },
+        {
+            xtype: 'fieldcontainer',
+            fieldLabel: '&nbsp;',
+            style: 'padding-left: 30px',
+            layout: 'hbox',
+            defaultType: 'numberfield',
+            defaults: {
+                flex: 1,
+                value: 0,
+                minValue: 0,
+                enforceMaxLength: true,
+                maxLength: 2,
+                enableKeyEvents: true,
+                stripCharsRe: /\D/,
+                listeners: {
+                    blur: function (field) {
+                        if (Ext.isEmpty(field.getValue())) {
+                            field.setValue(0);
+                        }
+                    }
+                }
+            },
+            items: [
+                {
+                    name: 'hours',
+                    maxValue: 23,
+                    style: {
+                        marginRight: '5px'
+                    },
+                    valueToRaw: function (value) {
+                        return value < 10 ? Ext.String.leftPad(value, 2, '0') :
+                            value > 23 ? 23 : value;
+                    }
+                },
+                {
+                    name: 'minutes',
+                    maxValue: 59,
+                    style: {
+                        marginLeft: '5px'
+                    },
+                    valueToRaw: function (value) {
+                        return value < 10 ? Ext.String.leftPad(value, 2, '0') :
+                            value > 59 ? 59 : value;
+                    }
+                }
+            ]
+        }
+    ],
+    initComponent: function () {
+        this.callParent(arguments);
+        this.down('datefield').setFieldLabel(this.label);
+    }
+});
+
+Ext.define('Dsh.view.widget.common.SideFilterDateTime', {
+    extend: 'Ext.form.FieldSet',
+    alias: 'widget.side-filter-date-time',
+    requires: [
+        'Dsh.view.widget.common.DateTimeField'
+    ],
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
+    style: {
+        border: 'none',
+        padding: 0,
+        margin: 0
+    },
+    defaults: {
+        xtype: 'datetime-field',
+        style: {
+            border: 'none',
+            padding: 0,
+            margin: 0
+        }
+    },
+    items: [
+        { xtype: 'panel', name: 'header', baseCls: 'x-form-item-label', style: 'margin: 15px 0' },
+        { label: Uni.I18n.translate('connection.widget.sideFilter.from', 'DSH', 'From'), name: 'from' },
+        { label: Uni.I18n.translate('connection.widget.sideFilter.to', 'DSH', 'To'), name: 'to' }
+    ],
+    initComponent: function () {
+        this.callParent(arguments);
+        this.down('panel[name=header]').update(this.wTitle);
+    }
+});
+
+Ext.define('Dsh.view.widget.SideFilter', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.dsh-side-filter',
+    requires: [
+        'Uni.component.filter.view.Filter',
+        'Dsh.view.widget.common.SideFilterCombo',
+        'Dsh.view.widget.common.SideFilterDateTime'
+    ],
+    cls: 'filter-form',
+    width: 250,
+    title: Uni.I18n.translate('connection.widget.sideFilter.title', 'DSH', 'Filter'),
+    ui: 'medium',
+    items: [
+        {
+            xtype: 'nested-form',
+            ui: 'filter',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            defaults: {
+                xtype: 'side-filter-combo',
+                labelAlign: 'top'
+            },
+            items: [
+//                {
+//                    itemId: 'device-group',
+//                    name: 'deviceGroup',
+//                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
+//                    displayField: 'name',
+//                    valueField: 'id'
+//                    url: '/apps/dsh/app/fakeData/BaseFilterFake.json',
+//                    root: 'data'
+//                },
+                {
+                    itemId: 'current-state',
+                    name: 'state',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.currentState', 'DSH', 'Current state'),
+                    displayField: 'localizedValue',
+                    valueField: 'taskStatus',
+                    url: '/api/dsr/field/taskstatus',
+                    root: 'taskStatuses'
+                },
+                {
+                    itemId: 'latest-status',
+                    name: 'latestStatus',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestStatus', 'DSH', 'Latest status'),
+                    displayField: 'localizedValue',
+                    valueField: 'successIndicator',
+                    url: '/api/dsr/field/connectiontasksuccessindicators',
+                    root: 'successIndicators'
+                },
+                {
+                    itemId: 'latest-result',
+                    name: 'latestResult',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result'),
+                    displayField: 'localizedValue',
+                    valueField: 'successIndicator',
+                    url: '/api/dsr/field/comsessionsuccessindicators',
+                    root: 'successIndicators'
+                },
+                {
+                    itemId: 'comport-pool',
+                    name: 'comPortPool',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.comPortPool', 'DSH', 'Communication port pool'),
+                    displayField: 'name',
+                    valueField: 'id',
+                    url: '/api/dsr/field/comportpools',
+                    root: 'comPortPools'
+                },
+                {
+                    itemId: 'connection-type',
+                    name: 'connectionType',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Connection type'),
+                    displayField: 'name',
+                    valueField: 'id',
+                    url: '/api/dsr/field/connectiontypepluggableclasses',
+                    root: 'connectiontypepluggableclasses'
+                },
+                {
+                    itemId: 'device-type',
+                    name: 'deviceType',
+                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceType', 'DSH', 'Device type'),
+                    displayField: 'name',
+                    valueField: 'id',
+                    url: '/api/dsr/field/devicetypes',
+                    root: 'deviceTypes'
+                },
+                {
+                    xtype: 'side-filter-date-time',
+                    itemId: 'started-between',
+                    name: 'startedBetween',
+                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.startedBetween', 'DSH', 'Started between')
+                },
+                {
+                    xtype: 'side-filter-date-time',
+                    itemId: 'finished-between',
+                    name: 'finishedBetween',
+                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.finishedBetween', 'DSH', 'Finished between')
+                }
+            ],
+            dockedItems: [
+                {
+                    xtype: 'toolbar',
+                    dock: 'bottom',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('connection.widget.sideFilter.apply', 'DSH', 'Apply'),
+                            ui: 'action',
+                            action: 'applyfilter'
+                        },
+                        {
+                            text: Uni.I18n.translate('connection.widget.sideFilter.clearAll', 'DSH', 'Clear all'),
+                            action: 'clearfilter'
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+});
+
 Ext.define('Dsh.view.Communications', {
     extend: 'Uni.view.container.ContentContainer',
     //   extend: 'Ext.container.Container',
@@ -1573,6 +1841,9 @@ Ext.define('Dsh.view.Communications', {
                                 itemId: 'communicationdetails'
                             },
                             {
+                                style: {
+                                    'margin-top' : '32px'
+                                },
                                 xtype: 'preview_connection',
                                 itemId: 'connectiondetails'
                             }
@@ -1580,6 +1851,13 @@ Ext.define('Dsh.view.Communications', {
                     }
                 }
             ]
+        }
+    ],
+
+    side: [
+        {
+            xtype: 'dsh-side-filter',
+            itemId: 'dshcommunicationssidefilter'
         }
     ],
     initComponent: function () {
@@ -1602,6 +1880,7 @@ Ext.define('Dsh.model.CommunicationTask', {
         "currentState",
         "alwaysExecuteOnInbound",
         "latestResult",
+        "connectionTask",
         { name: 'startTime', type: 'date', dateFormat: 'time'},
         { name: 'successfulFinishTime', type: 'date', dateFormat: 'time'},
         { name: 'nextCommunication', type: 'date', dateFormat: 'time'},
@@ -1622,6 +1901,12 @@ Ext.define('Dsh.model.CommunicationTask', {
                 return devConfig
             }
         }
+    ],
+    hasOne: [
+        {
+            model: 'Dsh.model.ConnectionTask',
+            name: 'connectionTask'
+        }
     ]
 });
 
@@ -1639,10 +1924,10 @@ Ext.define('Dsh.store.CommunicationTasks', {
     model: 'Dsh.model.CommunicationTask',
     proxy: {
         type: 'ajax',
-        url: '../../apps/dashboard/app/fakeData/CommunicationTasksFake.json',
+        url: '/api/dsr/communications',
         reader: {
             type: 'json',
-            root: 'communicationsTasks',
+            root: 'communicationTasks',
             totalProperty: 'count'
         }
     }
@@ -1666,6 +1951,10 @@ Ext.define('Dsh.controller.Communications', {
         {
             ref: 'communicationPreview',
             selector: '#communicationdetails'
+        },
+        {
+            ref: 'connectionPreview',
+            selector: '#connectiondetails'
         }
     ],
 
@@ -1685,9 +1974,21 @@ Ext.define('Dsh.controller.Communications', {
     onSelectionChange: function (grid, selected) {
         var me = this,
             record = selected[0],
-            preview = me.getCommunicationPreview();
+            connTaskData = record.get('connectionTask'),
+            connTaskRecord = Ext.create('Dsh.model.ConnectionTask', connTaskData),
+            preview = me.getCommunicationPreview(),
+            connPreview = me.getConnectionPreview();
+
         preview.loadRecord(record);
-        preview.setTitle(record.get('name'));
+        preview.setTitle(record.get('name') + ' on ' + record.get('device').name);
+
+        if (connTaskData) {
+            connPreview.setTitle(connTaskData.connectionMethod.name + ' on ' + connTaskData.device.name);
+            connPreview.show();
+            connPreview.loadRecord(connTaskRecord);
+        } else {
+            connPreview.hide()
+        }
     }
 });
 
@@ -1941,7 +2242,7 @@ Ext.define('Dsh.store.ConnectionResultsStore', {
         type: 'ajax',
 //        type: 'rest',
         url: '/api/dsr/connectionheatmap',
-//        url: '../../apps/dashboard/app/fakeData/heatMapFake.json',
+//        url: '../../apps/dsh/app/fakeData/heatMapFake.json',
         pageParam: false,
         startParam: false,
         limitParam: false,
@@ -2173,255 +2474,10 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
     }
 });
 
-Ext.define('Dsh.view.widget.common.SideFilterCombo', {
-    extend: 'Ext.form.field.ComboBox',
-    alias: 'widget.side-filter-combo',
-    displayField: 'localizedValue',
-    valueField: 'name',
-    editable: false,
-    multiSelect: true,
-    queryMode: 'local',
-    triggerAction: 'all',
-    listConfig: {
-        getInnerTpl: function () {
-            return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {localizedValue} </div>';
-        }
-    },
-    initComponent: function () {
-        var me = this;
-        this.callParent(arguments);
-        this.store = Ext.create('Ext.data.Store', {
-            autoLoad: true,
-            fields: [
-                { name: 'name', type: 'string' },
-                { name: 'localizedValue', type: 'string' }
-            ],
-            proxy: {
-                type: 'ajax',
-                url: me.url,
-                reader: {
-                    type: 'json',
-                    root: 'data'
-                }
-            }
-        });
-    }
-});
-
-Ext.define('Dsh.view.widget.common.DateTimeField', {
-    extend: 'Ext.form.FieldSet',
-    alias: 'widget.datetime-field',
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    defaults: {
-        labelWidth: 30,
-        labelAlign: 'left',
-        labelStyle: 'font-weight: normal'
-    },
-    items: [
-        {
-            xtype: 'datefield',
-            name: 'date',
-            editable: false
-        },
-        {
-            xtype: 'fieldcontainer',
-            fieldLabel: '&nbsp;',
-            style: 'padding-left: 30px',
-            layout: 'hbox',
-            defaultType: 'numberfield',
-            defaults: {
-                flex: 1,
-                value: 0,
-                minValue: 0,
-                enforceMaxLength: true,
-                maxLength: 2,
-                enableKeyEvents: true,
-                stripCharsRe: /\D/,
-                listeners: {
-                    blur: function (field) {
-                        if (Ext.isEmpty(field.getValue())) {
-                            field.setValue(0);
-                        }
-                    }
-                }
-            },
-            items: [
-                {
-                    name: 'hours',
-                    maxValue: 23,
-                    style: {
-                        marginRight: '5px'
-                    },
-                    valueToRaw: function (value) {
-                        return value < 10 ? Ext.String.leftPad(value, 2, '0') :
-                            value > 23 ? 23 : value;
-                    }
-                },
-                {
-                    name: 'minutes',
-                    maxValue: 59,
-                    style: {
-                        marginLeft: '5px'
-                    },
-                    valueToRaw: function (value) {
-                        return value < 10 ? Ext.String.leftPad(value, 2, '0') :
-                            value > 59 ? 59 : value;
-                    }
-                }
-            ]
-        }
-    ],
-    initComponent: function () {
-        this.callParent(arguments);
-        this.down('datefield').setFieldLabel(this.label);
-    }
-});
-
-Ext.define('Dsh.view.widget.common.SideFilterDateTime', {
-    extend: 'Ext.form.FieldSet',
-    alias: 'widget.side-filter-date-time',
-    requires: [
-        'Dsh.view.widget.common.DateTimeField'
-    ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    style: {
-        border: 'none',
-        padding: 0,
-        margin: 0
-    },
-    defaults: {
-        xtype: 'datetime-field',
-        style: {
-            border: 'none',
-            padding: 0,
-            margin: 0
-        }
-    },
-    items: [
-        { xtype: 'panel', name: 'header', baseCls: 'x-form-item-label', style: 'margin: 15px 0' },
-        { label: Uni.I18n.translate('connection.widget.sideFilter.from', 'DSH', 'From'), name: 'from' },
-        { label: Uni.I18n.translate('connection.widget.sideFilter.to', 'DSH', 'To'), name: 'to' }
-    ],
-    initComponent: function () {
-        this.callParent(arguments);
-        this.down('panel[name=header]').update(this.wTitle);
-    }
-});
-
-Ext.define('Dsh.view.widget.SideFilter', {
-    extend: 'Ext.panel.Panel',
-    alias: 'widget.dsh-side-filter',
-    requires: [
-        'Uni.component.filter.view.Filter',
-        'Dsh.view.widget.common.SideFilterCombo',
-        'Dsh.view.widget.common.SideFilterDateTime'
-    ],
-    cls: 'filter-form',
-    width: 250,
-    title: Uni.I18n.translate('connection.widget.sideFilter.title', 'DSH', 'Filter'),
-    ui: 'medium',
-    items: [
-        {
-            xtype: 'nested-form',
-            ui: 'filter',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            defaults: {
-                xtype: 'side-filter-combo',
-                labelAlign: 'top'
-            },
-            items: [
-                {
-                    itemId: 'device-group',
-                    name: 'deviceGroup',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
-                },
-                {
-                    itemId: 'current-state',
-                    name: 'state',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.currentState', 'DSH', 'Current state'),
-                    url: '/apps/dashboard/app/fakeData/CurrentStateFilterFake.json'
-                },
-                {
-                    itemId: 'latest-status',
-                    name: 'latestStatus',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestStatus', 'DSH', 'Latest status'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
-                },
-                {
-                    itemId: 'latest-result',
-                    name: 'latestResult',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result'),
-                    url: '/apps/dashboard/app/fakeData/LatestResultFake.json'
-                },
-                {
-                    itemId: 'comport-pool',
-                    name: 'comPortPool',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.comPortPool', 'DSH', 'Communication port pool'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
-                },
-                {
-                    itemId: 'connection-type',
-                    name: 'connectionType',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Connection type'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
-                },
-                {
-                    itemId: 'device-type',
-                    name: 'deviceType',
-                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceType', 'DSH', 'Device type'),
-                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json'
-                },
-                {
-                    xtype: 'side-filter-date-time',
-                    itemId: 'started-between',
-                    name: 'startedBetween',
-                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.startedBetween', 'DSH', 'Started between')
-                },
-                {
-                    xtype: 'side-filter-date-time',
-                    itemId: 'finished-between',
-                    name: 'finishedBetween',
-                    wTitle: Uni.I18n.translate('connection.widget.sideFilter.finishedBetween', 'DSH', 'Finished between')
-                }
-            ],
-            dockedItems: [
-                {
-                    xtype: 'toolbar',
-                    dock: 'bottom',
-                    items: [
-                        {
-                            text: Uni.I18n.translate('connection.widget.sideFilter.apply', 'DSH', 'Apply'),
-                            ui: 'action',
-                            action: 'applyfilter'
-                        },
-                        {
-                            text: Uni.I18n.translate('connection.widget.sideFilter.clearAll', 'DSH', 'Clear all'),
-                            action: 'clearfilter'
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-});
-
 Ext.define('Dsh.view.widget.FilterPanel', {
     extend: 'Ext.panel.Panel',
     alias: "widget.connections-filter-panel",
     border: true,
-    mixins: [
-        'Uni.component.filter.view.RecordBounded'
-    ],
     header: false,
     collapsible: false,
     hidden: true,
@@ -2431,16 +2487,48 @@ Ext.define('Dsh.view.widget.FilterPanel', {
     },
     items: [
         {
-            title: Uni.I18n.translate('', 'MDC', 'Filter'),
             xtype: 'filter-toolbar',
-
+            title: Uni.I18n.translate('', 'MDC', 'Filter'),
             emptyText: 'None'
         },
         {
             xtype: 'menuseparator'
         }
-    ]
+    ],
 
+    loadRecord: function (record) {
+        var me = this,
+            paramsCount = 0,
+            data = record.getData();
+        for (key in data) {
+            if (data[key] && (data[key][0].length > 0)) {
+                me.addFilterBtn(key, key, data[key]);
+                ++paramsCount;
+            }
+        }
+        paramsCount < 1 ? me.hide() : me.show();
+        me.record = record;
+    },
+
+    addFilterBtn: function (name, propName, value) {
+        var me = this,
+            filterBar = me.down('filter-toolbar').getContainer(),
+            btn = filterBar.down('button[name=' + name + ']');
+        if (btn) {
+            btn.setText(propName + ': ' + value)
+        } else {
+            btn = Ext.create('Skyline.button.TagButton', {
+                text: propName + ': ' + value,
+                name: name,
+                value: value
+            });
+            btn.on('closeclick', function (btn) {
+                me.record.set(btn.name, '');
+                me.record.save()
+            });
+            filterBar.add(btn)
+        }
+    }
 });
 
 Ext.define('Dsh.view.Connections', {
@@ -2584,26 +2672,6 @@ Ext.define('Dsh.model.Filter', {
         { name: 'startedBetween', type: 'auto' },
         { name: 'finishedBetween', type: 'auto' }
     ]
-
-//
-//                if (config.store) {
-//                    var store = Ext.getStore(config.store);
-//                    if (me.queryParams.filter) {
-//                        me.filter = Ext.create(config.filter,  Ext.JSON.decode(me.queryParams.filter));
-//                        var data = me.filter.getData();
-//
-////                        me.filterStore = new Ext.data.Store({fields: ['property','value'], data: Ext.JSON.decode(me.queryParams.filter)});
-//                        // fs replace on filter store
-//
-//                        if (me.filterStore.count()){
-//                            store.remoteFilter = true;
-//                            me.filterStore.each(function(record){
-//                                store.addFilter(new Ext.util.Filter(record.getData()));
-//
-//                            });
-//                        }
-//                    }
-//                }
 });
 
 Ext.define('Dsh.store.ConnectionTasks', {
@@ -2613,6 +2681,7 @@ Ext.define('Dsh.store.ConnectionTasks', {
     ],
     model: 'Dsh.model.ConnectionTask',
     autoLoad: false,
+    remoteFilter: true,
     proxy: {
         type: 'rest',
         url: '/api/dsr/connections',
@@ -2692,17 +2761,34 @@ Ext.define('Dsh.controller.Connections', {
             },
             '#dshconnectionssidefilter button[action=applyfilter]': {
                 click: this.applyFilter
+            },
+            '#dshconnectionsfilterpanel button[action=clear]': {
+                click: this.clearFilter
             }
         });
         this.callParent(arguments);
-
     },
+
     showOverview: function () {
         var widget = Ext.widget('connections-details');
         var router = this.getController('Uni.controller.history.Router');
         this.getSideFilterForm().loadRecord(router.filter);
-        this.getFilterPanel().loadRecord(router.filter);
+//        this.getFilterPanel().loadRecord(router.filter);
+
         this.getApplication().fireEvent('changecontentevent', widget);
+
+        var store = this.getStore('Dsh.store.ConnectionTasks');
+        var data = router.filter.getData();
+
+        // todo: refactor this
+        _.map(data, function(item, key) {
+            if (item) {
+                store.remoteFilter = true;
+                store.addFilter(new Ext.util.Filter({property: key, value: item}));
+            }
+        });
+
+        store.load();
     },
 
     onCommunicationSelectionChange: function (grid, selected) {
@@ -2752,10 +2838,12 @@ Ext.define('Dsh.controller.Connections', {
     },
 
     applyFilter: function () {
-        var me = this;
-        me.getSideFilterForm().updateRecord();
-        var model = me.getSideFilterForm().getRecord();
-        model.save();
+        this.getSideFilterForm().updateRecord();
+        this.getSideFilterForm().getRecord().save();
+    },
+
+    clearFilter: function () {
+        this.getSideFilterForm().getRecord().destroy();
     }
 });
 
