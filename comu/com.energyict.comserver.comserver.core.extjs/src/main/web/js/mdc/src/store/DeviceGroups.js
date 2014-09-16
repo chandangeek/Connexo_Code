@@ -5,10 +5,10 @@ Ext.define('Mdc.store.DeviceGroups', {
     ],
     model: 'Mdc.model.DeviceGroup',
     storeId: 'DeviceGroups',
-    sorters: [{
+    /*sorters: [{
         property: 'name',
         direction: 'ASC'
-    }],
+    }],  */
     proxy: {
         type: 'rest',
         url: '../../api/ddr/devicegroups',
