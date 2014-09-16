@@ -57,16 +57,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Predicates.isNull;
 
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
 public final class ValidationServiceImpl implements ValidationService, InstallService {
@@ -269,15 +268,17 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     public Optional<Date> getLastChecked(Channel channel) {
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(channel.getMeterActivation());
 
-        Date lastChecked = validations.stream()
+        Date lastChecked = null;
+        List<Date> dates = validations.stream()
                 .map(m -> m.getChannelValidation(channel))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(ChannelValidation::getLastChecked)
-                .reduce(min(NullSafeOrdering.NULL_IS_SMALLEST.get()))
-                .orElse(null);
-
-        return Optional.fromNullable(lastChecked);
+                .collect(Collectors.toList());
+        if (dates.stream().anyMatch(isNull())) {
+            return Optional.<Date>absent();
+        }
+        return Optional.fromNullable(dates.stream().reduce(min(NullSafeOrdering.NULL_IS_SMALLEST.get())).orElse(null));
     }
 
     private <T> BinaryOperator<T> min(final Comparator<? super T> comparator) {
@@ -570,27 +571,6 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     @Override
     public ValidationEvaluator getEvaluator() {
         return new ValidationEvaluatorImpl();
-    }
-
-    @Override
-    public boolean isValidationActive(Channel channel) {
-        List<ChannelValidation> channelValidations = getChannelValidationsWithActiveRules(channel);
-        if (channelValidations.isEmpty()) {
-            return false;
-        } else {
-            Optional<Meter> meterOptional = channel.getMeterActivation().getMeter();
-            if (meterOptional.isPresent()) {
-                Meter meter = (Meter) meterOptional.get();
-                Optional<MeterValidationImpl> meterValidationOptional = getMeterValidation(meter);
-                if (meterValidationOptional.isPresent()) {
-                    return meterValidationOptional.get().getActivationStatus();
-                } else {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        }
     }
 
     private List<ChannelValidation> getChannelValidationsWithActiveRules(Channel channel) {
