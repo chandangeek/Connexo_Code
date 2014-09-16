@@ -13,8 +13,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.contactorModeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorModeAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy WebRTUZ3 EMeter slave protocol.

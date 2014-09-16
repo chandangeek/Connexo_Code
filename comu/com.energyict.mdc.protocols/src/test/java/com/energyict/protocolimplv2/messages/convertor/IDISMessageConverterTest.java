@@ -6,9 +6,6 @@ import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.GeneralDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
@@ -22,7 +19,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;

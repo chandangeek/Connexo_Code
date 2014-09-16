@@ -9,7 +9,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.AS300DPET;
 import org.junit.*;

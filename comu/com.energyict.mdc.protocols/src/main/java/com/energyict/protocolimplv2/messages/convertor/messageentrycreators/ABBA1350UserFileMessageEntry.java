@@ -1,14 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 
-import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
@@ -29,9 +29,13 @@ public class ABBA1350UserFileMessageEntry implements MessageEntryCreator {
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        String userFileAttributeName = getMessageName(offlineDeviceMessage).equals(ConfigurationChangeDeviceMessage.UploadSwitchPointClockSettings.name())
-                ? DeviceMessageConstants.SwitchPointClockSettings
-                : DeviceMessageConstants.SwitchPointClockUpdateSettings;
+        String userFileAttributeName;
+        if (offlineDeviceMessage.getSpecification().getId().equals(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_SETTINGS)) {
+            userFileAttributeName = DeviceMessageConstants.SwitchPointClockSettings;
+        }
+        else {
+            userFileAttributeName = DeviceMessageConstants.SwitchPointClockUpdateSettings;
+        }
 
         OfflineDeviceMessageAttribute userFileAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileAttributeName);
         String fileContent = userFileAttribute.getDeviceMessageAttributeValue();
@@ -41,11 +45,4 @@ public class ABBA1350UserFileMessageEntry implements MessageEntryCreator {
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 
-    /**
-     * Creates the message parent tag based on the name of the given deviceMessage spec enum.
-     */
-    protected String getMessageName(OfflineDeviceMessage offlineDeviceMessage) {
-        String messageName = ((Enum) offlineDeviceMessage.getSpecification()).name();
-        return messageName;
-    }
 }

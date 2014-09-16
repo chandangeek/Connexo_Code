@@ -17,10 +17,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.contactorModeAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.openKeyAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.transferKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorModeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.openKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.transferKeyAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy WebRTUZ3 MBus slave protocol.

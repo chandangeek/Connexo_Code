@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 /**

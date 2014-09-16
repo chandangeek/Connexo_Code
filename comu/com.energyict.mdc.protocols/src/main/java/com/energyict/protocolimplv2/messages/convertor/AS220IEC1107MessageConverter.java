@@ -19,7 +19,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.DisplayMessageAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.DisplayMessageAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy WebRTUKP protocol.

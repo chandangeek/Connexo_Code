@@ -6,8 +6,6 @@ import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.MBusSetupDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.PLCConfigurationDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.as220.AS220;
@@ -18,8 +16,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Date;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

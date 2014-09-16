@@ -15,14 +15,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.dayOfMonth;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.dayOfWeek;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.enableDSTAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.hour;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.month;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dayOfMonth;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dayOfWeek;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.enableDSTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.hour;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.month;
 
 /**
  * Represents a MessageConverter for the smart ZMD protocol.

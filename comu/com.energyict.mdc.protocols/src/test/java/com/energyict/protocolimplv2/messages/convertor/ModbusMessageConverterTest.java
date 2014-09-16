@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.modbus.multilin.epm2200.EPM2200;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.impl.device.messages.ModbusConfigurationDeviceMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -10,11 +10,9 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.impl.device.messages.DisplayDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PricingInformationMessage;
+
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import org.junit.Assert;
 import org.junit.Test;

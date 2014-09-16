@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -21,13 +21,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.contactorModeAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.fromDateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.loadProfileAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.openKeyAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.toDateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.transferKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorModeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.loadProfileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.openKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.toDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.transferKeyAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy NTA DSM2.3 WebRTUKP MBusDevice protocol.

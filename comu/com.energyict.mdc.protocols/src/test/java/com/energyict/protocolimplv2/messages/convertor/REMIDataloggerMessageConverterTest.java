@@ -8,8 +8,8 @@ import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.impl.device.messages.NetworkConnectivityMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.REMIDatalogger;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -15,12 +15,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.MulticastAddress1AttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.MulticastAddress2AttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activationDatedAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress1AttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress2AttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activationDatedAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
 
 /**
  * Represents a MessageConverter for the Prime meter protocols

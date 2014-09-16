@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -20,14 +20,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.dayOfMonth;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.dayOfWeek;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.enableDSTAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.hour;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.month;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dayOfMonth;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dayOfWeek;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.enableDSTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.hour;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.month;
 
 /**
  * Represents a MessageConverter for the legacy Actaris Sl7000 protocol.

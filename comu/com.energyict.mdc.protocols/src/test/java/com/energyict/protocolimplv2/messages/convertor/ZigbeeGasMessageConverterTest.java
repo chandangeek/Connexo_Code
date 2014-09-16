@@ -7,14 +7,9 @@ import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.AdvancedTestMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.impl.device.messages.DisplayDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PricingInformationMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -20,7 +19,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.powerQualityThresholdAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.powerQualityThresholdAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy WebRTUKP protocol.

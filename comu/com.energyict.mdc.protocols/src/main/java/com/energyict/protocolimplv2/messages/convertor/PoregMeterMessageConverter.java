@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.impl.device.messages.DSTAlgorithm;
+import com.energyict.mdc.protocol.api.device.messages.DSTAlgorithm;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,8 +10,8 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.dstEndAlgorithmAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.dstStartAlgorithmAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dstEndAlgorithmAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dstStartAlgorithmAttributeName;
 
 /**
  * Represents a MessageConverter for the Poreg meter protocols (Poreg2 & Poreg2P)

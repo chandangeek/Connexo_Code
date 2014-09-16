@@ -47,7 +47,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
 
     @Override
     public MessageEntry toMessageEntry(OfflineDeviceMessage offlineDeviceMessage) {
-        final DeviceMessageSpec deviceMessageSpec = MessageConverterTools.getDeviceMessageSpecForOfflineDeviceMessage(offlineDeviceMessage);
+        final DeviceMessageSpec deviceMessageSpec = offlineDeviceMessage.getSpecification();
 
         final MessageEntryCreator messageEntryCreator = getRegistry().get(deviceMessageSpec);
         if (messageEntryCreator != null) {

@@ -1,5 +1,10 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -8,11 +13,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
-import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -40,7 +40,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile Thesaurus thesaurus;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile OrmClient ormClient;
-    private volatile DeviceMessageService deviceMessageService;
 
     public DeviceProtocolServiceImpl() {
         super();
@@ -58,17 +57,15 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         Bus.clearIssueService(this.issueService);
         Bus.clearMdcReadingTypeUtilService(this.mdcReadingTypeUtilService);
         Bus.clearThesaurus(this.thesaurus);
-        Bus.clearDeviceMessageService(this.deviceMessageService);
     }
 
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, DeviceMessageService deviceMessageService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setIssueService(issueService);
         this.setClock(clock);
-        this.setDeviceMessageService(deviceMessageService);
         this.activate();
         this.install();
     }
@@ -114,12 +111,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     public void setClock(Clock clock) {
         this.clock = clock;
         Bus.setClock(clock);
-    }
-
-    @Reference
-    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
-        this.deviceMessageService = deviceMessageService;
-        Bus.setDeviceMessageService(deviceMessageService);
     }
 
     @Reference

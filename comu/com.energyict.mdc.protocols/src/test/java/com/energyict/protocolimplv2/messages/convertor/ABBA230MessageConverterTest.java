@@ -9,10 +9,9 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.iec1107.abba230.ABBA230;
 import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;

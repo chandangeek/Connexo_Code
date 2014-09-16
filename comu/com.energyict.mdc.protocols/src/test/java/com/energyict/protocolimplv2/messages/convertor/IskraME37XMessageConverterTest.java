@@ -1,20 +1,21 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.dlms.iskrame37x.IskraME37X;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.energyict.protocols.messaging.LegacyMessageConverter;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
 
 /**
  * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message,
@@ -31,7 +32,7 @@ public class IskraME37XMessageConverterTest extends AbstractMessageConverterTest
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(DeviceActionMessage.DEMAND_RESET);
+        offlineDeviceMessage = createMessage(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<DemandReset></DemandReset>", messageEntry.getContent());
 

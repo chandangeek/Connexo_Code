@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.impl.device.messages.DlmsAuthenticationLevelMessageValues;
+import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -9,7 +9,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.authenticationLevelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.authenticationLevelAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy DSMR4.0 L&G DE350 protocol.

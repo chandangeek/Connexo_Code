@@ -8,7 +8,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.LoadBalanceDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.PLCConfigurationDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
@@ -23,7 +22,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

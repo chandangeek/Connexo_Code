@@ -11,11 +11,11 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.activateNowAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.invertDigitalOutput1AttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.invertDigitalOutput2AttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.readFrequencyInMinutesAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activateNowAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.invertDigitalOutput1AttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.invertDigitalOutput2AttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.readFrequencyInMinutesAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy DLMSZ3Messaging protocol.

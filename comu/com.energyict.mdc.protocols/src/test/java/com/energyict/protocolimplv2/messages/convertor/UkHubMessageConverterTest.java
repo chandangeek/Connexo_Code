@@ -7,13 +7,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-import com.energyict.mdc.protocol.api.impl.device.messages.AdvancedTestMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.LogBookDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.NetworkConnectivityMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ZigBeeConfigurationDeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import org.junit.Test;
 import org.junit.runner.RunWith;

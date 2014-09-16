@@ -1,12 +1,11 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Clock;
-
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.Clock;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -22,7 +21,6 @@ public final class Bus {
     private static AtomicReference<IssueService> issueServiceProvider = new AtomicReference<>();
     private static AtomicReference<Clock> clockProvider = new AtomicReference<>();
     private static AtomicReference<PropertySpecService> propertySpecServiceProvider = new AtomicReference<>();
-    private static AtomicReference<DeviceMessageService> deviceMessageServiceProvider = new AtomicReference<>();
     private static AtomicReference<MdcReadingTypeUtilService> mdcReadingTypeUtilServiceProvider = new AtomicReference<>();
     private static AtomicReference<Thesaurus> thesaurusProvider = new AtomicReference<>();
     private static AtomicReference<OrmClient> ormClientProvider = new AtomicReference<>();
@@ -61,18 +59,6 @@ public final class Bus {
 
     public static void clearClock(Clock old) {
         clockProvider.compareAndSet(old, null);
-    }
-
-    public static DeviceMessageService getDeviceMessageService() {
-        return deviceMessageServiceProvider.get();
-    }
-
-    public static void setDeviceMessageService(DeviceMessageService deviceMessageService) {
-        deviceMessageServiceProvider.set(deviceMessageService);
-    }
-
-    public static void clearDeviceMessageService(DeviceMessageService old) {
-        deviceMessageServiceProvider.compareAndSet(old, null);
     }
 
     public static PropertySpecService getPropertySpecService() {
