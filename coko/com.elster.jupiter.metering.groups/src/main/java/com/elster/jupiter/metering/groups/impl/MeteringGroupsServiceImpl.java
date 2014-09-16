@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.*;
 import com.elster.jupiter.orm.DataModel;
@@ -7,6 +9,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.energyict.mdc.common.services.DefaultFinder;
+import com.energyict.mdc.common.services.Finder;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.*;
@@ -20,6 +24,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     private volatile DataModel dataModel;
     private volatile MeteringService meteringService;
+    private volatile QueryService queryService;
 
     private volatile List<EndDeviceQueryProvider> endDeviceQueryProviders = new ArrayList<EndDeviceQueryProvider>();
 
@@ -27,9 +32,10 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Inject
-    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService) {
+    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService) {
         setOrmService(ormService);
         setMeteringService(meteringService);
+        setQueryService(queryService);
         activate();
         if (!dataModel.isInstalled()) {
         	install();
@@ -117,11 +123,14 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Override
+    public Finder<EndDeviceGroup> findAllEndDeviceGroups() {
+        return DefaultFinder.of(EndDeviceGroup.class, dataModel).defaultSortColumn("lower(name)");
+    }
+
+    @Override
     public List<EndDeviceGroup> findEndDeviceGroups() {
         return dataModel.mapper(EndDeviceGroup.class).find();
     }
-
-
 
     @Override
     public Optional<EndDeviceGroup> findEndDeviceGroup(String mRID) {
@@ -142,6 +151,11 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider) {
         endDeviceQueryProviders.add(endDeviceQueryProvider);
@@ -159,5 +173,6 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
         }
         return null;
     }
+
 
 }
