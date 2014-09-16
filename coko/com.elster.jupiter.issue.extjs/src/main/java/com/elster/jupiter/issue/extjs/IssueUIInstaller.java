@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class IssueUIInstaller implements InstallService {
     private static final Logger LOG = Logger.getLogger(IssueUIInstaller.class.getName());
 
-    public static final String COMPONENT_NAME = "ISE";
+    public static final String COMPONENT_NAME = "ISU";
 
     private volatile Thesaurus thesaurus;
     private volatile Activator activator;

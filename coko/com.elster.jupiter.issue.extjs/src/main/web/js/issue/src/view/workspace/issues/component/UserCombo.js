@@ -20,7 +20,7 @@ Ext.define('Isu.view.workspace.issues.component.UserCombo', {
     emptyText: 'select user',
     listConfig: {
         getInnerTpl: function(displayField) {
-            return '<img src="../../apps/issue/resources/images/icons/USER.png"/> {' + displayField + '}';
+            return '<img src="../../apps/isu/resources/images/icons/USER.png"/> {' + displayField + '}';
         }
     }
 });
