@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
@@ -12,9 +13,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -25,6 +24,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by bvn on 9/5/14.
@@ -36,12 +38,14 @@ public class ChannelResource {
     private final Thesaurus thesaurus;
     private final ValidationEvaluator evaluator;
     private final ValidationService validationService;
+    private final Clock clock;
 
     @Inject
-    public ChannelResource(ResourceHelper resourceHelper, Thesaurus thesaurus, ValidationService validationService) {
+    public ChannelResource(ResourceHelper resourceHelper, Thesaurus thesaurus, ValidationService validationService, Clock clock) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.validationService = validationService;
+        this.clock = clock;
         this.evaluator = validationService.getEvaluator();
     }
 
@@ -50,7 +54,7 @@ public class ChannelResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannels(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId, mrid);
+        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         List<Channel> channelsPage = ListPager.of(loadProfile.getChannels(), CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
         return Response.ok(PagedInfoList.asJson("channels", ChannelInfo.from(channelsPage), queryParameters)).build();
     }
@@ -61,7 +65,7 @@ public class ChannelResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannel(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId, mrid);
+        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         Channel channel = resourceHelper.findChannelOrThrowException(loadProfile, channelId);
         return Response.ok(ChannelInfo.from(channel)).build();
     }
@@ -72,9 +76,9 @@ public class ChannelResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId, mrid);
+        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         Channel channel = resourceHelper.findChannelOrThrowException(loadProfile, channelId);
-        boolean isValidationActive = channel.isValidationActive();
+        boolean isValidationActive = channel.getDevice().forValidation().isValidationActive(channel, clock.now());
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> loadProfileData = channel.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
             List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();

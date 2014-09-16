@@ -46,13 +46,13 @@ public class ResourceHelper {
         throw exceptionFactory.newException(MessageSeeds.NO_SUCH_REGISTER, registerId);
     }
 
-    public LoadProfile findLoadProfileOrThrowException(Device device, long loadProfileId, String mrid) {
+    public LoadProfile findLoadProfileOrThrowException(Device device, long loadProfileId) {
         for (LoadProfile loadProfile : device.getLoadProfiles()) {
             if (loadProfile.getId()==loadProfileId) {
                 return loadProfile;
             }
         }
-        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, mrid, loadProfileId);
+        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, device.getmRID(), loadProfileId);
     }
 
     public Channel findChannelOrThrowException(LoadProfile loadProfile, long channelId) {
