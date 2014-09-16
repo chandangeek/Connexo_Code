@@ -428,6 +428,8 @@
                 <module>../com.elster.jupiter.http.whiteboard</module>
                 <module>../com.elster.jupiter.ids</module>
                 <module>../com.elster.jupiter.install</module>
+                <module>../com.elster.jupiter.login.app</module>
+                <module>../com.elster.jupiter.masterjs</module>
                 <module>../com.elster.jupiter.messaging</module>
                 <module>../com.elster.jupiter.messaging.oracle</module>
                 <module>../com.elster.jupiter.metering</module>
@@ -455,6 +457,7 @@
                 <module>../com.elster.jupiter.transaction</module>
                 <module>../com.elster.jupiter.users</module>
                 <module>../com.elster.jupiter.users.rest</module>
+                <module>../com.elster.jupiter.users.extjs</module>
                 <module>../com.elster.jupiter.util</module>
                 <module>../com.elster.jupiter.validation</module>
                 <module>../com.elster.jupiter.validators</module>
