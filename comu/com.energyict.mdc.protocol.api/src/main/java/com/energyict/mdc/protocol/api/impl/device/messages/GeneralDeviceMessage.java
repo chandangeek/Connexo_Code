@@ -11,10 +11,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.IEC1107ClassIdAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.OffsetAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.RawDataAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.configUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.IEC1107ClassIdAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.OffsetAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.RawDataAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.configUserFileAttributeName;
 
 /**
  * Provides a summary of all messages that have no unique goal.

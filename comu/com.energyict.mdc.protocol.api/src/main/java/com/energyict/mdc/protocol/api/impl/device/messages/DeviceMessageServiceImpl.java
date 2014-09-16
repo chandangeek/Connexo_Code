@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
@@ -16,6 +15,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +31,7 @@ public class DeviceMessageServiceImpl implements DeviceMessageService, InstallSe
     private Thesaurus thesaurus;
 
     // For OSGi
+    @SuppressWarnings("unused")
     public DeviceMessageServiceImpl() {
         super();
     }
@@ -76,6 +77,20 @@ public class DeviceMessageServiceImpl implements DeviceMessageService, InstallSe
         return included.stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList());
     }
 
+    @Override
+    public Optional<DeviceMessageCategory> findCategoryById(int categoryId) {
+        return this.allCategories().stream().filter(category -> categoryId == category.getId()).findFirst();
+    }
+
+    @Override
+    public Optional<DeviceMessageSpec> findMessageSpecById(long messageSpecIdDbValue) {
+        return this.allMessageSpecs().stream().filter(messageSpec -> messageSpecIdDbValue == messageSpec.getId().dbValue()).findFirst();
+    }
+
+    private List<DeviceMessageSpec> allMessageSpecs() {
+        return this.allCategories().stream().flatMap(category -> category.getMessageSpecifications().stream()).collect(Collectors.toList());
+    }
+
     private class DeviceMessageCategoryImpl implements DeviceMessageCategory {
         private final DeviceMessageCategories category;
 
@@ -102,11 +117,6 @@ public class DeviceMessageServiceImpl implements DeviceMessageService, InstallSe
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return this.category.getMessageSpecifications(this, propertySpecService, thesaurus);
-        }
-
-        @Override
-        public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
-            return new DeviceMessageCategoryPrimaryKeyImpl(this.category, this.category.name());
         }
 
     }

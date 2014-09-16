@@ -11,9 +11,9 @@ import com.elster.jupiter.properties.PropertySpec;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.PricingInformationActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.PricingInformationUserFileAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.StandingChargeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.PricingInformationActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.PricingInformationUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.StandingChargeAttributeName;
 
 /**
  * Provides a summary of all messages related to pricing.

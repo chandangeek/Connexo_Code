@@ -9,8 +9,8 @@ import com.elster.jupiter.properties.StringFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.UserFileConfigAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.xmlConfigAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.UserFileConfigAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.xmlConfigAttributeName;
 
 /**
  * Provides a summary of all <i>Advanced Test</i> related messages

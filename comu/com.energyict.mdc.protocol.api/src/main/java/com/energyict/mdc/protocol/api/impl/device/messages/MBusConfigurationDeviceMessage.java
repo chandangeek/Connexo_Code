@@ -10,10 +10,10 @@ import com.elster.jupiter.properties.StringFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetMBusConfigAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetMBusEveryAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetMBusInterFrameTimeAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetMBusVIFAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMBusConfigAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMBusEveryAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMBusInterFrameTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMBusVIFAttributeName;
 
 /**
  * Copyrights EnergyICT

@@ -9,7 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.alarmFilterAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.alarmFilterAttributeName;
 
 /**
  * Provides a summary of all messages related to configuring alarms

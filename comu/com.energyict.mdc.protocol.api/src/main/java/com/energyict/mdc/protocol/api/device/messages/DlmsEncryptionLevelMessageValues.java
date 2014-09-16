@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.api.impl.device.messages;
+package com.energyict.mdc.protocol.api.device.messages;
 
 import java.util.ArrayList;
 import java.util.List;

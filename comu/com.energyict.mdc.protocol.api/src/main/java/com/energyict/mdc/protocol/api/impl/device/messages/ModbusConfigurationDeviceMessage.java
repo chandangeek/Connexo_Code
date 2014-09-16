@@ -10,14 +10,14 @@ import com.elster.jupiter.properties.StringFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.RadixFormatAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.RegisterAddressAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.RegisterValueAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetMmConfigAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetMmEveryAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetMmInstantAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetMmOverflowAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetMmTimeoutAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.RadixFormatAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.RegisterAddressAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.RegisterValueAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMmConfigAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMmEveryAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMmInstantAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMmOverflowAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetMmTimeoutAttributeName;
 
 /**
  * Copyrights EnergyICT

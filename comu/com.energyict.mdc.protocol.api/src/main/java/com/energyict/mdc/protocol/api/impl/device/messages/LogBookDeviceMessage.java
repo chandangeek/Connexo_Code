@@ -10,18 +10,18 @@ import com.elster.jupiter.properties.StringFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetAlarmAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetConditionAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetConditionValueAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetImmediateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetInputChannelAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetInverseAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetOutputChannelAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetTagAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetTimeFalseAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetTimeTrueAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.fromDateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.toDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetAlarmAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetConditionAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetConditionValueAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetImmediateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetInputChannelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetInverseAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetOutputChannelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetTagAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetTimeFalseAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetTimeTrueAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.toDateAttributeName;
 
 /**
  * Provides a summary of all DeviceMessages related to configuration/readout of LogBooks

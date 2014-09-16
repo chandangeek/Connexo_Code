@@ -12,21 +12,21 @@ import com.elster.jupiter.properties.StringFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetDSTAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetNTPOptionsAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetNTPServerAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetRefreshClockEveryAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetTimeAdjustmentAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.SetTimezoneAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.TimeZoneOffsetInHoursAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.dayOfMonth;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.dayOfWeek;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.dstEndAlgorithmAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.dstStartAlgorithmAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.enableDSTAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.hour;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.meterTimeAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.month;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetDSTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetNTPOptionsAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetNTPServerAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetRefreshClockEveryAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetTimeAdjustmentAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetTimezoneAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.TimeZoneOffsetInHoursAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dayOfMonth;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dayOfWeek;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dstEndAlgorithmAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dstStartAlgorithmAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.enableDSTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.hour;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.meterTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.month;
 
 /**
  * Provides a summary of all <i>Clock</i> related messages

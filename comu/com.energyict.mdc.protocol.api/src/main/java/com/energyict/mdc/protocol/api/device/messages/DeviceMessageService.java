@@ -1,6 +1,9 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides services for {@link DeviceMessageCategory DeviceMessageCategories}.
@@ -18,5 +21,24 @@ public interface DeviceMessageService {
      * @return The List
      */
     public List<DeviceMessageCategory> allCategories();
+
+    /**
+     * Finds the {@link DeviceMessageCategory} with the specified id.
+     *
+     * @param categoryId The id
+     * @return The DeviceMessageCategory
+     * @see DeviceMessageCategory#getId()
+     */
+    public Optional<DeviceMessageCategory> findCategoryById(int categoryId);
+
+    /**
+     * Finds The {@link DeviceMessageSpec} with the specified id.
+     *
+     * @param messageSpecIdDbValue The dbValue of the {@link DeviceMessageId}
+     * @return The DeviceMessageSpec
+     * @see DeviceMessageSpec#getId()
+     * @see DeviceMessageId#dbValue()
+     */
+    public Optional<DeviceMessageSpec> findMessageSpecById(long messageSpecIdDbValue);
 
 }

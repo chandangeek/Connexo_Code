@@ -11,10 +11,10 @@ import com.elster.jupiter.properties.StringFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.DisplayMessageActivationDate;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.DisplayMessageAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.DisplayMessageTimeDurationAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.p1InformationAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.DisplayMessageActivationDate;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.DisplayMessageAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.DisplayMessageTimeDurationAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.p1InformationAttributeName;
 
 /**
  * Provides a summary of all messages related to a <i>Display</i>

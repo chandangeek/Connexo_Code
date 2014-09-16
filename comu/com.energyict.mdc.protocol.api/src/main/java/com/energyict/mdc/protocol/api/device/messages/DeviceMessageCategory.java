@@ -38,11 +38,4 @@ public interface DeviceMessageCategory {
      */
     public List<DeviceMessageSpec> getMessageSpecifications();
 
-    /**
-     * Gets the PrimaryKey for this {@link DeviceMessageCategory}
-     *
-     * @return the primary key
-     */
-    public DeviceMessageCategoryPrimaryKey getPrimaryKey();
-
 }

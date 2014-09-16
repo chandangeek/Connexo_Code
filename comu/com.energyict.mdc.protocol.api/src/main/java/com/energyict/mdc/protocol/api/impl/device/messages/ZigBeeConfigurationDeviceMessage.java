@@ -13,17 +13,17 @@ import com.elster.jupiter.properties.PropertySpec;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.ZigBeeConfigurationSASExtendedPanIdAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.ZigBeeConfigurationSASInsecureJoinAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.ZigBeeConfigurationSASPanChannelMaskAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.ZigBeeConfigurationSASPanIdAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName;
-import static com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ZigBeeConfigurationSASExtendedPanIdAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ZigBeeConfigurationSASInsecureJoinAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ZigBeeConfigurationSASPanChannelMaskAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ZigBeeConfigurationSASPanIdAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName;
 
 /**
  * Copyrights EnergyICT
