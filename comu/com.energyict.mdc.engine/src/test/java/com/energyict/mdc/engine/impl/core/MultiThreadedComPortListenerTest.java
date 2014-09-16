@@ -93,6 +93,7 @@ public class MultiThreadedComPortListenerTest {
     }
 
     @Test(timeout = 5000)
+    @Ignore
     public void testStart() throws BusinessException, InterruptedException {
         MultiThreadedComPortListener multiThreadedComPortListener = null;
         try {
@@ -142,6 +143,7 @@ public class MultiThreadedComPortListenerTest {
     }
 
     @Test(timeout = 5000)
+    @Ignore
     public void testAcceptedInboundCall() throws InterruptedException {
         MultiThreadedComPortListener multiThreadedComPortListener = null;
 
@@ -298,6 +300,7 @@ public class MultiThreadedComPortListenerTest {
     }
 
     @Test(timeout = 5000)
+    @Ignore
     public void testWorkFailed() throws BusinessException, InterruptedException {
         LatchDrivenMultiThreadedComPortListener multiThreadedComPortListener = null;
         try {
