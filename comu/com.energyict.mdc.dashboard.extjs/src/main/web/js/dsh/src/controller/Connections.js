@@ -74,10 +74,12 @@ Ext.define('Dsh.controller.Connections', {
 
     },
     showOverview: function () {
-        var widget = Ext.widget('connections-details');
-        var router = this.getController('Uni.controller.history.Router');
-        this.getSideFilterForm().loadRecord(router.filter);
-        this.getFilterPanel().loadRecord(router.filter);
+        var me = this,
+            widget = Ext.widget('connections-details'),
+            router = this.getController('Uni.controller.history.Router'),
+            filter = Ext.create('Dsh.model.Filter', router.queryParams);
+        me.getSideFilterForm().loadRecord(filter);
+        me.getFilterPanel().loadRecord(filter);
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
