@@ -2,13 +2,10 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import javax.inject.Inject;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 9/12/14.
@@ -16,11 +13,13 @@ import static java.util.stream.Collectors.toList;
 public class SecurityPropertySetInfoFactory {
     private final Thesaurus thesaurus;
     private final UserService userService;
+    private final ExecutionLevelInfoFactory executionLevelInfoFactory;
 
     @Inject
-    public SecurityPropertySetInfoFactory(Thesaurus thesaurus, UserService userService) {
+    public SecurityPropertySetInfoFactory(Thesaurus thesaurus, UserService userService, ExecutionLevelInfoFactory executionLevelInfoFactory) {
         this.thesaurus = thesaurus;
         this.userService = userService;
+        this.executionLevelInfoFactory = executionLevelInfoFactory;
     }
 
     public SecurityPropertySetInfo from(SecurityPropertySet securityPropertySet) {
@@ -34,17 +33,7 @@ public class SecurityPropertySetInfoFactory {
         securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(authenticationDeviceAccessLevel, thesaurus);
         securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(encryptionDeviceAccessLevel, thesaurus);
 
-        securityPropertySetInfo.executionLevels = securityPropertySet.getUserActions().stream().
-                map(userAction -> new ExecutionLevelInfo(
-                        userAction.name(),
-                        thesaurus.getString(userAction.getPrivilege(), userAction.getPrivilege()),
-                        userService.getGroups().stream()
-                                .filter(group -> group.hasPrivilege(userAction.getPrivilege()))
-                                .sorted((group1, group2) -> group1.getName().compareToIgnoreCase(group2.getName()))
-                                .map(group -> new IdWithNameInfo(group.getId(), group.getName()))
-                                .collect(toList())))
-                .sorted((l1, l2) -> l1.name.compareToIgnoreCase(l2.name))
-                .collect(toList());
+        securityPropertySetInfo.executionLevels = executionLevelInfoFactory.from(securityPropertySet.getUserActions());
         return securityPropertySetInfo;
     }
 

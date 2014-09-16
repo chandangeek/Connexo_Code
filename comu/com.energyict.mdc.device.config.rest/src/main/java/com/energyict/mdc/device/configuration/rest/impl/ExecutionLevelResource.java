@@ -2,7 +2,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
@@ -12,7 +11,6 @@ import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,20 +23,20 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import static java.util.stream.Collectors.toList;
-
 /**
  * Created by bvn on 9/15/14.
  */
 public class ExecutionLevelResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
+    private final ExecutionLevelInfoFactory executionLevelInfoFactory;
     private final Thesaurus thesaurus;
 
     @Inject
-    public ExecutionLevelResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
+    public ExecutionLevelResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, ExecutionLevelInfoFactory executionLevelInfoFactory, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
+        this.executionLevelInfoFactory = executionLevelInfoFactory;
         this.thesaurus = thesaurus;
     }
 
@@ -48,7 +46,7 @@ public class ExecutionLevelResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
 
-        Set<DeviceSecurityUserAction> userActions = new HashSet<>();
+        Set<DeviceSecurityUserAction> userActions;
         Set<DeviceSecurityUserAction> existingUserActions = securityPropertySet.getUserActions();
         if (filterAvailable!=null && filterAvailable) {
             Set<DeviceSecurityUserAction> allUserActions = EnumSet.of(DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION1, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION2, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION3, DeviceSecurityUserAction.ALLOWCOMTASKEXECUTION4,
@@ -59,7 +57,7 @@ public class ExecutionLevelResource {
         } else {
             userActions=existingUserActions;
         }
-        List<IdWithNameInfo> userActionInfos = userActions.stream().map(action -> new IdWithNameInfo(action.name(), thesaurus.getString(action.getPrivilege(), action.getPrivilege()))).sorted((info1, info2) -> info1.name.compareToIgnoreCase(info2.name)).collect(toList());
+        List<ExecutionLevelInfo> userActionInfos = executionLevelInfoFactory.from(userActions);
         Map<String, Object> map = new HashMap<>();
         map.put("executionLevels", userActionInfos);
         return Response.ok(map).build();

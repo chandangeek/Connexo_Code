@@ -13,120 +13,35 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
 import java.util.Random;
+import javax.ws.rs.core.Response;
+import org.junit.Ignore;
+import org.mockito.Matchers;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Ignore("basic functionality for load profiles")
-public class BaseLoadProfileTest extends JerseyTest {
-
-    @Mock
-    protected MasterDataService masterDataService;
-    @Mock
-    protected DeviceConfigurationService deviceConfigurationService;
-    @Mock
-    protected NlsService nlsService;
-    @Mock
-    protected Thesaurus thesaurus;
-
-    @Mock
-    private ProtocolPluggableService protocolPluggableService;
-    @Mock
-    private EngineModelService engineModelService;
-    @Mock
-    private ValidationService validationService;
-    @Mock
-    private PropertyUtils propertyUtils;
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        reset(masterDataService, deviceConfigurationService, protocolPluggableService, engineModelService, validationService);
-    }
-
-    @Override
-    protected Application configure() {
-        MockitoAnnotations.initMocks(this);
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(
-                ResourceHelper.class,
-                DeviceTypeResource.class,
-                DeviceConfigurationResource.class,
-                LoadProfileTypeResource.class,
-                LoadProfileConfigurationResource.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedExceptionMapper.class);
-        resourceConfig.register(JacksonFeature.class); // Server side JSON processing
-        resourceConfig.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(masterDataService).to(MasterDataService.class);
-                bind(validationService).to(ValidationService.class);
-                bind(deviceConfigurationService).to(DeviceConfigurationService.class);
-                bind(nlsService).to(NlsService.class);
-                bind(ResourceHelper.class).to(ResourceHelper.class);
-                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-                bind(thesaurus).to(Thesaurus.class);
-                bind(protocolPluggableService).to(ProtocolPluggableService.class);
-            }
-        });
-        return resourceConfig;
-    }
-
-    @Override
-    protected void configureClient(ClientConfig config) {
-        config.register(JacksonFeature.class); // client side JSON processing
-
-        super.configureClient(config);
-    }
-
-
+public class BaseLoadProfileTest extends DeviceConfigurationJerseyTest {
     protected List<LoadProfileType> getLoadProfileTypes(int count) {
         List<LoadProfileType> loadProfileTypes = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {

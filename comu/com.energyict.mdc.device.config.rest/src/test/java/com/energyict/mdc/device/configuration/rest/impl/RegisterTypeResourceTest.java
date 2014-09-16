@@ -11,89 +11,29 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.core.Application;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
-public class RegisterTypeResourceTest extends JerseyTest {
-
-    @Mock
-    private MasterDataService masterDataService;
-    @Mock
-    private DeviceConfigurationService deviceConfigurationService;
-    @Mock
-    private MeteringService meteringService;
-    @Mock
-    private Thesaurus thesaurus;
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        reset(masterDataService, deviceConfigurationService, meteringService);
-    }
-
-    @Override
-    protected Application configure() {
-        MockitoAnnotations.initMocks(this);
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-        ResourceConfig resourceConfig = new ResourceConfig(RegisterTypeResource.class);
-        resourceConfig.register(JacksonFeature.class); // Server side JSON processing
-        resourceConfig.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(ResourceHelper.class).to(ResourceHelper.class);
-                bind(masterDataService).to(MasterDataService.class);
-                bind(deviceConfigurationService).to(DeviceConfigurationService.class);
-                bind(meteringService).to(MeteringService.class);
-                bind(ExceptionFactory.class).to(ExceptionFactory.class);
-                bind(thesaurus).to(Thesaurus.class);
-            }
-        });
-        return resourceConfig;
-    }
-
-    @Override
-    protected void configureClient(ClientConfig config) {
-        config.register(JacksonFeature.class); // client side JSON processing
-
-        super.configureClient(config);
-    }
+public class RegisterTypeResourceTest extends DeviceConfigurationJerseyTest {
 
     @Test
     public void testGetEmptyRegisterTypeList() throws Exception {
