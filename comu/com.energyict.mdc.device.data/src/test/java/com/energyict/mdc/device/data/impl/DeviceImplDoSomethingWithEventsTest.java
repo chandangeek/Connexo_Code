@@ -61,6 +61,7 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
@@ -216,8 +217,6 @@ public class DeviceImplDoSomethingWithEventsTest {
 
     private static class EventInMemoryPersistence {
 
-        public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
-
         private InMemoryBootstrapModule bootstrapModule;
         private BundleContext bundleContext;
         private Principal principal;
@@ -271,6 +270,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new ValidationModule(),
                     new DeviceConfigurationModule(),
                     new MdcCommonModule(),
+                    new ProtocolApiModule(),
                     new TasksModule(),
                     new SchedulingModule(),
                     new DeviceDataModule());

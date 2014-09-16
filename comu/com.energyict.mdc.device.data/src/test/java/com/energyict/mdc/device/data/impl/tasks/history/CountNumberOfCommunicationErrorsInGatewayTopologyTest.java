@@ -21,6 +21,7 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -155,6 +156,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new ProtocolsModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
+                new ProtocolApiModule(),
                 new PluggableModule(),
                 new SchedulingModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
