@@ -7,17 +7,15 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-
 public class Activator implements BundleActivator {
+
+    public static final String HTTP_RESOURCE_ALIAS = "/sky";
 
     private volatile ServiceRegistration<HttpResource> registration;
 
     public void start(BundleContext bundleContext) throws Exception {
-        String alias = "/skyline";
-
-        HttpResource resource = new HttpResource(alias, "/js/skyline", new BundleResolver(bundleContext));
-//        HttpResource resource = new HttpResource(alias, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.theme.skyline/src/main/web/js/skyline", new FileResolver());
-
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/js/skyline", new BundleResolver(bundleContext));
+//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/lvz/Documents/Workspace/Jupiter/com.elster.jupiter.theme.skyline/src/main/web/js/skyline", new FileResolver());
         registration = bundleContext.registerService(HttpResource.class, resource, null);
     }
 
