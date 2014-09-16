@@ -14,7 +14,6 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.systemadmin.extjs</name>
 
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -46,4 +45,16 @@
         </profile>
     </profiles>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/web/js/systemadmin/build</directory>
+                <targetPath>js/systemadmin/build</targetPath>
+                <includes>
+                    <include>resources/**/*</include>
+                    <include>*.js</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>
