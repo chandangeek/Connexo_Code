@@ -1,10 +1,12 @@
 Ext.define('Usr.view.user.Edit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.userEdit',
+
     requires: [
         'Usr.store.Groups',
         'Uni.view.form.CheckboxGroup',
-        'Ext.button.Button'
+        'Ext.button.Button',
+        'Uni.util.Hydrator'
     ],
 
     initComponent: function () {
@@ -83,7 +85,8 @@ Ext.define('Usr.view.user.Edit', {
                     }
                 ]
             }
-        ]
+        ];
+
         this.callParent(arguments);
     }
 });

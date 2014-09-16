@@ -26,9 +26,6 @@ Ext.define('Usr.controller.Group', {
             },
             'groupBrowse groupList uni-actioncolumn': {
                 edit: this.editGroup
-            },
-            'groupBrowse groupList button[action=createGroup]': {
-                click: this.createGroup
             }
         });
     },
@@ -41,7 +38,6 @@ Ext.define('Usr.controller.Group', {
     editGroupMenu: function (button) {
         var record = button.up('#groupBrowse').down('#groupDetailsForm').getRecord();
         this.editGroup(record);
-
     },
 
     editGroup: function (record) {
@@ -49,12 +45,8 @@ Ext.define('Usr.controller.Group', {
         this.getApplication().fireEvent('editRole', record);
     },
 
-    createGroup: function () {
-        this.getApplication().getController('Usr.controller.GroupEdit').showCreateOverviewWithHistory();
-    },
-
     selectGroup: function (grid, record) {
-        if(record.length > 0){
+        if (record.length > 0) {
             var panel = grid.view.up('#groupBrowse').down('#groupDetails'),
                 form = panel.down('form');
 

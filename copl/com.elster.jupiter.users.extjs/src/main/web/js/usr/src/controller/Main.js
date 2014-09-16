@@ -3,21 +3,14 @@ Ext.define('Usr.controller.Main', {
 
     requires: [
         'Ext.window.Window',
-        'Uni.controller.Navigation',
-        'Usr.controller.Home',
-        'Usr.controller.User',
-        'Usr.controller.UserEdit',
-        'Usr.controller.Group',
-        'Usr.controller.GroupEdit',
-        'Usr.controller.history.UserManagement'
+        'Uni.controller.Navigation'
     ],
 
     controllers: [
-        'Usr.controller.Home',
-        'Usr.controller.User',
-        'Usr.controller.UserEdit',
         'Usr.controller.Group',
         'Usr.controller.GroupEdit',
+        'Usr.controller.User',
+        'Usr.controller.UserEdit',
         'Usr.controller.history.UserManagement'
     ],
 
