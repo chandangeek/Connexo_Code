@@ -29,25 +29,8 @@ public interface MessagesTask extends ProtocolTask {
     public List<DeviceMessageCategory> getDeviceMessageCategories();
     public void setDeviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories);
 
-    /**
-     * Return a list of {@link DeviceMessageSpec}s which <i>can</i> be executed during this task.
-     *
-     * @return the list of {@link DeviceMessageSpec}s which are defined for this task
-     */
-    public List<DeviceMessageSpec> getDeviceMessageSpecs();
-    public void setDeviceMessageSpecs(List<DeviceMessageSpec> deviceMessageSpecs);
-
-    /**
-     * Returns true if all message categories can be executed during this task
-     * @return boolean
-     */
-    public boolean isAllCategories();
-    public void setAllCategories(boolean allCategories);
-
     interface MessagesTaskBuilder {
         public MessagesTaskBuilder deviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories);
-        public MessagesTaskBuilder deviceMessageSpecs(List<DeviceMessageSpec> deviceMessageSpecs);
-        public MessagesTaskBuilder allCategories();
         public MessagesTask add();
     }
 

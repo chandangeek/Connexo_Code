@@ -48,24 +48,6 @@ public class ComTaskImplTest extends PersistenceTest {
         return getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
     }
 
-//    private ComTaskShadow createComTaskShadowWithoutViolations () {
-//        ComTaskShadow shadow = createSimpleComTask();
-//        shadow.addProtocolTask(BasicCheckTaskImplTest.createBasicCheckTaskShadow());
-//        return shadow;
-//    }
-//
-//    private ComTask createComTaskWithBasicAndClockTask () throws BusinessException, SQLException {
-//        return createSimpleComTask(createComTaskShadowWithBasicAndClockTask());
-//    }
-//
-//    private ComTaskShadow createComTaskShadowWithBasicAndClockTask () {
-//        ComTaskShadow shadow = createSimpleComTask();
-//        BasicCheckTaskShadow basicCheckTaskShadow = BasicCheckTaskImplTest.createBasicCheckTaskShadow();
-//        ClockTaskShadow clockTaskShadow = ClockTaskImplTest.createClockTaskShadow();
-//        shadow.setProtocolTaskShadows(new ShadowList<>(Arrays.asList(basicCheckTaskShadow, clockTaskShadow)));
-//        return shadow;
-//    }
-
     @Test
     public void testGetTypeDoesNotReturnServerBasedClassName () {
         ComTask comTask = getTaskService().newComTask(COM_TASK_NAME);
@@ -206,7 +188,7 @@ public class ComTaskImplTest extends PersistenceTest {
         loadedComTask = getTaskService().findComTask(comTask.getId());
         assertThat(loadedComTask.getProtocolTasks()).hasSize(4);
 
-        comTask.createMessagesTask().allCategories().add();
+        comTask.createMessagesTask().deviceMessageCategories(this.getDeviceMessageService().allCategories()).add();
         loadedComTask = getTaskService().findComTask(comTask.getId());
         assertThat(loadedComTask.getProtocolTasks()).hasSize(5);
 

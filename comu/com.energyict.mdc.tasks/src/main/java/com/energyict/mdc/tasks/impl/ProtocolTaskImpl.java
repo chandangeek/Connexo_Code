@@ -66,6 +66,10 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
         this.dataModel = dataModel;
     }
 
+    protected DataModel getDataModel() {
+        return dataModel;
+    }
+
     protected void setFlags(DeviceOfflineFlags flags) {
         this.flags = flags;
     }

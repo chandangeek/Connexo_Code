@@ -1,17 +1,16 @@
 package com.energyict.mdc.tasks.impl;
 
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.tasks.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.tasks.ProtocolTask;
 
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.google.inject.Inject;
+
 /**
- * Implementation of a {@link com.energyict.mdc.tasks.impl.MessagesTaskTypeUsage} component
- * <p/>
+ * Provides an implementation for the {@link MessagesTaskTypeUsage} interface.
+ *
  * Copyrights EnergyICT
  * Date: 26/02/13
  * Time: 14:38
@@ -20,8 +19,7 @@ public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
 
     enum Fields {
         PROTOCOL_TASK("protocolTask"),
-        DEVICE_MESSAGE_SPEC("deviceMessageSpec"),
-        DEVICE_MESSAGE_CATEGORY("deviceMessageCategory");
+        DEVICE_MESSAGE_CATEGORY("deviceMessageCategoryId");
 
         private final String javaFieldName;
 
@@ -32,14 +30,26 @@ public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
         String fieldName() {
             return javaFieldName;
         }
+
     }
+
+    private final DeviceMessageService deviceMessageService;
 
     private long id;
     private Reference<ProtocolTask> protocolTask = ValueReference.absent();
-    private String deviceMessageSpec;
-    private String deviceMessageCategory;
+    private int deviceMessageCategoryId;
+    private DeviceMessageCategory deviceMessageCategory;
 
-    public MessagesTaskTypeUsageImpl() {
+    @Inject
+    public MessagesTaskTypeUsageImpl(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
+    }
+
+    MessagesTaskTypeUsageImpl initialize(ProtocolTask protocolTask, DeviceMessageCategory category) {
+        this.protocolTask.set(protocolTask);
+        this.deviceMessageCategoryId = category.getId();
+        this.deviceMessageCategory = category;
+        return this;
     }
 
     @Override
@@ -48,50 +58,11 @@ public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
     }
 
     @Override
-    public ProtocolTask getProtocolTask() {
-        return protocolTask.get();
-    }
-
-    @Override
-    public void setProtocolTask(ProtocolTask protocolTask) {
-        this.protocolTask.set(protocolTask);
-    }
-
-    @Override
-    public void setDeviceMessageSpec(DeviceMessageSpec deviceMessageSpec) {
-        this.deviceMessageSpec = deviceMessageSpec.getPrimaryKey().getValue();
-    }
-
-    @Override
-    public void setDeviceMessageCategory(DeviceMessageCategory deviceMessageCategory) {
-        this.deviceMessageCategory = deviceMessageCategory.getPrimaryKey().getValue();
-    }
-
-    @Override
-    public boolean hasDeviceMessageCategory() {
-        return !Checks.is(deviceMessageCategory).emptyOrOnlyWhiteSpace();
-
-    }
-
-    @Override
-    public boolean hasDeviceMessageSpec() {
-        return !Checks.is(deviceMessageSpec).emptyOrOnlyWhiteSpace();
-
-    }
-
-    @Override
-    public DeviceMessageSpec getDeviceMessageSpec() {
-        return getDeviceMessageService().findDeviceMessageSpec(deviceMessageSpec);
-    }
-
-    @Override
     public DeviceMessageCategory getDeviceMessageCategory() {
-        return getDeviceMessageService().findDeviceMessageCategory(deviceMessageCategory);
+        if (this.deviceMessageCategory == null) {
+            this.deviceMessageCategory = this.deviceMessageService.findCategoryById(this.deviceMessageCategoryId).orElse(null);
+        }
+        return this.deviceMessageCategory;
     }
-
-    private DeviceMessageService getDeviceMessageService() {
-        return Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceMessageService.class).get(0);
-    }
-
 
 }

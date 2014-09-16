@@ -1,10 +1,5 @@
 package com.energyict.mdc.tasks.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -12,7 +7,6 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -25,21 +19,28 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import com.google.common.collect.ImmutableList;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.google.inject.Provider;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
- * An implementation for a {@link com.energyict.mdc.tasks.ComTask}
+ * An implementation for a {@link com.energyict.mdc.tasks.ComTask}.
  *
  * @author gna
  * @since 2/05/12 - 16:10
@@ -146,7 +147,7 @@ public class ComTaskImpl implements ComTask, HasId {
     }
 
     public List<ProtocolTask> getProtocolTasks() {
-        return ImmutableList.<ProtocolTask>copyOf(protocolTasks);
+        return Collections.unmodifiableList(this.protocolTasks);
     }
 
     private void addProtocolTask(ProtocolTaskImpl protocolTask) {
@@ -414,18 +415,6 @@ public class ComTaskImpl implements ComTask, HasId {
         @Override
         public MessagesTask.MessagesTaskBuilder deviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories) {
             messagesTask.setDeviceMessageCategories(deviceMessageCategories);
-            return this;
-        }
-
-        @Override
-        public MessagesTask.MessagesTaskBuilder deviceMessageSpecs(List<DeviceMessageSpec> deviceMessageSpecs) {
-            messagesTask.setDeviceMessageSpecs(deviceMessageSpecs);
-            return this;
-        }
-
-        @Override
-        public MessagesTask.MessagesTaskBuilder allCategories() {
-            messagesTask.setAllCategories(true);
             return this;
         }
 

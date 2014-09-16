@@ -14,7 +14,6 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.*;
 import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.*;
 import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.*;
-import static com.energyict.mdc.tasks.impl.MessagesTaskImpl.Fields.ALL_CATEGORIES;
 import static com.energyict.mdc.tasks.impl.TopologyTaskImpl.Fields.TOPOLOGY_ACTION;
 import static com.elster.jupiter.orm.Table.*;
 
@@ -54,8 +53,6 @@ public enum TableSpecs {
             table.column("BASICMAXCLOCKDIFFVALUE").number().conversion(NUMBER2INT).map(MAXIMUM_CLOCK_DIFFERENCE.fieldName()+".count").add();
             table.column("BASICMAXCLOCKDIFFUNIT").number().conversion(NUMBER2INT).map(MAXIMUM_CLOCK_DIFFERENCE.fieldName()+".timeUnitCode").add();
 
-            table.column("ALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).map(ALL_CATEGORIES.fieldName()).add();
-
             table.column("TOPOLOGYACTION").number().conversion(NUMBER2ENUM).map(TOPOLOGY_ACTION.fieldName()).add();
 
             table.column("FAILIFCONFIGMISMATCH").number().conversion(NUMBER2BOOLEAN).map(FAIL_IF_CONFIGURATION_MISMATCH.fieldName()).add();
@@ -81,8 +78,7 @@ public enum TableSpecs {
             table.map(MessagesTaskTypeUsageImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column messageTaskId = table.column("MESSAGETASK").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
-            table.column("MESSAGECATEGORY").varChar(SHORT_DESCRIPTION_LENGTH).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
-            table.column("MESSAGESPEC").varChar(SHORT_DESCRIPTION_LENGTH).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_SPEC.fieldName()).add();
+            table.column("MESSAGECATEGORY").number().notNull().conversion(NUMBER2INT).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
             table.foreignKey("FK_CTS_DEVMSGTUSAGE_COMTASK").
                     on(messageTaskId).
                     references(CTS_PROTOCOLTASK.name()).
