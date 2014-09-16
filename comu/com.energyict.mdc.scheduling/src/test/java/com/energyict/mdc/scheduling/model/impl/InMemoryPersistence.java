@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -28,9 +29,11 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -98,6 +101,9 @@ public class InMemoryPersistence {
                 new OrmModule(),
                 new MasterDataModule(),
                 new MdcCommonModule(),
+                new BasicPropertiesModule(),
+                new MdcDynamicModule(),
+                new ProtocolApiModule(),
                 new TasksModule(),
                 new SchedulingModule());
         this.transactionService = injector.getInstance(TransactionService.class);
