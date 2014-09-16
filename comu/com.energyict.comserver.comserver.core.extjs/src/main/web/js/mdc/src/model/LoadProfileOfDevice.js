@@ -10,6 +10,22 @@ Ext.define('Mdc.model.LoadProfileOfDevice', {
         {name: 'interval', type: 'auto'},
         {name: 'lastReading', dateFormat: 'time', type: 'date'},
         {name: 'channels', type: 'auto'},
+        {name: 'lastChecked', dateFormat: 'time', type: 'date'},
+        {name: 'validationInfo', type: 'auto'},
+        {
+            name: 'validationInfo_validationActive',
+            persist: false,
+            mapping: function (data) {
+                return (data.validationInfo && data.validationInfo.validationActive) ? Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active') : Uni.I18n.translate('communicationtasks.task.inactive', 'MDC', 'Inactive');
+            }
+        },
+        {
+            name: 'validationInfo_dataValidated',
+            persist: false,
+            mapping: function (data) {
+                return (data.validationInfo && data.validationInfo.dataValidated) ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No') + '&nbsp;&nbsp;<span class="icon-validation icon-validation-black"></span>';
+            }
+        },
         {
             name: 'interval_formatted',
             persist: false,
@@ -36,10 +52,18 @@ Ext.define('Mdc.model.LoadProfileOfDevice', {
             mapping: function (data) {
                 return data.lastReading ? Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.lastReading), 'MDC', 'M d, Y H:i') : '';
             }
+        },
+        {
+            name: 'lastChecked_formatted',
+            persist: false,
+            mapping: function (data) {
+                return (data.validationInfo && data.validationInfo.lastChecked) ? Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.validationInfo.lastChecked), 'MDC', 'M d, Y H:i') : '';
+            }
         }
     ],
     proxy: {
         type: 'rest',
+        timeout: 120000,
         urlTpl: '/api/ddr/devices/{mRID}/loadprofiles',
         reader: {
             type: 'json'

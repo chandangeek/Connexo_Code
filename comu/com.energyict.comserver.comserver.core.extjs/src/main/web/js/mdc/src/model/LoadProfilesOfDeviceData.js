@@ -7,6 +7,7 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
         {name: 'intervalFlags', type: 'auto'},
         {name: 'channelData', type: 'auto'},
         {name: 'channelValidationData', type: 'auto'},
+        {name: 'validationActive', type: 'auto'},
         {
             name: 'interval_start',
             persist: false,

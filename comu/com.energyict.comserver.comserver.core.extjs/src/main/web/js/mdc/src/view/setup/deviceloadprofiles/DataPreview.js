@@ -105,7 +105,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                     items: [
                         {
                             fieldLabel: Uni.I18n.translate('device.registerData.validationStatus', 'MDC', 'Validation status'),
-                            name: 'validationStatus',
+                            name: 'validationActive',
                             renderer: function (value) {
                                 if (value) {
                                     return Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active');
