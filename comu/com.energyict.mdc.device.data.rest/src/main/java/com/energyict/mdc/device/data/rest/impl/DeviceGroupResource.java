@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.common.services.Finder;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -31,9 +31,12 @@ public class DeviceGroupResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PagedInfoList getDeviceGroups(@BeanParam QueryParameters queryParameters) {
-        List<EndDeviceGroup> allDevicesGroups = meteringGroupsService.findEndDeviceGroups();
-        List<DeviceGroupInfo> deviceGroupsInfos = DeviceGroupInfo.from(allDevicesGroups);
-        return PagedInfoList.asJson("devicegroups", deviceGroupsInfos, queryParameters);
+        Finder<EndDeviceGroup> deviceGroupFinder = meteringGroupsService.findAllEndDeviceGroups();
+        List<EndDeviceGroup> allDeviceGroups = deviceGroupFinder.from(queryParameters).find();
+        List<DeviceGroupInfo> deviceGroupInfos = DeviceGroupInfo.from(allDeviceGroups);
+        return PagedInfoList.asJson("devicegroups", deviceGroupInfos, queryParameters);
     }
+
+
 
 }
