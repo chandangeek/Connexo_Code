@@ -22,10 +22,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategoryPrimaryKeyImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecPrimaryKeyImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -507,7 +505,7 @@ public class OfflineDeviceImplTest {
 
         @Override
         public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
-            return new DeviceMessageCategoryPrimaryKeyImpl(this, name());
+            return new DeviceMessageCategoryPrimaryKey(this, name());
         }
     }
 
@@ -559,7 +557,7 @@ public class OfflineDeviceImplTest {
 
         @Override
         public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-            return new DeviceMessageSpecPrimaryKeyImpl(this, name());
+            return new DeviceMessageSpecPrimaryKey(this, name());
         }
     }
 }
