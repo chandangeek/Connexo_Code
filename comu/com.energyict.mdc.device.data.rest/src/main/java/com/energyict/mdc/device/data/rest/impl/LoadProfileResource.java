@@ -106,12 +106,13 @@ public class LoadProfileResource {
     }
 
     private Date lastChecked(LoadProfile loadProfile) {
-        return (Date) loadProfile.getChannels().stream()
-                    .filter(isValidationActive())
-                    .map(c -> c.getDevice().forValidation().getLastChecked(c))
-                    .map(Optional::orNull)
-                    .reduce(this::min)
-                    .orElse(null);
+        List<Channel> channels = loadProfile.getChannels().stream()
+                .filter(isValidationActive()).collect(Collectors.toList());
+        List<Date> collect = channels.stream()
+                .map(c -> c.getDevice().forValidation().getLastChecked(c))
+                .map(Optional::orNull)
+                .collect(Collectors.toList());
+        return collect.stream().anyMatch(isNull()) ? null : collect.stream().reduce(this::min).orElse(null);
     }
 
     private Interval lastMonth() {
