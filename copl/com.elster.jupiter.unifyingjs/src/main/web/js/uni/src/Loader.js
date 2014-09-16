@@ -26,6 +26,7 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Search',
 
         'Uni.view.form.field.Vtypes',
+        'Uni.form.NestedForm',
 
         'Uni.override.ServerOverride',
         'Uni.override.ApplicationOverride',
@@ -42,7 +43,21 @@ Ext.define('Uni.Loader', {
         'Uni.override.form.field.ComboBox',
         'Uni.override.ModelOverride',
         'Uni.override.FieldSetOverride',
-        'Uni.form.NestedForm'
+
+        'Uni.override.form.field.Base',
+        'Uni.override.form.field.ComboBox',
+        'Uni.override.form.field.Date',
+        'Uni.override.form.field.FieldContainer',
+        'Uni.override.form.Label',
+        'Uni.override.form.Panel',
+        'Uni.override.grid.plugin.BufferedRenderer',
+        'Uni.override.grid.Panel',
+        'Uni.override.menu.Item',
+        'Uni.override.panel.Header',
+        'Uni.override.panel.Panel',
+        'Uni.override.ux.window.Notification',
+        'Uni.override.view.Table',
+        'Uni.override.window.MessageBox'
     ],
 
     /**
