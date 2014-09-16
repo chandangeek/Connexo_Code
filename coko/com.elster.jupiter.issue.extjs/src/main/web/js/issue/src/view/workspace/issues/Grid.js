@@ -19,7 +19,7 @@ Ext.define('Isu.view.workspace.issues.Grid', {
         me.columns = [
             {
                 itemId: 'issues-grid-title',
-                header: Uni.I18n.translate('general.title.title', 'ISE', 'Title'),
+                header: Uni.I18n.translate('general.title.title', 'ISU', 'Title'),
                 dataIndex: 'reason',
                 flex: 2,
                 renderer: function (value, metaData, record) {
@@ -32,7 +32,7 @@ Ext.define('Isu.view.workspace.issues.Grid', {
             },
             {
                 itemId: 'issues-grid-due-date',
-                header: Uni.I18n.translate('general.title.dueDate', 'ISE', 'Due date'),
+                header: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                 dataIndex: 'dueDate',
                 xtype: 'datecolumn',
                 format: 'M d Y',
@@ -40,13 +40,13 @@ Ext.define('Isu.view.workspace.issues.Grid', {
             },
             {
                 itemId: 'issues-grid-status',
-                header: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
+                header: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
                 dataIndex: 'status_name',
                 width: 100
             },
             {
                 itemId: 'issues-grid-assignee',
-                header: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
+                header: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="assignee_type"><span class="isu-icon-{assignee_type} isu-assignee-type-icon"></span></tpl> {assignee_name}',
                 flex: 1
@@ -68,15 +68,15 @@ Ext.define('Isu.view.workspace.issues.Grid', {
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMsg', 'ISE', '{0} - {1} of {2} issues'),
-                displayMoreMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMoreMsg', 'ISE', '{0} - {1} of more than {2} issues'),
-                emptyMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.emptyMsg', 'ISE', 'There are no issues to display'),
+                displayMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} issues'),
+                displayMoreMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} issues'),
+                emptyMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.emptyMsg', 'ISU', 'There are no issues to display'),
                 items: [
                     '->',
                     {
                         itemId: 'bulkAction',
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.title.bulkActions', 'ISE', 'Bulk action'),
+                        text: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
                         action: 'bulkchangesissues',
                         hrefTarget: '',
                         href: me.router.getRoute('workspace/' + me.issueType.toLowerCase() + '/bulk').buildUrl()
@@ -88,7 +88,7 @@ Ext.define('Isu.view.workspace.issues.Grid', {
                 xtype: 'pagingtoolbarbottom',
                 dock: 'bottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('workspace.issues.pagingtoolbarbottom.itemsPerPage', 'ISE', 'Issues per page')
+                itemsPerPageMsg: Uni.I18n.translate('workspace.issues.pagingtoolbarbottom.itemsPerPage', 'ISU', 'Issues per page')
             }
         ];
 

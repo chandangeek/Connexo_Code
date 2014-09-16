@@ -38,7 +38,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.ActionsLis
                 xtype: 'uni-actioncolumn',
                 items: [
                     {
-                        text: Uni.I18n.translate('general.remove', 'ISE', 'Remove'),
+                        text: Uni.I18n.translate('general.remove', 'ISU', 'Remove'),
                         action: 'delete'
                     }
                 ]

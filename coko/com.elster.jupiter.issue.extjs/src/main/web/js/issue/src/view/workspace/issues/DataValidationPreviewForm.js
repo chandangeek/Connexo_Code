@@ -36,7 +36,7 @@ Ext.define('Isu.view.workspace.issues.DataValidationPreviewForm', {
                             {
                                 xtype: displayFieldType,
                                 itemId: 'reason',
-                                fieldLabel: Uni.I18n.translate('general.title.reason', 'ISE', 'Reason'),
+                                fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
                                 name: 'reason',
                                 renderer: function (value) {
                                     return value.name ? value.name : '';
@@ -44,23 +44,23 @@ Ext.define('Isu.view.workspace.issues.DataValidationPreviewForm', {
                             },
                             {
                                 itemId: '_customer',
-                                fieldLabel: Uni.I18n.translate('general.title.customer', 'ISE', 'Customer'),
+                                fieldLabel: Uni.I18n.translate('general.title.customer', 'ISU', 'Customer'),
                                 name: 'customer'
                             },
                             {
                                 itemId: '_location',
-                                fieldLabel: Uni.I18n.translate('general.title.location', 'ISE', 'Location'),
+                                fieldLabel: Uni.I18n.translate('general.title.location', 'ISU', 'Location'),
                                 name: 'service_location'
                             },
                             {
                                 itemId: '_usagepoint',
-                                fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISE', 'Usage point'),
+                                fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
                                 name: 'usage_point'
                             },
                             {
                                 xtype: displayFieldType,
                                 itemId: 'device',
-                                fieldLabel: Uni.I18n.translate('general.title.device', 'ISE', 'Device'),
+                                fieldLabel: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
                                 name: 'device',
                                 renderer: function (value) {
                                     var url = '',
@@ -89,7 +89,7 @@ Ext.define('Isu.view.workspace.issues.DataValidationPreviewForm', {
                             {
                                 xtype: displayFieldType,
                                 itemId: 'status',
-                                fieldLabel: Uni.I18n.translate('general.title.status', 'ISE', 'Status'),
+                                fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
                                 name: 'status',
                                 renderer: function (value) {
                                     return value.name ? value.name : '';
@@ -97,28 +97,28 @@ Ext.define('Isu.view.workspace.issues.DataValidationPreviewForm', {
                             },
                             {
                                 itemId: '_dueDate',
-                                fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISE', 'Due date'),
+                                fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                                 name: 'dueDate',
                                 renderer: Ext.util.Format.dateRenderer('M d, Y')
                             },
                             {
                                 xtype: displayFieldType,
                                 itemId: 'assignee',
-                                fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISE', 'Assignee'),
+                                fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
                                 name: 'assignee',
                                 renderer: function (value) {
-                                    return value.name ? value.name : Uni.I18n.translate('general.none', 'ISE', 'None');
+                                    return value.name ? value.name : Uni.I18n.translate('general.none', 'ISU', 'None');
                                 }
                             },
                             {
                                 itemId: '_creationDate',
-                                fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISE', 'Creation date'),
+                                fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
                                 name: 'creationDate',
                                 renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
                             },
                             {
                                 itemId: '_serviceCat',
-                                fieldLabel: Uni.I18n.translate('general.title.serviceCategory', 'ISE', 'Service category'),
+                                fieldLabel: Uni.I18n.translate('general.title.serviceCategory', 'ISU', 'Service category'),
                                 name: 'service_category'
                             }
                         ]
@@ -136,11 +136,11 @@ Ext.define('Isu.view.workspace.issues.DataValidationPreviewForm', {
                 items: [
                     {
                         fieldLabel: '&nbsp;',
-                        value: '<b>' + Uni.I18n.translate('workspace.datavalidation.overview.title', 'ISE', 'Data validation') + '</b>'
+                        value: '<b>' + Uni.I18n.translate('workspace.datavalidation.overview.title', 'ISU', 'Data validation') + '</b>'
                     },
                     {
                         itemId: '_validationRule',
-                        fieldLabel: Uni.I18n.translate('general.title.validationRule', 'ISE', 'Validation rule'),
+                        fieldLabel: Uni.I18n.translate('general.title.validationRule', 'ISU', 'Validation rule'),
                         name: 'validationRule'
                     }
                 ]

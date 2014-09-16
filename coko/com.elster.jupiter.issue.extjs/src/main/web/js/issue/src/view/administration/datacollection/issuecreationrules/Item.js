@@ -10,7 +10,7 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'creation-rule-action-menu'
@@ -33,24 +33,24 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.name', 'ISE', 'Name'),
+                        fieldLabel: Uni.I18n.translate('general.title.name', 'ISU', 'Name'),
                         name: 'name'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.ruleTemplate', 'ISE', 'Rule template'),
+                        fieldLabel: Uni.I18n.translate('general.title.ruleTemplate', 'ISU', 'Rule template'),
                         name: 'template_name'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.issueType', 'ISE', 'Issue type'),
+                        fieldLabel: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue type'),
                         name: 'issueType_name'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.issueReason', 'ISE', 'Issue reason'),
+                        fieldLabel: Uni.I18n.translate('general.title.issueReason', 'ISU', 'Issue reason'),
                         name: 'reason_name'
                     },
 
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.dueIn', 'ISE', 'Due in'),
+                        fieldLabel: Uni.I18n.translate('general.title.dueIn', 'ISU', 'Due in'),
                         name: 'due_in'
                     }
                 ]
@@ -62,12 +62,12 @@ Ext.define('Isu.view.administration.datacollection.issuecreationrules.Item', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.created', 'ISE', 'Created'),
+                        fieldLabel: Uni.I18n.translate('general.title.created', 'ISU', 'Created'),
                         name: 'creationDate',
                         renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.lastModified', 'ISE', 'Last modified'),
+                        fieldLabel: Uni.I18n.translate('general.title.lastModified', 'ISU', 'Last modified'),
                         name: 'modificationDate',
                         renderer: Ext.util.Format.dateRenderer('M d, Y H:i')
                     }

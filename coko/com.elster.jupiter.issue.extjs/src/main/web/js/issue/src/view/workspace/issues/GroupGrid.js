@@ -36,15 +36,15 @@ Ext.define('Isu.view.workspace.issues.GroupGrid', {
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMsg', 'ISE', '{0} - {1} of {2} items'),
-                displayMoreMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMoreMsg', 'ISE', '{0} - {1} of more than {2} items'),
+                displayMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} items'),
+                displayMoreMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} items'),
                 emptyMsg: '0 reasons'
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 dock: 'bottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.itemsPerPageMsg', 'ISE', 'Items per page')
+                itemsPerPageMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.itemsPerPageMsg', 'ISU', 'Items per page')
             }
         ];
 

@@ -112,8 +112,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
         switch (action) {
             case 'edit':
-                title = Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISE', 'Edit issue creation rule');
-                btnTxt = Uni.I18n.translate('general.save', 'ISE', 'Save');
+                title = Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISU', 'Edit issue creation rule');
+                btnTxt = Uni.I18n.translate('general.save', 'ISU', 'Save');
                 if (savedData) {
                     me.ruleModel = savedData;
                     clipboard.clear('issuesCreationRuleState');
@@ -138,8 +138,8 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 }
                 break;
             case 'create':
-                title = Uni.I18n.translate('administration.issueCreationRules.title.addIssueCreationRule', 'ISE', 'Add issue creation rule');
-                btnTxt = Uni.I18n.translate('general.add', 'ISE', 'Add');
+                title = Uni.I18n.translate('administration.issueCreationRules.title.addIssueCreationRule', 'ISU', 'Add issue creation rule');
+                btnTxt = Uni.I18n.translate('general.add', 'ISU', 'Add');
                 if (savedData) {
                     me.ruleModel = savedData;
                     clipboard.clear('issuesCreationRuleState');
@@ -308,7 +308,7 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
 
         if (descriptionText) {
             combo.templateDescriptionIcon = Ext.widget('button', {
-                tooltip: Uni.I18n.translate('administration.issueCreationRules.templateInfo', 'ISE', 'Template info'),
+                tooltip: Uni.I18n.translate('administration.issueCreationRules.templateInfo', 'ISU', 'Template info'),
                 iconCls: 'icon-info-small',
                 ui: 'blank',
                 itemId: 'creationRuleTplHelp',
@@ -318,10 +318,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                 width: 16,
                 handler: function () {
                     combo.templateDescriptionWindow = Ext.Msg.show({
-                        title: Uni.I18n.translate('administration.issueCreationRules.templateDescription', 'ISE', 'Template description'),
+                        title: Uni.I18n.translate('administration.issueCreationRules.templateDescription', 'ISU', 'Template description'),
                         msg: descriptionText,
                         buttons: Ext.MessageBox.CANCEL,
-                        buttonText: {cancel: Uni.I18n.translate('general.close', 'ISE', 'Close')},
+                        buttonText: {cancel: Uni.I18n.translate('general.close', 'ISU', 'Close')},
                         modal: true,
                         animateTarget: combo.templateDescriptionIcon
                     })
@@ -376,10 +376,10 @@ Ext.define('Isu.controller.IssueCreationRulesEdit', {
                     if (success) {
                         switch (operation.action) {
                             case 'create':
-                                messageText = Uni.I18n.translate('administration.issueCreationRules.createSuccess.msg', 'ISE', 'Issue creation rule added');
+                                messageText = Uni.I18n.translate('administration.issueCreationRules.createSuccess.msg', 'ISU', 'Issue creation rule added');
                                 break;
                             case 'update':
-                                messageText = Uni.I18n.translate('administration.issueCreationRules.updateSuccess.msg', 'ISE', 'Issue creation rule updated');
+                                messageText = Uni.I18n.translate('administration.issueCreationRules.updateSuccess.msg', 'ISU', 'Issue creation rule updated');
                                 break;
                         }
                         me.getApplication().fireEvent('acknowledge', messageText);
