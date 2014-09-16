@@ -60,6 +60,7 @@ Ext.define('Mdc.controller.setup.Devices', {
 
     showDeviceDetailsView: function (mRID) {
         var me = this;
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 var widget = Ext.widget('deviceSetup', {mRID: device.get('mRID')});
@@ -72,7 +73,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName'));
                 me.getDeviceCommunicationtopologyMasterLink().getEl().set({href: '#/devices/' + device.get('masterDevicemRID')});
                 me.getDeviceCommunicationtopologyMasterLink().getEl().setHTML(device.get('masterDevicemRID'));
-                device.slaveDevicesStore.data.items.forEach(function (slaveDevice) {
+                device.slaveDevices().data.items.forEach(function (slaveDevice) {
                     widget.addSlaveDevice(slaveDevice.get('mRID'));
                 });
                 me.getDeviceOpenIssuesForm().getForm().setValues({

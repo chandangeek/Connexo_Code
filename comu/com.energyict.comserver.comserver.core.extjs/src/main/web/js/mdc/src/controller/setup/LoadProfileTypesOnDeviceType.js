@@ -24,8 +24,13 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
 
     stores: [
         'Mdc.store.LoadProfileTypesOnDeviceType',
+        'Mdc.store.LoadProfileTypesOnDeviceTypeAvailable',
         'Mdc.store.Intervals',
         'Mdc.store.LoadProfileTypes'
+    ],
+
+    models: [
+        'Mdc.model.DeviceType'
     ],
 
     init: function () {
@@ -275,19 +280,22 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
 
     showDeviceTypeLoadProfileTypesAddView: function (deviceTypeId) {
         var me = this,
-            widget = Ext.widget('loadProfileTypesAddToDeviceTypeSetup', {
-                intervalStore: me.intervalStore, deviceTypeId: deviceTypeId
-            });
+            availableLoadProfilesStore = me.getStore('Mdc.store.LoadProfileTypesOnDeviceTypeAvailable');
 
         me.deviceTypeId = deviceTypeId;
-        me.store.getProxy().extraParams = ({deviceType: deviceTypeId});
+        me.store.getProxy().setExtraParam('deviceType', deviceTypeId);
+        availableLoadProfilesStore.getProxy().setExtraParam('deviceType', deviceTypeId);
+        availableLoadProfilesStore.load();
+        me.getApplication().fireEvent('changecontentevent', Ext.widget('loadProfileTypesAddToDeviceTypeSetup', {
+            intervalStore: me.intervalStore,
+            deviceTypeId: deviceTypeId
+        }));
 
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+        me.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.deviceTypeName = deviceType.get('name');
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.store.load({ params: { available: true }, callback: function () {
+                /*me.store.load({ params: { available: true }, callback: function () {
                     var grid = me.getAddLoadProfileTypesGrid(),
 
                     // Not a good solution ( need to be replaced with opening web socket connection between server and web application )
@@ -313,7 +321,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                         };
                     Ext.TaskManager.start(autoRefresherTask);
                     // end
-                }});
+                }});*/
             }
         });
     }

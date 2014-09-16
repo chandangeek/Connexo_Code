@@ -41,7 +41,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.SubMenuPanel', {
         Ext.Array.each(menu.query('menuitem'), function (item) {
             formatHref = me.router.getRoute(me.commonRoute + item.href).buildUrl({mRID: mRID, logbookId: model.getId()});
 
-            item.setHref(formatHref);
+            item.href = formatHref;
+            item.el && item.el.down('a').set({href: formatHref});
             (window.location.hash == formatHref) && item.addCls('current');
         });
     }

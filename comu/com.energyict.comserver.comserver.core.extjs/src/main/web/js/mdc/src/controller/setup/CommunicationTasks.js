@@ -206,6 +206,9 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         comTasksStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId, available: true});
+                        comTasksStore.getProxy().pageParam = false;
+                        comTasksStore.getProxy().limitParam = false;
+                        comTasksStore.getProxy().startParam = false;
                         comTasksStore.load({
                             callback: function(){
                                 securityPropertySetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});

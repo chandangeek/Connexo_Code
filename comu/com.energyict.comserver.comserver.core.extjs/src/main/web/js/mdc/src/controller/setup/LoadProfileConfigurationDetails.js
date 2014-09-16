@@ -366,6 +366,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         me.loadProfileConfigurationId = loadProfileConfigurationId;
         me.displayedItemId = null;
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId, loadProfileConfiguration: loadProfileConfigurationId });
+        me.store.getProxy().pageParam = false;
+        me.store.getProxy().limitParam = false;
+        me.store.getProxy().startParam = false;
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -441,7 +444,13 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 widget.down('form').setTitle(title);
                                 measurementTypeCombobox.store = me.availableMeasurementTypesStore;
                                 unitOfMeasureCombobox.store = me.phenomenasStore;
+                                me.phenomenasStore.getProxy().pageParam = false;
+                                me.phenomenasStore.getProxy().limitParam = false;
+                                me.phenomenasStore.getProxy().startParam = false;
                                 me.phenomenasStore.load();
+                                me.availableMeasurementTypesStore.getProxy().pageParam = false;
+                                me.availableMeasurementTypesStore.getProxy().limitParam = false;
+                                me.availableMeasurementTypesStore.getProxy().startParam = false;
                                 me.availableMeasurementTypesStore.load({callback: function () {
                                     preloader.destroy();
                                 }});
