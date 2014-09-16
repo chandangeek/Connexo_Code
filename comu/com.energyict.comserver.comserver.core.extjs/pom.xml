@@ -65,6 +65,18 @@
                 <js.dir>js/mdc</js.dir>
             </properties>
         </profile>
-
     </profiles>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/web/js/mdc/build</directory>
+                <targetPath>js/mdc/build</targetPath>
+                <includes>
+                    <include>resources/**/*</include>
+                    <include>*.js</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>
