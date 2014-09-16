@@ -41,7 +41,7 @@ public class DeviceValidationImplTest {
     @Mock
     private Channel channel;
     @Mock
-    private com.elster.jupiter.metering.Channel koreChannel;
+    private com.elster.jupiter.metering.Channel koreChannel, otherKoreChannel;
     @Mock
     private MeterActivation meterActivation;
     @Mock
@@ -63,6 +63,9 @@ public class DeviceValidationImplTest {
         when(channelValidation2.hasActiveRules()).thenReturn(false);
         when(channelValidation3.hasActiveRules()).thenReturn(false);
 
+        when(channelValidation2.getChannel()).thenReturn(koreChannel);
+        when(channelValidation1.getChannel()).thenReturn(otherKoreChannel);
+        when(channelValidation3.getChannel()).thenReturn(otherKoreChannel);
     }
 
     @After
