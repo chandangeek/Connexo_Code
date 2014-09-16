@@ -50,6 +50,10 @@
             <resource>
                 <directory>src/main/web/js/skyline/build</directory>
                 <targetPath>js/skyline/build</targetPath>
+                <includes>
+                    <include>resources/**/*</include>
+                    <include>*.js</include>
+                </includes>
             </resource>
         </resources>
     </build>
