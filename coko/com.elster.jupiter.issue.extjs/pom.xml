@@ -44,4 +44,17 @@
             </properties>
         </profile>
     </profiles>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/web/js/issue/build</directory>
+                <targetPath>js/issue/build</targetPath>
+                <includes>
+                    <include>resources/**/*</include>
+                    <include>*.js</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>
