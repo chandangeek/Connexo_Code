@@ -23,28 +23,34 @@ public class ChannelDataInfo {
     public List<String> intervalFlags;
     public BigDecimal value;
 
+    @JsonProperty("validationStatus")
+    public Boolean validationStatus;
+
     @JsonProperty("dataValidated")
     public Boolean dataValidated;
+
     @JsonProperty("validationResult")
     @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
     public ValidationStatus validationResult;
+
     @JsonProperty("suspectReason")
     public List<ValidationRuleInfo> suspectReason;
 
-    public static List<ChannelDataInfo> from(List<? extends LoadProfileReading> loadProfileReadings, Thesaurus thesaurus, ValidationEvaluator evaluator) {
+    public static List<ChannelDataInfo> from(List<? extends LoadProfileReading> loadProfileReadings, boolean isValidationActive, Thesaurus thesaurus, ValidationEvaluator evaluator) {
         List<ChannelDataInfo> channelData = new ArrayList<>();
         for (LoadProfileReading loadProfileReading : loadProfileReadings) {
             ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
             channelIntervalInfo.interval=IntervalInfo.from(loadProfileReading.getInterval());
             channelIntervalInfo.readingTime=loadProfileReading.getReadingTime();
             channelIntervalInfo.intervalFlags=new ArrayList<>();
+            channelIntervalInfo.validationStatus = isValidationActive;
             for (ProfileStatus.Flag flag : loadProfileReading.getFlags()) {
                 channelIntervalInfo.intervalFlags.add(thesaurus.getString(flag.name(), flag.name()));
             }
             for (Map.Entry<Channel, BigDecimal> entry : loadProfileReading.getChannelValues().entrySet()) {
                 channelIntervalInfo.value=entry.getValue(); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
             }
-            Set<Map.Entry<Channel, DataValidationStatus>> states = loadProfileReading.getChannelValidationStates().entrySet();
+            Set<Map.Entry<Channel, DataValidationStatus>> states = loadProfileReading.getChannelValidationStates().entrySet();    //  only one channel
             for (Map.Entry<Channel, DataValidationStatus> entry : states) {
                     ValidationInfo validationInfo = new ValidationInfo(entry.getValue(), evaluator);
                     channelIntervalInfo.validationResult = validationInfo.validationResult;
