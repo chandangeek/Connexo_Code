@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import java.util.List;
@@ -19,33 +18,33 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
     FIRST_TEST_CATEGORY {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return DeviceMessageTestSpec.allTestSpecs(getCodeFactory());
+            return DeviceMessageTestSpec.allTestSpecs(getPropertySpecService());
 
         }
     },
     SECOND_TEST_CATEGORY {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return DeviceMessageTestSpec.allTestSpecs(getCodeFactory());
+            return DeviceMessageTestSpec.allTestSpecs(getPropertySpecService());
 
         }
     },
     THIRD_TEST_CATEGORY {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return DeviceMessageTestSpec.allTestSpecs(getCodeFactory());
+            return DeviceMessageTestSpec.allTestSpecs(getPropertySpecService());
         }
     },
     SECURITY {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return DeviceMessageTestSpec.allTestSpecs(getCodeFactory());
+            return DeviceMessageTestSpec.allTestSpecs(getPropertySpecService());
         }
     },
     CONNECTIVITY_SETUP {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return DeviceMessageTestSpec.allTestSpecs(getCodeFactory());
+            return DeviceMessageTestSpec.allTestSpecs(getPropertySpecService());
         }
     };
     private PropertySpecService propertySpecService;
@@ -89,12 +88,7 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
     public abstract List<DeviceMessageSpec> getMessageSpecifications();
 
 
-    @Override
-    public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
-        return new DeviceMessageCategoryPrimaryKey(this, name());
-    }
-
-    protected PropertySpecService getCodeFactory() {
+    protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
 

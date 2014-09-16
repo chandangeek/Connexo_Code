@@ -1,14 +1,15 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 
-import java.util.Collections;
-import java.util.List;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocols.messaging.LegacyMessageConverter;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Represents a {@link LegacyMessageConverter} for Protocols
@@ -21,8 +22,8 @@ import java.util.List;
 public class NonExistingMessageConverter implements LegacyMessageConverter {
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        return Collections.emptyList();
+    public Set<DeviceMessageId> getSupportedMessages() {
+        return EnumSet.noneOf(DeviceMessageId.class);
     }
 
     @Override
