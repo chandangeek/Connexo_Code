@@ -14,7 +14,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import static com.elster.jupiter.util.Checks.is;
 
