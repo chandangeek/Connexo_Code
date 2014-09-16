@@ -8,6 +8,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -16,8 +17,10 @@ import java.util.Set;
 
 public class NumericalReadingInfo extends ReadingInfo<NumericalReading, NumericalRegisterSpec> {
     @JsonProperty("value")
+    @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal value;
     @JsonProperty("rawValue")
+    @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal rawValue;
     @JsonProperty("unitOfMeasure")
     @XmlJavaTypeAdapter(UnitAdapter.class)
