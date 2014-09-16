@@ -13,30 +13,31 @@ import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategoryPrimaryKeyImpl;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecPrimaryKeyImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageServiceImpl;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.base.Optional;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.TimeZone;
 
 import org.junit.*;
@@ -49,11 +50,11 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
-
 
 /**
  * Tests the {@link OfflineDeviceImpl} component.
@@ -90,6 +91,12 @@ public class OfflineDeviceImplTest {
     private DeviceMessageFactory deviceMessageFactory;
     @Mock
     private OfflineDeviceImpl.ServiceProvider offlineDeviceServiceProvider;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Thesaurus thesaurus;
+
+    private DeviceMessageService deviceMessageService;
 
     private TypedProperties getDeviceProtocolProperties() {
         TypedProperties properties = TypedProperties.empty();
@@ -149,6 +156,14 @@ public class OfflineDeviceImplTest {
 
     private int getTotalSizeOfProperties() {
         return getDeviceProperties().size() + getDeviceProtocolProperties().size() + getDeviceProtocolPluggableClassProperties().size();
+    }
+
+    @Before
+    public void setupDeviceMessageService () {
+        when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
+        when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
+        PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl());
+        this.deviceMessageService = new DeviceMessageServiceImpl(propertySpecService, this.nlsService);
     }
 
     @Test
@@ -338,11 +353,10 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void pendingDeviceMessagesTest() {
-        Device
-                device = createMockDevice();
+        Device device = createMockDevice();
 
         DeviceMessage deviceMessage2 = mock(DeviceMessage.class);
-        DeviceMessageSpec mockedDeviceMessageSpec2 = DeviceMessageTestSpec.TEST_SPEC_WITHOUT_SPECS;
+        DeviceMessageSpec mockedDeviceMessageSpec2 = this.getDeviceMessageSpec(ClockDeviceMessage.SET_TIME.getId());
         when(deviceMessage2.getSpecification()).thenReturn(mockedDeviceMessageSpec2);
         when(deviceMessage2.getDevice()).thenReturn(device);
         OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
@@ -363,7 +377,7 @@ public class OfflineDeviceImplTest {
         Device
                 device = createMockDevice();
         DeviceMessage deviceMessage2 = mock(DeviceMessage.class);
-        DeviceMessageSpec mockedDeviceMessageSpec2 = DeviceMessageTestSpec.TEST_SPEC_WITH_SIMPLE_SPECS;
+        DeviceMessageSpec mockedDeviceMessageSpec2 = this.getDeviceMessageSpec(DeviceMessageId.CLOCK_SET_TIME);
         when(deviceMessage2.getSpecification()).thenReturn(mockedDeviceMessageSpec2);
         when(deviceMessage2.getDevice()).thenReturn(device);
         OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
@@ -450,116 +464,8 @@ public class OfflineDeviceImplTest {
         return loadProfile;
     }
 
-    /**
-     * Test enum for DeviceMessageCategories
-     * <p/>
-     * Copyrights EnergyICT
-     * Date: 8/02/13
-     * Time: 15:30
-     */
-    public enum DeviceMessageTestCategories implements DeviceMessageCategory {
-
-        FIRST_TEST_CATEGORY {
-            @Override
-            public List<DeviceMessageSpec> getMessageSpecifications() {
-                return Arrays.<DeviceMessageSpec>asList(DeviceMessageTestSpec.values());
-
-            }
-        };
-
-        @Override
-        public String getName() {
-            return this.getNameResourceKey();
-        }
-
-        /**
-         * Gets the resource key that determines the name
-         * of this category to the user's language settings.
-         *
-         * @return The resource key
-         */
-        private String getNameResourceKey() {
-            return DeviceMessageTestCategories.class.getSimpleName() + "." + this.toString();
-        }
-
-        @Override
-        public String getDescription() {
-            return this.getDescriptionResourceKey();
-        }
-
-        /**
-         * Gets the resource key that determines the description
-         * of this category to the user's language settings.
-         *
-         * @return The resource key
-         */
-        private String getDescriptionResourceKey() {
-            return this.getNameResourceKey() + ".description";
-        }
-
-        @Override
-        public int getId() {
-            return this.ordinal();
-        }
-
-        @Override
-        public abstract List<DeviceMessageSpec> getMessageSpecifications();
-
-        @Override
-        public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
-            return new DeviceMessageCategoryPrimaryKeyImpl(this, name());
-        }
+    private DeviceMessageSpec getDeviceMessageSpec(DeviceMessageId deviceMessageId) {
+        return this.deviceMessageService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> new RuntimeException("Setup failure: could not find DeviceMessageSpec with id " + deviceMessageId));
     }
 
-    /**
-     * Test enum implementing DeviceMessageSpec
-     * <p/>
-     * Copyrights EnergyICT
-     * Date: 8/02/13
-     * Time: 15:16
-     */
-    public enum DeviceMessageTestSpec implements DeviceMessageSpec {
-
-        TEST_SPEC_WITH_SIMPLE_SPECS(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec("testMessageSpec.simpleBigDecimal"),
-                RequiredPropertySpecFactory.newInstance().stringPropertySpec("testMessageSpec.simpleString")),
-        TEST_SPEC_WITHOUT_SPECS;
-
-        private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageTestCategories.FIRST_TEST_CATEGORY;
-
-        private List<PropertySpec> deviceMessagePropertySpecs;
-
-        DeviceMessageTestSpec(PropertySpec... deviceMessagePropertySpecs) {
-            this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
-        }
-
-        @Override
-        public DeviceMessageCategory getCategory() {
-            return activityCalendarCategory;
-        }
-
-        @Override
-        public String getName() {
-            return name();
-        }
-
-        @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return deviceMessagePropertySpecs;
-        }
-
-        @Override
-        public PropertySpec getPropertySpec(String name) {
-            for (PropertySpec securityProperty : getPropertySpecs()) {
-                if (securityProperty.getName().equals(name)) {
-                    return securityProperty;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-            return new DeviceMessageSpecPrimaryKeyImpl(this, name());
-        }
-    }
 }

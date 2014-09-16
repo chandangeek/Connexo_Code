@@ -14,6 +14,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
@@ -121,6 +122,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new EventsModule(),
                 new PartyModule(),
                 new InMemoryMessagingModule(),
+                new ProtocolApiModule(),
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new EngineModule(),

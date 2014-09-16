@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -121,7 +120,7 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
 
     @Override
     public Set<DeviceMessageId> getSupportedMessages() {
-        return EnumSet.noneOf(DeviceMessageId.class);
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
