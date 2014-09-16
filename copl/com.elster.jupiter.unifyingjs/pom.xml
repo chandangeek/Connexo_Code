@@ -43,6 +43,18 @@
                 <js.dir>js/uni</js.dir>
             </properties>
         </profile>
-
     </profiles>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/web/js/uni/build</directory>
+                <targetPath>js/uni/build</targetPath>
+                <includes>
+                    <include>resources/**/*</include>
+                    <include>*.js</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>
