@@ -54,13 +54,13 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                     {
                         xtype: 'component',
                         flex: 1
-                    },
+                    }/*,
                     {
                         text: Uni.I18n.translate('deviceGroup.createDeviceGroup', 'MDC', 'Add device group'),
                         itemId: 'createDeviceGroup',
                         xtype: 'button',
                         action: 'createDeviceGroup'
-                    }
+                    } */
                 ]
             },
             {
