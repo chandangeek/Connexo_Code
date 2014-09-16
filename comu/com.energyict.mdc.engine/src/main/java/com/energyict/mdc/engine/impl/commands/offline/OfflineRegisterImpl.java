@@ -73,6 +73,10 @@ public class OfflineRegisterImpl implements OfflineRegister {
      * The configured OverFlow value
      */
     private BigDecimal overFlow;
+    /**
+     * Indicates that this is a text register
+     */
+    private boolean isText;
 
     public OfflineRegisterImpl(final Register<?> register) {
         this.register = register;
@@ -101,6 +105,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
         this.meterSerialNumber = this.register.getDevice().getSerialNumber();
         this.readingType = this.register.getRegisterSpec().getRegisterType().getReadingType();
         this.overFlow = this.register.getRegisterSpec().isTextual()?new BigDecimal(Double.MAX_VALUE): ((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue();
+        this.isText = this.register.getRegisterSpec().isTextual();
     }
 
     /**
@@ -175,5 +180,10 @@ public class OfflineRegisterImpl implements OfflineRegister {
     @Override
     public BigDecimal getOverFlowValue() {
         return this.overFlow;
+    }
+
+    @Override
+    public boolean isText() {
+        return isText;
     }
 }
