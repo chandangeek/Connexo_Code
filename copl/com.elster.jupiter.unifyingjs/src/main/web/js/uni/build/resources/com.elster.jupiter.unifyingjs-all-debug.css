@@ -304,7 +304,7 @@
 
 /* line 344, ../../sass/etc/all.scss */
 .ux-notification-light {
-  background-image: url("images/fader.png");
+  background-image: url(../../images/fader.png);
   border: 1px solid grey;
 }
 
@@ -316,12 +316,12 @@
 /* line 353, ../../sass/etc/all.scss */
 .icon-info-small {
   float: right;
-  background-image: url("images/icon-info-small.png");
+  background-image: url(../../images/icon-info-small.png);
 }
 
 /* line 359, ../../sass/etc/all.scss */
 .x-grid-row-selected .icon-info-small, .x-grid-row-over .icon-info-small {
-  background-image: url("images/icon-info-small-white.png");
+  background-image: url(../../images/icon-info-small-white.png);
 }
 
 /* line 366, ../../sass/etc/all.scss */
@@ -340,12 +340,12 @@
 
 /* line 378, ../../sass/etc/all.scss */
 .icon-validation-black {
-  background-image: url("images/Not-validated.png");
+  background-image: url(../../images/Not-validated.png);
 }
 
 /* line 382, ../../sass/etc/all.scss */
 .icon-validation-red {
-  background-image: url("images/Suspect.png");
+  background-image: url(../../images/Suspect.png);
 }
 
 /* line 386, ../../sass/etc/all.scss */
