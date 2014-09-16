@@ -5,6 +5,7 @@ Ext.define('Dsh.store.ConnectionTasks', {
     ],
     model: 'Dsh.model.ConnectionTask',
     autoLoad: false,
+    remoteFilter: true,
     proxy: {
         type: 'rest',
         url: '/api/dsr/connections',

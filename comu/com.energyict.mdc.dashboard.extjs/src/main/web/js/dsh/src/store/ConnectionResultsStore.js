@@ -5,7 +5,7 @@ Ext.define('Dsh.store.ConnectionResultsStore', {
         type: 'ajax',
 //        type: 'rest',
         url: '/api/dsr/connectionheatmap',
-//        url: '../../apps/dashboard/app/fakeData/heatMapFake.json',
+//        url: '../../apps/dsh/app/fakeData/heatMapFake.json',
         pageParam: false,
         startParam: false,
         limitParam: false,

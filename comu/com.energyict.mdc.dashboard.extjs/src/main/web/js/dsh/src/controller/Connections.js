@@ -71,14 +71,28 @@ Ext.define('Dsh.controller.Connections', {
             }
         });
         this.callParent(arguments);
-
     },
+
     showOverview: function () {
         var widget = Ext.widget('connections-details');
         var router = this.getController('Uni.controller.history.Router');
         this.getSideFilterForm().loadRecord(router.filter);
-        this.getFilterPanel().loadRecord(router.filter);
+//        this.getFilterPanel().loadRecord(router.filter);
+
         this.getApplication().fireEvent('changecontentevent', widget);
+
+        var store = this.getStore('Dsh.store.ConnectionTasks');
+        var data = router.filter.getData();
+
+        // todo: refactor this
+        _.map(data, function(item, key) {
+            if (item) {
+                store.remoteFilter = true;
+                store.addFilter(new Ext.util.Filter({property: key, value: item}));
+            }
+        });
+
+        store.load();
     },
 
     onCommunicationSelectionChange: function (grid, selected) {

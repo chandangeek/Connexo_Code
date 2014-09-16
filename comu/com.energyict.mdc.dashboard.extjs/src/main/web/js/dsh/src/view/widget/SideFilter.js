@@ -29,7 +29,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
 //                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
 //                    displayField: 'name',
 //                    valueField: 'id'
-//                    url: '/apps/dashboard/app/fakeData/BaseFilterFake.json',
+//                    url: '/apps/dsh/app/fakeData/BaseFilterFake.json',
 //                    root: 'data'
 //                },
                 {
