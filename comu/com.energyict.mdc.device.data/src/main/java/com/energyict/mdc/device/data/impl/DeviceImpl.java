@@ -104,6 +104,13 @@ import com.energyict.mdc.scheduling.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -121,12 +128,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import static com.elster.jupiter.util.Checks.is;
 import static java.util.stream.Collectors.toList;
@@ -1110,7 +1111,7 @@ public class DeviceImpl implements Device {
             }
             java.util.Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
-                List<DataValidationStatus> validationStatus = this.validationService.getValidationStatus(koreChannel.get(), meterReadings);
+                List<DataValidationStatus> validationStatus = this.validationService.getEvaluator().getValidationStatus(koreChannel.get(), meterReadings);
                 for (DataValidationStatus status : validationStatus) {
                     LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(status.getReadingTimestamp());
                     loadProfileReading.setDataValidationStatus(mdcChannel, status);
