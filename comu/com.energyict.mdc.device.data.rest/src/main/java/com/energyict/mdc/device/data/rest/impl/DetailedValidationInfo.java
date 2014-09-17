@@ -33,6 +33,7 @@ public class DetailedValidationInfo {
     public DetailedValidationInfo() {
 
     }
+
     private boolean isDataCompletelyValidated(List<DataValidationStatus> dataValidationStatuses) {
         return dataValidationStatuses.stream().allMatch(DataValidationStatus::completelyValidated);
     }
