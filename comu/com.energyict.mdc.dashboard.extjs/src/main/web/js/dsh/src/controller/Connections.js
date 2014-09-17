@@ -98,14 +98,7 @@ Ext.define('Dsh.controller.Connections', {
         this.getFilterPanel().loadRecord(router.filter);
 
         var store = this.getStore('Dsh.store.ConnectionTasks');
-        var data = router.filter.getData();
-        // todo: refactor this
-        _.map(data, function (item, key) {
-            if (item) {
-                store.remoteFilter = true;
-                store.addFilter(new Ext.util.Filter({property: key, value: item}));
-            }
-        });
+        store.setFilterModel(router.filter);
         store.load();
     },
 
