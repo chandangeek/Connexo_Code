@@ -29,6 +29,13 @@ Ext.define('Uni.controller.AppController', {
      */
     applicationTitle: 'Connexo',
 
+    /**
+     * @cfg {String} defaultToken
+     *
+     * The default history token the application needs to use.
+     */
+    defaultToken: '',
+
     // <debug>
     /**
      * @cfg {Object[]} packages
@@ -46,6 +53,7 @@ Ext.define('Uni.controller.AppController', {
         me.initCrossroads();
 
         me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
+        me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
 
         me.loadControllers();

@@ -5,7 +5,15 @@ Ext.define('Uni.model.App', {
     extend: 'Ext.data.Model',
     fields: [
         'name',
-        'url',
+        {
+            name: 'url',
+            convert: function (value, record) {
+                if (value.indexOf('#') === -1) {
+                    value += '#';
+                }
+                return value;
+            }
+        },
         'icon',
         {
             name: 'isActive',
