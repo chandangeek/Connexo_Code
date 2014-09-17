@@ -15,7 +15,7 @@ public class AppResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<AppInfo> getPages() {
+	public List<AppInfo> getApps() {
 		List<AppInfo> result = new ArrayList<>();
 
         // TODO Register these pages from within the apps.
