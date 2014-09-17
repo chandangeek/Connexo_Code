@@ -75,17 +75,25 @@ Ext.define('Dsh.controller.Connections', {
             '#dshconnectionsfilterpanel button[action=clear]': {
                 click: this.clearFilter
             },
-            '#dshconnectionssidefilter nested-form': {
-                fieldfirstload: this.fieldFirstload
+            '#dshconnectionssidefilter nested-form side-filter-combo': {
+                change: this.onFilterChange
             }
         });
         this.callParent(arguments);
+    },
+
+    onFilterChange: function(combo, value) {
+        var me = this,
+            filterPanel = me.getFilterPanel();
+
+        filterPanel.addFilterBtn(combo.getName(), combo.getFieldLabel(), combo.getRawValue());
     },
 
     showOverview: function () {
         var widget = Ext.widget('connections-details');
         this.getApplication().fireEvent('changecontentevent', widget);
         var router = this.getController('Uni.controller.history.Router');
+
         this.getSideFilterForm().loadRecord(router.filter);
         this.getFilterPanel().loadRecord(router.filter);
 
@@ -101,25 +109,16 @@ Ext.define('Dsh.controller.Connections', {
         store.load();
     },
 
-    fieldFirstload: function (field) {
-        var me = this,
-            filterPanel = me.getFilterPanel(),
-            name = field.getName(),
-            label = field.getFieldLabel(),
-            value = field.getRawValue();
-        if (value) {
-            filterPanel.addFilterBtn(name, label, value)
-        }
-    },
-
     onCommunicationSelectionChange: function (grid, selected) {
         var me = this,
             record = selected[0],
             preview = me.getCommunicationPreview();
+
         record.data.devConfig = {
             config: record.data.deviceConfiguration,
             devType: record.data.deviceType
         };
+
         record.data.title = record.data.name + ' on ' + record.data.device.name;
         preview.setTitle(record.data.title);
         preview.loadRecord(record);

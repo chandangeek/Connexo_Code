@@ -5,6 +5,7 @@ Ext.define('Dsh.store.ConnectionTasks', {
     ],
     model: 'Dsh.model.ConnectionTask',
     remoteFilter: true,
+    autoLoad: false,
     sorters: [
         {
             direction: 'DESC',

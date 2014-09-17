@@ -5,28 +5,21 @@ Ext.define('Dsh.view.widget.common.SideFilterCombo', {
     multiSelect: true,
     queryMode: 'local',
     triggerAction: 'all',
+
     initComponent: function () {
         var me = this;
-        me.on('afterrender', function () {
-            me.store.load({
-                callback: function () {
-                    var form = me.up('form');
-                        record = form.getRecord();
-                    if (!_.isEmpty(record)) {
-                        me.select(record.get(me.name));
-                       form.fireEvent('fieldfirstload', me)
-                    }
-                }
-            });
-        });
-
-        me.callParent(arguments);
         me.listConfig = {
             getInnerTpl: function () {
                 return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {' + me.displayField + '}</div>';
             }
         };
+
+        me.callParent(arguments);
+        me.store.on('load', function() {
+            me.select(me.getValue());
+        });
     },
+
     getValue: function () {
         var me = this;
         me.callParent(arguments);
