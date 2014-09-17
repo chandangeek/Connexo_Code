@@ -4,7 +4,8 @@ Ext.define('Dsh.view.widget.SideFilter', {
     requires: [
         'Uni.component.filter.view.Filter',
         'Dsh.view.widget.common.SideFilterCombo',
-        'Dsh.view.widget.common.SideFilterDateTime'
+        'Dsh.view.widget.common.SideFilterDateTime',
+        'Dsh.util.FilterHydrator'
     ],
     cls: 'filter-form',
     width: 250,
@@ -13,6 +14,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
     items: [
         {
             xtype: 'nested-form',
+            hydrator: 'Dsh.util.FilterHydrator',
             ui: 'filter',
             layout: {
                 type: 'vbox',
@@ -23,15 +25,6 @@ Ext.define('Dsh.view.widget.SideFilter', {
                 labelAlign: 'top'
             },
             items: [
-//                {
-//                    itemId: 'device-group',
-//                    name: 'deviceGroup',
-//                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
-//                    displayField: 'name',
-//                    valueField: 'id'
-//                    url: '/apps/dsh/app/fakeData/BaseFilterFake.json',
-//                    root: 'data'
-//                },
                 {
                     itemId: 'current-state',
                     name: 'state',

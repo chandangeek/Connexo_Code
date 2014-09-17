@@ -113,12 +113,10 @@ Ext.define('Dsh.controller.Connections', {
         var me = this,
             record = selected[0],
             preview = me.getCommunicationPreview();
-
         record.data.devConfig = {
             config: record.data.deviceConfiguration,
             devType: record.data.deviceType
         };
-
         record.data.title = record.data.name + ' on ' + record.data.device.name;
         preview.setTitle(record.data.title);
         preview.loadRecord(record);

@@ -161,7 +161,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
 
     initComponent: function () {
         var me = this;
-        me.on('afterrender', me.addTooltip);
+  //      me.on('afterrender', me.addTooltip);
         me.callParent(arguments);
     }
 });
