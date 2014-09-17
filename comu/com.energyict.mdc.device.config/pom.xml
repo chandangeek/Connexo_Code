@@ -53,11 +53,11 @@
       <groupId>com.energyict</groupId>
       <artifactId>mdc.protocol.pluggable</artifactId>
       <version>${project.version}</version>
-  </dependency>
+    </dependency>
 
     <dependency>
       <groupId>com.energyict</groupId>
-        <artifactId>mdc.metering</artifactId>
+      <artifactId>mdc.metering</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -70,30 +70,15 @@
       <artifactId>org.osgi.compendium</artifactId>
       <scope>provided</scope>
     </dependency>
-      <dependency>
-          <groupId>com.elster.jupiter</groupId>
-          <artifactId>validation</artifactId>
-          <version>1.0.0-SNAPSHOT</version>
-      </dependency>
-	<dependency>
-          <groupId>com.elster.jupiter</groupId>
-          <artifactId>properties</artifactId>
-          <version>1.0.0-SNAPSHOT</version>
-      </dependency>
     <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>4.0-beta4</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>aopalliance</artifactId>
-          <groupId>aopalliance</groupId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.inject</groupId>
-          <artifactId>javax.inject</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>validation</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>properties</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
     </dependency>
 
     <!-- Testing -->
@@ -121,16 +106,16 @@
       <version>${jupiter.version}</version>
       <scope>test</scope>
     </dependency>
-      <dependency>
-          <groupId>org.easytesting</groupId>
-          <artifactId>fest-assert-core</artifactId>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.easytesting</groupId>
-          <artifactId>fest-assert</artifactId>
-          <scope>test</scope>
-      </dependency>
+    <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>
