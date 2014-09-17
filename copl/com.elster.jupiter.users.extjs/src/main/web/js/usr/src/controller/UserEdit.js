@@ -36,7 +36,7 @@ Ext.define('Usr.controller.UserEdit', {
     },
 
     showEditOverviewWithHistory: function (groupId) {
-        location.href = '#/usermanagement/users/' + groupId + '/edit';
+        location.href = '#/administration/users/' + groupId + '/edit';
     },
 
     /**
@@ -57,7 +57,7 @@ Ext.define('Usr.controller.UserEdit', {
         var me = this;
         Ext.ModelManager.getModel('Usr.model.User').load(userId, {
             success: function (user) {
-                var title = Uni.I18n.translate('user.edit', 'USM', 'Edit');
+                var title = Uni.I18n.translate('user.edit', 'USR', 'Edit');
                 panel.setTitle(title + ' \'' + user.get('authenticationName') + '\'');
 
                 panel.down('[name=authenticationName]').disable();
@@ -88,8 +88,8 @@ Ext.define('Usr.controller.UserEdit', {
         form.updateRecord();
         form.getRecord().save({
             success: function (record) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('user.saved', record.get('authenticationName'), 'USM', 'User \'{0}\' saved.'));
-                location.href = '#/usermanagement/users';
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('user.saved', record.get('authenticationName'), 'USR', 'User \'{0}\' saved.'));
+                location.href = '#/administration/users';
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);

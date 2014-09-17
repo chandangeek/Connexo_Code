@@ -35,20 +35,20 @@ Ext.define('Usr.view.user.Edit', {
                         items: [
                             {
                                 name: 'authenticationName',
-                                fieldLabel: Uni.I18n.translate('user.name', 'USM', 'Name')
+                                fieldLabel: Uni.I18n.translate('user.name', 'USR', 'Name')
                             },
                             {
                                 name: 'description',
-                                fieldLabel: Uni.I18n.translate('user.description', 'USM', 'Description')
+                                fieldLabel: Uni.I18n.translate('user.description', 'USR', 'Description')
                             },
                             {
                                 name: 'domain',
-                                fieldLabel: Uni.I18n.translate('user.domain', 'USM', 'Domain')
+                                fieldLabel: Uni.I18n.translate('user.domain', 'USR', 'Domain')
                             },
                             {
                                 xtype: 'checkboxstore',
                                 itemId: 'selectRoles',
-                                fieldLabel: Uni.I18n.translate('user.roles', 'USM', 'Roles'),
+                                fieldLabel: Uni.I18n.translate('user.roles', 'USR', 'Roles'),
                                 store: 'Usr.store.Groups',
                                 autoScroll: true,
                                 maxHeight: 500,
@@ -73,11 +73,11 @@ Ext.define('Usr.view.user.Edit', {
                                         action: 'save'
                                     },
                                     {
-                                        text: Uni.I18n.translate('general.cancel', 'USM', 'Cancel'),
+                                        text: Uni.I18n.translate('general.cancel', 'USR', 'Cancel'),
                                         xtype: 'button',
                                         ui: 'link',
                                         itemId: 'cancelLink',
-                                        href: '#/usermanagement/users/'
+                                        href: '#/administration/users/'
                                     }
                                 ]
                             }

@@ -1,29 +1,29 @@
 Ext.define('Usr.controller.history.UserManagement', {
     extend: 'Uni.controller.history.Converter',
 
-    rootToken: 'usermanagement',
+    rootToken: 'administration',
     previousPath: '',
     currentPath: null,
 
     routeConfig: {
-        usermanagement: {
-            title: Uni.I18n.translate('user.root', 'USM', 'User management'),
-            route: 'usermanagement',
+        administration: {
+            title: Uni.I18n.translate('general.administration', 'USR', 'Administration'),
+            route: 'administration',
             disabled: true,
             items: {
                 roles: {
-                    title: Uni.I18n.translate('group.title', 'USM', 'Roles'),
+                    title: Uni.I18n.translate('group.title', 'USR', 'Roles'),
                     route: 'roles',
                     controller: 'Usr.controller.Group',
                     items: {
                         edit: {
-                            title: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
+                            title: Uni.I18n.translate('general.edit', 'USR', 'Edit'),
                             route: '{id}/edit',
                             controller: 'Usr.controller.GroupEdit',
                             action: 'showEditOverview',
                             callback: function (route) {
                                 this.getApplication().on('editRole', function (record) {
-                                    route.setTitle(Uni.I18n.translate('general.edit', 'USM', 'Edit') + ' \'' + record.get('name') + '\'');
+                                    route.setTitle(Uni.I18n.translate('general.edit', 'USR', 'Edit') + ' \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
 
@@ -31,7 +31,7 @@ Ext.define('Usr.controller.history.UserManagement', {
                             }
                         },
                         add: {
-                            title: Uni.I18n.translate('general.add', 'USM', 'Add'),
+                            title: Uni.I18n.translate('general.add', 'USR', 'Add'),
                             route: 'add',
                             controller: 'Usr.controller.GroupEdit',
                             action: 'showCreateOverview'
@@ -39,18 +39,18 @@ Ext.define('Usr.controller.history.UserManagement', {
                     }
                 },
                 users: {
-                    title: Uni.I18n.translate('user.title', 'USM', 'Users'),
+                    title: Uni.I18n.translate('user.title', 'USR', 'Users'),
                     route: 'users',
                     controller: 'Usr.controller.User',
                     items: {
                         edit: {
-                            title: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
+                            title: Uni.I18n.translate('general.edit', 'USR', 'Edit'),
                             route: '{id}/edit',
                             controller: 'Usr.controller.UserEdit',
                             action: 'showEditOverview',
                             callback: function (route) {
                                 this.getApplication().on('editUser', function (record) {
-                                    route.setTitle(Uni.I18n.translate('general.edit', 'USM', 'Edit') + ' \'' + record.get('authenticationName') + '\'');
+                                    route.setTitle(Uni.I18n.translate('general.edit', 'USR', 'Edit') + ' \'' + record.get('authenticationName') + '\'');
                                     return true;
                                 }, {single: true});
 

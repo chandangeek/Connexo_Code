@@ -46,7 +46,7 @@ Ext.define('Usr.view.group.Edit', {
                         items: [
                             {
                                 name: 'name',
-                                fieldLabel: Uni.I18n.translate('group.name', 'USM', 'Name'),
+                                fieldLabel: Uni.I18n.translate('group.name', 'USR', 'Name'),
                                 maxWidth: 650,
                                 required: true,
                                 msgTarget: 'under',
@@ -55,7 +55,7 @@ Ext.define('Usr.view.group.Edit', {
                             },
                             {
                                 name: 'description',
-                                fieldLabel: Uni.I18n.translate('group.description', 'USM', 'Description'),
+                                fieldLabel: Uni.I18n.translate('group.description', 'USR', 'Description'),
                                 maxWidth: 650
                             },
                             {
@@ -66,7 +66,7 @@ Ext.define('Usr.view.group.Edit', {
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('privilege.permissions', 'USM', 'Privileges'),
+                                fieldLabel: Uni.I18n.translate('privilege.permissions', 'USR', 'Privileges'),
                                 items: [
                                     {
                                         xtype: 'applicationList',
@@ -98,11 +98,11 @@ Ext.define('Usr.view.group.Edit', {
                                         action: 'save'
                                     },
                                     {
-                                        text: Uni.I18n.translate('general.cancel', 'USM', 'Cancel'),
+                                        text: Uni.I18n.translate('general.cancel', 'USR', 'Cancel'),
                                         xtype: 'button',
                                         ui: 'link',
                                         itemId: 'cancelLink',
-                                        href: '#/usermanagement/roles/'
+                                        href: '#/administration/roles/'
                                     }
                                 ]
                             }
@@ -115,9 +115,9 @@ Ext.define('Usr.view.group.Edit', {
         this.callParent(arguments);
 
         if (this.isEdit()) {
-            this.down('#roleAddButton').setText(Uni.I18n.translate('general.save', 'USM', 'Save'));
+            this.down('#roleAddButton').setText(Uni.I18n.translate('general.save', 'USR', 'Save'));
         } else {
-            this.down('#roleAddButton').setText(Uni.I18n.translate('general.add', 'USM', 'Add'));
+            this.down('#roleAddButton').setText(Uni.I18n.translate('general.add', 'USR', 'Add'));
         }
     }
 });

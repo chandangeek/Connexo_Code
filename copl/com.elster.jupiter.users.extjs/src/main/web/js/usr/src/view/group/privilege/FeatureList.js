@@ -22,32 +22,32 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
             },
             items: [
                 {
-                    header: Uni.I18n.translate('privilege.feature', 'USM', 'Resource'),
+                    header: Uni.I18n.translate('privilege.feature', 'USR', 'Resource'),
                     flex: 3,
                     renderer: function (value, metadata, record) {
-                        var name = Uni.I18n.translate(record.get('name'), 'USM', record.get('name'));
+                        var name = Uni.I18n.translate(record.get('name'), 'USR', record.get('name'));
                         if(record.get('selected') == 0){
-                            return '<img src="../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-no.png"/>&nbsp;' + name;
+                            return '<img src="../sky/build/resources/images/grid/drop-no.png"/>&nbsp;' + name;
                         }
                         else{
                             if(record.privileges().data.items.length == record.get('selected')){
-                                return '<img src="../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-yes.png"/>&nbsp;' + name;
+                                return '<img src="../sky/build/resources/images/grid/drop-yes.png"/>&nbsp;' + name;
                             }
                             else{
-                                return '<img src="../ext/packages/uni-theme-skyline/build/resources/images/tree/drop-above.png" style="visibility:hidden"/>&nbsp;' + name;
+                                return '<img src="../sky/build/resources/images/tree/drop-above.png" style="visibility:hidden"/>&nbsp;' + name;
                             }
                         }
                     }
                 },
                 {
-                    header: Uni.I18n.translate('privilege.description', 'USM', 'Description'),
+                    header: Uni.I18n.translate('privilege.description', 'USR', 'Description'),
                     flex: 3,
                     renderer: function (value, metadata, record) {
-                        return Uni.I18n.translate(record.get('description'), 'USM', record.get('description'));
+                        return Uni.I18n.translate(record.get('description'), 'USR', record.get('description'));
                     }
                 },
                 {
-                    header: Uni.I18n.translate('privilege.permissions', 'USM', 'Privileges'),
+                    header: Uni.I18n.translate('privilege.permissions', 'USR', 'Privileges'),
                     flex: 7,
                     dataIndex: 'permissions'
                 },
@@ -63,7 +63,7 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('privilege.feature.top', 'USM', 'Resources')
+                displayMsg: Uni.I18n.translate('privilege.feature.top', 'USR', 'Resources')
             }
         ];
 

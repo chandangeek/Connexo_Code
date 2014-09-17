@@ -23,12 +23,12 @@ Ext.define('Usr.view.group.List', {
             },
             items: [
                 {
-                    header: Uni.I18n.translate('group.name', 'USM', 'Name'),
+                    header: Uni.I18n.translate('group.name', 'USR', 'Name'),
                     dataIndex: 'name',
                     flex: 3
                 },
                 {
-                    header: Uni.I18n.translate('group.description', 'USM', 'Description'),
+                    header: Uni.I18n.translate('group.description', 'USR', 'Description'),
                     dataIndex: 'description',
                     flex: 7
                 },
@@ -44,13 +44,13 @@ Ext.define('Usr.view.group.List', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('group.list.top', 'USM', '{0} - {1} of {2} roles'),
+                displayMsg: Uni.I18n.translate('group.list.top', 'USR', '{0} - {1} of {2} roles'),
                 items: [
                     '->',
                     {
-                        text: Uni.I18n.translate('group.create', 'USM', 'Add role'),
+                        text: Uni.I18n.translate('group.create', 'USR', 'Add role'),
                         action: 'createGroup',
-                        href: '#/usermanagement/roles/add',
+                        href: '#/administration/roles/add',
                         hidden: Uni.Auth.hasNoPrivilege('privilege.create.group')
                     }
                 ]
@@ -60,7 +60,7 @@ Ext.define('Usr.view.group.List', {
                 store: this.store,
                 dock: 'bottom',
                 limit: 10,
-                itemsPerPageMsg: Uni.I18n.translate('group.list.bottom', 'USM', 'Roles per page')
+                itemsPerPageMsg: Uni.I18n.translate('group.list.bottom', 'USR', 'Roles per page')
             }
         ];
 

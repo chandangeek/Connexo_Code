@@ -22,15 +22,15 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name="com.elster.jupiter.users.extjs",service={InstallService.class},property = {"name=USM"}, immediate = true)
-public class UsmUiInstaller implements InstallService {
+@Component(name="com.elster.jupiter.users.extjs",service={InstallService.class},property = {"name=USR"}, immediate = true)
+public class UsrUiInstaller implements InstallService {
 
-    public static String COMPONENTNAME = "USM";
+    public static String COMPONENTNAME = "USR";
 
     private volatile Thesaurus thesaurus;
     private volatile Activator activator;
 
-    public UsmUiInstaller() {
+    public UsrUiInstaller() {
     }
 
     @Activate
@@ -56,13 +56,13 @@ public class UsmUiInstaller implements InstallService {
     }
 
     @Inject
-    public UsmUiInstaller(Thesaurus thesaurus) {
+    public UsrUiInstaller(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
     @Reference
     public void setThesaurus(NlsService nlsService){
-        this.thesaurus = nlsService.getThesaurus("USM", Layer.REST);
+        this.thesaurus = nlsService.getThesaurus("USR", Layer.REST);
     }
 
     @Override

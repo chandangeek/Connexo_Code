@@ -58,12 +58,12 @@ Ext.define('Usr.view.group.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('group.name', 'USM', 'Role name')
+                                    fieldLabel: Uni.I18n.translate('group.name', 'USR', 'Role name')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'description',
-                                    fieldLabel: Uni.I18n.translate('group.description', 'USM', 'Description')
+                                    fieldLabel: Uni.I18n.translate('group.description', 'USR', 'Description')
                                 }
                             ]
                         },
@@ -81,12 +81,12 @@ Ext.define('Usr.view.group.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'createdOn',
-                                    fieldLabel: Uni.I18n.translate('group.created', 'USM', 'Created on')
+                                    fieldLabel: Uni.I18n.translate('group.created', 'USR', 'Created on')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'modifiedOn',
-                                    fieldLabel: Uni.I18n.translate('group.modified', 'USM', 'Modified on')
+                                    fieldLabel: Uni.I18n.translate('group.modified', 'USR', 'Modified on')
                                 }
                             ]
                         }

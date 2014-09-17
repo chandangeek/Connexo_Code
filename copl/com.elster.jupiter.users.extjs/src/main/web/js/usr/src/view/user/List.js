@@ -23,17 +23,17 @@ Ext.define('Usr.view.user.List', {
             },
             items: [
                 {
-                    header: Uni.I18n.translate('user.name', 'USM', 'Name'),
+                    header: Uni.I18n.translate('user.name', 'USR', 'Name'),
                     dataIndex: 'authenticationName',
                     flex: 3
                 },
                 {
-                    header: Uni.I18n.translate('user.description', 'USM', 'Description'),
+                    header: Uni.I18n.translate('user.description', 'USR', 'Description'),
                     dataIndex: 'description',
                     flex: 5
                 },
                 {
-                    header: Uni.I18n.translate('user.domain', 'USM', 'Domain'),
+                    header: Uni.I18n.translate('user.domain', 'USR', 'Domain'),
                     dataIndex: 'domain',
                     flex: 2
                 },
@@ -49,14 +49,14 @@ Ext.define('Usr.view.user.List', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('user.list.top', 'USM', '{0} - {1} of {2} users')
+                displayMsg: Uni.I18n.translate('user.list.top', 'USR', '{0} - {1} of {2} users')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 dock: 'bottom',
                 limit: 10,
-                itemsPerPageMsg: Uni.I18n.translate('user.list.bottom', 'USM', 'Users per page')
+                itemsPerPageMsg: Uni.I18n.translate('user.list.bottom', 'USR', 'Users per page')
             }
         ];
 
