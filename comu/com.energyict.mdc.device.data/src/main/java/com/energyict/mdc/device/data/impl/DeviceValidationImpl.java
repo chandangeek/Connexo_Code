@@ -48,8 +48,9 @@ public class DeviceValidationImpl implements DeviceValidation {
         }
         Optional<com.elster.jupiter.metering.Channel> found = device.findKoreChannel(channel, when);
         return found.isPresent() && validationService.getMeterActivationValidations(found.get().getMeterActivation()).stream()
-                .flatMap(m -> m.getChannelValidations().stream())
-                .filter(c -> c.getChannel().getId() == found.get().getId())
+                .map(m -> m.getChannelValidation(found.get()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .anyMatch(ChannelValidation::hasActiveRules);
     }
 
@@ -67,7 +68,7 @@ public class DeviceValidationImpl implements DeviceValidation {
         List<com.elster.jupiter.metering.Channel> koreChannels = ((DeviceImpl) channel.getDevice()).findKoreChannels(channel);
         return koreChannels.stream()
                 .filter(k -> k.getMeterActivation().getInterval().overlaps(interval))
-                .flatMap(k -> validationService.getValidationStatus(k, k.getMeterActivation().getInterval().intersection(interval)).stream())
+                .flatMap(k -> validationService.getEvaluator().getValidationStatus(k, k.getMeterActivation().getInterval().intersection(interval)).stream())
                 .collect(Collectors.toList());
     }
 }
