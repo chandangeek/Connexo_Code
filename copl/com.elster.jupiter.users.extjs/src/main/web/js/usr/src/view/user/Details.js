@@ -55,37 +55,37 @@ Ext.define('Usr.view.user.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'authenticationName',
-                                    fieldLabel: Uni.I18n.translate('user.name', 'USM', 'Name')
+                                    fieldLabel: Uni.I18n.translate('user.name', 'USR', 'Name')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'description',
-                                    fieldLabel: Uni.I18n.translate('user.description', 'USM', 'Description')
+                                    fieldLabel: Uni.I18n.translate('user.description', 'USR', 'Description')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'domain',
-                                    fieldLabel: Uni.I18n.translate('user.domain', 'USM', 'Domain')
+                                    fieldLabel: Uni.I18n.translate('user.domain', 'USR', 'Domain')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'roles',
-                                    fieldLabel: Uni.I18n.translate('user.roles', 'USM', 'Roles')
+                                    fieldLabel: Uni.I18n.translate('user.roles', 'USR', 'Roles')
                                 },
                                 {
                                     xtype: 'component',
                                     margin: '10 0 10 150',
-                                    html: '<h3>' + Uni.I18n.translate('user.preferences', 'USM', 'User preferences') + '</h3>'
+                                    html: '<h3>' + Uni.I18n.translate('user.preferences', 'USR', 'User preferences') + '</h3>'
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'language',
-                                    fieldLabel: Uni.I18n.translate('user.language', 'USM', 'Language')
+                                    fieldLabel: Uni.I18n.translate('user.language', 'USR', 'Language')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'currency',
-                                    fieldLabel: Uni.I18n.translate('user.currency', 'USM', 'Currency')
+                                    fieldLabel: Uni.I18n.translate('user.currency', 'USR', 'Currency')
                                 }
                             ]
                         },
@@ -103,12 +103,12 @@ Ext.define('Usr.view.user.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'createdOn',
-                                    fieldLabel: Uni.I18n.translate('user.created', 'USM', 'Created on')
+                                    fieldLabel: Uni.I18n.translate('user.created', 'USR', 'Created on')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'modifiedOn',
-                                    fieldLabel: Uni.I18n.translate('user.modified', 'USM', 'Modified on')
+                                    fieldLabel: Uni.I18n.translate('user.modified', 'USR', 'Modified on')
                                 }
                             ]
                         }

@@ -22,30 +22,27 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
             },
             items: [
                 {
-                    header: Uni.I18n.translate('privilege.application', 'USM', 'Application'),
+                    header: Uni.I18n.translate('privilege.application', 'USR', 'Application'),
                     dataIndex: 'componentName',
                     flex: 3,
                     renderer: function (value, metadata, record) {
                         var text = [];
-                        switch(record.get('selected')){
-                            case 0: {
-                                text = '<img src="../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-no.png"/>&nbsp;' + record.get('componentName');
+                        switch (record.get('selected')) {
+                            case 0:
+                                text = '<img src="../sky/build/resources/images/grid/drop-no.png"/>&nbsp;' + record.get('componentName');
                                 break;
-                            }
-                            case 1:{
-                                text = '<img src="../ext/packages/uni-theme-skyline/build/resources/images/tree/drop-above.png" style="visibility:hidden"/>&nbsp;' + record.get('componentName');
+                            case 1:
+                                text = '<img src="../sky/build/resources/images/tree/drop-above.png" style="visibility:hidden"/>&nbsp;' + record.get('componentName');
                                 break;
-                            }
-                            case 2:{
-                                text = '<img src="../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-yes.png"/>&nbsp;' + record.get('componentName');
+                            case 2:
+                                text = '<img src="../sky/build/resources/images/grid/drop-yes.png"/>&nbsp;' + record.get('componentName');
                                 break;
-                            }
                         }
                         return text;
                     }
                 },
                 {
-                    header: Uni.I18n.translate('privilege.description', 'USM', 'Description'),
+                    header: Uni.I18n.translate('privilege.description', 'USR', 'Description'),
                     dataIndex: 'description',
                     flex: 10
                 },
@@ -61,17 +58,17 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('privilege.application.top', 'USM', 'Applications'),
+                displayMsg: Uni.I18n.translate('privilege.application.top', 'USR', 'Applications'),
                 items: [
                     '->',
                     {
-                        text: Uni.I18n.translate('privilege.no.access', 'USM', 'No access'),
-                        icon: '../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-no.png',
+                        text: Uni.I18n.translate('privilege.no.access', 'USR', 'No access'),
+                        icon: '../sky/build/resources/images/grid/drop-no.png',
                         action: 'privilegesNoAccess'
                     },
                     {
-                        text: Uni.I18n.translate('privilege.full.control', 'USM', 'Full control'),
-                        icon: '../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-yes.png',
+                        text: Uni.I18n.translate('privilege.full.control', 'USR', 'Full control'),
+                        icon: '../sky/build/resources/images/grid/drop-yes.png',
                         action: 'privilegesFullControl'
                     }
                 ]

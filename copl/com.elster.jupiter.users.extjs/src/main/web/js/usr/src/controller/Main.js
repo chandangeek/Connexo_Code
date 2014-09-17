@@ -38,43 +38,56 @@ Ext.define('Usr.controller.Main', {
             historian = me.getController('Usr.controller.history.UserManagement'); // Forces route registration.
 
         me.initNavigation();
-
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.userManagement', 'USR', 'User management'),
-            glyph: 'settings',
-            portal: 'usermanagement',
-            index: -10,
-            hidden: Uni.Auth.hasNoPrivilege('privilege.view.user') & Uni.Auth.hasNoPrivilege('privilege.view.group')
-        });
-
-        Uni.store.MenuItems.add(menuItem);
-
-        var users = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.userManagement', 'USR', 'User management'),
-            portal: 'usermanagement',
-            route: 'usermanagement',
-            items: [
-                {
-                    text: Uni.I18n.translate('general.users', 'USR', 'Users'),
-                    href: '#/usermanagement/users',
-                    hidden: Uni.Auth.hasNoPrivilege('privilege.view.user')
-                },
-                {
-                    text: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
-                    href: '#/usermanagement/roles',
-                    hidden: Uni.Auth.hasNoPrivilege('privilege.view.group')
-                }
-            ]
-        });
-
-        Uni.store.PortalItems.add(
-            users
-        );
+        me.initMenu();
     },
 
     initNavigation: function () {
         var controller = this.getController('Uni.controller.Navigation');
         this.setNavigationController(controller);
+    },
+
+    initMenu: function () {
+        if (Uni.Auth.hasPrivilege('privilege.view.user') || Uni.Auth.hasPrivilege('privilege.view.group')) {
+            var menuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'USR', 'Administration'),
+                glyph: 'settings',
+                portal: 'administration',
+                index: -10
+            });
+
+            Uni.store.MenuItems.add(menuItem);
+
+            var usersItems = [];
+
+            if (Uni.Auth.hasPrivilege('privilege.view.user')) {
+                usersItems.push(
+                    {
+                        text: Uni.I18n.translate('general.users', 'USR', 'Users'),
+                        href: '#/administration/users'
+                    }
+                );
+            }
+
+            if (Uni.Auth.hasPrivilege('privilege.view.group')) {
+                usersItems.push(
+                    {
+                        text: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
+                        href: '#/administration/roles'
+                    }
+                );
+            }
+
+            var users = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.userManagement', 'USR', 'User management'),
+                portal: 'administration',
+                route: 'administration',
+                items: usersItems
+            });
+
+            Uni.store.PortalItems.add(
+                users
+            );
+        }
     },
 
     showContent: function (widget) {

@@ -68,14 +68,14 @@ Ext.define('Usr.controller.GroupEdit', {
         return this.widget.down("#featureList");
     },
 
-    backUrl: '#/usermanagement/roles',
+    backUrl: '#/administration/roles',
 
     back: function () {
         location.href = this.backUrl;
     },
 
     showEditOverviewWithHistory: function (groupId) {
-        location.href = '#/usermanagement/roles/' + groupId + '/edit';
+        location.href = '#/administration/roles/' + groupId + '/edit';
     },
 
     showEditOverview: function (groupId) {
@@ -83,14 +83,14 @@ Ext.define('Usr.controller.GroupEdit', {
         me.mode = 'edit';
         Ext.ModelManager.getModel('Usr.model.Group').load(groupId, {
             success: function (group) {
-                me.showOverview(group, Uni.I18n.translate('group.edit', 'USM', 'Edit') + ' \'' + group.get('name') + '\'');
+                me.showOverview(group, Uni.I18n.translate('group.edit', 'USR', 'Edit') + ' \'' + group.get('name') + '\'');
             }
         });
     },
 
     showCreateOverview: function () {
         this.mode = 'create';
-        this.showOverview(Ext.create('Usr.model.Group'), Uni.I18n.translate('group.create', 'USM', 'Add role'));
+        this.showOverview(Ext.create('Usr.model.Group'), Uni.I18n.translate('group.create', 'USR', 'Add role'));
     },
 
     showOverview: function (record, title) {
@@ -120,7 +120,7 @@ Ext.define('Usr.controller.GroupEdit', {
                             previousPermissions += ', ';
                         }
                         name = currentPrivileges.data.items[index].data.name;
-                        this.data.items[i].set('permissions', previousPermissions + Uni.I18n.translate(name, 'USM', name));
+                        this.data.items[i].set('permissions', previousPermissions + Uni.I18n.translate(name, 'USR', name));
                         this.data.items[i].set('selected', this.data.items[i].data.selected + 1);
                     }
                 }
@@ -215,10 +215,10 @@ Ext.define('Usr.controller.GroupEdit', {
             success: function (record) {
                 var message;
                 if (me.mode == 'edit') {
-                    message = Uni.I18n.translatePlural('group.saved', record.get('name'), 'USM', 'Role \'{0}\' saved.');
+                    message = Uni.I18n.translatePlural('group.saved', record.get('name'), 'USR', 'Role \'{0}\' saved.');
                 }
                 else {
-                    message = Uni.I18n.translatePlural('group.added', record.get('name'), 'USM', 'Role \'{0}\' added.');
+                    message = Uni.I18n.translatePlural('group.added', record.get('name'), 'USR', 'Role \'{0}\' added.');
                 }
                 me.getApplication().fireEvent('acknowledge', message);
                 me.back();
@@ -267,7 +267,7 @@ Ext.define('Usr.controller.GroupEdit', {
                         permissions += ', ';
                     }
                     name = privileges.data.items[j].data.name;
-                    permissions += Uni.I18n.translate(name, 'USM', name);
+                    permissions += Uni.I18n.translate(name, 'USR', name);
                 }
             }
             store.data.items[i].set('permissions', permissions);
@@ -305,8 +305,8 @@ Ext.define('Usr.controller.GroupEdit', {
     addPermissionMenuNoAccess: function (menu, selected) {
         menu.add({
             xtype: 'menucheckitem',
-            text: Uni.I18n.translate('privilege.noAccess', 'USM', 'No access'),
-            icon: '../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-no.png',
+            text: Uni.I18n.translate('privilege.noAccess', 'USR', 'No access'),
+            icon: '../sky/build/resources/images/grid/drop-no.png',
             checked: selected,
             listeners: {
                 checkchange: function (item, checked) {
@@ -324,8 +324,8 @@ Ext.define('Usr.controller.GroupEdit', {
     addPermissionMenuFullControl: function (menu, selected) {
         menu.add({
             xtype: 'menucheckitem',
-            text: Uni.I18n.translate('privilege.fullControl', 'USM', 'Full control'),
-            icon: '../ext/packages/uni-theme-skyline/build/resources/images/grid/drop-yes.png',
+            text: Uni.I18n.translate('privilege.fullControl', 'USR', 'Full control'),
+            icon: '../sky/build/resources/images/grid/drop-yes.png',
             checked: selected,
             listeners: {
                 checkchange: function (item, checked) {
@@ -345,7 +345,7 @@ Ext.define('Usr.controller.GroupEdit', {
         menu.add(
             {
                 xtype: 'menucheckitem',
-                text: Uni.I18n.translate(name, 'USM', name),
+                text: Uni.I18n.translate(name, 'USR', name),
                 code: code,
                 checked: selected,
                 listeners: {
