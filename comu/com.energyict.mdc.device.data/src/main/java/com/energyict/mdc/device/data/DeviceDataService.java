@@ -492,14 +492,6 @@ public interface DeviceDataService {
 
     List<ComSession> findAllFor(ConnectionTask<?, ?> connectionTask);
 
-    /**
-     * Gets this ConnectionTask's last {@link ComSession} or <code>null</code>
-     * if there are no ComSessions yet.
-     *
-     * @return The last ComSession or <code>null</code>
-     */
-    public Optional<ComSession> getLastComSession (ConnectionTask<?, ?> connectionTask);
-
     Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution);
 
     ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Date startTime);

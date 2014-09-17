@@ -89,6 +89,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             CanLock,
             DefaultRelationParticipant,
             PropertyFactory<ConnectionType, ConnectionTaskProperty>,
+            HasLastComSession,
             PersistenceAware {
 
     public static final String INITIATOR_DISCRIMINATOR = "0";
@@ -116,6 +117,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED_KEY + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
+    private Reference<ComSession> lastComSession = ValueReference.absent();
     private Date modificationDate;
 
     private final Clock clock;
@@ -653,7 +655,21 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Optional<ComSession> getLastComSession() {
-        return this.deviceDataService.getLastComSession(this);
+        return this.lastComSession.getOptional();
+    }
+
+    @Override
+    public void sessionCreated(ComSession session) {
+        if (this.lastComSession.isPresent()) {
+            if (session.endsAfter(this.lastComSession.get())) {
+                this.lastComSession.set(session);
+                this.post();
+            }
+        }
+        else {
+            this.lastComSession.set(session);
+            this.post();
+        }
     }
 
     @Override

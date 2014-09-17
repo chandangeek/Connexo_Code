@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TimeDuration;
@@ -83,6 +82,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
@@ -1400,23 +1400,6 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     }
 
     @Override
-    public Optional<ComSession> getLastComSession(ConnectionTask<?, ?> connectionTask) {
-        Condition condition = where(ComSessionImpl.Fields.CONNECTION_TASK.fieldName()).isEqualTo(connectionTask);
-        Finder<ComSession> page =
-                DefaultFinder.
-                        of(ComSession.class, condition, this.dataModel).
-                        sorted(ComSessionImpl.Fields.MODIFICATION_DATE.fieldName(), false).
-                        paged(1, 1);
-        List<ComSession> allComSessions = page.find();
-        if (allComSessions.isEmpty()) {
-            return Optional.absent();
-        }
-        else {
-            return Optional.of(allComSessions.get(0));
-        }
-    }
-
-    @Override
     public Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution) {
         Condition condition = where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution);
         Finder<ComTaskExecutionSession> page =
@@ -1466,9 +1449,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     private long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(boolean waitingOnly) {
         SqlBuilder sqlBuilder = new SqlBuilder("select count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct join ");
-        sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs on cs.connectiontask = ct.id");
+        sqlBuilder.append(" ct ");
+        this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
         sqlBuilder.append(" where ct.obsolete_date is null");
         if (waitingOnly) {
             sqlBuilder.append(" and nextexecutiontimestamp >");
@@ -1478,11 +1460,8 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         else {
             sqlBuilder.append(" and ct.nextexecutiontimestamp is not null");
         }
-        sqlBuilder.append(" and not exists (select * from ");
-        sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs2 where cs2.startdate > cs.startdate and cs2.connectiontask = cs.connectiontask) and cs.successindicator = 0 and exists (select * from ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator > 0)");
+        sqlBuilder.append(" and ");
+        this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(true, sqlBuilder);
         try (PreparedStatement stmnt = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
             try (ResultSet resultSet = stmnt.executeQuery()) {
                 while (resultSet.next()) {
@@ -1502,11 +1481,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount() {
-        SqlBuilder sqlBuilder = new SqlBuilder("select t.successIndicator, count(*) from (select connectiontask, MAX(successindicator) KEEP (DENSE_RANK LAST ORDER BY cs.startdate desc) successIndicator from ");
-        sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs join ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select cs.successIndicator, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct on cs.connectiontask = ct.id where ct.nextexecutiontimestamp is not null and ct.obsolete_date is null group by cs.connectiontask) t group by t.successIndicator");
+        sqlBuilder.append(" ct ");
+        this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
+        sqlBuilder.append(" where ct.nextexecutiontimestamp is not null and ct.obsolete_date is null group by cs.successindicator");
         return this.addMissingSuccessIndicatorCounters(this.fetchSuccessIndicatorCounters(sqlBuilder));
     }
 
@@ -1549,45 +1528,43 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public Map<ConnectionTypePluggableClass, List<Long>> getConnectionTypeHeatMap() {
-        /* For clarity's sake, here is the formatted SQL:
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.getConnectionTypeHeatMap(false);
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> atLeastOneFailingTaskCounters = this.getConnectionTypeHeatMap(true);
+        return this.buildConnectionTypeHeatMap(partialCounters, atLeastOneFailingTaskCounters);
+    }
+
+    private Map<Long, Map<ComSession.SuccessIndicator, Long>> getConnectionTypeHeatMap(boolean atLeastOneFailingComTask) {
+        /* For clarity's sake, here is the formatted SQL when atLeastOneFailingComTask = false:
            SELECT ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator, count(*)
-             FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON cs.CONNECTIONTASK = ct.id
-            WHERE cs.id IN (SELECT MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC)
-                              FROM DDC_COMSESSION
-                             GROUP BY connectiontask)
-              AND NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION cte WHERE cte.COMSESSION = cs.id AND cte.SUCCESSINDICATOR <> 0)
+             FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastcomession = cs.id
+            WHERE NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION cte
+                               WHERE cte.COMSESSION = cs.id
+                                 AND cte.SUCCESSINDICATOR <> 0)
+            GROUP BY ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator;
+
+           when atLeastOneFailingComTask = false:
+           SELECT ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator, count(*)
+             FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastcomession = cs.id
+            WHERE cs.successindicator = 0
+              AND EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION cte
+                           WHERE cte.COMSESSION = cs.id
+                             AND cte.SUCCESSINDICATOR <> 0)
             GROUP BY ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator;
          */
         SqlBuilder sqlBuilder = new SqlBuilder("select ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct join ");
+        sqlBuilder.append(" ct");
+        this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
+        sqlBuilder.append(" where ");
+        this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
+        sqlBuilder.append(" group by ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
+        return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
+    }
+
+    private void appendConnectionTaskLastComSessionJoinClause(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(" join ");
         sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs on cs.connectiontask = ct.id where cs.id in (select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
-        sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" group by connectiontask)");
-        sqlBuilder.append(" and not exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
-        /* Need another similar query that selects the successful last com sessions that have at least one failing task.
-         * Again for clarity's sake, the formatted SQL
-           SELECT ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator, count(*)
-             FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON cs.CONNECTIONTASK = ct.id
-            WHERE cs.id IN (SELECT MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC)
-                              FROM DDC_COMSESSION
-                             GROUP BY connectiontask)
-              AND cs.successindicator = 0
-              AND EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION cte WHERE cte.COMSESSION = cs.id AND cte.SUCCESSINDICATOR <> 0)
-            GROUP BY ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator;
-         */
-        SqlBuilder failingComTasksSqlBuilder = new SqlBuilder("select ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*) from ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        failingComTasksSqlBuilder.append(" ct join ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        failingComTasksSqlBuilder.append(" cs on cs.connectiontask = ct.id where cs.id in (select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        failingComTasksSqlBuilder.append(" group by connectiontask)");
-        failingComTasksSqlBuilder.append(" and cs.successindicator = 0 and exists (select * from DDC_COMTASKEXECSESSION cte where cte.COMSESSION = cs.id and cte.SUCCESSINDICATOR <> 0) group by ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters = this.fetchConnectionTypeHeatMapCounters(failingComTasksSqlBuilder);
-        return this.buildConnectionTypeHeatMap(partialCounters, remainingCounters);
+        sqlBuilder.append(" cs on ct.lastsession = cs.id");
     }
 
     private Map<ConnectionTypePluggableClass, List<Long>> buildConnectionTypeHeatMap(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {
@@ -1603,22 +1580,19 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
     @Override
     public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap() {
         /* For clarity's sake, here is the formatted SQL/
-         * select dev.DEVICETYPE, lctes.highestPrioCompletionCode, count(*)
-         *  from (select comtaskexec, MAX(HIGHESTPRIOCOMPLETIONCODE) KEEP (DENSE_RANK LAST ORDER BY ctes.startdate DESC) highestPrioCompletionCode
-         *          from DDC_COMTASKEXECSESSION ctes
-         *         group by comtaskexec) lctes,
-         *       DDC_COMTASKEXEC cte, DDC_DEVICE dev
-         * where cte.id = lctes.comtaskexec
-         *   and cte.DEVICE = dev.id
-         * group by dev.DEVICETYPE, lctes.highestPrioCompletionCode
+           select dev.DEVICETYPE, ctes.highestPrioCompletionCode, count(*)
+            from DDC_COMTASKEXEC cte
+            join DDC_COMTASKECEXSESSION ctes on cte.lastsession = ctes.id
+            join DDC_DEVICE dev on cte.device = dev.id
+           group by dev.DEVICETYPE, lctes.highestPrioCompletionCode
          */
-        SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, lctes.highestPrioCompletionCode, count(*) from (select comtaskexec, MAX(HIGHESTPRIOCOMPLETIONCODE) KEEP (DENSE_RANK LAST ORDER BY ctes.startdate DESC) highestPrioCompletionCode from ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes group by comtaskexec) lctes, ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, ctes.highestPrioCompletionCode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" cte, ");
+        sqlBuilder.append(" cte join ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        sqlBuilder.append(" ctes on cte.lastsession = ctes.id join ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" dev where cte.id = lctes.comtaskexec and cte.device = dev.id group by dev.devicetype, lctes.highestPrioCompletionCode");
+        sqlBuilder.append(" dev on cte.device = dev.id group by dev.devicetype, ctes.highestPrioCompletionCode");
         Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
         Map<DeviceType, List<Long>> heatMap = new HashMap<>();
         for (Long deviceTypeId : partialCounters.keySet()) {
@@ -1673,55 +1647,55 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public Map<DeviceType, List<Long>> getConnectionsDeviceTypeHeatMap() {
-        /* For clarity's sake, here is the formatted SQL:
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.getConnectionsDeviceTypeHeatMap(false);
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> atLeastOneFailingComTaskCounters = this.getConnectionsDeviceTypeHeatMap(true);
+        return this.buildDeviceTypeHeatMap(partialCounters, atLeastOneFailingComTaskCounters);
+    }
+
+    public Map<Long, Map<ComSession.SuccessIndicator, Long>> getConnectionsDeviceTypeHeatMap(boolean atLeastOneFailingComTask) {
+        /* For clarity's sake, here is the formatted SQL when atLeastOneFailingComTask == false:
            SELECT dev.DEVICETYPE, cs.successIndicator, count(*)
              FROM DDC_CONNECTIONTASK ct
-             JOIN DDC_COMSESSION cs ON cs.CONNECTIONTASK = ct.id
+             JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
              JOIN DDC_DEVICE dev ON ct.DEVICE = dev.id
-            WHERE cs.id IN (SELECT MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC)
-                              FROM DDC_COMSESSION
-                             GROUP BY connectiontask)
-              AND NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes WHERE ctes.COMSESSION = cs.id AND ctes.SUCCESSINDICATOR <> 0)
+            WHERE NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes
+                               WHERE ctes.COMSESSION = cs.id
+                                 AND ctes.SUCCESSINDICATOR <> 0)
+            GROUP BY dev.DEVICETYPE, cs.successIndicator
+
+            when atLeastOneFailingComTask = true
+           SELECT dev.DEVICETYPE, cs.successIndicator, count(*)
+             FROM DDC_CONNECTIONTASK ct
+             JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
+             JOIN DDC_DEVICE dev ON ct.DEVICE = dev.id
+            WHERE cs.successindicator = 0
+              and EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes
+                               WHERE ctes.COMSESSION = cs.id
+                                 AND ctes.SUCCESSINDICATOR <> 0)
             GROUP BY dev.DEVICETYPE, cs.successIndicator
          */
         SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, cs.successIndicator, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct join ");
-        sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs on cs.connectiontask = ct.id join ");
+        sqlBuilder.append(" ct");
+        this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
+        sqlBuilder.append(" join ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" dev on ct.device = dev.id where cs.id in (select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
-        sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" group by connectiontask) and not exists (select * from ");
+        sqlBuilder.append(" dev on ct.device = dev.id where ");
+        this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
+        sqlBuilder.append(" group by dev.devicetype, cs.successIndicator");
+        return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
+    }
+
+    private void appendConnectionTypeHeatMapComTaskExecutionSessionConditions(boolean atLeastOneFailingComTask, SqlBuilder sqlBuilder) {
+        if (atLeastOneFailingComTask) {
+            sqlBuilder.append("cs.successindicator = 0 and");
+        }
+        else {
+            sqlBuilder.append(" not");
+        }
+        sqlBuilder.append(" exists (select * from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes where ctes.COMSESSION = cs.id and ctes.SUCCESSINDICATOR <> 0) group by dev.devicetype, cs.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
-        /* Need another similar query that selects the successful last com sessions that have at least one failing task.
-         * Again for clarity's sake, the formatted SQL
-           SELECT dev.DEVICETYPE, cs.successIndicator, count(*)
-             FROM DDC_CONNECTIONTASK ct
-             JOIN DDC_COMSESSION cs ON cs.CONNECTIONTASK = ct.id
-             JOIN DDC_DEVICE dev ON ct.DEVICE = dev.id
-            WHERE cs.id IN (SELECT MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC)
-                              FROM DDC_COMSESSION
-                             GROUP BY connectiontask)
-              AND cs.successindicator = 0
-              AND EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes WHERE ctes.COMSESSION = cs.id AND ctes.SUCCESSINDICATOR <> 0)
-            GROUP BY dev.DEVICETYPE, cs.successIndicator
-         */
-        SqlBuilder failingComTasksSqlBuilder = new SqlBuilder("select dev.DEVICETYPE, cs.successIndicator, count(*) from ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        failingComTasksSqlBuilder.append(" ct join ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        failingComTasksSqlBuilder.append(" cs on cs.connectiontask = ct.id join ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        failingComTasksSqlBuilder.append(" dev on ct.device = dev.id where cs.id in (select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        failingComTasksSqlBuilder.append(" group by connectiontask) and cs.successindicator = 0 and exists (select * from ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        failingComTasksSqlBuilder.append(" ctes where ctes.COMSESSION = cs.id and ctes.SUCCESSINDICATOR <> 0) group by dev.devicetype, cs.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters = this.fetchConnectionTypeHeatMapCounters(failingComTasksSqlBuilder);
-        return this.buildDeviceTypeHeatMap(partialCounters, remainingCounters);
+        sqlBuilder.append(" ctes where ctes.COMSESSION = cs.id and ctes.SUCCESSINDICATOR <> 0)");
     }
 
     private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {
@@ -1736,13 +1710,27 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public Map<ComPortPool, List<Long>> getConnectionsComPortPoolHeatMap() {
-        /* For clarity's sake, here is the formatted SQL:
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.getConnectionsComPortPoolHeatMap(false);
+        Map<Long, Map<ComSession.SuccessIndicator, Long>> atLeastOneFailingCounters = this.getConnectionsComPortPoolHeatMap(true);
+        return this.buildComPortPoolHeatMap(partialCounters, atLeastOneFailingCounters);
+    }
+
+    private Map<Long, Map<ComSession.SuccessIndicator, Long>> getConnectionsComPortPoolHeatMap(boolean atLeastOneFailingComTask) {
+        /* For clarity's sake, here is the formatted SQL when atLeastOneFailingComTask == false:
            SELECT ct.COMPORTPOOL, cs.successIndicator, COUNT(*)
-             FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON cs.CONNECTIONTASK = ct.id
-            WHERE cs.id IN (SELECT MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC)
-                              FROM DDC_COMSESSION
-                             GROUP BY connectiontask)
-              AND NOT EXISTS (
+             FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
+            WHERE NOT EXISTS (
+                      SELECT *
+                        FROM DDC_COMTASKEXECSESSION ctes
+                       WHERE ctes.COMSESSION = cs.id
+                         AND ctes.SUCCESSINDICATOR <> 0)
+            GROUP BY ct.COMPORTPOOL, cs.successIndicator
+
+           when attemptLockComTaskExecution == true
+           SELECT ct.COMPORTPOOL, cs.successIndicator, COUNT(*)
+             FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id
+            WHERE cs.successindicator = 0
+              AND EXISTS (
                       SELECT *
                         FROM DDC_COMTASKEXECSESSION ctes
                        WHERE ctes.COMSESSION = cs.id
@@ -1751,44 +1739,12 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
          */
         SqlBuilder sqlBuilder = new SqlBuilder("select ct.COMPORTPOOL, cs.successIndicator, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct join ");
-        sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" cs on cs.connectiontask = ct.id where cs.id in (");
-        sqlBuilder.append("select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
-        sqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        sqlBuilder.append(" group by connectiontask)");
-        sqlBuilder.append(" and not exists (select * from ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0) group by ct.comportpool, cs.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
-        /* Need another similar query that selects the successful last com sessions that have at least one failing task.
-         * Again for clarity's sake, the formatted SQL
-           SELECT ct.COMPORTPOOL, cs.successIndicator, COUNT(*)
-             FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON cs.CONNECTIONTASK = ct.id
-            WHERE cs.id IN (SELECT MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC)
-                              FROM DDC_COMSESSION
-                             GROUP BY connectiontask)
-              AND cs.successindicator = 0
-              AND EXISTS (
-                      SELECT *
-                        FROM DDC_COMTASKEXECSESSION ctes
-                       WHERE ctes.COMSESSION = cs.id
-                         AND ctes.SUCCESSINDICATOR <> 0)
-            GROUP BY ct.COMPORTPOOL, cs.successIndicator
-         */
-        SqlBuilder failingComTasksSqlBuilder = new SqlBuilder("select ct.COMPORTPOOL, cs.successIndicator, count(*) from ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        failingComTasksSqlBuilder.append(" ct join ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        failingComTasksSqlBuilder.append(" cs on cs.connectiontask = ct.id where cs.id in (");
-        failingComTasksSqlBuilder.append("select MAX(id) KEEP (DENSE_RANK LAST ORDER BY startdate DESC) from ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_COMSESSION.name());
-        failingComTasksSqlBuilder.append(" group by connectiontask)");
-        failingComTasksSqlBuilder.append(" and cs.successindicator = 0 and exists (select * from ");
-        failingComTasksSqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        failingComTasksSqlBuilder.append(" ctes where ctes.comsession = cs.id and ctes.successindicator <> 0) group by ct.comportpool, cs.successIndicator");
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters = this.fetchConnectionTypeHeatMapCounters(failingComTasksSqlBuilder);
-        return this.buildComPortPoolHeatMap(partialCounters, remainingCounters);
+        sqlBuilder.append(" ct");
+        this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
+        sqlBuilder.append(" where ");
+        this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
+        sqlBuilder.append(" group by ct.comportpool, cs.successIndicator");
+        return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
     }
 
     private Map<ComPortPool, List<Long>> buildComPortPoolHeatMap(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {
@@ -1853,9 +1809,11 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
 
     @Override
     public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount() {
-        SqlBuilder sqlBuilder = new SqlBuilder("select t.highestPrioCompletionCode, count(*) from (select comtaskexec, MAX(HIGHESTPRIOCOMPLETIONCODE) KEEP (DENSE_RANK LAST ORDER BY ctes.startdate DESC) HIGHESTPRIOCOMPLETIONCODE from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select ctes.highestPrioCompletionCode, count(*) from ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
+        sqlBuilder.append(" cte join ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes group by comtaskexec) t group by t.highestPrioCompletionCode");
+        sqlBuilder.append(" ctes on cte.lastsession = ctes.id group by ctes.highestPrioCompletionCode");
         return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
     }
 

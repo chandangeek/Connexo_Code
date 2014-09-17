@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.tasks.HasLastComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -146,6 +147,11 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
+    public boolean endsAfter(ComSession other) {
+        return this.getStopDate().after(other.getStopDate());
+    }
+
+    @Override
     public Duration getTotalDuration() {
         return Duration.millis(totalMillis);
     }
@@ -254,6 +260,8 @@ public class ComSessionImpl implements ComSession {
         this.calculateTotalMillis();
         if (this.id == 0) {
             this.dataModel.mapper(ComSession.class).persist(this);
+            HasLastComSession connectionTaskAsHasLastComSession = (HasLastComSession) this.connectionTask.get();
+            connectionTaskAsHasLastComSession.sessionCreated(this);
         }
         else {
             this.dataModel.mapper(ComSession.class).update(this);

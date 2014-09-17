@@ -56,6 +56,8 @@ public interface ComSession extends HasId, TaskExecutionSummary {
 
     public Date getStopDate ();
 
+    public boolean endsAfter (ComSession other);
+
     /**
      * Gets the total number of milli seconds for which this ComSession was active.
      *
