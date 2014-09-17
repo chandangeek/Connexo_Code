@@ -4,6 +4,7 @@ Ext.define('Dsh.controller.history.Workspace', {
     rootToken: 'workspace',
     previousPath: '',
     currentPath: null,
+
     routeConfig: {
         workspace: {
             title: 'Workspace',
