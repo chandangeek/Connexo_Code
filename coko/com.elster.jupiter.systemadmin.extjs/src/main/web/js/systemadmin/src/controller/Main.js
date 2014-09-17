@@ -1,5 +1,6 @@
 Ext.define('Sam.controller.Main', {
     extend: 'Ext.app.Controller',
+
     requires: [
         'Ext.window.Window',
         'Uni.controller.Navigation',
@@ -34,7 +35,6 @@ Ext.define('Sam.controller.Main', {
     init: function () {
         this.initMenu();
         this.initNavigation();
-        this.initDefaultHistoryToken();
     },
 
     initMenu: function () {
@@ -71,14 +71,6 @@ Ext.define('Sam.controller.Main', {
         var navigationController = this.getController('Uni.controller.Navigation');
         this.setNavigationController(navigationController);
 
-    },
-
-    initDefaultHistoryToken: function () {
-        var adminController = this.getController('Sam.controller.history.Administration'),
-            eventBus = this.getController('Uni.controller.history.EventBus'),
-            defaultToken = adminController.tokenizeShowOverview();
-
-        eventBus.setDefaultToken(defaultToken);
     }
 });
 
