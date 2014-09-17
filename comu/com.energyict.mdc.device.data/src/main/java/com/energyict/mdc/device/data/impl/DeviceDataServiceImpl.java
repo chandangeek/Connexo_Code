@@ -1551,13 +1551,13 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                              AND cte.SUCCESSINDICATOR <> 0)
             GROUP BY ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator;
          */
-        SqlBuilder sqlBuilder = new SqlBuilder("select ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator, count(*) from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("select ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct");
         this.appendConnectionTaskLastComSessionJoinClause(sqlBuilder);
         sqlBuilder.append(" where ");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
-        sqlBuilder.append(" group by ct.CONNECTIONTYPEPLUGGABLECLASS, cst.successIndicator");
+        sqlBuilder.append(" group by ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator");
         return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
     }
 

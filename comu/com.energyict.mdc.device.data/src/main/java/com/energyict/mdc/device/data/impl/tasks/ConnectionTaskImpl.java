@@ -117,7 +117,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED_KEY + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
-    private Reference<ComSession> lastComSession = ValueReference.absent();
+    private Reference<ComSession> lastSession = ValueReference.absent();
     private Date modificationDate;
 
     private final Clock clock;
@@ -655,19 +655,19 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public Optional<ComSession> getLastComSession() {
-        return this.lastComSession.getOptional();
+        return this.lastSession.getOptional();
     }
 
     @Override
     public void sessionCreated(ComSession session) {
-        if (this.lastComSession.isPresent()) {
-            if (session.endsAfter(this.lastComSession.get())) {
-                this.lastComSession.set(session);
+        if (this.lastSession.isPresent()) {
+            if (session.endsAfter(this.lastSession.get())) {
+                this.lastSession.set(session);
                 this.post();
             }
         }
         else {
-            this.lastComSession.set(session);
+            this.lastSession.set(session);
             this.post();
         }
     }
