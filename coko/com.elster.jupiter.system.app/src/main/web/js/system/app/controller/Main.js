@@ -5,6 +5,7 @@ Ext.define('SystemApp.controller.Main', {
     extend: 'Uni.controller.AppController',
 
     applicationTitle: 'Connexo System Admin',
+    defaultToken: '#/administration',
 
     controllers: [
         'Usr.controller.Main',
