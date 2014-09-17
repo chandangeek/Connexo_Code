@@ -34,7 +34,9 @@ Ext.define('Usr.controller.Main', {
     ],
 
     init: function () {
-        var me = this;
+        var me = this,
+            historian = me.getController('Usr.controller.history.UserManagement'); // Forces route registration.
+
         me.initNavigation();
 
         var menuItem = Ext.create('Uni.model.MenuItem', {
