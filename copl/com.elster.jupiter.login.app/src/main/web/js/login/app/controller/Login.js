@@ -98,17 +98,29 @@ Ext.define('Login.controller.Login', {
     },
 
     loginOK: function () {
-        var params = Ext.urlDecode(location.search.substring(1));
+        var me = this,
+            params = me.getController('Uni.controller.history.Router').getQueryStringValues(),
+            page = params.page,
+            referrer = document.referrer;
 
-        // TODO Not use this hack for redirecting, instead use the menu options to show the default page.
-        if (params.page) {
-            if (location.hash == '') {
-                location.hash = '#/workspace';
-            }
-            window.location.replace(params.page + location.hash);
-        }
-        else {
-            window.location.replace('/apps/master/index.html#/workspace');
+        if (page) {
+            window.location.replace(page);
+        } else if (referrer) {
+            location.href = referrer;
+        } else {
+            Ext.require('Uni.store.Apps', function () {
+                Uni.store.Apps.load(function (apps) {
+                    if (typeof apps !== 'undefined' && apps.length > 0) {
+                        apps.forEach(function (app) {
+                            var url = app.data.url || '';
+
+                            if (url.indexOf('http://') !== 0 && url.indexOf('https://') !== 0) {
+                                window.location.replace(url);
+                            }
+                        });
+                    }
+                });
+            });
         }
 
         this.getLoginViewport().destroy();
