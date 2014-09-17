@@ -29,6 +29,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
@@ -156,10 +157,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
+                new ProtocolApiModule(),
                 new TasksModule(),
                 new PluggableModule(),
                 new ValidationModule(),
-//                new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
                 new ValidationModule(),
