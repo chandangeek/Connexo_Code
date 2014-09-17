@@ -1,4 +1,8 @@
-
+/**
+ * @class Uni.Auth
+ *
+ * Authorization class that checks whether the currently logged-in user has privileges or not.
+ */
 Ext.define('Uni.Auth', {
     singleton: true,
     requires: ['Uni.store.Privileges'],
@@ -19,17 +23,16 @@ Ext.define('Uni.Auth', {
         });
     },
 
-    hasNoPrivilege : function (privilege) {
-        for (var i=0; i<Uni.store.Privileges.getCount(); i++) {
+    hasPrivilege: function (privilege) {
+        for (var i = 0; i < Uni.store.Privileges.getCount(); i++) {
             if (privilege === Uni.store.Privileges.getAt(i).get('name')) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     },
 
-    hasPrivilege : function (privilege) {
-        return !this.hasNoPrivilege(privilege);
+    hasNoPrivilege: function (privilege) {
+        return !this.hasPrivilege(privilege);
     }
-
 });

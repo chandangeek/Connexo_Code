@@ -26,13 +26,20 @@ Ext.define('Uni.controller.history.EventBus', {
                 me.onHistoryChange(token);
             });
 
-            var token = Ext.util.History.getToken();
-            if (token === null || token === '') {
-                token = me.getDefaultToken();
-                Ext.util.History.add(token);
-            }
-            me.onHistoryChange(token);
+            me.checkHistoryState();
         });
+    },
+
+    checkHistoryState: function () {
+        var me = this,
+            token = Ext.util.History.getToken();
+
+        if (token === null || token === '') {
+            token = me.getDefaultToken();
+            Ext.util.History.add(token);
+        }
+
+        me.onHistoryChange(token);
     },
 
     onHistoryChange: function (token) {
