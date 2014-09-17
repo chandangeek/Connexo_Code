@@ -61,7 +61,6 @@ Ext.define('Cfg.controller.Main', {
         );
 
         this.initNavigation();
-        this.initDefaultHistoryToken();
         this.getApplication().on('cfginitialized', function () {
             this.getController('Cfg.controller.Validation').mdcIsActive = true;
         });
@@ -70,14 +69,6 @@ Ext.define('Cfg.controller.Main', {
     initNavigation: function () {
         var controller = this.getController('Uni.controller.Navigation');
         this.setNavigationController(controller);
-    },
-
-    initDefaultHistoryToken: function () {
-        var controller = this.getController('Cfg.controller.history.Validation'),
-            eventBus = this.getController('Uni.controller.history.EventBus'),
-            defaultToken = controller.tokenizeShowOverview();
-
-        eventBus.setDefaultToken(defaultToken);
     },
 
     showContent: function (widget) {
