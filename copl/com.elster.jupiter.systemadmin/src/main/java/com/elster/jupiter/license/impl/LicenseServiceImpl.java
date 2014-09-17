@@ -65,7 +65,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(userService.DEFAULT_ADMIN_ROLE, new String[] {Privileges.UPLOAD_LICENSE, Privileges.VIEW_LICENSE});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, new String[] {Privileges.UPLOAD_LICENSE, Privileges.VIEW_LICENSE});
     }
 
     @Reference
