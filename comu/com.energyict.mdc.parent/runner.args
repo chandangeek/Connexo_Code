@@ -44,7 +44,7 @@ mvn:org.glassfish.hk2/hk2-locator/2.2.0-b21
 mvn:org.glassfish.hk2.external/cglib/2.2.0-b21
 mvn:org.glassfish.hk2.external/asm-all-repackaged/2.2.0-b21
 mvn:joda-time/joda-time/2.1
-mvn:com.google.inject/guice/3.0
+mvn:com.google.inject/guice/4.0-beta4
 mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aopalliance/1.0_6
 mvn:org.osgi/org.osgi.compendium/4.3.1
 mvn:org.apache.cxf/cxf-api/2.7.8
