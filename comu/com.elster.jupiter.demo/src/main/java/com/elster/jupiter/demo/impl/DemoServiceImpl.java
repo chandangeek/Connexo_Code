@@ -77,7 +77,7 @@ public class DemoServiceImpl implements DemoService {
     public static final String OUTBOUND_TCP_POOL_NAME = "Outbound TCP Pool";
 
     public static final String COM_SCHEDULE_DAILY_READ_ALL = "Daily read all";
-    public static final String COM_SCHEDULE_MOUNTHLY_BILLING_DATA = "Mounthly billing data";
+    public static final String COM_SCHEDULE_MOUNTHLY_BILLING_DATA = "Monthly billing data";
 
     private static final String[] DEVICE_TYPES_NAMES = {"Elster AS1440", "Elster AS3000", "Landis+Gyr ZMD", "Actaris SL7000", "Siemens 7ED", "Iskra 382"};
 
