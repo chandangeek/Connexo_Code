@@ -53,6 +53,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -208,6 +209,8 @@ public class MultiThreadedScheduledComPortTest {
     @Mock
     private HexService hexService;
     @Mock
+    private EventService eventService;
+    @Mock
     private EventPublisherImpl eventPublisher;
     @Mock
     private ComSessionBuilder comSessionBuilder;
@@ -263,6 +266,7 @@ public class MultiThreadedScheduledComPortTest {
 
     public void setupServiceProvider() {
         ServiceProvider.instance.set(this.serviceProvider);
+        this.serviceProvider.setEventService(this.eventService);
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setUserService(this.userService);
         this.serviceProvider.setClock(this.clock);

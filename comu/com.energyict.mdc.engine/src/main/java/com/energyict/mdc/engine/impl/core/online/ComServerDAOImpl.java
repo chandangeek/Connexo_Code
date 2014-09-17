@@ -21,7 +21,9 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.impl.ConnectionTaskCompletionEventInfo;
 import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
@@ -341,116 +343,94 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionStarted(final ConnectionTask connectionTask, final ComServer comServer) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                toServerConnectionTask(connectionTask).executionStarted(comServer);
-                return null;
-            }
+        this.executeTransaction(() -> {
+            toServerConnectionTask(connectionTask).executionStarted(comServer);
+            return null;
         });
     }
 
     @Override
+    public void connectionFailed(ConnectionTask<?, ?> connectionTask, ComPort comPort, List<ComTaskExecution> comTaskExecutions) {
+        this.serviceProvider.eventService().
+                postEvent(
+                        EventType.DEVICE_CONNECTION_FAILURE.topic(),
+                        ConnectionTaskCompletionEventInfo.forFailure(connectionTask, comPort, comTaskExecutions));
+    }
+
+    @Override
     public void executionCompleted(final ConnectionTask connectionTask) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                toServerConnectionTask(connectionTask).executionCompleted();
-                return null;
-            }
+        this.executeTransaction(() -> {
+            toServerConnectionTask(connectionTask).executionCompleted();
+            return null;
         });
     }
 
     @Override
     public void executionFailed(final ConnectionTask connectionTask) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                toServerConnectionTask(connectionTask).executionFailed();
-                return null;
-            }
+        this.executeTransaction(() -> {
+            toServerConnectionTask(connectionTask).executionFailed();
+            return null;
         });
     }
 
     @Override
     public void executionStarted(final ComTaskExecution comTaskExecution, final ComPort comPort) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                toServerComTaskExecution(comTaskExecution).executionStarted(comPort);
-                return null;
-            }
+        this.executeTransaction(() -> {
+            toServerComTaskExecution(comTaskExecution).executionStarted(comPort);
+            return null;
         });
     }
 
     @Override
     public void executionCompleted(final ComTaskExecution comTaskExecution) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                toServerComTaskExecution(comTaskExecution).executionCompleted();
-                return null;
-            }
+        this.executeTransaction(() -> {
+            toServerComTaskExecution(comTaskExecution).executionCompleted();
+            return null;
         });
     }
 
     @Override
     public void executionCompleted(final List<? extends ComTaskExecution> comTaskExecutions) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-                    toServerComTaskExecution(comTaskExecution).executionCompleted();
-                }
-                return null;
+        this.executeTransaction(() -> {
+            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+                toServerComTaskExecution(comTaskExecution).executionCompleted();
             }
+            return null;
         });
     }
 
     @Override
     public void executionFailed(final ComTaskExecution comTaskExecution) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                toServerComTaskExecution(comTaskExecution).executionFailed();
-                return null;
-            }
+        this.executeTransaction(() -> {
+            toServerComTaskExecution(comTaskExecution).executionFailed();
+            return null;
         });
     }
 
     @Override
     public void executionFailed(final List<? extends ComTaskExecution> comTaskExecutions) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-                    toServerComTaskExecution(comTaskExecution).executionFailed();
-                }
-                return null;
+        this.executeTransaction(() -> {
+            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+                toServerComTaskExecution(comTaskExecution).executionFailed();
             }
+            return null;
         });
     }
 
     @Override
     public void releaseInterruptedTasks(final ComServer comServer) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                getDeviceDataService().releaseInterruptedConnectionTasks(comServer);
-                getDeviceDataService().releaseInterruptedComTasks(comServer);
-                return null;
-            }
+        this.executeTransaction(() -> {
+            getDeviceDataService().releaseInterruptedConnectionTasks(comServer);
+            getDeviceDataService().releaseInterruptedComTasks(comServer);
+            return null;
         });
     }
 
     @Override
     public TimeDuration releaseTimedOutTasks(final ComServer comServer) {
-        return this.executeTransaction(new Transaction<TimeDuration>() {
-            @Override
-            public TimeDuration perform() {
-                getDeviceDataService().releaseTimedOutConnectionTasks(comServer);
-                return getDeviceDataService().releaseTimedOutComTasks(comServer);
-            }
+        return this.executeTransaction(() -> {
+            getDeviceDataService().releaseTimedOutConnectionTasks(comServer);
+            return getDeviceDataService().releaseTimedOutComTasks(comServer);
         });
     }
 

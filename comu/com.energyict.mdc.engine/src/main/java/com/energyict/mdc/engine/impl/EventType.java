@@ -14,33 +14,27 @@ import com.elster.jupiter.orm.TransactionRequired;
  * @since 2014-05-14 (13:42)
  */
 public enum EventType {
-    DEVICE_CONNECTION_SETUP_FAILURE("connectiontasksetup/FAILURE") {
-        @Override
-        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
-            return super.addCustomProperties(eventTypeBuilder).
-                    withProperty("comPortName", ValueType.STRING, "comPortName").
-                    withProperty("comServerName", ValueType.STRING, "comServerName").
-                    withProperty("deviceIdentifier", ValueType.STRING, "deviceIdentifier").
-                    withProperty("connectionTypePluggableClassId", ValueType.LONG, "connectionTypePluggableClassId");
-        }
-    },
     DEVICE_CONNECTION_FAILURE("connectiontask/FAILURE") {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             return super.addCustomProperties(eventTypeBuilder).
-                    withProperty("comPortName", ValueType.STRING, "comPortName").
-                    withProperty("comServerName", ValueType.STRING, "comServerName").
-                    withProperty("deviceIdentifier", ValueType.STRING, "deviceIdentifier");
+                    withProperty("comPortId", ValueType.LONG, "comPortId").
+                    withProperty("comServerId", ValueType.LONG, "comServerId").
+                    withProperty("deviceId", ValueType.STRING, "deviceId").
+                    withProperty("connectionTaskId", ValueType.LONG, "connectionTaskId");
         }
     },
-    DEVICE_COMMUNICATION_FAILURE("comtask/FAILURE") {
+    DEVICE_CONNECTION_COMPLETION("connectiontask/COMPLETION") {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             return super.addCustomProperties(eventTypeBuilder).
-                    withProperty("comTaskId", ValueType.STRING, "comTaskId").
-                    withProperty("comPortName", ValueType.STRING, "comPortName").
-                    withProperty("comServerName", ValueType.STRING, "comServerName").
-                    withProperty("deviceIdentifier", ValueType.STRING, "deviceIdentifier");
+                    withProperty("comPortId", ValueType.LONG, "comPortId").
+                    withProperty("comServerId", ValueType.LONG, "comServerId").
+                    withProperty("deviceId", ValueType.LONG, "deviceId").
+                    withProperty("connectionTaskId", ValueType.LONG, "connectionTaskId").
+                    withProperty("successTaskIDs", ValueType.STRING, "successTaskIDs").
+                    withProperty("failedTaskIDs", ValueType.STRING, "failedTaskIDs").
+                    withProperty("skippedTaskIDs", ValueType.STRING, "skippedTaskIDs");
         }
     },
     UNKNOWN_INBOUND_DEVICE("inboundcommunication/UNKNOWNDEVICE") {

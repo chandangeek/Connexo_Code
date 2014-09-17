@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedJettyServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
@@ -36,6 +37,7 @@ public class FakeServiceProvider
     implements
         ServiceProvider,
         ComChannelBasedComPortListenerImpl.ServiceProvider,
+        AbstractComServerEventImpl.ServiceProvider,
         ExecutionContext.ServiceProvider,
         RequestParser.ServiceProvider,
         EmbeddedJettyServer.ServiceProvider,

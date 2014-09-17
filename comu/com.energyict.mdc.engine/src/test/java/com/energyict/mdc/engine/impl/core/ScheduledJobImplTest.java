@@ -23,6 +23,8 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilde
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
+import com.energyict.mdc.engine.impl.ConnectionTaskCompletionEventInfo;
+import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -53,6 +55,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
@@ -60,7 +63,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -87,7 +89,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 /**
- * Tests for the {@link com.energyict.mdc.engine.impl.core.ScheduledJobImpl} component
+ * Tests for the {@link ScheduledJobImpl} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 10/07/12
@@ -96,9 +98,12 @@ import static org.mockito.Mockito.withSettings;
 @RunWith(MockitoJUnitRunner.class)
 public class ScheduledJobImplTest {
 
-    private static final long COM_PORT_POOL_ID = 1;
-    private static final long CONNECTION_TASK_ID = COM_PORT_POOL_ID + 1;
+    private static final long COM_SERVER_ID = 1;
+    private static final long COM_PORT_POOL_ID = COM_SERVER_ID + 1;
+    private static final long COM_PORT_ID = COM_PORT_POOL_ID + 1;
+    private static final long CONNECTION_TASK_ID = COM_PORT_ID + 1;
     private static final long DEVICE_ID = CONNECTION_TASK_ID + 1;
+    private static final long COM_TASK_EXECUTION_ID = DEVICE_ID + 1;
 
     @Mock
     private OutboundComPortPool comPortPool;
@@ -143,6 +148,8 @@ public class ScheduledJobImplTest {
     @Mock
     private IssueService issueService;
     @Mock
+    private EventService eventService;
+    @Mock
     private Clock clock;
     @Mock
     private ThreadPrincipalService threadprincipalService;
@@ -153,6 +160,7 @@ public class ScheduledJobImplTest {
     @Before
     public void setupServiceProvider() {
         ServiceProvider.instance.set(this.serviceProvider);
+        this.serviceProvider.setEventService(this.eventService);
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setUserService(this.userService);
         this.serviceProvider.setClock(this.clock);
@@ -176,6 +184,7 @@ public class ScheduledJobImplTest {
 
     @Before
     public void setupEventPublisher () {
+        when(this.eventPublisher.serviceProvider()).thenReturn(this.serviceProvider);
         EventPublisherImpl.setInstance(this.eventPublisher);
     }
 
@@ -183,6 +192,7 @@ public class ScheduledJobImplTest {
     public void resetEventPublisher () {
         EventPublisherImpl.setInstance(null);
     }
+
     @Before
     public void initMocksAndFactories() throws BusinessException {
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
@@ -294,11 +304,7 @@ public class ScheduledJobImplTest {
     }
 
     @Test
-    public void testThatThreadInterruptSetsAppropriateSuccessIndicator()
-            throws
-            BusinessException,
-            SQLException,
-            ConnectionException, InterruptedException {
+    public void testThatThreadInterruptSetsAppropriateSuccessIndicator() throws ConnectionException, InterruptedException {
         OnlineComServer comServer = this.createMockOnlineComServer();
         final OutboundComPort comPort = this.createMockOutBoundComPort(comServer);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
@@ -362,8 +368,129 @@ public class ScheduledJobImplTest {
         assertThat(createComSession.getComSessionBuilder()).isNotNull();
     }
 
+    @Test
+    public void testThatConnectionCompletionPublishesEventForIssueModule() throws ConnectionException, InterruptedException {
+        OnlineComServer comServer = this.createMockOnlineComServer();
+        final OutboundComPort comPort = this.createMockOutBoundComPort(comServer);
+        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
+        when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
+        when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        Device device = this.createMockDevice(this.createMockOfflineDevice());
+        when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.connect(eq(comPort), anyList())).thenReturn(mock(ComChannel.class));
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
+        CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
+        DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
+        ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
+        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
+        when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
+        when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
+        when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
+        final ScheduledComTaskExecutionJob job = new ScheduledComTaskExecutionJob(comPort, comServerDAO, deviceCommandExecutor, scheduledComTask, this.serviceProvider);
+        BlockingQueue<ScheduledJob> blockingQueue = mock(BlockingQueue.class);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(this.transactionService, ComServer.LogLevel.TRACE, blockingQueue, this.deviceCommandExecutor, this.threadprincipalService, userService);
+        final CountDownLatch startLatch = new CountDownLatch(2);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        Runnable jobRunnable = new Runnable() {
+            @Override
+            public void run() {
+                jobExecutor.execute(job);
+                startLatch.countDown();
+            }
+        };
+        Thread jobThread = new Thread(jobRunnable);
+        jobThread.setName("ScheduledComTaskExecution for testThatConnectionCompletionPublishesEventForIssueModule");
+        jobThread.start();
+
+        // Trigger the job
+        startLatch.countDown();
+
+        // Wait until the job has prepared the work
+        startLatch.await();
+
+        // For for completion
+        deviceCommandExecutionStartedLatch.await();
+
+        // Asserts
+        ArgumentCaptor<ConnectionTaskCompletionEventInfo> captor = ArgumentCaptor.forClass(ConnectionTaskCompletionEventInfo.class);
+        verify(this.eventService).postEvent(eq(EventType.DEVICE_CONNECTION_COMPLETION.topic()), captor.capture());
+        ConnectionTaskCompletionEventInfo connectionTaskCompletionEventInfo = captor.getValue();
+        assertThat(connectionTaskCompletionEventInfo.getComPortId()).isEqualTo(comPort.getId());
+        assertThat(connectionTaskCompletionEventInfo.getComServerId()).isEqualTo(comServer.getId());
+        assertThat(connectionTaskCompletionEventInfo.getConnectionTaskId()).isEqualTo(connectionTask.getId());
+        assertThat(connectionTaskCompletionEventInfo.getDeviceId()).isEqualTo(device.getId());
+        assertThat(connectionTaskCompletionEventInfo.getFailedTaskIDs()).isEmpty();
+        assertThat(connectionTaskCompletionEventInfo.getSkippedTaskIDs()).isEmpty();
+        assertThat(connectionTaskCompletionEventInfo.getSuccessTaskIDs()).contains(String.valueOf(COM_TASK_EXECUTION_ID));
+    }
+
+    @Test
+    public void testThatConnectionFailurePublishesEventForIssueModule() throws ConnectionException, InterruptedException {
+        OnlineComServer comServer = this.createMockOnlineComServer();
+        final OutboundComPort comPort = this.createMockOutBoundComPort(comServer);
+        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
+        when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
+        when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        Device device = this.createMockDevice(this.createMockOfflineDevice());
+        when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.connect(eq(comPort), anyList())).thenReturn(mock(ComChannel.class));
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
+        CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
+        DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
+        ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
+        ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
+        when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
+        when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
+        when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
+        when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
+        final AlwaysFailComTaskExecutionJob job = new AlwaysFailComTaskExecutionJob(comPort, comServerDAO, deviceCommandExecutor, scheduledComTask, this.serviceProvider);
+        BlockingQueue<ScheduledJob> blockingQueue = mock(BlockingQueue.class);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(this.transactionService, ComServer.LogLevel.TRACE, blockingQueue, this.deviceCommandExecutor, this.threadprincipalService, userService);
+        final CountDownLatch startLatch = new CountDownLatch(2);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        Runnable jobRunnable = new Runnable() {
+            @Override
+            public void run() {
+                jobExecutor.execute(job);
+                startLatch.countDown();
+            }
+        };
+        Thread jobThread = new Thread(jobRunnable);
+        jobThread.setName("ScheduledComTaskExecution for testThatConnectionFailurePublishesEventForIssueModule");
+        jobThread.start();
+
+        // Trigger the job
+        startLatch.countDown();
+
+        // Wait until the job has prepared the work
+        startLatch.await();
+
+        // For for completion
+        deviceCommandExecutionStartedLatch.await();
+
+        // Asserts
+        ArgumentCaptor<ConnectionTaskCompletionEventInfo> captor = ArgumentCaptor.forClass(ConnectionTaskCompletionEventInfo.class);
+        verify(this.eventService).postEvent(eq(EventType.DEVICE_CONNECTION_COMPLETION.topic()), captor.capture());
+        ConnectionTaskCompletionEventInfo connectionTaskCompletionEventInfo = captor.getValue();
+        assertThat(connectionTaskCompletionEventInfo.getComPortId()).isEqualTo(comPort.getId());
+        assertThat(connectionTaskCompletionEventInfo.getComServerId()).isEqualTo(comServer.getId());
+        assertThat(connectionTaskCompletionEventInfo.getConnectionTaskId()).isEqualTo(connectionTask.getId());
+        assertThat(connectionTaskCompletionEventInfo.getDeviceId()).isEqualTo(device.getId());
+        assertThat(connectionTaskCompletionEventInfo.getFailedTaskIDs()).contains(String.valueOf(COM_TASK_EXECUTION_ID));
+        assertThat(connectionTaskCompletionEventInfo.getSkippedTaskIDs()).isEmpty();
+        assertThat(connectionTaskCompletionEventInfo.getSuccessTaskIDs()).isEmpty();
+    }
+
     private ServerComTaskExecution createMockServerScheduledComTask(Device device, ConnectionTask connectionTask, ComTask comTask, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
         ManuallyScheduledComTaskExecution scheduledComTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ServerComTaskExecution.class));
+        when(scheduledComTask.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(scheduledComTask.getDevice()).thenReturn(device);
         when(scheduledComTask.getConnectionTask()).thenReturn(connectionTask);
         when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
@@ -393,12 +520,14 @@ public class ScheduledJobImplTest {
     private OutboundComPort createMockOutBoundComPort(ComServer comServer) {
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
+        when(comPort.getId()).thenReturn(COM_PORT_ID);
         when(comPort.getName()).thenReturn("ScheduledJobImplTest");
         return comPort;
     }
 
     private OnlineComServer createMockOnlineComServer() {
         OnlineComServer comServer = mock(OnlineComServer.class);
+        when(comServer.getId()).thenReturn(COM_SERVER_ID);
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         return comServer;
@@ -501,11 +630,16 @@ public class ScheduledJobImplTest {
         }
     }
 
-    private class NoopScheduledJobExecutionEventListener implements ScheduledJobExecutionEventListener {
+    private class AlwaysFailComTaskExecutionJob extends ScheduledComTaskExecutionJob {
+        private AlwaysFailComTaskExecutionJob(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
+            super(comPort, comServerDAO, deviceCommandExecutor, comTaskExecution, serviceProvider);
+        }
 
         @Override
-        public void executionStarted(ScheduledJob job) {
-            // Designed to ignore
+        boolean execute(PreparedComTaskExecution preparedComTaskExecution) {
+            throw new RuntimeException("For unit testing purposes only");
         }
+
     }
+
 }
