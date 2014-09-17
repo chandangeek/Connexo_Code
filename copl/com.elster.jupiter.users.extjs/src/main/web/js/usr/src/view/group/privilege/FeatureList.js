@@ -6,7 +6,8 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Usr.store.Resources',
-        'Usr.view.group.privilege.FeatureActionMenu'
+        'Usr.view.group.privilege.FeatureActionMenu',
+        'Uni.grid.column.Action'
     ],
 
     store: 'Usr.store.Resources',

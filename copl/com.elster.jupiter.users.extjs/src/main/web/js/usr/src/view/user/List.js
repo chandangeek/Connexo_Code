@@ -7,7 +7,8 @@ Ext.define('Usr.view.user.List', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Usr.store.Users',
-        'Usr.view.user.UserActionMenu'
+        'Usr.view.user.UserActionMenu',
+        'Uni.grid.column.Action'
     ],
 
     store: 'Usr.store.Users',

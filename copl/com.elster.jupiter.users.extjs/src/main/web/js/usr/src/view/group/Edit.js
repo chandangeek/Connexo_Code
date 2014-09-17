@@ -1,12 +1,14 @@
 Ext.define('Usr.view.group.Edit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.groupEdit',
+
     requires: [
         'Usr.store.Resources',
         'Uni.view.form.CheckboxGroup',
         'Ext.button.Button',
         'Usr.view.group.privilege.ApplicationList',
-        'Usr.view.group.privilege.FeatureList'
+        'Usr.view.group.privilege.FeatureList',
+        'Uni.util.Hydrator'
     ],
 
     edit: false,
@@ -108,7 +110,8 @@ Ext.define('Usr.view.group.Edit', {
                     }
                 ]
             }
-        ]
+        ];
+
         this.callParent(arguments);
 
         if (this.isEdit()) {

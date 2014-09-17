@@ -21,8 +21,8 @@ Ext.define('Usr.controller.history.UserManagement', {
                             route: '{id}/edit',
                             controller: 'Usr.controller.GroupEdit',
                             action: 'showEditOverview',
-                            callback: function(route) {
-                                this.getApplication().on('editRole', function(record) {
+                            callback: function (route) {
+                                this.getApplication().on('editRole', function (record) {
                                     route.setTitle(Uni.I18n.translate('general.edit', 'USM', 'Edit') + ' \'' + record.get('name') + '\'');
                                     return true;
                                 }, {single: true});
@@ -48,8 +48,8 @@ Ext.define('Usr.controller.history.UserManagement', {
                             route: '{id}/edit',
                             controller: 'Usr.controller.UserEdit',
                             action: 'showEditOverview',
-                            callback: function(route) {
-                                this.getApplication().on('editUser', function(record) {
+                            callback: function (route) {
+                                this.getApplication().on('editUser', function (record) {
                                     route.setTitle(Uni.I18n.translate('general.edit', 'USM', 'Edit') + ' \'' + record.get('authenticationName') + '\'');
                                     return true;
                                 }, {single: true});

@@ -3,6 +3,7 @@ Ext.define('Usr.view.group.Browse', {
     alias: 'widget.groupBrowse',
     itemId: 'groupBrowse',
     overflowY: 'auto',
+
     requires: [
         'Usr.view.group.List',
         'Usr.view.group.Details',

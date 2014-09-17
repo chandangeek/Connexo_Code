@@ -1,7 +1,9 @@
 Ext.define('Usr.controller.UserEdit', {
     extend: 'Ext.app.Controller',
+
     requires: [
     ],
+
     stores: [
         'Usr.store.Groups',
         'Usr.store.Users',
@@ -34,7 +36,7 @@ Ext.define('Usr.controller.UserEdit', {
     },
 
     showEditOverviewWithHistory: function (groupId) {
-        location.href = '#usermanagement/users/' + groupId + '/edit';
+        location.href = '#/usermanagement/users/' + groupId + '/edit';
     },
 
     /**
@@ -48,6 +50,7 @@ Ext.define('Usr.controller.UserEdit', {
         this.backUrl = this.getApplication().getController('Usr.controller.history.UserManagement').tokenizePreviousTokens();
 
         this.getApplication().getController('Usr.controller.Main').showContent(widget);
+
         widget.hide();
         widget.setLoading(true);
 

@@ -6,7 +6,8 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Usr.store.Applications',
-        'Usr.view.group.privilege.ApplicationActionMenu'
+        'Usr.view.group.privilege.ApplicationActionMenu',
+        'Uni.grid.column.Action'
     ],
 
     store: 'Usr.store.Applications',
