@@ -20,6 +20,10 @@ Ext.define('Dsh.view.widget.FilterPanel', {
         }
     ],
 
+    loadRecord: function (record) {
+        this.record = record;
+    },
+
     addFilterBtn: function (name, propName, value) {
         var me = this,
             filterBar = me.down('filter-toolbar').getContainer(),
