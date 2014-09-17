@@ -41,7 +41,7 @@ Ext.define('Uni.component.filter.model.Filter', {
         this.associations.each(function (association) {
             switch (association.type) {
                 case 'hasOne':
-                    data[association.name] = me.extractHasOne(me.get(association.name), association);
+                    data[association.name] = me.extractHasOne(me[association.getterName](), association);
                     break;
                 case 'hasMany':
                     data[association.name] = me.extractHasMany(me[association.name](), association);

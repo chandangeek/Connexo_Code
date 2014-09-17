@@ -25,7 +25,8 @@ Ext.define('Uni.property.form.Property', {
     hydrator: 'Uni.property.form.PropertyHydrator',
     border: 0,
     requires: [
-        'Uni.property.controller.Registry'
+        'Uni.property.controller.Registry',
+        'Uni.property.form.PropertyHydrator'
     ],
     defaults: {
         labelWidth: 250,

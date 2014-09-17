@@ -106,6 +106,11 @@ Ext.define('Uni.controller.history.Router', {
     queryParams: {},
 
     /**
+     * Filter instance
+     */
+    filter: null,
+
+    /**
      * Add router configuration
      * @param config
      */
@@ -206,7 +211,8 @@ Ext.define('Uni.controller.history.Router', {
                     arguments
                 );
 
-                var arguments = _.values(_.extend(me.arguments, params));
+                var routeArguments = _.values(_.extend(me.arguments, params));
+
                 if (Ext.isDefined(config.redirect)) {
                     // perform redirect on route match
                     if (Ext.isObject(config.redirect)) {
@@ -220,10 +226,24 @@ Ext.define('Uni.controller.history.Router', {
                 } else {
                     // fire the controller action with this route params as arguments
                     var controller = me.getController(config.controller);
-                    controller[action].apply(controller, arguments);
-                }
 
-                me.fireEvent('routematch', me);
+                    var dispatch = function() {
+                        me.fireEvent('routematch', me);
+                        controller[action].apply(controller, routeArguments);
+                    };
+
+                    // load filter
+                    if (config.filter) {
+                        Ext.ModelManager.getModel(config.filter).load(null, {
+                            callback: function (record) {
+                                me.filter = record || new Dsh.model.Filter();
+                                dispatch();
+                            }
+                        });
+                    } else {
+                        dispatch();
+                    }
+                }
             });
         }
 

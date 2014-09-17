@@ -4,7 +4,7 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
     router: null,
 
     requires: [
-        'Uni.controller.history.Router'
+        'Uni.util.History'
     ],
 
     constructor: function (config) {
@@ -13,7 +13,7 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         if (config.hydrator) {
             this.hydrator = Ext.create(config.hydrator);
         }
-        this.router = config.router || Uni.controller.history.Router;
+        this.router = config.router || Uni.util.History.getRouterController();
     },
 
     create: function () {
@@ -28,16 +28,14 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         var me = this,
             router = me.router,
             Model = me.model,
-            id = operation.id
-            ;
+            id = operation.id;
 
         operation.setStarted();
 
         if (!_.isUndefined(router.queryParams[me.root])) {
             var data = Ext.JSON.decode(router.queryParams[me.root]),
                 modelData = _.object(_.pluck(data, 'property'), _.pluck(data, 'value')),
-                record
-                ;
+                record;
 
             if (this.hydrator) {
                 record = new Model();
@@ -85,9 +83,8 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         operation.setStarted();
 
         var data = this.hydrator
-                ? this.hydrator.extract(model)
-                : model.getData(model)
-            ;
+            ? this.hydrator.extract(model)
+            : model.getData(model);
 
         _.map(data, function (item, key) {
             if (!Ext.isEmpty(item)) {
