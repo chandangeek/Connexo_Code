@@ -10,7 +10,13 @@ Ext.define('Dsh.controller.Connections', {
 
     stores: [
         'Dsh.store.ConnectionTasks',
-        'Dsh.store.CommunicationTasks'
+        'Dsh.store.CommunicationTasks',
+        'Dsh.store.filter.CurrentState',
+        'Dsh.store.filter.LatestStatus',
+        'Dsh.store.filter.LatestResult',
+        'Dsh.store.filter.CommPortPool',
+        'Dsh.store.filter.ConnectionType',
+        'Dsh.store.filter.DeviceType'
     ],
 
     views: [
@@ -51,7 +57,7 @@ Ext.define('Dsh.controller.Connections', {
         },
         {
             ref: 'sideFilterForm',
-            selector: '#dshconnectionssidefilter form'
+            selector: '#dshconnectionssidefilter nested-form'
         }
     ],
 
@@ -68,6 +74,9 @@ Ext.define('Dsh.controller.Connections', {
             },
             '#dshconnectionsfilterpanel button[action=clear]': {
                 click: this.clearFilter
+            },
+            '#dshconnectionssidefilter nested-form': {
+                fieldfirstload: this.fieldFirstload
             }
         });
         this.callParent(arguments);
@@ -75,24 +84,32 @@ Ext.define('Dsh.controller.Connections', {
 
     showOverview: function () {
         var widget = Ext.widget('connections-details');
+        this.getApplication().fireEvent('changecontentevent', widget);
         var router = this.getController('Uni.controller.history.Router');
         this.getSideFilterForm().loadRecord(router.filter);
-//        this.getFilterPanel().loadRecord(router.filter);
-
-        this.getApplication().fireEvent('changecontentevent', widget);
+        this.getFilterPanel().loadRecord(router.filter);
 
         var store = this.getStore('Dsh.store.ConnectionTasks');
         var data = router.filter.getData();
-
         // todo: refactor this
-        _.map(data, function(item, key) {
+        _.map(data, function (item, key) {
             if (item) {
                 store.remoteFilter = true;
                 store.addFilter(new Ext.util.Filter({property: key, value: item}));
             }
         });
-
         store.load();
+    },
+
+    fieldFirstload: function (field) {
+        var me = this,
+            filterPanel = me.getFilterPanel(),
+            name = field.getName(),
+            label = field.getFieldLabel(),
+            value = field.getRawValue();
+        if (value) {
+            filterPanel.addFilterBtn(name, label, value)
+        }
     },
 
     onCommunicationSelectionChange: function (grid, selected) {
@@ -110,35 +127,37 @@ Ext.define('Dsh.controller.Connections', {
 
     onSelectionChange: function (grid, selected) {
         var me = this,
-            record = selected[0],
             preview = me.getConnectionPreview(),
-            commTasksData = record.get('communicationTasks').communicationsTasks,
-            commTasks = Ext.create('Ext.data.Store', {model: 'Dsh.model.CommunicationTask', data: commTasksData});
-        preview.loadRecord(record);
-        preview.setTitle(record.get('title'));
-        me.getCommunicationContainer().removeAll(true);
-        me.getCommunicationContainer().add({
-            xtype: 'preview-container',
-            grid: {
-                xtype: 'communications-list',
-                itemId: 'communicationsdetails',
-                store: commTasks
-            },
-            emptyComponent: {
-                xtype: 'no-items-found-panel',
-                title: Uni.I18n.translate('communication.widget.details.empty.title', 'DSH', 'No communications foundю'),
-                reasons: [
-                    Uni.I18n.translate('communication.widget.details.empty.list.item1', 'DSH', 'No communications in the system.'),
-                    Uni.I18n.translate('communication.widget.details.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
-                ]
-            },
-            previewComponent: {
-                xtype: 'preview_communication',
-                itemId: 'communicationpreview'
-            }
-        });
-        me.getCommTasksTitle().setTitle(Uni.I18n.translate('communication.widget.details.commTasksOf', 'DSH', 'Communication tasks of') + ' ' + record.get('title'));
-        me.getCommunicationList().getSelectionModel().select(0);
+            record = selected[0];
+        if (record) {
+            var commTasksData = record.get('communicationTasks').communicationsTasks,
+                commTasks = Ext.create('Ext.data.Store', {model: 'Dsh.model.CommunicationTask', data: commTasksData});
+            preview.loadRecord(record);
+            preview.setTitle(record.get('title'));
+            me.getCommunicationContainer().removeAll(true);
+            me.getCommunicationContainer().add({
+                xtype: 'preview-container',
+                grid: {
+                    xtype: 'communications-list',
+                    itemId: 'communicationsdetails',
+                    store: commTasks
+                },
+                emptyComponent: {
+                    xtype: 'no-items-found-panel',
+                    title: Uni.I18n.translate('communication.widget.details.empty.title', 'DSH', 'No communications foundю'),
+                    reasons: [
+                        Uni.I18n.translate('communication.widget.details.empty.list.item1', 'DSH', 'No communications in the system.'),
+                        Uni.I18n.translate('communication.widget.details.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
+                    ]
+                },
+                previewComponent: {
+                    xtype: 'preview_communication',
+                    itemId: 'communicationpreview'
+                }
+            });
+            me.getCommTasksTitle().setTitle(Uni.I18n.translate('communication.widget.details.commTasksOf', 'DSH', 'Communication tasks of') + ' ' + record.get('title'));
+            me.getCommunicationList().getSelectionModel().select(0);
+        }
     },
 
     applyFilter: function () {
@@ -147,6 +166,6 @@ Ext.define('Dsh.controller.Connections', {
     },
 
     clearFilter: function () {
-        this.getSideFilterForm().getRecord().destroy();
+        this.getSideFilterForm().getRecord().getProxy().destroy();
     }
 });

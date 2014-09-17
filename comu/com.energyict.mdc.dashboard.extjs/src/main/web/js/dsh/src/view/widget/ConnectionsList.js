@@ -149,7 +149,8 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                     show: function () {
                         var rowEl = Ext.get(ResultTip.triggerElement).up('tr'),
                             latestResult = view.getRecord(rowEl).get('latestResult');
-                        if (!latestResult.retries) {
+                        if (latestResult.retries) {
+                            ResultTip.update(latestResult.retries + ' ' + Uni.I18n.translate('connection.widget.details.retries', 'DSH', 'retries'));
                             ResultTip.hide()
                         }
                     }

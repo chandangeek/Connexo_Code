@@ -1,8 +1,9 @@
 Ext.define('Dsh.model.Filter', {
     extend: 'Ext.data.Model',
+    requres: ['Uni.data.proxy.QueryStringProxy'],
     proxy: Ext.create('Uni.data.proxy.QueryStringProxy', { root: 'filter' }),
     fields: [
-        { name: 'deviceGroup', type: 'auto' },
+        //       { name: 'deviceGroup', type: 'auto' },
         { name: 'state', type: 'auto' },
         { name: 'latestStatus', type: 'auto' },
         { name: 'latestResult', type: 'auto' },
