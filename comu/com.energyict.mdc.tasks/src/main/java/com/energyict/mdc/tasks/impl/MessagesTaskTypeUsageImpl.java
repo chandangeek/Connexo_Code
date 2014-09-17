@@ -6,7 +6,8 @@ import com.energyict.mdc.tasks.ProtocolTask;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.google.inject.Inject;
+
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link MessagesTaskTypeUsage} interface.
