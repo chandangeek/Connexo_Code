@@ -138,10 +138,10 @@ public class LoadProfileResource {
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         if (intervalStart!=null && intervalEnd!=null) {
             List<LoadProfileReading> loadProfileData = loadProfile.getChannelData(new Interval(new Date(intervalStart), new Date(intervalEnd)));
-            List<LoadProfileReading> paginatedLoadProfileData = ListPager.of(loadProfileData).from(queryParameters).find();
-            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(paginatedLoadProfileData, thesaurus, clock, evaluator);
+            List<LoadProfileDataInfo> infos = LoadProfileDataInfo.from(loadProfileData, thesaurus, clock, evaluator);
             infos = filter(infos, uriInfo.getQueryParameters());
-            PagedInfoList pagedInfoList = PagedInfoList.asJson("data", infos, queryParameters);
+            List<LoadProfileDataInfo> paginatedLoadProfileData = ListPager.of(infos).from(queryParameters).find();
+            PagedInfoList pagedInfoList = PagedInfoList.asJson("data", paginatedLoadProfileData, queryParameters);
             return Response.ok(pagedInfoList).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
