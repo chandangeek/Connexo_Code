@@ -5,15 +5,12 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.google.common.base.Optional;
 
 import java.util.Date;
 
 public interface IMeterActivationValidation extends MeterActivationValidation {
 
     ChannelValidation addChannelValidation(Channel channel);
-
-    Optional<ChannelValidation> getChannelValidation(Channel channel);
 
     void setRuleSet(ValidationRuleSet ruleSet);
 
