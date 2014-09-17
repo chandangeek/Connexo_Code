@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-
 import javax.inject.Inject;
 
 public class MeterValidationImpl {

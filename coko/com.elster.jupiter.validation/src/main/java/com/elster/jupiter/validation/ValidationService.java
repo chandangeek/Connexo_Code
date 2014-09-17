@@ -1,12 +1,13 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
