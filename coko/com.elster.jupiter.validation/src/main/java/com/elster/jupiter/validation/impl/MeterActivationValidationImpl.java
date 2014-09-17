@@ -230,12 +230,11 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     private ChannelValidationImpl findValidationFor(final Channel channel) {
-        for (ChannelValidation channelValidation : getChannelValidations()) {
-            if (channelValidation.getChannel().equals(channel)) {
-                return (ChannelValidationImpl) channelValidation;
-            }
-        }
-        return null;
+        return getChannelValidations().stream()
+                .filter(c -> c.getChannel().getId() == channel.getId())
+                .map(ChannelValidationImpl.class::cast)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
