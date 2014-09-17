@@ -82,7 +82,7 @@ Ext.define('Dsh.controller.Connections', {
         this.callParent(arguments);
     },
 
-    onFilterChange: function(combo, value) {
+    onFilterChange: function(combo) {
         var me = this,
             filterPanel = me.getFilterPanel();
 
@@ -95,7 +95,6 @@ Ext.define('Dsh.controller.Connections', {
         var router = this.getController('Uni.controller.history.Router');
 
         this.getSideFilterForm().loadRecord(router.filter);
-        this.getFilterPanel().loadRecord(router.filter);
 
         var store = this.getStore('Dsh.store.ConnectionTasks');
         var data = router.filter.getData();

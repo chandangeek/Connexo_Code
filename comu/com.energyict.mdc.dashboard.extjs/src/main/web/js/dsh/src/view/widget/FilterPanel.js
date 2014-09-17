@@ -19,27 +19,6 @@ Ext.define('Dsh.view.widget.FilterPanel', {
             xtype: 'menuseparator'
         }
     ],
-    valueStores : {
-        state: 'Dsh.store.filter.CurrentState',
-        latestStatus: 'Dsh.store.filter.LatestStatus',
-        latestResult: 'Dsh.store.filter.LatestResult',
-        comPortPool: 'Dsh.store.filter.CommPortPool',
-        connectionType: 'Dsh.store.filter.ConnectionType',
-        deviceType: 'Dsh.store.filter.DeviceType'
-    },
-
-    loadRecord: function (record) {
-        var me = this,
-            paramsCount = 0,
-            data = record.getData();
-        for (key in data) {
-            if (!_.isEmpty(data[key])) {
-                ++paramsCount;
-            }
-        }
-        paramsCount < 1 ? me.hide() : me.show();
-        me.record = record;
-    },
 
     addFilterBtn: function (name, propName, value) {
         var me = this,
@@ -48,11 +27,15 @@ Ext.define('Dsh.view.widget.FilterPanel', {
                 text: propName + ': ' + value,
                 name: name,
                 value: value
-            });
+            })
+        ;
+
         btn.on('closeclick', function (btn) {
             me.record.set(btn.name, '');
-            me.record.save()
+            me.record.save();
         });
-        filterBar.add(btn)
+
+        filterBar.add(btn);
+        me.show();
     }
 });
