@@ -1,5 +1,10 @@
 package com.elster.jupiter.parties.impl;
 
+import java.util.Date;
+import java.util.List;
+
+import javax.validation.constraints.NotNull;
+
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.parties.Party;
@@ -9,11 +14,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
-
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -30,14 +31,15 @@ class PartyRoleImpl implements PartyRole {
 	private UtcInstant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
-
+	
 	private final DataModel dataModel;
-
+	
 	@Inject
 	PartyRoleImpl(DataModel dataModel) {
 		this.dataModel = dataModel;
 	}
-
+	
+	
 	PartyRoleImpl init(String componentName , @NotNull String mRID , String name , String aliasName , String description) {
         validate(mRID);
 		this.componentName = componentName;
@@ -47,12 +49,12 @@ class PartyRoleImpl implements PartyRole {
 		this.description = description;
 		return this;
 	}
-
+	
 	static PartyRoleImpl from(DataModel dataModel, String componentName, String mRID, String name, String aliasName, String description) {
 		return dataModel.getInstance(PartyRoleImpl.class).init(componentName, mRID, name, aliasName, description);
 	}
-
-    private void validate(String mRID) {
+	
+    private void validate(String mRID) { 
         if (is(mRID).emptyOrOnlyWhiteSpace()) {
             throw new IllegalArgumentException("mRID of PartyRole cannot be null");
         }
@@ -72,7 +74,7 @@ class PartyRoleImpl implements PartyRole {
 	public String getName() {
 		return name;
 	}
-
+	
 	@Override
 	public String getAliasName() {
 		return aliasName;
@@ -138,11 +140,11 @@ class PartyRoleImpl implements PartyRole {
 
 	@Override
 	public List<Party> getParties(Date effectiveDate) {
-		return getParties(Optional.of(effectiveDate));
+		return getParties(Optional.of(effectiveDate));			
 	}
-
+	
 	private List<Party> getParties(Optional<Date> effectiveDate) {
-		Condition condition =
+		Condition condition = 
 			Where.where("partyInRoles.interval").isEffective().and(
 			Where.where("partyInRoles.role").isEqualTo(this));
 		QueryExecutor<Party> query = dataModel.query(Party.class,PartyInRole.class);
@@ -151,6 +153,6 @@ class PartyRoleImpl implements PartyRole {
 		}
 		return query.select(condition);
 	}
-
+	
 
 }
