@@ -7,9 +7,6 @@ public class DeviceValidationStatusInfo {
     public boolean isActive;
     public Long lastChecked;
     public boolean hasValidation;
-    public Integer registerSuspectCount = 0;
-    public Integer loadProfileSuspectCount = 0;
-    public Boolean allDataValidated = false;
 
     public DeviceValidationStatusInfo() {
     }
