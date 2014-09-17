@@ -147,7 +147,6 @@ Ext.define('Mdc.controller.Main', {
     init: function () {
         var me = this;
 
-
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: Uni.I18n.translate('device.devices', 'DVI', 'Devices'),
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
@@ -155,6 +154,7 @@ Ext.define('Mdc.controller.Main', {
             portal: 'devices',
             index: 20
         });
+
         Uni.store.MenuItems.add(menuItem);
 
         var portalItem = Ext.create('Uni.model.PortalItem', {
@@ -174,7 +174,6 @@ Ext.define('Mdc.controller.Main', {
             portalItem
         );
 
-
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
             href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
@@ -182,6 +181,7 @@ Ext.define('Mdc.controller.Main', {
             glyph: 'settings',
             index: 10
         });
+
         Uni.store.MenuItems.add(menuItem);
 
         var deviceManagementItem = Ext.create('Uni.model.PortalItem', {
@@ -256,22 +256,11 @@ Ext.define('Mdc.controller.Main', {
         );
 
         this.initNavigation();
-        this.initDefaultHistoryToken();
         this.getApplication().fireEvent('cfginitialized');
     },
 
     initNavigation: function () {
         var controller = this.getController('Uni.controller.Navigation');
         this.setNavigationController(controller);
-    },
-
-    initDefaultHistoryToken: function () {
-        var setupController = this.getController('Mdc.controller.history.Setup'),
-            eventBus = this.getController('Uni.controller.history.EventBus'),
-            defaultToken = setupController.tokenizeShowOverview();
-
-        eventBus.setDefaultToken(defaultToken);
     }
-
-
 });
