@@ -7,7 +7,8 @@ Ext.define('Usr.view.group.List', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Usr.store.Groups',
-        'Usr.view.group.GroupActionMenu'
+        'Usr.view.group.GroupActionMenu',
+        'Uni.grid.column.Action'
     ],
 
     store: 'Usr.store.Groups',
