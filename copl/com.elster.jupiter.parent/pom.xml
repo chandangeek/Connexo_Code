@@ -64,7 +64,12 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>net.jcip</groupId>
+                <groupId>javax.annotation</groupId>
+                <artifactId>jsr250-api</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+            <groupId>net.jcip</groupId>
                 <artifactId>jcip-annotations</artifactId>
                 <version>1.0</version>
                 <scope>provided</scope>
@@ -95,7 +100,13 @@
                 <version>2.5</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
+                <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+                <artifactId>jersey-test-framework-provider-inmemory</artifactId>
+                <version>2.5</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+            <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-core-asl</artifactId>
                 <version>1.9.13</version>
             </dependency>
@@ -113,6 +124,32 @@
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-xc</artifactId>
                 <version>1.9.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>5.0.1.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.web</groupId>
+                <artifactId>javax.el</artifactId>
+                <version>2.2.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>hk2-api</artifactId>
+                <version>2.2.0-b21</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <scope>provided</scope>
+                <version>2.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.util.base64</groupId>
+                <artifactId>base64</artifactId>
+                <version>2.0.0</version>
             </dependency>
 
             <dependency>
@@ -149,6 +186,18 @@
                 <groupId>org.easytesting</groupId>
                 <artifactId>fest-util</artifactId>
                 <version>1.2.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.easytesting</groupId>
+                <artifactId>fest-assert-core</artifactId>
+                <version>2.0M10</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.easytesting</groupId>
+                <artifactId>fest-assert</artifactId>
+                <version>1.2</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
