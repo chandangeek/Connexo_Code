@@ -17,17 +17,28 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 9/4/14.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionSummaryDataTest {
+public class SummaryDataTest {
 
     @Test
-    public void testSummaryCalculation() throws Exception {
-        ConnectionSummaryData data = new ConnectionSummaryData(createConnectionStatusOverview(), 99L);
+    public void testSummaryCalculationWithSuccessDetails() throws Exception {
+        SummaryData data = new SummaryData(createConnectionStatusOverview(), 99L);
         assertThat(data.getFailed()).isEqualTo(56);
         assertThat(data.getPending()).isEqualTo(472);
         assertThat(data.getSuccess()).isEqualTo(113);
         assertThat(data.getTotal()).isEqualTo(411+19+15+113+42+41);
         assertThat(data.getAtLeastOneTaskFailed()).isEqualTo(99);
         assertThat(data.getAllTasksSuccessful()).isEqualTo(14);
+    }
+
+    @Test
+    public void testSummaryCalculation() throws Exception {
+        SummaryData data = new SummaryData(createConnectionStatusOverview());
+        assertThat(data.getFailed()).isEqualTo(56);
+        assertThat(data.getPending()).isEqualTo(472);
+        assertThat(data.getSuccess()).isEqualTo(113);
+        assertThat(data.getTotal()).isEqualTo(411+19+15+113+42+41);
+        assertThat(data.getAtLeastOneTaskFailed()).isNull();
+        assertThat(data.getAllTasksSuccessful()).isNull();
     }
 
     private TaskStatusOverview createConnectionStatusOverview() {

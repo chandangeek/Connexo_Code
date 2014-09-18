@@ -6,7 +6,6 @@ import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DashboardCounters;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -16,14 +15,6 @@ import javax.inject.Inject;
 public class OverviewFactory {
 
     private final Thesaurus thesaurus;
-
-    public static final Comparator<TaskCounterInfo> TASK_COUNTER_INFO_COMPARATOR = new Comparator<TaskCounterInfo>() {
-        @Override
-        public int compare(TaskCounterInfo o1, TaskCounterInfo o2) {
-            return -Long.valueOf(o1.count).compareTo(o2.count);
-        }
-    };
-
 
     @Inject
     public OverviewFactory(Thesaurus thesaurus) {
@@ -48,8 +39,6 @@ public class OverviewFactory {
     }
 
     public void sortAllOverviews(List<TaskSummaryInfo> overviews) {
-        for (TaskSummaryInfo overview : overviews) {
-            Collections.sort(overview.counters, TASK_COUNTER_INFO_COMPARATOR);
-        }
+        overviews.stream().forEach(overview->Collections.sort(overview.counters, (o1, o2) -> -Long.valueOf(o1.count).compareTo(o2.count)));
     }
 }

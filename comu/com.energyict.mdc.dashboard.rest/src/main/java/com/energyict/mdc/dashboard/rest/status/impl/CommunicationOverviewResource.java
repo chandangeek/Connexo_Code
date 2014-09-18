@@ -41,12 +41,14 @@ public class CommunicationOverviewResource {
     @RolesAllowed(Privileges.VIEW_COMSERVER)
     public CommunicationOverviewInfo getCommunicationOverview() throws Exception {
         TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview();
+        SummaryData summaryData = new SummaryData(taskStatusOverview);
         ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview();
         ComScheduleBreakdown comScheduleBreakdown = dashboardService.getCommunicationTasksComScheduleBreakdown();
         ComTaskBreakdown comTaskBreakdown = dashboardService.getCommunicationTasksBreakdown();
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown();
 
-        return new CommunicationOverviewInfo(null, taskStatusOverview, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown, breakdownFactory, overviewFactory, thesaurus);
+        return new CommunicationOverviewInfo(summaryData, taskStatusOverview, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown,
+                breakdownFactory, overviewFactory, thesaurus);
     }
 
 }

@@ -40,7 +40,7 @@ public class ConnectionOverviewInfo {
     @JsonIgnore
     private static final ComSessionSuccessIndicatorAdapter COM_SESSION_SUCCESS_INDICATOR_ADAPTER = new ComSessionSuccessIndicatorAdapter();
 
-    public ConnectionSummaryInfo connectionSummary;
+    public SummaryInfo connectionSummary;
 
     public List<TaskSummaryInfo> overviews;
     public List<BreakdownSummaryInfo> breakdowns;
@@ -49,7 +49,7 @@ public class ConnectionOverviewInfo {
     }
 
     public <H extends HasName & HasId> ConnectionOverviewInfo(
-            ConnectionSummaryData connectionSummaryData,
+            SummaryData summaryData,
             TaskStatusOverview taskStatusOverview,
             ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview,
             ComPortPoolBreakdown comPortPoolBreakdown,
@@ -57,9 +57,9 @@ public class ConnectionOverviewInfo {
             DeviceTypeBreakdown deviceTypeBreakdown,
             BreakdownFactory breakdownFactory,
             OverviewFactory overviewFactory,
-            Thesaurus thesaurus) throws Exception {
+            Thesaurus thesaurus) {
 
-        connectionSummary = ConnectionSummaryInfo.from(connectionSummaryData, thesaurus);
+        connectionSummary = SummaryInfo.from(summaryData, thesaurus);
 
         overviews=new ArrayList<>(2);
         overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.currentStates, taskStatusAdapter)); // JP-4278

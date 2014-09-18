@@ -6,20 +6,12 @@ import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
  * Created by bvn on 8/29/14.
  */
 public class BreakdownFactory {
-
-    public static final Comparator<TaskBreakdownInfo> TASK_BREAKDOWN_INFO_COMPARATOR = new Comparator<TaskBreakdownInfo>() {
-        @Override
-        public int compare(TaskBreakdownInfo o1, TaskBreakdownInfo o2) {
-            return -Long.valueOf(o1.failedCount).compareTo(o2.failedCount);
-        }
-    };
 
     public <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters, FilterOption alias) {
         BreakdownSummaryInfo info = new BreakdownSummaryInfo();
@@ -44,11 +36,7 @@ public class BreakdownFactory {
     }
 
     public void sortAllBreakdowns(List<BreakdownSummaryInfo> breakdowns) {
-        for (BreakdownSummaryInfo breakdown : breakdowns) {
-            Collections.sort(breakdown.counters, TASK_BREAKDOWN_INFO_COMPARATOR);
-        }
+        breakdowns.stream().forEach(breakdown->Collections.sort(breakdown.counters, (o1, o2) -> -Long.valueOf(o1.failedCount).compareTo(o2.failedCount)));
     }
-
-
 
 }

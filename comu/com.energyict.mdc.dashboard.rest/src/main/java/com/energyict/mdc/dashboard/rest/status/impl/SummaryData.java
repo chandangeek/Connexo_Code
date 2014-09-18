@@ -9,21 +9,25 @@ import java.util.Map;
 /**
  * Created by bvn on 7/31/14.
  */
-public class ConnectionSummaryData {
+public class SummaryData {
     private long success;
-    private long allTasksSuccessful;
-    private long atLeastOneTaskFailed;
+    private Long allTasksSuccessful;
+    private Long atLeastOneTaskFailed;
     private long pending;
     private long failed;
     private long total;
 
-    public ConnectionSummaryData(TaskStatusOverview taskStatusOverview, long atLeastOneTaskFailed) {
+    public SummaryData(TaskStatusOverview taskStatusOverview) {
         Map<TaskStatus, Long> counts = getTaskStatusCountsAsMap(taskStatusOverview);
 
         failed=counts.get(TaskStatus.Failed)+counts.get(TaskStatus.NeverCompleted);
         pending=counts.get(TaskStatus.Pending)+counts.get(TaskStatus.Busy)+counts.get(TaskStatus.Retrying);
         total=counts.get(TaskStatus.Retrying)+counts.get(TaskStatus.Busy)+counts.get(TaskStatus.Pending)+counts.get(TaskStatus.Failed)+counts.get(TaskStatus.NeverCompleted)+counts.get(TaskStatus.Waiting);
         success=counts.get(TaskStatus.Waiting);
+    }
+
+    public SummaryData(TaskStatusOverview taskStatusOverview, long atLeastOneTaskFailed) {
+        this(taskStatusOverview);
         this.atLeastOneTaskFailed =atLeastOneTaskFailed;
         allTasksSuccessful=success - this.atLeastOneTaskFailed;
     }
@@ -46,11 +50,11 @@ public class ConnectionSummaryData {
         return success;
     }
 
-    public long getAllTasksSuccessful() {
+    public Long getAllTasksSuccessful() {
         return allTasksSuccessful;
     }
 
-    public long getAtLeastOneTaskFailed() {
+    public Long getAtLeastOneTaskFailed() {
         return atLeastOneTaskFailed;
     }
 
