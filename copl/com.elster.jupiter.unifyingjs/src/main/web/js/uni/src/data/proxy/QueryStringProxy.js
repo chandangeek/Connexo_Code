@@ -33,23 +33,21 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         operation.setStarted();
 
         if (!_.isUndefined(router.queryParams[me.root])) {
-            var data = Ext.JSON.decode(router.queryParams[me.root]),
-                modelData = _.object(_.pluck(data, 'property'), _.pluck(data, 'value')),
-                record;
+            var data = Ext.JSON.decode(router.queryParams[me.root]);
 
             if (this.hydrator) {
-                record = new Model();
-                this.hydrator.hydrate(modelData, record);
-            } else {
-                record = new Model(modelData);
-            }
+                var record = Ext.create(Model);
+                this.hydrator.hydrate(data, record);
 
-            operation.resultSet = Ext.create('Ext.data.ResultSet', {
-                records: [record],
-                total: 1,
-                loaded: true,
-                success: true
-            });
+                operation.resultSet = Ext.create('Ext.data.ResultSet', {
+                    records: [record],
+                    total: 1,
+                    loaded: true,
+                    success: true
+                });
+            } else {
+                operation.resultSet = me.reader.read(data);
+            }
 
             operation.setSuccessful();
         }
@@ -84,23 +82,16 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
 
         var data = this.hydrator
             ? this.hydrator.extract(model)
-            : model.getData(model);
+            : model.getData(true);
 
-        _.map(data, function (item, key) {
-            if (!Ext.isEmpty(item)) {
-                filter.push({
-                    property: key,
-                    value: item
-                });
-            }
-        });
+        //todo: clean data!
 
         model.commit();
 
         operation.setCompleted();
         operation.setSuccessful();
 
-        queryParams[this.root] = filter;
+        queryParams[this.root] = Ext.JSON.encode(data);
         router.getRoute().forward(null, queryParams);
     }
 });
