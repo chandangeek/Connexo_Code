@@ -4,7 +4,8 @@ Ext.define('Dsh.view.widget.SideFilter', {
     requires: [
         'Uni.component.filter.view.Filter',
         'Dsh.view.widget.common.SideFilterCombo',
-        'Dsh.view.widget.common.SideFilterDateTime'
+        'Dsh.view.widget.common.SideFilterDateTime',
+        'Dsh.util.FilterHydrator'
     ],
     cls: 'filter-form',
     width: 250,
@@ -13,6 +14,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
     items: [
         {
             xtype: 'nested-form',
+            hydrator: 'Dsh.util.FilterHydrator',
             ui: 'filter',
             layout: {
                 type: 'vbox',
@@ -23,23 +25,13 @@ Ext.define('Dsh.view.widget.SideFilter', {
                 labelAlign: 'top'
             },
             items: [
-//                {
-//                    itemId: 'device-group',
-//                    name: 'deviceGroup',
-//                    fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
-//                    displayField: 'name',
-//                    valueField: 'id'
-//                    url: '/apps/dsh/app/fakeData/BaseFilterFake.json',
-//                    root: 'data'
-//                },
                 {
                     itemId: 'current-state',
                     name: 'state',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.currentState', 'DSH', 'Current state'),
                     displayField: 'localizedValue',
                     valueField: 'taskStatus',
-                    url: '/api/dsr/field/taskstatus',
-                    root: 'taskStatuses'
+                    store: 'Dsh.store.filter.CurrentState'
                 },
                 {
                     itemId: 'latest-status',
@@ -47,8 +39,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestStatus', 'DSH', 'Latest status'),
                     displayField: 'localizedValue',
                     valueField: 'successIndicator',
-                    url: '/api/dsr/field/connectiontasksuccessindicators',
-                    root: 'successIndicators'
+                    store: 'Dsh.store.filter.LatestStatus'
                 },
                 {
                     itemId: 'latest-result',
@@ -56,8 +47,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.latestResult', 'DSH', 'Latest result'),
                     displayField: 'localizedValue',
                     valueField: 'successIndicator',
-                    url: '/api/dsr/field/comsessionsuccessindicators',
-                    root: 'successIndicators'
+                    store: 'Dsh.store.filter.LatestResult'
                 },
                 {
                     itemId: 'comport-pool',
@@ -65,8 +55,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.comPortPool', 'DSH', 'Communication port pool'),
                     displayField: 'name',
                     valueField: 'id',
-                    url: '/api/dsr/field/comportpools',
-                    root: 'comPortPools'
+                    store: 'Dsh.store.filter.CommPortPool'
                 },
                 {
                     itemId: 'connection-type',
@@ -74,8 +63,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.connectionType', 'DSH', 'Connection type'),
                     displayField: 'name',
                     valueField: 'id',
-                    url: '/api/dsr/field/connectiontypepluggableclasses',
-                    root: 'connectiontypepluggableclasses'
+                    store: 'Dsh.store.filter.ConnectionType'
                 },
                 {
                     itemId: 'device-type',
@@ -83,8 +71,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceType', 'DSH', 'Device type'),
                     displayField: 'name',
                     valueField: 'id',
-                    url: '/api/dsr/field/devicetypes',
-                    root: 'deviceTypes'
+                    store: 'Dsh.store.filter.DeviceType'
                 },
                 {
                     xtype: 'side-filter-date-time',

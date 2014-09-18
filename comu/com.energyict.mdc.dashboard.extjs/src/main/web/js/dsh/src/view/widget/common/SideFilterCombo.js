@@ -5,30 +5,27 @@ Ext.define('Dsh.view.widget.common.SideFilterCombo', {
     multiSelect: true,
     queryMode: 'local',
     triggerAction: 'all',
+
     initComponent: function () {
         var me = this;
-        this.callParent(arguments);
-        this.listConfig = {
+        me.listConfig = {
             getInnerTpl: function () {
                 return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {' + me.displayField + '}</div>';
             }
         };
-        this.store = Ext.create('Ext.data.Store', {
-            autoLoad: true,
-            fields: [me.valueField, me.displayField],
-            proxy: {
-                type: 'ajax',
-                url: me.url,
-                reader: {
-                    type: 'json',
-                    root: me.root
-                }
-            },
-            listeners: {
-                load: function () {
-                    me.select(me.up('form').getRecord().get(me.name));
-                }
-            }
+
+        me.callParent(arguments);
+        me.store.on('load', function () {
+            me.select(me.getValue());
         });
+    },
+
+    getValue: function () {
+        var me = this;
+        me.callParent(arguments);
+        if (_.isArray(me.value)) {
+            me.value = _.compact(me.value)
+        }
+        return me.value
     }
 });
