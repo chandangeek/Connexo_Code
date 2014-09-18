@@ -2,7 +2,8 @@ Ext.define('Login.controller.Login', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Login.controller.Base64'
+        'Login.controller.Base64',
+        'Uni.store.Apps'
     ],
 
     views: [
@@ -107,18 +108,16 @@ Ext.define('Login.controller.Login', {
         } else if (referrer) {
             location.href = referrer;
         } else {
-            Ext.require('Uni.store.Apps', function () {
-                Uni.store.Apps.load(function (apps) {
-                    if (typeof apps !== 'undefined' && apps.length > 0) {
-                        apps.forEach(function (app) {
-                            var url = app.data.url || '';
+            Uni.store.Apps.load(function (apps) {
+                if (typeof apps !== 'undefined' && apps.length > 0) {
+                    apps.forEach(function (app) {
+                        var url = app.data.url || '';
 
-                            if (url.indexOf('http://') !== 0 && url.indexOf('https://') !== 0) {
-                                window.location.replace(url);
-                            }
-                        });
-                    }
-                });
+                        if (url.indexOf('http://') !== 0 && url.indexOf('https://') !== 0) {
+                            window.location.replace(url);
+                        }
+                    });
+                }
             });
         }
 
