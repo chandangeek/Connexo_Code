@@ -1,16 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -30,7 +25,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -69,7 +63,7 @@ public class RegisterDataResource {
         Boolean validationStatusForRegister = false;
         if(channelRef.isPresent()) {
             validationStatusForRegister = validationInfoHelper.getValidationStatus(channelRef, meter);
-            dataValidationStatuses = validationService.getValidationStatus(channelRef.get(), readingRecords);
+            dataValidationStatuses = validationService.getEvaluator().getValidationStatus(channelRef.get(), readingRecords);
         }
         List<ReadingInfo> readingInfos = ReadingInfoFactory.asInfoList(readings, register.getRegisterSpec(),
                 validationStatusForRegister, dataValidationStatuses, validationService.getEvaluator());

@@ -35,7 +35,7 @@ public class ValidationInfoHelper {
         if (validationStatusForRegister) {
             List<Reading> readings = getReadingsForOneYear(register);
             List<ReadingRecord> readingRecords = readings.stream().map(r -> r.getActualReading()).collect(Collectors.toList());
-            dataValidationStatuses = validationService.getValidationStatus(channelRef.get(), readingRecords);
+            dataValidationStatuses = validationService.getEvaluator().getValidationStatus(channelRef.get(), readingRecords);
             lastChecked = validationService.getLastChecked(channelRef.get());
         }
         return new DetailedValidationInfo(validationStatusForRegister, dataValidationStatuses, lastChecked.orNull());

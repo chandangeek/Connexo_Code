@@ -34,7 +34,7 @@ public class ChannelDataInfo {
     public ValidationStatus validationResult;
 
     @JsonProperty("suspectReason")
-    public List<ValidationRuleInfo> suspectReason;
+    public Set<ValidationRuleInfo> suspectReason;
 
     public static List<ChannelDataInfo> from(List<? extends LoadProfileReading> loadProfileReadings, boolean isValidationActive, Thesaurus thesaurus, ValidationEvaluator evaluator) {
         List<ChannelDataInfo> channelData = new ArrayList<>();
@@ -54,7 +54,7 @@ public class ChannelDataInfo {
             for (Map.Entry<Channel, DataValidationStatus> entry : states) {
                     ValidationInfo validationInfo = new ValidationInfo(entry.getValue(), evaluator);
                     channelIntervalInfo.validationResult = validationInfo.validationResult;
-                    // TODO channelIntervalInfo.suspectReason = validationInfo.validationRules;
+                    channelIntervalInfo.suspectReason = validationInfo.validationRules;
                     channelIntervalInfo.dataValidated = validationInfo.dataValidated;
             }
             channelData.add(channelIntervalInfo);
