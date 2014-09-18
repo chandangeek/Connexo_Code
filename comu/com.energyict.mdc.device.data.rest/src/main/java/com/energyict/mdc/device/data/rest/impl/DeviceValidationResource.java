@@ -112,12 +112,12 @@ public class DeviceValidationResource {
     public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId, boolean status) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
-        ValidationRuleSet ruleset = getValidationRuleSet(validationRuleSetId);
+        ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
         Optional<MeterActivation> activation = meter.getCurrentMeterActivation();
         if (activation.isPresent()) {
-            setValidationRuleSetActivationStatus(activation.get(), ruleset, status);
+            setValidationRuleSetActivationStatus(activation.get(), ruleSet, status);
         } else {
-            throw exceptionFactory.newException(MessageSeeds.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, ruleset.getName());
+            throw exceptionFactory.newException(MessageSeeds.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, ruleSet.getName());
         }
         return Response.status(Response.Status.OK).build();
     }
