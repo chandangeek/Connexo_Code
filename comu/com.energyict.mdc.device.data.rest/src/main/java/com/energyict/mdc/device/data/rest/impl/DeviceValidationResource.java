@@ -20,11 +20,9 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 
@@ -184,13 +182,11 @@ public class DeviceValidationResource {
     }
 
     private void collectRegisterData(Device device, Meter meter, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
-        ZonedDateTime registerStart = end.minusMonths(1);
+        ZonedDateTime registerStart = end.minusYears(1);
         Interval registerInterval = new Interval(Date.from(registerStart.toInstant()), Date.from(end.toInstant()));
 
         Set<String> registerTypes = device.getRegisters().stream()
-                .map(Register::getRegisterSpec)
-                .map(RegisterSpec::getRegisterType)
-                .map(MeasurementType::getReadingType)
+                .map(Register::getReadingType)
                 .map(ReadingType::getMRID)
                 .collect(Collectors.toSet());
 

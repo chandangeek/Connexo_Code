@@ -20,6 +20,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataService;
+import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -41,6 +42,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.core.Application;
+import java.util.Collections;
 import java.util.Date;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -103,9 +105,13 @@ public class DeviceValidationResourceTest extends JerseyTest {
     @Mock
     private Channel channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8, channel9;
     @Mock
-    private DataValidationStatus validationStatus1, validationStatus2, validationStatus3;
+    private DataValidationStatus validationStatus1, validationStatus2, validationStatus3, validationStatus4, validationStatus5, validationStatus6;
     @Mock
     private ReadingQuality suspect, notSuspect;
+    @Mock
+    private LoadProfile loadProfile1;
+    @Mock
+    private com.energyict.mdc.device.data.Channel ch1, ch2;
 
     @Override
     protected Application configure() {
@@ -135,12 +141,6 @@ public class DeviceValidationResourceTest extends JerseyTest {
                 bind(validationService).to(ValidationService.class);
                 bind(meteringService).to(MeteringService.class);
                 bind(clock).to(Clock.class);
-//                bind(nlsService).to(NlsService.class);
-//                bind(transactionService).to(TransactionService.class);
-//                bind(ResourceHelper.class).to(ResourceHelper.class);
-//                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-//                bind(schedulingService).to(SchedulingService.class);
-//                bind(ChannelResource.class).to(ChannelResource.class);
             }
         });
         return resourceConfig;
@@ -170,24 +170,35 @@ public class DeviceValidationResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testGetValidationFeatureStatus() {
+    public void testGetValidationFeatureStatusCheckRegisterCount() {
 
         DeviceValidationStatusInfo response = target("devices/MRID/validationrulesets/validationstatus").request().get(DeviceValidationStatusInfo.class);
 
         assertThat(response.registerSuspectCount).isEqualTo(5);
     }
 
+    @Test
+    public void testGetValidationFeatureStatusCheckLoadProfileCount() {
+
+        DeviceValidationStatusInfo response = target("devices/MRID/validationrulesets/validationstatus").request().get(DeviceValidationStatusInfo.class);
+
+        assertThat(response.loadProfileSuspectCount).isEqualTo(4);
+    }
+
     private void doModelStubbing() {
         when(device.getRegisters()).thenReturn(Arrays.asList(register1));
-        when(register1.getRegisterSpec()).thenReturn(registerSpec);
-        when(registerSpec.getRegisterType()).thenReturn(registerType);
-        when(registerType.getReadingType()).thenReturn(regReadingType);
+        when(register1.getReadingType()).thenReturn(regReadingType);
         when(regReadingType.getMRID()).thenReturn("REG1");
         when(channelReadingType1.getMRID()).thenReturn("CH1");
         when(channelReadingType2.getMRID()).thenReturn("CH2");
 
+        when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1));
+        when(loadProfile1.getChannels()).thenReturn(Arrays.asList(ch1, ch2));
+        when(ch1.getReadingType()).thenReturn(channelReadingType1);
+        when(ch2.getReadingType()).thenReturn(channelReadingType2);
+
         doReturn(Arrays.asList(meterActivation1, meterActivation2, meterActivation3)).when(meter).getMeterActivations();
-        ZonedDateTime fromReg = ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
+        ZonedDateTime fromReg = ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
         ZonedDateTime from = ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).minusYears(2);
         ZonedDateTime to = ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).minusDays(10);
         when(meterActivation1.getInterval()).thenReturn(Interval.endAt(Date.from(from.toInstant())));
@@ -218,16 +229,29 @@ public class DeviceValidationResourceTest extends JerseyTest {
         when(channel8.getMainReadingType()).thenReturn(channelReadingType1);
         when(channel9.getMainReadingType()).thenReturn(channelReadingType2);
         when(validationService.getEvaluator()).thenReturn(evaluator);
-        Interval interval = new Interval(Date.from(fromReg.toInstant()), Date.from(to.toInstant()));
-        when(evaluator.getValidationStatus(channel4, interval)).thenReturn(Arrays.asList(validationStatus1));
+        when(suspect.getTypeCode()).thenReturn("3.0.1");
+        when(notSuspect.getTypeCode()).thenReturn("0");
+
+        Interval regInterval1 = new Interval(Date.from(fromReg.toInstant()), Date.from(to.toInstant()));
+        when(evaluator.getValidationStatus(channel4, regInterval1)).thenReturn(Arrays.asList(validationStatus1));
         Date toNow = Date.from(ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
-        Interval interval1 = new Interval(Date.from(to.toInstant()), toNow);
-        when(evaluator.getValidationStatus(channel7, interval1)).thenReturn(Arrays.asList(validationStatus2, validationStatus3));
+        Interval regInterval2 = new Interval(Date.from(to.toInstant()), toNow);
+        when(evaluator.getValidationStatus(channel7, regInterval2)).thenReturn(Arrays.asList(validationStatus2, validationStatus3));
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus1).getReadingQualities();
         doReturn(Arrays.asList(suspect, suspect)).when(validationStatus2).getReadingQualities();
         doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus3).getReadingQualities();
-        when(suspect.getTypeCode()).thenReturn("3.0.1");
-        when(notSuspect.getTypeCode()).thenReturn("0");
+
+        ZonedDateTime fromCh = ZonedDateTime.ofInstant(NOW.toInstant(), ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
+        Interval chInterval1 = new Interval(Date.from(fromCh.toInstant()), Date.from(to.toInstant()));
+        when(evaluator.getValidationStatus(channel5, chInterval1)).thenReturn(Arrays.asList(validationStatus4));
+        when(evaluator.getValidationStatus(channel6, chInterval1)).thenReturn(Collections.emptyList());
+        Interval chInterval2 = new Interval(Date.from(to.toInstant()), toNow);
+        when(evaluator.getValidationStatus(channel8, chInterval2)).thenReturn(Collections.emptyList());
+        when(evaluator.getValidationStatus(channel9, chInterval2)).thenReturn(Arrays.asList(validationStatus5, validationStatus6));
+        doReturn(Arrays.asList(suspect, suspect)).when(validationStatus4).getReadingQualities();
+        doReturn(Arrays.asList(suspect, notSuspect)).when(validationStatus5).getReadingQualities();
+        doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus6).getReadingQualities();
+
     }
 
 }
