@@ -21,8 +21,6 @@ import java.util.Set;
  */
 public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTaskFilterSqlBuilder {
 
-    private static final String SUCCESS_INDICATOR_ALIAS_NAME = "successindicator";
-
     private Set<ConnectionTypePluggableClass> connectionTypes;
     private Set<ComPortPool> comPortPools;
     private Set<DeviceType> deviceTypes;
@@ -80,7 +78,7 @@ public abstract class AbstractConnectionTaskFilterSqlBuilder extends AbstractTas
     private void appendLastComSessionJoinClause(String connectionTaskTableName) {
         this.append(" join ");
         this.append(TableSpecs.DDC_COMSESSION.name());
-        this.append(" on ");
+        this.append(" cs on ");
         this.append(connectionTaskTableName);
         this.append(".lastsession = cs.id");
     }

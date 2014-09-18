@@ -391,7 +391,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<?> table = dataModel.getTable(DDC_CONNECTIONTASK.name());
-            Column lastSession = table.column("LASTSESSION").number().map(ConnectionTaskFields.LAST_SESSION.fieldName()).add();
+            Column lastSession = table.column("LASTSESSION").number().add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_LASTCS").
                     on(lastSession).
                     references(DDC_COMSESSION.name()).

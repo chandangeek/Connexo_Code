@@ -48,10 +48,14 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(".comserver is null) ");
             sqlBuilder.append("and (   (discriminator =");
             sqlBuilder.addObject(ConnectionTaskImpl.INBOUND_DISCRIMINATOR);
-            sqlBuilder.append(" and status = 1)");
+            sqlBuilder.append(" and ");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".status = 1)");
             sqlBuilder.append("     or (discriminator =");
             sqlBuilder.addObject(ConnectionTaskImpl.SCHEDULED_DISCRIMINATOR);
-            sqlBuilder.append(" and (status = 1 or ");
+            sqlBuilder.append(" and (");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".status = 1 or ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(".nextExecutionTimestamp is null)))");
         }
@@ -74,7 +78,7 @@ public enum ServerConnectionTaskStatus {
             }
             else {
                 for (ComTaskExecution comTaskExecution : task.getDevice().getComTaskExecutions()) {
-                    if(comTaskExecution.isExecuting()){
+                    if (comTaskExecution.isExecuting()) {
                         return true;
                     }
                 }
@@ -85,12 +89,16 @@ public enum ServerConnectionTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
             super.completeFindBySqlBuilder(sqlBuilder, clock);
-            sqlBuilder.append("and nextexecutiontimestamp is not null and (exists (select * from ");
+            sqlBuilder.append("and ");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".nextexecutiontimestamp is not null and (exists (select * from ");
             sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
             sqlBuilder.append(" cte where ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(".id = cte.connectiontask and comport is not null)");
-            sqlBuilder.append("     or " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is not null)");
+            sqlBuilder.append("     or ");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".comserver is not null)");
         }
 
     },
@@ -118,9 +126,15 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(" cte where ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(".id = cte.connectiontask and comport is not null) ");
-            sqlBuilder.append("     and " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is null) ");
-            sqlBuilder.append("and status = 0 ");
-            sqlBuilder.append("and nextexecutiontimestamp <=");
+            sqlBuilder.append("     and ");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".comserver is null) ");
+            sqlBuilder.append("and ");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".status = 0 ");
+            sqlBuilder.append("and ");
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".nextexecutiontimestamp <=");
             sqlBuilder.addLong(this.asSeconds(clock.now()));
         }
 
@@ -148,12 +162,22 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(" cte where ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(".id = cte.connectiontask and comport is not null)");
-            sqlBuilder.append("     and " + TableSpecs.DDC_CONNECTIONTASK.name() + ".comserver is null) ");
-            sqlBuilder.append("and status = 0 ");
-            sqlBuilder.append("and currentretrycount = 0 ");
-            sqlBuilder.append("and nextexecutiontimestamp >");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".comserver is null) ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".status = 0 ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".currentretrycount = 0 ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.now()));
-            sqlBuilder.append("and lastsuccessfulcommunicationend is null");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".lastsuccessfulcommunicationend is null");
         }
 
     },
@@ -180,12 +204,18 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(" cte where ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(".id = cte.connectiontask and comport is not null)");
-            sqlBuilder.append(" and ");
+            sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(".comserver is null) ");
-            sqlBuilder.append("and status = 0 ");
-            sqlBuilder.append("and currentretrycount > 0 ");
-            sqlBuilder.append("and nextexecutiontimestamp >");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".status = 0 ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".currentretrycount > 0 ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.now()));
         }
 
@@ -214,15 +244,25 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(" cte where ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(".id = cte.connectiontask and comport is not null) ");
-            sqlBuilder.append("and ");
+            sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(".comserver is null) ");
-            sqlBuilder.append("and status = 0 ");
-            sqlBuilder.append("and currentretrycount = 0 ");
-            sqlBuilder.append("and lastExecutionFailed = 1 ");
-            sqlBuilder.append("and nextexecutiontimestamp >");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".status = 0 ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".currentretrycount = 0 ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".lastExecutionFailed = 1 ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.now()));
-            sqlBuilder.append("and lastsuccessfulcommunicationend is not null");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".lastsuccessfulcommunicationend is not null");
         }
 
     },
@@ -250,15 +290,25 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(" cte where ");
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(".id = cte.connectiontask and comport is not null) ");
-            sqlBuilder.append("and ");
+            sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
             sqlBuilder.append(".comserver is null) ");
-            sqlBuilder.append("and status = 0 ");
-            sqlBuilder.append("and currentretrycount = 0 ");
-            sqlBuilder.append("and lastExecutionFailed = 0 ");
-            sqlBuilder.append("and nextexecutiontimestamp >");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".status = 0 ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".currentretrycount = 0 ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".lastExecutionFailed = 0 ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.now()));
-            sqlBuilder.append("and lastsuccessfulcommunicationend is not null");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+            sqlBuilder.append(".lastsuccessfulcommunicationend is not null");
         }
 
     };

@@ -1539,7 +1539,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
              FROM DDC_CONNECTIONTASK ct JOIN DDC_COMSESSION cs ON ct.lastcomession = cs.id
             WHERE NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION cte
                                WHERE cte.COMSESSION = cs.id
-                                 AND cte.SUCCESSINDICATOR <> 0)
+                                 AND cte.SUCCESSINDICATOR > 0)
             GROUP BY ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator;
 
            when atLeastOneFailingComTask = false:
@@ -1548,7 +1548,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             WHERE cs.successindicator = 0
               AND EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION cte
                            WHERE cte.COMSESSION = cs.id
-                             AND cte.SUCCESSINDICATOR <> 0)
+                             AND cte.SUCCESSINDICATOR > 0)
             GROUP BY ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator;
          */
         SqlBuilder sqlBuilder = new SqlBuilder("select ct.CONNECTIONTYPEPLUGGABLECLASS, cs.successIndicator, count(*) from ");
@@ -1660,7 +1660,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
              JOIN DDC_DEVICE dev ON ct.DEVICE = dev.id
             WHERE NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes
                                WHERE ctes.COMSESSION = cs.id
-                                 AND ctes.SUCCESSINDICATOR <> 0)
+                                 AND ctes.SUCCESSINDICATOR > 0)
             GROUP BY dev.DEVICETYPE, cs.successIndicator
 
             when atLeastOneFailingComTask = true
@@ -1671,7 +1671,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
             WHERE cs.successindicator = 0
               and EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes
                                WHERE ctes.COMSESSION = cs.id
-                                 AND ctes.SUCCESSINDICATOR <> 0)
+                                 AND ctes.SUCCESSINDICATOR > 0)
             GROUP BY dev.DEVICETYPE, cs.successIndicator
          */
         SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, cs.successIndicator, count(*) from ");
@@ -1695,7 +1695,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
         }
         sqlBuilder.append(" exists (select * from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes where ctes.COMSESSION = cs.id and ctes.SUCCESSINDICATOR <> 0)");
+        sqlBuilder.append(" ctes where ctes.COMSESSION = cs.id and ctes.SUCCESSINDICATOR > 0)");
     }
 
     private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {
@@ -1723,7 +1723,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                       SELECT *
                         FROM DDC_COMTASKEXECSESSION ctes
                        WHERE ctes.COMSESSION = cs.id
-                         AND ctes.SUCCESSINDICATOR <> 0)
+                         AND ctes.SUCCESSINDICATOR > 0)
             GROUP BY ct.COMPORTPOOL, cs.successIndicator
 
            when attemptLockComTaskExecution == true
@@ -1734,7 +1734,7 @@ public class DeviceDataServiceImpl implements ServerDeviceDataService, Reference
                       SELECT *
                         FROM DDC_COMTASKEXECSESSION ctes
                        WHERE ctes.COMSESSION = cs.id
-                         AND ctes.SUCCESSINDICATOR <> 0)
+                         AND ctes.SUCCESSINDICATOR > 0)
             GROUP BY ct.COMPORTPOOL, cs.successIndicator
          */
         SqlBuilder sqlBuilder = new SqlBuilder("select ct.COMPORTPOOL, cs.successIndicator, count(*) from ");
