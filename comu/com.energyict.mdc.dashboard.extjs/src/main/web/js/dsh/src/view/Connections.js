@@ -7,8 +7,7 @@ Ext.define('Dsh.view.Connections', {
     requires: [
         'Dsh.view.widget.ConnectionsList',
         'Dsh.view.widget.PreviewConnection',
-        'Dsh.view.widget.SideFilter',
-        'Dsh.view.widget.FilterPanel'
+        'Dsh.view.widget.SideFilter'
     ],
 
     content: [
