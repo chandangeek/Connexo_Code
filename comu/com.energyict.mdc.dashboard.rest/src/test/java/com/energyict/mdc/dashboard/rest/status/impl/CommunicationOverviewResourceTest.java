@@ -29,7 +29,7 @@ public class CommunicationOverviewResourceTest extends DashboardRESTJerseyTest {
 
     @Test
     public void testGetCommunicationOverview() throws Exception {
-        TaskStatusOverview statusOverview = createConnectionStatusOverview();
+        TaskStatusOverview statusOverview = createCommunicationStatusOverview();
         when(dashboardService.getCommunicationTaskStatusOverview()).thenReturn(statusOverview);
         ComCommandCompletionCodeOverview comCommandCompletionCodeOverview = createComCommandCompletionCodeOverview();
         when(dashboardService.getCommunicationTaskCompletionResultOverview()).thenReturn(comCommandCompletionCodeOverview);
@@ -98,7 +98,7 @@ public class CommunicationOverviewResourceTest extends DashboardRESTJerseyTest {
         return mock;
     }
 
-    private TaskStatusOverview createConnectionStatusOverview() {
+    private TaskStatusOverview createCommunicationStatusOverview() {
         TaskStatusOverview overview = mock(TaskStatusOverview.class);
         when(overview.getTotalCount()).thenReturn(100L);
         List<Counter<TaskStatus>> counters = new ArrayList<>();
@@ -109,7 +109,7 @@ public class CommunicationOverviewResourceTest extends DashboardRESTJerseyTest {
         counters.add(createCounter(TaskStatus.Waiting, 15L));
         counters.add(createCounter(TaskStatus.Pending, 42L));
         counters.add(createCounter(TaskStatus.Failed, 41L));
-        when(overview.iterator()).thenReturn(counters.iterator());
+        when(overview.iterator()).thenAnswer(invocationMock->counters.iterator());
         return overview;
     }
 
