@@ -26,6 +26,7 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Search',
 
         'Uni.view.form.field.Vtypes',
+        'Uni.component.filter.view.FilterTopPanel',
         'Uni.form.NestedForm',
 
         'Uni.override.ServerOverride',
