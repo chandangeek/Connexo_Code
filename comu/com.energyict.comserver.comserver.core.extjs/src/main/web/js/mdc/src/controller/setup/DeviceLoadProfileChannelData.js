@@ -30,7 +30,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         {
             ref: 'readingsCount',
             selector: 'deviceLoadProfileChannelData #readingsCount'
-        }
+        },
+        {ref: 'deviceLoadProfileChannelDataPreview', selector: '#deviceLoadProfileChannelDataPreview'}
     ],
 
     channelModel: null,
@@ -195,14 +196,21 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
     },
 
     showPreview: function (selectionModel, record) {
-        var preview = this.getPage().down('#deviceLoadProfileChannelDataPreview');
+        /*var preview = this.getPage().down('#deviceLoadProfileChannelDataPreview');
 
-        preview.rendered && Ext.suspendLayouts();
+         preview.rendered && Ext.suspendLayouts();
 
-        preview.setTitle(record.get('interval_end'));
-        preview.down('#deviceLoadProfileChannelDataPreviewForm').loadRecord(record);
+         preview.setTitle(record.get('interval_end'));
+         preview.down('#deviceLoadProfileChannelDataPreviewForm').loadRecord(record);
 
-        preview.rendered && Ext.resumeLayouts(true);
+         preview.rendered && Ext.resumeLayouts(true);     */
+        var me = this,
+            previewPanel = me.getDeviceLoadProfileChannelDataPreview(),
+            form = previewPanel.down('form');
+
+        previewPanel.setTitle(record.get('interval_end'));
+        form.loadRecord(record);
+
     },
 
     showReadingsCount: function (store) {

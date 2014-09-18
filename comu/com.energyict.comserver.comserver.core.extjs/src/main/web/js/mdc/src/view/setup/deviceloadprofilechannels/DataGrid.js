@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
         ptype: 'bufferedrenderer'
     },
 
+    //test
 
     channelRecord: null,
 
