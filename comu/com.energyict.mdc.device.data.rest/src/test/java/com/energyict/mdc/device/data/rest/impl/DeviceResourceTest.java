@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -110,6 +111,7 @@ public class DeviceResourceTest extends JerseyTest {
     private static MdcPropertyUtils mdcPropertyUtils;
     private static SchedulingService schedulingService;
     private static ValidationService validationService;
+    private static MeteringService meteringService;
     private static Clock clock;
 
     @BeforeClass
@@ -125,6 +127,7 @@ public class DeviceResourceTest extends JerseyTest {
         mdcPropertyUtils = mock(MdcPropertyUtils.class);
         schedulingService = mock(SchedulingService.class);
         validationService = mock(ValidationService.class);
+        meteringService = mock(MeteringService.class);
         clock = mock(Clock.class);
     }
 
@@ -159,6 +162,7 @@ public class DeviceResourceTest extends JerseyTest {
             @Override
             protected void configure() {
                 bind(deviceDataService).to(DeviceDataService.class);
+                bind(meteringService).to(MeteringService.class);
                 bind(deviceImportService).to(DeviceImportService.class);
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
                 bind(engineModelService).to(EngineModelService.class);

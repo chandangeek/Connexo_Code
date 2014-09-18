@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 public class RegisterInfoFactory {
-    public static RegisterInfo asInfo(Register register, RegisterValidationInfo registerValidationInfo, ValidationEvaluator evaluator) {
+    public static RegisterInfo asInfo(Register register, DetailedValidationInfo registerValidationInfo, ValidationEvaluator evaluator) {
         if (register instanceof BillingRegister) {
             return new BillingRegisterInfo((BillingRegister)register, registerValidationInfo, evaluator);
         } else if (register instanceof NumericalRegister) {
