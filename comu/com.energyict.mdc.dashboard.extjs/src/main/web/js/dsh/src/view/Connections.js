@@ -18,7 +18,7 @@ Ext.define('Dsh.view.Connections', {
             title: Uni.I18n.translate('workspace.dataCommunication.connections.title', 'DSH', 'Connections')
         },
         {
-            xtype: 'connections-filter-panel',
+            xtype: 'filter-top-panel',
             itemId: 'dshconnectionsfilterpanel'
         },
         {

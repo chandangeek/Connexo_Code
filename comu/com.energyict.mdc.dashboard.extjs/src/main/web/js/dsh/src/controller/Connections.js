@@ -72,8 +72,9 @@ Ext.define('Dsh.controller.Connections', {
             '#dshconnectionssidefilter button[action=applyfilter]': {
                 click: this.applyFilter
             },
-            '#dshconnectionsfilterpanel button[action=clear]': {
-                click: this.clearFilter
+            '#dshconnectionsfilterpanel': {
+                removeFilter: this.removeFilter,
+                clearAllFilters: this.clearFilter
             },
             '#dshconnectionssidefilter nested-form side-filter-combo': {
                 change: this.onFilterChange
@@ -82,11 +83,8 @@ Ext.define('Dsh.controller.Connections', {
         this.callParent(arguments);
     },
 
-    onFilterChange: function(combo) {
-        var me = this,
-            filterPanel = me.getFilterPanel();
-
-        filterPanel.addFilterBtn(combo.getName(), combo.getFieldLabel(), combo.getRawValue());
+    onFilterChange: function (combo) {
+        this.getFilterPanel().setFilter(combo.getName(), combo.getFieldLabel(), combo.getRawValue());
     },
 
     showOverview: function () {
@@ -95,7 +93,24 @@ Ext.define('Dsh.controller.Connections', {
         var router = this.getController('Uni.controller.history.Router');
 
         this.getSideFilterForm().loadRecord(router.filter);
-        this.getFilterPanel().loadRecord(router.filter);
+
+        if (router.filter.startedBetween) {
+            if (router.filter.startedBetween.get('from')) {
+                this.getFilterPanel().setFilter('startedBetween.from', 'Started between from', Ext.util.Format.date(router.filter.startedBetween.get('from'), 'd/m/Y H:i'));
+            }
+            if (router.filter.startedBetween.get('to')) {
+                this.getFilterPanel().setFilter('startedBetween.to', 'Started between to', Ext.util.Format.date(router.filter.startedBetween.get('to'), 'd/m/Y H:i'));
+            }
+        }
+
+        if (router.filter.finishedBetween) {
+            if (router.filter.finishedBetween.get('from')) {
+                this.getFilterPanel().setFilter('finishedBetween.from', 'Finished between from', Ext.util.Format.date(router.filter.finishedBetween.get('from'), 'd/m/Y H:i'));
+            }
+            if (router.filter.finishedBetween.get('to')) {
+                this.getFilterPanel().setFilter('finishedBetween.to', 'Finished between to', Ext.util.Format.date(router.filter.finishedBetween.get('to'), 'd/m/Y H:i'));
+            }
+        }
 
         var store = this.getStore('Dsh.store.ConnectionTasks');
         store.setFilterModel(router.filter);
@@ -152,6 +167,28 @@ Ext.define('Dsh.controller.Connections', {
     applyFilter: function () {
         this.getSideFilterForm().updateRecord();
         this.getSideFilterForm().getRecord().save();
+    },
+
+    removeFilter: function (key) {
+        var router = this.getController('Uni.controller.history.Router'),
+            record = router.filter;
+        switch (key) {
+            case 'startedBetween.from':
+                record.startedBetween.set('from', null);
+                break;
+            case 'startedBetween.to':
+                record.startedBetween.set('to', null);
+                break;
+            case 'finishedBetween.from':
+                record.finishedBetween.set('from', null);
+                break;
+            case 'finishedBetween.to':
+                record.finishedBetween.set('to', null);
+                break;
+            default:
+                record.set(key, null);
+        }
+        record.save();
     },
 
     clearFilter: function () {
