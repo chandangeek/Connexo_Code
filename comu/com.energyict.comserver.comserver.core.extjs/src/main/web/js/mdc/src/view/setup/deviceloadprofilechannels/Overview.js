@@ -9,14 +9,15 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
 
     router: null,
 
-    content: {
-        xtype: 'deviceLoadProfileChannelsPreviewForm',
-        ui: 'large',
-        title: Uni.I18n.translate('general.overview', 'MDC', 'Overview')
-    },
-
     initComponent: function () {
         var me = this;
+
+        me.content = {
+            xtype: 'deviceLoadProfileChannelsPreviewForm',
+            router: me.router,
+            ui: 'large',
+            title: Uni.I18n.translate('general.overview', 'MDC', 'Overview')
+        };
 
         me.side = {
             xtype: 'deviceLoadProfileChannelSubMenuPanel',
