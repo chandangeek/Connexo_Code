@@ -7,6 +7,7 @@ import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.rest.impl.ComTaskResource;
 import com.google.common.collect.ImmutableSet;
@@ -27,6 +28,7 @@ public class ComTasksApplication extends Application implements BinderProvider {
     private volatile MasterDataService masterDataService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile DeviceMessageService deviceMessageService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -51,6 +53,7 @@ public class ComTasksApplication extends Application implements BinderProvider {
                 bind(masterDataService).to(MasterDataService.class);
                 bind(nlsService).to(NlsService.class);
                 bind(thesaurus).to(Thesaurus.class);
+                bind(deviceMessageService).to(DeviceMessageService.class);
             }
         };
     }
@@ -74,5 +77,10 @@ public class ComTasksApplication extends Application implements BinderProvider {
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus("CTS", Layer.REST);
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
     }
 }

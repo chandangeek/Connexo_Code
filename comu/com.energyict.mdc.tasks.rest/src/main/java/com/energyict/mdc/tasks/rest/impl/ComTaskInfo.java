@@ -27,6 +27,7 @@ public class ComTaskInfo {
     public String name;
     public boolean inUse;
     public List<ProtocolTaskInfo> commands;
+    public List<MessageCategoryInfo> messages;
 
     public static ComTaskInfo from(ComTask comTask) {
         ComTaskInfo comTaskInfo = new ComTaskInfo();
@@ -48,6 +49,7 @@ public class ComTaskInfo {
         ComTaskInfo comTaskInfo = ComTaskInfo.from(comTask);
         comTaskInfo.commands = new ArrayList<>();
         comTaskInfo.commands.addAll(ProtocolTaskInfo.from(comTask.getProtocolTasks()));
+        comTaskInfo.messages = MessageCategoryInfo.fromTasks(comTask.getProtocolTasks());
         return comTaskInfo;
     }
 }

@@ -4,6 +4,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProtocolTaskInfo {
     public Long id;
@@ -12,32 +13,27 @@ public class ProtocolTaskInfo {
     public List<ParameterInfo> parameters;
 
     public static ProtocolTaskInfo from(ProtocolTask protocolTask) {
-        ProtocolTaskInfo protocolTaskInfo = new ProtocolTaskInfo();
+        ProtocolTaskInfo protocolTaskInfo = null;
         Categories protocolTaskCategory = getProtocolTaskCategory(protocolTask);
-        protocolTaskInfo.id = protocolTask.getId();
-        protocolTaskInfo.category = getProtocolTaskCategoryAsStr(protocolTask);
-        protocolTaskInfo.action = protocolTaskCategory.getActionAsStr(protocolTaskCategory.getAction(protocolTask));
-        protocolTaskInfo.parameters = protocolTaskCategory.getProtocolTaskParameters(protocolTask);
+        if (protocolTaskCategory != null) {
+            protocolTaskInfo = new ProtocolTaskInfo();
+            protocolTaskInfo.id = protocolTask.getId();
+            protocolTaskInfo.category = protocolTaskCategory.getId();
+            protocolTaskInfo.action = protocolTaskCategory.getActionAsStr(protocolTaskCategory.getAction(protocolTask));
+            protocolTaskInfo.parameters = protocolTaskCategory.getProtocolTaskParameters(protocolTask);
+        }
         return protocolTaskInfo;
     }
 
     public static List<ProtocolTaskInfo> from(List<ProtocolTask> protocolTasks) {
         List<ProtocolTaskInfo> protocolTaskInfos = new ArrayList<>(protocolTasks.size());
         for (ProtocolTask protocolTask : protocolTasks) {
-            protocolTaskInfos.add(ProtocolTaskInfo.from(protocolTask));
-        }
-        return protocolTaskInfos;
-    }
-
-    public static String getProtocolTaskCategoryAsStr(ProtocolTask protocolTask) {
-        String categoryAsString = null;
-        for (Categories category : Categories.values()) {
-            if (category.getProtocolTaskClass().isAssignableFrom(protocolTask.getClass())) {
-                categoryAsString = category.getId();
-                break;
+            ProtocolTaskInfo info = ProtocolTaskInfo.from(protocolTask);
+            if (info != null) {
+                protocolTaskInfos.add(info);
             }
         }
-        return categoryAsString;
+        return protocolTaskInfos;
     }
 
     public static Categories getProtocolTaskCategory(ProtocolTask protocolTask) {

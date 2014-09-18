@@ -36,6 +36,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.protocols.api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.util</artifactId>
             <version>${project.version}</version>

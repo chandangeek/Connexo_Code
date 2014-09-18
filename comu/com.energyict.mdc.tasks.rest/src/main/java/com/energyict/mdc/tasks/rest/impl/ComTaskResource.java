@@ -3,44 +3,38 @@ package com.energyict.mdc.tasks.rest.impl;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.base.Optional;
-import com.energyict.mdc.engine.model.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/comtasks")
 public class ComTaskResource {
     private TaskService taskService;
     private MasterDataService masterDataService;
+    private DeviceMessageService deviceMessageService;
 
     @Inject
-    public ComTaskResource(TaskService taskService, MasterDataService masterDataService) {
+    public ComTaskResource(TaskService taskService, MasterDataService masterDataService, DeviceMessageService deviceMessageService) {
         this.taskService = taskService;
         this.masterDataService = masterDataService;
+        this.deviceMessageService = deviceMessageService;
     }
 
     @GET
@@ -70,8 +64,25 @@ public class ComTaskResource {
             Categories category = Categories.valueOf(protocolTaskInfo.category.toUpperCase());
             category.createProtocolTask(masterDataService, newComTask, protocolTaskInfo);
         }
+        addMessageCategoriesToComTask(comTaskInfo, newComTask);
         newComTask.save();
         return Response.ok(ComTaskInfo.from(newComTask)).build();
+    }
+
+    private void addMessageCategoriesToComTask(ComTaskInfo request, ComTask comTask) {
+        if (request.messages != null && !request.messages.isEmpty()) {
+            List<DeviceMessageCategory> categories = getMessageCategories(request);
+            comTask.createMessagesTask().deviceMessageCategories(categories).add();
+        }
+    }
+
+    private List<DeviceMessageCategory> getMessageCategories(ComTaskInfo comTaskInfo) {
+        return comTaskInfo.messages.stream()
+                .map(category -> {
+                    java.util.Optional<DeviceMessageCategory> categoryRef = deviceMessageService.findCategoryById(category.id);
+                    return categoryRef.isPresent() ? categoryRef.get() : null;
+                })
+                .collect(Collectors.toList());
     }
 
     @PUT
@@ -103,7 +114,7 @@ public class ComTaskResource {
                 if (!protocolTasksIds.contains(protocolTask.getId()))
                     editedComTask.removeTask(protocolTask);
             }
-
+            addMessageCategoriesToComTask(comTaskInfo, editedComTask);
             editedComTask.save();
             return Response.ok(ComTaskInfo.from(editedComTask)).build();
         }
@@ -145,5 +156,37 @@ public class ComTaskResource {
         }
         throw new WebApplicationException("No \"category\" query property is present",
                 Response.status(Response.Status.BAD_REQUEST).entity("No \"category\" query property is present").build());
+    }
+
+    @GET
+    @Path("/messages")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_COMSERVER)
+    public Response getMessageCategories(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
+        Stream<DeviceMessageCategory> messageCategoriesStream = deviceMessageService.allCategories().stream();
+        String availableFor = uriInfo.getQueryParameters().getFirst("availableFor");
+        if (availableFor != null){
+            ComTask comTask = taskService.findComTask(Long.parseLong(availableFor));
+            if (comTask != null){
+                List<Integer> categoriesInComTask = getMessageCategoriesIdsInComTask(comTask);
+                messageCategoriesStream = messageCategoriesStream.filter(obj -> !categoriesInComTask.contains(obj.getId()));
+            }
+        }
+        List<MessageCategoryInfo> infos = messageCategoriesStream
+                .map(MessageCategoryInfo::from)
+                .sorted((c1, c2) -> c1.name.compareToIgnoreCase(c2.name))
+                .collect(Collectors.toList());
+        return Response.ok(infos).build();
+    }
+
+    private List<Integer> getMessageCategoriesIdsInComTask(ComTask comTask) {
+        List<Integer> categoriesInComTask = new ArrayList<>();
+        for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
+            if (protocolTask instanceof MessagesTask){
+                MessagesTask task = (MessagesTask) protocolTask;
+                categoriesInComTask.addAll(task.getDeviceMessageCategories().stream().map(cat -> cat.getId()).collect(Collectors.toList()));
+            }
+        }
+        return categoriesInComTask;
     }
 }
