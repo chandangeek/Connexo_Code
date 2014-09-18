@@ -60,7 +60,7 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = super.convertFromTypedProperties(typedProperties);
-        String encryptionDeviceAccessLevelProperty = typedProperties.getStringProperty("SecurityKey");
+        String encryptionDeviceAccessLevelProperty = typedProperties.getStringProperty("SecurityMode");
         final int encryptionDeviceAccessLevel = encryptionDeviceAccessLevelProperty != null ?
                 Integer.valueOf(encryptionDeviceAccessLevelProperty) :
                 new NoMessageEncryption().getId();
