@@ -42,7 +42,7 @@ public class PreStoreRegisters {
         List<Reading> processedReadings = new ArrayList<>();
         for (CollectedRegister collectedRegister : collectedRegisterList.getCollectedRegisters()) {
             Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister);
-            if(!collectedRegister.isTextRegister()){
+            if (!collectedRegister.isTextRegister() && collectedRegister.getCollectedQuantity() != null) {
                 Unit configuredUnit = this.mdcReadingTypeUtilService.getReadingTypeInformationFor(collectedRegister.getReadingType()).getUnit();
                 int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnit);
                 OfflineRegister offlineRegister = comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier());
@@ -74,7 +74,7 @@ public class PreStoreRegisters {
     }
 
     private int getScaler(Unit fromUnit, Unit toUnit) {
-        if (fromUnit.equalBaseUnit(toUnit)) {
+        if (fromUnit != null && toUnit != null && fromUnit.equalBaseUnit(toUnit)) {
             return fromUnit.getScale() - toUnit.getScale();
         } else {
             return 0;

@@ -55,7 +55,7 @@ public final class MeterDataFactory {
         if(!collectedRegister.isTextRegister()){
             return new ReadingImpl(
                     collectedRegister.getReadingType().getMRID(),
-                    collectedRegister.getCollectedQuantity().getAmount(),
+                    collectedRegister.getCollectedQuantity()!=null?collectedRegister.getCollectedQuantity().getAmount():BigDecimal.ZERO,
                     collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime());
         } else {
             return new ReadingImpl(

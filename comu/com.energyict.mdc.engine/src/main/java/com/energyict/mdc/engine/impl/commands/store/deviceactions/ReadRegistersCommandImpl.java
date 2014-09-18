@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceTextRegister;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
         List<CollectedData> result = new ArrayList<>();
         for (CollectedRegister collectedRegister : collectedRegisters) {
             offlineRegisters.stream()
-                    .filter(offlineRegister -> collectedRegister.getReadingType().equals(offlineRegister.getReadingType()))
+                    .filter(offlineRegister -> collectedRegister.getResultType().equals(ResultType.Supported) && collectedRegister.getReadingType().equals(offlineRegister.getReadingType()))
                     .forEach(offlineRegister -> {
                         CollectedRegister register;
                         if (!offlineRegister.isText()) {
