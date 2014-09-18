@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -13,6 +14,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.google.common.base.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,9 +26,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.streams.Predicates.isNull;
 
 /**
  * Created by bvn on 9/5/14.
@@ -67,7 +75,30 @@ public class ChannelResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         Channel channel = resourceHelper.findChannelOrThrowException(loadProfile, channelId);
-        return Response.ok(ChannelInfo.from(channel)).build();
+        ChannelInfo channelInfo = ChannelInfo.from(channel);
+        addValidationInfo(channel, channelInfo);
+        return Response.ok(channelInfo).build();
+    }
+
+    private void addValidationInfo(Channel channel, ChannelInfo channelInfo) {
+        List<DataValidationStatus> states =
+                channel.getDevice().forValidation().getValidationStatus(channel, lastMonth());
+        channelInfo.validationInfo = new DetailedValidationInfo(isValidationActive(channel), states, lastChecked(channel));
+    }
+
+    private boolean isValidationActive(Channel channel) {
+        return channel.getDevice().forValidation().isValidationActive(channel, clock.now());
+    }
+
+    private Date lastChecked(Channel channel) {
+        Optional optional =  channel.getDevice().forValidation().getLastChecked(channel);
+        return (optional.isPresent()) ? (Date) optional.get() : null;
+    }
+
+    private Interval lastMonth() {
+        ZonedDateTime end = clock.now().toInstant().atZone(ZoneId.of("UTC")).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+        ZonedDateTime start = end.minusMonths(1);
+        return new Interval(Date.from(start.toInstant()), Date.from(end.toInstant()));
     }
 
     @GET

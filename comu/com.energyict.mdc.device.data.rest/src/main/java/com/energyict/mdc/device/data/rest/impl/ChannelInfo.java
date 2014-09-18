@@ -28,6 +28,9 @@ public class ChannelInfo {
     public BigDecimal overflowValue;
     public String flowUnit;
 
+    // optionally filled if requesting details
+    public DetailedValidationInfo validationInfo;
+
     public static ChannelInfo from(Channel channel) {
         ChannelInfo info = new ChannelInfo();
         info.id=channel.getId();
