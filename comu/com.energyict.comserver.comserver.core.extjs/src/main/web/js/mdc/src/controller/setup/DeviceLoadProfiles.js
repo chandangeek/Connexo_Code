@@ -6,7 +6,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     ],
 
     models: [
-        'Mdc.model.Device'
+        'Mdc.model.Device',
+        'Mdc.model.LoadProfileOfDevice'
     ],
 
     stores: [
@@ -51,15 +52,24 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     }
                 });
             };
-
+        me.mRID = mRID;
         timeUnitsStore.getCount() ? showPage() : timeUnitsStore.on('load', showPage, me, {single: true});
     },
 
     showPreview: function (selectionModel, record) {
-        var preview = this.getPreview();
-
+        var me = this,
+            loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
+            loadProfileId = record.get('id'),
+            preview = me.getPreview();
         preview.setTitle(record.get('name'));
-        preview.down('#deviceLoadProfilesPreviewForm').loadRecord(record);
+        loadProfileOfDeviceModel.getProxy().setUrl(me.mRID);
+        preview.up('deviceLoadProfilesSetup').setLoading();
+        loadProfileOfDeviceModel.load(loadProfileId, {
+            success: function (rec) {
+                preview.down('#deviceLoadProfilesPreviewForm').loadRecord(rec);
+                preview.up('deviceLoadProfilesSetup').setLoading(false);
+            }
+        });
         preview.down('#deviceLoadProfilesActionMenu').record = record;
     },
 
