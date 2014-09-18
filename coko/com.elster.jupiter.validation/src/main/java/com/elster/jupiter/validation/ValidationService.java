@@ -27,6 +27,8 @@ public interface ValidationService {
 
     Optional<Date> getLastChecked(Channel channel);
 
+    boolean isValidationActive(Channel channel);
+
     Optional<ValidationRuleSet> getValidationRuleSet(long id);
 
     Optional<ValidationRuleSet> getValidationRuleSet(String name);

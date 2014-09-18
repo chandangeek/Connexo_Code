@@ -259,6 +259,18 @@ public final class ValidationServiceImpl implements ValidationService, InstallSe
     }
 
     @Override
+    public boolean isValidationActive(Channel channel) {
+        List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(channel.getMeterActivation());
+        List<ChannelValidation> channelValidations = validations.stream()
+                .map(m -> m.getChannelValidation(channel))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(ChannelValidation::hasActiveRules)
+                .collect(Collectors.toList());
+        return channelValidations.isEmpty() ? false : true;
+    }
+
+    @Override
     public Optional<Date> getLastChecked(MeterActivation meterActivation) {
         List<IMeterActivationValidation> validations = getActiveIMeterActivationValidations(meterActivation);
         return Optional.fromNullable(getMinLastChecked(FluentIterable.from(validations).transform(METER_ACTIVATION_MIN_LAST_CHECKED)));
