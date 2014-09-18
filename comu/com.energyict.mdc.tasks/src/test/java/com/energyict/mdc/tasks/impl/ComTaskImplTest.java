@@ -217,11 +217,12 @@ public class ComTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(value = TranslatableApplicationException.class,message = "At least one protocol task is required for a communication task.")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.COMTASK_WITHOUT_PROTOCOLTASK+"}", property = "protocolTasks")
     public void testRemoveLastProtocolTask() throws Exception {
         ComTask simpleComTask = createSimpleComTaskWithStatusInformation();
         StatusInformationTask statusInformationTask = getTaskByType(simpleComTask.getProtocolTasks(), StatusInformationTask.class);
         simpleComTask.removeTask(statusInformationTask);// can't remove the last task
+        simpleComTask.save();
     }
 
     @Test
