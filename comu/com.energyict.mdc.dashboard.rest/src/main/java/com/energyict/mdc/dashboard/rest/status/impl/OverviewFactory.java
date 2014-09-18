@@ -30,7 +30,7 @@ public class OverviewFactory {
         this.thesaurus = thesaurus;
     }
 
-    public <C> TaskSummaryInfo createOverview(String overviewBreakdownName, DashboardCounters<C> dashboardCounters, FilterOption alias, MapBasedXmlAdapter<C> adapter) throws Exception {
+    public <C> TaskSummaryInfo createOverview(String overviewBreakdownName, DashboardCounters<C> dashboardCounters, FilterOption alias, MapBasedXmlAdapter<C> adapter) {
         TaskSummaryInfo info = new TaskSummaryInfo();
         info.displayName = overviewBreakdownName;
         info.alias = alias;
