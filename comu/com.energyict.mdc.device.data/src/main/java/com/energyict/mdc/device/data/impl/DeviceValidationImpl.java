@@ -23,6 +23,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     private final AmrSystem amrSystem;
     private final ValidationService validationService;
     private final DeviceImpl device;
+    private Boolean validationActiveCached;
 
     public DeviceValidationImpl(AmrSystem amrSystem, ValidationService validationService, DeviceImpl device) {
         this.amrSystem = amrSystem;
@@ -41,9 +42,16 @@ public class DeviceValidationImpl implements DeviceValidation {
         return found.isPresent() && validationService.validationEnabled(found.get());
     }
 
+    private boolean isValidationActive(Date when, boolean useCached){
+        if (!useCached || validationActiveCached == null) {
+            validationActiveCached = isValidationActive(when);
+        }
+        return validationActiveCached;
+    }
+
     @Override
     public boolean isValidationActive(Channel channel, Date when) {
-        if (!isValidationActive(when)) {
+        if (!isValidationActive(when, true)) {
             return false;
         }
         Optional<com.elster.jupiter.metering.Channel> found = device.findKoreChannel(channel, when);
