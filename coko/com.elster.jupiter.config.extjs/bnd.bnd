@@ -2,4 +2,4 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.config.extjs
 -include: -../development.bnd
-
+Include-Resource: src/main/web;src/main/resources
