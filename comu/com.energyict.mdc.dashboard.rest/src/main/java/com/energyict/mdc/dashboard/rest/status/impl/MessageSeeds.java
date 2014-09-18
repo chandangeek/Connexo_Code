@@ -30,7 +30,7 @@ public enum MessageSeeds implements MessageSeed {
     RESCHEDULED(21, "Rescheduled", "Rescheduled"),
     TIME_ERROR(22, "TimeError", "Time error"),
     UNEXPECTED_ERROR(22, "UnexpectedError", "Unexpected error"),
-    PER_COMMUNICATION_POOL(23, "PerCommunicationPool", "Per communication pool"),
+    PER_COMMUNICATION_POOL(23, "PerCommunicationPool", "Per communication port pool"),
     PER_CONNECTION_TYPE(24, "PerConnectionType", "Per connection type"),
     PER_DEVICE_TYPE(25, "PerDeviceType", "Per device type"),
     COMPORTPOOL_FILTER(26, HeatMapBreakdownOption.comPortPools.name(), "communication port pool"),
