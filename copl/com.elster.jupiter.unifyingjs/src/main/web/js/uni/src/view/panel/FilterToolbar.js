@@ -13,9 +13,9 @@ Ext.define('Uni.view.panel.FilterToolbar', {
         {
             xtype: 'container',
             itemId: 'itemsContainer',
-			defaults: {
-				margin: '0 8 0 0'
-			},
+            defaults: {
+                margin: '0 8 0 0'
+            },
             items: []
         },
         {
@@ -45,38 +45,35 @@ Ext.define('Uni.view.panel.FilterToolbar', {
             dock: 'left'
         },
         {
-        	xtype: 'container',
+            xtype: 'container',
             dock: 'right',
             items: {
-                itemId : 'Reset',
+                itemId: 'Reset',
                 xtype: 'button',
                 text: 'Clear all',
-                action: 'clear',
-                disabled: true
+                action: 'clear'
             }
         }
     ],
 
-    updateContainer: function(container) {
+    updateContainer: function (container) {
         var count = container.items.getCount();
-
-        !count
-            ? this.getEmptyLabel().show()
-            : this.getEmptyLabel().hide()
-        ;
-        this.getClearButton().setDisabled(!count);
+        !count || count < 1 ? this.hide() : this.show();
     },
 
-    initComponent: function ()
-    {
+    initComponent: function () {
         var me = this;
 
         this.dockedItems[0].title = me.title;
-        this.items[0].items =  me.content;
+        this.items[0].items = me.content;
         this.items[1].text = me.emptyText;
         this.items[3].items = me.tools;
 
         this.callParent(arguments);
+
+        this.getClearButton().on('click', function () {
+            me.fireEvent('clearAllFilters');
+        });
 
         if (!this.showClearButton) {
             this.getClearButton().hide();
@@ -85,19 +82,19 @@ Ext.define('Uni.view.panel.FilterToolbar', {
         this.getContainer().on('afterlayout', 'updateContainer', this);
     },
 
-    getContainer: function() {
-       return this.down('#itemsContainer')
+    getContainer: function () {
+        return this.down('#itemsContainer')
     },
 
-    getTools: function() {
+    getTools: function () {
         return this.down('#toolsContainer')
     },
 
-    getClearButton: function() {
+    getClearButton: function () {
         return this.down('button[action="clear"]')
     },
 
-    getEmptyLabel: function() {
+    getEmptyLabel: function () {
         return this.down('#emptyLabel')
     }
 });
