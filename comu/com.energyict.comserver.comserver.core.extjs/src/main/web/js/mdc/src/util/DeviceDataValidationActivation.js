@@ -1,7 +1,8 @@
 Ext.define('Mdc.util.DeviceDataValidationActivation', {
     requires: [
         'Mdc.view.setup.device.DeviceDataValidationPanel',
-        'Mdc.view.setup.devicedatavalidation.RulesSetMainView'
+        'Mdc.view.setup.devicedatavalidation.RulesSetMainView',
+        'Mdc.model.DeviceValidation'
     ],
 
     mRID: null,
@@ -33,10 +34,8 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     view.down('#deviceDataValidationStateChangeBtn').action = res.isActive ? 'deactivate' : 'activate';
                     view.down('#deviceDataValidationStateChangeBtn').setDisabled(false);
                 } else {
-                    view.down('#statusField').setValue(res.isActive ?
-                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                        Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
-                    );
+                    var record = Ext.create('Mdc.model.DeviceValidation', res);
+                    view.down('#deviceDataValidationForm').loadRecord(record);
                     if (res.isActive) {
                         view.down('#activate').hide();
                         view.down('#deactivate').show();
