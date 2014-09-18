@@ -420,6 +420,7 @@
                 <module>../com.elster.jupiter.bootstrap</module>
                 <module>../com.elster.jupiter.bootstrap.oracle</module>
                 <module>../com.elster.jupiter.cbo</module>
+                <module>../com.elster.jupiter.config.extjs</module>
                 <module>../com.elster.jupiter.domain.util</module>
                 <module>../com.elster.jupiter.events</module>
                 <module>../com.elster.jupiter.events.rest</module>
@@ -455,6 +456,7 @@
                 <module>../com.elster.jupiter.security.thread</module>
                 <module>../com.elster.jupiter.tasks</module>
                 <module>../com.elster.jupiter.transaction</module>
+                <module>../com.elster.jupiter.unifyingjs</module>
                 <module>../com.elster.jupiter.users</module>
                 <module>../com.elster.jupiter.users.rest</module>
                 <module>../com.elster.jupiter.users.extjs</module>
