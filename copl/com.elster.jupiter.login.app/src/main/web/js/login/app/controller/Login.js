@@ -98,8 +98,7 @@ Ext.define('Login.controller.Login', {
     },
 
     loginOK: function () {
-        var me = this,
-            params = me.getController('Uni.controller.history.Router').getQueryStringValues(),
+        var params = Ext.urlDecode(location.search.substring(1)),
             page = params.page,
             referrer = document.referrer;
 
