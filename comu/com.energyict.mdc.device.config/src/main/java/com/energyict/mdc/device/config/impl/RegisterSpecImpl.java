@@ -179,4 +179,9 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
         return getDeviceConfiguration().getValidationRules(readingTypes);
     }
 
+    @Override
+    public ReadingType getReadingType() {
+        return getRegisterType().getReadingType();
+    }
+
 }

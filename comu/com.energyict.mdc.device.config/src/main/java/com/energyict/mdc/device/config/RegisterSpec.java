@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -86,4 +87,5 @@ public interface RegisterSpec extends HasId {
 
     public List<ValidationRule> getValidationRules();
 
+    ReadingType getReadingType();
 }
