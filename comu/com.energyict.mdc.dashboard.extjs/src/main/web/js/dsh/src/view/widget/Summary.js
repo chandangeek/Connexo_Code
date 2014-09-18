@@ -51,12 +51,15 @@ Ext.define('Dsh.view.widget.Summary', {
                                         label: !record.get('count') ? 0 : Math.round(!view.total ? 0 : data.get('count') * 100 / record.get('count')) + '% (' + data.get('count') + ')'
                                     });
                                     bar.render(view.getEl().down('#bar-' + pos + '-' + (idx + 1)));
-                                    var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
-                                        { property: view.record.get('alias'), value: data.get('id') }
-                                    ]});
+
+                                    var filter = {};
+                                    filter[view.record.get('alias')] = data.get('id') || record.get('id');
+                                    filter[view.record.get('alias')].split(',');
+                                    var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
                                     view.getEl().down('.item-' + pos + '  tr.child > td > a').set({ href: href });
                                 });
                             }
+
                             var bar =  Ext.widget('bar', {
                                 limit: view.total,
                                 total: view.total,
@@ -64,9 +67,10 @@ Ext.define('Dsh.view.widget.Summary', {
                                 label: Math.round(!view.total ? 0 : record.get('count') * 100 / view.total) + '% (' + record.get('count') + ')'
                             });
                             bar.render(view.getEl().down('#bar-' + pos));
-                            var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: [
-                                { property: view.record.get('alias'), value: record.get('id') }
-                            ]});
+
+                            var filter = {};
+                            filter[view.record.get('alias')] = record.get('id').split(',');
+                            var href = me.router.getRoute('workspace/datacommunication/' + me.parent).buildUrl(null, {filter: filter});
                             view.getEl().down('.item-' + pos + ' > tr > td > a').set({ href: href });
                         });
                     }

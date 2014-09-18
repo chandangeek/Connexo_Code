@@ -27,7 +27,7 @@ Ext.define('Dsh.view.widget.SideFilter', {
             items: [
                 {
                     itemId: 'current-state',
-                    name: 'state',
+                    name: 'currentStates',
                     fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.currentState', 'DSH', 'Current state'),
                     displayField: 'localizedValue',
                     valueField: 'taskStatus',

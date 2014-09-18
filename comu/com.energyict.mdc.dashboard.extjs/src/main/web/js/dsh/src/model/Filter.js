@@ -6,7 +6,7 @@ Ext.define('Dsh.model.Filter', {
     ],
     proxy: Ext.create('Uni.data.proxy.QueryStringProxy', { root: 'filter' }),
     fields: [
-        { name: 'state', type: 'auto' },
+        { name: 'currentStates', type: 'auto' },
         { name: 'latestStatus', type: 'auto' },
         { name: 'latestResult', type: 'auto' },
         { name: 'comPortPool', type: 'auto' },
