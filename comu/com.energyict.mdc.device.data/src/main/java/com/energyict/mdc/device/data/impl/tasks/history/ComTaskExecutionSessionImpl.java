@@ -1,15 +1,8 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
-
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComCommandJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -19,6 +12,14 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJourna
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.tasks.history.JournalEntryVisitor;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -84,8 +85,15 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
         return dataModel.getInstance(ComTaskExecutionSessionImpl.class).init(comSession, comTaskExecution, device, interval, successIndicator);
     }
 
-     private List<ComTaskExecutionJournalEntry> getServerComTaskExecutionJournalEntries () {
+    private List<ComTaskExecutionJournalEntry> getServerComTaskExecutionJournalEntries () {
          return Collections.unmodifiableList(this.comTaskExecutionJournalEntries);
+    }
+
+    @Override
+    protected void postNew() {
+        super.postNew();
+        HasLastComTaskExecutionSession comTaskExecution = (HasLastComTaskExecutionSession) this.comTaskExecution.get();
+        comTaskExecution.sessionCreated(this);
     }
 
     @Override
@@ -125,6 +133,11 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     @Override
     public Date getStopDate() {
         return stopDate.toDate();
+    }
+
+    @Override
+    public boolean endsAfter(ComTaskExecutionSession other) {
+        return this.getStopDate().after(other.getStopDate());
     }
 
     @Override

@@ -42,6 +42,8 @@ public interface ComTaskExecutionSession extends HasId {
 
     public Date getStopDate ();
 
+    public boolean endsAfter (ComTaskExecutionSession other);
+
     public SuccessIndicator getSuccessIndicator ();
 
     /**

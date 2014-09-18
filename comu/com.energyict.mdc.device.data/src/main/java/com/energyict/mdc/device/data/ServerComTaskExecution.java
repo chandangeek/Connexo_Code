@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPort;
@@ -13,7 +14,7 @@ import com.energyict.mdc.engine.model.ComPort;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-09-21 (15:27)
  */
-public interface ServerComTaskExecution extends ComTaskExecution {
+public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTaskExecutionSession {
     // TODO move back to impl package, mdc-all has references on this class though
 
     /**
