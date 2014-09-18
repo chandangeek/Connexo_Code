@@ -342,7 +342,7 @@
 }
 
 .ux-notification-light {
-    background-image: url($resourcesDir + 'images/fader.png');
+    background-image: url('images/shared/fader.png');
     border: 1px solid grey;
 }
 
@@ -352,12 +352,12 @@
 
 .icon-info-small {
     float: right;
-    background-image: url('images/icon-info-small.png');
+    background-image: url('images/shared/icon-info-small.png');
 }
 
 .x-grid-row-selected, .x-grid-row-over {
     .icon-info-small {
-        background-image: url('images/icon-info-small-white.png');
+        background-image: url('images/shared/icon-info-small-white.png');
     }
 }
 
@@ -376,11 +376,11 @@
 }
 
 .icon-validation-black {
-    background-image: url('images/Not-validated.png');
+    background-image: url('images/shared/Not-validated.png');
 }
 
 .icon-validation-red {
-    background-image: url('images/Suspect.png');
+    background-image: url('images/shared/Suspect.png');
 }
 
 .icon-filter {
