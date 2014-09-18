@@ -225,15 +225,8 @@ public class ComTaskImpl implements ComTask, HasId {
         while (iterator.hasNext()) {
             ProtocolTaskImpl protocolTask = iterator.next();
             if (protocolTask.getId()==protocolTaskToDelete.getId()) {
-                verifyDeleteProtocolTask();
                 iterator.remove();
             }
-        }
-    }
-
-    private void verifyDeleteProtocolTask() {
-        if (this.protocolTasks.size()==1) {
-            throw new TranslatableApplicationException(thesaurus, MessageSeeds.PROTOCOL_TASK_REQUIRED);
         }
     }
 
