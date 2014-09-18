@@ -106,6 +106,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             xtype: 'pagingtoolbarbottom',
             store: 'Dsh.store.ConnectionTasks',
             dock: 'bottom',
+            deferLoading: true,
             itemsPerPageMsg: Uni.I18n.translate('connection.widget.details.itemsPerPage', 'DSH', 'Connections per page')
         }
     ],

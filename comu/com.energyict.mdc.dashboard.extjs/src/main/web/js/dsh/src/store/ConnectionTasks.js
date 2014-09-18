@@ -29,6 +29,7 @@ Ext.define('Dsh.store.ConnectionTasks', {
 
         _.map(data, function (item, key) {
             if (item) {
+                if (!_.isArray(item)) {item = [item]}
                 filters.push({property: key, value: item});
             }
         });
@@ -56,6 +57,7 @@ Ext.define('Dsh.store.ConnectionTasks', {
             }
         }
 
+        me.clearFilter();
         me.addFilter(filters);
     }
 });
