@@ -58,7 +58,7 @@ Ext.define('Dsh.store.ConnectionTasks', {
         }
 
         me.clearFilter(true);
-        me.addFilter(filters);
+        me.addFilter(filters, false);
     }
 });
 
