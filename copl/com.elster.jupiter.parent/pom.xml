@@ -48,6 +48,11 @@
                 <version>14.0.1</version>
             </dependency>
             <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>3.0</version>
+            </dependency>
+            <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>2.1</version>
@@ -57,6 +62,11 @@
                 <artifactId>javax.annotation-api</artifactId>
                 <version>1.2</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>jsr250-api</artifactId>
+                <version>1.0</version>
             </dependency>
             <dependency>
                 <groupId>net.jcip</groupId>
@@ -90,6 +100,12 @@
                 <version>2.5</version>
             </dependency>
             <dependency>
+                <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+                <artifactId>jersey-test-framework-provider-inmemory</artifactId>
+                <version>2.5</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-core-asl</artifactId>
                 <version>1.9.13</version>
@@ -108,6 +124,32 @@
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-xc</artifactId>
                 <version>1.9.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>5.0.1.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.web</groupId>
+                <artifactId>javax.el</artifactId>
+                <version>2.2.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>hk2-api</artifactId>
+                <version>2.2.0-b21</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <scope>provided</scope>
+                <version>2.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.util.base64</groupId>
+                <artifactId>base64</artifactId>
+                <version>2.0.0</version>
             </dependency>
 
             <dependency>
@@ -144,6 +186,18 @@
                 <groupId>org.easytesting</groupId>
                 <artifactId>fest-util</artifactId>
                 <version>1.2.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.easytesting</groupId>
+                <artifactId>fest-assert-core</artifactId>
+                <version>2.0M10</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.easytesting</groupId>
+                <artifactId>fest-assert</artifactId>
+                <version>1.2</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -187,7 +241,6 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>3.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>aopalliance</artifactId>
@@ -419,27 +472,34 @@
                 <module>../com.elster.jupiter.appserver</module>
                 <module>../com.elster.jupiter.bootstrap</module>
                 <module>../com.elster.jupiter.bootstrap.oracle</module>
+                <module>../com.elster.jupiter.bpm</module>
+                <module>../com.elster.jupiter.bpm.extjs</module>
+                <module>../com.elster.jupiter.bpm.handler</module>
+                <module>../com.elster.jupiter.bpm.rest</module>
+                <module>../com.elster.jupiter.bpmissueaction</module>
                 <module>../com.elster.jupiter.cbo</module>
                 <module>../com.elster.jupiter.config.extjs</module>
                 <module>../com.elster.jupiter.domain.util</module>
+                <module>../com.elster.jupiter.extjs</module>
                 <module>../com.elster.jupiter.events</module>
                 <module>../com.elster.jupiter.events.rest</module>
-                <module>../com.elster.jupiter.config.extjs</module>
                 <module>../com.elster.jupiter.fileimport</module>
+                <module>../com.elster.jupiter.gogo</module>
                 <module>../com.elster.jupiter.http.whiteboard</module>
                 <module>../com.elster.jupiter.ids</module>
                 <module>../com.elster.jupiter.install</module>
+                <module>../com.elster.jupiter.issue</module>
+                <module>../com.elster.jupiter.issue.extjs</module>
+                <module>../com.elster.jupiter.issue.rest</module>
                 <module>../com.elster.jupiter.login.app</module>
                 <module>../com.elster.jupiter.masterjs</module>
                 <module>../com.elster.jupiter.messaging</module>
                 <module>../com.elster.jupiter.messaging.oracle</module>
                 <module>../com.elster.jupiter.metering</module>
-                <module>../com.elster.jupiter.metering.groups</module>
-                <module>../com.elster.jupiter.extjs</module>
-                <module>../com.elster.jupiter.unifyingjs</module>
-                <module>../com.elster.jupiter.metering.extjs</module>
-                <module>../com.elster.jupiter.metering.rest</module>
                 <module>../com.elster.jupiter.metering.cim</module>
+                <module>../com.elster.jupiter.metering.extjs</module>
+                <module>../com.elster.jupiter.metering.groups</module>
+                <module>../com.elster.jupiter.metering.rest</module>
                 <module>../com.elster.jupiter.nls.rest</module>
                 <module>../com.elster.jupiter.orm</module>
                 <module>../com.elster.jupiter.orm.schema.oracle</module>
@@ -447,19 +507,24 @@
                 <module>../com.elster.jupiter.parties</module>
                 <module>../com.elster.jupiter.parties.rest</module>
                 <module>../com.elster.jupiter.playground</module>
-                <module>../com.elster.jupiter.pubsub</module>
                 <module>../com.elster.jupiter.properties</module>
+                <module>../com.elster.jupiter.pubsub</module>
                 <module>../com.elster.jupiter.rest.util</module>
                 <module>../com.elster.jupiter.rest.whiteboard</module>
+                <module>../com.elster.jupiter.security.thread</module>
                 <module>../com.elster.jupiter.soap.whiteboard</module>
                 <module>../com.elster.jupiter.soap.whiteboard.cxf</module>
-                <module>../com.elster.jupiter.security.thread</module>
+                <module>../com.elster.jupiter.system.app</module>
+                <module>../com.elster.jupiter.systemadmin</module>
+                <module>../com.elster.jupiter.systemadmin.extjs</module>
+                <module>../com.elster.jupiter.systemadmin.rest</module>
                 <module>../com.elster.jupiter.tasks</module>
+                <module>../com.elster.jupiter.theme.skyline</module>
                 <module>../com.elster.jupiter.transaction</module>
                 <module>../com.elster.jupiter.unifyingjs</module>
                 <module>../com.elster.jupiter.users</module>
-                <module>../com.elster.jupiter.users.rest</module>
                 <module>../com.elster.jupiter.users.extjs</module>
+                <module>../com.elster.jupiter.users.rest</module>
                 <module>../com.elster.jupiter.util</module>
                 <module>../com.elster.jupiter.validation</module>
                 <module>../com.elster.jupiter.validators</module>
@@ -472,11 +537,41 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/web</directory>
-                    </resource>
-                </resources>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <id>add-compiled-js</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>add-resource</goal>
+                                </goals>
+                                <configuration>
+                                    <resources>
+                                        <resource>
+                                            <directory>${basedir}/src/main/web</directory>
+                                            <includes>
+                                                <include>**/*</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>maven-bundle-plugin</artifactId>
+                        <configuration>
+                            <instructions>
+                                <Include-Resource>{maven-resources}</Include-Resource>
+                            </instructions>
+                        </configuration>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
         <profile>
@@ -485,11 +580,6 @@
                 <sencha.ext.dir>${project.basedir}/../com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
             </properties>
             <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/web</directory>
-                    </resource>
-                </resources>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -553,6 +643,12 @@
                                                 <exclude>resources/resources/**/*</exclude>
                                                 <exclude>resources/sass/**/*</exclude>
                                             </excludes>
+                                        </resource>
+                                        <resource>
+                                            <directory>src/main/web</directory>
+                                            <includes>
+                                                <include>**/*</include>
+                                            </includes>
                                         </resource>
                                     </resources>
                                 </configuration>
