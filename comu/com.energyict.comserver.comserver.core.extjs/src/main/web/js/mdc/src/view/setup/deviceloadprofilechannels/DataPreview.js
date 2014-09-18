@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.numerical.DataPreview', {
+Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.deviceLoadProfileChannelDataPreview',
     itemId: 'deviceLoadProfileChannelDataPreview',
@@ -46,7 +46,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.numerical.DataPreview', {
 
     initComponent: function () {
         var me = this;
-        //me.items.items[0].removeAll();
+
+        me.items.items[0].items = [];
         me.items.items[0].items.push(
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
