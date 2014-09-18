@@ -122,7 +122,10 @@ public abstract class DashboardRESTJerseyTest extends JerseyTest {
                 bind(BreakdownFactory.class).to(BreakdownFactory.class);
                 bind(OverviewFactory.class).to(OverviewFactory.class);
                 bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class);
+                bind(SummaryInfoFactory.class).to(SummaryInfoFactory.class);
                 bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class);
+                bind(ConnectionOverviewInfoFactory.class).to(ConnectionOverviewInfoFactory.class);
+                bind(CommunicationOverviewInfoFactory.class).to(CommunicationOverviewInfoFactory.class);
             }
         });
         return resourceConfig;

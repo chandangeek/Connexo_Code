@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.ComTaskBreakdown;
@@ -22,17 +21,13 @@ import javax.ws.rs.core.MediaType;
 @Path("/communicationoverview")
 public class CommunicationOverviewResource {
 
-    private final Thesaurus thesaurus;
     private final DashboardService dashboardService;
-    private final BreakdownFactory breakdownFactory;
-    private final OverviewFactory overviewFactory;
+    private final CommunicationOverviewInfoFactory communicationOverviewInfoFactory;
 
     @Inject
-    public CommunicationOverviewResource(Thesaurus thesaurus, DashboardService dashboardService, BreakdownFactory breakdownFactory, OverviewFactory overviewFactory) {
-        this.thesaurus = thesaurus;
+    public CommunicationOverviewResource(DashboardService dashboardService, CommunicationOverviewInfoFactory communicationOverviewInfoFactory) {
         this.dashboardService = dashboardService;
-        this.breakdownFactory = breakdownFactory;
-        this.overviewFactory = overviewFactory;
+        this.communicationOverviewInfoFactory = communicationOverviewInfoFactory;
     }
 
     @GET
@@ -47,8 +42,7 @@ public class CommunicationOverviewResource {
         ComTaskBreakdown comTaskBreakdown = dashboardService.getCommunicationTasksBreakdown();
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown();
 
-        return new CommunicationOverviewInfo(summaryData, taskStatusOverview, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown,
-                breakdownFactory, overviewFactory, thesaurus);
+        return communicationOverviewInfoFactory.from(summaryData, taskStatusOverview, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown);
     }
 
 }

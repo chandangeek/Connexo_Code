@@ -19,15 +19,18 @@ import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
 import com.energyict.mdc.dashboard.rest.status.impl.BreakdownFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapResource;
+import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapResource;
+import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.dashboard.rest.status.impl.OverviewFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.SummaryInfoFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataService;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -173,6 +176,9 @@ public class DashboardApplication extends Application implements InstallService 
             bind(OverviewFactory.class).to(OverviewFactory.class);
             bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class);
             bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class);
+            bind(SummaryInfoFactory.class).to(SummaryInfoFactory.class);
+            bind(ConnectionOverviewInfoFactory.class).to(ConnectionOverviewInfoFactory.class);
+            bind(CommunicationOverviewInfoFactory.class).to(CommunicationOverviewInfoFactory.class);
         }
     }
 
