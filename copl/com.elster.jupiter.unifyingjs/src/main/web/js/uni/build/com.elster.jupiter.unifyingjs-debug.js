@@ -1479,7 +1479,11 @@ Ext.define('Uni.store.Privileges', {
     remoteFilter: false
 });
 
-
+/**
+ * @class Uni.Auth
+ *
+ * Authorization class that checks whether the currently logged-in user has privileges or not.
+ */
 Ext.define('Uni.Auth', {
     singleton: true,
     requires: ['Uni.store.Privileges'],
@@ -1500,19 +1504,18 @@ Ext.define('Uni.Auth', {
         });
     },
 
-    hasNoPrivilege : function (privilege) {
-        for (var i=0; i<Uni.store.Privileges.getCount(); i++) {
+    hasPrivilege: function (privilege) {
+        for (var i = 0; i < Uni.store.Privileges.getCount(); i++) {
             if (privilege === Uni.store.Privileges.getAt(i).get('name')) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     },
 
-    hasPrivilege : function (privilege) {
-        return !this.hasNoPrivilege(privilege);
+    hasNoPrivilege: function (privilege) {
+        return !this.hasPrivilege(privilege);
     }
-
 });
 
 /**
@@ -2403,13 +2406,20 @@ Ext.define('Uni.controller.history.EventBus', {
                 me.onHistoryChange(token);
             });
 
-            var token = Ext.util.History.getToken();
-            if (token === null || token === '') {
-                token = me.getDefaultToken();
-                Ext.util.History.add(token);
-            }
-            me.onHistoryChange(token);
+            me.checkHistoryState();
         });
+    },
+
+    checkHistoryState: function () {
+        var me = this,
+            token = Ext.util.History.getToken();
+
+        if (token === null || token === '') {
+            token = me.getDefaultToken();
+            Ext.util.History.add(token);
+        }
+
+        me.onHistoryChange(token);
     },
 
     onHistoryChange: function (token) {
@@ -2518,7 +2528,15 @@ Ext.define('Uni.model.App', {
     extend: 'Ext.data.Model',
     fields: [
         'name',
-        'url',
+        {
+            name: 'url',
+            convert: function (value, record) {
+                if (value.indexOf('#') === -1) {
+                    value += '#';
+                }
+                return value;
+            }
+        },
         'icon',
         {
             name: 'isActive',
@@ -2543,7 +2561,7 @@ Ext.define('Uni.store.Apps', {
     model: 'Uni.model.App',
     storeId: 'apps',
     singleton: true,
-    autoLoad: true,
+    autoLoad: false,
 
     proxy: {
         type: 'ajax',
@@ -2821,15 +2839,23 @@ Ext.define('Uni.controller.history.Router', {
     },
 
     getQueryString: function () {
-        var token = Ext.util.History.getToken(),
+        var token = Ext.util.History.getToken() || document.location.href.split('?')[1],
             queryStringIndex = token.indexOf('?');
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
 
+    getQueryStringValues: function () {
+        var queryString = this.getQueryString();
+        if (typeof queryString !== 'undefined') {
+            return Ext.Object.fromQueryString(this.getQueryString());
+        }
+        return {};
+    },
+
     queryParamsToString: function (obj) {
         return Ext.urlEncode(_.object(_.keys(obj), _.map(obj, function (i) {
-            return _.isString(i) ? i : Ext.JSON.encodeValue(i)
-        })))
+            return _.isString(i) ? i : Ext.JSON.encodeValue(i);
+        })));
     },
 
     /**
@@ -2924,7 +2950,7 @@ Ext.define('Uni.controller.history.Router', {
                     // fire the controller action with this route params as arguments
                     var controller = me.getController(config.controller);
 
-                    var dispatch = function() {
+                    var dispatch = function () {
                         me.fireEvent('routematch', me);
                         controller[action].apply(controller, routeArguments);
                     };
@@ -2933,7 +2959,7 @@ Ext.define('Uni.controller.history.Router', {
                     if (config.filter) {
                         Ext.ModelManager.getModel(config.filter).load(null, {
                             callback: function (record) {
-                                me.filter = record || new Dsh.model.Filter();
+                                me.filter = record || Ext.create(config.filter);
                                 dispatch();
                             }
                         });
@@ -3051,6 +3077,7 @@ Ext.define('Uni.controller.Navigation', {
             me.selectMenuItemByActiveToken();
         });
 
+        this.initApps();
         this.initMenuItems();
 
         this.control({
@@ -3068,6 +3095,10 @@ Ext.define('Uni.controller.Navigation', {
 
         this.getController('Uni.controller.history.Router').on('routematch', this.initBreadcrumbs, this);
         this.getController('Uni.controller.history.Router').on('routechange', this.initBreadcrumbs, this);
+    },
+
+    initApps: function () {
+        Uni.store.Apps.load();
     },
 
     initTitle: function (breadcrumbItem) {
@@ -3919,6 +3950,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
 
 /**
  * @class Uni.form.NestedForm
+ * TODO: Move functionality to Basic
  */
 Ext.define('Uni.form.NestedForm', {
     extend: 'Ext.form.Panel',
@@ -3937,15 +3969,30 @@ Ext.define('Uni.form.NestedForm', {
         return values;
     },
 
-    loadRecord: function (record) {
-        this.callParent(arguments);
+    setValues: function (data) {
+        this.form.setValues(data);
         this.items.each(function (item) {
-            if (!_.isEmpty(item.name) && _.has(record.getData(), item.name)) {
-                if (_.isFunction(item.setValues) && _.isObject(record.getData()[item.name])) {
-                    item.setValues(record.getData()[item.name]);
+            if (!_.isEmpty(item.name) && _.has(data, item.name)) {
+                if (_.isFunction(item.setValues) && _.isObject(data[item.name])) {
+                    item.setValues(data[item.name]);
                 }
             }
         });
+    },
+
+    loadRecord: function (record) {
+        this.form._record = record;
+        var data = this.form.hydrator ? this.form.hydrator.extract(record) : record.getData();
+        return this.setValues(data);
+    },
+
+    updateRecord: function (record) {
+        record = record || this.getRecord();
+        var data = this.getValues();
+        record.beginEdit();
+        this.form.hydrator ? this.form.hydrator.hydrate(data, record) : record.set(data);
+        record.endEdit();
+        return this;
     }
 });
 
@@ -4686,6 +4733,13 @@ Ext.define('Uni.controller.AppController', {
     applicationTitle: 'Connexo',
 
     /**
+     * @cfg {String} defaultToken
+     *
+     * The default history token the application needs to use.
+     */
+    defaultToken: '',
+
+    /**
      * @cfg {Object[]} packages
      *
      * The packages that need to be loaded in by the application.
@@ -4700,6 +4754,7 @@ Ext.define('Uni.controller.AppController', {
         me.initCrossroads();
 
         me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
+        me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
 
         me.loadControllers();
@@ -4908,23 +4963,21 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         operation.setStarted();
 
         if (!_.isUndefined(router.queryParams[me.root])) {
-            var data = Ext.JSON.decode(router.queryParams[me.root]),
-                modelData = _.object(_.pluck(data, 'property'), _.pluck(data, 'value')),
-                record;
+            var data = Ext.JSON.decode(router.queryParams[me.root]);
 
             if (this.hydrator) {
-                record = new Model();
-                this.hydrator.hydrate(modelData, record);
-            } else {
-                record = new Model(modelData);
-            }
+                var record = Ext.create(Model);
+                this.hydrator.hydrate(data, record);
 
-            operation.resultSet = Ext.create('Ext.data.ResultSet', {
-                records: [record],
-                total: 1,
-                loaded: true,
-                success: true
-            });
+                operation.resultSet = Ext.create('Ext.data.ResultSet', {
+                    records: [record],
+                    total: 1,
+                    loaded: true,
+                    success: true
+                });
+            } else {
+                operation.resultSet = me.reader.read(data);
+            }
 
             operation.setSuccessful();
         }
@@ -4959,23 +5012,16 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
 
         var data = this.hydrator
             ? this.hydrator.extract(model)
-            : model.getData(model);
+            : model.getData(true);
 
-        _.map(data, function (item, key) {
-            if (!Ext.isEmpty(item)) {
-                filter.push({
-                    property: key,
-                    value: item
-                });
-            }
-        });
+        //todo: clean data!
 
         model.commit();
 
         operation.setCompleted();
         operation.setSuccessful();
 
-        queryParams[this.root] = filter;
+        queryParams[this.root] = Ext.JSON.encode(data);
         router.getRoute().forward(null, queryParams);
     }
 });
@@ -8184,7 +8230,7 @@ Ext.define('Uni.util.QueryString', {
     },
 
     getQueryString: function () {
-        var token = Ext.util.History.getToken(),
+        var token = Ext.util.History.getToken() || document.location.href.split('?')[1],
             queryStringIndex = token.indexOf('?');
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
@@ -10200,8 +10246,7 @@ Ext.define('Uni.view.panel.FilterToolbar', {
     alias: 'widget.filter-toolbar',
     titlePosition: 'left',
     layout: {
-        type: 'hbox',
-        align: 'stretch'
+        type: 'hbox'
     },
     header: false,
     ui: 'filter-toolbar',
@@ -10242,13 +10287,16 @@ Ext.define('Uni.view.panel.FilterToolbar', {
             xtype: 'header',
             dock: 'left'
         },
-        {	
-        	itemId : 'Reset',
-            xtype: 'button',
-            text: 'Clear all',
-            action: 'clear',
-            disabled: true,
-            dock: 'right'
+        {
+        	xtype: 'container',
+            dock: 'right',
+            items: {
+                itemId : 'Reset',
+                xtype: 'button',
+                text: 'Clear all',
+                action: 'clear',
+                disabled: true
+            }
         }
     ],
 
