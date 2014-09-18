@@ -3,11 +3,13 @@ Ext.define('Mdc.model.CommunicationTask',{
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name:'name', type: 'string', useNull: true},
-        {name:'inUse', type: 'boolean', useNull: true}
+        {name:'inUse', type: 'boolean', useNull: true},
+        {name:'commands', type: 'auto', useNull: true},
+        {name:'messages', type: 'auto', useNull: true}
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/cts/comtasks',
+        url: '/api/cts/comtasks',
         reader: {
             type: 'json'
         }

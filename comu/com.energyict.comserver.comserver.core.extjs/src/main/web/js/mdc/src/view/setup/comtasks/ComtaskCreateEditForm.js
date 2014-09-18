@@ -2,38 +2,33 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comtaskCreateEdit',
     requires: [
-        'Mdc.view.setup.comtasks.ComtaskCommand'
+        'Mdc.view.setup.comtasks.ComtaskCommand',
+        'Uni.view.grid.ConnectedGrid'
     ],
+
     content: [
         {
             xtype: 'form',
             ui: 'large',
+            defaults: {
+                labelWidth: 200
+            },
             items: [
                 {
+                    xtype: 'uni-form-error-message',
                     itemId: 'errors',
-                    name: 'errors',
-                    layout: 'hbox',
-                    margin: '0 0 20 100',
-                    hidden: true,
-                    defaults: {
-                        xtype: 'container',
-                        cls: 'isu-error-panel'
-                    }
+                    hidden: true
                 },
                 {
                     xtype: 'textfield',
                     name: 'name',
                     fieldLabel: Uni.I18n.translate('comtask.name', 'MDC', 'Name'),
                     required: true,
-                    allowBlank: false,
-                    labelWidth: 200,
                     width: 900
                 },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('comtask.commands', 'MDC', 'Commands'),
-                    labelWidth: 200,
-                    required: true,
                     items: [
                         {
                           xtype: 'container',
@@ -66,6 +61,31 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                             ]
                         }
                     ]
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('comtask.messages', 'MDC', 'Messages'),
+                    items:[
+                        {
+                            xtype: 'displayfield',
+                            value: Uni.I18n.translate('comtask.messages.text', 'MDC', 'Send pending messages of these message categories every time this communication task executes')
+                        },
+                        {
+                            xtype: 'connected-grid',
+                            itemId: 'messagesConnectedGrid',
+                            allItemsTitle: Uni.I18n.translate('comtask.message.categories', 'MDC', 'Message categories'),
+                            allItemsStoreName: 'Mdc.store.MessageCategories',
+                            selectedItemsTitle: Uni.I18n.translate('comtask.selected.message.categories', 'MDC', 'Selected message categories'),
+                            selectedItemsStoreName: 'Mdc.store.SelectedMessageCategories',
+                            displayedColumn: 'name'
+                        }
+                    ]
+                },
+                {
+                    xtype: 'container',
+                    margin: '-25 0 0 215',
+                    itemId: 'protocolTasksErrorMessage',
+                    hidden: true
                 },
                 {
                     xtype: 'toolbar',
