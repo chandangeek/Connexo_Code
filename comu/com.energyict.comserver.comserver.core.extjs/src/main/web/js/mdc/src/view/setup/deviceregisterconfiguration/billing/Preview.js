@@ -2,11 +2,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
     extend: 'Mdc.view.setup.deviceregisterconfiguration.GeneralPreview',
     alias: 'widget.deviceRegisterConfigurationPreview-billing',
     itemId: 'deviceRegisterConfigurationPreview',
+    router: null,
 
     requires: [
         'Mdc.view.setup.deviceregisterconfiguration.ActionMenu',
         'Uni.form.field.ObisDisplay',
-        'Uni.form.field.ReadingTypeDisplay'
+        'Uni.form.field.ReadingTypeDisplay',
+        'Mdc.view.setup.deviceregisterconfiguration.ValidationPreview'
     ],
 
     initComponent: function () {
@@ -100,6 +102,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                                 }
                             }
                         ]
+                    },
+                    {
+                        xtype: 'deviceregisterdetailspreview-validation',
+                        router: me.router
                     }
                 ]
             }
