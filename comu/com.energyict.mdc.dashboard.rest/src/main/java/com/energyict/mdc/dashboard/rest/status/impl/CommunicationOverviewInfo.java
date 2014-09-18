@@ -41,7 +41,7 @@ public class CommunicationOverviewInfo {
             DeviceTypeBreakdown deviceTypeBreakdown,
             BreakdownFactory breakdownFactory,
             OverviewFactory overviewFactory,
-            Thesaurus thesaurus) throws Exception {
+            Thesaurus thesaurus) {
 
 
         overviews=new ArrayList<>(2);
