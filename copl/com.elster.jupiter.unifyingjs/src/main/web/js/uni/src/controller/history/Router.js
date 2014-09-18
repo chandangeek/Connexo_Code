@@ -244,7 +244,7 @@ Ext.define('Uni.controller.history.Router', {
                     if (config.filter) {
                         Ext.ModelManager.getModel(config.filter).load(null, {
                             callback: function (record) {
-                                me.filter = record || new Dsh.model.Filter();
+                                me.filter = record || Ext.create(config.filter);
                                 dispatch();
                             }
                         });
