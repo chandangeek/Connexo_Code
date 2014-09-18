@@ -308,7 +308,7 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testGetValidationStatusOnEmptyList() {
-        assertThat(validationService.getValidationStatus(channel1, Collections.<BaseReading>emptyList())).isEmpty();
+        assertThat(validationService.getEvaluator().getValidationStatus(channel1, Collections.<BaseReading>emptyList())).isEmpty();
     }
 
     @Test
@@ -330,7 +330,7 @@ public class ValidationServiceImplTest {
 
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Collections.<ChannelValidation>emptyList());
 
-        List<DataValidationStatus> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading));
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading));
         assertThat(validationStatus).hasSize(1);
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate);
         assertThat(validationStatus.get(0).completelyValidated()).isFalse();
@@ -341,7 +341,7 @@ public class ValidationServiceImplTest {
         when(channelValidation.getLastChecked()).thenReturn(new Date(0));
         setupValidationRuleSet(channelValidation, channel1, true);
 
-        validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading));
+        validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading));
         assertThat(validationStatus).hasSize(1);
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate);
         assertThat(validationStatus.get(0).completelyValidated()).isFalse();
@@ -369,7 +369,7 @@ public class ValidationServiceImplTest {
         setupValidationRuleSet(channelValidation, channel1, true);
 
 // !! remark that the order of the reading is by purpose not chronological !!
-        List<DataValidationStatus> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading2, reading1));
         assertThat(validationStatus).hasSize(2);
         // reading2 has not be validated yet
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate2);
@@ -407,7 +407,7 @@ public class ValidationServiceImplTest {
         setupValidationRuleSet(channelValidation2, channel1, true);
 
 // !! remark that the order of the reading is by purpose not chronological !!
-        List<DataValidationStatus> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading2, reading1));
         assertThat(validationStatus).hasSize(2);
         // reading2 has not be validated yet
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate2);
@@ -449,7 +449,7 @@ public class ValidationServiceImplTest {
         setupValidationRuleSet(channelValidation2, channel1, true);
 
 // !! remark that the order of the reading is by purpose not chronological !!
-        List<DataValidationStatus> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading2, reading1));
         assertThat(validationStatus).hasSize(2);
         // reading2 has not be validated yet
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate2);
@@ -493,7 +493,7 @@ public class ValidationServiceImplTest {
         setupValidationRuleSet(channelValidation1, channel1, true, readingQualityType1, readingQualityType2);
 
 // !! remark that the order of the reading is by purpose not chronological !!
-        List<DataValidationStatus> validationStatus = validationService.getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading2, reading1));
         assertThat(validationStatus).hasSize(2);
         // reading2 is OK
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate2);
